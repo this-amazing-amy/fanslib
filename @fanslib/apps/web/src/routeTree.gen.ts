@@ -8,21 +8,33 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { createServerRootRoute } from '@tanstack/react-start/server'
-
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TestRouteImport } from './routes/test'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SettingsIndexRouteImport } from './routes/settings/index'
 import { Route as PostsIndexRouteImport } from './routes/posts/index'
 import { Route as MediaIndexRouteImport } from './routes/media/index'
 import { Route as ChannelsIndexRouteImport } from './routes/channels/index'
 import { Route as CalendarIndexRouteImport } from './routes/calendar/index'
-import { ServerRoute as ApiShootsServerRouteImport } from './routes/api/shoots'
-import { ServerRoute as ApiMediaServerRouteImport } from './routes/api/media'
-import { ServerRoute as ApiTrpcSplatServerRouteImport } from './routes/api/trpc/$'
+import { Route as ApiTagDimensionsRouteImport } from './routes/api/tag-dimensions'
+import { Route as ApiTagDefinitionsRouteImport } from './routes/api/tag-definitions'
+import { Route as ApiSubredditsRouteImport } from './routes/api/subreddits'
+import { Route as ApiSnippetsRouteImport } from './routes/api/snippets'
+import { Route as ApiShootsRouteImport } from './routes/api/shoots'
+import { Route as ApiPostsRouteImport } from './routes/api/posts'
+import { Route as ApiMediaTagsRouteImport } from './routes/api/media-tags'
+import { Route as ApiMediaRouteImport } from './routes/api/media'
+import { Route as ApiHashtagsRouteImport } from './routes/api/hashtags'
+import { Route as ApiFilterPresetsRouteImport } from './routes/api/filter-presets'
+import { Route as ApiContentSchedulesRouteImport } from './routes/api/content-schedules'
+import { Route as ApiChannelsRouteImport } from './routes/api/channels'
+import { Route as ApiTrpcSplatRouteImport } from './routes/api/trpc/$'
 
-const rootServerRouteImport = createServerRootRoute()
-
+const TestRoute = TestRouteImport.update({
+  id: '/test',
+  path: '/test',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -53,102 +65,240 @@ const CalendarIndexRoute = CalendarIndexRouteImport.update({
   path: '/calendar/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiShootsServerRoute = ApiShootsServerRouteImport.update({
+const ApiTagDimensionsRoute = ApiTagDimensionsRouteImport.update({
+  id: '/api/tag-dimensions',
+  path: '/api/tag-dimensions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTagDefinitionsRoute = ApiTagDefinitionsRouteImport.update({
+  id: '/api/tag-definitions',
+  path: '/api/tag-definitions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSubredditsRoute = ApiSubredditsRouteImport.update({
+  id: '/api/subreddits',
+  path: '/api/subreddits',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSnippetsRoute = ApiSnippetsRouteImport.update({
+  id: '/api/snippets',
+  path: '/api/snippets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiShootsRoute = ApiShootsRouteImport.update({
   id: '/api/shoots',
   path: '/api/shoots',
-  getParentRoute: () => rootServerRouteImport,
+  getParentRoute: () => rootRouteImport,
 } as any)
-const ApiMediaServerRoute = ApiMediaServerRouteImport.update({
+const ApiPostsRoute = ApiPostsRouteImport.update({
+  id: '/api/posts',
+  path: '/api/posts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMediaTagsRoute = ApiMediaTagsRouteImport.update({
+  id: '/api/media-tags',
+  path: '/api/media-tags',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMediaRoute = ApiMediaRouteImport.update({
   id: '/api/media',
   path: '/api/media',
-  getParentRoute: () => rootServerRouteImport,
+  getParentRoute: () => rootRouteImport,
 } as any)
-const ApiTrpcSplatServerRoute = ApiTrpcSplatServerRouteImport.update({
+const ApiHashtagsRoute = ApiHashtagsRouteImport.update({
+  id: '/api/hashtags',
+  path: '/api/hashtags',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiFilterPresetsRoute = ApiFilterPresetsRouteImport.update({
+  id: '/api/filter-presets',
+  path: '/api/filter-presets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiContentSchedulesRoute = ApiContentSchedulesRouteImport.update({
+  id: '/api/content-schedules',
+  path: '/api/content-schedules',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChannelsRoute = ApiChannelsRouteImport.update({
+  id: '/api/channels',
+  path: '/api/channels',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTrpcSplatRoute = ApiTrpcSplatRouteImport.update({
   id: '/api/trpc/$',
   path: '/api/trpc/$',
-  getParentRoute: () => rootServerRouteImport,
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/test': typeof TestRoute
+  '/api/channels': typeof ApiChannelsRoute
+  '/api/content-schedules': typeof ApiContentSchedulesRoute
+  '/api/filter-presets': typeof ApiFilterPresetsRoute
+  '/api/hashtags': typeof ApiHashtagsRoute
+  '/api/media': typeof ApiMediaRoute
+  '/api/media-tags': typeof ApiMediaTagsRoute
+  '/api/posts': typeof ApiPostsRoute
+  '/api/shoots': typeof ApiShootsRoute
+  '/api/snippets': typeof ApiSnippetsRoute
+  '/api/subreddits': typeof ApiSubredditsRoute
+  '/api/tag-definitions': typeof ApiTagDefinitionsRoute
+  '/api/tag-dimensions': typeof ApiTagDimensionsRoute
   '/calendar': typeof CalendarIndexRoute
   '/channels': typeof ChannelsIndexRoute
   '/media': typeof MediaIndexRoute
   '/posts': typeof PostsIndexRoute
   '/settings': typeof SettingsIndexRoute
+  '/api/trpc/$': typeof ApiTrpcSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/test': typeof TestRoute
+  '/api/channels': typeof ApiChannelsRoute
+  '/api/content-schedules': typeof ApiContentSchedulesRoute
+  '/api/filter-presets': typeof ApiFilterPresetsRoute
+  '/api/hashtags': typeof ApiHashtagsRoute
+  '/api/media': typeof ApiMediaRoute
+  '/api/media-tags': typeof ApiMediaTagsRoute
+  '/api/posts': typeof ApiPostsRoute
+  '/api/shoots': typeof ApiShootsRoute
+  '/api/snippets': typeof ApiSnippetsRoute
+  '/api/subreddits': typeof ApiSubredditsRoute
+  '/api/tag-definitions': typeof ApiTagDefinitionsRoute
+  '/api/tag-dimensions': typeof ApiTagDimensionsRoute
   '/calendar': typeof CalendarIndexRoute
   '/channels': typeof ChannelsIndexRoute
   '/media': typeof MediaIndexRoute
   '/posts': typeof PostsIndexRoute
   '/settings': typeof SettingsIndexRoute
+  '/api/trpc/$': typeof ApiTrpcSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/test': typeof TestRoute
+  '/api/channels': typeof ApiChannelsRoute
+  '/api/content-schedules': typeof ApiContentSchedulesRoute
+  '/api/filter-presets': typeof ApiFilterPresetsRoute
+  '/api/hashtags': typeof ApiHashtagsRoute
+  '/api/media': typeof ApiMediaRoute
+  '/api/media-tags': typeof ApiMediaTagsRoute
+  '/api/posts': typeof ApiPostsRoute
+  '/api/shoots': typeof ApiShootsRoute
+  '/api/snippets': typeof ApiSnippetsRoute
+  '/api/subreddits': typeof ApiSubredditsRoute
+  '/api/tag-definitions': typeof ApiTagDefinitionsRoute
+  '/api/tag-dimensions': typeof ApiTagDimensionsRoute
   '/calendar/': typeof CalendarIndexRoute
   '/channels/': typeof ChannelsIndexRoute
   '/media/': typeof MediaIndexRoute
   '/posts/': typeof PostsIndexRoute
   '/settings/': typeof SettingsIndexRoute
+  '/api/trpc/$': typeof ApiTrpcSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/calendar' | '/channels' | '/media' | '/posts' | '/settings'
+  fullPaths:
+    | '/'
+    | '/test'
+    | '/api/channels'
+    | '/api/content-schedules'
+    | '/api/filter-presets'
+    | '/api/hashtags'
+    | '/api/media'
+    | '/api/media-tags'
+    | '/api/posts'
+    | '/api/shoots'
+    | '/api/snippets'
+    | '/api/subreddits'
+    | '/api/tag-definitions'
+    | '/api/tag-dimensions'
+    | '/calendar'
+    | '/channels'
+    | '/media'
+    | '/posts'
+    | '/settings'
+    | '/api/trpc/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/calendar' | '/channels' | '/media' | '/posts' | '/settings'
+  to:
+    | '/'
+    | '/test'
+    | '/api/channels'
+    | '/api/content-schedules'
+    | '/api/filter-presets'
+    | '/api/hashtags'
+    | '/api/media'
+    | '/api/media-tags'
+    | '/api/posts'
+    | '/api/shoots'
+    | '/api/snippets'
+    | '/api/subreddits'
+    | '/api/tag-definitions'
+    | '/api/tag-dimensions'
+    | '/calendar'
+    | '/channels'
+    | '/media'
+    | '/posts'
+    | '/settings'
+    | '/api/trpc/$'
   id:
     | '__root__'
     | '/'
+    | '/test'
+    | '/api/channels'
+    | '/api/content-schedules'
+    | '/api/filter-presets'
+    | '/api/hashtags'
+    | '/api/media'
+    | '/api/media-tags'
+    | '/api/posts'
+    | '/api/shoots'
+    | '/api/snippets'
+    | '/api/subreddits'
+    | '/api/tag-definitions'
+    | '/api/tag-dimensions'
     | '/calendar/'
     | '/channels/'
     | '/media/'
     | '/posts/'
     | '/settings/'
+    | '/api/trpc/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  TestRoute: typeof TestRoute
+  ApiChannelsRoute: typeof ApiChannelsRoute
+  ApiContentSchedulesRoute: typeof ApiContentSchedulesRoute
+  ApiFilterPresetsRoute: typeof ApiFilterPresetsRoute
+  ApiHashtagsRoute: typeof ApiHashtagsRoute
+  ApiMediaRoute: typeof ApiMediaRoute
+  ApiMediaTagsRoute: typeof ApiMediaTagsRoute
+  ApiPostsRoute: typeof ApiPostsRoute
+  ApiShootsRoute: typeof ApiShootsRoute
+  ApiSnippetsRoute: typeof ApiSnippetsRoute
+  ApiSubredditsRoute: typeof ApiSubredditsRoute
+  ApiTagDefinitionsRoute: typeof ApiTagDefinitionsRoute
+  ApiTagDimensionsRoute: typeof ApiTagDimensionsRoute
   CalendarIndexRoute: typeof CalendarIndexRoute
   ChannelsIndexRoute: typeof ChannelsIndexRoute
   MediaIndexRoute: typeof MediaIndexRoute
   PostsIndexRoute: typeof PostsIndexRoute
   SettingsIndexRoute: typeof SettingsIndexRoute
-}
-export interface FileServerRoutesByFullPath {
-  '/api/media': typeof ApiMediaServerRoute
-  '/api/shoots': typeof ApiShootsServerRoute
-  '/api/trpc/$': typeof ApiTrpcSplatServerRoute
-}
-export interface FileServerRoutesByTo {
-  '/api/media': typeof ApiMediaServerRoute
-  '/api/shoots': typeof ApiShootsServerRoute
-  '/api/trpc/$': typeof ApiTrpcSplatServerRoute
-}
-export interface FileServerRoutesById {
-  __root__: typeof rootServerRouteImport
-  '/api/media': typeof ApiMediaServerRoute
-  '/api/shoots': typeof ApiShootsServerRoute
-  '/api/trpc/$': typeof ApiTrpcSplatServerRoute
-}
-export interface FileServerRouteTypes {
-  fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths: '/api/media' | '/api/shoots' | '/api/trpc/$'
-  fileServerRoutesByTo: FileServerRoutesByTo
-  to: '/api/media' | '/api/shoots' | '/api/trpc/$'
-  id: '__root__' | '/api/media' | '/api/shoots' | '/api/trpc/$'
-  fileServerRoutesById: FileServerRoutesById
-}
-export interface RootServerRouteChildren {
-  ApiMediaServerRoute: typeof ApiMediaServerRoute
-  ApiShootsServerRoute: typeof ApiShootsServerRoute
-  ApiTrpcSplatServerRoute: typeof ApiTrpcSplatServerRoute
+  ApiTrpcSplatRoute: typeof ApiTrpcSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/test': {
+      id: '/test'
+      path: '/test'
+      fullPath: '/test'
+      preLoaderRoute: typeof TestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -191,50 +341,131 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CalendarIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-  }
-}
-declare module '@tanstack/react-start/server' {
-  interface ServerFileRoutesByPath {
+    '/api/tag-dimensions': {
+      id: '/api/tag-dimensions'
+      path: '/api/tag-dimensions'
+      fullPath: '/api/tag-dimensions'
+      preLoaderRoute: typeof ApiTagDimensionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tag-definitions': {
+      id: '/api/tag-definitions'
+      path: '/api/tag-definitions'
+      fullPath: '/api/tag-definitions'
+      preLoaderRoute: typeof ApiTagDefinitionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/subreddits': {
+      id: '/api/subreddits'
+      path: '/api/subreddits'
+      fullPath: '/api/subreddits'
+      preLoaderRoute: typeof ApiSubredditsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/snippets': {
+      id: '/api/snippets'
+      path: '/api/snippets'
+      fullPath: '/api/snippets'
+      preLoaderRoute: typeof ApiSnippetsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/shoots': {
       id: '/api/shoots'
       path: '/api/shoots'
       fullPath: '/api/shoots'
-      preLoaderRoute: typeof ApiShootsServerRouteImport
-      parentRoute: typeof rootServerRouteImport
+      preLoaderRoute: typeof ApiShootsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/posts': {
+      id: '/api/posts'
+      path: '/api/posts'
+      fullPath: '/api/posts'
+      preLoaderRoute: typeof ApiPostsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/media-tags': {
+      id: '/api/media-tags'
+      path: '/api/media-tags'
+      fullPath: '/api/media-tags'
+      preLoaderRoute: typeof ApiMediaTagsRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/media': {
       id: '/api/media'
       path: '/api/media'
       fullPath: '/api/media'
-      preLoaderRoute: typeof ApiMediaServerRouteImport
-      parentRoute: typeof rootServerRouteImport
+      preLoaderRoute: typeof ApiMediaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/hashtags': {
+      id: '/api/hashtags'
+      path: '/api/hashtags'
+      fullPath: '/api/hashtags'
+      preLoaderRoute: typeof ApiHashtagsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/filter-presets': {
+      id: '/api/filter-presets'
+      path: '/api/filter-presets'
+      fullPath: '/api/filter-presets'
+      preLoaderRoute: typeof ApiFilterPresetsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/content-schedules': {
+      id: '/api/content-schedules'
+      path: '/api/content-schedules'
+      fullPath: '/api/content-schedules'
+      preLoaderRoute: typeof ApiContentSchedulesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/channels': {
+      id: '/api/channels'
+      path: '/api/channels'
+      fullPath: '/api/channels'
+      preLoaderRoute: typeof ApiChannelsRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/trpc/$': {
       id: '/api/trpc/$'
       path: '/api/trpc/$'
       fullPath: '/api/trpc/$'
-      preLoaderRoute: typeof ApiTrpcSplatServerRouteImport
-      parentRoute: typeof rootServerRouteImport
+      preLoaderRoute: typeof ApiTrpcSplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  TestRoute: TestRoute,
+  ApiChannelsRoute: ApiChannelsRoute,
+  ApiContentSchedulesRoute: ApiContentSchedulesRoute,
+  ApiFilterPresetsRoute: ApiFilterPresetsRoute,
+  ApiHashtagsRoute: ApiHashtagsRoute,
+  ApiMediaRoute: ApiMediaRoute,
+  ApiMediaTagsRoute: ApiMediaTagsRoute,
+  ApiPostsRoute: ApiPostsRoute,
+  ApiShootsRoute: ApiShootsRoute,
+  ApiSnippetsRoute: ApiSnippetsRoute,
+  ApiSubredditsRoute: ApiSubredditsRoute,
+  ApiTagDefinitionsRoute: ApiTagDefinitionsRoute,
+  ApiTagDimensionsRoute: ApiTagDimensionsRoute,
   CalendarIndexRoute: CalendarIndexRoute,
   ChannelsIndexRoute: ChannelsIndexRoute,
   MediaIndexRoute: MediaIndexRoute,
   PostsIndexRoute: PostsIndexRoute,
   SettingsIndexRoute: SettingsIndexRoute,
+  ApiTrpcSplatRoute: ApiTrpcSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-const rootServerRouteChildren: RootServerRouteChildren = {
-  ApiMediaServerRoute: ApiMediaServerRoute,
-  ApiShootsServerRoute: ApiShootsServerRoute,
-  ApiTrpcSplatServerRoute: ApiTrpcSplatServerRoute,
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
 }
-export const serverRouteTree = rootServerRouteImport
-  ._addFileChildren(rootServerRouteChildren)
-  ._addFileTypes<FileServerRouteTypes>()

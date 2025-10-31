@@ -10,10 +10,12 @@ export const shootsRouter = router({
     .mutation(async ({ ctx, input }) => {
       const result = await ctx.db.transaction(async (tx) => {
         const txid = await generateTxId(tx);
-        console.log(input);
+
         const [newItem] = await tx
           .insert(shootsTable)
-          .values(input)
+          .values({
+            ...input,
+          })
           .returning();
         return { item: newItem, txid };
       });
@@ -24,7 +26,7 @@ export const shootsRouter = router({
   update: procedure
     .input(
       z.object({
-        id: z.number(),
+        id: z.uuid(),
         data: updateShootSchema,
       })
     )
@@ -52,7 +54,7 @@ export const shootsRouter = router({
     }),
 
   delete: procedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.uuid() }))
     .mutation(async ({ ctx, input }) => {
       const result = await ctx.db.transaction(async (tx) => {
         const txid = await generateTxId(tx);

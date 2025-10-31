@@ -1,13 +1,14 @@
-import { createServerFileRoute } from '@tanstack/react-start/server';
+import { createFileRoute } from '@tanstack/react-router';
 import { prepareElectricUrl, proxyElectricRequest } from '~/lib/electric-proxy';
 
-const serve = async ({ request }: { request: Request }) => {
-  const originUrl = prepareElectricUrl(request.url);
-  originUrl.searchParams.set('table', 'media');
-  // originUrl.searchParams.set("where", filter);
-  return proxyElectricRequest(originUrl);
-};
-
-export const ServerRoute = createServerFileRoute('/api/media').methods({
-  GET: serve,
-});
+export const Route = createFileRoute('/api/media')({
+  server: {
+    handlers: {
+      GET: async ({ request }: { request: Request }) => {
+        const originUrl = prepareElectricUrl(request.url);
+        originUrl.searchParams.set('table', 'media');
+        return proxyElectricRequest(originUrl);
+      },
+    }
+  }
+})

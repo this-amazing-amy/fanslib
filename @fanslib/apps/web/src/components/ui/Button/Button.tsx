@@ -1,50 +1,64 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import { forwardRef, useRef } from 'react';
+import type { AriaButtonProps } from 'react-aria';
+import { useButton } from 'react-aria';
+import { cn } from '~/lib/utils';
 
-export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: 'primary' | 'secondary' | 'ghost';
-  size?: 'sm' | 'md' | 'lg';
-  children: ReactNode;
+export type ButtonProps = AriaButtonProps & {
+  variant?: 'primary' | 'secondary' | 'ghost' | 'error' | 'success' | 'warning' | 'info';
+  size?: 'xs' | 'sm' | 'md' | 'lg';
   isLoading?: boolean;
+  children: ReactNode;
+  className?: string;
 };
 
-export const Button = ({
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
   variant = 'primary',
   size = 'md',
   children,
   isLoading = false,
-  disabled,
-  className = '',
+  className,
   ...props
-}: ButtonProps) => {
-  const baseClasses =
-    'btn font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
+}, forwardedRef) => {
+  const internalRef = useRef<HTMLButtonElement>(null);
+  const ref = forwardedRef ?? internalRef;
+  const { buttonProps, isPressed } = useButton(
+    { ...props, isDisabled: props.isDisabled ?? isLoading },
+    ref as React.RefObject<HTMLButtonElement>
+  );
 
   const variantClasses = {
     primary: 'btn-primary',
     secondary: 'btn-secondary',
     ghost: 'btn-ghost',
+    error: 'btn-error',
+    success: 'btn-success',
+    warning: 'btn-warning',
+    info: 'btn-info',
   };
 
   const sizeClasses = {
+    xs: 'btn-xs',
     sm: 'btn-sm',
     md: 'btn-md',
     lg: 'btn-lg',
   };
 
-  const classes = [
-    baseClasses,
-    variantClasses[variant],
-    sizeClasses[size],
-    className,
-  ]
-    .filter(Boolean)
-    .join(' ');
-
   return (
-    <button className={classes} disabled={disabled ?? isLoading} {...props}>
+    <button
+      {...buttonProps}
+      ref={ref as React.RefObject<HTMLButtonElement>}
+      className={cn(
+        'btn',
+        variantClasses[variant],
+        sizeClasses[size],
+        isPressed && 'btn-active',
+        className
+      )}
+    >
       {isLoading ? (
         <>
-          <span className='loading loading-spinner loading-sm'></span>
+          <span className="loading loading-spinner loading-sm" />
           Loading...
         </>
       ) : (
@@ -52,4 +66,6 @@ export const Button = ({
       )}
     </button>
   );
-};
+});
+
+Button.displayName = 'Button';

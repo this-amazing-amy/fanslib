@@ -52,7 +52,7 @@ export const mediaRouter = router({
   update: procedure
     .input(
       z.object({
-        id: z.number(),
+        id: z.string().uuid(),
         data: updateMediaSchema,
       })
     )
@@ -79,7 +79,7 @@ export const mediaRouter = router({
     }),
 
   delete: procedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
       const result = await ctx.db.transaction(async (tx) => {
         const txid = await generateTxId(tx);

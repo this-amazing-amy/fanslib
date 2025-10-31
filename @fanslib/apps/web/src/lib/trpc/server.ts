@@ -1,7 +1,7 @@
 import { initTRPC } from '@trpc/server';
 import { sql } from 'drizzle-orm';
 import superjson from 'superjson';
-import type { db } from '~/db/connection';
+import type { db } from '~/lib/db';
 
 export type Context = {
   db: typeof db;

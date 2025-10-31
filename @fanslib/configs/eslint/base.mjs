@@ -2,12 +2,10 @@ import js from '@eslint/js';
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import functional from 'eslint-plugin-functional';
-import importPlugin from 'eslint-plugin-import';
 import preferArrowFunctions from 'eslint-plugin-prefer-arrow-functions';
 
 export default [
   js.configs.recommended,
-  functional.configs.externalTypeScriptRecommended,
   {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
@@ -29,7 +27,7 @@ export default [
     plugins: {
       '@typescript-eslint': tseslint,
       'prefer-arrow-functions': preferArrowFunctions,
-      import: importPlugin,
+      functional: functional,
     },
     rules: {
       // ESLint recommended overrides for TypeScript
@@ -84,9 +82,6 @@ export default [
           singleReturnOnly: false,
         },
       ],
-
-      // Import rules
-      'import/no-duplicates': 'error',
     },
   },
 ];

@@ -6,7 +6,7 @@ fanslib.localhost {
 }
 
 # Network access
-192.168.69.103 {
+192.168.69.102 {
   reverse_proxy localhost:5173
   encode {
     gzip

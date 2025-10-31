@@ -1,24 +1,23 @@
 {
   "name": "@fanslib/db",
-  "module": "index.ts",
+  "main": "src/index.ts",
   "type": "module",
   "scripts": {
     "lint": "eslint src",
     "typecheck": "tsc",
     "format": "prettier --write . --config .prettierrc.cjs",
     "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "drizzle-kit": "latest"
   },
   "peerDependencies": {
-    "typescript": "^5"
-  },
-  "dependencies": {
-    "drizzle-orm": "^0.44.5",
+    "typescript": "^5",
+    "drizzle-orm": ">=0.43.1 <0.50",
     "drizzle-zod": "^0.8.3",
-    "zod": "4"
+    "zod": "^3.25.0 || ^4.0.0"
   }
 }
