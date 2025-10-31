@@ -19,6 +19,7 @@
   "dependencies": {
     "@electric-sql/client": "^1.0.10",
     "@fanslib/db": "workspace:*",
+    "@internationalized/date": "^3.10.0",
     "@standard-schema/spec": "^1.0.0",
     "@tanstack/electric-db-collection": "^0.1.23",
     "@tanstack/react-db": "^0.1.21",

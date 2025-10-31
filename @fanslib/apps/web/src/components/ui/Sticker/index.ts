@@ -1,0 +1,3 @@
+export { Sticker } from './Sticker';
+
+
