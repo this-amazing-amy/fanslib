@@ -4,7 +4,6 @@ import viteReact from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import tsConfigPaths from 'vite-tsconfig-paths';
-import { caddyPlugin } from './src/vite-plugin-caddy';
 
 export default defineConfig({
   plugins: [
@@ -14,7 +13,6 @@ export default defineConfig({
     tailwindcss(),
     tanstackStart({ customViteReactPlugin: true }),
     viteReact(),
-    caddyPlugin(),
     nodePolyfills(),
   ],
 });

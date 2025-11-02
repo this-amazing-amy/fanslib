@@ -1,4 +1,4 @@
-import { findRedgifsURL } from "../api-postpone/operations";
+import { findRedgifsURL } from "../api-postpone/operations/redgifs/find-url";
 import { CHANNEL_TYPES } from "../channels/channelTypes";
 import { fetchChannelsByType, fetchSubredditById } from "../channels/operations";
 import { getMediaById } from "../library/operations";

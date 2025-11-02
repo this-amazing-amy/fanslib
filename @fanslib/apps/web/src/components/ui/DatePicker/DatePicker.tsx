@@ -4,7 +4,7 @@ import type { AriaDatePickerProps, DateValue } from 'react-aria';
 import { useDatePicker, useDateSegment } from 'react-aria';
 import type { DateFieldState, DateSegment } from 'react-stately';
 import { useDatePickerState } from 'react-stately';
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/cn';
 import { Button } from '../Button';
 import { Calendar } from '../Calendar';
 

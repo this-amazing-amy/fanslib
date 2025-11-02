@@ -1,6 +1,6 @@
-import { Info, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Info, XCircle } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/cn';
 
 export type AlertProps = {
   variant?: 'info' | 'success' | 'warning' | 'error';

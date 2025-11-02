@@ -3,7 +3,7 @@ import type { AriaTabListProps, AriaTabPanelProps } from 'react-aria';
 import { useTab, useTabList, useTabPanel } from 'react-aria';
 import type { Node, TabListState } from 'react-stately';
 import { Item, useTabListState } from 'react-stately';
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/cn';
 
 export type TabsProps<T extends object> = AriaTabListProps<T> & {
   className?: string;

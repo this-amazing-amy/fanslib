@@ -3,9 +3,9 @@ import { useEffect, useRef, useState } from 'react';
 import type { AriaDialogProps } from 'react-aria';
 import { FocusScope, OverlayContainer, useDialog, useModalOverlay, usePreventScroll } from 'react-aria';
 import type { OverlayTriggerState } from 'react-stately';
-import { cn } from '~/lib/utils';
-import { Button } from '../Button';
+import { cn } from '~/lib/cn';
 import type { ButtonProps } from '../Button';
+import { Button } from '../Button';
 
 export type AlertDialogProps = AriaDialogProps & {
   state: OverlayTriggerState;

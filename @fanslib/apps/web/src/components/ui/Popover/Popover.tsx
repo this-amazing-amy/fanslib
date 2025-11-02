@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { AriaPopoverProps, Placement } from 'react-aria';
 import { DismissButton, Overlay, usePopover } from 'react-aria';
 import type { OverlayTriggerState } from 'react-stately';
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/cn';
 
 export type PopoverProps = Omit<AriaPopoverProps, 'popoverRef'> & {
   state: OverlayTriggerState;

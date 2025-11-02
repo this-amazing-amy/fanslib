@@ -5,7 +5,7 @@ import type { AriaDateRangePickerProps, DateValue } from 'react-aria';
 import { useCalendarCell, useCalendarGrid, useDateRangePicker, useDateSegment, useLocale, useRangeCalendar } from 'react-aria';
 import type { DateFieldState, DateSegment, RangeCalendarState } from 'react-stately';
 import { useDateRangePickerState, useRangeCalendarState } from 'react-stately';
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/cn';
 import { Button } from '../Button';
 
 export type DateRangePickerProps<T extends DateValue> = AriaDateRangePickerProps<T> & {

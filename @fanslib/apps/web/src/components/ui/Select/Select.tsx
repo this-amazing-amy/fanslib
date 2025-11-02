@@ -4,7 +4,7 @@ import type { AriaSelectProps } from 'react-aria';
 import { HiddenSelect, useButton, useSelect } from 'react-aria';
 import type { Node } from 'react-stately';
 import { useSelectState } from 'react-stately';
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/cn';
 
 export type SelectProps<T extends object> = AriaSelectProps<T> & {
   className?: string;

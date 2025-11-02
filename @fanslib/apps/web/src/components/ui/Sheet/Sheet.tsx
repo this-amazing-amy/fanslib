@@ -4,7 +4,7 @@ import type { AriaDialogProps } from 'react-aria';
 import { FocusScope, OverlayContainer, useDialog, useModalOverlay, usePreventScroll } from 'react-aria';
 import type { OverlayTriggerState } from 'react-stately';
 import { X } from 'lucide-react';
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/cn';
 import { Button } from '../Button';
 
 export type SheetSide = 'top' | 'right' | 'bottom' | 'left';

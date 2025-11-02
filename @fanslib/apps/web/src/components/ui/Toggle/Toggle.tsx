@@ -3,7 +3,7 @@ import { useRef } from 'react';
 import type { AriaToggleButtonProps } from 'react-aria';
 import { useToggleButton } from 'react-aria';
 import { useToggleState } from 'react-stately';
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/cn';
 
 export type ToggleProps = AriaToggleButtonProps & {
   variant?: 'default' | 'outline' | 'ghost' | 'primary';

@@ -313,3 +313,5 @@ yarn.lock
 *storybook.log
 
 .appdata
+./data/
+@fanslib/apps/server/data

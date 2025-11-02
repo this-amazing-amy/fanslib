@@ -3,7 +3,7 @@ import { useRef } from 'react';
 import type { AriaCheckboxProps } from 'react-aria';
 import { useCheckbox } from 'react-aria';
 import { useToggleState } from 'react-stately';
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/cn';
 
 export type CheckboxProps = AriaCheckboxProps & {
   className?: string;

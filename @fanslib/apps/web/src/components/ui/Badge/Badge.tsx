@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/cn';
 
 export type BadgeProps = {
   variant?: 'primary' | 'secondary' | 'accent' | 'ghost' | 'info' | 'success' | 'warning' | 'error' | 'neutral';

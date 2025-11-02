@@ -1,13 +1,10 @@
-import type { ReactNode, Key } from 'react';
-import { useRef, useMemo } from 'react';
+import { Command as CommandIcon, Search } from 'lucide-react';
+import type { Key, ReactNode } from 'react';
+import { useMemo, useRef } from 'react';
 import type { AriaComboBoxProps } from 'react-aria';
-import { useComboBox, useFilter, useButton } from 'react-aria';
-import { useComboBoxState } from 'react-stately';
-import type { Node } from 'react-stately';
-import { Item, Section } from 'react-stately';
-import { useListBox, useOption } from 'react-aria';
-import { Search, Command as CommandIcon } from 'lucide-react';
-import { cn } from '~/lib/utils';
+import { useComboBox, useFilter, useListBox, useOption } from 'react-aria';
+import { Item, useComboBoxState } from 'react-stately';
+import { cn } from '~/lib/cn';
 
 export type CommandItem = {
   id: string;

@@ -3,7 +3,7 @@ import type { AriaSliderProps } from 'react-aria';
 import { mergeProps, useFocusRing, useNumberFormatter, useSlider, useSliderThumb, VisuallyHidden } from 'react-aria';
 import type { SliderState } from 'react-stately';
 import { useSliderState } from 'react-stately';
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/cn';
 
 export type SliderProps = AriaSliderProps<number | number[]> & {
   label?: string;

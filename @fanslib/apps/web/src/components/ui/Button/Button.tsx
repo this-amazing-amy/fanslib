@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { forwardRef, useRef } from 'react';
 import type { AriaButtonProps } from 'react-aria';
 import { useButton } from 'react-aria';
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/cn';
 
 export type ButtonProps = AriaButtonProps & {
   variant?: 'primary' | 'secondary' | 'ghost' | 'error' | 'success' | 'warning' | 'info';

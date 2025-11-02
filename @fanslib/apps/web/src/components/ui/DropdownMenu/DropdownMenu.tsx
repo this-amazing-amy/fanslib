@@ -1,11 +1,11 @@
+import { Check } from 'lucide-react';
 import type { Key, ReactNode, RefObject } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import type { AriaMenuProps } from 'react-aria';
 import { DismissButton, Overlay, useMenu, useMenuItem } from 'react-aria';
 import type { MenuTriggerState, TreeState } from 'react-stately';
 import { useTreeState } from 'react-stately';
-import { Check } from 'lucide-react';
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/cn';
 
 export type DropdownMenuProps<T extends object> = AriaMenuProps<T> & {
   state: MenuTriggerState;

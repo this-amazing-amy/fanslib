@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import type { OverlayTriggerState } from 'react-stately';
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/cn';
 import { Dialog, DialogHeader, DialogTitle, DialogDescription, DialogBody, DialogFooter } from '../Dialog';
 
 export type FormDialogProps = {

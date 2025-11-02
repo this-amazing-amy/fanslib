@@ -3,7 +3,7 @@ import type { AriaRadioGroupProps, AriaRadioProps } from 'react-aria';
 import { useRadio, useRadioGroup } from 'react-aria';
 import type { RadioGroupState } from 'react-stately';
 import { useRadioGroupState } from 'react-stately';
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/cn';
 
 type RadioGroupContextValue = {
   state: RadioGroupState;

@@ -4,7 +4,7 @@ import type { AriaToastProps, AriaToastRegionProps } from 'react-aria';
 import { useToast, useToastRegion } from 'react-aria';
 import type { ToastState } from 'react-stately';
 import { X } from 'lucide-react';
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/cn';
 import { Button } from '../Button';
 
 export type ToastVariant = 'default' | 'success' | 'error' | 'warning' | 'info';

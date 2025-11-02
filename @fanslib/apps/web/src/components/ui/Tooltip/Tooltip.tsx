@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { AriaTooltipProps } from 'react-aria';
 import { mergeProps, useTooltip } from 'react-aria';
 import type { TooltipTriggerState } from 'react-stately';
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/cn';
 
 export type TooltipProps = AriaTooltipProps & {
   state: TooltipTriggerState;

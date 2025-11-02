@@ -1,0 +1,29 @@
+{
+  "name": "@fanslib/types",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^4.1.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.37.0",
+    "@fanslib/eslint": "workspace:*",
+    "@fanslib/prettier": "workspace:*",
+    "@fanslib/typescript": "workspace:*",
+    "@typescript-eslint/eslint-plugin": "^8.46.1",
+    "@typescript-eslint/parser": "^8.46.1",
+    "bun-types": "^1.2.22",
+    "eslint": "^9.35.0",
+    "eslint-plugin-functional": "^9.0.2",
+    "eslint-plugin-prefer-arrow-functions": "^3.9.1",
+    "typescript": "^5.9.2"
+  }
+}

@@ -1,0 +1,3 @@
+[test]
+preload = ["./node_modules/reflect-metadata/Reflect.js"]
+

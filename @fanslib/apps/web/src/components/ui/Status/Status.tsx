@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/cn';
 
 export type StatusProps = {
   variant?: 'primary' | 'secondary' | 'accent' | 'info' | 'success' | 'warning' | 'error' | 'neutral';

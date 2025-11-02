@@ -1,5 +1,5 @@
 import type { LabelHTMLAttributes } from 'react';
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/cn';
 
 export type LabelProps = LabelHTMLAttributes<HTMLLabelElement> & {
   required?: boolean;

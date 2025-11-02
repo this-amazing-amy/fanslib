@@ -1,5 +1,5 @@
 import type { HTMLAttributes } from 'react';
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/cn';
 
 export type FormActionsProps = HTMLAttributes<HTMLDivElement> & {
   justify?: 'start' | 'end' | 'center' | 'between';

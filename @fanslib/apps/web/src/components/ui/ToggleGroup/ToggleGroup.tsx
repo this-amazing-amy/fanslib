@@ -4,7 +4,7 @@ import type { AriaRadioGroupProps } from 'react-aria';
 import { useRadioGroup, useRadio, useFocusRing, mergeProps } from 'react-aria';
 import { useRadioGroupState } from 'react-stately';
 import type { RadioGroupState } from 'react-stately';
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/cn';
 
 export type ToggleGroupOption = {
   value: string;

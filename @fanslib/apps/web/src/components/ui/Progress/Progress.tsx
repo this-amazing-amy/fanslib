@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import type { AriaProgressBarProps } from 'react-aria';
 import { useProgressBar } from 'react-aria';
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/cn';
 
 export type ProgressProps = AriaProgressBarProps & {
   variant?: 'primary' | 'secondary' | 'accent' | 'success' | 'warning' | 'error' | 'info';

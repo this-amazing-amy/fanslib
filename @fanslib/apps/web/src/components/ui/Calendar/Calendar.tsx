@@ -5,7 +5,7 @@ import type { AriaCalendarProps, DateValue } from 'react-aria';
 import { useCalendar, useCalendarCell, useCalendarGrid, useLocale } from 'react-aria';
 import type { CalendarState } from 'react-stately';
 import { useCalendarState } from 'react-stately';
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/cn';
 
 export type CalendarProps<T extends DateValue> = AriaCalendarProps<T> & {
   className?: string;

@@ -4,7 +4,7 @@ import type { AriaTableProps } from 'react-aria';
 import { useTable, useTableCell, useTableColumnHeader, useTableRow, useTableRowGroup } from 'react-aria';
 import type { TableState } from 'react-stately';
 import { useTableState } from 'react-stately';
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/cn';
 
 export type TableProps<T extends object> = AriaTableProps<T> & {
   className?: string;
