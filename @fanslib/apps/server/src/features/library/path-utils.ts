@@ -1,7 +1,7 @@
-export const getLibraryPath = () => process.env.LIBRARY_PATH ?? "./library";
+import { env } from "../../lib/env";
 
 export const resolveMediaPath = (relativePath: string) => {
-  const libraryPath = getLibraryPath();
+  const libraryPath = env().libraryPath;
   return `${libraryPath}/${relativePath}`;
 };
 

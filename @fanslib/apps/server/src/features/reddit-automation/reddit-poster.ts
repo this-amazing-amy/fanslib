@@ -1,7 +1,7 @@
 import type { Subreddit as SubredditType } from "@fanslib/types";
-import { join } from "path";
 import type { DataSource } from "typeorm";
 import { db } from "~/lib/db";
+import { browserDataPath } from "~/lib/env";
 import { RedditLoginHandler } from "~/lib/reddit-poster/login-handler";
 import { createFileSessionStorage } from "~/lib/reddit-poster/session-storage";
 import type { RedditPostProgress } from "~/lib/reddit-poster/types";
@@ -49,7 +49,7 @@ const CHANNEL_TYPES = {
   reddit: { id: "reddit" },
 };
 
-const BROWSER_DATA_DIR = process.env.BROWSER_DATA_DIR ?? join(process.cwd(), "browser-data");
+const BROWSER_DATA_DIR = browserDataPath();
 
 
 export const generatePosts = async (

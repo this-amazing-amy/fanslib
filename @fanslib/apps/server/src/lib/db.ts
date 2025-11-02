@@ -18,8 +18,9 @@ import { Shoot } from "../features/shoots/entity";
 import { CaptionSnippet } from "../features/snippets/entity";
 import { Subreddit } from "../features/subreddits/entity";
 import { MediaTag, TagDefinition, TagDimension } from "../features/tags/entity";
+import { sqliteDbPath } from "./env";
 
-const dbPath = process.env.SQLITE_DB_PATH ?? "./data/fanslib.sqlite";
+const dbPath = sqliteDbPath();
 
 export const AppDataSource = new DataSource({
   type: "sqlite",

@@ -1,9 +1,9 @@
 import { spawn } from "child_process";
 import { promises as fs } from "fs";
 import path from "path";
+import { appdataPath } from "../../../../lib/env";
 
-const DATA_DIR = process.env.DATA_DIR ?? "./data";
-const THUMBNAIL_DIR = path.join(DATA_DIR, "thumbnails");
+const THUMBNAIL_DIR = path.join(appdataPath(), "thumbnails");
 
 const ensureThumbnailDir = async () => {
   try {

@@ -1,8 +1,8 @@
-import { join } from "path";
+import { browserDataPath } from "../env";
 import { RedditPoster } from "./poster";
 import { createFileSessionStorage } from "./session-storage";
 
-const BROWSER_DATA_DIR = process.env.BROWSER_DATA_DIR ?? join(process.cwd(), "browser-data");
+const BROWSER_DATA_DIR = browserDataPath();
 
 // eslint-disable-next-line functional/no-let
 let posterInstance: RedditPoster | null = null;

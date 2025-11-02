@@ -1,6 +1,6 @@
+import type { Settings } from "@fanslib/types";
 import { mkdir } from "fs/promises";
 import { dirname, join } from "path";
-import type { Settings } from "@fanslib/types";
 
 export const DEFAULT_SETTINGS: Settings = {
   theme: "dark",
@@ -15,9 +15,9 @@ export const DEFAULT_SETTINGS: Settings = {
   backgroundJobsServerUrl: "",
 };
 
-export const getDataDir = (): string => process.env.DATA_DIR ?? "./data";
+import { appdataPath } from "../../../../lib/env";
 
-export const settingsFilePath = (): string => join(getDataDir(), "settings.json");
+export const settingsFilePath = (): string => join(appdataPath(), "settings.json");
 
 export const ensureSettingsFile = async (): Promise<void> => {
   const { access, writeFile } = await import("fs/promises");

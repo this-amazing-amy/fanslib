@@ -3,9 +3,9 @@ import { existsSync } from "fs";
 import { copyFile, mkdir } from "fs/promises";
 import { dirname } from "path";
 import { db, uninitialize } from "../../../../lib/db";
+import { sqliteDbPath } from "../../../../lib/env";
 import { backupCurrentDatabase } from "./backup";
 
-const getDbPath = (): string => process.env.SQLITE_DB_PATH ?? "./data/fanslib.sqlite";
 
 export const importDatabase = async (sourcePath: string): Promise<DatabaseImportResult> => {
   try {
@@ -16,9 +16,8 @@ export const importDatabase = async (sourcePath: string): Promise<DatabaseImport
     await backupCurrentDatabase();
     await uninitialize();
 
-    const dbPath = getDbPath();
-    await mkdir(dirname(dbPath), { recursive: true });
-    await copyFile(sourcePath, dbPath);
+    await mkdir(dirname(sqliteDbPath()), { recursive: true });
+    await copyFile(sourcePath, sqliteDbPath());
     await db();
 
     return { success: true };

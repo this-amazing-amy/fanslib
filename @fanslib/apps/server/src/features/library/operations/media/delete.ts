@@ -1,7 +1,7 @@
 import * as fs from "fs/promises";
 import { db } from "../../../../lib/db";
+import { env } from "../../../../lib/env";
 import { Media } from "../../entity";
-import { getLibraryPath } from "./helpers";
 
 export const deleteMedia = async (id: string, deleteFile = false) => {
   const dataSource = await db();
@@ -12,7 +12,7 @@ export const deleteMedia = async (id: string, deleteFile = false) => {
 
   if (deleteFile && media) {
     try {
-      const libraryPath = getLibraryPath();
+      const libraryPath = env().libraryPath;
       const filePath = `${libraryPath}/${media.relativePath}`;
       await fs.unlink(filePath);
     } catch (error) {

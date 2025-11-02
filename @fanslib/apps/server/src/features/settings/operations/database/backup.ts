@@ -1,14 +1,11 @@
 import { existsSync } from "fs";
 import { copyFile } from "fs/promises";
+import { sqliteDbPath } from "../../../../lib/env";
 
-const getDbPath = (): string => process.env.SQLITE_DB_PATH ?? "./data/fanslib.sqlite";
-
-const getBackupPath = (): string => `${getDbPath()}.backup`;
+const getBackupPath = (): string => `${sqliteDbPath()}.backup`;
 
 export const backupCurrentDatabase = async (): Promise<void> => {
-  const dbPath = getDbPath();
-  if (existsSync(dbPath)) {
-    await copyFile(dbPath, getBackupPath());
+  if (existsSync(sqliteDbPath())) {
+    await copyFile(sqliteDbPath(), getBackupPath());
   }
 };
-

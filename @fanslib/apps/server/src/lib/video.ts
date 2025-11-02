@@ -1,14 +1,13 @@
 import { exec } from "child_process";
-import ffprobe from "ffprobe-static";
+import ffprobe from "ffprobe";
 import { promisify } from "util";
+import { env } from "./env";
 
 const execAsync = promisify(exec);
 
-export const getFfprobePath = (): string => process.env.FFPROBE_PATH ?? ffprobe.path;
-
 export const getVideoDuration = async (filePath: string): Promise<number | undefined> => {
   try {
-    const ffprobePath = getFfprobePath();
+    const ffprobePath = env().ffprobePath ?? ffprobe.path;
 
     const { stdout } = await execAsync(
       `"${ffprobePath}" -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${filePath}"`

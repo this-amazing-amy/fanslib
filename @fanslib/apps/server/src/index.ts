@@ -16,6 +16,7 @@ import { snippetsRoutes } from "./features/snippets/routes";
 import { subredditsRoutes } from "./features/subreddits/routes";
 import { tagsRoutes } from "./features/tags/routes";
 import { db } from "./lib/db";
+import { env } from "./lib/env";
 import { serializeJson } from "./lib/serialize-json";
 
 const app = new Elysia()
@@ -59,7 +60,7 @@ const app = new Elysia()
   .use(postponeRoutes)
   .use(analyticsRoutes)
   // .use(redditAutomationRoutes)
-  .listen(process.env.PORT ?? 8001);
+  .listen(env().port);
 
 db().then(() => {
   console.log(`🚀 Server running at http://localhost:${app.server?.port}`);
