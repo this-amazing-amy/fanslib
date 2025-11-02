@@ -10,90 +10,43 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as SettingsIndexRouteImport } from './routes/settings/index'
-import { Route as PostsIndexRouteImport } from './routes/posts/index'
-import { Route as MediaIndexRouteImport } from './routes/media/index'
-import { Route as ChannelsIndexRouteImport } from './routes/channels/index'
-import { Route as CalendarIndexRouteImport } from './routes/calendar/index'
+import { Route as LibraryIndexRouteImport } from './routes/library/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SettingsIndexRoute = SettingsIndexRouteImport.update({
-  id: '/settings/',
-  path: '/settings/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PostsIndexRoute = PostsIndexRouteImport.update({
-  id: '/posts/',
-  path: '/posts/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MediaIndexRoute = MediaIndexRouteImport.update({
-  id: '/media/',
-  path: '/media/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChannelsIndexRoute = ChannelsIndexRouteImport.update({
-  id: '/channels/',
-  path: '/channels/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CalendarIndexRoute = CalendarIndexRouteImport.update({
-  id: '/calendar/',
-  path: '/calendar/',
+const LibraryIndexRoute = LibraryIndexRouteImport.update({
+  id: '/library/',
+  path: '/library/',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/calendar': typeof CalendarIndexRoute
-  '/channels': typeof ChannelsIndexRoute
-  '/media': typeof MediaIndexRoute
-  '/posts': typeof PostsIndexRoute
-  '/settings': typeof SettingsIndexRoute
+  '/library': typeof LibraryIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/calendar': typeof CalendarIndexRoute
-  '/channels': typeof ChannelsIndexRoute
-  '/media': typeof MediaIndexRoute
-  '/posts': typeof PostsIndexRoute
-  '/settings': typeof SettingsIndexRoute
+  '/library': typeof LibraryIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/calendar/': typeof CalendarIndexRoute
-  '/channels/': typeof ChannelsIndexRoute
-  '/media/': typeof MediaIndexRoute
-  '/posts/': typeof PostsIndexRoute
-  '/settings/': typeof SettingsIndexRoute
+  '/library/': typeof LibraryIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/calendar' | '/channels' | '/media' | '/posts' | '/settings'
+  fullPaths: '/' | '/library'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/calendar' | '/channels' | '/media' | '/posts' | '/settings'
-  id:
-    | '__root__'
-    | '/'
-    | '/calendar/'
-    | '/channels/'
-    | '/media/'
-    | '/posts/'
-    | '/settings/'
+  to: '/' | '/library'
+  id: '__root__' | '/' | '/library/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  CalendarIndexRoute: typeof CalendarIndexRoute
-  ChannelsIndexRoute: typeof ChannelsIndexRoute
-  MediaIndexRoute: typeof MediaIndexRoute
-  PostsIndexRoute: typeof PostsIndexRoute
-  SettingsIndexRoute: typeof SettingsIndexRoute
+  LibraryIndexRoute: typeof LibraryIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -105,39 +58,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/settings/': {
-      id: '/settings/'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/posts/': {
-      id: '/posts/'
-      path: '/posts'
-      fullPath: '/posts'
-      preLoaderRoute: typeof PostsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/media/': {
-      id: '/media/'
-      path: '/media'
-      fullPath: '/media'
-      preLoaderRoute: typeof MediaIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/channels/': {
-      id: '/channels/'
-      path: '/channels'
-      fullPath: '/channels'
-      preLoaderRoute: typeof ChannelsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/calendar/': {
-      id: '/calendar/'
-      path: '/calendar'
-      fullPath: '/calendar'
-      preLoaderRoute: typeof CalendarIndexRouteImport
+    '/library/': {
+      id: '/library/'
+      path: '/library'
+      fullPath: '/library'
+      preLoaderRoute: typeof LibraryIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -145,11 +70,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  CalendarIndexRoute: CalendarIndexRoute,
-  ChannelsIndexRoute: ChannelsIndexRoute,
-  MediaIndexRoute: MediaIndexRoute,
-  PostsIndexRoute: PostsIndexRoute,
-  SettingsIndexRoute: SettingsIndexRoute,
+  LibraryIndexRoute: LibraryIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

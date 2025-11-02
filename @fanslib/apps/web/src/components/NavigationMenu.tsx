@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { useAtom } from 'jotai';
-import { closeSidebarAtom } from '~/state/ui';
+import { closeSidebarAtom } from '~/state/sidebar';
 
 export const NavigationMenu = () => {
   const [, closeSidebar] = useAtom(closeSidebarAtom);

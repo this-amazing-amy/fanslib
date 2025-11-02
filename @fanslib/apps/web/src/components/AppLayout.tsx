@@ -3,7 +3,7 @@ import { useAtom } from 'jotai';
 import { type ReactNode, useState } from 'react';
 import { NavigationMenu } from '~/components/NavigationMenu';
 import { BurgerIcon } from '~/components/ui/BurgerIcon';
-import { sidebarOpenAtom, toggleSidebarAtom } from '~/state/ui';
+import { sidebarOpenAtom, toggleSidebarAtom } from '~/state/sidebar';
 
 export interface AppLayoutProps {
   children: ReactNode;
