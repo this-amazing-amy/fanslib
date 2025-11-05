@@ -6,13 +6,11 @@ import {
   Mail,
   Calendar,
   Folder,
-  Search,
   Plus,
   Edit,
   Trash,
 } from 'lucide-react';
-import { Command } from './Command';
-import type { CommandItem, CommandGroup } from './Command';
+import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem } from './Command';
 
 const meta: Meta<typeof Command> = {
   title: 'UI/Command',
@@ -26,135 +24,101 @@ const meta: Meta<typeof Command> = {
 export default meta;
 type Story = StoryObj<typeof Command>;
 
-const simpleItems: CommandItem[] = [
-  {
-    id: 'file',
-    label: 'New File',
-    description: 'Create a new file',
-    icon: <FileText className="h-4 w-4" />,
-    keywords: ['create', 'document'],
-  },
-  {
-    id: 'settings',
-    label: 'Settings',
-    description: 'Open application settings',
-    icon: <Settings className="h-4 w-4" />,
-    keywords: ['preferences', 'config'],
-  },
-  {
-    id: 'profile',
-    label: 'Profile',
-    description: 'View your profile',
-    icon: <User className="h-4 w-4" />,
-    keywords: ['account', 'user'],
-  },
-  {
-    id: 'mail',
-    label: 'Mail',
-    description: 'Check your inbox',
-    icon: <Mail className="h-4 w-4" />,
-    keywords: ['email', 'inbox'],
-  },
-  {
-    id: 'calendar',
-    label: 'Calendar',
-    description: 'View your schedule',
-    icon: <Calendar className="h-4 w-4" />,
-    keywords: ['schedule', 'events'],
-  },
-];
-
-const groupedCommands: CommandGroup[] = [
-  {
-    id: 'files',
-    label: 'Files',
-    items: [
-      {
-        id: 'new-file',
-        label: 'New File',
-        description: 'Create a new file',
-        icon: <Plus className="h-4 w-4" />,
-      },
-      {
-        id: 'open-file',
-        label: 'Open File',
-        description: 'Open an existing file',
-        icon: <Folder className="h-4 w-4" />,
-      },
-    ],
-  },
-  {
-    id: 'edit',
-    label: 'Edit',
-    items: [
-      {
-        id: 'edit-file',
-        label: 'Edit',
-        description: 'Edit current file',
-        icon: <Edit className="h-4 w-4" />,
-      },
-      {
-        id: 'delete-file',
-        label: 'Delete',
-        description: 'Delete current file',
-        icon: <Trash className="h-4 w-4" />,
-      },
-    ],
-  },
-  {
-    id: 'settings',
-    label: 'Settings',
-    items: [
-      {
-        id: 'preferences',
-        label: 'Preferences',
-        description: 'Open preferences',
-        icon: <Settings className="h-4 w-4" />,
-      },
-      {
-        id: 'profile',
-        label: 'Profile',
-        description: 'View profile settings',
-        icon: <User className="h-4 w-4" />,
-      },
-    ],
-  },
-];
-
 export const Default: Story = {
   render: () => (
-    <Command
-      items={simpleItems}
-      onSelect={(key) => console.log('Selected:', key)}
-    />
+    <Command>
+      <CommandInput placeholder="Search..." />
+      <CommandGroup>
+        <CommandItem value="new file" onSelect={() => console.log('New File selected')}>
+          <FileText className="h-4 w-4 mr-2" />
+          New File
+        </CommandItem>
+        <CommandItem value="settings" onSelect={() => console.log('Settings selected')}>
+          <Settings className="h-4 w-4 mr-2" />
+          Settings
+        </CommandItem>
+        <CommandItem value="profile" onSelect={() => console.log('Profile selected')}>
+          <User className="h-4 w-4 mr-2" />
+          Profile
+        </CommandItem>
+        <CommandItem value="mail" onSelect={() => console.log('Mail selected')}>
+          <Mail className="h-4 w-4 mr-2" />
+          Mail
+        </CommandItem>
+        <CommandItem value="calendar" onSelect={() => console.log('Calendar selected')}>
+          <Calendar className="h-4 w-4 mr-2" />
+          Calendar
+        </CommandItem>
+      </CommandGroup>
+      <CommandEmpty>No results found.</CommandEmpty>
+    </Command>
   ),
 };
 
 export const WithGroups: Story = {
   render: () => (
-    <Command
-      groups={groupedCommands}
-      onSelect={(key) => console.log('Selected:', key)}
-    />
+    <Command>
+      <CommandInput placeholder="Search commands..." />
+      <CommandGroup heading="Files">
+        <CommandItem value="new file">
+          <Plus className="h-4 w-4 mr-2" />
+          New File
+        </CommandItem>
+        <CommandItem value="open file">
+          <Folder className="h-4 w-4 mr-2" />
+          Open File
+        </CommandItem>
+      </CommandGroup>
+      <CommandGroup heading="Edit">
+        <CommandItem value="edit">
+          <Edit className="h-4 w-4 mr-2" />
+          Edit
+        </CommandItem>
+        <CommandItem value="delete">
+          <Trash className="h-4 w-4 mr-2" />
+          Delete
+        </CommandItem>
+      </CommandGroup>
+      <CommandGroup heading="Settings">
+        <CommandItem value="preferences">
+          <Settings className="h-4 w-4 mr-2" />
+          Preferences
+        </CommandItem>
+        <CommandItem value="profile">
+          <User className="h-4 w-4 mr-2" />
+          Profile
+        </CommandItem>
+      </CommandGroup>
+      <CommandEmpty>No results found.</CommandEmpty>
+    </Command>
   ),
 };
 
 export const CustomPlaceholder: Story = {
   render: () => (
-    <Command
-      items={simpleItems}
-      placeholder="Type a command or search..."
-      onSelect={(key) => console.log('Selected:', key)}
-    />
+    <Command>
+      <CommandInput placeholder="Type a command or search..." />
+      <CommandGroup>
+        <CommandItem value="new file">
+          <FileText className="h-4 w-4 mr-2" />
+          New File
+        </CommandItem>
+        <CommandItem value="settings">
+          <Settings className="h-4 w-4 mr-2" />
+          Settings
+        </CommandItem>
+      </CommandGroup>
+      <CommandEmpty>No results found.</CommandEmpty>
+    </Command>
   ),
 };
 
 export const CustomEmptyText: Story = {
   render: () => (
-    <Command
-      items={[]}
-      emptyText="No commands available. Try searching for something else."
-    />
+    <Command>
+      <CommandInput />
+      <CommandEmpty>No commands available. Try searching for something else.</CommandEmpty>
+    </Command>
   ),
 };
 
@@ -162,48 +126,97 @@ export const WithSearchKeywords: Story = {
   render: () => (
     <div className="space-y-4">
       <p className="text-sm text-base-content/70">
-        Try searching for: "create", "document", "config", "inbox", "schedule"
+        Try searching for: &quot;create&quot;, &quot;document&quot;, &quot;config&quot;, &quot;inbox&quot;, &quot;schedule&quot;
       </p>
-      <Command
-        items={simpleItems}
-        onSelect={(key) => console.log('Selected:', key)}
-      />
+      <Command>
+        <CommandInput />
+        <CommandGroup>
+          <CommandItem value="new file create document">
+            <FileText className="h-4 w-4 mr-2" />
+            New File
+          </CommandItem>
+          <CommandItem value="settings preferences config">
+            <Settings className="h-4 w-4 mr-2" />
+            Settings
+          </CommandItem>
+          <CommandItem value="profile account user">
+            <User className="h-4 w-4 mr-2" />
+            Profile
+          </CommandItem>
+          <CommandItem value="mail email inbox">
+            <Mail className="h-4 w-4 mr-2" />
+            Mail
+          </CommandItem>
+          <CommandItem value="calendar schedule events">
+            <Calendar className="h-4 w-4 mr-2" />
+            Calendar
+          </CommandItem>
+        </CommandGroup>
+        <CommandEmpty>No results found.</CommandEmpty>
+      </Command>
     </div>
   ),
 };
 
 export const WithCallbacks: Story = {
-  render: () => {
-    const itemsWithCallbacks: CommandItem[] = simpleItems.map((item) => ({
-      ...item,
-      onSelect: () => {
-        alert(`You selected: ${item.label}`);
-      },
-    }));
-
-    return (
-      <Command
-        items={itemsWithCallbacks}
-        placeholder="Select a command to see the callback"
-      />
-    );
-  },
+  render: () => (
+    <Command>
+      <CommandInput placeholder="Select a command to see the callback" />
+      <CommandGroup>
+        <CommandItem
+          value="new file"
+          onSelect={() => {
+            alert('You selected: New File');
+          }}
+        >
+          <FileText className="h-4 w-4 mr-2" />
+          New File
+        </CommandItem>
+        <CommandItem
+          value="settings"
+          onSelect={() => {
+            alert('You selected: Settings');
+          }}
+        >
+          <Settings className="h-4 w-4 mr-2" />
+          Settings
+        </CommandItem>
+        <CommandItem
+          value="profile"
+          onSelect={() => {
+            alert('You selected: Profile');
+          }}
+        >
+          <User className="h-4 w-4 mr-2" />
+          Profile
+        </CommandItem>
+      </CommandGroup>
+      <CommandEmpty>No results found.</CommandEmpty>
+    </Command>
+  ),
 };
 
 export const LongList: Story = {
   render: () => {
-    const longList: CommandItem[] = Array.from({ length: 50 }, (_, i) => ({
+    const items = Array.from({ length: 50 }, (_, i) => ({
       id: `item-${i}`,
       label: `Command ${i + 1}`,
       description: `This is command number ${i + 1}`,
-      icon: <FileText className="h-4 w-4" />,
     }));
 
     return (
-      <Command
-        items={longList}
-        placeholder="Search through 50 commands..."
-      />
+      <Command>
+        <CommandInput placeholder="Search through 50 commands..." />
+        <CommandGroup>
+          {items.map((item) => (
+            <CommandItem key={item.id} value={item.label}>
+              <FileText className="h-4 w-4 mr-2" />
+              {item.label}
+            </CommandItem>
+          ))}
+        </CommandGroup>
+        <CommandEmpty>No results found.</CommandEmpty>
+      </Command>
     );
   },
 };
@@ -212,12 +225,41 @@ export const InDialog: Story = {
   render: () => (
     <div className="flex h-[600px] w-[800px] items-center justify-center bg-base-300/50 rounded-lg">
       <div className="w-full max-w-lg px-4">
-        <Command
-          groups={groupedCommands}
-          onSelect={(key) => console.log('Selected:', key)}
-        />
+        <Command>
+          <CommandInput />
+          <CommandGroup heading="Files">
+            <CommandItem value="new file">
+              <Plus className="h-4 w-4 mr-2" />
+              New File
+            </CommandItem>
+            <CommandItem value="open file">
+              <Folder className="h-4 w-4 mr-2" />
+              Open File
+            </CommandItem>
+          </CommandGroup>
+          <CommandGroup heading="Edit">
+            <CommandItem value="edit">
+              <Edit className="h-4 w-4 mr-2" />
+              Edit
+            </CommandItem>
+            <CommandItem value="delete">
+              <Trash className="h-4 w-4 mr-2" />
+              Delete
+            </CommandItem>
+          </CommandGroup>
+          <CommandGroup heading="Settings">
+            <CommandItem value="preferences">
+              <Settings className="h-4 w-4 mr-2" />
+              Preferences
+            </CommandItem>
+            <CommandItem value="profile">
+              <User className="h-4 w-4 mr-2" />
+              Profile
+            </CommandItem>
+          </CommandGroup>
+          <CommandEmpty>No results found.</CommandEmpty>
+        </Command>
       </div>
     </div>
   ),
 };
-

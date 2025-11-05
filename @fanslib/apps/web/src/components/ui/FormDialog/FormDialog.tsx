@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
-import type { OverlayTriggerState } from 'react-stately';
 import { cn } from '~/lib/cn';
-import { Dialog, DialogHeader, DialogTitle, DialogDescription, DialogBody, DialogFooter } from '../Dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogBody, DialogFooter } from '../Dialog';
 
 export type FormDialogProps = {
-  state: OverlayTriggerState;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   title: string;
   description?: string;
   children: ReactNode;
@@ -15,7 +15,8 @@ export type FormDialogProps = {
 };
 
 export const FormDialog = ({
-  state,
+  open,
+  onOpenChange,
   title,
   description,
   children,
@@ -24,13 +25,14 @@ export const FormDialog = ({
   maxWidth = 'lg',
   isDismissable = true,
 }: FormDialogProps) => (
-  <Dialog state={state} maxWidth={maxWidth} isDismissable={isDismissable} className={contentClassName}>
-    <DialogHeader>
-      <DialogTitle>{title}</DialogTitle>
-      {description ? <DialogDescription>{description}</DialogDescription> : null}
-    </DialogHeader>
-    <DialogBody className={cn('grid gap-4')}>{children}</DialogBody>
-    {footer ? <DialogFooter>{footer}</DialogFooter> : null}
+  <Dialog open={open} onOpenChange={onOpenChange}>
+    <DialogContent maxWidth={maxWidth} isDismissable={isDismissable} className={contentClassName}>
+      <DialogHeader>
+        <DialogTitle>{title}</DialogTitle>
+        {description ? <DialogDescription>{description}</DialogDescription> : null}
+      </DialogHeader>
+      <DialogBody className={cn('grid gap-4')}>{children}</DialogBody>
+      {footer ? <DialogFooter>{footer}</DialogFooter> : null}
+    </DialogContent>
   </Dialog>
 );
-

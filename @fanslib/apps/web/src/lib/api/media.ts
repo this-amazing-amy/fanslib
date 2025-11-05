@@ -7,6 +7,7 @@ import type {
   FetchMediaByIdResponse,
   UpdateMediaRequest,
   UpdateMediaResponse,
+  GetScanStatusResponse,
 } from '@fanslib/types';
 import { apiRequest } from './client';
 
@@ -43,11 +44,23 @@ export const mediaApi = {
     const searchParams = new URLSearchParams();
     if (request?.filters) searchParams.set('filters', JSON.stringify(request.filters));
     if (request?.sort) searchParams.set('sort', JSON.stringify(request.sort));
-    
+
     const query = searchParams.toString();
     return apiRequest<FindAdjacentMediaResponse>(
       `/api/media/${id}/adjacent${query ? `?${query}` : ''}`
     );
   },
+
+  scan: () =>
+    apiRequest<{ message: string; started: boolean }>('/api/media/scan', {
+      method: 'POST',
+    }),
+
+  getScanStatus: () =>
+    apiRequest<GetScanStatusResponse>('/api/media/scan/status'),
+
+  getFileUrl: (id: string) => `/api/media/${id}/file`,
+
+  getThumbnailUrl: (id: string) => `/api/media/${id}/thumbnail`,
 };
 

@@ -1,15 +1,20 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { useOverlayTriggerState } from 'react-stately';
-import { Dialog, DialogHeader, DialogTitle, DialogDescription, DialogBody, DialogFooter } from './Dialog';
+import { useState } from 'react';
 import { Button } from '../Button';
+import { Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './Dialog';
 
-const DialogWrapper = (args: any) => {
-  const state = useOverlayTriggerState({});
+type DialogWrapperProps = {
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
+  isDismissable?: boolean;
+};
+
+const DialogWrapper = ({ maxWidth = 'lg', isDismissable = true }: DialogWrapperProps) => {
+  const [open, setOpen] = useState(false);
 
   return (
-    <>
-      <Button onPress={() => state.open()}>Open Dialog</Button>
-      <Dialog state={state} {...args}>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <Button onClick={() => setOpen(true)}>Open Dialog</Button>
+      <DialogContent maxWidth={maxWidth} isDismissable={isDismissable}>
         <DialogHeader>
           <DialogTitle>Dialog Title</DialogTitle>
           <DialogDescription>This is a dialog description.</DialogDescription>
@@ -18,64 +23,43 @@ const DialogWrapper = (args: any) => {
           <p>Dialog content goes here.</p>
         </DialogBody>
         <DialogFooter>
-          <Button variant="ghost" onPress={() => state.close()}>
+          <Button variant="ghost" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button variant="primary" onPress={() => state.close()}>
+          <Button variant="primary" onClick={() => setOpen(false)}>
             Confirm
           </Button>
         </DialogFooter>
-      </Dialog>
-    </>
+      </DialogContent>
+    </Dialog>
   );
 };
 
 const meta: Meta<typeof Dialog> = {
   title: 'Overlays/Dialog',
-  component: DialogWrapper,
+  component: () => <DialogWrapper />,
   parameters: {
     layout: 'centered',
   },
   tags: ['autodocs'],
-  argTypes: {
-    maxWidth: {
-      control: { type: 'select' },
-      options: ['sm', 'md', 'lg', 'xl', '2xl', '3xl'],
-    },
-    isDismissable: {
-      control: { type: 'boolean' },
-    },
-  },
 };
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {
-    maxWidth: 'lg',
-    isDismissable: true,
-  },
+  render: () => <DialogWrapper />,
 };
 
 export const Small: Story = {
-  args: {
-    maxWidth: 'sm',
-    isDismissable: true,
-  },
+  render: () => <DialogWrapper maxWidth="sm" />,
 };
 
 export const Large: Story = {
-  args: {
-    maxWidth: 'xl',
-    isDismissable: true,
-  },
+  render: () => <DialogWrapper maxWidth="xl" />,
 };
 
 export const NotDismissable: Story = {
-  args: {
-    maxWidth: 'lg',
-    isDismissable: false,
-  },
+  render: () => <DialogWrapper maxWidth="lg" isDismissable={false} />,
 };
 

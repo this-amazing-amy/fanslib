@@ -1,30 +1,22 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { useMenuTriggerState } from 'react-stately';
-import { useMenuTrigger } from 'react-aria';
-import { useRef } from 'react';
 import { Item } from 'react-stately';
-import { DropdownMenu } from './DropdownMenu';
 import { Button } from '../Button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from './DropdownMenu';
 
-const DropdownMenuWrapper = (args: any) => {
-  const state = useMenuTriggerState({});
-  const ref = useRef<HTMLButtonElement>(null);
-  const { menuTriggerProps } = useMenuTrigger({}, state, ref);
-
-  return (
-    <>
-      <Button {...menuTriggerProps} ref={ref}>
+const DropdownMenuWrapper = () => (
+  <DropdownMenu>
+    <DropdownMenuTrigger asChild>
+      <Button>
         Open Menu
       </Button>
-      <DropdownMenu state={state} triggerRef={ref} onAction={(key) => alert(`Action: ${key}`)} {...args}>
-        <Item key="new">New File</Item>
-        <Item key="open">Open</Item>
-        <Item key="save">Save</Item>
-        <Item key="saveAs">Save As...</Item>
-      </DropdownMenu>
-    </>
-  );
-};
+    </DropdownMenuTrigger>
+    <DropdownMenuContent>
+      <Item key="new">New File</Item>
+      <Item key="open">Open</Item>
+      <Item key="save">Save</Item>
+      <Item key="saveAs">Save As...</Item>
+    </DropdownMenuContent>
+  </DropdownMenu>);
 
 const meta: Meta<typeof DropdownMenu> = {
   title: 'Overlays/DropdownMenu',

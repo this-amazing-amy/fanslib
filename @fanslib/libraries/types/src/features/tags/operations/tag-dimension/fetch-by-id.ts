@@ -1,6 +1,6 @@
-import type { TagDimension } from "../../tag-dimension";
+import type { TagDimensionWithTags } from "../../tag-dimension";
 
 export type FetchTagDimensionByIdRequest = never;
 
-export type FetchTagDimensionByIdResponse = TagDimension;
+export type FetchTagDimensionByIdResponse = TagDimensionWithTags;
 

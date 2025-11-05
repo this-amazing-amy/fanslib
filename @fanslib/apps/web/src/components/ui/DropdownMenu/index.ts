@@ -1,10 +1,7 @@
 export {
-  DropdownMenu,
-  DropdownMenuSeparator,
+  DropdownMenu, DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuLabel,
-  type DropdownMenuProps,
-  type DropdownMenuItemType,
-  type DropdownMenuSeparatorProps,
-  type DropdownMenuLabelProps,
+  DropdownMenuSeparator, DropdownMenuTrigger
 } from './DropdownMenu';
 

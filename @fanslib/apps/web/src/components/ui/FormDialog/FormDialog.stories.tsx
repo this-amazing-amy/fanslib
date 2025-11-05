@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useOverlayTriggerState } from 'react-stately';
-import { FormDialog } from './FormDialog';
 import { Button } from '../Button';
-import { Input } from '../Input';
 import { FormField } from '../FormField';
+import { Input } from '../Input';
+import { FormDialog } from './FormDialog';
 
-const FormDialogWrapper = (args: any) => {
+const FormDialogWrapper = () => {
   const state = useOverlayTriggerState({});
 
   return (
@@ -13,9 +13,10 @@ const FormDialogWrapper = (args: any) => {
       <Button onPress={() => state.open()}>Open Form Dialog</Button>
       {state.isOpen ? (
         <FormDialog
-          state={state}
           title="Edit Profile"
           description="Make changes to your profile here."
+          open={state.isOpen}
+          onOpenChange={state.toggle}
           footer={
             <>
               <Button variant="ghost" onPress={() => state.close()}>
@@ -26,12 +27,11 @@ const FormDialogWrapper = (args: any) => {
               </Button>
             </>
           }
-          {...args}
         >
-          <FormField label="Name" name="name">
+          <FormField label="Name" htmlFor="name">
             <Input placeholder="Enter your name" />
           </FormField>
-          <FormField label="Email" name="email">
+          <FormField label="Email" htmlFor="email">
             <Input type="email" placeholder="Enter your email" />
           </FormField>
         </FormDialog>

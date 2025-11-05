@@ -1,9 +1,10 @@
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { useRef } from 'react';
-import type { AriaDatePickerProps, DateValue } from 'react-aria';
-import { useDatePicker, useDateSegment } from 'react-aria';
+import type { AriaDateFieldProps, AriaDatePickerProps, DateValue } from 'react-aria';
+import { useDateField, useDatePicker, useDateSegment, useLocale } from 'react-aria';
 import type { DateFieldState, DateSegment } from 'react-stately';
-import { useDatePickerState } from 'react-stately';
+import { useDateFieldState, useDatePickerState } from 'react-stately';
+import { createCalendar } from '@internationalized/date';
 import { cn } from '~/lib/cn';
 import { Button } from '../Button';
 import { Calendar } from '../Calendar';
@@ -36,11 +37,7 @@ export const DatePicker = <T extends DateValue>(props: DatePickerProps<T>) => {
       <div className="relative">
         <div {...groupProps} ref={ref} className="flex gap-2">
           <div className="input input-bordered flex items-center flex-1 px-3">
-<<<<<<< Current (Your changes)
-            <DateField {...fieldProps} fieldState={state} />
-=======
-            <DateField {...fieldProps} state={state.dateFieldState} />
->>>>>>> Incoming (Background Agent changes)
+            <DateField {...fieldProps} />
           </div>
           <Button
             {...buttonProps}
@@ -68,37 +65,20 @@ export const DatePicker = <T extends DateValue>(props: DatePickerProps<T>) => {
   );
 };
 
-type DateFieldProps = {
-  fieldState: DateFieldState;
-};
-
-const DateField = ({ fieldState, ...props }: DateFieldProps & React.HTMLAttributes<HTMLDivElement>) => {
+const DateField = <T extends DateValue>(props: AriaDateFieldProps<T>) => {
+  const { locale } = useLocale();
+  const state = useDateFieldState({
+    ...props,
+    locale,
+    createCalendar,
+  });
   const ref = useRef<HTMLDivElement>(null);
-  
-  const domProps = Object.fromEntries(
-    Object.entries(props as any).filter(([key]) => 
-      !key.startsWith('__') && 
-      ![
-        'placeholderValue', 
-        'hideTimeZone', 
-        'hourCycle', 
-        'shouldForceLeadingZeros', 
-        'isDisabled', 
-        'isReadOnly', 
-        'isRequired', 
-        'validationBehavior'
-      ].includes(key)
-    )
-  );
-
-  if (!fieldState?.segments) {
-    return <div {...domProps} ref={ref} className="flex gap-1" />;
-  }
+  const { fieldProps } = useDateField(props, state, ref);
 
   return (
-    <div {...domProps} ref={ref} className="flex gap-1">
-      {fieldState.segments.map((segment, i) => (
-        <DateSegmentComponent key={i} segment={segment} state={fieldState} />
+    <div {...fieldProps} ref={ref} className="flex gap-1">
+      {state.segments.map((segment, i) => (
+        <DateSegmentComponent key={i} segment={segment} state={state} />
       ))}
     </div>
   );

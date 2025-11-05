@@ -1,6 +1,6 @@
 import type {
-  ContentScheduleCreateData,
-  ContentScheduleUpdateData,
+  CreateContentScheduleRequest,
+  UpdateContentScheduleRequest,
 } from '@fanslib/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { contentSchedulesApi } from '../api/content-schedules';
@@ -29,7 +29,7 @@ export const useCreateContentScheduleMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: ContentScheduleCreateData) => contentSchedulesApi.create(data),
+    mutationFn: (data: CreateContentScheduleRequest) => contentSchedulesApi.create(data),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['content-schedules', 'list'] });
       queryClient.invalidateQueries({
@@ -43,7 +43,7 @@ export const useUpdateContentScheduleMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: ContentScheduleUpdateData }) =>
+    mutationFn: ({ id, updates }: { id: string; updates: UpdateContentScheduleRequest }) =>
       contentSchedulesApi.update(id, updates),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['content-schedules', 'list'] });

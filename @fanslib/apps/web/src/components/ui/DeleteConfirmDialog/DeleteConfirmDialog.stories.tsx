@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { useOverlayTriggerState } from 'react-stately';
-import { DeleteConfirmDialog } from './DeleteConfirmDialog';
 import { Button } from '../Button';
+import { DeleteConfirmDialog } from './DeleteConfirmDialog';
 
-const DeleteConfirmDialogWrapper = (args: any) => {
+const DeleteConfirmDialogWrapper = (_args: Record<string, unknown>) => {
   const state = useOverlayTriggerState({});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -22,10 +22,10 @@ const DeleteConfirmDialogWrapper = (args: any) => {
       </Button>
       {state.isOpen ? (
         <DeleteConfirmDialog
-          state={state}
           onConfirm={handleConfirm}
           isLoading={isLoading}
-          {...args}
+          open={state.isOpen}
+          onOpenChange={state.toggle}
         />
       ) : null}
     </>

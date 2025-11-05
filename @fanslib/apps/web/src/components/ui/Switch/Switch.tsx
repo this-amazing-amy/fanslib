@@ -4,10 +4,9 @@ import { useSwitch } from 'react-aria';
 import { useToggleState } from 'react-stately';
 
 export type SwitchProps = AriaSwitchProps & {
-  className?: string;
 };
 
-export const Switch = ({ className, ...props }: SwitchProps) => {
+export const Switch = ({ ...props }: SwitchProps) => {
   const ref = useRef<HTMLInputElement>(null);
   const state = useToggleState(props);
   const { inputProps } = useSwitch(props, state, ref);

@@ -1,2 +1,2 @@
-export { Popover, type PopoverProps } from './Popover';
+export { Popover, PopoverContent, PopoverTrigger } from './Popover';
 

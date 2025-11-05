@@ -1,11 +1,11 @@
-import type { Post, PostCreateData, PostFilters } from '@fanslib/types';
+import type { Post, CreatePostRequest, PostFilters } from '@fanslib/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { postsApi } from '../api/posts';
 
 export const usePostsQuery = (filters?: PostFilters) =>
   useQuery({
     queryKey: ['posts', 'list', filters],
-    queryFn: () => postsApi.getAll(filters),
+    queryFn: () => postsApi.getAll(filters ? { filters } : undefined),
   });
 
 export const usePostQuery = (id: string) =>
@@ -24,10 +24,10 @@ export const usePostsByChannelQuery = (channelId: string) =>
 
 export const useCreatePostMutation = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ data, mediaIds }: { data: PostCreateData; mediaIds: string[] }) =>
-      postsApi.create(data, mediaIds),
+    mutationFn: (data: CreatePostRequest) =>
+      postsApi.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['posts', 'list'] });
       queryClient.invalidateQueries({ queryKey: ['posts', 'by-channel'] });
@@ -61,10 +61,10 @@ export const useDeletePostMutation = () => {
 
 export const useAddMediaToPostMutation = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: ({ postId, mediaIds }: { postId: string; mediaIds: string[] }) =>
-      postsApi.addMedia(postId, mediaIds),
+      postsApi.addMedia(postId, { mediaIds }),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['posts', variables.postId] });
       queryClient.invalidateQueries({ queryKey: ['posts', 'list'] });
@@ -74,10 +74,10 @@ export const useAddMediaToPostMutation = () => {
 
 export const useRemoveMediaFromPostMutation = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: ({ postId, mediaIds }: { postId: string; mediaIds: string[] }) =>
-      postsApi.removeMedia(postId, mediaIds),
+      postsApi.removeMedia(postId, { mediaIds }),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['posts', variables.postId] });
       queryClient.invalidateQueries({ queryKey: ['posts', 'list'] });

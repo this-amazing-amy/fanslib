@@ -37,7 +37,7 @@ export const ErrorState = ({
         </p>
       )}
       {retry && (
-        <Button onClick={retry.onClick} variant="error">
+        <Button onPress={retry.onClick} variant="error">
           {retry.label ?? 'Try Again'}
         </Button>
       )}

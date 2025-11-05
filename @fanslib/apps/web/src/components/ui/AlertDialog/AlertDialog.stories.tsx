@@ -1,7 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { useOverlayTriggerState } from 'react-stately';
+import { useState } from 'react';
 import {
   AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogDescription,
@@ -11,27 +13,27 @@ import {
 } from './AlertDialog';
 import { Button } from '../Button';
 
-const AlertDialogWrapper = (args: any) => {
-  const state = useOverlayTriggerState({});
+const AlertDialogWrapper = () => {
+  const [open, setOpen] = useState(false);
 
   return (
-    <>
-      <Button onPress={() => state.open()}>Open Alert Dialog</Button>
-      {state.isOpen ? (
-        <AlertDialog state={state} {...args}>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your data.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onPress={() => state.close()}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onPress={() => state.close()}>Continue</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialog>
-      ) : null}
-    </>
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger>
+        <Button>Open Alert Dialog</Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete your data.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction>Continue</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };
 
@@ -50,4 +52,3 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {},
 };
-

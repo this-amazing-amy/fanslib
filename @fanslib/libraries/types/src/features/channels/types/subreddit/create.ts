@@ -1,5 +1,5 @@
 import type { MediaFilters } from "../../../library/types";
-import type { VerificationStatus } from "../verification-status";
+import type { VerificationStatus } from "../../verification-status";
 
 export type CreateSubredditRequest = {
   name: string;

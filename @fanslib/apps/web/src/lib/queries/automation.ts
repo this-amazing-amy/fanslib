@@ -13,7 +13,7 @@ export const usePostToReddit = () => {
       subredditId: string;
       mediaId: string;
       caption: string;
-    }) => automationApi.postToReddit(subredditId, mediaId, caption),
+    }) => automationApi.postToReddit({ subredditId, mediaId, caption }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
     },

@@ -34,7 +34,7 @@ export const useUpdateCredentialsMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (fetchRequest: string) => analyticsApi.updateCredentialsFromFetch(fetchRequest),
+    mutationFn: (fetchRequest: string) => analyticsApi.updateCredentialsFromFetch({ fetchRequest }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['settings', 'fansly-credentials'] });
     },
@@ -53,7 +53,7 @@ export const useFetchFanslyDataMutation = () => {
       postId: string;
       startDate?: string;
       endDate?: string;
-    }) => analyticsApi.fetchFanslyData(postId, startDate, endDate),
+    }) => analyticsApi.fetchFanslyData({ postId, startDate, endDate }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['analytics', 'posts'] });
       queryClient.invalidateQueries({ queryKey: ['posts', variables.postId] });

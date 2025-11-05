@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LibraryIndexRouteImport } from './routes/library/index'
+import { Route as LibraryMediaIdRouteImport } from './routes/library/$mediaId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,30 +23,39 @@ const LibraryIndexRoute = LibraryIndexRouteImport.update({
   path: '/library/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LibraryMediaIdRoute = LibraryMediaIdRouteImport.update({
+  id: '/library/$mediaId',
+  path: '/library/$mediaId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/library/$mediaId': typeof LibraryMediaIdRoute
   '/library': typeof LibraryIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/library/$mediaId': typeof LibraryMediaIdRoute
   '/library': typeof LibraryIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/library/$mediaId': typeof LibraryMediaIdRoute
   '/library/': typeof LibraryIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/library'
+  fullPaths: '/' | '/library/$mediaId' | '/library'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/library'
-  id: '__root__' | '/' | '/library/'
+  to: '/' | '/library/$mediaId' | '/library'
+  id: '__root__' | '/' | '/library/$mediaId' | '/library/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LibraryMediaIdRoute: typeof LibraryMediaIdRoute
   LibraryIndexRoute: typeof LibraryIndexRoute
 }
 
@@ -65,11 +75,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/library/$mediaId': {
+      id: '/library/$mediaId'
+      path: '/library/$mediaId'
+      fullPath: '/library/$mediaId'
+      preLoaderRoute: typeof LibraryMediaIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LibraryMediaIdRoute: LibraryMediaIdRoute,
   LibraryIndexRoute: LibraryIndexRoute,
 }
 export const routeTree = rootRouteImport

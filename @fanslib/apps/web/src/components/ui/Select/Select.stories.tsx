@@ -10,9 +10,6 @@ const meta: Meta<typeof Select> = {
   },
   tags: ['autodocs'],
   argTypes: {
-    isDisabled: {
-      control: { type: 'boolean' },
-    },
   },
   decorators: [
     (Story) => (
@@ -28,7 +25,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   render: () => (
-    <Select label="Choose a fruit" placeholder="Select...">
+    <Select placeholder="Select...">
       <Item key="apple">Apple</Item>
       <Item key="banana">Banana</Item>
       <Item key="cherry">Cherry</Item>
@@ -40,7 +37,7 @@ export const Default: Story = {
 
 export const WithDefaultSelection: Story = {
   render: () => (
-    <Select label="Choose a color" defaultSelectedKey="blue">
+    <Select defaultValue="blue">
       <Item key="red">Red</Item>
       <Item key="green">Green</Item>
       <Item key="blue">Blue</Item>
@@ -51,7 +48,7 @@ export const WithDefaultSelection: Story = {
 
 export const Disabled: Story = {
   render: () => (
-    <Select label="Choose an option" isDisabled>
+    <Select isDisabled>
       <Item key="option1">Option 1</Item>
       <Item key="option2">Option 2</Item>
       <Item key="option3">Option 3</Item>
@@ -73,7 +70,7 @@ export const WithoutLabel: Story = {
 
 export const ManyOptions: Story = {
   render: () => (
-    <Select label="Choose a number" placeholder="Select...">
+    <Select placeholder="Select...">
       {Array.from({ length: 20 }, (_, i) => (
         <Item key={i + 1}>{`Option ${i + 1}`}</Item>
       ))}

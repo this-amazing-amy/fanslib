@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import { forwardRef, type ReactNode } from 'react';
 
 type ScrollAreaProps = {
   children: ReactNode;
@@ -7,12 +7,12 @@ type ScrollAreaProps = {
   maxHeight?: string;
 };
 
-export const ScrollArea = ({
+export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(({
   children,
   className = '',
   orientation = 'vertical',
   maxHeight,
-}: ScrollAreaProps) => {
+}, ref) => {
   const orientationClasses = {
     vertical: 'overflow-y-auto overflow-x-hidden',
     horizontal: 'overflow-x-auto overflow-y-hidden',
@@ -21,21 +21,22 @@ export const ScrollArea = ({
 
   return (
     <div
+      ref={ref}
       className={`relative ${orientationClasses[orientation]} ${className}`}
       style={maxHeight ? { maxHeight } : undefined}
     >
       {children}
     </div>
   );
-};
+});
+
+ScrollArea.displayName = 'ScrollArea';
 
 type ScrollBarProps = {
   className?: string;
   orientation?: 'vertical' | 'horizontal';
 };
 
-export const ScrollBar = ({ className = '', orientation = 'vertical' }: ScrollBarProps) => {
-  return null;
-};
+export const ScrollBar = ({ className: _className = '', orientation: _orientation = 'vertical' }: ScrollBarProps) => null;
 
 

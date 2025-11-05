@@ -1,12 +1,16 @@
 import type { ReactNode } from 'react';
 import { cn } from '~/lib/cn';
 
+export type BadgeVariant = 'primary' | 'secondary' | 'accent' | 'ghost' | 'info' | 'success' | 'warning' | 'error' | 'neutral';
+
 export type BadgeProps = {
-  variant?: 'primary' | 'secondary' | 'accent' | 'ghost' | 'info' | 'success' | 'warning' | 'error' | 'neutral';
+  variant?: BadgeVariant;
   size?: 'xs' | 'sm' | 'md' | 'lg';
   outline?: boolean;
   children: ReactNode;
   className?: string;
+  style?: React.CSSProperties;
+  onClick?: () => void;
 };
 
 export const Badge = ({
@@ -15,6 +19,8 @@ export const Badge = ({
   outline = false,
   children,
   className,
+  style,
+  onClick,
 }: BadgeProps) => {
   const variantClasses = {
     primary: 'badge-primary',
@@ -44,6 +50,8 @@ export const Badge = ({
         outline && 'badge-outline',
         className
       )}
+      style={style}
+      onClick={onClick}
     >
       {children}
     </span>

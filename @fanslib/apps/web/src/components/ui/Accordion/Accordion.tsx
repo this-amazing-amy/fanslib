@@ -111,15 +111,21 @@ export const AccordionItem = ({ children, value, className = '' }: AccordionItem
 type AccordionTriggerProps = {
   children: ReactNode;
   className?: string;
+  onClick?: (e: React.MouseEvent<HTMLElement>) => void;
+  asChild?: boolean;
 };
 
-export const AccordionTrigger = ({ children, className = '' }: AccordionTriggerProps) => {
+export const AccordionTrigger = ({ children, className = '', onClick, asChild = false }: AccordionTriggerProps) => {
   const { isOpen, toggle } = useAccordionItemContext();
+
+  if (asChild) {
+    return <div onClick={(e) => onClick?.(e) ?? toggle()}>{children}</div>;
+  }
 
   return (
     <button
       type="button"
-      onClick={toggle}
+      onClick={onClick ?? toggle}
       className={`flex w-full items-center justify-between py-4 px-4 font-medium text-left transition-all hover:bg-base-200 rounded-t-lg ${className}`}
     >
       {children}

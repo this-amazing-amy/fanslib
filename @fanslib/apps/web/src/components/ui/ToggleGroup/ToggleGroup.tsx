@@ -1,4 +1,4 @@
-import type { ReactNode, Key } from 'react';
+import type { ReactNode } from 'react';
 import { useRef } from 'react';
 import type { AriaRadioGroupProps } from 'react-aria';
 import { useRadioGroup, useRadio, useFocusRing, mergeProps } from 'react-aria';

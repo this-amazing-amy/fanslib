@@ -1,7 +1,8 @@
 import { getLocalTimeZone, today } from '@internationalized/date';
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
-import type { DateValue, RangeValue } from 'react-aria';
+import type { DateValue } from 'react-aria';
+import type { RangeValue } from '@react-types/shared';
 import { DateRangePicker } from './DateRangePicker';
 
 const meta: Meta<typeof DateRangePicker> = {
@@ -16,79 +17,87 @@ const meta: Meta<typeof DateRangePicker> = {
 export default meta;
 type Story = StoryObj<typeof DateRangePicker>;
 
-export const Default: Story = {
-  render: () => {
-    const [value, setValue] = useState<RangeValue<DateValue> | null>(null);
+const DefaultComponent = () => {
+  const [value, setValue] = useState<RangeValue<DateValue> | null>(null);
 
-    return (
-      <div className="w-96">
-        <DateRangePicker
-          label="Select date range"
-          value={value}
-          onChange={setValue}
-        />
-      </div>
-    );
-  },
+  return (
+    <div className="w-96">
+      <DateRangePicker
+        label="Select date range"
+        value={value}
+        onChange={(v) => setValue(v)}
+      />
+    </div>
+  );
+};
+
+export const Default: Story = {
+  render: () => <DefaultComponent />,
+};
+
+const WithDefaultValueComponent = () => {
+  const [value, setValue] = useState<RangeValue<DateValue>>({
+    start: today(getLocalTimeZone()),
+    end: today(getLocalTimeZone()).add({ weeks: 1 }),
+  });
+
+  return (
+    <div className="w-96">
+      <DateRangePicker
+        label="Trip dates"
+        value={value}
+        onChange={(v) => v && setValue(v)}
+      />
+    </div>
+  );
 };
 
 export const WithDefaultValue: Story = {
-  render: () => {
-    const [value, setValue] = useState<RangeValue<DateValue>>({
-      start: today(getLocalTimeZone()),
-      end: today(getLocalTimeZone()).add({ weeks: 1 }),
-    });
+  render: () => <WithDefaultValueComponent />,
+};
 
-    return (
-      <div className="w-96">
-        <DateRangePicker
-          label="Trip dates"
-          value={value}
-          onChange={setValue}
-        />
-      </div>
-    );
-  },
+const WithMinMaxDatesComponent = () => {
+  const [value, setValue] = useState<RangeValue<DateValue> | null>(null);
+  const minValue = today(getLocalTimeZone());
+  const maxValue = today(getLocalTimeZone()).add({ months: 1 });
+
+  return (
+    <div className="w-96">
+      <DateRangePicker
+        label="Schedule range"
+        value={value}
+        onChange={(v) => setValue(v)}
+        minValue={minValue}
+        maxValue={maxValue}
+      />
+      <p className="text-sm text-base-content/70 mt-2">
+        Only next month is selectable
+      </p>
+    </div>
+  );
 };
 
 export const WithMinMaxDates: Story = {
-  render: () => {
-    const [value, setValue] = useState<RangeValue<DateValue> | null>(null);
-    const minValue = today(getLocalTimeZone());
-    const maxValue = today(getLocalTimeZone()).add({ months: 1 });
+  render: () => <WithMinMaxDatesComponent />,
+};
 
-    return (
-      <div className="w-96">
-        <DateRangePicker
-          label="Schedule range"
-          value={value}
-          onChange={setValue}
-          minValue={minValue}
-          maxValue={maxValue}
-        />
-        <p className="text-sm text-base-content/70 mt-2">
-          Only next month is selectable
-        </p>
-      </div>
-    );
-  },
+const WithErrorComponent = () => {
+  const [value, setValue] = useState<RangeValue<DateValue> | null>(null);
+
+  return (
+    <div className="w-96">
+      <DateRangePicker
+        label="Date range"
+        value={value}
+        onChange={(v) => setValue(v)}
+        error="Please select a date range"
+      />
+    </div>
+  );
 };
 
 export const WithError: Story = {
-  render: () => {
-    const [value, setValue] = useState<RangeValue<DateValue> | null>(null);
-
-    return (
-      <div className="w-96">
-        <DateRangePicker
-          label="Date range"
-          value={value}
-          onChange={setValue}
-          error="Please select a date range"
-        />
-      </div>
-    );
-  },
+  render: () => <WithErrorComponent />,
 };
 
 export const Disabled: Story = {

@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { Check, CreditCard, ShoppingCart, User } from 'lucide-react';
 import { useState } from 'react';
-import { User, ShoppingCart, CreditCard, Check } from 'lucide-react';
-import { Stepper } from './Stepper';
 import { Button } from '../Button';
+import { Stepper } from './Stepper';
 
 const meta: Meta<typeof Stepper> = {
   title: 'UI/Stepper',
@@ -47,114 +47,124 @@ const stepsWithIcons = [
   { label: 'Complete', icon: <Check className="h-4 w-4" /> },
 ];
 
-export const Default: Story = {
-  render: () => {
-    const [currentStep, setCurrentStep] = useState(0);
+const DefaultComponent = () => {
+  const [currentStep, setCurrentStep] = useState(0);
 
-    return (
-      <div className="w-[600px] space-y-8">
-        <Stepper
-          steps={basicSteps}
-          currentStep={currentStep}
-        />
-        <div className="flex gap-2 justify-center">
-          <Button
-            onPress={() => setCurrentStep(Math.max(0, currentStep - 1))}
-            isDisabled={currentStep === 0}
-          >
-            Previous
-          </Button>
-          <Button
-            onPress={() => setCurrentStep(Math.min(basicSteps.length - 1, currentStep + 1))}
-            isDisabled={currentStep === basicSteps.length - 1}
-          >
-            Next
-          </Button>
-        </div>
+  return (
+    <div className="w-[600px] space-y-8">
+      <Stepper
+        steps={basicSteps}
+        currentStep={currentStep}
+      />
+      <div className="flex gap-2 justify-center">
+        <Button
+          onPress={() => setCurrentStep(Math.max(0, currentStep - 1))}
+          isDisabled={currentStep === 0}
+        >
+          Previous
+        </Button>
+        <Button
+          onPress={() => setCurrentStep(Math.min(basicSteps.length - 1, currentStep + 1))}
+          isDisabled={currentStep === basicSteps.length - 1}
+        >
+          Next
+        </Button>
       </div>
-    );
-  },
+    </div>
+  );
+};
+
+export const Default: Story = {
+  render: () => <DefaultComponent />,
+};
+
+const WithDescriptionsComponent = () => {
+  const [currentStep, _setCurrentStep] = useState(1);
+
+  return (
+    <div className="w-[600px]">
+      <Stepper
+        steps={stepsWithDescription}
+        currentStep={currentStep}
+      />
+    </div>
+  );
 };
 
 export const WithDescriptions: Story = {
-  render: () => {
-    const [currentStep, setCurrentStep] = useState(1);
+  render: () => <WithDescriptionsComponent />,
+};
 
-    return (
-      <div className="w-[600px]">
-        <Stepper
-          steps={stepsWithDescription}
-          currentStep={currentStep}
-        />
-      </div>
-    );
-  },
+const WithIconsComponent = () => {
+  const [currentStep, _setCurrentStep] = useState(2);
+
+  return (
+    <div className="w-[600px]">
+      <Stepper
+        steps={stepsWithIcons}
+        currentStep={currentStep}
+      />
+    </div>
+  );
 };
 
 export const WithIcons: Story = {
-  render: () => {
-    const [currentStep, setCurrentStep] = useState(2);
+  render: () => <WithIconsComponent />,
+};
 
-    return (
-      <div className="w-[600px]">
-        <Stepper
-          steps={stepsWithIcons}
-          currentStep={currentStep}
-        />
-      </div>
-    );
-  },
+const ClickableComponent = () => {
+  const [currentStep, setCurrentStep] = useState(1);
+
+  return (
+    <div className="w-[600px] space-y-4">
+      <Stepper
+        steps={basicSteps}
+        currentStep={currentStep}
+        onStepClick={setCurrentStep}
+      />
+      <p className="text-sm text-base-content/70 text-center">
+        Click on completed or current steps to navigate
+      </p>
+    </div>
+  );
 };
 
 export const Clickable: Story = {
-  render: () => {
-    const [currentStep, setCurrentStep] = useState(1);
+  render: () => <ClickableComponent />,
+};
 
-    return (
-      <div className="w-[600px] space-y-4">
-        <Stepper
-          steps={basicSteps}
-          currentStep={currentStep}
-          onStepClick={setCurrentStep}
-        />
-        <p className="text-sm text-base-content/70 text-center">
-          Click on completed or current steps to navigate
-        </p>
+const VerticalComponent = () => {
+  const [currentStep, setCurrentStep] = useState(1);
+
+  return (
+    <div className="flex gap-8 items-start">
+      <Stepper
+        steps={stepsWithDescription}
+        currentStep={currentStep}
+        orientation="vertical"
+      />
+      <div className="flex flex-col gap-2">
+        <Button
+          onPress={() => setCurrentStep(Math.max(0, currentStep - 1))}
+          isDisabled={currentStep === 0}
+          size="sm"
+        >
+          Previous
+        </Button>
+        <Button
+          onPress={() => setCurrentStep(Math.min(stepsWithDescription.length - 1, currentStep + 1))}
+          isDisabled={currentStep === stepsWithDescription.length - 1}
+          size="sm"
+        >
+          Next
+        </Button>
       </div>
-    );
-  },
+    </div>
+  );
 };
 
 export const Vertical: Story = {
-  render: () => {
-    const [currentStep, setCurrentStep] = useState(1);
-
-    return (
-      <div className="flex gap-8 items-start">
-        <Stepper
-          steps={stepsWithDescription}
-          currentStep={currentStep}
-          orientation="vertical"
-        />
-        <div className="flex flex-col gap-2">
-          <Button
-            onPress={() => setCurrentStep(Math.max(0, currentStep - 1))}
-            isDisabled={currentStep === 0}
-            size="sm"
-          >
-            Previous
-          </Button>
-          <Button
-            onPress={() => setCurrentStep(Math.min(stepsWithDescription.length - 1, currentStep + 1))}
-            isDisabled={currentStep === stepsWithDescription.length - 1}
-            size="sm"
-          >
-            Next
-          </Button>
-        </div>
-      </div>
-    );
-  },
+  render: () => <VerticalComponent />,
 };
 
 export const Colors: Story = {
@@ -170,41 +180,42 @@ export const Colors: Story = {
   ),
 };
 
-export const CompleteWizard: Story = {
-  render: () => {
-    const [currentStep, setCurrentStep] = useState(0);
+const CompleteWizardComponent = () => {
+  const [currentStep, setCurrentStep] = useState(0);
 
-    return (
-      <div className="w-[600px] space-y-8">
-        <Stepper
-          steps={stepsWithDescription}
-          currentStep={currentStep}
-          onStepClick={setCurrentStep}
-        />
-        <div className="card bg-base-200 p-8">
-          <h3 className="text-lg font-semibold mb-4">
-            {stepsWithDescription[currentStep].label}
-          </h3>
-          <p className="text-base-content/70 mb-6">
-            {stepsWithDescription[currentStep].description}
-          </p>
-          <div className="flex gap-2 justify-between">
-            <Button
-              variant="ghost"
-              onPress={() => setCurrentStep(Math.max(0, currentStep - 1))}
-              isDisabled={currentStep === 0}
-            >
-              Previous
-            </Button>
-            <Button
-              onPress={() => setCurrentStep(Math.min(stepsWithDescription.length - 1, currentStep + 1))}
-            >
-              {currentStep === stepsWithDescription.length - 1 ? 'Finish' : 'Next'}
-            </Button>
-          </div>
+  return (
+    <div className="w-[600px] space-y-8">
+      <Stepper
+        steps={stepsWithDescription}
+        currentStep={currentStep}
+        onStepClick={setCurrentStep}
+      />
+      <div className="card bg-base-200 p-8">
+        <h3 className="text-lg font-semibold mb-4">
+          {stepsWithDescription[currentStep]?.label}
+        </h3>
+        <p className="text-base-content/70 mb-6">
+          {stepsWithDescription[currentStep]?.description}
+        </p>
+        <div className="flex gap-2 justify-between">
+          <Button
+            variant="ghost"
+            onPress={() => setCurrentStep(Math.max(0, currentStep - 1))}
+            isDisabled={currentStep === 0}
+          >
+            Previous
+          </Button>
+          <Button
+            onPress={() => setCurrentStep(Math.min(stepsWithDescription.length - 1, currentStep + 1))}
+          >
+            {currentStep === stepsWithDescription.length - 1 ? 'Finish' : 'Next'}
+          </Button>
         </div>
       </div>
-    );
-  },
+    </div>
+  );
 };
 
+export const CompleteWizard: Story = {
+  render: () => <CompleteWizardComponent />,
+};

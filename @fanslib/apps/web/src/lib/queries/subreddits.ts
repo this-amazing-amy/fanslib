@@ -1,4 +1,4 @@
-import type { SubredditCreatePayload, SubredditUpdatePayload } from '@fanslib/types';
+import type { CreateSubredditRequest, UpdateSubredditRequest } from '@fanslib/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { subredditsApi } from '../api/subreddits';
 
@@ -19,7 +19,7 @@ export const useCreateSubredditMutation = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (data: SubredditCreatePayload) => subredditsApi.create(data),
+    mutationFn: (data: CreateSubredditRequest) => subredditsApi.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subreddits', 'list'] });
     },
@@ -30,7 +30,7 @@ export const useUpdateSubredditMutation = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: SubredditUpdatePayload }) =>
+    mutationFn: ({ id, updates }: { id: string; updates: UpdateSubredditRequest }) =>
       subredditsApi.update(id, updates),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['subreddits', 'list'] });

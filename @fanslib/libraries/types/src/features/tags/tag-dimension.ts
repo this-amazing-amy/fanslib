@@ -1,4 +1,5 @@
 import type { StickerDisplayMode } from "./sticker-display-mode";
+import type { TagDefinition } from "./tag-definition";
 
 export type TagDimension = {
   id: number;
@@ -12,4 +13,6 @@ export type TagDimension = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+export type TagDimensionWithTags = TagDimension & { tags: TagDefinition[] };
 

@@ -30,7 +30,7 @@ export const LoadingOverlay = ({
   icon,
   variant = 'default',
   spinnerSize = 'default',
-  spinnerColor = 'default',
+  spinnerColor: _spinnerColor = 'default',
   className = '',
 }: LoadingOverlayProps) => {
   if (!show) return null;

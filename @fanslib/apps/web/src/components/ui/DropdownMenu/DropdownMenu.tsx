@@ -1,94 +1,147 @@
-import { Check } from 'lucide-react';
-import type { Key, ReactNode, RefObject } from 'react';
-import { useEffect, useRef, useState } from 'react';
-import type { AriaMenuProps } from 'react-aria';
-import { DismissButton, Overlay, useMenu, useMenuItem } from 'react-aria';
-import type { MenuTriggerState, TreeState } from 'react-stately';
-import { useTreeState } from 'react-stately';
+import type { ReactElement, ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '~/lib/cn';
 
-export type DropdownMenuProps<T extends object> = AriaMenuProps<T> & {
-  state: MenuTriggerState;
-  className?: string;
-  triggerRef: RefObject<HTMLElement>;
+type DropdownMenuContextValue = {
+  isOpen: boolean;
+  open: () => void;
+  close: () => void;
+  toggle: () => void;
+  triggerRef: React.RefObject<HTMLElement | null>;
 };
 
-export const DropdownMenu = <T extends object>({ state, className, triggerRef, ...props }: DropdownMenuProps<T>) => {
-  const ref = useRef<HTMLUListElement>(null);
-  const treeState = useTreeState(props);
-  const { menuProps } = useMenu(props, treeState, ref);
+const DropdownMenuContext = createContext<DropdownMenuContextValue | null>(null);
+
+export const DropdownMenu = ({ children }: { children: ReactNode }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const triggerRef = useRef<HTMLElement | null>(null);
+
+  const open = useCallback(() => setIsOpen(true), []);
+  const close = useCallback(() => setIsOpen(false), []);
+  const toggle = useCallback(() => setIsOpen((v) => !v), []);
+
+  const value = useMemo(
+    () => ({ isOpen, open, close, toggle, triggerRef }),
+    [isOpen, open, close, toggle]
+  );
+
+  return <DropdownMenuContext.Provider value={value}>{children}</DropdownMenuContext.Provider>;
+};
+
+export const DropdownMenuTrigger = ({ asChild = false, children }: { asChild?: boolean; children: ReactElement }) => {
+  const ctx = useContext(DropdownMenuContext);
+  if (!ctx) return null;
+
+  const { toggle, triggerRef } = ctx;
+
+  if (asChild) {
+    return (
+      <span
+        ref={triggerRef as React.RefObject<HTMLSpanElement>}
+        onClick={toggle}
+        aria-haspopup="menu"
+        aria-expanded={ctx.isOpen}
+        className="inline-flex"
+      >
+        {children}
+      </span>
+    );
+  }
+
+  return (
+    <button ref={triggerRef as React.RefObject<HTMLButtonElement>} onClick={toggle} aria-haspopup="menu" aria-expanded={ctx.isOpen} />
+  );
+};
+
+export const DropdownMenuContent = ({
+  children,
+  className,
+  align = 'start',
+}: {
+  children: ReactNode;
+  className?: string;
+  align?: 'start' | 'end';
+}) => {
+  const ctx = useContext(DropdownMenuContext);
   const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
-    if (state.isOpen) {
-      setTimeout(() => setIsAnimating(true), 10);
-    }
-  }, [state.isOpen]);
+    if (!ctx) return;
+    if (ctx.isOpen) setTimeout(() => setIsAnimating(true), 10);
+    else setIsAnimating(false);
+  }, [ctx]);
 
-  if (!state.isOpen) return null;
+  useEffect(() => {
+    if (!ctx?.isOpen) return;
+    const onDocClick = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (ctx.triggerRef.current?.contains(target as Node)) return;
+      ctx.close();
+    };
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, [ctx]);
+
+  if (!ctx?.isOpen) return null;
+
+  const rect = ctx.triggerRef.current?.getBoundingClientRect();
+  const top = rect ? rect.bottom + window.scrollY : 0;
+  const leftBase = rect ? rect.left + window.scrollX : 0;
+  const rightBase = rect ? rect.right + window.scrollX : 0;
+  const left = align === 'end' ? Math.max(0, rightBase - 224) : leftBase; // 224px default width fallback
 
   return (
-    <Overlay>
-      <div className="fixed inset-0" onClick={() => state.close()} />
+    <div className="fixed inset-0 z-50">
+      <div className="absolute inset-0" onClick={ctx.close} />
       <div
         className={cn(
-          'absolute z-50 mt-2 w-56 rounded-lg bg-base-100 border border-base-300 shadow-lg p-1',
-          'transition-all duration-200 ease-out',
+          'absolute mt-2 rounded-lg bg-base-100 border border-base-300 shadow-lg p-1',
+          'transition-all duration-200 ease-out origin-top',
           isAnimating ? 'opacity-100 scale-100' : 'opacity-0 scale-95',
           className
         )}
-        style={{
-          position: 'absolute',
-          top: triggerRef.current ? triggerRef.current.getBoundingClientRect().bottom + window.scrollY : 0,
-          left: triggerRef.current ? triggerRef.current.getBoundingClientRect().left + window.scrollX : 0,
-        }}
+        style={{ top, left }}
+        role="menu"
       >
-        <DismissButton onDismiss={state.close} />
-        <ul {...menuProps} ref={ref} className="outline-none">
-          {[...treeState.collection].map((item) => (
-            <DropdownMenuItem key={item.key} item={item} state={treeState} />
-          ))}
-        </ul>
-        <DismissButton onDismiss={state.close} />
+        {children}
       </div>
-    </Overlay>
+    </div>
   );
 };
 
-type DropdownMenuItemProps<T> = {
-  item: any;
-  state: TreeState<T>;
-};
 
-const DropdownMenuItem = <T extends object>({ item, state }: DropdownMenuItemProps<T>) => {
-  const ref = useRef<HTMLLIElement>(null);
-  const { menuItemProps, isSelected, isFocused, isDisabled } = useMenuItem(
-    { key: item.key },
-    state,
-    ref
-  );
 
+export const DropdownMenuItem = ({
+  children,
+  className,
+  onClick,
+  disabled,
+}: {
+  children: ReactNode;
+  className?: string;
+  onClick?: () => void;
+  disabled?: boolean;
+}) => {
+  const ctx = useContext(DropdownMenuContext);
+  const onSelect = () => {
+    if (disabled) return;
+    onClick?.();
+    ctx?.close();
+  };
   return (
-    <li
-      {...menuItemProps}
-      ref={ref}
+    <div
+      onClick={onSelect}
+      role="menuitem"
+      aria-disabled={disabled}
       className={cn(
         'rounded-md px-2 py-1.5 text-sm cursor-default select-none outline-none transition-colors',
-        isFocused && 'bg-base-200',
-        isDisabled && 'opacity-50 pointer-events-none'
+        disabled ? 'opacity-50 pointer-events-none' : 'hover:bg-base-200',
+        className
       )}
     >
-      {item.rendered}
-      {isSelected ? <Check className="ml-auto h-4 w-4" /> : null}
-    </li>
+      {children}
+    </div>
   );
-};
-
-export type DropdownMenuItemType = {
-  key: Key;
-  label: ReactNode;
-  onAction?: () => void;
-  isDisabled?: boolean;
 };
 
 export type DropdownMenuSeparatorProps = {
@@ -107,4 +160,3 @@ export type DropdownMenuLabelProps = {
 export const DropdownMenuLabel = ({ children, className }: DropdownMenuLabelProps) => (
   <div className={cn('px-2 py-1.5 text-sm font-semibold', className)}>{children}</div>
 );
-

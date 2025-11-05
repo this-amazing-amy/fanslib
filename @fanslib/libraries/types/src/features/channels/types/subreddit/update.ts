@@ -1,6 +1,6 @@
 import type { MediaFilters } from "../../../library/types";
-import type { VerificationStatus } from "../verification-status";
-import type { SubredditPostingTime } from "./posting-time";
+import type { VerificationStatus } from "../../verification-status";
+import type { SubredditPostingTime } from "../../subreddit/posting-time";
 
 export type UpdateSubredditRequest = {
   name: string;

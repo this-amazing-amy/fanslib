@@ -1,9 +1,9 @@
 import type {
-  AssignTagsDto,
-  CreateTagDefinitionDto,
-  CreateTagDimensionDto,
-  UpdateTagDefinitionDto,
-  UpdateTagDimensionDto,
+  AssignTagsToMediaRequest,
+  CreateTagDefinitionRequest,
+  CreateTagDimensionRequest,
+  UpdateTagDefinitionRequest,
+  UpdateTagDimensionRequest,
 } from '@fanslib/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { tagsApi } from '../api/tags';
@@ -25,7 +25,7 @@ export const useCreateTagDimensionMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateTagDimensionDto) => tagsApi.createDimension(data),
+    mutationFn: (data: CreateTagDimensionRequest) => tagsApi.createDimension(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tags', 'dimensions'] });
     },
@@ -36,7 +36,7 @@ export const useUpdateTagDimensionMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, updates }: { id: number; updates: UpdateTagDimensionDto }) =>
+    mutationFn: ({ id, updates }: { id: number; updates: UpdateTagDimensionRequest }) =>
       tagsApi.updateDimension(id, updates),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['tags', 'dimensions'] });
@@ -82,7 +82,7 @@ export const useCreateTagDefinitionMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateTagDefinitionDto) => tagsApi.createDefinition(data),
+    mutationFn: (data: CreateTagDefinitionRequest) => tagsApi.createDefinition(data),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['tags', 'definitions'] });
       queryClient.invalidateQueries({
@@ -96,7 +96,7 @@ export const useUpdateTagDefinitionMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, updates }: { id: number; updates: UpdateTagDefinitionDto }) =>
+    mutationFn: ({ id, updates }: { id: number; updates: UpdateTagDefinitionRequest }) =>
       tagsApi.updateDefinition(id, updates),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['tags', 'definitions'] });
@@ -127,11 +127,24 @@ export const useMediaTagsQuery = (mediaId: string, dimensionId?: number) =>
     enabled: !!mediaId,
   });
 
+export const useBulkMediaTagsQuery = (mediaIds: string[], dimensionId?: number) =>
+  useQuery({
+    queryKey: ['tags', 'media', 'bulk', mediaIds, dimensionId],
+    queryFn: async () => {
+      if (mediaIds.length === 0) return [];
+
+      const tagPromises = mediaIds.map((mediaId) => tagsApi.getMediaTags(mediaId, dimensionId));
+      const results = await Promise.all(tagPromises);
+      return results.flat();
+    },
+    enabled: mediaIds.length > 0,
+  });
+
 export const useAssignTagsToMediaMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: AssignTagsDto) => tagsApi.assignTagsToMedia(data),
+    mutationFn: (data: AssignTagsToMediaRequest) => tagsApi.assignTagsToMedia(data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['tags', 'media', variables.mediaId] });
       queryClient.invalidateQueries({ queryKey: ['media', variables.mediaId] });
@@ -143,7 +156,7 @@ export const useBulkAssignTagsMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (assignments: AssignTagsDto[]) => tagsApi.bulkAssignTags(assignments),
+    mutationFn: (assignments: AssignTagsToMediaRequest[]) => tagsApi.bulkAssignTags(assignments),
     onSuccess: (_, variables) => {
       variables.forEach((assignment) => {
         queryClient.invalidateQueries({ queryKey: ['tags', 'media', assignment.mediaId] });

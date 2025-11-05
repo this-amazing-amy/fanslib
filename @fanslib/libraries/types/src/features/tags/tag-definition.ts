@@ -1,3 +1,4 @@
+import type { TagDimension } from "./tag-dimension";
 
 export type TagDefinition = {
   id: number;
@@ -12,5 +13,12 @@ export type TagDefinition = {
   parentTagId?: number;
   createdAt: Date;
   updatedAt: Date;
+};
+
+export type TagDefinitionWithDimension = TagDefinition & { dimension: TagDimension };
+
+export type TagDefinitionWithParentChildren = TagDefinition & {
+  parent?: TagDefinition;
+  children: TagDefinition[];
 };
 

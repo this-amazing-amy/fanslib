@@ -17,7 +17,7 @@ export const useHashtagQuery = (id: number) =>
 export const useHashtagsByIdsQuery = (ids: number[]) =>
   useQuery({
     queryKey: ['hashtags', 'by-ids', ids],
-    queryFn: () => hashtagsApi.getByIds(ids),
+    queryFn: () => hashtagsApi.getByIds({ ids }),
     enabled: ids.length > 0,
   });
 
@@ -25,7 +25,7 @@ export const useCreateHashtagMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (name: string) => hashtagsApi.create(name),
+    mutationFn: (name: string) => hashtagsApi.create({ name }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['hashtags', 'list'] });
     },
@@ -36,7 +36,7 @@ export const useCreateHashtagsBatchMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (names: string[]) => hashtagsApi.createBatch(names),
+    mutationFn: (names: string[]) => hashtagsApi.createBatch({ names }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['hashtags', 'list'] });
     },
@@ -66,7 +66,7 @@ export const useUpdateHashtagStatsMutation = () => {
 
   return useMutation({
     mutationFn: ({ id, channelId, views }: { id: number; channelId: string; views: number }) =>
-      hashtagsApi.updateStats(id, channelId, views),
+      hashtagsApi.updateStats(id, { channelId, views }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['hashtags', variables.id, 'stats'] });
       queryClient.invalidateQueries({ queryKey: ['hashtags', variables.id] });

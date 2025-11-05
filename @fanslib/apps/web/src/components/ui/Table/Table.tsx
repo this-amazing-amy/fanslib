@@ -2,23 +2,24 @@ import type { ReactNode } from 'react';
 import { useRef } from 'react';
 import type { AriaTableProps } from 'react-aria';
 import { useTable, useTableCell, useTableColumnHeader, useTableRow, useTableRowGroup } from 'react-aria';
-import type { TableState } from 'react-stately';
+import type { TableState, TableStateProps } from 'react-stately';
 import { useTableState } from 'react-stately';
+import type { Node } from '@react-types/shared';
 import { cn } from '~/lib/cn';
 
-export type TableProps<T extends object> = AriaTableProps<T> & {
+export type TableProps<T extends object = object> = AriaTableProps & TableStateProps<T> & {
   className?: string;
   zebra?: boolean;
   compact?: boolean;
 };
 
-export const Table = <T extends object>({
+export const Table = <T extends object = object>({
   className,
   zebra = false,
   compact = false,
   ...props
 }: TableProps<T>) => {
-  const state = useTableState(props);
+  const state = useTableState<T>(props);
   const ref = useRef<HTMLTableElement>(null);
   const { collection } = state;
   const { gridProps } = useTable(props, state, ref);
@@ -71,10 +72,7 @@ const TableRowGroup = ({ type, children }: TableRowGroupProps) => {
 };
 
 type TableHeaderRowProps<T extends object> = {
-  item: {
-    key: React.Key;
-    childNodes: Iterable<unknown>;
-  };
+  item: Node<T>;
   state: TableState<T>;
   children: ReactNode;
 };
@@ -91,10 +89,7 @@ const TableHeaderRow = <T extends object>({ item, state, children }: TableHeader
 };
 
 type TableColumnHeaderProps<T extends object> = {
-  column: {
-    key: React.Key;
-    rendered: ReactNode;
-  };
+  column: Node<T>;
   state: TableState<T>;
 };
 
@@ -110,10 +105,7 @@ const TableColumnHeader = <T extends object>({ column, state }: TableColumnHeade
 };
 
 type TableRowProps<T extends object> = {
-  item: {
-    key: React.Key;
-    childNodes: Iterable<unknown>;
-  };
+  item: Node<T>;
   state: TableState<T>;
   children: ReactNode;
 };
@@ -130,10 +122,7 @@ const TableRow = <T extends object>({ item, state, children }: TableRowProps<T>)
 };
 
 type TableCellProps<T extends object> = {
-  cell: {
-    key: React.Key;
-    rendered: ReactNode;
-  };
+  cell: Node<T>;
   state: TableState<T>;
 };
 

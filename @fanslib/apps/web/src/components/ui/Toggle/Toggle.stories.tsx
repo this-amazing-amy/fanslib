@@ -25,17 +25,19 @@ const meta: Meta<typeof Toggle> = {
 export default meta;
 type Story = StoryObj<typeof Toggle>;
 
-export const Default: Story = {
-  render: () => {
-    const [isSelected, setIsSelected] = useState(false);
+const DefaultComponent = () => {
+  const [isSelected, setIsSelected] = useState(false);
 
-    return (
-      <Toggle isSelected={isSelected} onChange={setIsSelected}>
-        <Bold className="h-4 w-4 mr-2" />
-        Bold
-      </Toggle>
-    );
-  },
+  return (
+    <Toggle isSelected={isSelected} onChange={setIsSelected}>
+      <Bold className="h-4 w-4 mr-2" />
+      Bold
+    </Toggle>
+  );
+};
+
+export const Default: Story = {
+  render: () => <DefaultComponent />,
 };
 
 export const Variants: Story = {
@@ -73,21 +75,20 @@ export const Sizes: Story = {
   ),
 };
 
-export const TextFormattingToolbar: Story = {
-  render: () => {
-    const [bold, setBold] = useState(false);
-    const [italic, setItalic] = useState(false);
-    const [underline, setUnderline] = useState(false);
+const TextFormattingToolbarComponent = () => {
+  const [bold, setBold] = useState(false);
+  const [italic, setItalic] = useState(false);
+  const [underline, setUnderline] = useState(false);
 
-    return (
-      <div className="flex gap-1 p-2 bg-base-200 rounded-lg">
-        <Toggle
-          variant="ghost"
-          size="sm"
-          isSelected={bold}
-          onChange={setBold}
-          aria-label="Toggle bold"
-        >
+  return (
+    <div className="flex gap-1 p-2 bg-base-200 rounded-lg">
+      <Toggle
+        variant="ghost"
+        size="sm"
+        isSelected={bold}
+        onChange={setBold}
+        aria-label="Toggle bold"
+      >
           <Bold className="h-4 w-4" />
         </Toggle>
         <Toggle
@@ -109,13 +110,15 @@ export const TextFormattingToolbar: Story = {
           <Underline className="h-4 w-4" />
         </Toggle>
       </div>
-    );
-  },
+  );
 };
 
-export const AlignmentToolbar: Story = {
-  render: () => {
-    const [alignment, setAlignment] = useState<'left' | 'center' | 'right'>('left');
+export const TextFormattingToolbar: Story = {
+  render: () => <TextFormattingToolbarComponent />,
+};
+
+const AlignmentToolbarComponent = () => {
+  const [alignment, setAlignment] = useState<'left' | 'center' | 'right'>('left');
 
     return (
       <div className="flex gap-1 p-2 bg-base-200 rounded-lg">
@@ -147,21 +150,26 @@ export const AlignmentToolbar: Story = {
           <AlignRight className="h-4 w-4" />
         </Toggle>
       </div>
-    );
-  },
+  );
+};
+
+export const AlignmentToolbar: Story = {
+  render: () => <AlignmentToolbarComponent />,
+};
+
+const WithTextComponent = () => {
+  const [isSelected, setIsSelected] = useState(false);
+
+  return (
+    <Toggle isSelected={isSelected} onChange={setIsSelected} variant="outline">
+      <Bold className="h-4 w-4 mr-2" />
+      Bold Text
+    </Toggle>
+  );
 };
 
 export const WithText: Story = {
-  render: () => {
-    const [isSelected, setIsSelected] = useState(false);
-
-    return (
-      <Toggle isSelected={isSelected} onChange={setIsSelected} variant="outline">
-        <Bold className="h-4 w-4 mr-2" />
-        Bold Text
-      </Toggle>
-    );
-  },
+  render: () => <WithTextComponent />,
 };
 
 export const Disabled: Story = {

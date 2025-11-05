@@ -1,10 +1,11 @@
+import type { CalendarDate } from '@internationalized/date';
 import { createCalendar, getWeeksInMonth } from '@internationalized/date';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRef } from 'react';
-import type { AriaDateRangePickerProps, DateValue } from 'react-aria';
-import { useCalendarCell, useCalendarGrid, useDateRangePicker, useDateSegment, useLocale, useRangeCalendar } from 'react-aria';
+import type { AriaDateFieldProps, AriaDateRangePickerProps, DateValue } from 'react-aria';
+import { useCalendarCell, useCalendarGrid, useDateField, useDateRangePicker, useDateSegment, useLocale, useRangeCalendar } from 'react-aria';
 import type { DateFieldState, DateSegment, RangeCalendarState } from 'react-stately';
-import { useDateRangePickerState, useRangeCalendarState } from 'react-stately';
+import { useDateFieldState, useDateRangePickerState, useRangeCalendarState } from 'react-stately';
 import { cn } from '~/lib/cn';
 import { Button } from '../Button';
 
@@ -37,9 +38,9 @@ export const DateRangePicker = <T extends DateValue>(props: DateRangePickerProps
       <div className="relative">
         <div {...groupProps} ref={ref} className="flex gap-2">
           <div className="input input-bordered flex items-center flex-1 px-3">
-            <DateField {...startFieldProps} fieldState={state.startFieldState} />
+            <DateField {...startFieldProps} />
             <span className="mx-2">–</span>
-            <DateField {...endFieldProps} fieldState={state.endFieldState} />
+            <DateField {...endFieldProps} />
           </div>
           <Button
             {...buttonProps}
@@ -67,37 +68,20 @@ export const DateRangePicker = <T extends DateValue>(props: DateRangePickerProps
   );
 };
 
-type DateFieldProps = {
-  fieldState: DateFieldState;
-};
-
-const DateField = ({ fieldState, ...props }: DateFieldProps & React.HTMLAttributes<HTMLDivElement>) => {
+const DateField = <T extends DateValue>(props: AriaDateFieldProps<T>) => {
+  const { locale } = useLocale();
+  const state = useDateFieldState({
+    ...props,
+    locale,
+    createCalendar,
+  });
   const ref = useRef<HTMLDivElement>(null);
-  
-  const domProps = Object.fromEntries(
-    Object.entries(props as any).filter(([key]) => 
-      !key.startsWith('__') && 
-      ![
-        'placeholderValue', 
-        'hideTimeZone', 
-        'hourCycle', 
-        'shouldForceLeadingZeros', 
-        'isDisabled', 
-        'isReadOnly', 
-        'isRequired', 
-        'validationBehavior'
-      ].includes(key)
-    )
-  );
-
-  if (!fieldState?.segments) {
-    return <div {...domProps} ref={ref} className="flex gap-1" />;
-  }
+  const { fieldProps } = useDateField(props, state, ref);
 
   return (
-    <div {...domProps} ref={ref} className="flex gap-1">
-      {fieldState.segments.map((segment, i) => (
-        <DateSegmentComponent key={i} segment={segment} state={fieldState} />
+    <div {...fieldProps} ref={ref} className="flex gap-1">
+      {state.segments.map((segment, i) => (
+        <DateSegmentComponent key={i} segment={segment} state={state} />
       ))}
     </div>
   );
@@ -127,20 +111,24 @@ const DateSegmentComponent = ({ segment, state }: DateSegmentProps) => {
 };
 
 type RangeCalendarProps = {
+  value?: unknown;
+  onChange?: unknown;
+  minValue?: unknown;
+  maxValue?: unknown;
   className?: string;
 };
 
-const RangeCalendar = <T extends DateValue>(props: RangeCalendarProps) => {
+const RangeCalendar = (props: RangeCalendarProps) => {
   const { locale } = useLocale();
   const state = useRangeCalendarState({
     ...props,
     locale,
     createCalendar,
-  });
+  } as Parameters<typeof useRangeCalendarState>[0]);
 
   const ref = useRef<HTMLDivElement>(null);
   const { calendarProps, prevButtonProps, nextButtonProps, title } = useRangeCalendar(
-    props,
+    props as Parameters<typeof useRangeCalendar>[0],
     state,
     ref
   );
@@ -181,8 +169,8 @@ const RangeCalendarGrid = ({ state }: RangeCalendarGridProps) => {
     <table {...gridProps} className="w-full border-collapse">
       <thead {...headerProps}>
         <tr>
-          {weekDays.map((day, index) => (
-            <th key={index} className="text-xs font-normal text-base-content/50 p-1">
+          {weekDays.map((day) => (
+            <th key={day} className="text-xs font-normal text-base-content/50 p-1">
               {day}
             </th>
           ))}
@@ -220,10 +208,10 @@ const RangeCalendarCell = ({ state, date }: RangeCalendarCellProps) => {
     isDisabled,
     isUnavailable,
     formattedDate,
-  } = useCalendarCell({ date }, state, ref);
+  } = useCalendarCell({ date: date as CalendarDate }, state, ref);
 
-  const isSelectionStart = state.highlightedRange ? date.compare(state.highlightedRange.start) === 0 : false;
-  const isSelectionEnd = state.highlightedRange ? date.compare(state.highlightedRange.end) === 0 : false;
+  const isSelectionStart = state.highlightedRange ? date.compare(state.highlightedRange.start as DateValue) === 0 : false;
+  const isSelectionEnd = state.highlightedRange ? date.compare(state.highlightedRange.end as DateValue) === 0 : false;
 
   return (
     <td {...cellProps} className="p-0 text-center relative">

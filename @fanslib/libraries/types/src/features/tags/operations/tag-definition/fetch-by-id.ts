@@ -1,6 +1,6 @@
-import type { TagDefinition } from "../../tag-definition";
+import type { TagDefinitionWithDimension } from "../../tag-definition";
 
 export type FetchTagDefinitionByIdRequest = never;
 
-export type FetchTagDefinitionByIdResponse = TagDefinition;
+export type FetchTagDefinitionByIdResponse = TagDefinitionWithDimension;
 

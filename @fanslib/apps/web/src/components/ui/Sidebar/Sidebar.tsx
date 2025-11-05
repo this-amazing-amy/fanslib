@@ -152,52 +152,36 @@ type SidebarHeaderProps = {
   className?: string;
 };
 
-export const SidebarHeader = ({ children, className = '' }: SidebarHeaderProps) => {
-  return (
-    <div data-sidebar="header" className={`flex flex-col gap-2 p-2 ${className}`}>
+export const SidebarHeader = ({ children, className = '' }: SidebarHeaderProps) => <div data-sidebar="header" className={`flex flex-col gap-2 p-2 ${className}`}>
       {children}
-    </div>
-  );
-};
+    </div>;
 
 type SidebarFooterProps = {
   children: ReactNode;
   className?: string;
 };
 
-export const SidebarFooter = ({ children, className = '' }: SidebarFooterProps) => {
-  return (
-    <div data-sidebar="footer" className={`flex flex-col gap-2 p-2 ${className}`}>
+export const SidebarFooter = ({ children, className = '' }: SidebarFooterProps) => <div data-sidebar="footer" className={`flex flex-col gap-2 p-2 ${className}`}>
       {children}
-    </div>
-  );
-};
+    </div>;
 
 type SidebarContentProps = {
   children: ReactNode;
   className?: string;
 };
 
-export const SidebarContent = ({ children, className = '' }: SidebarContentProps) => {
-  return (
-    <div className={`flex-1 overflow-hidden ${className}`}>
+export const SidebarContent = ({ children, className = '' }: SidebarContentProps) => <div className={`flex-1 overflow-hidden ${className}`}>
       {children}
-    </div>
-  );
-};
+    </div>;
 
 type SidebarGroupProps = {
   children: ReactNode;
   className?: string;
 };
 
-export const SidebarGroup = ({ children, className = '' }: SidebarGroupProps) => {
-  return (
-    <div className={`px-2 py-2 ${className}`}>
+export const SidebarGroup = ({ children, className = '' }: SidebarGroupProps) => <div className={`px-2 py-2 ${className}`}>
       {children}
-    </div>
-  );
-};
+    </div>;
 
 type SidebarGroupLabelProps = {
   children: ReactNode;
@@ -218,39 +202,27 @@ type SidebarGroupContentProps = {
   className?: string;
 };
 
-export const SidebarGroupContent = ({ children, className = '' }: SidebarGroupContentProps) => {
-  return (
-    <div className={`space-y-1 ${className}`}>
+export const SidebarGroupContent = ({ children, className = '' }: SidebarGroupContentProps) => <div className={`space-y-1 ${className}`}>
       {children}
-    </div>
-  );
-};
+    </div>;
 
 type SidebarMenuProps = {
   children: ReactNode;
   className?: string;
 };
 
-export const SidebarMenu = ({ children, className = '' }: SidebarMenuProps) => {
-  return (
-    <div className={className}>
+export const SidebarMenu = ({ children, className = '' }: SidebarMenuProps) => <div className={className}>
       {children}
-    </div>
-  );
-};
+    </div>;
 
 type SidebarMenuItemProps = {
   children: ReactNode;
   className?: string;
 };
 
-export const SidebarMenuItem = ({ children, className = '' }: SidebarMenuItemProps) => {
-  return (
-    <div className={className}>
+export const SidebarMenuItem = ({ children, className = '' }: SidebarMenuItemProps) => <div className={className}>
       {children}
-    </div>
-  );
-};
+    </div>;
 
 type SidebarMenuButtonProps = {
   children: ReactNode;
@@ -292,11 +264,7 @@ type SidebarInsetProps = {
   className?: string;
 };
 
-export const SidebarInset = ({ children, className = '' }: SidebarInsetProps) => {
-  return (
-    <main className={`relative flex min-h-screen flex-1 flex-col bg-background ${className}`}>
+export const SidebarInset = ({ children, className = '' }: SidebarInsetProps) => <main className={`relative flex min-h-screen flex-1 flex-col bg-background ${className}`}>
       {children}
-    </main>
-  );
-};
+    </main>;
 

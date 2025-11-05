@@ -11,15 +11,11 @@ export const Resizable = ({
   children,
   className = '',
   direction = 'horizontal',
-}: ResizableProps) => {
-  return (
-    <div
+}: ResizableProps) => <div
       className={`flex ${direction === 'vertical' ? 'flex-col' : 'flex-row'} h-full w-full ${className}`}
     >
       {children}
-    </div>
-  );
-};
+    </div>;
 
 type ResizablePanelProps = {
   children: ReactNode;
@@ -32,11 +28,11 @@ type ResizablePanelProps = {
 export const ResizablePanel = ({
   children,
   defaultSize = 50,
-  minSize = 10,
-  maxSize = 90,
+  minSize: _minSize = 10,
+  maxSize: _maxSize = 90,
   className = '',
 }: ResizablePanelProps) => {
-  const [size, setSize] = useState(defaultSize);
+  const [size, _setSize] = useState(defaultSize);
 
   return (
     <div

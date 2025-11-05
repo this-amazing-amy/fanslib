@@ -5,8 +5,8 @@ import { useButton } from 'react-aria';
 import { cn } from '~/lib/cn';
 
 export type ButtonProps = AriaButtonProps & {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'error' | 'success' | 'warning' | 'info';
-  size?: 'xs' | 'sm' | 'md' | 'lg';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'error' | 'success' | 'warning' | 'info' | 'outline';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'icon';
   isLoading?: boolean;
   children: ReactNode;
   className?: string;
@@ -35,6 +35,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
     success: 'btn-success',
     warning: 'btn-warning',
     info: 'btn-info',
+    outline: 'btn-outline',
   };
 
   const sizeClasses = {
@@ -42,6 +43,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
     sm: 'btn-sm',
     md: 'btn-md',
     lg: 'btn-lg',
+    icon: 'btn-square',
   };
 
   return (

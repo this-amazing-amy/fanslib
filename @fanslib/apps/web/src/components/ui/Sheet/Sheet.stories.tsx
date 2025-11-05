@@ -1,16 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useOverlayTriggerState } from 'react-stately';
-import { Sheet, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from './Sheet';
 import { Button } from '../Button';
+import { Sheet, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from './Sheet';
 
-const SheetWrapper = (args: any) => {
+const SheetWrapper = () => {
   const state = useOverlayTriggerState({});
 
   return (
     <>
       <Button onPress={() => state.open()}>Open Sheet</Button>
       {state.isOpen ? (
-        <Sheet state={state} {...args}>
+        <Sheet state={state}>
           <SheetHeader>
             <SheetTitle>Sheet Title</SheetTitle>
             <SheetDescription>This is a sheet description.</SheetDescription>

@@ -10,7 +10,7 @@ export type TabsProps<T extends object> = AriaTabListProps<T> & {
   children: ReactNode;
 };
 
-export const Tabs = <T extends object>({ className, children, ...props }: TabsProps<T>) => {
+export const Tabs = <T extends object>({ className, children: _children, ...props }: TabsProps<T>) => {
   const state = useTabListState(props);
   const ref = useRef<HTMLDivElement>(null);
   const { tabListProps } = useTabList(props, state, ref);

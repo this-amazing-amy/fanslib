@@ -30,12 +30,8 @@ export const GridContainer = ({
   columns = 3,
   gap = 'default',
   className = '',
-}: GridContainerProps) => {
-  return (
-    <div className={`grid ${columnClasses[columns]} ${gapClasses[gap]} ${className}`}>
+}: GridContainerProps) => <div className={`grid ${columnClasses[columns]} ${gapClasses[gap]} ${className}`}>
       {children}
-    </div>
-  );
-};
+    </div>;
 
 

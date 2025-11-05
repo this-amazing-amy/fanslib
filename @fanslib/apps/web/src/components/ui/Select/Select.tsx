@@ -1,120 +1,127 @@
-import { ChevronDown } from 'lucide-react';
-import { useEffect, useRef } from 'react';
-import type { AriaSelectProps } from 'react-aria';
-import { HiddenSelect, useButton, useSelect } from 'react-aria';
-import type { Node } from 'react-stately';
-import { useSelectState } from 'react-stately';
+import type { ReactElement, ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '~/lib/cn';
 
-export type SelectProps<T extends object> = AriaSelectProps<T> & {
-  className?: string;
+type SelectContextValue = {
+  open: boolean;
+  setOpen: (v: boolean) => void;
+  value?: string;
+  setValue: (v: string) => void;
+  placeholder?: string;
+  triggerRef: React.RefObject<HTMLElement | null>;
+  selectedLabel?: string;
+  setSelectedLabel: (v?: string) => void;
 };
 
-export const Select = <T extends object>(props: SelectProps<T>) => {
-  const state = useSelectState(props);
-  const ref = useRef<HTMLButtonElement>(null);
-  const { labelProps, triggerProps, valueProps, menuProps } = useSelect(
-    props,
-    state,
-    ref
-  );
+const SelectContext = createContext<SelectContextValue | null>(null);
 
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const { buttonProps } = useButton(triggerProps, buttonRef);
-  const containerRef = useRef<HTMLDivElement>(null);
+export const Select = ({ children, value, defaultValue, onValueChange, placeholder, isDisabled }: { children: ReactNode; value?: string; defaultValue?: string; onValueChange?: (v: string) => void; placeholder?: string; isDisabled?: boolean }) => {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const [internalValue, setInternalValue] = useState<string | undefined>(defaultValue);
+  const [selectedLabel, setSelectedLabel] = useState<string | undefined>(undefined);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (state.isOpen && containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        state.close();
-      }
-    };
+  const isControlled = typeof value !== 'undefined';
+  const currentValue = isControlled ? value : internalValue;
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [state]);
+  const setValue = useCallback((v: string) => {
+    onValueChange?.(v);
+    if (!isControlled) setInternalValue(v);
+  }, [isControlled, onValueChange]);
 
-  return (
-    <div ref={containerRef} className={cn('relative', props.className)}>
-      {props.label && (
-        <label {...labelProps} className="label">
-          <span className="label-text">{props.label}</span>
-        </label>
-      )}
-      <HiddenSelect
-        state={state}
-        triggerRef={ref}
-        label={props.label}
-        name={props.name}
-      />
-      <button
-        {...buttonProps}
-        ref={buttonRef}
-        className={cn(
-          'input input-bordered w-full flex items-center justify-between focus:outline-none',
-          state.isOpen && 'input-primary'
-        )}
+  const triggerRef = useRef<HTMLElement | null>(null);
+
+  const ctx = useMemo(() => ({
+    open: internalOpen,
+    setOpen: setInternalOpen,
+    value: currentValue,
+    setValue,
+    placeholder,
+    triggerRef,
+    selectedLabel,
+    setSelectedLabel,
+    isDisabled,
+  }), [internalOpen, currentValue, setValue, placeholder, selectedLabel, isDisabled]);
+
+  return <SelectContext.Provider value={ctx}>{children}</SelectContext.Provider>;
+};
+
+export const SelectTrigger = ({ asChild = false, children, className }: { asChild?: boolean; children: ReactElement; className?: string }) => {
+  const ctx = useContext(SelectContext);
+  if (!ctx) return null;
+  const toggle = () => ctx.setOpen(!ctx.open);
+  if (asChild) {
+    return (
+      <span
+        ref={ctx.triggerRef as React.RefObject<HTMLSpanElement>}
+        onClick={toggle}
+        className={cn('inline-flex w-full', className)}
+        aria-expanded={ctx.open}
       >
-        <span {...valueProps} className="flex-1 text-left truncate">
-          {state.selectedItem?.rendered ?? props.placeholder ?? 'Select an option'}
-        </span>
-        <ChevronDown
-          className={cn(
-            'w-4 h-4 transition-transform',
-            state.isOpen && 'rotate-180'
-          )}
-        />
-      </button>
-      {state.isOpen && (
-        <ul
-          {...menuProps}
-          className="bg-base-200 rounded-box shadow-lg absolute z-50 w-full mt-1 max-h-60 overflow-y-auto"
-        >
-          {[...state.collection].map((item, index, array) => (
-            <SelectItem
-              key={item.key}
-              item={item}
-              state={state}
-              isFirst={index === 0}
-              isLast={index === array.length - 1}
-            />
-          ))}
-        </ul>
-      )}
-    </div>
+        {children}
+      </span>
+    );
+  }
+  return (
+    <button ref={ctx.triggerRef as React.RefObject<HTMLButtonElement>} onClick={toggle} aria-expanded={ctx.open} className={cn('input input-bordered w-full flex items-center justify-between focus:outline-none', className)} />
   );
 };
 
-type SelectItemProps<T> = {
-  item: Node<T>;
-  state: ReturnType<typeof useSelectState>;
-  isFirst?: boolean;
-  isLast?: boolean;
+export const SelectValue = ({ placeholder: ph }: { placeholder?: string }) => {
+  const ctx = useContext(SelectContext);
+  if (!ctx) return null;
+  return <span className="flex-1 text-left truncate">{ctx.selectedLabel ?? ctx.placeholder ?? ph ?? 'Select an option'}</span>;
 };
 
-const SelectItem = <T extends object>({ item, state, isFirst, isLast }: SelectItemProps<T>) => {
-  const ref = useRef<HTMLLIElement>(null);
-  const isSelected = state.selectedKey === item.key;
-  const isDisabled = state.disabledKeys.has(item.key);
+export const SelectContent = ({ children, className }: { children: ReactNode; className?: string }) => {
+  const ctx = useContext(SelectContext);
+  const [position, setPosition] = useState<{ top: number; left: number; width: number } | null>(null);
+  useEffect(() => {
+    if (!ctx?.open) return;
+    const rect = ctx.triggerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setPosition({ top: rect.bottom + window.scrollY + 4, left: rect.left + window.scrollX, width: rect.width });
+    const onDoc = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (ctx.triggerRef.current?.contains(target)) return;
+      ctx.setOpen(false);
+    };
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, [ctx?.open]);
+  if (!ctx?.open || !position) return null;
+  return (
+    <ul
+      className={cn('bg-base-200 rounded-box shadow-lg absolute z-50 mt-1 max-h-60 overflow-y-auto', className)}
+      style={{ top: position.top, left: position.left, width: position.width }}
+      role="listbox"
+    >
+      {children}
+    </ul>
+  );
+};
 
+export const SelectItem = ({ value, children, className, onSelect }: { value: string; children: ReactNode; className?: string; onSelect?: () => void }) => {
+  const ctx = useContext(SelectContext);
+  if (!ctx) return null;
+  const isSelected = ctx.value === value;
+  const select = () => {
+    ctx.setValue(value);
+    ctx.setSelectedLabel(typeof children === 'string' ? children : undefined);
+    onSelect?.();
+    ctx.setOpen(false);
+  };
   return (
     <li
-      ref={ref}
+      onClick={select}
       className={cn(
         'px-4 py-2 cursor-pointer hover:bg-base-300',
         isSelected && 'bg-primary text-primary-content hover:bg-primary',
-        isDisabled && 'opacity-50 cursor-not-allowed',
-        isFirst && 'rounded-t-box',
-        isLast && 'rounded-b-box'
+        className
       )}
-      onClick={() => {
-        if (!isDisabled) {
-          state.setSelectedKey(item.key);
-          state.close();
-        }
-      }}
+      role="option"
+      aria-selected={isSelected}
     >
-      {item.rendered}
+      {children}
     </li>
   );
 };

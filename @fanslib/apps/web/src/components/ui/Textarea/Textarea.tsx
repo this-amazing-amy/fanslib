@@ -10,14 +10,12 @@ export type TextareaProps = AriaTextFieldProps & {
 
 export const Textarea = ({ className, rows = 3, ...props }: TextareaProps) => {
   const ref = useRef<HTMLTextAreaElement>(null);
-  const { inputProps } = useTextField(
-    { ...props, inputElementType: 'textarea' },
-    ref
-  );
+  const textFieldProps = { ...(props as Record<string, unknown>), inputElementType: 'textarea' } as unknown as AriaTextFieldProps;
+  const { inputProps } = useTextField(textFieldProps, ref as unknown as React.RefObject<HTMLInputElement>);
 
   return (
     <textarea
-      {...inputProps}
+      {...(inputProps as unknown as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
       ref={ref}
       rows={rows}
       className={cn('textarea textarea-bordered w-full rounded-lg focus:outline-none', className)}

@@ -1,4 +1,4 @@
-import type { SnippetCreateData, SnippetUpdateData } from '@fanslib/types';
+import type { CreateSnippetRequest, UpdateSnippetRequest } from '@fanslib/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { snippetsApi } from '../api/snippets';
 
@@ -32,7 +32,7 @@ export const useCreateSnippetMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: SnippetCreateData) => snippetsApi.create(data),
+    mutationFn: (data: CreateSnippetRequest) => snippetsApi.create(data),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['snippets', 'list'] });
       queryClient.invalidateQueries({ queryKey: ['snippets', 'global'] });
@@ -47,7 +47,7 @@ export const useUpdateSnippetMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: SnippetUpdateData }) =>
+    mutationFn: ({ id, updates }: { id: string; updates: UpdateSnippetRequest }) =>
       snippetsApi.update(id, updates),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['snippets', 'list'] });

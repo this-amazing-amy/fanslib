@@ -1,101 +1,203 @@
-import { getLocalTimeZone, today } from '@internationalized/date';
-import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
-import { Calendar } from './Calendar';
+import type { Meta, StoryObj } from "@storybook/react";
+import { useState } from "react";
+import type { DateRange } from "react-day-picker";
+import { Calendar } from "./index";
 
-const meta: Meta<typeof Calendar> = {
-  title: 'UI/Calendar',
+const meta: Meta = {
+  title: "UI/Calendar",
   component: Calendar,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
+  argTypes: {
+    showOutsideDays: {
+      control: { type: "boolean" },
+      description: "Whether to show days from previous/next months",
+    },
+    selectedClassNames: {
+      control: { type: "text" },
+      description: "Custom CSS classes for selected days",
+    },
+  },
+  args: {
+    showOutsideDays: true,
+  },
 };
 
 export default meta;
-type Story = StoryObj<typeof Calendar>;
+type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  render: () => <Calendar />,
+  args: {
+    showOutsideDays: true,
+  },
+};
+
+export const HideOutsideDays: Story = {
+  args: {
+    showOutsideDays: false,
+  },
+};
+
+const SingleSelectionComponent = () => {
+  const [selected, setSelected] = useState<Date | undefined>(new Date());
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <h3 className="text-sm font-medium mb-2">Single Date Selection</h3>
+        <Calendar
+          mode="single"
+          selected={selected}
+          onSelect={setSelected}
+          showOutsideDays={true}
+        />
+      </div>
+      {selected && (
+        <p className="text-sm text-muted-foreground">Selected: {selected.toLocaleDateString()}</p>
+      )}
+    </div>
+  );
 };
 
 export const SingleSelection: Story = {
-  render: () => {
-    const [value, setValue] = useState(today(getLocalTimeZone()));
-
-    return (
-      <div className="space-y-4">
-        <h3 className="text-sm font-medium">Single Date Selection</h3>
-        <Calendar value={value} onChange={setValue} />
-        <p className="text-sm text-base-content/70">
-          Selected: {value.toString()}
-        </p>
-      </div>
-    );
-  },
+  render: () => <SingleSelectionComponent />,
 };
 
-export const WithMinMaxDates: Story = {
-  render: () => {
-    const [value, setValue] = useState(today(getLocalTimeZone()));
-    const minValue = today(getLocalTimeZone());
-    const maxValue = today(getLocalTimeZone()).add({ weeks: 2 });
+const MultipleSelectionComponent = () => {
+  const [selected, setSelected] = useState<Date[] | undefined>([]);
 
-    return (
-      <div className="space-y-4">
-        <h3 className="text-sm font-medium">Date Range Restrictions</h3>
+  return (
+    <div className="space-y-4">
+      <div>
+        <h3 className="text-sm font-medium mb-2">Multiple Date Selection</h3>
         <Calendar
-          value={value}
-          onChange={setValue}
-          minValue={minValue}
-          maxValue={maxValue}
+          mode="multiple"
+          selected={selected}
+          onSelect={setSelected}
+          showOutsideDays={true}
         />
-        <p className="text-sm text-base-content/70">
-          Only next 2 weeks are selectable
-        </p>
       </div>
-    );
-  },
+      {selected && selected.length > 0 && (
+        <div className="text-sm text-muted-foreground">
+          <p>Selected dates:</p>
+          <ul className="list-disc list-inside">
+            {selected.map((date) => (
+              <li key={date.toISOString()}>{date.toLocaleDateString()}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export const MultipleSelection: Story = {
+  render: () => <MultipleSelectionComponent />,
+};
+
+const RangeSelectionComponent = () => {
+  const [selected, setSelected] = useState<DateRange | undefined>();
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <h3 className="text-sm font-medium mb-2">Date Range Selection</h3>
+        <Calendar
+          mode="range"
+          selected={selected}
+          onSelect={setSelected}
+          showOutsideDays={true}
+        />
+      </div>
+      {selected && (
+        <div className="text-sm text-muted-foreground">
+          {selected.from && <p>From: {selected.from.toLocaleDateString()}</p>}
+          {selected.to && <p>To: {selected.to.toLocaleDateString()}</p>}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export const RangeSelection: Story = {
+  render: () => <RangeSelectionComponent />,
+};
+
+const DisabledDatesComponent = () => {
+  const [selected, setSelected] = useState<Date | undefined>();
+  const today = new Date();
+  const pastDates = { before: today };
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <h3 className="text-sm font-medium mb-2">Disabled Past Dates</h3>
+        <Calendar
+          mode="single"
+          selected={selected}
+          onSelect={setSelected}
+          disabled={pastDates}
+          showOutsideDays={true}
+        />
+      </div>
+      <p className="text-sm text-muted-foreground">Past dates are disabled</p>
+    </div>
+  );
 };
 
 export const DisabledDates: Story = {
-  render: () => {
-    const [value, setValue] = useState(today(getLocalTimeZone()));
+  render: () => <DisabledDatesComponent />,
+};
 
-    return (
-      <div className="space-y-4">
-        <h3 className="text-sm font-medium">Disabled Dates</h3>
+const CustomStylingComponent = () => {
+  const [selected, setSelected] = useState<Date | undefined>(new Date());
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <h3 className="text-sm font-medium mb-2">Custom Selected Styling</h3>
         <Calendar
-          value={value}
-          onChange={setValue}
-          isDateUnavailable={(date) => {
-            const day = date.toDate(getLocalTimeZone()).getDay();
-            return day === 0 || day === 6;
-          }}
+          mode="single"
+          selected={selected}
+          onSelect={setSelected}
+          selectedClassNames="bg-green-500 text-white hover:bg-green-600"
+          showOutsideDays={true}
         />
-        <p className="text-sm text-base-content/70">
-          Weekends are disabled
-        </p>
       </div>
-    );
-  },
-};
-
-export const ReadOnly: Story = {
-  render: () => (
-    <div className="space-y-4">
-      <h3 className="text-sm font-medium">Read Only Calendar</h3>
-      <Calendar value={today(getLocalTimeZone())} isReadOnly />
     </div>
-  ),
+  );
 };
 
-export const Disabled: Story = {
-  render: () => (
+export const CustomStyling: Story = {
+  render: () => <CustomStylingComponent />,
+};
+
+const ModifiersComponent = () => {
+  const [selected, setSelected] = useState<Date | undefined>();
+  const weekends = { dayOfWeek: [0, 6] };
+
+  return (
     <div className="space-y-4">
-      <h3 className="text-sm font-medium">Disabled Calendar</h3>
-      <Calendar isDisabled />
+      <div>
+        <h3 className="text-sm font-medium mb-2">Weekend Highlighting</h3>
+        <Calendar
+          mode="single"
+          selected={selected}
+          onSelect={setSelected}
+          modifiers={{ weekends }}
+          modifiersClassNames={{
+            weekends: "text-red-500 font-bold",
+          }}
+          showOutsideDays={true}
+        />
+      </div>
+      <p className="text-sm text-muted-foreground">Weekends are highlighted in red</p>
     </div>
-  ),
+  );
 };
 
+export const Modifiers: Story = {
+  render: () => <ModifiersComponent />,
+};

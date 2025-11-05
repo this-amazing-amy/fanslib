@@ -12,8 +12,8 @@ export type SliderProps = AriaSliderProps<number | number[]> & {
 };
 
 export const Slider = (props: SliderProps) => {
-  const trackRef = useRef<HTMLDivElement>(null);
-  const numberFormatter = useNumberFormatter(props.formatOptions ?? { useGrouping: false });
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const numberFormatter = useNumberFormatter({ useGrouping: false });
   const state = useSliderState({
     ...props,
     numberFormatter,
@@ -69,8 +69,8 @@ export const Slider = (props: SliderProps) => {
               : `${state.getThumbPercent(0) * 100}%`,
           }}
         />
-        {state.values.map((_, i) => (
-          <Thumb key={i} index={i} state={state} trackRef={trackRef} color={props.color} />
+        {state.values.map((v, i) => (
+          <Thumb key={v} index={i} state={state} trackRef={trackRef} color={props.color} />
         ))}
       </div>
     </div>
@@ -80,7 +80,7 @@ export const Slider = (props: SliderProps) => {
 type ThumbProps = {
   index: number;
   state: SliderState;
-  trackRef: React.RefObject<HTMLDivElement>;
+  trackRef: React.RefObject<HTMLDivElement | null>;
   color?: SliderProps['color'];
 };
 

@@ -35,7 +35,7 @@ export type RadioGroupItemProps = AriaRadioProps & {
   children: ReactNode;
 };
 
-export const RadioGroupItem = ({ className, children, ...props }: RadioGroupItemProps) => {
+export const RadioGroupItem = ({ className: _className, children, ...props }: RadioGroupItemProps) => {
   const ref = useRef<HTMLInputElement>(null);
   const context = useContext(RadioGroupContext);
   

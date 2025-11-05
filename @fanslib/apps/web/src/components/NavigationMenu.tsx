@@ -7,7 +7,7 @@ export const NavigationMenu = () => {
 
   const menuItems = [
     { to: '/', label: 'Dashboard', icon: '🏠' },
-    { to: '/media', label: 'Media', icon: '🎬' },
+    { to: '/library', label: 'Media', icon: '🎬' },
     { to: '/posts', label: 'Posts', icon: '📝' },
     { to: '/calendar', label: 'Calendar', icon: '📅' },
     { to: '/channels', label: 'Channels', icon: '📺' },

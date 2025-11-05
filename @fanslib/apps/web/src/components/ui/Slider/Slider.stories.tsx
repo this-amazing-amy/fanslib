@@ -20,75 +20,83 @@ const meta: Meta<typeof Slider> = {
 export default meta;
 type Story = StoryObj<typeof Slider>;
 
-export const Default: Story = {
-  render: () => {
-    const [value, setValue] = useState(50);
+const DefaultComponent = () => {
+  const [value, setValue] = useState(50);
 
-    return (
-      <div className="w-80">
-        <Slider
-          label="Volume"
-          value={value}
-          onChange={setValue}
-        />
-      </div>
-    );
-  },
+  return (
+    <div className="w-80">
+      <Slider
+        label="Volume"
+        value={value}
+        onChange={(v) => setValue(v as number)}
+      />
+    </div>
+  );
+};
+
+export const Default: Story = {
+  render: () => <DefaultComponent />,
+};
+
+const WithMinMaxComponent = () => {
+  const [value, setValue] = useState(25);
+
+  return (
+    <div className="w-80">
+      <Slider
+        label="Temperature"
+        value={value}
+        onChange={(v) => setValue(v as number)}
+        minValue={0}
+        maxValue={100}
+      />
+    </div>
+  );
 };
 
 export const WithMinMax: Story = {
-  render: () => {
-    const [value, setValue] = useState(25);
+  render: () => <WithMinMaxComponent />,
+};
 
-    return (
-      <div className="w-80">
-        <Slider
-          label="Temperature"
-          value={value}
-          onChange={setValue}
-          minValue={0}
-          maxValue={100}
-        />
-      </div>
-    );
-  },
+const WithStepComponent = () => {
+  const [value, setValue] = useState(50);
+
+  return (
+    <div className="w-80">
+      <Slider
+        label="Brightness (increments of 10)"
+        value={value}
+        onChange={(v) => setValue(v as number)}
+        minValue={0}
+        maxValue={100}
+        step={10}
+      />
+    </div>
+  );
 };
 
 export const WithStep: Story = {
-  render: () => {
-    const [value, setValue] = useState(50);
+  render: () => <WithStepComponent />,
+};
 
-    return (
-      <div className="w-80">
-        <Slider
-          label="Brightness (increments of 10)"
-          value={value}
-          onChange={setValue}
-          minValue={0}
-          maxValue={100}
-          step={10}
-        />
-      </div>
-    );
-  },
+const RangeComponent = () => {
+  const [value, setValue] = useState([25, 75]);
+
+  return (
+    <div className="w-80">
+      <Slider
+        label="Price range"
+        value={value}
+        onChange={(v) => setValue(v as number[])}
+        minValue={0}
+        maxValue={100}
+      />
+    </div>
+  );
 };
 
 export const Range: Story = {
-  render: () => {
-    const [value, setValue] = useState([25, 75]);
-
-    return (
-      <div className="w-80">
-        <Slider
-          label="Price range"
-          value={value}
-          onChange={setValue}
-          minValue={0}
-          maxValue={100}
-        />
-      </div>
-    );
-  },
+  render: () => <RangeComponent />,
 };
 
 export const Colors: Story = {
@@ -117,23 +125,24 @@ export const Disabled: Story = {
   ),
 };
 
-export const CustomFormatting: Story = {
-  render: () => {
-    const [value, setValue] = useState(50);
+const CustomFormattingComponent = () => {
+  const [value, setValue] = useState(50);
 
-    return (
-      <div className="w-80">
-        <Slider
-          label="Volume"
-          value={value}
-          onChange={setValue}
-          formatOptions={{ style: 'percent' }}
-          minValue={0}
-          maxValue={1}
-          step={0.01}
-        />
-      </div>
-    );
-  },
+  return (
+    <div className="w-80">
+      <Slider
+        label="Volume"
+        value={value}
+        onChange={(v) => setValue(v as number)}
+        minValue={0}
+        maxValue={1}
+        step={0.01}
+      />
+    </div>
+  );
+};
+
+export const CustomFormatting: Story = {
+  render: () => <CustomFormattingComponent />,
 };
 

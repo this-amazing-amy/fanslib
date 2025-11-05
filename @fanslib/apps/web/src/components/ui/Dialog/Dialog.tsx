@@ -1,18 +1,14 @@
 import { X } from 'lucide-react';
-import type { ReactNode } from 'react';
-import { useEffect, useRef, useState } from 'react';
-import type { AriaDialogProps } from 'react-aria';
-import { FocusScope, OverlayContainer, useDialog, useModalOverlay, usePreventScroll } from 'react-aria';
-import type { OverlayTriggerState } from 'react-stately';
+import type { ReactElement, ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { FocusScope, usePreventScroll } from 'react-aria';
 import { cn } from '~/lib/cn';
 import { Button } from '../Button';
 
-export type DialogProps = AriaDialogProps & {
-  state: OverlayTriggerState;
+export type DialogProps = {
   children: ReactNode;
-  className?: string;
-  isDismissable?: boolean;
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
 const maxWidthClasses = {
@@ -24,74 +20,114 @@ const maxWidthClasses = {
   '3xl': 'max-w-3xl',
 };
 
-export const Dialog = ({
-  state,
+type DialogContextValue = {
+  isOpen: boolean;
+  setOpen: (v: boolean) => void;
+  toggle: () => void;
+};
+
+const DialogContext = createContext<DialogContextValue | null>(null);
+
+export const Dialog = ({ children, open, onOpenChange }: DialogProps) => {
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const isControlled = typeof open === 'boolean';
+  const isOpen = isControlled ? open : uncontrolledOpen;
+  const setOpen = useCallback((v: boolean) => {
+    if (isControlled) onOpenChange?.(v);
+    else setUncontrolledOpen(v);
+  }, [isControlled, onOpenChange]);
+  const toggle = useCallback(() => setOpen(!isOpen), [setOpen, isOpen]);
+  const value = useMemo(() => ({ isOpen, setOpen, toggle }), [isOpen, setOpen, toggle]);
+  return <DialogContext.Provider value={value}>{children}</DialogContext.Provider>;
+};
+
+export const DialogTrigger = ({ asChild = false, children }: { asChild?: boolean; children: ReactElement }) => {
+  const ctx = useContext(DialogContext);
+  if (!ctx) return null;
+  const { toggle, isOpen } = ctx;
+  if (asChild) {
+    return (
+      <span onClick={toggle} aria-haspopup="dialog" aria-expanded={isOpen} className="inline-flex">
+        {children}
+      </span>
+    );
+  }
+  return <button onClick={toggle} aria-haspopup="dialog" aria-expanded={isOpen} />;
+};
+
+export const DialogContent = ({
   children,
   className,
   isDismissable = true,
   maxWidth = 'lg',
-  ...props
-}: DialogProps) => {
+}: {
+  children: ReactNode;
+  className?: string;
+  isDismissable?: boolean;
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
+}) => {
+  const ctx = useContext(DialogContext);
   const ref = useRef<HTMLDivElement>(null);
-  const { modalProps, underlayProps } = useModalOverlay({ isDismissable }, state, ref);
-  const { dialogProps } = useDialog(props, ref);
   const [isAnimating, setIsAnimating] = useState(false);
 
   usePreventScroll();
 
   useEffect(() => {
-    if (state.isOpen) {
-      setIsAnimating(true);
-    }
-  }, [state.isOpen]);
+    if (!ctx) return;
+    if (ctx.isOpen) setIsAnimating(true);
+  }, [ctx]);
 
-  if (!state.isOpen) return null;
+  useEffect(() => {
+    if (!ctx?.isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isDismissable) ctx.setOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [ctx, isDismissable]);
+
+  if (!ctx?.isOpen) return null;
 
   return (
-    <OverlayContainer>
-      <div 
-        className={cn(
-          'fixed inset-0 z-50 flex items-center justify-center bg-black/50',
-          'transition-opacity duration-200 ease-out',
-          isAnimating ? 'opacity-100' : 'opacity-0'
-        )}
-        {...underlayProps}
-        onClick={(e) => {
-          if (isDismissable && e.target === e.currentTarget) {
-            state.close();
-          }
-        }}
-      >
-        <FocusScope contain restoreFocus autoFocus>
-          <div
-            {...modalProps}
-            {...dialogProps}
-            ref={ref}
-            className={cn(
-              'bg-base-100 rounded-lg shadow-xl p-6 w-full',
-              'transition-all duration-200 ease-out',
-              isAnimating ? 'opacity-100 scale-100' : 'opacity-0 scale-95',
-              maxWidthClasses[maxWidth],
-              className
-            )}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {isDismissable ? (
-              <Button
-                variant="ghost"
-                size="xs"
-                onPress={() => state.close()}
-                aria-label="Close"
-                className="btn-circle absolute right-2 top-2"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            ) : null}
-            {children}
-          </div>
-        </FocusScope>
-      </div>
-    </OverlayContainer>
+    <div
+      className={cn(
+        'fixed inset-0 z-50 flex items-center justify-center bg-black/50',
+        'transition-opacity duration-200 ease-out',
+        isAnimating ? 'opacity-100' : 'opacity-0'
+      )}
+      onClick={(e) => {
+        if (isDismissable && e.target === e.currentTarget) ctx.setOpen(false);
+      }}
+    >
+      <FocusScope contain restoreFocus autoFocus>
+        <div
+          ref={ref}
+          role="dialog"
+          aria-modal="true"
+          className={cn(
+            'bg-base-100 rounded-lg shadow-xl p-6 w-full',
+            'transition-all duration-200 ease-out',
+            isAnimating ? 'opacity-100 scale-100' : 'opacity-0 scale-95',
+            maxWidthClasses[maxWidth],
+            className
+          )}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {isDismissable ? (
+            <Button
+              variant="ghost"
+              size="xs"
+              onClick={() => ctx.setOpen(false)}
+              aria-label="Close"
+              className="btn-circle absolute right-2 top-2"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          ) : null}
+          {children}
+        </div>
+      </FocusScope>
+    </div>
   );
 };
 

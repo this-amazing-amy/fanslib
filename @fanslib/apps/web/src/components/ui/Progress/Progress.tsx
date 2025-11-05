@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import type { AriaProgressBarProps } from 'react-aria';
 import { useProgressBar } from 'react-aria';
 import { cn } from '~/lib/cn';
@@ -15,8 +14,7 @@ export const Progress = ({
   showLabel = false,
   ...props
 }: ProgressProps) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const { progressBarProps, labelProps } = useProgressBar(props, ref);
+  const { progressBarProps, labelProps } = useProgressBar(props);
 
   const variantClasses = {
     primary: 'progress-primary',
@@ -48,7 +46,6 @@ export const Progress = ({
       )}
       <progress
         {...progressBarProps}
-        ref={ref}
         className={cn('progress w-full', variantClasses[variant], className)}
         value={props.value}
         max={props.maxValue}

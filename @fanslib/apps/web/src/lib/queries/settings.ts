@@ -74,7 +74,7 @@ export const useImportDatabaseMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (sourcePath: string) => settingsApi.importDatabase(sourcePath),
+    mutationFn: (sourcePath: string) => settingsApi.importDatabase({ sourcePath }),
     onSuccess: () => {
       queryClient.invalidateQueries();
     },
@@ -83,12 +83,12 @@ export const useImportDatabaseMutation = () => {
 
 export const useValidateDatabaseMutation = () =>
   useMutation({
-    mutationFn: (libraryPath: string) => settingsApi.validateDatabase(libraryPath),
+    mutationFn: (libraryPath: string) => settingsApi.validateDatabase({ libraryPath }),
   });
 
 export const useHealthCheckMutation = () =>
   useMutation({
-    mutationFn: (serverUrl: string) => settingsApi.healthCheck(serverUrl),
+    mutationFn: (serverUrl: string) => settingsApi.healthCheck({ serverUrl }),
   });
 
 
