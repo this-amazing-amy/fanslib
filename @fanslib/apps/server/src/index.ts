@@ -2,6 +2,7 @@ import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
 import { Elysia } from "elysia";
 import "reflect-metadata";
+import superjson from "superjson";
 import { analyticsRoutes } from "./features/analytics/routes";
 import { postponeRoutes } from "./features/api-postpone/routes";
 import { channelsRoutes } from "./features/channels/routes";
@@ -17,7 +18,6 @@ import { subredditsRoutes } from "./features/subreddits/routes";
 import { tagsRoutes } from "./features/tags/routes";
 import { db } from "./lib/db";
 import { env } from "./lib/env";
-import { serializeJson } from "./lib/serialize-json";
 
 const app = new Elysia()
   .use(cors())
@@ -29,22 +29,15 @@ const app = new Elysia()
       },
     },
   }))
-  .onError(({ error, set }) => {
-    const statusCode = "status" in error && typeof error.status === "number" ? error.status : 500;
-    const errorMessage = error instanceof Error ? error.message : String(error);
-
-    // Log the full error for debugging
-    if (statusCode === 500) {
-      console.error("❌ Internal Server Error:", error);
-      if (error instanceof Error && error.stack) {
-        console.error("Stack trace:", error.stack);
+  // @ts-expect-error
+  .mapResponse(({ responseValue, path }) => {
+    if (!path.includes("/api/media/"))  return responseValue;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if ([Array, Object].includes(responseValue?.constructor as any)
+            && !path.match(/^\/api\/swagger(\/|$)/)) {
+        return superjson.stringify(responseValue)
       }
-    }
-
-    set.status = statusCode;
-    return { error: errorMessage };
   })
-  .mapResponse(serializeJson)
   .get("/health", () => ({ status: "ok", timestamp: new Date().toISOString() }))
   .use(libraryRoutes)
   .use(postsRoutes)
@@ -69,3 +62,6 @@ db().then(() => {
   console.error("Failed to initialize database:", error);
   process.exit(1);
 });
+
+// Export app type for Eden Treaty
+export type App = typeof app;

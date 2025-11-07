@@ -1,35 +1,26 @@
 import type {
   DeleteMediaResponse,
   FetchAllMediaRequest,
-  FetchAllMediaResponse,
   FindAdjacentMediaRequest,
   FindAdjacentMediaResponse,
-  FetchMediaByIdResponse,
-  UpdateMediaRequest,
-  UpdateMediaResponse,
   GetScanStatusResponse,
+  UpdateMediaRequest,
 } from '@fanslib/types';
-import { apiRequest } from './client';
+import {
+  MediaSchema,
+  UpdateMediaResponseSchema
+} from '@fanslib/types';
+import { apiRequest, apiRequestWithSchema } from './client';
+import { eden } from './eden';
 
 export const mediaApi = {
-  getAll: (request?: FetchAllMediaRequest) => {
-    const searchParams = new URLSearchParams();
-    if (request?.page) searchParams.set('page', request.page.toString());
-    if (request?.limit) searchParams.set('limit', request.limit.toString());
-    if (request?.filters) searchParams.set('filters', JSON.stringify(request.filters));
-    if (request?.sort) searchParams.set('sort', JSON.stringify(request.sort));
-    
-    const query = searchParams.toString();
-    return apiRequest<FetchAllMediaResponse>(
-      `/api/media${query ? `?${query}` : ''}`
-    );
-  },
+  getAll: (request?: FetchAllMediaRequest) => 
 
   getById: (id: string) =>
-    apiRequest<FetchMediaByIdResponse>(`/api/media/${id}`),
+    apiRequestWithSchema(`/api/media/${id}`, MediaSchema),
 
   update: (id: string, request: UpdateMediaRequest) =>
-    apiRequest<UpdateMediaResponse>(`/api/media/${id}`, {
+    apiRequestWithSchema(`/api/media/${id}`, UpdateMediaResponseSchema, {
       method: 'PATCH',
       body: JSON.stringify(request),
     }),

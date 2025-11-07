@@ -1,7 +1,5 @@
 import { Bookmark, Plus } from "lucide-react";
 import { useState } from "react";
-import { filtersFromFilterPreset } from "~/features/library/filter-helpers";
-import { useFilterPresetContext } from "~/contexts/FilterPresetContext";
 import { Button } from "~/components/ui/Button";
 import {
   DropdownMenu,
@@ -11,6 +9,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
+import { useFilterPresetContext } from "~/contexts/FilterPresetContext";
+import { filtersFromFilterPreset } from "~/features/library/filter-helpers";
 import { useMediaFilters } from "./MediaFiltersContext";
 import { SavePresetDialog } from "./SavePresetDialog";
 
@@ -20,6 +20,7 @@ type FilterPresetDropdownProps = {
 
 export const FilterPresetDropdown = ({ disabled = false }: FilterPresetDropdownProps) => {
   const { presets, isLoading, applyPreset } = useFilterPresetContext();
+  console.log("presets", presets);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const { filters, hasActiveFilters } = useMediaFilters();
 

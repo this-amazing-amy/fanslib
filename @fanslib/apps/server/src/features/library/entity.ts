@@ -1,3 +1,4 @@
+import { t } from "elysia";
 import {
   Column,
   CreateDateColumn,
@@ -33,11 +34,11 @@ export class Media {
   @Column("bigint")
   size!: number;
 
-  @Column("float", { nullable: true })
-  duration?: number;
+  @Column({ type: "float", nullable: true })
+  duration: number | null;
 
-  @Column("varchar", { nullable: true })
-  redgifsUrl?: string;
+  @Column({ type: "varchar", nullable: true })
+  redgifsUrl: string | null;
 
   @CreateDateColumn({ type: "datetime" })
   createdAt!: Date;
@@ -65,5 +66,21 @@ export class Media {
   @OneToMany(() => MediaTag, (mediaTag) => mediaTag.media)
   mediaTags!: MediaTag[];
 }
+
+export const MediaTypeSchema = t.Union([t.Literal('image'), t.Literal('video')]);
+
+export const MediaSchema = t.Object({
+  id: t.String(),
+  relativePath: t.String(),
+  type: MediaTypeSchema,
+  name: t.String(),
+  size: t.Number(),
+  duration: t.Union([t.Number(), t.Null()]),
+  redgifsUrl: t.Union([t.String(), t.Null()]),
+  createdAt: t.Date(),
+  updatedAt: t.Date(),
+  fileCreationDate: t.Date(),
+  fileModificationDate: t.Date(),
+});
 
 export type MediaWithoutRelations = Omit<Media, "id">;

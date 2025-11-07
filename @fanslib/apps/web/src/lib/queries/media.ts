@@ -1,11 +1,21 @@
-import type { GetAllMediaParams, UpdateMediaPayload } from '@fanslib/types';
+import type { FetchAllMediaRequest, FindAdjacentMediaRequest, UpdateMediaRequest } from '@fanslib/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { eden } from '../api/eden';
 import { mediaApi } from '../api/media';
 
-export const useMediaListQuery = (params?: GetAllMediaParams) =>
+export const useMediaListQuery = (params?: FetchAllMediaRequest) =>
   useQuery({
     queryKey: ['media', 'list', params],
-    queryFn: () => mediaApi.getAll(params),
+    queryFn: () => eden.api.media.get(
+    {
+      query: {
+        page: params?.page,
+        limit: params?.limit,
+        filters: JSON.stringify(params?.filters),
+        sort: JSON.stringify(params?.sort),
+      },
+    }
+  )
   });
 
 export const useMediaQuery = (id: string) =>
@@ -15,7 +25,7 @@ export const useMediaQuery = (id: string) =>
     enabled: !!id,
   });
 
-export const useMediaAdjacentQuery = (id: string, params?: GetAllMediaParams) =>
+export const useMediaAdjacentQuery = (id: string, params?: FindAdjacentMediaRequest) =>
   useQuery({
     queryKey: ['media', id, 'adjacent', params],
     queryFn: () => mediaApi.getAdjacent(id, params),
@@ -26,7 +36,7 @@ export const useUpdateMediaMutation = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: UpdateMediaPayload }) =>
+    mutationFn: ({ id, updates }: { id: string; updates: UpdateMediaRequest }) =>
       mediaApi.update(id, updates),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['media', 'list'] });

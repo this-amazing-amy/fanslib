@@ -1,90 +1,45 @@
-import type { PaginationParams } from '../../common/pagination';
+import { Schema as S } from "effect";
 
-export type MediaType = "image" | "video";
+export const MediaTypeSchema = S.Literal("image", "video");
 
-export type Media = {
-  id: string;
-  relativePath: string;
-  type: MediaType;
-  name: string;
-  size: number;
-  duration?: number;
-  redgifsUrl?: string;
-  createdAt: Date;
-  updatedAt: Date;
-  fileCreationDate: Date;
-  fileModificationDate: Date;
-};
+export const MediaSchema = S.Struct({
+  id: S.String,
+  relativePath: S.String,
+  type: MediaTypeSchema,
+  name: S.String,
+  size: S.Number,
+  duration: S.optional(S.Number),
+  redgifsUrl: S.optional(S.String),
+  createdAt: S.Date,
+  updatedAt: S.Date,
+  fileCreationDate: S.Date,
+  fileModificationDate: S.Date,
+});
+
+export const LibraryScanResultSchema = S.Struct({
+  added: S.Number,
+  updated: S.Number,
+  removed: S.Number,
+  total: S.Number,
+});
+
+export const LibraryScanProgressSchema = S.Struct({
+  current: S.Number,
+  total: S.Number,
+});
+
+export const FileScanResultSchema = S.Struct({
+  action: S.Literal("added", "updated", "unchanged"),
+  media: MediaSchema,
+});
+
+export const MediaStdSchema = S.standardSchemaV1(MediaSchema);
+
+// Type inference helpers
+export type Media = S.Schema.Type<typeof MediaSchema>;
+export type MediaType = S.Schema.Type<typeof MediaTypeSchema>;
+export type LibraryScanResult = S.Schema.Type<typeof LibraryScanResultSchema>;
+export type LibraryScanProgress = S.Schema.Type<typeof LibraryScanProgressSchema>;
+export type FileScanResult = S.Schema.Type<typeof FileScanResultSchema>;
 
 export type MediaWithoutRelations = Omit<Media, "id">;
-
-export type SortField = "fileModificationDate" | "fileCreationDate" | "lastPosted" | "random";
-export type SortDirection = "ASC" | "DESC";
-
-export type MediaSort = {
-  field: SortField;
-  direction: SortDirection;
-};
-
-export type FilterItem =
-  | {
-      type: "channel" | "subreddit" | "tag" | "shoot";
-      id: string;
-    }
-  | {
-      type: "filename" | "caption";
-      value: string;
-    }
-  | {
-      type: "posted";
-      value: boolean;
-    }
-  | {
-      type: "createdDateStart" | "createdDateEnd";
-      value: Date;
-    }
-  | {
-      type: "mediaType";
-      value: "image" | "video";
-    }
-  | {
-      type: "dimensionEmpty";
-      dimensionId: number;
-    };
-
-export type FilterGroup = {
-  include: boolean;
-  items: FilterItem[];
-};
-
-export type MediaFilters = FilterGroup[];
-
-export type TagFilter = {
-  tagIds?: number[];
-};
-
-export type GetAllMediaParams = Partial<
-  PaginationParams & { filters: MediaFilters; sort?: MediaSort }
->;
-
-export type LibraryScanResult = {
-  added: number;
-  updated: number;
-  removed: number;
-  total: number;
-};
-
-export type LibraryScanProgress = {
-  current: number;
-  total: number;
-};
-
-export type FileScanResult = {
-  action: "added" | "updated" | "unchanged";
-  media: Media;
-};
-
-export type UpdateMediaPayload = Partial<
-  Omit<Media, "id" | "createdAt" | "updatedAt" | "postMedia">
->;
-

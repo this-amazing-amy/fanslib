@@ -6,10 +6,10 @@ import { isSameSecond } from "date-fns";
 import { promises as fs } from "fs";
 import path from "path";
 import { db } from "../../../../lib/db";
+import { env } from "../../../../lib/env";
 import { convertRelativeToAbsolute } from "../../../../lib/path-utils";
 import { getVideoDuration } from "../../../../lib/video";
 import { walkDirectory } from "../../../../lib/walkDirectory";
-import { loadSettings } from "../../../settings/operations/setting/load";
 import { Media } from "../../entity";
 import { createMedia } from "../media/create";
 import { deleteMedia } from "../media/delete";
@@ -53,10 +53,10 @@ export const scanFile = async (filePath: string): Promise<FileScanResult> => {
     throw new Error(`Unsupported file type: ${filePath}`);
   }
 
-  const settings = await loadSettings();
-  const relativePath = convertToRelativePath(filePath, settings.libraryPath);
+  const libraryPath = env().libraryPath;
+  const relativePath = convertToRelativePath(filePath, libraryPath);
   const stats = await fs.stat(filePath);
-  const existingMedia = (await fetchMediaByPath(relativePath)) ?? (await findMediaByStats(stats, settings.libraryPath));
+  const existingMedia = (await fetchMediaByPath(relativePath)) ?? (await findMediaByStats(stats, libraryPath));
 
   if (!existingMedia) {
     const media = {
@@ -209,7 +209,7 @@ class LibraryScanner {
       }
 
       // Cleanup: remove files that no longer exist and weren't processed
-      const settings = await loadSettings();
+      const libraryPath = env().libraryPath;
       for (const media of existingMedia) {
         // Skip if we've already processed this media (it was moved)
         if (processedMediaIds.has(media.id)) {
@@ -223,7 +223,7 @@ class LibraryScanner {
 
         // Check if the file still exists using path resolution
         try {
-          const resolvedPath = convertRelativeToAbsolute(media.relativePath, settings.libraryPath);
+          const resolvedPath = convertRelativeToAbsolute(media.relativePath, libraryPath);
           await fs.access(resolvedPath);
           // File exists, keep it
           continue;

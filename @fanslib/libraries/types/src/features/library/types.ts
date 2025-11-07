@@ -1,4 +1,6 @@
 export * from "./media";
+export * from "./filters";
+export * from "./sort";
 export * from "./operations/media/fetch-all";
 export * from "./operations/media/fetch-by-id";
 export * from "./operations/media/find-adjacent";

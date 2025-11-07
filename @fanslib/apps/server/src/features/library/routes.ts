@@ -1,43 +1,36 @@
-import type { FetchAllMediaRequest, UpdateMediaRequest, FindAdjacentMediaRequest, ScanFileRequest } from "@fanslib/types";
+import { type FindAdjacentMediaRequest, type ScanFileRequest, type UpdateMediaRequest } from "@fanslib/types";
 import { Elysia } from 'elysia';
+import { env } from '../../lib/env';
 import { deleteMedia } from './operations/media/delete';
-import { fetchAllMedia } from './operations/media/fetch-all';
+import { fetchAllMedia, FetchAllMediaRequestBodySchema, FetchAllMediaResponseSchema } from './operations/media/fetch-all';
 import { getMediaById } from './operations/media/fetch-by-id';
 import { findAdjacentMedia } from './operations/media/find-adjacent';
 import { updateMedia } from './operations/media/update';
-import { scanLibrary, scanFile, getScanStatus } from './operations/scan/scan';
-import { loadSettings } from '../settings/operations/setting/load';
+import { getScanStatus, scanFile, scanLibrary } from './operations/scan/scan';
 
 export const libraryRoutes = new Elysia({ prefix: '/api/media' })
-  .get('/', async ({ query }) => {
-    const request: FetchAllMediaRequest = {
-      page: query.page ? parseInt(query.page as string) : undefined,
-      limit: query.limit ? parseInt(query.limit as string) : undefined,
-      filters: query.filters ? JSON.parse(query.filters as string) : undefined,
-      sort: query.sort ? JSON.parse(query.sort as string) : undefined,
-    };
-    return fetchAllMedia({
-      page: request.page,
-      limit: request.limit,
-      filters: request.filters,
-      sort: request.sort,
-    });
+  .post('/', async ({ body }) => fetchAllMedia({
+      page: body.page,
+      limit: body.limit,
+      filters: body.filters,
+      sort: body.sort,
+    }), {
+    body: FetchAllMediaRequestBodySchema,
+    response: FetchAllMediaResponseSchema,
   })
-  .get('/:id', async ({ params: { id } }) => {
+  .get('/:id', async ({ params: { id }, set }) => {
     const media = await getMediaById(id);
     if (!media) {
+      set.status = 404;
       return { error: 'Media not found' };
     }
+
     return media;
   })
   .patch('/:id', async ({ params: { id }, body }) => {
     const request = body as UpdateMediaRequest;
-    const media = await updateMedia(id, request);
-    if (!media) {
-      return { error: 'Media not found' };
-    }
-    return media;
-  })
+    return updateMedia(id, request);
+  } )
   .delete('/:id', async ({ params: { id }, query }) => {
     const deleteFile = query.deleteFile === 'true';
     await deleteMedia(id, deleteFile);
@@ -54,8 +47,7 @@ export const libraryRoutes = new Elysia({ prefix: '/api/media' })
     });
   })
   .post('/scan', async () => {
-    const settings = await loadSettings();
-    await scanLibrary(settings.libraryPath);
+    await scanLibrary(env().libraryPath);
     return {
       message: 'Scan started',
       started: true,

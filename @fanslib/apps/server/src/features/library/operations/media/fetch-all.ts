@@ -1,11 +1,23 @@
-import type { GetAllMediaParams, PaginatedResponse } from "@fanslib/types";
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { Media } from "../../entity";
+import { paginatedResponseSchema } from "../../../../lib/pagination";
+import { Media, MediaSchema } from "../../entity";
 import { buildFilterGroupQuery } from "../../filter-helpers";
+import { MediaFilterSchema } from "../../schemas/media-filter";
+import { MediaSortSchema } from "../../schemas/media-sort";
+
+export const FetchAllMediaRequestBodySchema = t.Object({
+  page: t.Optional(t.Numeric()),
+  limit: t.Optional(t.Numeric()),
+  filters: t.Optional(MediaFilterSchema),
+  sort: t.Optional(MediaSortSchema),
+});
+
+export const FetchAllMediaResponseSchema = paginatedResponseSchema(MediaSchema);
 
 export const fetchAllMedia = async (
-  params?: GetAllMediaParams
-): Promise<PaginatedResponse<Media>> => {
+  params?: typeof FetchAllMediaRequestBodySchema.static,
+): Promise<typeof FetchAllMediaResponseSchema.static> => {
   const page = params?.page ?? 1;
   const limit = params?.limit ?? 50;
   const skip = (page - 1) * limit;

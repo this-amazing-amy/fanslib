@@ -17,6 +17,8 @@
     "clean": "rm -rf .output"
   },
   "dependencies": {
+    "@elysiajs/eden": "^1.4.4",
+    "@fanslib/server": "workspace:*",
     "@fanslib/types": "workspace:*",
     "@internationalized/date": "^3.10.0",
     "@standard-schema/spec": "^1.0.0",
@@ -28,6 +30,7 @@
     "daisyui": "^5.1.14",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.5",
+    "effect": "^3.19.0",
     "jotai": "^2.14.0",
     "lucide-react": "^0.544.0",
     "react": "^19.0.0",
@@ -37,6 +40,7 @@
     "react-resizable-panels": "^3.0.6",
     "react-stately": "^3.42.0",
     "remeda": "^2.32.0",
+    "superjson": "^2.2.5",
     "tailwind-merge": "^2.6.0",
     "zod": "4"
   },

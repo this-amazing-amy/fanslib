@@ -248,13 +248,10 @@ export const mediaFiltersToString = (filters: MediaFilters): string => {
   return groupStrings.join(" | ");
 };
 
-export const addFilterItemToGroup = (group: FilterGroup, item: FilterItem): FilterGroup => {
-  console.log("addFilterItemToGroup", group, item);
-  return {
+export const addFilterItemToGroup = (group: FilterGroup, item: FilterItem): FilterGroup => ({
     ...group,
     items: [...group.items, item],
-  };
-};
+  });
 
 export const removeFilterItemFromGroup = (group: FilterGroup, index: number): FilterGroup => {
   if (index < 0 || index >= group.items.length) {
