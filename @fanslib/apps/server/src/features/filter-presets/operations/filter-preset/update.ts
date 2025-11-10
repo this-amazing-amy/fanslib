@@ -1,11 +1,23 @@
-import type { UpdateFilterPresetRequest } from "@fanslib/types";
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { FilterPreset } from "../../entity";
+import { MediaFilterSchema } from "../../../library/schemas/media-filter";
+import { FilterPreset, FilterPresetSchema } from "../../entity";
+
+export const UpdateFilterPresetRequestBodySchema = t.Object({
+  name: t.Optional(t.String()),
+  filters: t.Optional(MediaFilterSchema),
+});
+
+export const UpdateFilterPresetResponseSchema = t.Union([
+  FilterPresetSchema,
+  t.Object({ error: t.String() }),
+  t.Null(),
+]);
 
 export const updateFilterPreset = async (
   id: string,
-  payload: UpdateFilterPresetRequest
-): Promise<FilterPreset | null> => {
+  payload: typeof UpdateFilterPresetRequestBodySchema.static
+): Promise<typeof UpdateFilterPresetResponseSchema.static> => {
   const database = await db();
   const repository = database.getRepository(FilterPreset);
 

@@ -1,3 +1,4 @@
+import { t } from "elysia";
 import {
   Column,
   CreateDateColumn,
@@ -7,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Media } from "../library/entity";
+import type { Media } from "../library/entity";
 
 @Entity()
 // eslint-disable-next-line functional/no-classes
@@ -30,7 +31,7 @@ export class Shoot {
   @UpdateDateColumn({ type: "datetime" })
   updatedAt!: Date;
 
-  @ManyToMany(() => Media, { cascade: true })
+  @ManyToMany("Media", { cascade: true })
   @JoinTable({
     name: "shoot_media",
     joinColumn: { name: "shoot_id", referencedColumnName: "id" },
@@ -39,5 +40,11 @@ export class Shoot {
   media!: Media[];
 }
 
-
-
+export const ShootSchema = t.Object({
+  id: t.String(),
+  name: t.String(),
+  description: t.Optional(t.String()),
+  shootDate: t.Date(),
+  createdAt: t.Date(),
+  updatedAt: t.Date(),
+});

@@ -1,13 +1,23 @@
+import { t } from "elysia";
 import { In } from "typeorm";
 import { db } from "../../../../lib/db";
-import type { Post } from "../../entity";
 import { PostMedia } from "../../entity";
-import { getPostById } from "../post/fetch-by-id";
+import { getPostById, GetPostByIdResponseSchema } from "../post/fetch-by-id";
+
+export const RemoveMediaFromPostRequestParamsSchema = t.Object({
+  id: t.String(),
+});
+
+export const RemoveMediaFromPostRequestBodySchema = t.Object({
+  mediaIds: t.Array(t.String()),
+});
+
+export const RemoveMediaFromPostResponseSchema = GetPostByIdResponseSchema;
 
 export const removeMediaFromPost = async (
   postId: string,
   mediaIds: string[]
-): Promise<Post | null> => {
+): Promise<typeof RemoveMediaFromPostResponseSchema.static> => {
   const dataSource = await db();
   const postMediaRepo = dataSource.getRepository(PostMedia);
 

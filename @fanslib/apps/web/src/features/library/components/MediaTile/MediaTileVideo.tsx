@@ -3,7 +3,7 @@ import { useMediaSelection } from "~/contexts/MediaSelectionContext";
 import { useSfwMode } from "~/hooks/useSfwMode";
 import { cn } from "~/lib/cn";
 import { useVideoPreview } from "~/hooks/useVideoPreview";
-import { mediaApi } from "~/lib/api/media";
+import { getMediaFileUrl, getMediaThumbnailUrl } from "~/lib/media-urls";
 import { MediaTileDuration } from "./MediaTileDuration";
 
 type MediaTileVideoProps = {
@@ -31,7 +31,7 @@ export const MediaTileVideo = ({
     <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
       {!isPreviewActive && (
         <img
-          src={mediaApi.getThumbnailUrl(media.id)}
+          src={getMediaThumbnailUrl(media.id)}
           alt={media.name}
           className={getBlurClassName(
             cn("absolute inset-0 w-full h-full", cover ? "object-cover" : "object-contain")
@@ -42,7 +42,7 @@ export const MediaTileVideo = ({
       )}
       <video
         ref={videoRef}
-        src={mediaApi.getFileUrl(media.id)}
+        src={getMediaFileUrl(media.id)}
         className={getBlurClassName(
           cn(
             "absolute inset-0 w-full h-full",

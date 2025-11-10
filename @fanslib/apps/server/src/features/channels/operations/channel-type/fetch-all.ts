@@ -1,5 +1,8 @@
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { ChannelType } from "../../entity";
+import { ChannelType, ChannelTypeSchema } from "../../entity";
+
+export const FetchChannelTypesResponseSchema = t.Array(ChannelTypeSchema);
 
 export const fetchChannelTypes = async (): Promise<ChannelType[]> => {
   const dataSource = await db();

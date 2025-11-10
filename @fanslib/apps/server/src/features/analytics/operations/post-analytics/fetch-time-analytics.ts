@@ -1,7 +1,9 @@
-import type { TimeAnalytics } from "@fanslib/types";
+import { TimeAnalyticsSchema } from "../../schemas/analytics";
 import { getFanslyPostsWithAnalytics } from "./fetch-posts-with-analytics";
 
-export const getTimeAnalytics = async (): Promise<TimeAnalytics> => {
+export const GetTimeAnalyticsResponseSchema = TimeAnalyticsSchema;
+
+export const getTimeAnalytics = async (): Promise<typeof GetTimeAnalyticsResponseSchema.static> => {
   const posts = await getFanslyPostsWithAnalytics();
 
   const timeMap = new Map<string, { totalViews: number; totalEngagement: number; count: number }>();

@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { Media } from "@fanslib/types";
 import { useSfwMode } from "~/hooks/useSfwMode";
 import { cn } from "~/lib/cn";
-import { mediaApi } from "~/lib/api/media";
+import { getMediaFileUrl, getMediaThumbnailUrl } from "~/lib/media-urls";
 
 type MediaTileImageProps = {
   media: Media;
@@ -15,7 +15,7 @@ export const MediaTileImage = ({ media, cover }: MediaTileImageProps) => {
 
   return (
     <img
-      src={imageError ? mediaApi.getFileUrl(media.id) : mediaApi.getThumbnailUrl(media.id)}
+      src={imageError ? getMediaFileUrl(media.id) : getMediaThumbnailUrl(media.id)}
       alt={media.name}
       className={getBlurClassName(cn("w-full h-full", cover ? "object-cover" : "object-contain"))}
       onError={() => setImageError(true)}

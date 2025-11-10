@@ -1,7 +1,7 @@
 import type { Media } from "@fanslib/types";
 import { Image as ImageIcon, Video } from "lucide-react";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
-import { mediaApi } from "~/lib/api/media";
+import { getMediaFileUrl, getMediaThumbnailUrl } from "~/lib/media-urls";
 import { cn } from "~/lib/cn";
 import { useMediaTagsQuery } from "~/lib/queries/tags";
 import { formatDuration } from "~/lib/video";
@@ -76,7 +76,7 @@ export const MediaTileLite = memo(
           <>
             {!isActivePreview && (
               <img
-                src={mediaApi.getThumbnailUrl(media.id)}
+                src={getMediaThumbnailUrl(media.id)}
                 alt={media.name}
                 className="absolute inset-0 w-full h-full object-contain"
                 onError={handleImageError}
@@ -86,7 +86,7 @@ export const MediaTileLite = memo(
             )}
             <video
               ref={videoRef}
-              src={mediaApi.getFileUrl(media.id)}
+              src={getMediaFileUrl(media.id)}
               className={cn(
                 "absolute inset-0 w-full h-full object-contain",
                 !isActivePreview && "hidden"
@@ -102,7 +102,7 @@ export const MediaTileLite = memo(
           </>
         ) : (
           <img
-            src={imageError ? mediaApi.getFileUrl(media.id) : mediaApi.getThumbnailUrl(media.id)}
+            src={imageError ? getMediaFileUrl(media.id) : getMediaThumbnailUrl(media.id)}
             alt={media.name}
             className="w-full h-full object-contain"
             onError={handleImageError}

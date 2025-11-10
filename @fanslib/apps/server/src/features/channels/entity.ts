@@ -1,4 +1,4 @@
-import type { MediaFilters } from "@fanslib/types";
+import { t } from "elysia";
 import {
   Column,
   Entity,
@@ -9,7 +9,8 @@ import {
   PrimaryColumn,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { Hashtag } from "../hashtags/entity";
+import type { Hashtag } from "../hashtags/entity";
+import type { MediaFilterSchema } from "../library/schemas/media-filter";
 
 @Entity()
 // eslint-disable-next-line functional/no-classes
@@ -40,13 +41,13 @@ export class Channel {
   typeId!: string;
 
   @Column("simple-json", { nullable: true })
-  eligibleMediaFilter?: MediaFilters;
+  eligibleMediaFilter?: typeof MediaFilterSchema.static;
 
   @ManyToOne(() => ChannelType)
   @JoinColumn({ name: "typeId" })
   type!: ChannelType;
 
-  @ManyToMany(() => Hashtag)
+  @ManyToMany("Hashtag")
   @JoinTable({
     name: "channel_default_hashtags",
     joinColumn: { name: "channelId", referencedColumnName: "id" },
@@ -56,3 +57,17 @@ export class Channel {
 }
 
 export type ChannelWithoutRelations = Omit<Channel, "type">;
+
+export const ChannelTypeSchema = t.Object({
+  id: t.String(),
+  name: t.String(),
+  color: t.Optional(t.String()),
+});
+
+export const ChannelSchema = t.Object({
+  id: t.String(),
+  name: t.String(),
+  description: t.Union([t.String(), t.Null()]),
+  typeId: t.String(),
+  eligibleMediaFilter: t.Optional(t.Any()), // MediaFilters - complex type, using Any for now
+});

@@ -1,10 +1,19 @@
-import type { CreateShootRequest, ShootWithMedia } from "@fanslib/types";
+import { t } from "elysia";
 import { In } from "typeorm";
 import { db } from "../../../../lib/db";
-import { Media } from "../../../library/entity";
-import { Shoot } from "../../entity";
+import { Media, MediaSchema } from "../../../library/entity";
+import { Shoot, ShootSchema } from "../../entity";
 
-export const createShoot = async (payload: CreateShootRequest): Promise<ShootWithMedia> => {
+export const CreateShootRequestBodySchema = t.Object({
+  name: t.String(),
+  description: t.Optional(t.String()),
+  shootDate: t.Date(),
+  mediaIds: t.Optional(t.Array(t.String())),
+});
+
+export const CreateShootResponseSchema = t.Intersect([ShootSchema, t.Object({ media: t.Array(MediaSchema) })]);
+
+export const createShoot = async (payload: typeof CreateShootRequestBodySchema.static): Promise<typeof CreateShootResponseSchema.static> => {
   const database = await db();
   const mediaRepository = database.getRepository(Media);
   const shootRepository = database.getRepository(Shoot);

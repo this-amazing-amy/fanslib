@@ -1,10 +1,18 @@
-import type { CreateSnippetRequest } from "@fanslib/types";
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { CaptionSnippet } from "../../entity";
+import { CaptionSnippet, CaptionSnippetSchema } from "../../entity";
 
-export const createSnippet = async (data: CreateSnippetRequest): Promise<CaptionSnippet> => {
-  const dataSource = await db();
-  const repo = dataSource.getRepository(CaptionSnippet);
+export const CreateSnippetRequestBodySchema = t.Object({
+  name: t.String(),
+  content: t.String(),
+  channelId: t.Optional(t.String()),
+});
+
+export const CreateSnippetResponseSchema = CaptionSnippetSchema;
+
+export const createSnippet = async (data: typeof CreateSnippetRequestBodySchema.static): Promise<typeof CreateSnippetResponseSchema.static> => {
+  const database = await db();
+  const repo = database.getRepository(CaptionSnippet);
 
   const existing = await repo.findOne({
     where: {

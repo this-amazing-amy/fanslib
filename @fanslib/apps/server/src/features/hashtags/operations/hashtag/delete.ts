@@ -1,15 +1,23 @@
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
 import { Hashtag, HashtagChannelStats } from "../../entity";
 
-export const deleteHashtag = async (id: number): Promise<void> => {
+export const DeleteHashtagRequestParamsSchema = t.Object({
+  id: t.String(),
+});
+
+export const DeleteHashtagResponseSchema = t.Object({
+  success: t.Boolean(),
+});
+
+export const deleteHashtag = async (id: number): Promise<typeof DeleteHashtagResponseSchema.static> => {
   const dataSource = await db();
   const hashtagRepository = dataSource.getRepository(Hashtag);
   const statsRepository = dataSource.getRepository(HashtagChannelStats);
 
-  // Delete related stats first
   await statsRepository.delete({ hashtagId: id });
-
-  // Then delete the hashtag
   await hashtagRepository.delete({ id });
+
+  return { success: true };
 };
 

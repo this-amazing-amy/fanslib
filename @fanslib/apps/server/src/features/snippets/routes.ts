@@ -1,30 +1,38 @@
-import type { CreateSnippetRequest, UpdateSnippetRequest } from "@fanslib/types";
 import { Elysia } from "elysia";
-import { createSnippet } from "./operations/snippet/create";
-import { deleteSnippet } from "./operations/snippet/delete";
-import { getAllSnippets } from "./operations/snippet/fetch-all";
-import { getSnippetsByChannel } from "./operations/snippet/fetch-by-channel";
-import { getSnippetById } from "./operations/snippet/fetch-by-id";
-import { getGlobalSnippets } from "./operations/snippet/fetch-global";
-import { updateSnippet } from "./operations/snippet/update";
+import { CreateSnippetRequestBodySchema, CreateSnippetResponseSchema, createSnippet } from "./operations/snippet/create";
+import { DeleteSnippetRequestParamsSchema, DeleteSnippetResponseSchema, deleteSnippet } from "./operations/snippet/delete";
+import { FetchAllSnippetsResponseSchema, fetchAllSnippets } from "./operations/snippet/fetch-all";
+import { FetchSnippetsByChannelRequestParamsSchema, FetchSnippetsByChannelResponseSchema, fetchSnippetsByChannel } from "./operations/snippet/fetch-by-channel";
+import { FetchSnippetByIdRequestParamsSchema, FetchSnippetByIdResponseSchema, fetchSnippetById } from "./operations/snippet/fetch-by-id";
+import { FetchGlobalSnippetsResponseSchema, fetchGlobalSnippets } from "./operations/snippet/fetch-global";
+import { UpdateSnippetRequestBodySchema, UpdateSnippetRequestParamsSchema, UpdateSnippetResponseSchema, updateSnippet } from "./operations/snippet/update";
 
 export const snippetsRoutes = new Elysia({ prefix: "/api/snippets" })
-  .get("/", async () => getAllSnippets())
-  .get("/global", async () => getGlobalSnippets())
-  .get("/by-channel/:channelId", async ({ params: { channelId } }) =>
-    getSnippetsByChannel(channelId)
-  )
-  .get("/:id", async ({ params: { id } }) => {
-    const snippet = await getSnippetById(id);
-    if (!snippet) {
-      return { error: "Snippet not found" };
-    }
-    return snippet;
+  .get("/", async () => fetchAllSnippets(), {
+    response: FetchAllSnippetsResponseSchema,
   })
-  .post("/", async ({ body }) => createSnippet(body as CreateSnippetRequest))
-  .patch("/:id", async ({ params: { id }, body }) => updateSnippet(id, body as UpdateSnippetRequest))
-  .delete("/:id", async ({ params: { id } }) => {
-    await deleteSnippet(id);
-    return { success: true };
+  .get("/global", async () => fetchGlobalSnippets(), {
+    response: FetchGlobalSnippetsResponseSchema,
+  })
+  .get("/by-channel/:channelId", async ({ params }) =>
+    fetchSnippetsByChannel(params), {
+    params: FetchSnippetsByChannelRequestParamsSchema,
+    response: FetchSnippetsByChannelResponseSchema,
+  })
+  .get("/:id", async ({ params }) => fetchSnippetById(params), {
+    params: FetchSnippetByIdRequestParamsSchema,
+    response: FetchSnippetByIdResponseSchema,
+  })
+  .post("/", async ({ body }) => createSnippet(body), {
+    body: CreateSnippetRequestBodySchema,
+    response: CreateSnippetResponseSchema,
+  })
+  .patch("/:id", async ({ params, body }) => updateSnippet(params, body), {
+    params: UpdateSnippetRequestParamsSchema,
+    body: UpdateSnippetRequestBodySchema,
+    response: UpdateSnippetResponseSchema,
+  })
+  .delete("/:id", async ({ params }) => deleteSnippet(params), {
+    params: DeleteSnippetRequestParamsSchema,
+    response: DeleteSnippetResponseSchema,
   });
-

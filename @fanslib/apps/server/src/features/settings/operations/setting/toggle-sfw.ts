@@ -1,8 +1,14 @@
+import { t } from "elysia";
 import { loadSettings } from "./load";
 import { saveSettings } from "./save";
 
-export const toggleSfwMode = async (): Promise<Awaited<ReturnType<typeof loadSettings>>> => {
+export const ToggleSfwModeResponseSchema = t.Object({
+  success: t.Boolean(),
+});
+
+export const toggleSfwMode = async (): Promise<typeof ToggleSfwModeResponseSchema.static> => {
   const currentSettings = await loadSettings();
-  return saveSettings({ sfwMode: !currentSettings.sfwMode });
+  await saveSettings({ sfwMode: !currentSettings.sfwMode });
+  return { success: true };
 };
 

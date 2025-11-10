@@ -1,18 +1,27 @@
-import type { FanslyCredentials, Settings } from '@fanslib/types';
+import type {
+  SaveFanslyCredentialsRequestBodySchema,
+  SaveSettingsRequestBodySchema,
+} from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { settingsApi } from '../api/settings';
+import { eden } from '../api/eden';
 
 export const useSettingsQuery = () =>
   useQuery({
     queryKey: ['settings'],
-    queryFn: () => settingsApi.get(),
+    queryFn: async () => {
+      const result = await eden.api.settings.get();
+      return result.data;
+    },
   });
 
 export const useSaveSettingsMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (settings: Partial<Settings>) => settingsApi.save(settings),
+    mutationFn: async (settings: typeof SaveSettingsRequestBodySchema.static) => {
+      const result = await eden.api.settings.patch(settings);
+      return result.data;
+    },
     onSuccess: (data) => {
       queryClient.setQueryData(['settings'], data);
     },
@@ -23,20 +32,12 @@ export const useToggleSfwModeMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => settingsApi.toggleSfwMode(),
-    onSuccess: (data) => {
-      queryClient.setQueryData(['settings'], data);
+    mutationFn: async () => {
+      const result = await eden.api.settings['toggle-sfw'].post();
+      return result.data;
     },
-  });
-};
-
-export const useResetDatabaseMutation = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: () => settingsApi.resetDatabase(),
     onSuccess: () => {
-      queryClient.invalidateQueries();
+      queryClient.invalidateQueries({ queryKey: ['settings'] });
     },
   });
 };
@@ -44,15 +45,20 @@ export const useResetDatabaseMutation = () => {
 export const useFanslyCredentialsQuery = () =>
   useQuery({
     queryKey: ['settings', 'fansly-credentials'],
-    queryFn: () => settingsApi.getFanslyCredentials(),
+    queryFn: async () => {
+      const result = await eden.api.settings['fansly-credentials'].get();
+      return result.data;
+    },
   });
 
 export const useSaveFanslyCredentialsMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (credentials: Partial<FanslyCredentials>) =>
-      settingsApi.saveFanslyCredentials(credentials),
+    mutationFn: async (credentials: typeof SaveFanslyCredentialsRequestBodySchema.static) => {
+      const result = await eden.api.settings['fansly-credentials'].post(credentials);
+      return result.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['settings', 'fansly-credentials'] });
     },
@@ -63,33 +69,12 @@ export const useClearFanslyCredentialsMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => settingsApi.clearFanslyCredentials(),
+    mutationFn: async () => {
+      const result = await eden.api.settings['fansly-credentials'].delete();
+      return result.data;
+    },
     onSuccess: () => {
-      queryClient.setQueryData(['settings', 'fansly-credentials'], {});
+      queryClient.setQueryData(['settings', 'fansly-credentials'], null);
     },
   });
 };
-
-export const useImportDatabaseMutation = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (sourcePath: string) => settingsApi.importDatabase({ sourcePath }),
-    onSuccess: () => {
-      queryClient.invalidateQueries();
-    },
-  });
-};
-
-export const useValidateDatabaseMutation = () =>
-  useMutation({
-    mutationFn: (libraryPath: string) => settingsApi.validateDatabase({ libraryPath }),
-  });
-
-export const useHealthCheckMutation = () =>
-  useMutation({
-    mutationFn: (serverUrl: string) => settingsApi.healthCheck({ serverUrl }),
-  });
-
-
-

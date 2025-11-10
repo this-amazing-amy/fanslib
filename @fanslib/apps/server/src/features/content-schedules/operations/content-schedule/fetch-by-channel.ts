@@ -1,9 +1,12 @@
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { ContentSchedule } from "../../entity";
+import { ContentSchedule, ContentScheduleSchema } from "../../entity";
+
+export const FetchContentSchedulesByChannelResponseSchema = t.Array(ContentScheduleSchema);
 
 export const fetchContentSchedulesByChannel = async (
   channelId: string
-): Promise<ContentSchedule[]> => {
+): Promise<typeof FetchContentSchedulesByChannelResponseSchema.static> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(ContentSchedule);
 

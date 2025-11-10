@@ -5,6 +5,12 @@
   "exports": {
     ".": {
       "types": "./src/index.ts"
+    },
+    "./schemas": {
+      "types": "./src/schemas.ts"
+    },
+    "./schemas/*": {
+      "types": "./src/features/*/schemas/index.ts"
     }
   },
   "scripts": {

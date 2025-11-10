@@ -1,12 +1,10 @@
-import { type FindAdjacentMediaRequest, type ScanFileRequest, type UpdateMediaRequest } from "@fanslib/types";
 import { Elysia } from 'elysia';
-import { env } from '../../lib/env';
-import { deleteMedia } from './operations/media/delete';
-import { fetchAllMedia, FetchAllMediaRequestBodySchema, FetchAllMediaResponseSchema } from './operations/media/fetch-all';
-import { getMediaById } from './operations/media/fetch-by-id';
-import { findAdjacentMedia } from './operations/media/find-adjacent';
-import { updateMedia } from './operations/media/update';
-import { getScanStatus, scanFile, scanLibrary } from './operations/scan/scan';
+import { DeleteMediaQuerySchema, DeleteMediaResponseSchema, deleteMedia } from './operations/media/delete';
+import { FetchAllMediaRequestBodySchema, FetchAllMediaResponseSchema, fetchAllMedia } from './operations/media/fetch-all';
+import { GetMediaByIdResponseSchema, getMediaById } from './operations/media/fetch-by-id';
+import { FindAdjacentMediaBodySchema, FindAdjacentMediaResponseSchema, findAdjacentMedia } from './operations/media/find-adjacent';
+import { UpdateMediaRequestBodySchema, UpdateMediaResponseSchema, updateMedia } from './operations/media/update';
+import { FileScanResultSchema, ScanFileRequestBodySchema, ScanLibraryResponseSchema, ScanStatusResponseSchema, getScanStatus, scanFile, scanLibrary } from './operations/scan/scan';
 
 export const libraryRoutes = new Elysia({ prefix: '/api/media' })
   .post('/', async ({ body }) => fetchAllMedia({
@@ -26,36 +24,40 @@ export const libraryRoutes = new Elysia({ prefix: '/api/media' })
     }
 
     return media;
+  }, {
+    response: GetMediaByIdResponseSchema,
   })
-  .patch('/:id', async ({ params: { id }, body }) => {
-    const request = body as UpdateMediaRequest;
-    return updateMedia(id, request);
-  } )
+  .patch('/:id', async ({ params: { id }, body }) => 
+    updateMedia(id, body), {
+    body: UpdateMediaRequestBodySchema,
+    response: UpdateMediaResponseSchema,
+  })
   .delete('/:id', async ({ params: { id }, query }) => {
     const deleteFile = query.deleteFile === 'true';
     await deleteMedia(id, deleteFile);
     return { success: true };
+  }, {
+    query: DeleteMediaQuerySchema,
+    response: DeleteMediaResponseSchema,
   })
-  .get('/:id/adjacent', async ({ params: { id }, query }) => {
-    const request: FindAdjacentMediaRequest = {
-      filters: query.filters ? JSON.parse(query.filters as string) : undefined,
-      sort: query.sort ? JSON.parse(query.sort as string) : undefined,
-    };
-    return findAdjacentMedia(id, {
-      filters: request.filters,
-      sort: request.sort,
-    });
+  .get('/:id/adjacent', ({ params: { id }, body }) => findAdjacentMedia(id, body), {
+    body: FindAdjacentMediaBodySchema,
+    response: FindAdjacentMediaResponseSchema,
   })
   .post('/scan', async () => {
-    await scanLibrary(env().libraryPath);
+    await scanLibrary();
     return {
       message: 'Scan started',
       started: true,
     };
+  }, {
+    response: ScanLibraryResponseSchema,
   })
-  .post('/scan/file', async ({ body }) => {
-    const request = body as ScanFileRequest;
-    return scanFile(request.filePath);
+  .post('/scan/file', async ({ body }) => scanFile(body.filePath), {
+    body: ScanFileRequestBodySchema,
+    response: FileScanResultSchema,
   })
-  .get('/scan/status', async () => getScanStatus());
+  .get('/scan/status', async () => getScanStatus(), {
+    response: ScanStatusResponseSchema,
+  });
 

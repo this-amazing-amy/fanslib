@@ -1,6 +1,18 @@
-import type { FindSubredditPostingTimesRequest } from "@fanslib/types";
+import { t } from "elysia";
+import { SubredditPostingTimeSchema } from "../../schemas/subreddit-posting-time";
 import { FIND_SUBREDDIT_POSTING_TIMES } from "../../queries";
 import { fetchPostpone } from "../helpers";
+
+export const FindSubredditPostingTimesRequestBodySchema = t.Object({
+  subreddit: t.String(),
+  timezone: t.Optional(t.String()),
+});
+
+export const FindSubredditPostingTimesResponseSchema = t.Object({
+  postingTimes: t.Array(SubredditPostingTimeSchema),
+  subreddit: t.String(),
+  timezone: t.String(),
+});
 
 type FindSubredditPostingTimesQueryResult = {
   analytics?: {
@@ -19,7 +31,7 @@ type FindSubredditPostingTimesQueryVariables = {
   timezone: string;
 };
 
-export const findSubredditPostingTimes = async (data: FindSubredditPostingTimesRequest) => {
+export const findSubredditPostingTimes = async (data: typeof FindSubredditPostingTimesRequestBodySchema.static): Promise<typeof FindSubredditPostingTimesResponseSchema.static> => {
   const timezone = data.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   const result = await fetchPostpone<

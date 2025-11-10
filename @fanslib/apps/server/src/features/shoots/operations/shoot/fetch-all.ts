@@ -1,12 +1,24 @@
-import type { FetchAllShootsRequest, PaginatedResponse, ShootSummary } from "@fanslib/types";
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { Shoot } from "../../entity";
+import { paginatedResponseSchema } from "../../../../lib/pagination";
+import { Shoot, ShootSchema } from "../../entity";
 
-export const listShoots = async ({
-  page = 1,
-  limit = 50,
-  filter,
-}: FetchAllShootsRequest): Promise<PaginatedResponse<ShootSummary>> => {
+export const ShootFiltersSchema = t.Object({
+  name: t.Optional(t.String()),
+  startDate: t.Optional(t.Date()),
+  endDate: t.Optional(t.Date()),
+});
+
+export const FetchAllShootsRequestBodySchema = t.Object({
+  page: t.Optional(t.Numeric()),
+  limit: t.Optional(t.Numeric()),
+  filter: t.Optional(ShootFiltersSchema),
+});
+
+export const FetchAllShootsResponseSchema = paginatedResponseSchema(t.Intersect([ShootSchema, t.Object({ mediaCount: t.Number() })]));
+
+export const listShoots = async (payload: typeof FetchAllShootsRequestBodySchema.static): Promise<typeof FetchAllShootsResponseSchema.static> => {
+  const { page = 1, limit = 50, filter } = payload;
   const database = await db();
   const shootRepository = database.getRepository(Shoot);
 

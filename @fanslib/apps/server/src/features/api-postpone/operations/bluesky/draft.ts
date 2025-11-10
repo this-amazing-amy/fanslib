@@ -1,10 +1,18 @@
-import type { DraftBlueskyPostRequest } from "@fanslib/types";
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
 import { CHANNEL_TYPES } from "../../../channels/channelTypes";
 import { Post } from "../../../posts/entity";
 import { loadSettings } from "../../../settings/operations/setting/load";
 import { SCHEDULE_BLUESKY_POST } from "../../queries";
 import { fetchPostpone } from "../helpers";
+
+export const DraftBlueskyPostRequestBodySchema = t.Object({
+  postId: t.String(),
+});
+
+export const DraftBlueskyPostResponseSchema = t.Object({
+  success: t.Boolean(),
+});
 
 type ScheduleBlueskyPostMutationResult = {
   scheduleBlueskyPost: {
@@ -30,7 +38,7 @@ type ScheduleBlueskyPostMutationVariables = {
   };
 };
 
-export const draftBlueskyPost = async (data: DraftBlueskyPostRequest) => {
+export const draftBlueskyPost = async (data: typeof DraftBlueskyPostRequestBodySchema.static): Promise<typeof DraftBlueskyPostResponseSchema.static> => {
   const dataSource = await db();
   const postRepository = dataSource.getRepository(Post);
 

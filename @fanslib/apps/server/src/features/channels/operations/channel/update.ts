@@ -1,10 +1,28 @@
-import type { Channel as ChannelType } from "@fanslib/types";
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { Channel } from "../../entity";
+import { Channel, ChannelSchema, ChannelTypeSchema } from "../../entity";
+import { HashtagSchema } from "../../../hashtags/entity";
+
+export const UpdateChannelRequestParamsSchema = t.Object({
+  id: t.String(),
+});
+
+export const UpdateChannelRequestBodySchema = t.Partial(t.Omit(ChannelSchema, ['id']));
+
+export const UpdateChannelResponseSchema = t.Union([
+  t.Intersect([
+    ChannelSchema,
+    t.Object({
+      type: ChannelTypeSchema,
+      defaultHashtags: t.Array(HashtagSchema),
+    }),
+  ]),
+  t.Object({ error: t.String() }),
+]);
 
 export const updateChannel = async (
   id: string,
-  updates: Partial<Omit<ChannelType, "id" | "type">>
+  updates: Partial<Channel>
 ): Promise<Channel | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Channel);

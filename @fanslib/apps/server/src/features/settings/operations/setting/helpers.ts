@@ -1,10 +1,11 @@
-import type { Settings } from "@fanslib/types";
 import { mkdir } from "fs/promises";
 import { dirname, join } from "path";
+import type { SettingsSchema } from "../../schemas/settings";
 
-export const DEFAULT_SETTINGS: Settings = {
+
+
+export const DEFAULT_SETTINGS: typeof SettingsSchema.static = {
   theme: "dark",
-  libraryPath: "",
   blueskyUsername: "",
   postponeToken: "",
   blueskyDefaultExpiryDays: 7,

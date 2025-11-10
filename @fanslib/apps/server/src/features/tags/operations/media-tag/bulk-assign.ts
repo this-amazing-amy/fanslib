@@ -1,13 +1,22 @@
-import type { AssignTagsToMediaRequest } from "@fanslib/types";
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
 import { validateMediaTagAssignment } from "../../drift-prevention";
-import type { MediaTag } from "../../entity";
-import { TagDefinition } from "../../entity";
+import { MediaTagSchema, TagDefinition, TagSourceSchema } from "../../entity";
 import { assignTagsToMedia } from "./assign";
 
-export const bulkAssignTags = async (assignments: AssignTagsToMediaRequest[]): Promise<MediaTag[]> => {
+export const BulkAssignTagsRequestBodySchema = t.Array(t.Object({
+  mediaId: t.String(),
+  tagDefinitionIds: t.Array(t.Number()),
+  source: TagSourceSchema,
+  confidence: t.Optional(t.Number()),
+}));
+
+export const BulkAssignTagsResponseSchema = t.Array(MediaTagSchema);
+
+
+export const bulkAssignTags = async (payload: typeof BulkAssignTagsRequestBodySchema.static): Promise<typeof BulkAssignTagsResponseSchema.static> => {
   const validationResults = await Promise.all(
-    assignments.map(async (assignment) => ({
+    payload.map(async (assignment) => ({
       assignment,
       validation: await validateMediaTagAssignment({
         mediaId: assignment.mediaId,
@@ -63,7 +72,7 @@ export const bulkAssignTags = async (assignments: AssignTagsToMediaRequest[]): P
     }
   }
 
-  const results = await Promise.all(assignments.map((assignment) => assignTagsToMedia(assignment)));
+  const results = await Promise.all(payload.map((item) => assignTagsToMedia(item)));
 
   return results.flat();
 };

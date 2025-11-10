@@ -1,17 +1,26 @@
-import type { CreateFilterPresetRequest, UpdateFilterPresetRequest } from '@fanslib/types';
+import type {
+  CreateFilterPresetRequestBodySchema,
+  UpdateFilterPresetRequestBodySchema,
+} from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { filterPresetsApi } from '../api/filter-presets';
+import { eden } from '../api/eden';
 
 export const useFilterPresetsQuery = () =>
   useQuery({
     queryKey: ['filter-presets', 'list'],
-    queryFn: () => filterPresetsApi.getAll(),
+    queryFn: async () => {
+      const result = await eden.api['filter-presets'].get();
+      return result.data;
+    },
   });
 
 export const useFilterPresetQuery = (id: string) =>
   useQuery({
     queryKey: ['filter-presets', id],
-    queryFn: () => filterPresetsApi.getById(id),
+    queryFn: async () => {
+      const result = await eden.api['filter-presets']({ id }).get();
+      return result.data;
+    },
     enabled: !!id,
   });
 
@@ -19,19 +28,29 @@ export const useCreateFilterPresetMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateFilterPresetRequest) => filterPresetsApi.create(data),
+    mutationFn: async (data: typeof CreateFilterPresetRequestBodySchema.static) => {
+      const result = await eden.api['filter-presets'].post(data);
+      return result.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['filter-presets', 'list'] });
     },
   });
 };
 
+type UpdateFilterPresetParams = {
+  id: string;
+  updates: typeof UpdateFilterPresetRequestBodySchema.static;
+};
+
 export const useUpdateFilterPresetMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: UpdateFilterPresetRequest }) =>
-      filterPresetsApi.update(id, updates),
+    mutationFn: async ({ id, updates }: UpdateFilterPresetParams) => {
+      const result = await eden.api['filter-presets']({ id }).patch(updates);
+      return result.data;
+    },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['filter-presets', 'list'] });
       queryClient.setQueryData(['filter-presets', variables.id], data);
@@ -43,7 +62,10 @@ export const useDeleteFilterPresetMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => filterPresetsApi.delete(id),
+    mutationFn: async (id: string) => {
+      const result = await eden.api['filter-presets']({ id }).delete();
+      return result.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['filter-presets', 'list'] });
     },

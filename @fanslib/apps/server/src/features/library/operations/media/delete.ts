@@ -1,9 +1,23 @@
+import { t } from "elysia";
 import * as fs from "fs/promises";
 import { db } from "../../../../lib/db";
 import { env } from "../../../../lib/env";
 import { Media } from "../../entity";
 
-export const deleteMedia = async (id: string, deleteFile = false) => {
+export const DeleteMediaRequestParamsSchema = t.Object({
+  id: t.String(),
+});
+
+export const DeleteMediaQuerySchema = t.Object({
+  deleteFile: t.Optional(t.String()), // "true" or undefined
+});
+
+export const DeleteMediaResponseSchema = t.Object({
+  success: t.Boolean(),
+  error: t.Optional(t.String()),
+});
+
+export const deleteMedia = async (id: string, deleteFile = false): Promise<typeof DeleteMediaResponseSchema.static> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Media);
 
@@ -17,7 +31,10 @@ export const deleteMedia = async (id: string, deleteFile = false) => {
       await fs.unlink(filePath);
     } catch (error) {
       console.error("Failed to delete file:", error);
+      return { success: false, error: "Failed to delete file" };
     }
   }
+
+  return { success: true };
 };
 

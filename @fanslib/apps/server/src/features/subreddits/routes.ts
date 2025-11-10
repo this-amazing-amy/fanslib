@@ -1,38 +1,36 @@
-import type { CreateSubredditRequest, FetchLastPostDatesForSubredditsRequest, UpdateSubredditRequest } from "@fanslib/types";
 import { Elysia } from "elysia";
-import { createSubreddit } from "./operations/subreddit/create";
-import { deleteSubreddit } from "./operations/subreddit/delete";
-import { fetchAllSubreddits } from "./operations/subreddit/fetch-all";
-import { fetchSubredditById } from "./operations/subreddit/fetch-by-id";
-import { fetchLastPostDatesForSubreddits } from "./operations/subreddit/fetch-last-post-dates";
-import { updateSubreddit } from "./operations/subreddit/update";
+import { CreateSubredditRequestBodySchema, CreateSubredditResponseSchema, createSubreddit } from "./operations/subreddit/create";
+import { DeleteSubredditParamsSchema, DeleteSubredditResponseSchema, deleteSubreddit } from "./operations/subreddit/delete";
+import { FetchAllSubredditsResponseSchema, fetchAllSubreddits } from "./operations/subreddit/fetch-all";
+import { FetchSubredditByIdRequestParamsSchema, FetchSubredditByIdResponseSchema, fetchSubredditById } from "./operations/subreddit/fetch-by-id";
+import { FetchLastPostDatesRequestBodySchema, FetchLastPostDatesResponseSchema, fetchLastPostDatesForSubreddits } from "./operations/subreddit/fetch-last-post-dates";
+import { UpdateSubredditRequestBodySchema, UpdateSubredditRequestParamsSchema, UpdateSubredditResponseSchema, updateSubreddit } from "./operations/subreddit/update";
 
 export const subredditsRoutes = new Elysia({ prefix: "/api/subreddits" })
-  .get("/", async () => fetchAllSubreddits())
-  .get("/:id", async ({ params: { id } }) => {
-    const subreddit = await fetchSubredditById(id);
-    if (!subreddit) {
-      return { error: "Subreddit not found" };
-    }
-    return subreddit;
+  .get("/", () => fetchAllSubreddits(), {
+    response: FetchAllSubredditsResponseSchema,
+  })
+  .get("/:id", ({ params }) => fetchSubredditById(params), {
+    params: FetchSubredditByIdRequestParamsSchema,
+    response: FetchSubredditByIdResponseSchema,
   })
   .post("/", async ({ body }) =>
-    createSubreddit(body as CreateSubredditRequest)
-  )
-  .patch("/:id", async ({ params: { id }, body }) => {
-    const subreddit = await updateSubreddit(
-      id,
-      body as UpdateSubredditRequest
-    );
-    return subreddit;
+    createSubreddit(body)
+  , {
+    body: CreateSubredditRequestBodySchema,
+    response: CreateSubredditResponseSchema,
   })
-  .delete("/:id", async ({ params: { id } }) => {
-    await deleteSubreddit(id);
-    return { success: true };
+  .patch("/:id", ({ params, body }) => updateSubreddit(params, body), {
+    params: UpdateSubredditRequestParamsSchema,
+    body: UpdateSubredditRequestBodySchema,
+    response: UpdateSubredditResponseSchema,
   })
-  .post("/last-post-dates", async ({ body }) => {
-    const { subredditIds } =
-      body as FetchLastPostDatesForSubredditsRequest;
-    return fetchLastPostDatesForSubreddits(subredditIds);
+  .delete("/:id", ({ params }) => deleteSubreddit(params), {
+    params: DeleteSubredditParamsSchema,
+    response: DeleteSubredditResponseSchema,
+  })
+  .post("/last-post-dates", ({ body }) => fetchLastPostDatesForSubreddits(body), {
+    body: FetchLastPostDatesRequestBodySchema,
+    response: FetchLastPostDatesResponseSchema,
   });
 

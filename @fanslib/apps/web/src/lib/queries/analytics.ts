@@ -1,40 +1,58 @@
+import type { GetFanslyPostsWithAnalyticsQuerySchema } from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { analyticsApi } from '../api/analytics';
+import { eden } from '../api/eden';
 
-export const useAnalyticsPostsQuery = (params?: {
-  sortBy?: string;
-  sortDirection?: 'asc' | 'desc';
-  startDate?: string;
-  endDate?: string;
-}) =>
+export const useAnalyticsPostsQuery = (params?: typeof GetFanslyPostsWithAnalyticsQuerySchema.static) =>
   useQuery({
     queryKey: ['analytics', 'posts', params],
-    queryFn: () => analyticsApi.getPosts(params),
+    queryFn: async () => {
+      const { data, error } = await eden.api.analytics.posts.get({ query: params });
+      if (error) throw error;
+      return data;
+    },
   });
 
 export const useHashtagAnalyticsQuery = () =>
   useQuery({
     queryKey: ['analytics', 'hashtags'],
-    queryFn: () => analyticsApi.getHashtagAnalytics(),
+    queryFn: async () => {
+      const { data, error } = await eden.api.analytics.hashtags.get();
+      if (error) throw error;
+      return data;
+    },
   });
 
 export const useTimeAnalyticsQuery = () =>
   useQuery({
     queryKey: ['analytics', 'time'],
-    queryFn: () => analyticsApi.getTimeAnalytics(),
+    queryFn: async () => {
+      const { data, error } = await eden.api.analytics.time.get();
+      if (error) throw error;
+      return data;
+    },
   });
 
 export const useInsightsQuery = () =>
   useQuery({
     queryKey: ['analytics', 'insights'],
-    queryFn: () => analyticsApi.getInsights(),
+    queryFn: async () => {
+      const { data, error } = await eden.api.analytics.insights.get();
+      if (error) throw error;
+      return data;
+    },
   });
 
 export const useUpdateCredentialsMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (fetchRequest: string) => analyticsApi.updateCredentialsFromFetch({ fetchRequest }),
+    mutationFn: async (fetchRequest: string) => {
+      const { data, error } = await eden.api.analytics.credentials['update-from-fetch'].post({
+        fetchRequest,
+      });
+      if (error) throw error;
+      return data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['settings', 'fansly-credentials'] });
     },
@@ -45,7 +63,7 @@ export const useFetchFanslyDataMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       postId,
       startDate,
       endDate,
@@ -53,7 +71,14 @@ export const useFetchFanslyDataMutation = () => {
       postId: string;
       startDate?: string;
       endDate?: string;
-    }) => analyticsApi.fetchFanslyData({ postId, startDate, endDate }),
+    }) => {
+      const { data, error } = await eden.api.analytics.fetch[postId].post({
+        startDate,
+        endDate,
+      });
+      if (error) throw error;
+      return data;
+    },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['analytics', 'posts'] });
       queryClient.invalidateQueries({ queryKey: ['posts', variables.postId] });
@@ -65,7 +90,11 @@ export const useInitializeAggregatesMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => analyticsApi.initializeAggregates(),
+    mutationFn: async () => {
+      const { data, error } = await eden.api.analytics['initialize-aggregates'].post();
+      if (error) throw error;
+      return data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['analytics'] });
       queryClient.invalidateQueries({ queryKey: ['posts'] });

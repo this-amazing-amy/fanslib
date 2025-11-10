@@ -1,14 +1,31 @@
-import type { UpdateContentScheduleRequest } from "@fanslib/types";
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { ContentSchedule } from "../../entity";
+import { MediaFilterSchema } from "../../../library/schemas/media-filter";
+import { ContentSchedule, ContentScheduleSchema, ContentScheduleTypeSchema } from "../../entity";
+
+export const UpdateContentScheduleRequestBodySchema = t.Object({
+  channelId: t.Optional(t.String()),
+  type: t.Optional(ContentScheduleTypeSchema),
+  postsPerTimeframe: t.Optional(t.Number()),
+  preferredDays: t.Optional(t.Array(t.String())),
+  preferredTimes: t.Optional(t.Array(t.String())),
+  mediaFilters: t.Optional(t.Union([MediaFilterSchema, t.Null()])),
+});
+
+export const UpdateContentScheduleResponseSchema = t.Union([
+  ContentScheduleSchema,
+  t.Object({ error: t.String() }),
+  t.Null(),
+]);
+
 
 const stringifyMediaFilters = (filters: Parameters<typeof JSON.stringify>[0]): string =>
   JSON.stringify(filters);
 
 export const updateContentSchedule = async (
   id: string,
-  updates: UpdateContentScheduleRequest
-): Promise<ContentSchedule | null> => {
+  updates: typeof UpdateContentScheduleRequestBodySchema.static
+): Promise<typeof UpdateContentScheduleResponseSchema.static> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(ContentSchedule);
 

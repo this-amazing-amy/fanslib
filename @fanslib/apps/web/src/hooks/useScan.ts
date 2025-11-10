@@ -1,31 +1,34 @@
-import type { LibraryScanProgress, LibraryScanResult } from "@fanslib/types";
+import type { LibraryScanProgressSchema, LibraryScanResultSchema } from "@fanslib/server/schemas";
 import { useEffect, useState } from "react";
-import { mediaApi } from "~/lib/api/media";
+import { eden } from "~/lib/api/eden";
 
 type UseScanResult = {
-  scanProgress: LibraryScanProgress | null;
-  scanResult: LibraryScanResult | null;
+  scanProgress: typeof LibraryScanProgressSchema.static | null;
+  scanResult: typeof LibraryScanResultSchema.static | null;
   isScanning: boolean;
   handleScan: () => Promise<void>;
   resetScan: () => void;
 };
 
 export const useScan = (onScanComplete?: () => void): UseScanResult => {
-  const [scanProgress, setScanProgress] = useState<LibraryScanProgress | null>(null);
-  const [scanResult, setScanResult] = useState<LibraryScanResult | null>(null);
+  const [scanProgress, setScanProgress] = useState<typeof LibraryScanProgressSchema.static | null>(null);
+  const [scanResult, setScanResult] = useState<typeof LibraryScanResultSchema.static | null>(null);
   const [isScanning, setIsScanning] = useState(false);
 
   useEffect(() => {
     if (!isScanning) return () => {};
 
     const pollInterval = setInterval(async () => {
-      const status = await mediaApi.getScanStatus();
+      const statusResponse = await eden.api.media.scan.status.get();
+      const status = statusResponse.data;
 
-      if (status.progress) {
+      if (!status) return;
+
+      if ('isScanning' in status && status.isScanning && status.progress) {
         setScanProgress(status.progress);
       }
 
-      if (status.result) {
+      if ('isScanning' in status && !status.isScanning && status.result) {
         setScanProgress(null);
         setScanResult(status.result);
         setIsScanning(false);
@@ -47,7 +50,7 @@ export const useScan = (onScanComplete?: () => void): UseScanResult => {
   const handleScan = async () => {
     resetScan();
     setIsScanning(true);
-    await mediaApi.scan();
+    await eden.api.media.scan.post();
   };
 
   return {

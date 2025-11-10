@@ -1,12 +1,29 @@
-import type { GetAllMediaParams } from "@fanslib/types";
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { Media } from "../../entity";
+import { Media, MediaSchema } from "../../entity";
 import { buildFilterGroupQuery } from "../../filter-helpers";
+import { MediaFilterSchema } from "../../schemas/media-filter";
+import { MediaSortSchema } from "../../schemas/media-sort";
+
+export const FindAdjacentMediaRequestParamsSchema = t.Object({
+  id: t.String(),
+});
+
+export const FindAdjacentMediaBodySchema = t.Object({
+  filters: t.Optional(MediaFilterSchema),
+  sort: t.Optional(MediaSortSchema),
+});
+
+export const FindAdjacentMediaResponseSchema = t.Object({
+  previous: t.Union([MediaSchema, t.Null()]),
+  next: t.Union([MediaSchema, t.Null()]),
+});
+
 
 export const findAdjacentMedia = async (
   mediaId: string,
-  params?: GetAllMediaParams
-): Promise<{ previous: Media | null; next: Media | null }> => {
+  params?: typeof FindAdjacentMediaBodySchema.static
+): Promise<typeof FindAdjacentMediaResponseSchema.static> => {
   const database = await db();
 
   const currentMedia = await database.manager.findOne(Media, {

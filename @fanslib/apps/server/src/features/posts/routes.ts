@@ -1,20 +1,20 @@
-import type { AddMediaToPostRequest, CreatePostRequest, FetchAllPostsRequest, RemoveMediaFromPostRequest, UpdatePostRequest } from "@fanslib/types";
 import { Elysia } from "elysia";
-import { addMediaToPost } from "./operations/post-media/add";
-import { removeMediaFromPost } from "./operations/post-media/remove";
-import { createPost } from "./operations/post/create";
-import { deletePost } from "./operations/post/delete";
-import { fetchAllPosts } from "./operations/post/fetch-all";
-import { fetchPostsByChannel } from "./operations/post/fetch-by-channel";
-import { getPostById } from "./operations/post/fetch-by-id";
-import { updatePost } from "./operations/post/update";
+import { AddMediaToPostRequestBodySchema, AddMediaToPostResponseSchema, addMediaToPost } from "./operations/post-media/add";
+import { RemoveMediaFromPostRequestBodySchema, RemoveMediaFromPostResponseSchema, removeMediaFromPost } from "./operations/post-media/remove";
+import { CreatePostRequestBodySchema, CreatePostResponseSchema, createPost } from "./operations/post/create";
+import { DeletePostResponseSchema, deletePost } from "./operations/post/delete";
+import { FetchAllPostsRequestQuerySchema, FetchAllPostsResponseSchema, fetchAllPosts } from "./operations/post/fetch-all";
+import { FetchPostsByChannelResponseSchema, fetchPostsByChannel } from "./operations/post/fetch-by-channel";
+import { GetPostByIdResponseSchema, getPostById } from "./operations/post/fetch-by-id";
+import { UpdatePostRequestBodySchema, UpdatePostResponseSchema, updatePost } from "./operations/post/update";
 
 export const postsRoutes = new Elysia({ prefix: "/api/posts" })
   .get("/", async ({ query }) => {
-    const request: FetchAllPostsRequest = {
-      filters: query.filters ? JSON.parse(query.filters as string) : undefined,
-    };
-    return fetchAllPosts(request.filters);
+    const filters = query.filters ? JSON.parse(query.filters as string) : undefined;
+    return fetchAllPosts(filters);
+  }, {
+    query: FetchAllPostsRequestQuerySchema,
+    response: FetchAllPostsResponseSchema,
   })
   .get("/:id", async ({ params: { id } }) => {
     const post = await getPostById(id);
@@ -22,41 +22,55 @@ export const postsRoutes = new Elysia({ prefix: "/api/posts" })
       return { error: "Post not found" };
     }
     return post;
+  }, {
+    response: GetPostByIdResponseSchema,
   })
   .get("/by-channel/:channelId", async ({ params: { channelId } }) =>
     fetchPostsByChannel(channelId)
-  )
+  , {
+    response: FetchPostsByChannelResponseSchema,
+  })
   .post("/", async ({ body }) => {
-    const request = body as CreatePostRequest;
-    const { mediaIds, ...postData } = request;
-    return createPost({ ...postData } as Omit<CreatePostRequest, "mediaIds">, mediaIds ?? []);
+    const { mediaIds, ...postData } = body;
+    return createPost(postData, mediaIds ?? []);
+  }, {
+    body: CreatePostRequestBodySchema,
+    response: CreatePostResponseSchema,
   })
   .patch("/:id", async ({ params: { id }, body }) => {
-    const request = body as UpdatePostRequest;
-    const post = await updatePost(id, request);
+    const post = await updatePost(id, body);
     if (!post) {
       return { error: "Post not found" };
     }
     return post;
+  }, {
+    body: UpdatePostRequestBodySchema,
+    response: UpdatePostResponseSchema,
   })
   .delete("/:id", async ({ params: { id } }) => {
     await deletePost(id);
     return { success: true };
+  }, {
+    response: DeletePostResponseSchema,
   })
   .post("/:id/media", async ({ params: { id }, body }) => {
-    const request = body as AddMediaToPostRequest;
-    const post = await addMediaToPost(id, request.mediaIds);
+    const post = await addMediaToPost(id, body.mediaIds);
     if (!post) {
       return { error: "Post not found" };
     }
     return post;
+  }, {
+    body: AddMediaToPostRequestBodySchema,
+    response: AddMediaToPostResponseSchema,
   })
   .delete("/:id/media", async ({ params: { id }, body }) => {
-    const request = body as RemoveMediaFromPostRequest;
-    const post = await removeMediaFromPost(id, request.mediaIds);
+    const post = await removeMediaFromPost(id, body.mediaIds);
     if (!post) {
       return { error: "Post not found" };
     }
     return post;
+  }, {
+    body: RemoveMediaFromPostRequestBodySchema,
+    response: RemoveMediaFromPostResponseSchema,
   });
 

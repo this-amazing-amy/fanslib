@@ -1,17 +1,24 @@
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { TagDimension } from "../../entity";
+import { TagDimension, TagDimensionSchema } from "../../entity";
 
-export const getTagDimensionById = async (id: number): Promise<TagDimension> => {
+export const GetTagDimensionByIdParamsSchema = t.Object({
+  id: t.Number(),
+});
+
+export const GetTagDimensionByIdResponseSchema = TagDimensionSchema;
+
+export const getTagDimensionById = async (payload: typeof GetTagDimensionByIdParamsSchema.static): Promise<typeof GetTagDimensionByIdResponseSchema.static> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(TagDimension);
 
   const dimension = await repository.findOne({
-    where: { id },
+    where: { id: payload.id },
     relations: ["tags"],
   });
 
   if (!dimension) {
-    throw new Error(`TagDimension with id ${id} not found`);
+    throw new Error(`TagDimension with id ${payload.id} not found`);
   }
 
   return dimension;

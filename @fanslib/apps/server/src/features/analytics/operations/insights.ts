@@ -1,11 +1,15 @@
-import type {
-  ActionableInsight,
-  ContentThemeInsight,
-  FanslyPostWithAnalytics,
-  HashtagInsight,
-  PostTimingInsight,
-  VideoLengthInsight,
-} from "@fanslib/types";
+import { t } from "elysia";
+import type { FanslyPostWithAnalyticsSchema } from "../schemas/analytics";
+import { ActionableInsightSchema } from "../schemas/insights";
+
+type ActionableInsight = typeof ActionableInsightSchema.static;
+type ContentThemeInsight = ActionableInsight & { type: "contentTheme" };
+type FanslyPostWithAnalytics = typeof FanslyPostWithAnalyticsSchema.static;
+type HashtagInsight = ActionableInsight & { type: "hashtag" };
+type PostTimingInsight = ActionableInsight & { type: "postTiming" };
+type VideoLengthInsight = ActionableInsight & { type: "videoLength" };
+
+export const GenerateInsightsResponseSchema = t.Array(ActionableInsightSchema);
 
 const extractHashtagsFromCaption = (caption: string): string[] => caption?.match(/#\w+/g) ?? [];
 
@@ -310,7 +314,7 @@ export const generatePostTimingInsights = (
 
 export const generateInsights = async (
   posts: FanslyPostWithAnalytics[]
-): Promise<ActionableInsight[]> => {
+): Promise<typeof GenerateInsightsResponseSchema.static> => {
   const insights: ActionableInsight[] = [];
 
   const videoLengthInsight = generateVideoLengthInsight(posts);

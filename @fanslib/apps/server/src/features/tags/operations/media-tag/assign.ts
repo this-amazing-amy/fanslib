@@ -1,17 +1,27 @@
-import type { AssignTagsToMediaRequest } from "@fanslib/types";
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
 import { Media } from "../../../library/entity";
 import { validateMediaTagAssignment } from "../../drift-prevention";
-import { MediaTag, TagDefinition } from "../../entity";
+import { MediaTag, MediaTagSchema, TagDefinition, TagSourceSchema } from "../../entity";
 import { populateDenormalizedFields } from "../helpers";
 
-export const assignTagsToMedia = async (dto: AssignTagsToMediaRequest): Promise<MediaTag[]> => {
+export const AssignTagsToMediaRequestBodySchema = t.Object({
+  mediaId: t.String(),
+  tagDefinitionIds: t.Array(t.Number()),
+  source: TagSourceSchema,
+  confidence: t.Optional(t.Number()),
+});
+
+export const AssignTagsToMediaResponseSchema = t.Array(MediaTagSchema);
+
+
+export const assignTagsToMedia = async (payload: typeof AssignTagsToMediaRequestBodySchema.static): Promise<typeof AssignTagsToMediaResponseSchema.static> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(MediaTag);
 
   const validation = await validateMediaTagAssignment({
-    mediaId: dto.mediaId,
-    tagDefinitionIds: dto.tagDefinitionIds,
+    mediaId: payload.mediaId,
+    tagDefinitionIds: payload.tagDefinitionIds,
   });
 
   if (!validation.isValid) {
@@ -21,11 +31,11 @@ export const assignTagsToMedia = async (dto: AssignTagsToMediaRequest): Promise<
   const validTagDefinitionIds = validation.validTagDefinitionIds;
 
   if (validTagDefinitionIds.length === 0) {
-    console.warn(`No valid tag definitions found for assignment to media ${dto.mediaId}`);
+    console.warn(`No valid tag definitions found for assignment to media ${payload.mediaId}`);
     return [];
   }
 
-  const media = await dataSource.getRepository(Media).findOne({ where: { id: dto.mediaId } });
+  const media = await dataSource.getRepository(Media).findOne({ where: { id: payload.mediaId } });
   const tagDefinitionsWithRelations = await dataSource
     .getRepository(TagDefinition)
     .createQueryBuilder("td")
@@ -34,7 +44,7 @@ export const assignTagsToMedia = async (dto: AssignTagsToMediaRequest): Promise<
     .getMany();
 
   if (!media) {
-    throw new Error(`Media with id ${dto.mediaId} not found`);
+    throw new Error(`Media with id ${payload.mediaId} not found`);
   }
 
   const dimensionGroups = new Map<number, TagDefinition[]>();
@@ -62,7 +72,7 @@ export const assignTagsToMedia = async (dto: AssignTagsToMediaRequest): Promise<
       await repository
         .createQueryBuilder()
         .delete()
-        .where("mediaId = :mediaId", { mediaId: dto.mediaId })
+        .where("mediaId = :mediaId", { mediaId: payload.mediaId })
         .andWhere(
           "tagDefinitionId IN (SELECT id FROM tag_definition WHERE dimensionId = :dimensionId)",
           { dimensionId }
@@ -73,7 +83,7 @@ export const assignTagsToMedia = async (dto: AssignTagsToMediaRequest): Promise<
       await repository
         .createQueryBuilder()
         .delete()
-        .where("mediaId = :mediaId", { mediaId: dto.mediaId })
+        .where("mediaId = :mediaId", { mediaId: payload.mediaId })
         .andWhere("tagDefinitionId IN (:...tagDefinitionIds)", { tagDefinitionIds })
         .execute();
     }
@@ -81,12 +91,12 @@ export const assignTagsToMedia = async (dto: AssignTagsToMediaRequest): Promise<
 
   const mediaTags = tagDefinitionsWithRelations.map((tagDefinition) => {
     const mediaTagData = {
-      mediaId: dto.mediaId,
+      mediaId: payload.mediaId,
       media: media,
       tagDefinitionId: tagDefinition.id,
       tag: tagDefinition,
-      source: dto.source,
-      confidence: dto.confidence,
+      source: payload.source,
+      confidence: payload.confidence,
     };
 
     populateDenormalizedFields(mediaTagData, tagDefinition);

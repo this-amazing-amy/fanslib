@@ -1,8 +1,16 @@
-import type { FindRedgifsURLRequest } from "@fanslib/types";
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
 import { Media } from "../../../library/entity";
 import { FIND_REDGIFS_URL } from "../../queries";
 import { fetchPostpone } from "../helpers";
+
+export const FindRedgifsURLRequestBodySchema = t.Object({
+  mediaId: t.String(),
+});
+
+export const FindRedgifsURLResponseSchema = t.Object({
+  url: t.Union([t.String(), t.Null()]),
+});
 
 type FindRedgifsUrlQueryResult = {
   media: {
@@ -17,7 +25,7 @@ type FindRedgifsUrlQueryVariables = {
   filename: string;
 };
 
-export const findRedgifsURL = async (data: FindRedgifsURLRequest) => {
+export const findRedgifsURL = async (data: typeof FindRedgifsURLRequestBodySchema.static): Promise<typeof FindRedgifsURLResponseSchema.static> => {
   const dataSource = await db();
   const mediaRepository = dataSource.getRepository(Media);
   const media = await mediaRepository.findOne({ where: { id: data.mediaId } });

@@ -1,7 +1,10 @@
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { TagDimension } from "../../entity";
+import { TagDimension, TagDimensionSchema } from "../../entity";
 
-export const getAllTagDimensions = async (): Promise<TagDimension[]> => {
+export const GetAllTagDimensionsResponseSchema = t.Array(TagDimensionSchema);
+
+export const getAllTagDimensions = async (): Promise<typeof GetAllTagDimensionsResponseSchema.static> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(TagDimension);
 

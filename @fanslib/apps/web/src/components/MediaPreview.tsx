@@ -2,7 +2,7 @@ import type { Media } from "@fanslib/types";
 import { memo, useCallback, useState } from "react";
 import { cn } from "~/lib/cn";
 import { useSfwMode } from "~/hooks/useSfwMode";
-import { mediaApi } from "~/lib/api/media";
+import { getMediaFileUrl, getMediaThumbnailUrl } from "~/lib/media-urls";
 
 export type MediaPreviewProps = {
   media: Media;
@@ -29,7 +29,7 @@ export const MediaPreview = memo(
         onMouseLeave={handleMouseLeave}
       >
         <img
-          src={imageError ? mediaApi.getFileUrl(media.id) : mediaApi.getThumbnailUrl(media.id)}
+          src={imageError ? getMediaFileUrl(media.id) : getMediaThumbnailUrl(media.id)}
           alt={media.name}
           className={getBlurClassName("w-full h-full object-contain")}
           onError={handleImageError}

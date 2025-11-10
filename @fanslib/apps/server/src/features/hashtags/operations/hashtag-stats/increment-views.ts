@@ -1,11 +1,13 @@
 import { db } from "../../../../lib/db";
-import { Hashtag, HashtagChannelStats } from "../../entity";
+import { Hashtag, HashtagChannelStats, HashtagChannelStatsSchema } from "../../entity";
+
+export const IncrementHashtagViewsResponseSchema = HashtagChannelStatsSchema;
 
 export const incrementHashtagViews = async (
   hashtagId: number,
   channelId: string,
   viewCount: number
-): Promise<HashtagChannelStats> => {
+): Promise<typeof IncrementHashtagViewsResponseSchema.static> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(HashtagChannelStats);
   const hashtagRepository = dataSource.getRepository(Hashtag);

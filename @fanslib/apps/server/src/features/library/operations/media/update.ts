@@ -1,8 +1,25 @@
-import type { UpdateMediaPayload } from "@fanslib/types";
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { Media } from "../../entity";
+import { Media, MediaSchema, MediaTypeSchema } from "../../entity";
 
-export const updateMedia = async (id: string, updates: UpdateMediaPayload) => {
+export const UpdateMediaRequestParamsSchema = t.Object({
+  id: t.String(),
+});
+
+export const UpdateMediaRequestBodySchema = t.Partial(t.Object({
+  relativePath: t.String(),
+  type: MediaTypeSchema,
+  name: t.String(),
+  size: t.Number(),
+  duration: t.Optional(t.Number()),
+  redgifsUrl: t.Union([t.String(), t.Null()]),
+  fileCreationDate: t.Date(),
+  fileModificationDate: t.Date(),
+}));
+
+export const UpdateMediaResponseSchema = t.Union([MediaSchema, t.Null()]);
+
+export const updateMedia = async (id: string, updates: typeof UpdateMediaRequestBodySchema.static): Promise<typeof UpdateMediaResponseSchema.static> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Media);
 

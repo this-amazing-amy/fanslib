@@ -1,3 +1,4 @@
+import { t } from "elysia";
 import {
   Column,
   CreateDateColumn,
@@ -166,6 +167,72 @@ export class MediaTag {
   @CreateDateColumn()
   assignedAt!: Date;
 }
+
+// Schemas
+export const StickerDisplayModeSchema = t.Union([
+  t.Literal("none"),
+  t.Literal("color"),
+  t.Literal("short"),
+]);
+
+export const DataTypeSchema = t.Union([
+  t.Literal("categorical"),
+  t.Literal("numerical"),
+  t.Literal("boolean"),
+]);
+
+export const TagSourceSchema = t.Union([
+  t.Literal("manual"),
+  t.Literal("automated"),
+  t.Literal("imported"),
+]);
+
+export const TagDimensionSchema = t.Object({
+  id: t.Number(),
+  name: t.String(),
+  description: t.Optional(t.String()),
+  dataType: DataTypeSchema,
+  validationSchema: t.Optional(t.String()),
+  sortOrder: t.Number(),
+  stickerDisplay: StickerDisplayModeSchema,
+  isExclusive: t.Boolean(),
+  createdAt: t.Date(),
+  updatedAt: t.Date(),
+});
+
+export const TagDefinitionSchema = t.Object({
+  id: t.Number(),
+  dimensionId: t.Number(),
+  value: t.String(),
+  displayName: t.String(),
+  description: t.Optional(t.String()),
+  metadata: t.Optional(t.String()),
+  color: t.Optional(t.String()),
+  shortRepresentation: t.Optional(t.String()),
+  sortOrder: t.Number(),
+  parentTagId: t.Optional(t.Number()),
+  createdAt: t.Date(),
+  updatedAt: t.Date(),
+});
+
+export const MediaTagSchema = t.Object({
+  id: t.Number(),
+  mediaId: t.String(),
+  tagDefinitionId: t.Number(),
+  dimensionId: t.Number(),
+  dimensionName: t.String(),
+  dataType: DataTypeSchema,
+  tagValue: t.String(),
+  tagDisplayName: t.String(),
+  color: t.Optional(t.String()),
+  stickerDisplay: StickerDisplayModeSchema,
+  shortRepresentation: t.Optional(t.String()),
+  numericValue: t.Optional(t.Number()),
+  booleanValue: t.Optional(t.Boolean()),
+  confidence: t.Optional(t.Number()),
+  source: TagSourceSchema,
+  assignedAt: t.Date(),
+});
 
 
 

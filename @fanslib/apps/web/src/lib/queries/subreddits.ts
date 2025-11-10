@@ -1,37 +1,69 @@
-import type { CreateSubredditRequest, UpdateSubredditRequest } from '@fanslib/types';
+import type {
+  CreateSubredditRequestBodySchema,
+  DeleteSubredditParamsSchema,
+  FetchLastPostDatesRequestBodySchema,
+  FetchSubredditByIdRequestParamsSchema,
+  UpdateSubredditRequestBodySchema,
+  UpdateSubredditRequestParamsSchema,
+} from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { subredditsApi } from '../api/subreddits';
+import { eden } from '../api/eden';
 
 export const useSubredditsQuery = () =>
   useQuery({
     queryKey: ['subreddits', 'list'],
-    queryFn: () => subredditsApi.getAll(),
+    queryFn: async () => {
+      const result = await eden.api.subreddits.get();
+      return result.data;
+    },
   });
 
-export const useSubredditQuery = (id: string) =>
+export const useSubredditQuery = (params: typeof FetchSubredditByIdRequestParamsSchema.static) =>
   useQuery({
-    queryKey: ['subreddits', id],
-    queryFn: () => subredditsApi.getById(id),
-    enabled: !!id,
+    queryKey: ['subreddits', params.id],
+    queryFn: async () => {
+      const result = await eden.api.subreddits({ id: params.id }).get();
+      return result.data;
+    },
+    enabled: !!params.id,
+  });
+
+export const useLastPostDatesQuery = (params: typeof FetchLastPostDatesRequestBodySchema.static) =>
+  useQuery({
+    queryKey: ['subreddits', 'last-post-dates', params.subredditIds],
+    queryFn: async () => {
+      const result = await eden.api.subreddits['last-post-dates'].post(params);
+      return result.data;
+    },
+    enabled: params.subredditIds.length > 0,
   });
 
 export const useCreateSubredditMutation = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (data: CreateSubredditRequest) => subredditsApi.create(data),
+    mutationFn: async (data: typeof CreateSubredditRequestBodySchema.static) => {
+      const result = await eden.api.subreddits.post(data);
+      return result.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subreddits', 'list'] });
     },
   });
 };
 
+type UpdateSubredditParams = typeof UpdateSubredditRequestParamsSchema.static & {
+  updates: typeof UpdateSubredditRequestBodySchema.static;
+};
+
 export const useUpdateSubredditMutation = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: UpdateSubredditRequest }) =>
-      subredditsApi.update(id, updates),
+    mutationFn: async ({ id, updates }: UpdateSubredditParams) => {
+      const result = await eden.api.subreddits({ id }).patch(updates);
+      return result.data;
+    },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['subreddits', 'list'] });
       queryClient.setQueryData(['subreddits', variables.id], data);
@@ -41,12 +73,14 @@ export const useUpdateSubredditMutation = () => {
 
 export const useDeleteSubredditMutation = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (id: string) => subredditsApi.delete(id),
+    mutationFn: async (params: typeof DeleteSubredditParamsSchema.static) => {
+      const result = await eden.api.subreddits({ id: params.id }).delete();
+      return result.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subreddits', 'list'] });
     },
   });
 };
-

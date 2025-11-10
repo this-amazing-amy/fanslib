@@ -1,42 +1,67 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import { fetchFanslyAnalyticsData } from "./fetch-fansly-data";
 import { updateFanslyCredentialsFromFetch } from "./operations/credentials";
-import { generateInsights } from "./operations/insights";
-import { getHashtagAnalytics } from "./operations/post-analytics/fetch-hashtag-analytics";
-import { getFanslyPostsWithAnalytics } from "./operations/post-analytics/fetch-posts-with-analytics";
-import { getTimeAnalytics } from "./operations/post-analytics/fetch-time-analytics";
+import { GenerateInsightsResponseSchema, generateInsights } from "./operations/insights";
+import { GetHashtagAnalyticsResponseSchema, getHashtagAnalytics } from "./operations/post-analytics/fetch-hashtag-analytics";
+import { GetFanslyPostsWithAnalyticsQuerySchema, GetFanslyPostsWithAnalyticsResponseSchema, getFanslyPostsWithAnalytics } from "./operations/post-analytics/fetch-posts-with-analytics";
+import { GetTimeAnalyticsResponseSchema, getTimeAnalytics } from "./operations/post-analytics/fetch-time-analytics";
 import { initializeAnalyticsAggregates } from "./operations/post-analytics/initialize-aggregates";
+
+const UpdateCredentialsFromFetchBodySchema = t.Object({
+  fetchRequest: t.String(),
+});
+
+const FetchAnalyticsDataParamsSchema = t.Object({
+  postId: t.String(),
+});
+
+const FetchAnalyticsDataBodySchema = t.Object({
+  startDate: t.Optional(t.String()),
+  endDate: t.Optional(t.String()),
+});
 
 export const analyticsRoutes = new Elysia({ prefix: "/api/analytics" })
   .post("/credentials/update-from-fetch", async ({ body }) => {
-    const { fetchRequest } = body as { fetchRequest: string };
-    await updateFanslyCredentialsFromFetch(fetchRequest);
+    await updateFanslyCredentialsFromFetch(body.fetchRequest);
     return { success: true };
+  }, {
+    body: UpdateCredentialsFromFetchBodySchema,
+    response: t.Object({ success: t.Boolean() }),
   })
-  .post("/fetch/:postId", async ({ params: { postId }, body }) => {
-    const { startDate, endDate } = body as { startDate?: string; endDate?: string };
-    const start = startDate ? new Date(startDate) : undefined;
-    const end = endDate ? new Date(endDate) : undefined;
-    return fetchFanslyAnalyticsData(postId, start, end);
+  .post("/fetch/:postId", async ({ params, body }) => {
+    const start = body.startDate ? new Date(body.startDate) : undefined;
+    const end = body.endDate ? new Date(body.endDate) : undefined;
+    return fetchFanslyAnalyticsData(params.postId, start, end);
+  }, {
+    params: FetchAnalyticsDataParamsSchema,
+    body: FetchAnalyticsDataBodySchema,
   })
-  .get("/posts", async ({ query }) => {
-    const { sortBy, sortDirection, startDate, endDate } = query;
-    return getFanslyPostsWithAnalytics(
-      sortBy as string,
-      sortDirection as "asc" | "desc",
-      startDate as string,
-      endDate as string
-    );
+  .get("/posts", async ({ query }) => getFanslyPostsWithAnalytics(
+      query.sortBy,
+      query.sortDirection,
+      query.startDate,
+      query.endDate
+    ), {
+    query: GetFanslyPostsWithAnalyticsQuerySchema,
+    response: GetFanslyPostsWithAnalyticsResponseSchema,
   })
-  .get("/hashtags", async () => getHashtagAnalytics())
-  .get("/time", async () => getTimeAnalytics())
+  .get("/hashtags", async () => getHashtagAnalytics(), {
+    response: GetHashtagAnalyticsResponseSchema,
+  })
+  .get("/time", async () => getTimeAnalytics(), {
+    response: GetTimeAnalyticsResponseSchema,
+  })
   .get("/insights", async () => {
     const posts = await getFanslyPostsWithAnalytics();
     return generateInsights(posts);
+  }, {
+    response: GenerateInsightsResponseSchema,
   })
   .post("/initialize-aggregates", async () => {
     await initializeAnalyticsAggregates();
     return { success: true };
+  }, {
+    response: t.Object({ success: t.Boolean() }),
   });
 
 

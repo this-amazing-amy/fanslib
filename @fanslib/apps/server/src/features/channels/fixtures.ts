@@ -1,9 +1,9 @@
-import type { Channel } from "@fanslib/types";
 import { getTestDataSource } from "../../lib/db.test";
 import { CHANNEL_TYPES } from "./channelTypes";
+import type { Channel } from "./entity";
 import { Channel as ChannelEntity, ChannelType as ChannelTypeEntity } from "./entity";
 
-export type ChannelFixture = Omit<Channel, "eligibleMediaFilter">;
+export type ChannelFixture = Omit<Channel, "eligibleMediaFilter" | "type">;
 
 export const CHANNEL_FIXTURES: ChannelFixture[] = [
   {
@@ -11,18 +11,21 @@ export const CHANNEL_FIXTURES: ChannelFixture[] = [
     name: "My Fansly Channel",
     typeId: "fansly",
     description: "Main Fansly channel for content",
+    defaultHashtags: [],
   },
   {
     id: "channel-2",
     name: "OnlyFans Account",
     typeId: "onlyfans",
     description: "Primary OnlyFans channel",
+    defaultHashtags: [],
   },
   {
     id: "channel-3",
     name: "Reddit Promo",
     typeId: "reddit",
     description: "Reddit promotion channel",
+    defaultHashtags: [],
   },
 ];
 

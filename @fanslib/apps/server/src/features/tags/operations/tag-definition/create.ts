@@ -1,10 +1,25 @@
-import type { CreateTagDefinitionRequest } from "@fanslib/types";
+import { t } from "elysia";
 import { normalizeHexColor, validateHexColor } from "../../../../lib/color";
 import { db } from "../../../../lib/db";
-import { TagDefinition, TagDimension } from "../../entity";
+import { TagDefinition, TagDefinitionSchema, TagDimension } from "../../entity";
 import { assignColorForCategoricalTag } from "../helpers";
 
-export const createTagDefinition = async (dto: CreateTagDefinitionRequest): Promise<TagDefinition> => {
+// Schemas
+export const CreateTagDefinitionRequestBodySchema = t.Object({
+  dimensionId: t.Number(),
+  value: t.String(),
+  displayName: t.String(),
+  description: t.Optional(t.String()),
+  metadata: t.Optional(t.String()),
+  color: t.Optional(t.String()),
+  shortRepresentation: t.Optional(t.String()),
+  sortOrder: t.Optional(t.Number()),
+  parentTagId: t.Optional(t.Number()),
+});
+
+export const CreateTagDefinitionResponseSchema = TagDefinitionSchema;
+
+export const createTagDefinition = async (dto: typeof CreateTagDefinitionRequestBodySchema.static): Promise<typeof CreateTagDefinitionResponseSchema.static> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(TagDefinition);
   const dimensionRepository = dataSource.getRepository(TagDimension);

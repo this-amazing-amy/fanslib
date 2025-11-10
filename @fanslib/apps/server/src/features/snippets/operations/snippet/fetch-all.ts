@@ -1,10 +1,21 @@
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { CaptionSnippet } from "../../entity";
+import { ChannelSchema } from "../../../channels/entity";
+import { CaptionSnippet, CaptionSnippetSchema } from "../../entity";
 
-export const getAllSnippets = async (): Promise<CaptionSnippet[]> => {
-  const dataSource = await db();
-  const repo = dataSource.getRepository(CaptionSnippet);
-  return repo.find({
+export const FetchAllSnippetsResponseSchema = t.Array(
+  t.Intersect([
+    CaptionSnippetSchema,
+    t.Object({
+      channel: t.Union([ChannelSchema, t.Null()]),
+    }),
+  ])
+);
+
+export const fetchAllSnippets = async (): Promise<typeof FetchAllSnippetsResponseSchema.static> => {
+  const database = await db();
+  const snippetRepository = database.getRepository(CaptionSnippet);
+  return snippetRepository.find({
     relations: ["channel"],
     order: { updatedAt: "DESC" },
   });

@@ -1,37 +1,57 @@
-import type { CreateShootRequest, FetchAllShootsRequest, UpdateShootRequest } from '@fanslib/types';
+import type {
+  CreateShootRequestBodySchema,
+  FetchAllShootsRequestBodySchema,
+  FetchShootByIdRequestParamsSchema,
+  UpdateShootRequestBodySchema,
+} from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { shootsApi } from '../api/shoots';
+import { eden } from '../api/eden';
 
-export const useShootsQuery = (request?: FetchAllShootsRequest) =>
+export const useShootsQuery = (params?: typeof FetchAllShootsRequestBodySchema.static) =>
   useQuery({
-    queryKey: ['shoots', 'list', request],
-    queryFn: () => shootsApi.getAll(request),
+    queryKey: ['shoots', 'list', params],
+    queryFn: async () => {
+      const result = await eden.api.shoots['fetch-all'].post(params);
+      return result.data;
+    },
   });
 
-export const useShootQuery = (id: string) =>
+export const useShootQuery = (params: typeof FetchShootByIdRequestParamsSchema.static) =>
   useQuery({
-    queryKey: ['shoots', id],
-    queryFn: () => shootsApi.getById(id),
-    enabled: !!id,
+    queryKey: ['shoots', params.id],
+    queryFn: async () => {
+      const result = await eden.api.shoots({ id: params.id }).get();
+      return result.data;
+    },
+    enabled: !!params.id,
   });
 
 export const useCreateShootMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateShootRequest) => shootsApi.create(data),
+    mutationFn: async (data: typeof CreateShootRequestBodySchema.static) => {
+      const result = await eden.api.shoots.post(data);
+      return result.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['shoots', 'list'] });
     },
   });
 };
 
+type UpdateShootParams = typeof FetchShootByIdRequestParamsSchema.static & {
+  updates: typeof UpdateShootRequestBodySchema.static;
+};
+
 export const useUpdateShootMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: UpdateShootRequest }) =>
-      shootsApi.update(id, updates),
+    mutationFn: async ({ id, updates }: UpdateShootParams) => {
+      const result = await eden.api.shoots({ id }).patch(updates);
+      return result.data;
+    },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['shoots', 'list'] });
       queryClient.setQueryData(['shoots', variables.id], data);
@@ -43,7 +63,10 @@ export const useDeleteShootMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => shootsApi.delete(id),
+    mutationFn: async (params: typeof FetchShootByIdRequestParamsSchema.static) => {
+      const result = await eden.api.shoots({ id: params.id }).delete();
+      return result.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['shoots', 'list'] });
     },

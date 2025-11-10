@@ -1,12 +1,19 @@
-import type { Post as PostType } from "@fanslib/types";
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { Post } from "../../entity";
-import { getPostById } from "./fetch-by-id";
+import { Post, PostSchema } from "../../entity";
+import { getPostById, GetPostByIdResponseSchema } from "./fetch-by-id";
+
+export const UpdatePostRequestParamsSchema = t.Object({
+  id: t.String(),
+});
+
+export const UpdatePostRequestBodySchema = t.Partial(PostSchema);
+export const UpdatePostResponseSchema = GetPostByIdResponseSchema;
 
 export const updatePost = async (
   id: string,
-  updates: Partial<PostType>
-): Promise<Post | null> => {
+  updates: Partial<Post>
+): Promise<typeof UpdatePostResponseSchema.static> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Post);
 

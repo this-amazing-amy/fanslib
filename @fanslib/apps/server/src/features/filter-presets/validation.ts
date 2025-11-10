@@ -1,8 +1,12 @@
-import type { FilterItem, MediaFilters } from "@fanslib/types";
+import { MediaFilterSchema } from "../library/schemas/media-filter";
 import { db } from "../../lib/db";
 import { Channel } from "../channels/entity";
 import { Shoot } from "../shoots/entity";
 import { TagDefinition } from "../tags/entity";
+
+type MediaFilters = typeof MediaFilterSchema.static;
+type FilterGroup = MediaFilters[number];
+type FilterItem = FilterGroup['items'][number];
 
 const validateFilterItem = async (item: FilterItem): Promise<boolean> => {
   const database = await db();
@@ -47,7 +51,7 @@ const validateFilterItem = async (item: FilterItem): Promise<boolean> => {
 };
 
 export const validateAndCleanFilters = async (filters: MediaFilters): Promise<MediaFilters> => {
-  const cleanedFilters: MediaFilters = [];
+  const cleanedFilters: Array<{ include: boolean; items: FilterItem[] }> = [];
 
   // eslint-disable-next-line functional/no-loop-statements
   for (const group of filters) {

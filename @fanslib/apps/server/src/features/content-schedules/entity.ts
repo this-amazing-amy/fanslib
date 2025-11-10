@@ -1,5 +1,6 @@
+import { t } from "elysia";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
-import { Channel } from "../channels/entity";
+import type { Channel } from "../channels/entity";
 
 @Entity()
 // eslint-disable-next-line functional/no-classes
@@ -34,10 +35,28 @@ export class ContentSchedule {
   @Column("text", { nullable: true })
   mediaFilters?: string;
 
-  @ManyToOne(() => Channel)
+  @ManyToOne("Channel")
   @JoinColumn({ name: "channelId" })
   channel!: Channel;
 }
+
+export const ContentScheduleTypeSchema = t.Union([
+  t.Literal("daily"),
+  t.Literal("weekly"),
+  t.Literal("monthly"),
+]);
+
+export const ContentScheduleSchema = t.Object({
+  id: t.String(),
+  channelId: t.String(),
+  type: ContentScheduleTypeSchema,
+  postsPerTimeframe: t.Optional(t.Number()),
+  preferredDays: t.Optional(t.Array(t.String())),
+  preferredTimes: t.Optional(t.Array(t.String())),
+  updatedAt: t.String(),
+  createdAt: t.String(),
+  mediaFilters: t.Optional(t.String()),
+});
 
 
 

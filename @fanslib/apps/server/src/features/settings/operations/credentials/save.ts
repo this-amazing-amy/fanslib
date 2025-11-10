@@ -1,12 +1,17 @@
-import type { FanslyCredentials } from "@fanslib/types";
+import { t } from "elysia";
 import { mkdir, writeFile } from "fs/promises";
 import { dirname } from "path";
 import { fanslyCredentialsFilePath } from "../../../../lib/env";
-import { loadFanslyCredentials } from "./load";
+import { FanslyCredentialsSchema, loadFanslyCredentials } from "./load";
+
+export const SaveFanslyCredentialsRequestBodySchema = t.Partial(FanslyCredentialsSchema);
+export const SaveFanslyCredentialsResponseSchema = t.Object({
+  success: t.Boolean(),
+});
 
 export const saveFanslyCredentials = async (
-  credentials: Partial<FanslyCredentials>
-): Promise<void> => {
+  credentials: typeof SaveFanslyCredentialsRequestBodySchema.static
+): Promise<typeof SaveFanslyCredentialsResponseSchema.static> => {
   try {
     const existingCredentials = await loadFanslyCredentials();
     const updatedCredentials = { ...existingCredentials, ...credentials };
@@ -15,7 +20,8 @@ export const saveFanslyCredentials = async (
     await writeFile(fanslyCredentialsFilePath(), JSON.stringify(updatedCredentials, null, 2));
   } catch (error) {
     console.error("Error saving Fansly credentials:", error);
-    throw error;
+    return { success: false };
   }
+  return { success: true };
 };
 

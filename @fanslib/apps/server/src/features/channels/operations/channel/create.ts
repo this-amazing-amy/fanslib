@@ -1,13 +1,29 @@
-import type { CreateChannelRequest } from "@fanslib/types";
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { Channel } from "../../entity";
+import { Channel, ChannelSchema, ChannelTypeSchema } from "../../entity";
+import { HashtagSchema } from "../../../hashtags/entity";
+
+export const CreateChannelRequestBodySchema = t.Object({
+  name: t.String(),
+  typeId: t.String(),
+  description: t.Optional(t.String()),
+  eligibleMediaFilter: t.Optional(t.Any()),
+});
+
+export const CreateChannelResponseSchema = t.Intersect([
+  ChannelSchema,
+  t.Object({
+    type: ChannelTypeSchema,
+    defaultHashtags: t.Array(HashtagSchema),
+  }),
+]);
 
 export const createChannel = async ({
   name,
   typeId,
   description,
   eligibleMediaFilter,
-}: CreateChannelRequest): Promise<Channel> => {
+}: typeof CreateChannelRequestBodySchema.static): Promise<Channel> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Channel);
 

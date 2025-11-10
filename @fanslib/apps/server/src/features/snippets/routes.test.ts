@@ -109,7 +109,6 @@ describe("Snippets Routes", () => {
       const snippetData = {
         name: "New Snippet",
         content: "This is a new snippet",
-        isGlobal: false,
       };
 
       const response = await app.handle(
@@ -136,7 +135,6 @@ describe("Snippets Routes", () => {
         name: "Channel Snippet",
         content: "Channel-specific content",
         channelId: channel.id,
-        isGlobal: false,
       };
 
       const response = await app.handle(

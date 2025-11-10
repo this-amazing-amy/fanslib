@@ -1,15 +1,27 @@
-import type { UpdateSnippetRequest } from "@fanslib/types";
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { CaptionSnippet } from "../../entity";
+import { CaptionSnippet, CaptionSnippetSchema } from "../../entity";
+
+export const UpdateSnippetRequestParamsSchema = t.Object({
+  id: t.String(),
+});
+
+export const UpdateSnippetRequestBodySchema = t.Object({
+  name: t.Optional(t.String()),
+  content: t.Optional(t.String()),
+  channelId: t.Optional(t.String()),
+});
+
+export const UpdateSnippetResponseSchema = CaptionSnippetSchema;
 
 export const updateSnippet = async (
-  id: string,
-  data: UpdateSnippetRequest
-): Promise<CaptionSnippet> => {
+  params: typeof UpdateSnippetRequestParamsSchema.static,
+  data: typeof UpdateSnippetRequestBodySchema.static,
+): Promise<typeof UpdateSnippetResponseSchema.static> => {
   const dataSource = await db();
   const repo = dataSource.getRepository(CaptionSnippet);
 
-  const snippet = await repo.findOneOrFail({ where: { id } });
+  const snippet = await repo.findOneOrFail({ where: { id: params.id } });
 
   if (data.name && data.name !== snippet.name) {
     const existing = await repo.findOne({
@@ -19,7 +31,7 @@ export const updateSnippet = async (
       },
     });
 
-    if (existing && existing.id !== id) {
+    if (existing && existing.id !== params.id) {
       throw new Error(
         data.channelId !== undefined
           ? "A snippet with this name already exists for this channel"

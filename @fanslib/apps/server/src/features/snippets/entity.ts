@@ -1,3 +1,4 @@
+import { t } from "elysia";
 import {
   Column,
   CreateDateColumn,
@@ -7,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Channel } from "../channels/entity";
+import type { Channel } from "../channels/entity";
 
 @Entity()
 // eslint-disable-next-line functional/no-classes
@@ -24,7 +25,7 @@ export class CaptionSnippet {
   @Column("uuid", { nullable: true })
   channelId?: string;
 
-  @ManyToOne(() => Channel, { nullable: true })
+  @ManyToOne("Channel", { nullable: true })
   @JoinColumn({ name: "channelId" })
   channel?: Channel;
 
@@ -34,6 +35,15 @@ export class CaptionSnippet {
   @UpdateDateColumn()
   updatedAt!: Date;
 }
+
+export const CaptionSnippetSchema = t.Object({
+  id: t.String(),
+  name: t.String(),
+  content: t.String(),
+  channelId: t.Union([t.String(), t.Null()]),
+  createdAt: t.Date(),
+  updatedAt: t.Date(),
+});
 
 
 

@@ -1,13 +1,22 @@
-import type { ShootWithMedia, UpdateShootRequest } from "@fanslib/types";
+import { t } from "elysia";
 import { In } from "typeorm";
 import { db } from "../../../../lib/db";
-import { Media } from "../../../library/entity";
-import { Shoot } from "../../entity";
+import { Media, MediaSchema } from "../../../library/entity";
+import { Shoot, ShootSchema } from "../../entity";
+
+export const UpdateShootRequestBodySchema = t.Object({
+  name: t.Optional(t.String()),
+  description: t.Optional(t.String()),
+  shootDate: t.Optional(t.Date()),
+  mediaIds: t.Optional(t.Array(t.String())),
+});
+
+export const UpdateShootResponseSchema = t.Union([t.Intersect([ShootSchema, t.Object({ media: t.Array(MediaSchema) })]), t.Object({ error: t.String() })]);
 
 export const updateShoot = async (
   id: string,
-  payload: UpdateShootRequest
-): Promise<ShootWithMedia> => {
+  payload: typeof UpdateShootRequestBodySchema.static
+): Promise<typeof UpdateShootResponseSchema.static> => {
   const database = await db();
   const shootRepository = database.getRepository(Shoot);
   const mediaRepository = database.getRepository(Media);
@@ -18,7 +27,7 @@ export const updateShoot = async (
   });
 
   if (!shoot) {
-    throw new Error(`Shoot with id ${id} not found`);
+    return { error: "Shoot not found" } as const;
   }
 
   if (payload.mediaIds) {

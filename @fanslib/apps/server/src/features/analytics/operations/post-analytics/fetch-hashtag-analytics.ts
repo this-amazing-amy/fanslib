@@ -1,7 +1,9 @@
-import type { HashtagAnalytics } from "@fanslib/types";
+import { HashtagAnalyticsSchema } from "../../schemas/analytics";
 import { getFanslyPostsWithAnalytics } from "./fetch-posts-with-analytics";
 
-export const getHashtagAnalytics = async (): Promise<HashtagAnalytics> => {
+export const GetHashtagAnalyticsResponseSchema = HashtagAnalyticsSchema;
+
+export const getHashtagAnalytics = async (): Promise<typeof GetHashtagAnalyticsResponseSchema.static> => {
   const posts = await getFanslyPostsWithAnalytics();
 
   const hashtagMap = new Map<

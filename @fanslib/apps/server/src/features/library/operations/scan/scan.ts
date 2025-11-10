@@ -1,8 +1,8 @@
 /* eslint-disable functional/no-let */
 /* eslint-disable functional/no-loop-statements */
 /* eslint-disable functional/no-this-expressions */
-import type { FileScanResult, LibraryScanProgress, LibraryScanResult } from "@fanslib/types";
 import { isSameSecond } from "date-fns";
+import { t } from "elysia";
 import { promises as fs } from "fs";
 import path from "path";
 import { db } from "../../../../lib/db";
@@ -10,7 +10,7 @@ import { env } from "../../../../lib/env";
 import { convertRelativeToAbsolute } from "../../../../lib/path-utils";
 import { getVideoDuration } from "../../../../lib/video";
 import { walkDirectory } from "../../../../lib/walkDirectory";
-import { Media } from "../../entity";
+import { Media, MediaSchema } from "../../entity";
 import { createMedia } from "../media/create";
 import { deleteMedia } from "../media/delete";
 import { fetchMediaByPath } from "../media/fetch-by-path";
@@ -19,12 +19,50 @@ import { findMediaByStats } from "./find-by-stats";
 import { generateThumbnail, thumbnailExists } from "./thumbnail";
 import { repairUppercaseExtension } from "./uppercase-extensions";
 
+export const ScanFileRequestBodySchema = t.Object({
+  filePath: t.String(),
+});
+
+export const ScanLibraryResponseSchema = t.Object({
+  message: t.String(),
+  started: t.Boolean(),
+});
+
+export const FileScanResultSchema = t.Object({
+  action: t.Union([t.Literal('added'), t.Literal('updated'), t.Literal('unchanged')]),
+  media: MediaSchema,
+});
+
+export const LibraryScanResultSchema = t.Object({
+  added: t.Number(),
+  updated: t.Number(),
+  removed: t.Number(),
+  total: t.Number(),
+});
+
+export const LibraryScanProgressSchema = t.Object({
+  current: t.Number(),
+  total: t.Number(),
+});
+
+export const ScanStatusResponseSchema = t.Union([
+  t.Object({
+    isScanning: t.Literal(true),
+    progress: t.Union([LibraryScanProgressSchema, t.Null()]),
+  }),
+  t.Object({
+    isScanning: t.Literal(false),
+    result: t.Union([LibraryScanResultSchema, t.Null()]),
+  }),
+  t.Null(),
+]);
+
 const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif"]);
 const VIDEO_EXTENSIONS = new Set([".mp4", ".webm", ".mov", ".avi", ".mkv"]);
 
 // Module-level state for scan progress and results
-let currentScanProgress: LibraryScanProgress | null = null;
-let currentScanResult: LibraryScanResult | null = null;
+let currentScanProgress: typeof LibraryScanProgressSchema.static | null = null;
+let currentScanResult: typeof LibraryScanResultSchema.static | null = null;
 
 const convertToRelativePath = (absolutePath: string, libraryPath: string): string => {
   if (!path.isAbsolute(absolutePath)) {
@@ -46,7 +84,7 @@ const isMediaFile = (
   return { isSupported: false, type: null };
 };
 
-export const scanFile = async (filePath: string): Promise<FileScanResult> => {
+export const scanFile = async (filePath: string): Promise<typeof FileScanResultSchema.static> => {
   const { isSupported, type } = isMediaFile(filePath);
 
   if (!isSupported || !type) {
@@ -129,12 +167,12 @@ class LibraryScanner {
     return this.isScanning;
   }
 
-  public onProgress(progress: LibraryScanProgress): void {
+  public onProgress(progress: typeof LibraryScanProgressSchema.static): void {
     // Store progress in module-level state instead of sending IPC events
     currentScanProgress = progress;
   }
 
-  public onComplete(result: LibraryScanResult): void {
+  public onComplete(result: typeof LibraryScanResultSchema.static): void {
     // Store result in module-level state instead of sending IPC events
     currentScanResult = result;
     // Delay clearing progress slightly to ensure it's visible for status checks
@@ -143,7 +181,7 @@ class LibraryScanner {
     }, 100);
   }
 
-  public async startScan(libraryPath: string): Promise<void> {
+  public async startScan(): Promise<void> {
     if (this.isScanning) {
       throw new Error("Scan already in progress");
     }
@@ -155,7 +193,7 @@ class LibraryScanner {
     try {
       // First pass: collect all files
       const filesToProcess: string[] = [];
-      for await (const filePath of walkDirectory(libraryPath)) {
+      for await (const filePath of walkDirectory(env().libraryPath)) {
         const { isSupported } = isMediaFile(filePath);
         if (isSupported) {
           filesToProcess.push(filePath);
@@ -168,7 +206,7 @@ class LibraryScanner {
       const processedPaths = new Set<string>();
       const processedMediaIds = new Set<string>(); // Track which media entries we've processed
 
-      const result: LibraryScanResult = {
+      const result: typeof LibraryScanResultSchema.static = {
         added: 0,
         updated: 0,
         removed: 0,
@@ -242,10 +280,10 @@ class LibraryScanner {
   }
 }
 
-export const scanLibrary = async (libraryPath: string): Promise<LibraryScanResult> => {
+export const scanLibrary = async (): Promise<typeof LibraryScanResultSchema.static> => {
   const scanner = LibraryScanner.getInstance();
 
-  scanner.startScan(libraryPath).catch((error) => {
+  scanner.startScan().catch((error) => {
     console.error("Library scan failed:", error);
   });
 
@@ -257,7 +295,7 @@ export const scanLibrary = async (libraryPath: string): Promise<LibraryScanResul
   };
 };
 
-export const getScanStatus = () => {
+export const getScanStatus = (): typeof ScanStatusResponseSchema.static => {
   const scanner = LibraryScanner.getInstance();
   return {
     isScanning: scanner.isCurrentlyScanning(),

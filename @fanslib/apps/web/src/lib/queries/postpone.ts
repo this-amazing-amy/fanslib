@@ -1,17 +1,20 @@
 import type {
-  FindRedgifsURLRequest,
-  FindSubredditPostingTimesRequest,
-  DraftBlueskyPostRequest,
-  RefreshRedgifsURLRequest,
-} from '@fanslib/types';
+  DraftBlueskyPostRequestBodySchema,
+  FindRedgifsURLRequestBodySchema,
+  FindSubredditPostingTimesRequestBodySchema,
+  RefreshRedgifsURLRequestBodySchema,
+} from '@fanslib/server/schemas';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { postponeApi } from '../api/postpone';
+import { eden } from '../api/eden';
 
 export const useDraftBlueskyMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: DraftBlueskyPostRequest) => postponeApi.draftBluesky(payload),
+    mutationFn: async (payload: typeof DraftBlueskyPostRequestBodySchema.static) => {
+      const result = await eden.api.postpone['draft-bluesky'].post(payload);
+      return result.data;
+    },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['posts', variables.postId] });
     },
@@ -22,9 +25,12 @@ export const useFindRedgifsUrlMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: FindRedgifsURLRequest) => postponeApi.findRedgifsUrl(payload),
+    mutationFn: async (payload: typeof FindRedgifsURLRequestBodySchema.static) => {
+      const result = await eden.api.postpone['find-redgifs-url'].post(payload);
+      return result.data;
+    },
     onSuccess: (data, variables) => {
-      if (data.url) {
+      if (data?.url) {
         queryClient.invalidateQueries({ queryKey: ['media', variables.mediaId] });
       }
     },
@@ -35,9 +41,12 @@ export const useRefreshRedgifsUrlMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: RefreshRedgifsURLRequest) => postponeApi.refreshRedgifsUrl(payload),
+    mutationFn: async (payload: typeof RefreshRedgifsURLRequestBodySchema.static) => {
+      const result = await eden.api.postpone['refresh-redgifs-url'].post(payload);
+      return result.data;
+    },
     onSuccess: (data, variables) => {
-      if (data.url) {
+      if (data?.url) {
         queryClient.invalidateQueries({ queryKey: ['media', variables.mediaId] });
       }
     },
@@ -46,8 +55,10 @@ export const useRefreshRedgifsUrlMutation = () => {
 
 export const useFindSubredditPostingTimesMutation = () =>
   useMutation({
-    mutationFn: (payload: FindSubredditPostingTimesRequest) =>
-      postponeApi.findSubredditPostingTimes(payload),
+    mutationFn: async (payload: typeof FindSubredditPostingTimesRequestBodySchema.static) => {
+      const result = await eden.api.postpone['find-subreddit-posting-times'].post(payload);
+      return result.data;
+    },
   });
 
 

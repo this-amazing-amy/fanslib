@@ -10,8 +10,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Shoot } from "../shoots/entity";
-import { MediaTag } from "../tags/entity";
+import type { PostMedia } from "../posts/entity";
+import type { Shoot } from "../shoots/entity";
+import type { MediaTag } from "../tags/entity";
 
 export type MediaType = "image" | "video";
 
@@ -53,9 +54,9 @@ export class Media {
   fileModificationDate!: Date;
 
   @OneToMany("PostMedia", (postMedia: { media: Media }) => postMedia.media)
-  postMedia!: unknown[];
+  postMedia!: PostMedia[];
 
-  @ManyToMany(() => Shoot)
+  @ManyToMany("Shoot")
   @JoinTable({
     name: "shoot_media",
     joinColumn: { name: "media_id", referencedColumnName: "id" },
@@ -63,7 +64,7 @@ export class Media {
   })
   shoots!: Shoot[];
 
-  @OneToMany(() => MediaTag, (mediaTag) => mediaTag.media)
+  @OneToMany("MediaTag", (mediaTag: any) => mediaTag.media)
   mediaTags!: MediaTag[];
 }
 

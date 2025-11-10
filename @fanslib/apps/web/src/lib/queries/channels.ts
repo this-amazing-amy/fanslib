@@ -1,43 +1,67 @@
-import type { CreateChannelRequest, UpdateChannelRequest } from '@fanslib/types';
+import type {
+  CreateChannelRequestBodySchema,
+  DeleteChannelRequestParamsSchema,
+  FetchChannelByIdRequestParamsSchema,
+  UpdateChannelRequestBodySchema,
+  UpdateChannelRequestParamsSchema,
+} from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { channelsApi } from '../api/channels';
+import { eden } from '../api/eden';
 
 export const useChannelsQuery = () =>
   useQuery({
     queryKey: ['channels', 'list'],
-    queryFn: () => channelsApi.getAll(),
+    queryFn: async () => {
+      const result = await eden.api.channels.get();
+      return result.data;
+    },
   });
 
-export const useChannelQuery = (id: string) =>
+export const useChannelQuery = (params: typeof FetchChannelByIdRequestParamsSchema.static) =>
   useQuery({
-    queryKey: ['channels', id],
-    queryFn: () => channelsApi.getById(id),
-    enabled: !!id,
+    queryKey: ['channels', params.id],
+    queryFn: async () => {
+      const result = await eden.api.channels({ id: params.id }).get();
+      return result.data;
+    },
+    enabled: !!params.id,
   });
 
 export const useChannelTypesQuery = () =>
   useQuery({
     queryKey: ['channels', 'types'],
-    queryFn: () => channelsApi.getTypes(),
+    queryFn: async () => {
+      const result = await eden.api.channels.types.get();
+      return result.data;
+    },
   });
 
 export const useCreateChannelMutation = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (data: CreateChannelRequest) => channelsApi.create(data),
+    mutationFn: async (data: typeof CreateChannelRequestBodySchema.static) => {
+      const result = await eden.api.channels.post(data);
+      return result.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['channels', 'list'] });
     },
   });
 };
 
+type UpdateChannelParams = typeof UpdateChannelRequestParamsSchema.static & {
+  updates: typeof UpdateChannelRequestBodySchema.static;
+};
+
 export const useUpdateChannelMutation = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: UpdateChannelRequest }) =>
-      channelsApi.update(id, updates),
+    mutationFn: async ({ id, updates }: UpdateChannelParams) => {
+      const result = await eden.api.channels({ id }).patch(updates);
+      return result.data;
+    },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['channels', 'list'] });
       queryClient.setQueryData(['channels', variables.id], data);
@@ -47,12 +71,14 @@ export const useUpdateChannelMutation = () => {
 
 export const useDeleteChannelMutation = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (id: string) => channelsApi.delete(id),
+    mutationFn: async (params: typeof DeleteChannelRequestParamsSchema.static) => {
+      const result = await eden.api.channels({ id: params.id }).delete();
+      return result.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['channels', 'list'] });
     },
   });
 };
-

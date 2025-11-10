@@ -1,3 +1,4 @@
+import { t } from "elysia";
 import {
   Column,
   CreateDateColumn,
@@ -24,6 +25,14 @@ export class FilterPreset {
   @UpdateDateColumn({ type: "datetime" })
   updatedAt!: Date;
 }
+
+export const FilterPresetSchema = t.Object({
+  id: t.String(),
+  name: t.String(),
+  filtersJson: t.String(),
+  createdAt: t.Date(),
+  updatedAt: t.Date(),
+});
 
 
 

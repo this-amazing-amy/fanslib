@@ -1,9 +1,9 @@
-import type { ContentSchedule } from "@fanslib/types";
 import { getTestDataSource } from "../../lib/db.test";
 import type { Channel } from "../channels/entity";
+import type { ContentSchedule } from "./entity";
 import { ContentSchedule as ContentScheduleEntity } from "./entity";
 
-export type ContentScheduleFixture = Omit<ContentSchedule, "createdAt" | "updatedAt" | "mediaFilters">;
+export type ContentScheduleFixture = Omit<ContentSchedule, "createdAt" | "updatedAt" | "mediaFilters" | "channel">;
 
 export const CONTENT_SCHEDULE_FIXTURES: ContentScheduleFixture[] = [
   {

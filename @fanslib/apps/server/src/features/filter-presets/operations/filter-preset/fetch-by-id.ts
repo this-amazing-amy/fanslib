@@ -1,8 +1,15 @@
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { FilterPreset } from "../../entity";
+import { FilterPreset, FilterPresetSchema } from "../../entity";
 import { validateAndCleanFilters } from "../../validation";
 
-export const getFilterPresetById = async (id: string): Promise<FilterPreset | null> => {
+export const GetFilterPresetByIdResponseSchema = t.Union([
+  FilterPresetSchema,
+  t.Object({ error: t.String() }),
+  t.Null(),
+]);
+
+export const getFilterPresetById = async (id: string): Promise<typeof GetFilterPresetByIdResponseSchema.static> => {
   try {
   const database = await db();
   const repository = database.getRepository(FilterPreset);

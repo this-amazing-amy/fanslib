@@ -1,3 +1,4 @@
+import { t } from "elysia";
 import {
   Column,
   CreateDateColumn,
@@ -9,6 +10,7 @@ import {
   Unique,
   UpdateDateColumn,
 } from "typeorm";
+import type { Channel } from "../channels/entity";
 
 @Entity()
 // eslint-disable-next-line functional/no-classes
@@ -45,7 +47,7 @@ export class HashtagChannelStats {
 
   @ManyToOne("Channel")
   @JoinColumn({ name: "channelId" })
-  channel!: unknown;
+  channel!: Channel;
 
   @Column("varchar")
   channelId!: string;
@@ -59,6 +61,22 @@ export class HashtagChannelStats {
   @UpdateDateColumn({ type: "datetime" })
   updatedAt!: Date;
 }
+
+export const HashtagSchema = t.Object({
+  id: t.Number(),
+  name: t.String(),
+  createdAt: t.Date(),
+  updatedAt: t.Date(),
+});
+
+export const HashtagChannelStatsSchema = t.Object({
+  id: t.Number(),
+  hashtagId: t.Number(),
+  channelId: t.String(),
+  views: t.Number(),
+  createdAt: t.Date(),
+  updatedAt: t.Date(),
+});
 
 
 

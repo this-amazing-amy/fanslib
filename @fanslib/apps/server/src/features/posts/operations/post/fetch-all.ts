@@ -1,8 +1,26 @@
-import type { PostFilters } from "@fanslib/types";
+import { t } from "elysia";
+import { ChannelSchema, ChannelTypeSchema } from "~/features/channels/entity";
+import { MediaSchema } from "~/features/library/entity";
+import { SubredditSchema } from "~/features/subreddits/entity";
 import { db } from "../../../../lib/db";
-import { Post } from "../../entity";
+import { Post, PostMediaSchema, PostSchema } from "../../entity";
+import type { PostFiltersSchema } from "../../schemas/post-filters";
 
-export const fetchAllPosts = async (filters?: PostFilters): Promise<Post[]> => {
+export const FetchAllPostsRequestQuerySchema = t.Object({
+  filters: t.Optional(t.String()), // JSON stringified PostFilters
+});
+
+export const FetchAllPostsResponseSchema = t.Array(t.Intersect([PostSchema, t.Object({
+  postMedia: t.Array(t.Intersect([PostMediaSchema, t.Object({
+    media: MediaSchema,
+  })])),
+  channel: t.Intersect([ChannelSchema, t.Object({
+    type: ChannelTypeSchema,
+  })]),
+  subreddit: t.Optional(SubredditSchema),
+})]));
+
+export const fetchAllPosts = async (filters?: typeof PostFiltersSchema.static): Promise<typeof FetchAllPostsResponseSchema.static> => {
   const dataSource = await db();
   const queryBuilder = dataSource
     .getRepository(Post)

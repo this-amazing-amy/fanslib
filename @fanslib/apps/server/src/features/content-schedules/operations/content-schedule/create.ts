@@ -1,12 +1,24 @@
-import type { CreateContentScheduleRequest } from "@fanslib/types";
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { ContentSchedule } from "../../entity";
+import { MediaFilterSchema } from "../../../library/schemas/media-filter";
+import { ContentSchedule, ContentScheduleSchema, ContentScheduleTypeSchema } from "../../entity";
+
+export const CreateContentScheduleRequestBodySchema = t.Object({
+  channelId: t.String(),
+  type: ContentScheduleTypeSchema,
+  postsPerTimeframe: t.Optional(t.Number()),
+  preferredDays: t.Optional(t.Array(t.String())),
+  preferredTimes: t.Optional(t.Array(t.String())),
+  mediaFilters: t.Optional(MediaFilterSchema),
+});
+
+export const CreateContentScheduleResponseSchema = ContentScheduleSchema;
 
 const stringifyMediaFilters = (filters: Parameters<typeof JSON.stringify>[0]): string =>
   JSON.stringify(filters);
 
 export const createContentSchedule = async (
-  data: CreateContentScheduleRequest
+  data: typeof CreateContentScheduleRequestBodySchema.static
 ): Promise<ContentSchedule> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(ContentSchedule);

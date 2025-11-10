@@ -1,14 +1,18 @@
-import type { Settings } from "@fanslib/types";
+import { t } from "elysia";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { dirname } from "path";
+import { SettingsSchema } from "../../schemas/settings";
 import { DEFAULT_SETTINGS, settingsFilePath } from "./helpers";
 
-export const saveSettings = async (partialSettings: Partial<Settings>): Promise<Settings> => {
+export const SaveSettingsRequestBodySchema = t.Partial(SettingsSchema);
+export const SaveSettingsResponseSchema = SettingsSchema;
+
+export const saveSettings = async (partialSettings: Partial<typeof SettingsSchema.static>): Promise<typeof SaveSettingsResponseSchema.static> => {
   try {
     await mkdir(dirname(settingsFilePath()), { recursive: true });
 
     const currentSettings = await readFile(settingsFilePath(), "utf8")
-      .then((data) => JSON.parse(data) as Settings)
+      .then((data) => JSON.parse(data) as typeof SettingsSchema.static)
       .catch(() => DEFAULT_SETTINGS);
 
     const newSettings = { ...currentSettings, ...partialSettings };

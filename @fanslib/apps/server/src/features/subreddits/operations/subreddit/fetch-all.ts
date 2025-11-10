@@ -1,7 +1,10 @@
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { Subreddit } from "../../entity";
+import { Subreddit, SubredditSchema } from "../../entity";
 
-export const fetchAllSubreddits = async (): Promise<Subreddit[]> => {
+export const FetchAllSubredditsResponseSchema = t.Array(SubredditSchema);
+
+export const fetchAllSubreddits = async (): Promise<typeof FetchAllSubredditsResponseSchema.static> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Subreddit);
 

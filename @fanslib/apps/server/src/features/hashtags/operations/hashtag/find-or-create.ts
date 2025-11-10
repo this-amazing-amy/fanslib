@@ -1,8 +1,20 @@
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { Hashtag } from "../../entity";
+import { Hashtag, HashtagSchema } from "../../entity";
 import { normalizeHashtagName } from "./helpers";
 
-export const findOrCreateHashtag = async (name: string): Promise<Hashtag> => {
+export const FindOrCreateHashtagRequestBodySchema = t.Object({
+  name: t.String(),
+});
+
+export const FindOrCreateHashtagsBatchRequestBodySchema = t.Object({
+  names: t.Array(t.String()),
+});
+
+export const FindOrCreateHashtagResponseSchema = HashtagSchema;
+export const FindOrCreateHashtagsBatchResponseSchema = t.Array(HashtagSchema);
+
+export const findOrCreateHashtag = async (name: string): Promise<typeof FindOrCreateHashtagResponseSchema.static> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Hashtag);
   const normalizedName = normalizeHashtagName(name);
@@ -19,6 +31,6 @@ export const findOrCreateHashtag = async (name: string): Promise<Hashtag> => {
   return repository.save(hashtag);
 };
 
-export const findOrCreateHashtags = async (names: string[]): Promise<Hashtag[]> =>
+export const findOrCreateHashtags = async (names: string[]): Promise<typeof FindOrCreateHashtagsBatchResponseSchema.static> =>
   Promise.all(names.map((name) => findOrCreateHashtag(name)));
 

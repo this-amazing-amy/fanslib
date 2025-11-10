@@ -1,7 +1,14 @@
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { ContentSchedule } from "../../entity";
+import { ContentSchedule, ContentScheduleSchema } from "../../entity";
 
-export const fetchContentScheduleById = async (id: string): Promise<ContentSchedule | null> => {
+export const FetchContentScheduleByIdResponseSchema = t.Union([
+  ContentScheduleSchema,
+  t.Object({ error: t.String() }),
+  t.Null(),
+]);
+
+export const fetchContentScheduleById = async (id: string): Promise<typeof FetchContentScheduleByIdResponseSchema.static> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(ContentSchedule);
 

@@ -1,3 +1,4 @@
+import { t } from "elysia";
 import {
   Column,
   CreateDateColumn,
@@ -9,10 +10,10 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { FanslyAnalyticsAggregate, FanslyAnalyticsDatapoint } from "../analytics/entity";
-import { Channel } from "../channels/entity";
-import { Media } from "../library/entity";
 import { Subreddit } from "../subreddits/entity";
+import type { Channel } from "../channels/entity";
+import type { Media } from "../library/entity";
+import type { FanslyAnalyticsDatapoint, FanslyAnalyticsAggregate } from "../analytics/entity";
 
 export type PostStatus = "draft" | "scheduled" | "posted";
 
@@ -52,7 +53,7 @@ export class Post {
   })
   status!: PostStatus;
 
-  @ManyToOne(() => Channel)
+  @ManyToOne("Channel")
   @JoinColumn({ name: "channelId" })
   channel!: Channel;
   @Column("varchar")
@@ -68,14 +69,14 @@ export class Post {
   postMedia!: PostMedia[];
 
   @OneToMany(
-    () => FanslyAnalyticsDatapoint,
-    (fanslyAnalyticsDatapoint) => fanslyAnalyticsDatapoint.post
+    "FanslyAnalyticsDatapoint",
+    (fanslyAnalyticsDatapoint: any) => fanslyAnalyticsDatapoint.post
   )
   fanslyAnalyticsDatapoints!: FanslyAnalyticsDatapoint[];
 
   @OneToOne(
-    () => FanslyAnalyticsAggregate,
-    (fanslyAnalyticsAggregate) => fanslyAnalyticsAggregate.post
+    "FanslyAnalyticsAggregate",
+    (fanslyAnalyticsAggregate: any) => fanslyAnalyticsAggregate.post
   )
   fanslyAnalyticsAggregate?: FanslyAnalyticsAggregate;
 }
@@ -96,7 +97,7 @@ export class PostMedia {
   @JoinColumn()
   post!: Post;
 
-  @ManyToOne(() => Media, (media) => media.postMedia, { onDelete: "CASCADE" })
+  @ManyToOne("Media", (media: any) => media.postMedia, { onDelete: "CASCADE" })
   @JoinColumn()
   media!: Media;
 
@@ -108,3 +109,32 @@ export class PostMedia {
 }
 
 export type PostWithoutRelations = Omit<Post, "channel" | "media" | "subreddit">;
+
+export const PostStatusSchema = t.Union([
+  t.Literal('draft'),
+  t.Literal('scheduled'),
+  t.Literal('posted'),
+]);
+
+export const PostMediaSchema = t.Object({
+  id: t.String(),
+  order: t.Number(),
+  isFreePreview: t.Boolean(),
+  createdAt: t.Date(),
+  updatedAt: t.Date(),
+});
+
+export const PostSchema = t.Object({
+  id: t.String(),
+  createdAt: t.String(),
+  updatedAt: t.String(),
+  scheduleId: t.Union([t.String(), t.Null()]),
+  caption: t.Union([t.String(), t.Null()]),
+  date: t.String(),
+  url: t.Union([t.String(), t.Null()]),
+  fanslyStatisticsId: t.Union([t.String(), t.Null()]),
+  fypRemovedAt: t.Union([t.Date(), t.Null()]),
+  status: PostStatusSchema,
+  channelId: t.String(),
+  subredditId: t.Union([t.String(), t.Null()]),
+});

@@ -1,16 +1,30 @@
-import type { CreatePostRequest } from "@fanslib/types";
+import { t } from "elysia";
 import { In } from "typeorm";
 import { db } from "../../../../lib/db";
-import { Channel } from "../../../channels/entity";
 import { CHANNEL_TYPES } from "../../../channels/channelTypes";
+import { Channel } from "../../../channels/entity";
 import { Media } from "../../../library/entity";
-import { Post, PostMedia } from "../../entity";
-import { getPostById } from "./fetch-by-id";
+import { Post, PostMedia, PostStatusSchema } from "../../entity";
+import { getPostById, GetPostByIdResponseSchema } from "./fetch-by-id";
+
+export const CreatePostRequestBodySchema = t.Object({
+  date: t.String(),
+  channelId: t.String(),
+  caption: t.Optional(t.String()),
+  status: PostStatusSchema,
+  url: t.Optional(t.String()),
+  fanslyStatisticsId: t.Optional(t.String()),
+  subredditId: t.Optional(t.String()),
+  fypRemovedAt: t.Optional(t.Union([t.Date(), t.Null()])),
+  mediaIds: t.Optional(t.Array(t.String())),
+});
+
+export const CreatePostResponseSchema = GetPostByIdResponseSchema;
 
 export const createPost = async (
-  postData: CreatePostRequest,
+  postData: Omit<typeof CreatePostRequestBodySchema.static, 'mediaIds'>,
   mediaIds: string[]
-): Promise<Post> => {
+): Promise<typeof CreatePostResponseSchema.static> => {
   const dataSource = await db();
   const postRepo = dataSource.getRepository(Post);
   const mediaRepo = dataSource.getRepository(Media);

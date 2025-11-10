@@ -1,7 +1,18 @@
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { MediaTag } from "../../entity";
+import { MediaTag, MediaTagSchema } from "../../entity";
 
-export const getMediaTags = async (mediaId: string, dimensionId?: number): Promise<MediaTag[]> => {
+export const GetMediaTagsParamsSchema = t.Object({
+  mediaId: t.String(),
+});
+
+export const GetMediaTagsQuerySchema = t.Object({
+  dimensionId: t.Optional(t.String()),
+});
+
+export const GetMediaTagsResponseSchema = t.Array(MediaTagSchema);
+
+export const getMediaTags = async (params: typeof GetMediaTagsParamsSchema.static, query: typeof GetMediaTagsQuerySchema.static): Promise<typeof GetMediaTagsResponseSchema.static> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(MediaTag);
 
@@ -10,10 +21,10 @@ export const getMediaTags = async (mediaId: string, dimensionId?: number): Promi
     .leftJoinAndSelect("mt.media", "media")
     .leftJoinAndSelect("mt.tag", "tag")
     .leftJoinAndSelect("tag.dimension", "dimension")
-    .where("mt.mediaId = :mediaId", { mediaId });
+    .where("mt.mediaId = :mediaId", { mediaId: params.mediaId });
 
-  if (dimensionId) {
-    queryBuilder.andWhere("tag.dimensionId = :dimensionId", { dimensionId });
+  if (query.dimensionId) {
+    queryBuilder.andWhere("tag.dimensionId = :dimensionId", { dimensionId: query.dimensionId });
   }
 
   return queryBuilder.getMany();
