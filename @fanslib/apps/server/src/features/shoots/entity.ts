@@ -20,7 +20,7 @@ export class Shoot {
   name!: string;
 
   @Column("text", { nullable: true })
-  description?: string;
+  description: string | null;
 
   @Column("datetime")
   shootDate!: Date;
@@ -43,7 +43,7 @@ export class Shoot {
 export const ShootSchema = t.Object({
   id: t.String(),
   name: t.String(),
-  description: t.Optional(t.String()),
+  description: t.Nullable(t.String()),
   shootDate: t.Date(),
   createdAt: t.Date(),
   updatedAt: t.Date(),

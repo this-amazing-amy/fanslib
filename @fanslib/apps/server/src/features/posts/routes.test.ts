@@ -2,7 +2,9 @@ import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:tes
 import { Elysia } from "elysia";
 import "reflect-metadata";
 import { getTestDataSource, resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
-import { serializeJson } from "../../lib/serialize-json";
+import { mapResponse } from "../../lib/serialization";
+import { logError, parseResponse } from "../../test-utils/setup";
+import { CHANNEL_TYPES } from "../channels/channelTypes";
 import { Post } from "./entity";
 import { POST_FIXTURES } from "./fixtures";
 import { postsRoutes } from "./routes";
@@ -16,7 +18,7 @@ describe("Posts Routes", () => {
   beforeAll(async () => {
     await setupTestDatabase();
     fixtures = await resetAllFixtures();
-    app = new Elysia().mapResponse(serializeJson).use(postsRoutes);
+    app = new Elysia().onError(logError()).mapResponse(mapResponse).use(postsRoutes);
   });
 
   afterAll(async () => {
@@ -27,12 +29,12 @@ describe("Posts Routes", () => {
     fixtures = await resetAllFixtures();
   });
 
-  describe("GET /api/posts", () => {
+  describe("GET /api/posts/all", () => {
     test("returns all posts", async () => {
-      const response = await app.handle(new Request("http://localhost/api/posts"));
+      const response = await app.handle(new Request("http://localhost/api/posts/all"));
       expect(response.status).toBe(200);
       
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(Array.isArray(data)).toBe(true);
       expect(data.length).toBeGreaterThanOrEqual(POST_FIXTURES.length);
       
@@ -52,9 +54,9 @@ describe("Posts Routes", () => {
     test("supports filters", async () => {
       const filters = JSON.stringify({ statuses: ["draft"] });
       const response = await app.handle(
-        new Request(`http://localhost/api/posts?filters=${encodeURIComponent(filters)}`)
+        new Request(`http://localhost/api/posts/all?filters=${encodeURIComponent(filters)}`)
       );
-      const data = await response.json();
+      const data = await parseResponse(response);
 
       expect(Array.isArray(data)).toBe(true);
       data.forEach((post: Post) => {
@@ -63,7 +65,7 @@ describe("Posts Routes", () => {
     });
   });
 
-  describe("GET /api/posts/:id", () => {
+  describe("GET /api/posts/by-id/:id", () => {
     test("returns post by id", async () => {
       const fixturePost = POST_FIXTURES[0];
       if (!fixturePost) {
@@ -71,11 +73,11 @@ describe("Posts Routes", () => {
       }
 
       const response = await app.handle(
-        new Request(`http://localhost/api/posts/${fixturePost.id}`)
+        new Request(`http://localhost/api/posts/by-id/${fixturePost.id}`)
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data.id).toBe(fixturePost.id);
       expect(data.channelId).toBe(fixturePost.channelId);
       if (fixturePost.caption) {
@@ -85,16 +87,16 @@ describe("Posts Routes", () => {
 
     test("returns error for non-existent post", async () => {
       const response = await app.handle(
-        new Request("http://localhost/api/posts/non-existent-id")
+        new Request("http://localhost/api/posts/by-id/non-existent-id")
       );
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data).toHaveProperty("error");
       expect(data.error).toBe("Post not found");
     });
   });
 
-  describe("GET /api/posts/by-channel/:channelId", () => {
+  describe("GET /api/posts/by-channel-id/:channelId", () => {
     test("returns posts for specific channel", async () => {
       const fixtureChannel = fixtures.channels.channels[0];
       if (!fixtureChannel) {
@@ -102,9 +104,9 @@ describe("Posts Routes", () => {
       }
 
       const response = await app.handle(
-        new Request(`http://localhost/api/posts/by-channel/${fixtureChannel.id}`)
+        new Request(`http://localhost/api/posts/by-channel-id/${fixtureChannel.id}`)
       );
-      const data = await response.json();
+      const data = await parseResponse(response);
 
       expect(Array.isArray(data)).toBe(true);
       data.forEach((post: Post) => {
@@ -137,7 +139,7 @@ describe("Posts Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data.caption).toBe("New post caption");
       expect(data.status).toBe("draft");
       expect(data.channelId).toBe(channel.id);
@@ -146,7 +148,7 @@ describe("Posts Routes", () => {
     });
 
     test("creates post with media", async () => {
-      const channel = fixtures.channels.channels[0];
+      const channel = fixtures.channels.channels.find((c) => c.typeId === CHANNEL_TYPES.fansly.id);
       const media1 = fixtures.media[0];
       const media2 = fixtures.media[1];
       if (!channel || !media1 || !media2) {
@@ -170,12 +172,12 @@ describe("Posts Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data.postMedia).toHaveLength(2);
     });
   });
 
-  describe("PATCH /api/posts/:id", () => {
+  describe("PATCH /api/posts/by-id/:id", () => {
     test("updates post", async () => {
       const fixturePost = POST_FIXTURES[0];
       if (!fixturePost) {
@@ -188,7 +190,7 @@ describe("Posts Routes", () => {
       };
 
       const response = await app.handle(
-        new Request(`http://localhost/api/posts/${fixturePost.id}`, {
+        new Request(`http://localhost/api/posts/by-id/${fixturePost.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updateData),
@@ -196,7 +198,7 @@ describe("Posts Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data.caption).toBe("Updated caption");
       expect(data.status).toBe("posted");
       expect(data.id).toBe(fixturePost.id);
@@ -204,20 +206,20 @@ describe("Posts Routes", () => {
 
     test("returns error for non-existent post", async () => {
       const response = await app.handle(
-        new Request("http://localhost/api/posts/non-existent-id", {
+        new Request("http://localhost/api/posts/by-id/non-existent-id", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ caption: "Updated" }),
         })
       );
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data).toHaveProperty("error");
       expect(data.error).toBe("Post not found");
     });
   });
 
-  describe("DELETE /api/posts/:id", () => {
+  describe("DELETE /api/posts/by-id/:id", () => {
     test("deletes post", async () => {
       const fixturePost = POST_FIXTURES[POST_FIXTURES.length - 1];
       if (!fixturePost) {
@@ -225,13 +227,13 @@ describe("Posts Routes", () => {
       }
 
       const response = await app.handle(
-        new Request(`http://localhost/api/posts/${fixturePost.id}`, {
+        new Request(`http://localhost/api/posts/by-id/${fixturePost.id}`, {
           method: "DELETE",
         })
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data.success).toBe(true);
 
       const dataSource = getTestDataSource();
@@ -239,9 +241,21 @@ describe("Posts Routes", () => {
       const deletedPost = await repository.findOne({ where: { id: fixturePost.id } });
       expect(deletedPost).toBeNull();
     });
+
+    test("returns 404 when post not found", async () => {
+      const response = await app.handle(
+        new Request("http://localhost/api/posts/by-id/non-existent-id", {
+          method: "DELETE",
+        })
+      );
+      expect(response.status).toBe(404);
+
+      const data = await parseResponse(response);
+      expect(data.error).toBe("Post not found");
+    });
   });
 
-  describe("POST /api/posts/:id/media", () => {
+  describe("POST /api/posts/by-id/:id/media", () => {
     test("adds media to post", async () => {
       const fixturePost = fixtures.posts.posts[0];
       const media = fixtures.media[0];
@@ -250,7 +264,7 @@ describe("Posts Routes", () => {
       }
 
       const response = await app.handle(
-        new Request(`http://localhost/api/posts/${fixturePost.id}/media`, {
+        new Request(`http://localhost/api/posts/by-id/${fixturePost.id}/media`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ mediaIds: [media.id] }),
@@ -258,27 +272,27 @@ describe("Posts Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(Array.isArray(data.postMedia)).toBe(true);
       expect(data.postMedia.length).toBeGreaterThan(0);
     });
 
     test("returns error for non-existent post", async () => {
       const response = await app.handle(
-        new Request("http://localhost/api/posts/non-existent-id/media", {
+        new Request("http://localhost/api/posts/by-id/non-existent-id/media", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ mediaIds: [] }),
         })
       );
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data).toHaveProperty("error");
       expect(data.error).toBe("Post not found");
     });
   });
 
-  describe("DELETE /api/posts/:id/media", () => {
+  describe("DELETE /api/posts/by-id/:id/media", () => {
     test("removes media from post", async () => {
       const fixturePost = fixtures.posts.posts[0];
       const media1 = fixtures.media[0];
@@ -287,7 +301,7 @@ describe("Posts Routes", () => {
       }
 
       const response = await app.handle(
-        new Request(`http://localhost/api/posts/${fixturePost.id}/media`, {
+        new Request(`http://localhost/api/posts/by-id/${fixturePost.id}/media`, {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ mediaIds: [media1.id] }),
@@ -295,21 +309,21 @@ describe("Posts Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data).toHaveProperty("id");
       expect(data.id).toBe(fixturePost.id);
     });
 
     test("returns error for non-existent post", async () => {
       const response = await app.handle(
-        new Request("http://localhost/api/posts/non-existent-id/media", {
+        new Request("http://localhost/api/posts/by-id/non-existent-id/media", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ mediaIds: [] }),
         })
       );
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data).toHaveProperty("error");
       expect(data.error).toBe("Post not found");
     });

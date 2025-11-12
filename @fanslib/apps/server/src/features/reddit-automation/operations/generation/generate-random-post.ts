@@ -1,9 +1,18 @@
-import type { GeneratedPost, Subreddit } from "@fanslib/types";
 import { CHANNEL_TYPES } from "~/features/channels/channelTypes";
 import { Channel } from "~/features/channels/entity";
 import { fetchPostsByChannel } from "~/features/posts/operations/post/fetch-by-channel";
 import { db } from "~/lib/db";
+import type { Media } from "../../../library/entity";
+import type { Subreddit } from "../../../subreddits/entity";
 import { calculateOptimalScheduleDate, generateCaptionForMedia, getSubredditPosts, selectRandomMediaWithConflictChecking, selectSubreddit } from "./utils";
+
+type GeneratedPost = {
+  id: string;
+  subreddit: Subreddit;
+  media: Media;
+  caption: string;
+  date: Date;
+};
 
 export const generateRandomPost = async (
   subreddits: Subreddit[],

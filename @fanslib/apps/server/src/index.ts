@@ -2,7 +2,6 @@ import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
 import { Elysia } from "elysia";
 import "reflect-metadata";
-import superjson from "superjson";
 import { analyticsRoutes } from "./features/analytics/routes";
 import { postponeRoutes } from "./features/api-postpone/routes";
 import { channelsRoutes } from "./features/channels/routes";
@@ -18,6 +17,7 @@ import { subredditsRoutes } from "./features/subreddits/routes";
 import { tagsRoutes } from "./features/tags/routes";
 import { db } from "./lib/db";
 import { env } from "./lib/env";
+import { mapResponse } from "./lib/serialization";
 
 const app = new Elysia()
   .use(cors())
@@ -29,15 +29,7 @@ const app = new Elysia()
       },
     },
   }))
-  // @ts-expect-error
-  .mapResponse(({ responseValue, path }) => {
-    if (!path.includes("/api/media/"))  return responseValue;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if ([Array, Object].includes(responseValue?.constructor as any)
-            && !path.match(/^\/api\/swagger(\/|$)/)) {
-        return superjson.stringify(responseValue)
-      }
-  })
+  .mapResponse(mapResponse)
   .get("/health", () => ({ status: "ok", timestamp: new Date().toISOString() }))
   .use(libraryRoutes)
   .use(postsRoutes)

@@ -1,40 +1,28 @@
 import { Elysia, t } from "elysia";
-import { fetchFanslyAnalyticsData } from "./fetch-fansly-data";
-import { updateFanslyCredentialsFromFetch } from "./operations/credentials";
+import { FetchAnalyticsDataRequestBodySchema, FetchAnalyticsDataRequestParamsSchema, fetchFanslyAnalyticsData } from "./fetch-fansly-data";
+import { UpdateCredentialsFromFetchRequestBodySchema, updateFanslyCredentialsFromFetch } from "./operations/credentials";
 import { GenerateInsightsResponseSchema, generateInsights } from "./operations/insights";
 import { GetHashtagAnalyticsResponseSchema, getHashtagAnalytics } from "./operations/post-analytics/fetch-hashtag-analytics";
 import { GetFanslyPostsWithAnalyticsQuerySchema, GetFanslyPostsWithAnalyticsResponseSchema, getFanslyPostsWithAnalytics } from "./operations/post-analytics/fetch-posts-with-analytics";
 import { GetTimeAnalyticsResponseSchema, getTimeAnalytics } from "./operations/post-analytics/fetch-time-analytics";
 import { initializeAnalyticsAggregates } from "./operations/post-analytics/initialize-aggregates";
 
-const UpdateCredentialsFromFetchBodySchema = t.Object({
-  fetchRequest: t.String(),
-});
-
-const FetchAnalyticsDataParamsSchema = t.Object({
-  postId: t.String(),
-});
-
-const FetchAnalyticsDataBodySchema = t.Object({
-  startDate: t.Optional(t.String()),
-  endDate: t.Optional(t.String()),
-});
-
 export const analyticsRoutes = new Elysia({ prefix: "/api/analytics" })
   .post("/credentials/update-from-fetch", async ({ body }) => {
     await updateFanslyCredentialsFromFetch(body.fetchRequest);
     return { success: true };
   }, {
-    body: UpdateCredentialsFromFetchBodySchema,
+    body: UpdateCredentialsFromFetchRequestBodySchema,
     response: t.Object({ success: t.Boolean() }),
   })
-  .post("/fetch/:postId", async ({ params, body }) => {
+  .post("/fetch/:postId", async ({ params: { postId }, body }) => {
     const start = body.startDate ? new Date(body.startDate) : undefined;
     const end = body.endDate ? new Date(body.endDate) : undefined;
-    return fetchFanslyAnalyticsData(params.postId, start, end);
+    return fetchFanslyAnalyticsData(postId, start, end);
   }, {
-    params: FetchAnalyticsDataParamsSchema,
-    body: FetchAnalyticsDataBodySchema,
+    params: FetchAnalyticsDataRequestParamsSchema,
+    body: FetchAnalyticsDataRequestBodySchema,
+    response: t.Any(),
   })
   .get("/posts", async ({ query }) => getFanslyPostsWithAnalytics(
       query.sortBy,

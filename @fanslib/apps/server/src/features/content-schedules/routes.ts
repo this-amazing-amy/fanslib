@@ -1,46 +1,64 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import { CreateContentScheduleRequestBodySchema, CreateContentScheduleResponseSchema, createContentSchedule } from "./operations/content-schedule/create";
-import { DeleteContentScheduleResponseSchema, deleteContentSchedule } from "./operations/content-schedule/delete";
+import { DeleteContentScheduleRequestParamsSchema, DeleteContentScheduleResponseSchema, deleteContentSchedule } from "./operations/content-schedule/delete";
 import { FetchAllContentSchedulesResponseSchema, fetchAllContentSchedules } from "./operations/content-schedule/fetch-all";
 import { FetchContentSchedulesByChannelResponseSchema, fetchContentSchedulesByChannel } from "./operations/content-schedule/fetch-by-channel";
-import { FetchContentScheduleByIdResponseSchema, fetchContentScheduleById } from "./operations/content-schedule/fetch-by-id";
-import { UpdateContentScheduleRequestBodySchema, UpdateContentScheduleResponseSchema, updateContentSchedule } from "./operations/content-schedule/update";
+import { FetchContentScheduleByIdRequestParamsSchema, FetchContentScheduleByIdResponseSchema, fetchContentScheduleById } from "./operations/content-schedule/fetch-by-id";
+import { UpdateContentScheduleRequestBodySchema, UpdateContentScheduleRequestParamsSchema, UpdateContentScheduleResponseSchema, updateContentSchedule } from "./operations/content-schedule/update";
 
 export const contentSchedulesRoutes = new Elysia({ prefix: "/api/content-schedules" })
-  .get("/", async () => fetchAllContentSchedules(), {
+  .get("/all", async () => fetchAllContentSchedules(), {
     response: FetchAllContentSchedulesResponseSchema,
   })
-  .get("/:id", async ({ params: { id } }) => {
+  .get("/by-channel-id/:channelId", async ({ params: { channelId } }) =>
+    fetchContentSchedulesByChannel(channelId), {
+    response: FetchContentSchedulesByChannelResponseSchema,
+  })
+  .get("/by-id/:id", async ({ params: { id }, set }) => {
     const schedule = await fetchContentScheduleById(id);
     if (!schedule) {
+      set.status = 404;
       return { error: "Content schedule not found" };
     }
     return schedule;
   }, {
-    response: FetchContentScheduleByIdResponseSchema,
-  })
-  .get("/by-channel/:channelId", async ({ params: { channelId } }) =>
-    fetchContentSchedulesByChannel(channelId), {
-    response: FetchContentSchedulesByChannelResponseSchema,
+    params: FetchContentScheduleByIdRequestParamsSchema,
+    response: {
+      200: FetchContentScheduleByIdResponseSchema,
+      404: t.Object({ error: t.String() }),
+    },
   })
   .post("/", async ({ body }) => createContentSchedule(body), {
     body: CreateContentScheduleRequestBodySchema,
     response: CreateContentScheduleResponseSchema,
   })
-  .patch("/:id", async ({ params: { id }, body }) => {
+  .patch("/by-id/:id", async ({ params: { id }, body, set }) => {
     const schedule = await updateContentSchedule(id, body);
     if (!schedule) {
+      set.status = 404;
       return { error: "Content schedule not found" };
     }
     return schedule;
   }, {
+    params: UpdateContentScheduleRequestParamsSchema,
     body: UpdateContentScheduleRequestBodySchema,
-    response: UpdateContentScheduleResponseSchema,
+    response: {
+      200: UpdateContentScheduleResponseSchema,
+      404: t.Object({ error: t.String() }),
+    },
   })
-  .delete("/:id", async ({ params: { id } }) => {
-    await deleteContentSchedule(id);
+  .delete("/by-id/:id", async ({ params: { id }, set }) => {
+    const success = await deleteContentSchedule(id);
+    if (!success) {
+      set.status = 404;
+      return { error: "Content schedule not found" };
+    }
     return { success: true };
   }, {
-    response: DeleteContentScheduleResponseSchema,
+    params: DeleteContentScheduleRequestParamsSchema,
+    response: {
+      200: DeleteContentScheduleResponseSchema,
+      404: t.Object({ error: t.String() }),
+    },
   });
 

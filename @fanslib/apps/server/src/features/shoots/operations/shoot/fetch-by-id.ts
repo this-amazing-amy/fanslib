@@ -7,24 +7,18 @@ export const FetchShootByIdRequestParamsSchema = t.Object({
   id: t.String(),
 });
 
-export const FetchShootByIdResponseSchema = t.Union([
-  t.Intersect([ShootSchema, t.Object({ media: t.Array(MediaSchema) })]),
-  t.Object({ error: t.String() }),
+export const FetchShootByIdResponseSchema = t.Composite([
+  ShootSchema,
+  t.Object({ media: t.Array(MediaSchema) }),
 ]);
 
-export const getShoot = async (payload: typeof FetchShootByIdRequestParamsSchema.static): Promise<typeof FetchShootByIdResponseSchema.static> => {
+export const fetchShootById = async (id: string): Promise<typeof FetchShootByIdResponseSchema.static | null> => {
   const database = await db();
   const shootRepository = database.getRepository(Shoot);
 
-  const shoot = await shootRepository.findOne({
-    where: { id: payload.id },
+  return shootRepository.findOne({
+    where: { id },
     relations: ["media"],
   });
-
-  if (!shoot) {
-    return { error: "Shoot not found" };
-  }
-
-  return shoot;
 };
 

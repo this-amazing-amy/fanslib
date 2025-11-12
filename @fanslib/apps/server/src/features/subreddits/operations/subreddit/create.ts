@@ -1,9 +1,11 @@
-import { VERIFICATION_STATUS } from "@fanslib/types";
 import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { Subreddit, SubredditSchema } from "../../entity";
+import { Subreddit, SubredditSchema, VERIFICATION_STATUS } from "../../entity";
 
-export const CreateSubredditRequestBodySchema = t.Omit(SubredditSchema, ["id"]);
+export const CreateSubredditRequestBodySchema = t.Intersect([
+  t.Required(t.Pick(t.Omit(SubredditSchema, ["id"]), ["name"])),
+  t.Partial(t.Omit(SubredditSchema, ["id", "name"])),
+]);
 
 export const CreateSubredditResponseSchema = SubredditSchema;
 
@@ -14,14 +16,8 @@ export const createSubreddit = async (
   const repository = dataSource.getRepository(Subreddit);
 
   const subreddit = repository.create({
-    name: data.name,
-    maxPostFrequencyHours: data.maxPostFrequencyHours,
-    memberCount: data.memberCount,
-    notes: data.notes,
+    ...data,
     verificationStatus: data.verificationStatus ?? VERIFICATION_STATUS.UNKNOWN,
-    eligibleMediaFilter: data.eligibleMediaFilter,
-    defaultFlair: data.defaultFlair,
-    captionPrefix: data.captionPrefix,
   });
 
   await repository.save(subreddit);

@@ -18,8 +18,8 @@ export type RedditPostDraft = {
   type: RedditPostType;
   subreddit: string;
   caption: string;
-  url?: string;
-  flair?: string;
+  url: string | null;
+  flair: string | null;
 };
 
 export type RedditPostResult = {

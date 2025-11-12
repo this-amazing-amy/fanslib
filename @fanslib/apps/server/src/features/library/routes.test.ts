@@ -2,7 +2,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:tes
 import { Elysia } from "elysia";
 import "reflect-metadata";
 import { getTestDataSource, resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
-import { serializeJson } from "../../lib/serialize-json";
+import { mapResponse } from "../../lib/serialization";
+import { logError, parseResponse } from "../../test-utils/setup";
 import { Media } from "./entity";
 import { MEDIA_FIXTURES } from "./fixtures";
 import { libraryRoutes } from "./routes";
@@ -14,7 +15,7 @@ describe("Library Routes", () => {
   beforeAll(async () => {
     await setupTestDatabase();
     await resetAllFixtures();
-    app = new Elysia().mapResponse(serializeJson).use(libraryRoutes);
+    app = new Elysia().onError(logError()).mapResponse(mapResponse).use(libraryRoutes);
   });
 
   afterAll(async () => {
@@ -25,12 +26,15 @@ describe("Library Routes", () => {
     await resetAllFixtures();
   });
 
-  describe("GET /api/media", () => {
+  describe("POST /api/media/all", () => {
     test("returns all media", async () => {
-      const response = await app.handle(new Request("http://localhost/api/media"));
+      const response = await app.handle(new Request("http://localhost/api/media/all", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      }));
       expect(response.status).toBe(200);
       
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(Array.isArray(data.items)).toBe(true);
       expect(data.items.length).toBeGreaterThanOrEqual(MEDIA_FIXTURES.length);
       
@@ -44,9 +48,16 @@ describe("Library Routes", () => {
 
     test("supports pagination", async () => {
       const response = await app.handle(
-        new Request("http://localhost/api/media?page=1&limit=2")
+        new Request("http://localhost/api/media/all", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            page: 1,
+            limit: 2,
+          }),
+        })
       );
-      const data = await response.json();
+      const data = await parseResponse(response);
 
       expect(data.items).toHaveLength(2);
       expect(data.total).toBeGreaterThanOrEqual(MEDIA_FIXTURES.length);
@@ -55,7 +66,7 @@ describe("Library Routes", () => {
     });
   });
 
-  describe("GET /api/media/:id", () => {
+  describe("GET /api/media/by-id/:id", () => {
     test("returns media by id", async () => {
       const fixtureMedia = MEDIA_FIXTURES[0];
       if (!fixtureMedia) {
@@ -63,27 +74,56 @@ describe("Library Routes", () => {
       }
 
       const response = await app.handle(
-        new Request(`http://localhost/api/media/${fixtureMedia.id}`)
+        new Request(`http://localhost/api/media/by-id/${fixtureMedia.id}`)
       );
+
       expect(response.status).toBe(200);
 
-      const data = await response.json() as Media;
+      const data = await parseResponse(response) as Media;
       expect(data.id).toBe(fixtureMedia.id);
       expect(data.name).toBe(fixtureMedia.name);
     });
 
     test("returns error for non-existent media", async () => {
       const response = await app.handle(
-        new Request("http://localhost/api/media/non-existent-id")
+        new Request("http://localhost/api/media/by-id/non-existent-id")
       );
 
-      const data = await response.json();
+      expect(response.status).toBe(404);
+      const data = await parseResponse(response);
       expect(data).toHaveProperty("error");
       expect(data.error).toBe("Media not found");
     });
   });
 
-  describe("PATCH /api/media/:id", () => {
+  describe("GET /api/media/by-path/:path", () => {
+    test("returns media by path", async () => {
+      const fixtureMedia = MEDIA_FIXTURES[0];
+      if (!fixtureMedia) {
+        throw new Error("No media fixtures available");
+      }
+
+      const response = await app.handle(
+        new Request(`http://localhost/api/media/by-path/${encodeURIComponent(fixtureMedia.relativePath)}`)
+      );
+      expect(response.status).toBe(200);
+      const data = await parseResponse(response);
+      expect(data.id).toBe(fixtureMedia.id);
+      expect(data.name).toBe(fixtureMedia.name);
+    });
+
+    test("returns error for non-existent media", async () => {
+      const response = await app.handle(
+        new Request("http://localhost/api/media/by-path/non-existent-path")
+      );
+      expect(response.status).toBe(404);
+      const data = await parseResponse(response);
+      expect(data).toHaveProperty("error");
+      expect(data.error).toBe("Media not found");
+    });
+  });
+
+  describe("PATCH /api/media/by-id/:id", () => {
     test("updates media metadata", async () => {
       const fixtureMedia = MEDIA_FIXTURES[0];
       if (!fixtureMedia) {
@@ -95,7 +135,7 @@ describe("Library Routes", () => {
       };
 
       const response = await app.handle(
-        new Request(`http://localhost/api/media/${fixtureMedia.id}`, {
+        new Request(`http://localhost/api/media/by-id/${fixtureMedia.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updateData),
@@ -103,27 +143,27 @@ describe("Library Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data.redgifsUrl).toBe("https://redgifs.com/watch/example");
       expect(data.id).toBe(fixtureMedia.id);
     });
 
     test("returns error for non-existent media", async () => {
       const response = await app.handle(
-        new Request("http://localhost/api/media/non-existent-id", {
+        new Request("http://localhost/api/media/by-id/non-existent-id", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ redgifsUrl: "https://example.com" }),
         })
       );
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data).toHaveProperty("error");
       expect(data.error).toBe("Media not found");
     });
   });
 
-  describe("DELETE /api/media/:id", () => {
+  describe("DELETE /api/media/by-id/:id", () => {
     test("deletes media record", async () => {
       const fixtureMedia = MEDIA_FIXTURES[MEDIA_FIXTURES.length - 1];
       if (!fixtureMedia) {
@@ -131,13 +171,13 @@ describe("Library Routes", () => {
       }
 
       const response = await app.handle(
-        new Request(`http://localhost/api/media/${fixtureMedia.id}`, {
+        new Request(`http://localhost/api/media/by-id/${fixtureMedia.id}`, {
           method: "DELETE",
         })
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data.success).toBe(true);
 
       const dataSource = getTestDataSource();
@@ -145,9 +185,21 @@ describe("Library Routes", () => {
       const deletedMedia = await repository.findOne({ where: { id: fixtureMedia.id } });
       expect(deletedMedia).toBeNull();
     });
+
+    test("returns 404 when media not found", async () => {
+      const response = await app.handle(
+        new Request("http://localhost/api/media/by-id/non-existent-id", {
+          method: "DELETE",
+        })
+      );
+      expect(response.status).toBe(404);
+
+      const data = await parseResponse(response);
+      expect(data.error).toBe("Media not found");
+    });
   });
 
-  describe("GET /api/media/:id/adjacent", () => {
+  describe("POST /api/media/by-id/:id/adjacent", () => {
     test("returns adjacent media", async () => {
       const fixtureMedia = MEDIA_FIXTURES[1];
       if (!fixtureMedia) {
@@ -155,11 +207,15 @@ describe("Library Routes", () => {
       }
 
       const response = await app.handle(
-        new Request(`http://localhost/api/media/${fixtureMedia.id}/adjacent`)
+        new Request(`http://localhost/api/media/by-id/${fixtureMedia.id}/adjacent`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        })
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data).toHaveProperty("previous");
       expect(data).toHaveProperty("next");
     });

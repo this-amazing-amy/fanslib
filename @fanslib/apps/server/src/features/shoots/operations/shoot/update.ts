@@ -4,6 +4,10 @@ import { db } from "../../../../lib/db";
 import { Media, MediaSchema } from "../../../library/entity";
 import { Shoot, ShootSchema } from "../../entity";
 
+export const UpdateShootRequestParamsSchema = t.Object({
+  id: t.String(),
+});
+
 export const UpdateShootRequestBodySchema = t.Object({
   name: t.Optional(t.String()),
   description: t.Optional(t.String()),
@@ -11,12 +15,15 @@ export const UpdateShootRequestBodySchema = t.Object({
   mediaIds: t.Optional(t.Array(t.String())),
 });
 
-export const UpdateShootResponseSchema = t.Union([t.Intersect([ShootSchema, t.Object({ media: t.Array(MediaSchema) })]), t.Object({ error: t.String() })]);
+export const UpdateShootResponseSchema = t.Composite([
+  ShootSchema,
+  t.Object({ media: t.Array(MediaSchema) }),
+]);
 
 export const updateShoot = async (
   id: string,
   payload: typeof UpdateShootRequestBodySchema.static
-): Promise<typeof UpdateShootResponseSchema.static> => {
+): Promise<typeof UpdateShootResponseSchema.static | null> => {
   const database = await db();
   const shootRepository = database.getRepository(Shoot);
   const mediaRepository = database.getRepository(Media);
@@ -27,7 +34,7 @@ export const updateShoot = async (
   });
 
   if (!shoot) {
-    return { error: "Shoot not found" } as const;
+    return null;
   }
 
   if (payload.mediaIds) {

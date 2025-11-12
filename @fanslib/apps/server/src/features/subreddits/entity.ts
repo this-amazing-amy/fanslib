@@ -1,6 +1,8 @@
 import { t } from "elysia";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-import type { MediaFilters } from "../../../../../libraries/types/src/features/library/filters";
+import type { MediaFilterSchema } from "../library/schemas/media-filter";
+
+type MediaFilters = typeof MediaFilterSchema.static;
 
 export const VERIFICATION_STATUS = {
   UNKNOWN: "UNKNOWN",
@@ -23,58 +25,58 @@ export class Subreddit {
   name!: string;
 
   @Column("int", { nullable: true })
-  maxPostFrequencyHours?: number;
+  maxPostFrequencyHours: number | null = null;
 
   @Column("text", { nullable: true })
-  notes?: string;
+  notes: string | null = null;
 
   @Column("int", { nullable: true })
-  memberCount?: number;
+  memberCount: number | null = null;
 
   @Column("simple-json", { nullable: true })
-  eligibleMediaFilter?: MediaFilters;
+  eligibleMediaFilter: MediaFilters | null = null;
 
   @Column("varchar", { default: VERIFICATION_STATUS.UNKNOWN })
   verificationStatus!: typeof VerificatoinStatusSchema.static;
 
   @Column("varchar", { nullable: true })
-  defaultFlair?: string;
+  defaultFlair: string | null = null;
 
   @Column("varchar", { nullable: true })
-  captionPrefix?: string;
+  captionPrefix: string | null = null;
 
   @Column("simple-json", { nullable: true })
-  postingTimesData?: Array<{
+  postingTimesData: Array<{
     day: number;
     hour: number;
     posts: number;
     score: number;
-  }>;
+  }> | null = null;
 
   @Column("datetime", { nullable: true })
-  postingTimesLastFetched?: Date;
+  postingTimesLastFetched: Date | null = null;
 
   @Column("varchar", { nullable: true })
-  postingTimesTimezone?: string;
+  postingTimesTimezone: string | null = null;
 }
 
 export const SubredditSchema = t.Object({
   id: t.String(),
   name: t.String(),
-  maxPostFrequencyHours: t.Optional(t.Number()),
-  notes: t.Optional(t.String()),
-  memberCount: t.Optional(t.Number()),
-  eligibleMediaFilter: t.Optional(t.Any()),
+  maxPostFrequencyHours: t.Nullable(t.Number()),
+  notes: t.Nullable(t.String()),
+  memberCount: t.Nullable(t.Number()),
+  eligibleMediaFilter: t.Nullable(t.Any()),
   verificationStatus: VerificatoinStatusSchema,
-  defaultFlair: t.Optional(t.String()),
-  captionPrefix: t.Optional(t.String()),
-  postingTimesData: t.Optional(t.Array(t.Object({
+  defaultFlair: t.Nullable(t.String()),
+  captionPrefix: t.Nullable(t.String()),
+  postingTimesData: t.Nullable(t.Array(t.Object({
     day: t.Number(),
     hour: t.Number(),
     posts: t.Number(),
     score: t.Number(),
   }))),
-  postingTimesLastFetched: t.Optional(t.Date()),
-  postingTimesTimezone: t.Optional(t.String()),
+  postingTimesLastFetched: t.Nullable(t.Date()),
+  postingTimesTimezone: t.Nullable(t.String()),
 });
 

@@ -1,6 +1,6 @@
-import { MediaFilterSchema } from "../library/schemas/media-filter";
 import { db } from "../../lib/db";
 import { Channel } from "../channels/entity";
+import type { MediaFilterSchema } from "../library/schemas/media-filter";
 import { Shoot } from "../shoots/entity";
 import { TagDefinition } from "../tags/entity";
 

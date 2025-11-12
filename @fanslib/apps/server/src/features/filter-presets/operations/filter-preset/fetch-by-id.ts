@@ -3,14 +3,13 @@ import { db } from "../../../../lib/db";
 import { FilterPreset, FilterPresetSchema } from "../../entity";
 import { validateAndCleanFilters } from "../../validation";
 
-export const GetFilterPresetByIdResponseSchema = t.Union([
-  FilterPresetSchema,
-  t.Object({ error: t.String() }),
-  t.Null(),
-]);
+export const FetchFilterPresetByIdRequestParamsSchema = t.Object({
+  id: t.String(),
+});
 
-export const getFilterPresetById = async (id: string): Promise<typeof GetFilterPresetByIdResponseSchema.static> => {
-  try {
+export const FetchFilterPresetByIdResponseSchema = FilterPresetSchema
+
+export const fetchFilterPresetById = async (id: string): Promise<typeof FetchFilterPresetByIdResponseSchema.static | null> => {
   const database = await db();
   const repository = database.getRepository(FilterPreset);
 
@@ -19,16 +18,11 @@ export const getFilterPresetById = async (id: string): Promise<typeof GetFilterP
 
   const validatedFilters = await validateAndCleanFilters(JSON.parse(preset.filtersJson));
 
-
   if (JSON.stringify(validatedFilters) !== preset.filtersJson) {
     preset.filtersJson = JSON.stringify(validatedFilters);
     await repository.save(preset);
   }
 
   return preset;
-  } catch (error) {
-    console.error(error);
-    throw new Error("Failed to fetch filter preset by id");
-  }
 };
 

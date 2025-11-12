@@ -1,6 +1,7 @@
-import type { FilterPreset } from "@fanslib/types";
 import { getTestDataSource } from "../../lib/db.test";
 import { FilterPreset as FilterPresetEntity } from "./entity";
+
+type FilterPreset = FilterPresetEntity;
 
 export type FilterPresetFixture = Omit<FilterPreset, "createdAt" | "updatedAt">;
 

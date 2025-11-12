@@ -10,10 +10,10 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Subreddit } from "../subreddits/entity";
+import type { FanslyAnalyticsAggregate, FanslyAnalyticsDatapoint } from "../analytics/entity";
 import type { Channel } from "../channels/entity";
 import type { Media } from "../library/entity";
-import type { FanslyAnalyticsDatapoint, FanslyAnalyticsAggregate } from "../analytics/entity";
+import { Subreddit } from "../subreddits/entity";
 
 export type PostStatus = "draft" | "scheduled" | "posted";
 
@@ -30,19 +30,19 @@ export class Post {
   updatedAt!: string;
 
   @Column("varchar", { nullable: true })
-  scheduleId?: string;
+  scheduleId: string | null = null;
 
   @Column("varchar", { nullable: true })
-  caption?: string;
+  caption: string | null = null;
 
   @Column("varchar")
   date!: string;
 
   @Column("varchar", { nullable: true })
-  url?: string;
+  url: string | null = null;
 
   @Column("varchar", { nullable: true })
-  fanslyStatisticsId?: string;
+  fanslyStatisticsId: string | null = null;
 
   @Column("datetime", { nullable: true })
   fypRemovedAt!: Date | null;
@@ -63,19 +63,21 @@ export class Post {
   @JoinColumn({ name: "subredditId" })
   subreddit?: Subreddit;
   @Column("varchar", { nullable: true })
-  subredditId?: string;
+  subredditId: string | null = null;
 
   @OneToMany(() => PostMedia, (mediaOrder) => mediaOrder.post)
   postMedia!: PostMedia[];
 
   @OneToMany(
     "FanslyAnalyticsDatapoint",
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (fanslyAnalyticsDatapoint: any) => fanslyAnalyticsDatapoint.post
   )
   fanslyAnalyticsDatapoints!: FanslyAnalyticsDatapoint[];
 
   @OneToOne(
     "FanslyAnalyticsAggregate",
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (fanslyAnalyticsAggregate: any) => fanslyAnalyticsAggregate.post
   )
   fanslyAnalyticsAggregate?: FanslyAnalyticsAggregate;
@@ -97,7 +99,9 @@ export class PostMedia {
   @JoinColumn()
   post!: Post;
 
-  @ManyToOne("Media", (media: any) => media.postMedia, { onDelete: "CASCADE" })
+  @ManyToOne("Media", 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (media: any) => media.postMedia, { onDelete: "CASCADE" })
   @JoinColumn()
   media!: Media;
 
@@ -128,13 +132,13 @@ export const PostSchema = t.Object({
   id: t.String(),
   createdAt: t.String(),
   updatedAt: t.String(),
-  scheduleId: t.Union([t.String(), t.Null()]),
-  caption: t.Union([t.String(), t.Null()]),
+  scheduleId: t.Nullable(t.String()),
+  caption: t.Nullable(t.String()),
   date: t.String(),
-  url: t.Union([t.String(), t.Null()]),
-  fanslyStatisticsId: t.Union([t.String(), t.Null()]),
-  fypRemovedAt: t.Union([t.Date(), t.Null()]),
+  url: t.Nullable(t.String()),
+  fanslyStatisticsId: t.Nullable(t.String()),
+  fypRemovedAt: t.Nullable(t.Date()),
   status: PostStatusSchema,
   channelId: t.String(),
-  subredditId: t.Union([t.String(), t.Null()]),
+  subredditId: t.Nullable(t.String()),
 });

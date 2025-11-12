@@ -10,15 +10,15 @@ export const UpdateSubredditRequestBodySchema = t.Partial(SubredditSchema);
 export const UpdateSubredditResponseSchema = SubredditSchema;
 
 export const updateSubreddit = async (
-  payload: typeof UpdateSubredditRequestParamsSchema.static,
+  id: string,
   updates: typeof UpdateSubredditRequestBodySchema.static
-): Promise<Subreddit> => {
+): Promise<Subreddit | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Subreddit);
 
-  const subreddit = await repository.findOne({ where: { id: payload.id } });
+  const subreddit = await repository.findOne({ where: { id } });
   if (!subreddit) {
-    throw new Error(`Subreddit with id ${payload.id} not found`);
+    return null;
   }
 
   Object.assign(subreddit, updates);

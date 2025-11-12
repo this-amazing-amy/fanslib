@@ -1,8 +1,10 @@
-import type { Hashtag, HashtagChannelStats } from "@fanslib/types";
 import { getTestDataSource } from "../../lib/db.test";
 import type { Channel } from "../channels/entity";
 import { HashtagChannelStats as HashtagChannelStatsEntity, Hashtag as HashtagEntity } from "./entity";
 import { normalizeHashtagName } from "./operations/hashtag/helpers";
+
+type Hashtag = HashtagEntity;
+type HashtagChannelStats = HashtagChannelStatsEntity;
 
 export type HashtagFixture = Pick<Hashtag, "name">;
 

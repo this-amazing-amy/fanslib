@@ -1,4 +1,4 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import { CreateSnippetRequestBodySchema, CreateSnippetResponseSchema, createSnippet } from "./operations/snippet/create";
 import { DeleteSnippetRequestParamsSchema, DeleteSnippetResponseSchema, deleteSnippet } from "./operations/snippet/delete";
 import { FetchAllSnippetsResponseSchema, fetchAllSnippets } from "./operations/snippet/fetch-all";
@@ -8,31 +8,61 @@ import { FetchGlobalSnippetsResponseSchema, fetchGlobalSnippets } from "./operat
 import { UpdateSnippetRequestBodySchema, UpdateSnippetRequestParamsSchema, UpdateSnippetResponseSchema, updateSnippet } from "./operations/snippet/update";
 
 export const snippetsRoutes = new Elysia({ prefix: "/api/snippets" })
-  .get("/", async () => fetchAllSnippets(), {
+  .get("/all", fetchAllSnippets, {
     response: FetchAllSnippetsResponseSchema,
   })
-  .get("/global", async () => fetchGlobalSnippets(), {
+  .get("/global", fetchGlobalSnippets, {
     response: FetchGlobalSnippetsResponseSchema,
   })
-  .get("/by-channel/:channelId", async ({ params }) =>
-    fetchSnippetsByChannel(params), {
+  .get("/by-channel-id/:channelId", async ({ params: { channelId } }) =>
+    fetchSnippetsByChannel(channelId), {
     params: FetchSnippetsByChannelRequestParamsSchema,
     response: FetchSnippetsByChannelResponseSchema,
   })
-  .get("/:id", async ({ params }) => fetchSnippetById(params), {
+  .get("/by-id/:id", async ({ params: { id }, set }) => {
+    const snippet = await fetchSnippetById(id);
+    if (!snippet) {
+      set.status = 404;
+      return { error: "Snippet not found" };
+    }
+    return snippet;
+  }, {
     params: FetchSnippetByIdRequestParamsSchema,
-    response: FetchSnippetByIdResponseSchema,
+    response: {
+      200: FetchSnippetByIdResponseSchema,
+      404: t.Object({ error: t.String() }),
+    },
   })
   .post("/", async ({ body }) => createSnippet(body), {
     body: CreateSnippetRequestBodySchema,
     response: CreateSnippetResponseSchema,
   })
-  .patch("/:id", async ({ params, body }) => updateSnippet(params, body), {
+  .patch("/by-id/:id", async ({ params: { id }, body, set }) => {
+    const snippet = await updateSnippet(id, body);
+    if (!snippet) {
+      set.status = 404;
+      return { error: "Snippet not found" };
+    }
+    return snippet;
+  }, {
     params: UpdateSnippetRequestParamsSchema,
     body: UpdateSnippetRequestBodySchema,
-    response: UpdateSnippetResponseSchema,
+    response: {
+      200: UpdateSnippetResponseSchema,
+      404: t.Object({ error: t.String() }),
+    },
   })
-  .delete("/:id", async ({ params }) => deleteSnippet(params), {
+  .delete("/by-id/:id", async ({ params: { id }, set }) => {
+    const success = await deleteSnippet(id);
+    if (!success) {
+      set.status = 404;
+      return { error: "Snippet not found" };
+    }
+    return { success: true };
+  }, {
     params: DeleteSnippetRequestParamsSchema,
-    response: DeleteSnippetResponseSchema,
+    response: {
+      200: DeleteSnippetResponseSchema,
+      404: t.Object({ error: t.String() }),
+    },
   });

@@ -1,7 +1,7 @@
-import type { Subreddit } from "@fanslib/types";
-import { VERIFICATION_STATUS } from "@fanslib/types";
 import { getTestDataSource } from "../../lib/db.test";
-import { Subreddit as SubredditEntity } from "./entity";
+import { Subreddit as SubredditEntity, VERIFICATION_STATUS } from "./entity";
+
+type Subreddit = SubredditEntity;
 
 export type SubredditFixture = Omit<Subreddit, "eligibleMediaFilter" | "postingTimesData" | "postingTimesLastFetched" | "postingTimesTimezone">;
 
@@ -14,6 +14,7 @@ export const SUBREDDIT_FIXTURES: SubredditFixture[] = [
     verificationStatus: VERIFICATION_STATUS.UNKNOWN,
     defaultFlair: "OC",
     captionPrefix: "Check this out!",
+    notes: null,
   },
   {
     id: "subreddit-2",
@@ -22,6 +23,8 @@ export const SUBREDDIT_FIXTURES: SubredditFixture[] = [
     memberCount: 5000,
     verificationStatus: VERIFICATION_STATUS.VERIFIED,
     notes: "Verified subreddit",
+    defaultFlair: "OC",
+    captionPrefix: "Check this out!",
   },
 ];
 

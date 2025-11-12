@@ -3,19 +3,21 @@ import { db } from "../../../../lib/db";
 import { ChannelSchema } from "../../../channels/entity";
 import { Hashtag, HashtagChannelStatsSchema, HashtagSchema } from "../../entity";
 
-export const GetHashtagByIdRequestParamsSchema = t.Object({
+export const FetchHashtagByIdRequestParamsSchema = t.Object({
   id: t.String(),
 });
 
-export const GetHashtagByIdResponseSchema = t.Union([
-  t.Intersect([HashtagSchema, t.Object({
-    channelStats: t.Array(t.Intersect([HashtagChannelStatsSchema, t.Object({ channel: ChannelSchema })])),
-  })]),
-  t.Object({ error: t.String() }),
-  t.Null(),
+export const FetchHashtagByIdResponseSchema = t.Composite([
+  HashtagSchema,
+  t.Object({
+    channelStats: t.Array(t.Composite([
+      HashtagChannelStatsSchema,
+      t.Object({ channel: ChannelSchema }),
+    ])),
+  }),
 ]);
 
-export const getHashtagById = async (id: number): Promise<typeof GetHashtagByIdResponseSchema.static> => {
+export const fetchHashtagById = async (id: number): Promise<typeof FetchHashtagByIdResponseSchema.static | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Hashtag);
 

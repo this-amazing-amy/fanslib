@@ -3,15 +3,15 @@ import { In } from "typeorm";
 import { db } from "../../../../lib/db";
 import { TagDefinition, TagDefinitionSchema } from "../../entity";
 
-export const GetTagDefinitionsByIdsQuerySchema = t.Object({
+export const FetchTagDefinitionsByIdsRequestQuerySchema = t.Object({
   ids: t.Array(t.Number()),
 });
 
-export const GetTagDefinitionsByIdsResponseSchema = t.Array(TagDefinitionSchema);
+export const FetchTagDefinitionsByIdsResponseSchema = t.Array(TagDefinitionSchema);
 
-export const getTagDefinitionsByIds = async (
-  payload: typeof GetTagDefinitionsByIdsQuerySchema.static
-): Promise<typeof GetTagDefinitionsByIdsResponseSchema.static> => {
+export const fetchTagDefinitionsByIds = async (
+  payload: typeof FetchTagDefinitionsByIdsRequestQuerySchema.static
+): Promise<typeof FetchTagDefinitionsByIdsResponseSchema.static> => {
   if (payload.ids?.length === 0) {
     return [];
   }

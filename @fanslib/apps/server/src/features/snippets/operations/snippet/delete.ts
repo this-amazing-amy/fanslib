@@ -10,9 +10,13 @@ export const DeleteSnippetResponseSchema = t.Object({
   success: t.Boolean(),
 });
 
-export const deleteSnippet = async (payload: typeof DeleteSnippetRequestParamsSchema.static): Promise<typeof DeleteSnippetResponseSchema.static> => {
+export const deleteSnippet = async (id: string): Promise<boolean> => {
   const database = await db();
   const snippetRepository = database.getRepository(CaptionSnippet);
-  await snippetRepository.delete({ id: payload.id });
-  return { success: true };
+  const snippet = await snippetRepository.findOne({ where: { id } });
+  if (!snippet) {
+    return false;
+  }
+  await snippetRepository.delete({ id });
+  return true;
 };

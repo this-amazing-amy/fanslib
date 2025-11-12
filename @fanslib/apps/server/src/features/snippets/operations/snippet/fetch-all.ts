@@ -4,8 +4,8 @@ import { ChannelSchema } from "../../../channels/entity";
 import { CaptionSnippet, CaptionSnippetSchema } from "../../entity";
 
 export const FetchAllSnippetsResponseSchema = t.Array(
-  t.Intersect([
-    CaptionSnippetSchema,
+  t.Composite([
+    t.Omit(CaptionSnippetSchema, ["channelId"]),
     t.Object({
       channel: t.Union([ChannelSchema, t.Null()]),
     }),

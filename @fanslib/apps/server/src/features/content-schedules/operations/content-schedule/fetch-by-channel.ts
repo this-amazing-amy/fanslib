@@ -1,8 +1,14 @@
 import { t } from "elysia";
+import { ChannelSchema } from "~/schemas";
 import { db } from "../../../../lib/db";
 import { ContentSchedule, ContentScheduleSchema } from "../../entity";
 
-export const FetchContentSchedulesByChannelResponseSchema = t.Array(ContentScheduleSchema);
+export const FetchContentSchedulesByChannelResponseSchema = t.Array(t.Composite([
+  ContentScheduleSchema,
+  t.Object({
+    channel: ChannelSchema,
+  }),
+]));
 
 export const fetchContentSchedulesByChannel = async (
   channelId: string

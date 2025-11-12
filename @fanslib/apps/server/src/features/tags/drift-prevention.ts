@@ -163,7 +163,7 @@ export const syncStickerDisplayProperties = async (): Promise<{
       const tagDefinition = tagDefinitionMap.get(mediaTag.tagDefinitionId);
       if (tagDefinition?.dimension) {
         mediaTag.stickerDisplay = tagDefinition.dimension.stickerDisplay ?? "none";
-        mediaTag.shortRepresentation = tagDefinition.shortRepresentation ?? undefined;
+        mediaTag.shortRepresentation = tagDefinition.shortRepresentation ?? null;
         updatedIds.push(mediaTag.id);
       }
     });

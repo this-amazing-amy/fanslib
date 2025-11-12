@@ -2,17 +2,17 @@ import { t } from "elysia";
 import { db } from "../../../../lib/db";
 import { MediaTag, MediaTagSchema } from "../../entity";
 
-export const GetMediaTagsParamsSchema = t.Object({
+export const FetchMediaTagsRequestParamsSchema = t.Object({
   mediaId: t.String(),
 });
 
-export const GetMediaTagsQuerySchema = t.Object({
+export const FetchMediaTagsRequestQuerySchema = t.Object({
   dimensionId: t.Optional(t.String()),
 });
 
-export const GetMediaTagsResponseSchema = t.Array(MediaTagSchema);
+export const FetchMediaTagsResponseSchema = t.Array(MediaTagSchema);
 
-export const getMediaTags = async (params: typeof GetMediaTagsParamsSchema.static, query: typeof GetMediaTagsQuerySchema.static): Promise<typeof GetMediaTagsResponseSchema.static> => {
+export const fetchMediaTags = async (params: typeof FetchMediaTagsRequestParamsSchema.static, query: typeof FetchMediaTagsRequestQuerySchema.static): Promise<typeof FetchMediaTagsResponseSchema.static> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(MediaTag);
 

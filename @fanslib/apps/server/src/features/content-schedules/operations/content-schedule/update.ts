@@ -1,7 +1,12 @@
 import { t } from "elysia";
+import { ChannelSchema } from "~/schemas";
 import { db } from "../../../../lib/db";
 import { MediaFilterSchema } from "../../../library/schemas/media-filter";
 import { ContentSchedule, ContentScheduleSchema, ContentScheduleTypeSchema } from "../../entity";
+
+export const UpdateContentScheduleRequestParamsSchema = t.Object({
+  id: t.String(),
+});
 
 export const UpdateContentScheduleRequestBodySchema = t.Object({
   channelId: t.Optional(t.String()),
@@ -12,10 +17,11 @@ export const UpdateContentScheduleRequestBodySchema = t.Object({
   mediaFilters: t.Optional(t.Union([MediaFilterSchema, t.Null()])),
 });
 
-export const UpdateContentScheduleResponseSchema = t.Union([
+export const UpdateContentScheduleResponseSchema = t.Composite([
   ContentScheduleSchema,
-  t.Object({ error: t.String() }),
-  t.Null(),
+  t.Object({
+    channel: ChannelSchema,
+  }),
 ]);
 
 
@@ -25,7 +31,7 @@ const stringifyMediaFilters = (filters: Parameters<typeof JSON.stringify>[0]): s
 export const updateContentSchedule = async (
   id: string,
   updates: typeof UpdateContentScheduleRequestBodySchema.static
-): Promise<typeof UpdateContentScheduleResponseSchema.static> => {
+): Promise<typeof UpdateContentScheduleResponseSchema.static | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(ContentSchedule);
 

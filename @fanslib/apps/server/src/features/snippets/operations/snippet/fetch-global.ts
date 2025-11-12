@@ -6,8 +6,8 @@ import { CaptionSnippet, CaptionSnippetSchema } from "../../entity";
 
 // Schemas
 export const FetchGlobalSnippetsResponseSchema = t.Array(
-  t.Intersect([
-    CaptionSnippetSchema,
+  t.Composite([
+    t.Omit(CaptionSnippetSchema, ["channelId"]),
     t.Object({
       channel: t.Union([ChannelSchema, t.Null()]),
     }),

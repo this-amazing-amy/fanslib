@@ -1,19 +1,19 @@
 import { t } from "elysia";
 import { db } from "../../../../lib/db";
 import { Post, PostSchema } from "../../entity";
-import { getPostById, GetPostByIdResponseSchema } from "./fetch-by-id";
+import { fetchPostById, FetchPostByIdResponseSchema } from "./fetch-by-id";
 
 export const UpdatePostRequestParamsSchema = t.Object({
   id: t.String(),
 });
 
 export const UpdatePostRequestBodySchema = t.Partial(PostSchema);
-export const UpdatePostResponseSchema = GetPostByIdResponseSchema;
+export const UpdatePostResponseSchema = FetchPostByIdResponseSchema;
 
 export const updatePost = async (
   id: string,
   updates: Partial<Post>
-): Promise<typeof UpdatePostResponseSchema.static> => {
+): Promise<typeof UpdatePostResponseSchema.static | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Post);
 
@@ -27,6 +27,6 @@ export const updatePost = async (
 
   await repository.save(post);
 
-  return getPostById(id);
+  return fetchPostById(id);
 };
 

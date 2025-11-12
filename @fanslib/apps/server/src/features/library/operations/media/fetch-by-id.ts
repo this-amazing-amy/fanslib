@@ -5,25 +5,33 @@ import { SubredditSchema } from "~/features/subreddits/entity";
 import { db } from "../../../../lib/db";
 import { Media, MediaSchema } from "../../entity";
 
-export const GetMediaByIdRequestParamsSchema = t.Object({
+export const FetchMediaByIdRequestParamsSchema = t.Object({
   id: t.String(),
 });
 
-export const GetMediaByIdResponseSchema = t.Union([
-  t.Intersect([MediaSchema, t.Object({
-    postMedia: t.Array(t.Intersect([PostMediaSchema, t.Object({
-      post: t.Intersect([PostSchema, t.Object({
-        channel: ChannelSchema,
-        subreddit: t.Optional(SubredditSchema),
-      })])})]))})]),
-  t.Object({ error: t.String() }),
-  t.Null(),
+export const FetchMediaByIdResponseSchema = t.Composite([
+  MediaSchema,
+  t.Object({
+    postMedia: t.Array(t.Composite([
+      PostMediaSchema,
+      t.Object({
+        post: t.Composite([
+          PostSchema,
+          t.Object({
+            channel: ChannelSchema,
+            subreddit: t.Optional(t.Nullable(SubredditSchema)),
+          }),
+        ]),
+      }),
+    ])),
+    shoots: t.Array(t.Any()),
+  }),
 ]);
 
-export const getMediaById = async (id: string): Promise<typeof GetMediaByIdResponseSchema.static> => {
+export const fetchMediaById = async (id: string): Promise<typeof FetchMediaByIdResponseSchema.static | null> => {
   const database = await db();
 
-  return database.manager.findOne(Media, {
+  const media = await database.manager.findOne(Media, {
     where: { id },
     relations: {
       postMedia: {
@@ -32,8 +40,11 @@ export const getMediaById = async (id: string): Promise<typeof GetMediaByIdRespo
           subreddit: true,
         },
       },
+      shoots: true,
       mediaTags: true,
-    },
-  });
+    }
+  })
+  
+    return media
 };
 

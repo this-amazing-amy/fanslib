@@ -1,0 +1,4 @@
+[test]
+preload = ["./@fanslib/apps/server/src/test-utils/env.setup.ts"]
+
+

@@ -1,7 +1,7 @@
 import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { Channel, ChannelSchema, ChannelTypeSchema } from "../../entity";
 import { HashtagSchema } from "../../../hashtags/entity";
+import { Channel, ChannelSchema, ChannelTypeSchema } from "../../entity";
 
 export const CreateChannelRequestBodySchema = t.Object({
   name: t.String(),
@@ -10,7 +10,7 @@ export const CreateChannelRequestBodySchema = t.Object({
   eligibleMediaFilter: t.Optional(t.Any()),
 });
 
-export const CreateChannelResponseSchema = t.Intersect([
+export const CreateChannelResponseSchema = t.Composite([
   ChannelSchema,
   t.Object({
     type: ChannelTypeSchema,
@@ -27,11 +27,12 @@ export const createChannel = async ({
   const dataSource = await db();
   const repository = dataSource.getRepository(Channel);
 
-  const channel = new Channel();
-  channel.name = name;
-  channel.typeId = typeId;
-  channel.description = description;
-  channel.eligibleMediaFilter = eligibleMediaFilter;
+  const channel = repository.create({
+    name,
+    typeId,
+    description: description ?? null,
+    eligibleMediaFilter: eligibleMediaFilter ?? null,
+  });
 
   const { id } = await repository.save(channel);
   const savedChannel = await repository.findOne({

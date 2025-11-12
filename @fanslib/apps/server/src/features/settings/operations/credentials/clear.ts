@@ -9,7 +9,10 @@ export const ClearFanslyCredentialsResponseSchema = t.Object({
 export const clearFanslyCredentials = async (): Promise<typeof ClearFanslyCredentialsResponseSchema.static> => {
   try {
     await unlink(fanslyCredentialsFilePath());
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("ENOENT")) {
+      return { success: true };
+    }
     return { success: false };
   }
   return { success: true };

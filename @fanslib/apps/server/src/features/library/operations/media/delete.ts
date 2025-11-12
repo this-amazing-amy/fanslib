@@ -17,24 +17,26 @@ export const DeleteMediaResponseSchema = t.Object({
   error: t.Optional(t.String()),
 });
 
-export const deleteMedia = async (id: string, deleteFile = false): Promise<typeof DeleteMediaResponseSchema.static> => {
+export const deleteMedia = async (id: string, deleteFile = false): Promise<boolean> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Media);
-
-  const media = deleteFile ? await repository.findOneBy({ id }) : null;
+  const media = await repository.findOne({ where: { id } });
+  if (!media) {
+    return false;
+  }
   await repository.delete({ id });
 
-  if (deleteFile && media) {
+  if (deleteFile) {
     try {
       const libraryPath = env().libraryPath;
       const filePath = `${libraryPath}/${media.relativePath}`;
       await fs.unlink(filePath);
     } catch (error) {
       console.error("Failed to delete file:", error);
-      return { success: false, error: "Failed to delete file" };
+      return false;
     }
   }
 
-  return { success: true };
+  return true;
 };
 

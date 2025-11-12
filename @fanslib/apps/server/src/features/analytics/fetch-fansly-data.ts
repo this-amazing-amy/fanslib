@@ -1,8 +1,18 @@
+import { t } from "elysia";
 import { db } from "../../lib/db";
 import type { FanslyAnalyticsResponse } from "../../lib/fansly-analytics/fansly-analytics-response";
 import { Post } from "../posts/entity";
 import { loadFanslyCredentials } from "../settings/operations/credentials/load";
 import { addDatapointsToPost } from "./operations/post-analytics/add-datapoints";
+
+export const FetchAnalyticsDataRequestParamsSchema = t.Object({
+  postId: t.String(),
+});
+
+export const FetchAnalyticsDataRequestBodySchema = t.Object({
+  startDate: t.Optional(t.String()),
+  endDate: t.Optional(t.String()),
+});
 
 const FANSLY_API_URL = "https://apiv3.fansly.com/api/v1/it/moie/statsnew";
 
@@ -23,7 +33,7 @@ export const fetchFanslyAnalyticsData = async (
 
   const credentials = await loadFanslyCredentials();
 
-  if (!credentials.fanslyAuth || !credentials.fanslySessionId) {
+  if (!credentials?.fanslyAuth || !credentials?.fanslySessionId) {
     throw new Error(
       "Fansly credentials not configured. Please set up your Fansly authentication in settings."
     );
@@ -66,7 +76,6 @@ export const fetchFanslyAnalyticsData = async (
     "sec-fetch-site": "same-site",
   };
 
-  try {
     const response = await fetch(url.toString(), {
       method: "GET",
       headers,
@@ -86,10 +95,6 @@ export const fetchFanslyAnalyticsData = async (
     await addDatapointsToPost(postId, data);
 
     return data;
-  } catch (error) {
-    console.error("Error fetching Fansly analytics:", error);
-    throw error;
-  }
 };
 
 

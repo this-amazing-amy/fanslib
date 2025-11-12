@@ -317,3 +317,4 @@ yarn.lock
 @fanslib/apps/server/data
 
 .dev-data/
+.test-data/

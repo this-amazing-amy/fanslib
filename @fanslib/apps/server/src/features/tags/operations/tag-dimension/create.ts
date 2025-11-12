@@ -2,7 +2,10 @@ import { t } from "elysia";
 import { db } from "../../../../lib/db";
 import { STICKER_DISPLAY_MODES, TagDimension, TagDimensionSchema } from "../../entity";
 
-export const CreateTagDimensionRequestBodySchema = t.Omit(TagDimensionSchema, ["id", "createdAt", "updatedAt"]);
+export const CreateTagDimensionRequestBodySchema = t.Intersect([
+  t.Required(t.Pick(t.Omit(TagDimensionSchema, ["id", "createdAt", "updatedAt"]), ["name", "dataType"])),
+  t.Partial(t.Omit(TagDimensionSchema, ["id", "createdAt", "updatedAt", "name", "dataType"])),
+]);
 
 export const CreateTagDimensionResponseSchema = TagDimensionSchema;
 

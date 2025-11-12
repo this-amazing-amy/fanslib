@@ -27,7 +27,7 @@ export class CaptionSnippet {
 
   @ManyToOne("Channel", { nullable: true })
   @JoinColumn({ name: "channelId" })
-  channel?: Channel;
+  channel: Channel | null;
 
   @CreateDateColumn()
   createdAt!: Date;

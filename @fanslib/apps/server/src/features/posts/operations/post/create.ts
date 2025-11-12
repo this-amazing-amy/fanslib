@@ -4,22 +4,18 @@ import { db } from "../../../../lib/db";
 import { CHANNEL_TYPES } from "../../../channels/channelTypes";
 import { Channel } from "../../../channels/entity";
 import { Media } from "../../../library/entity";
-import { Post, PostMedia, PostStatusSchema } from "../../entity";
-import { getPostById, GetPostByIdResponseSchema } from "./fetch-by-id";
+import { Post, PostMedia, PostSchema } from "../../entity";
+import { fetchPostById, FetchPostByIdResponseSchema } from "./fetch-by-id";
 
-export const CreatePostRequestBodySchema = t.Object({
-  date: t.String(),
-  channelId: t.String(),
-  caption: t.Optional(t.String()),
-  status: PostStatusSchema,
-  url: t.Optional(t.String()),
-  fanslyStatisticsId: t.Optional(t.String()),
-  subredditId: t.Optional(t.String()),
-  fypRemovedAt: t.Optional(t.Union([t.Date(), t.Null()])),
+export const CreatePostRequestBodySchema = t.Intersect([
+  t.Required(t.Pick(t.Omit(PostSchema, ["id", "createdAt", "updatedAt"]), ["date", "channelId", "status"])),
+  t.Partial(t.Omit(PostSchema, ["id", "createdAt", "updatedAt", "date", "channelId", "status"])),
+  t.Object({
   mediaIds: t.Optional(t.Array(t.String())),
-});
+  }),
+]);
 
-export const CreatePostResponseSchema = GetPostByIdResponseSchema;
+export const CreatePostResponseSchema = FetchPostByIdResponseSchema;
 
 export const createPost = async (
   postData: Omit<typeof CreatePostRequestBodySchema.static, 'mediaIds'>,
@@ -69,7 +65,7 @@ export const createPost = async (
     await postMediaRepo.save(postMedia);
   }
 
-  const createdPost = await getPostById(post.id);
+  const createdPost = await fetchPostById(post.id);
   if (!createdPost) {
     throw new Error(`Failed to fetch created post with id ${post.id}`);
   }

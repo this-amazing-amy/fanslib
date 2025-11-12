@@ -2,7 +2,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:tes
 import { Elysia } from "elysia";
 import "reflect-metadata";
 import { getTestDataSource, resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
-import { serializeJson } from "../../lib/serialize-json";
+import { mapResponse } from "../../lib/serialization";
+import { logError, parseResponse } from "../../test-utils/setup";
 import { TagDefinition, TagDimension } from "./entity";
 import { TAG_DIMENSION_FIXTURES } from "./fixtures";
 import { tagsRoutes } from "./routes";
@@ -17,14 +18,8 @@ describe("Tags Routes", () => {
     await setupTestDatabase();
     fixtures = await resetAllFixtures();
     app = new Elysia()
-      .onError(({ error }) => {
-        console.error("❌ Test Error:", error);
-        if (error instanceof Error && error.stack) {
-          console.error("Stack trace:", error.stack);
-        }
-        throw error;
-      })
-      .mapResponse(serializeJson)
+      .onError(logError())
+      .mapResponse(mapResponse)
       .use(tagsRoutes);
   });
 
@@ -42,7 +37,7 @@ describe("Tags Routes", () => {
         const response = await app.handle(new Request("http://localhost/api/tags/dimensions"));
         expect(response.status).toBe(200);
         
-        const data = await response.json();
+        const data = await parseResponse(response);
         expect(Array.isArray(data)).toBe(true);
         expect(data.length).toBeGreaterThanOrEqual(TAG_DIMENSION_FIXTURES.length);
         
@@ -54,7 +49,7 @@ describe("Tags Routes", () => {
       });
     });
 
-    describe("GET /api/tags/dimensions/:id", () => {
+    describe("GET /api/tags/dimensions/by-id/:id", () => {
       test("returns dimension by id", async () => {
         const fixtureDimension = fixtures.tags.tagDimensions[0];
         if (!fixtureDimension) {
@@ -62,11 +57,11 @@ describe("Tags Routes", () => {
         }
 
         const response = await app.handle(
-          new Request(`http://localhost/api/tags/dimensions/${fixtureDimension.id}`)
+          new Request(`http://localhost/api/tags/dimensions/by-id/${fixtureDimension.id}`)
         );
         expect(response.status).toBe(200);
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         expect(data.id).toBe(fixtureDimension.id);
         expect(data.name).toBe(fixtureDimension.name);
       });
@@ -89,13 +84,13 @@ describe("Tags Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         expect(data.name).toBe("New Dimension");
         expect(data.dataType).toBe("categorical");
       });
     });
 
-    describe("PATCH /api/tags/dimensions/:id", () => {
+    describe("PATCH /api/tags/dimensions/by-id/:id", () => {
       test("updates dimension", async () => {
         const fixtureDimension = fixtures.tags.tagDimensions[0];
         if (!fixtureDimension) {
@@ -107,7 +102,7 @@ describe("Tags Routes", () => {
         };
 
         const response = await app.handle(
-          new Request(`http://localhost/api/tags/dimensions/${fixtureDimension.id}`, {
+          new Request(`http://localhost/api/tags/dimensions/by-id/${fixtureDimension.id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(updateData),
@@ -115,13 +110,13 @@ describe("Tags Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         expect(data.name).toBe("Updated Dimension");
         expect(data.id).toBe(fixtureDimension.id);
       });
     });
 
-    describe("DELETE /api/tags/dimensions/:id", () => {
+    describe("DELETE /api/tags/dimensions/by-id/:id", () => {
       test("deletes dimension", async () => {
         const fixtureDimension = fixtures.tags.tagDimensions[fixtures.tags.tagDimensions.length - 1];
         if (!fixtureDimension) {
@@ -129,19 +124,31 @@ describe("Tags Routes", () => {
         }
 
         const response = await app.handle(
-          new Request(`http://localhost/api/tags/dimensions/${fixtureDimension.id}`, {
+          new Request(`http://localhost/api/tags/dimensions/by-id/${fixtureDimension.id}`, {
             method: "DELETE",
           })
         );
         expect(response.status).toBe(200);
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         expect(data.success).toBe(true);
 
         const dataSource = getTestDataSource();
         const repository = dataSource.getRepository(TagDimension);
         const deletedDimension = await repository.findOne({ where: { id: fixtureDimension.id } });
         expect(deletedDimension).toBeNull();
+      });
+
+      test("returns 404 when tag dimension not found", async () => {
+        const response = await app.handle(
+          new Request("http://localhost/api/tags/dimensions/by-id/99999", {
+            method: "DELETE",
+          })
+        );
+        expect(response.status).toBe(404);
+
+        const data = await parseResponse(response);
+        expect(data.error).toBe("Tag dimension not found");
       });
     });
   });
@@ -152,7 +159,7 @@ describe("Tags Routes", () => {
         const response = await app.handle(new Request("http://localhost/api/tags/definitions"));
         expect(response.status).toBe(200);
         
-        const data = await response.json();
+        const data = await parseResponse(response);
         expect(data).toEqual([]);
       });
 
@@ -165,7 +172,7 @@ describe("Tags Routes", () => {
       const response = await app.handle(
         new Request(`http://localhost/api/tags/definitions?dimensionId=${fixtureDimension.id}`)
       );
-      const data = await response.json();
+      const data = await parseResponse(response);
 
       expect(Array.isArray(data)).toBe(true);
       data.forEach((def: TagDefinition) => {
@@ -174,7 +181,7 @@ describe("Tags Routes", () => {
       });
     });
 
-    describe("GET /api/tags/definitions/:id", () => {
+    describe("GET /api/tags/definitions/by-id/:id", () => {
       test("returns definition by id", async () => {
         const fixtureDefinition = fixtures.tags.tagDefinitions[0];
         if (!fixtureDefinition) {
@@ -182,11 +189,11 @@ describe("Tags Routes", () => {
         }
 
         const response = await app.handle(
-          new Request(`http://localhost/api/tags/definitions/${fixtureDefinition.id}`)
+          new Request(`http://localhost/api/tags/definitions/by-id/${fixtureDefinition.id}`)
         );
         expect(response.status).toBe(200);
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         expect(data.id).toBe(fixtureDefinition.id);
         expect(data.displayName).toBe(fixtureDefinition.displayName);
       });
@@ -204,7 +211,7 @@ describe("Tags Routes", () => {
         const response = await app.handle(
           new Request(`http://localhost/api/tags/definitions/by-ids?ids=${encodeURIComponent(ids)}`)
         );
-        const data = await response.json();
+        const data = await parseResponse(response);
 
         expect(data).toHaveLength(2);
       });
@@ -233,13 +240,13 @@ describe("Tags Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data.displayName).toBe("New Tag");
       expect(data.color).toBe("#FF0000");
       });
     });
 
-    describe("PATCH /api/tags/definitions/:id", () => {
+    describe("PATCH /api/tags/definitions/by-id/:id", () => {
       test("updates definition", async () => {
         const fixtureDefinition = fixtures.tags.tagDefinitions[0];
         if (!fixtureDefinition) {
@@ -252,7 +259,7 @@ describe("Tags Routes", () => {
         };
 
         const response = await app.handle(
-          new Request(`http://localhost/api/tags/definitions/${fixtureDefinition.id}`, {
+          new Request(`http://localhost/api/tags/definitions/by-id/${fixtureDefinition.id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(updateData),
@@ -260,14 +267,14 @@ describe("Tags Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         expect(data.displayName).toBe("Updated Tag");
         expect(data.color).toBe("#00FF00");
         expect(data.id).toBe(fixtureDefinition.id);
       });
     });
 
-    describe("DELETE /api/tags/definitions/:id", () => {
+    describe("DELETE /api/tags/definitions/by-id/:id", () => {
       test("deletes definition", async () => {
         const fixtureDefinition = fixtures.tags.tagDefinitions[fixtures.tags.tagDefinitions.length - 1];
         if (!fixtureDefinition) {
@@ -275,13 +282,13 @@ describe("Tags Routes", () => {
         }
 
         const response = await app.handle(
-          new Request(`http://localhost/api/tags/definitions/${fixtureDefinition.id}`, {
+          new Request(`http://localhost/api/tags/definitions/by-id/${fixtureDefinition.id}`, {
             method: "DELETE",
           })
         );
         expect(response.status).toBe(200);
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         expect(data.success).toBe(true);
 
         const dataSource = getTestDataSource();
@@ -289,11 +296,23 @@ describe("Tags Routes", () => {
         const deletedDefinition = await repository.findOne({ where: { id: fixtureDefinition.id } });
         expect(deletedDefinition).toBeNull();
       });
+
+      test("returns 404 when tag definition not found", async () => {
+        const response = await app.handle(
+          new Request("http://localhost/api/tags/definitions/by-id/99999", {
+            method: "DELETE",
+          })
+        );
+        expect(response.status).toBe(404);
+
+        const data = await parseResponse(response);
+        expect(data.error).toBe("Tag definition not found");
+      });
     });
   });
 
   describe("Media Tagging", () => {
-    describe("GET /api/tags/media/:mediaId", () => {
+    describe("GET /api/tags/media/by-media-id/:mediaId", () => {
       test("returns tags for media", async () => {
         const fixtureMedia = fixtures.media[0];
         if (!fixtureMedia) {
@@ -301,11 +320,11 @@ describe("Tags Routes", () => {
         }
 
         const response = await app.handle(
-          new Request(`http://localhost/api/tags/media/${fixtureMedia.id}`)
+          new Request(`http://localhost/api/tags/media/by-media-id/${fixtureMedia.id}`)
         );
         expect(response.status).toBe(200);
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         expect(Array.isArray(data)).toBe(true);
       });
     });
@@ -333,7 +352,7 @@ describe("Tags Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         expect(Array.isArray(data)).toBe(true);
       });
     });
@@ -361,12 +380,12 @@ describe("Tags Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         expect(Array.isArray(data)).toBe(true);
       });
     });
 
-    describe("DELETE /api/tags/media/:mediaId", () => {
+    describe("DELETE /api/tags/media/by-media-id/:mediaId", () => {
       test("removes tags from media", async () => {
         const fixtureMedia = fixtures.media[0];
         const fixtureTag = fixtures.tags.tagDefinitions[0];
@@ -375,7 +394,7 @@ describe("Tags Routes", () => {
         }
 
         const response = await app.handle(
-          new Request(`http://localhost/api/tags/media/${fixtureMedia.id}`, {
+          new Request(`http://localhost/api/tags/media/by-media-id/${fixtureMedia.id}`, {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ tagIds: [fixtureTag.id] }),
@@ -383,7 +402,7 @@ describe("Tags Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         expect(data.success).toBe(true);
       });
     });
@@ -397,7 +416,7 @@ describe("Tags Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         expect(data).toHaveProperty("totalMediaTags");
       });
     });
@@ -411,7 +430,7 @@ describe("Tags Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         expect(data).toHaveProperty("orphanedMediaTagsRemoved");
         expect(data).toHaveProperty("stickerDisplayPropertiesSynced");
         expect(data).toHaveProperty("timestamp");
@@ -427,7 +446,7 @@ describe("Tags Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         expect(data).toHaveProperty("updatedCount");
         expect(data).toHaveProperty("updatedIds");
       });

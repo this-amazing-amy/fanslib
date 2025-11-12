@@ -4,18 +4,10 @@ import { db } from "../../../../lib/db";
 import { TagDefinition, TagDefinitionSchema, TagDimension } from "../../entity";
 import { assignColorForCategoricalTag } from "../helpers";
 
-// Schemas
-export const CreateTagDefinitionRequestBodySchema = t.Object({
-  dimensionId: t.Number(),
-  value: t.String(),
-  displayName: t.String(),
-  description: t.Optional(t.String()),
-  metadata: t.Optional(t.String()),
-  color: t.Optional(t.String()),
-  shortRepresentation: t.Optional(t.String()),
-  sortOrder: t.Optional(t.Number()),
-  parentTagId: t.Optional(t.Number()),
-});
+export const CreateTagDefinitionRequestBodySchema = t.Intersect([
+  t.Required(t.Pick(t.Omit(TagDefinitionSchema, ["id", "createdAt", "updatedAt"]), ["dimensionId", "value", "displayName"])),
+  t.Partial(t.Omit(TagDefinitionSchema, ["id", "createdAt", "updatedAt", "dimensionId", "value", "displayName"])),
+]);
 
 export const CreateTagDefinitionResponseSchema = TagDefinitionSchema;
 
@@ -52,7 +44,7 @@ export const createTagDefinition = async (dto: typeof CreateTagDefinitionRequest
     dto.color = normalizeHexColor(dto.color);
   }
 
-  const assignedColor = await assignColorForCategoricalTag(dto.dimensionId, dto.color);
+  const assignedColor = await assignColorForCategoricalTag(dto.dimensionId, dto.color ?? undefined);
 
   const tag = repository.create({
     ...dto,

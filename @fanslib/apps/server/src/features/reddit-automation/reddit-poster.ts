@@ -1,4 +1,3 @@
-import type { Subreddit as SubredditType } from "@fanslib/types";
 import type { DataSource } from "typeorm";
 import { db } from "~/lib/db";
 import { browserDataPath } from "~/lib/env";
@@ -19,6 +18,8 @@ import {
   selectRandomMediaWithConflictChecking,
   selectSubreddit,
 } from "./operations/generation/utils";
+
+type SubredditType = Subreddit;
 
 type GeneratedPost = {
   id: string;
@@ -218,7 +219,7 @@ export const getScheduledPosts = async (db: DataSource): Promise<ScheduledPost[]
 
   const scheduledPostsWithDetails = await Promise.all(
     scheduledPosts.map(async (post) => {
-      const subreddit = await subredditRepo.findOne({ where: { id: post.subredditId } });
+      const subreddit = await subredditRepo.findOne({ where: { id: post.subredditId ?? undefined } });
       const postMediaRepo = db.getRepository("PostMedia");
       const postMedia = await postMediaRepo.findOne({
         where: { postId: post.id },

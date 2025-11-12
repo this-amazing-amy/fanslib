@@ -1,4 +1,5 @@
 import { t } from "elysia";
+import { Channel, ChannelSchema } from "~/features/channels/entity";
 import { db } from "../../../../lib/db";
 import { CaptionSnippet, CaptionSnippetSchema } from "../../entity";
 
@@ -8,7 +9,12 @@ export const CreateSnippetRequestBodySchema = t.Object({
   channelId: t.Optional(t.String()),
 });
 
-export const CreateSnippetResponseSchema = CaptionSnippetSchema;
+export const CreateSnippetResponseSchema = t.Composite([
+  t.Omit(CaptionSnippetSchema, ["channelId"]),
+  t.Object({
+    channel: t.Nullable(ChannelSchema)
+  }),
+]);
 
 export const createSnippet = async (data: typeof CreateSnippetRequestBodySchema.static): Promise<typeof CreateSnippetResponseSchema.static> => {
   const database = await db();
@@ -17,7 +23,7 @@ export const createSnippet = async (data: typeof CreateSnippetRequestBodySchema.
   const existing = await repo.findOne({
     where: {
       name: data.name,
-      channelId: data.channelId ?? undefined,
+      channelId: data.channelId
     },
   });
 
@@ -29,7 +35,18 @@ export const createSnippet = async (data: typeof CreateSnippetRequestBodySchema.
     );
   }
 
-  const snippet = repo.create(data);
-  return repo.save(snippet);
+  const channel = await database.getRepository(Channel).findOne({ where: { id: data.channelId } });
+  if (!channel) {
+    throw new Error(`Channel with id ${data.channelId} not found`);
+  }
+
+  const snippet = repo.create({
+    ...data,
+  });
+
+  snippet.channel = channel;
+
+  const savedSnippet = await repo.save(snippet);
+  return savedSnippet;
 };
 

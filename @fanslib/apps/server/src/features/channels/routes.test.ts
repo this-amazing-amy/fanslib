@@ -2,7 +2,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:tes
 import { Elysia } from "elysia";
 import "reflect-metadata";
 import { getTestDataSource, resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
-import { serializeJson } from "../../lib/serialize-json";
+import { mapResponse } from "../../lib/serialization";
+import { logError, parseResponse } from "../../test-utils/setup";
 import type { ChannelType } from "./entity";
 import { Channel } from "./entity";
 import { CHANNEL_FIXTURES } from "./fixtures";
@@ -17,7 +18,7 @@ describe("Channels Routes", () => {
   beforeAll(async () => {
     await setupTestDatabase();
     fixtures = await resetAllFixtures();
-    app = new Elysia().mapResponse(serializeJson).use(channelsRoutes);
+    app = new Elysia().onError(logError()).mapResponse(mapResponse).use(channelsRoutes);
   });
 
   afterAll(async () => {
@@ -28,12 +29,12 @@ describe("Channels Routes", () => {
     fixtures = await resetAllFixtures();
   });
 
-  describe("GET /api/channels", () => {
+  describe("GET /api/channels/all", () => {
     test("returns all channels", async () => {
-      const response = await app.handle(new Request("http://localhost/api/channels"));
+      const response = await app.handle(new Request("http://localhost/api/channels/all"));
       expect(response.status).toBe(200);
       
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(Array.isArray(data)).toBe(true);
       expect(data.length).toBeGreaterThanOrEqual(CHANNEL_FIXTURES.length);
       
@@ -51,7 +52,7 @@ describe("Channels Routes", () => {
       const response = await app.handle(new Request("http://localhost/api/channels/types"));
       expect(response.status).toBe(200);
       
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(Array.isArray(data)).toBe(true);
       expect(data.length).toBeGreaterThan(0);
       
@@ -64,7 +65,7 @@ describe("Channels Routes", () => {
     });
   });
 
-  describe("GET /api/channels/:id", () => {
+  describe("GET /api/channels/by-id/:id", () => {
     test("returns channel by id", async () => {
       const fixtureChannel = CHANNEL_FIXTURES[0];
       if (!fixtureChannel) {
@@ -72,11 +73,11 @@ describe("Channels Routes", () => {
       }
 
       const response = await app.handle(
-        new Request(`http://localhost/api/channels/${fixtureChannel.id}`)
+        new Request(`http://localhost/api/channels/by-id/${fixtureChannel.id}`)
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data.id).toBe(fixtureChannel.id);
       expect(data.name).toBe(fixtureChannel.name);
       expect(data.typeId).toBe(fixtureChannel.typeId);
@@ -84,10 +85,10 @@ describe("Channels Routes", () => {
 
     test("returns error for non-existent channel", async () => {
       const response = await app.handle(
-        new Request("http://localhost/api/channels/non-existent-id")
+        new Request("http://localhost/api/channels/by-id/non-existent-id")
       );
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data).toHaveProperty("error");
       expect(data.error).toBe("Channel not found");
     });
@@ -110,7 +111,7 @@ describe("Channels Routes", () => {
 
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data.name).toBe("New Channel");
       expect(data.typeId).toBe("fansly");
       expect(data.type).toBeDefined();
@@ -118,7 +119,7 @@ describe("Channels Routes", () => {
     });
   });
 
-  describe("PATCH /api/channels/:id", () => {
+  describe("PATCH /api/channels/by-id/:id", () => {
     test("updates channel", async () => {
       const fixtureChannel = CHANNEL_FIXTURES[0];
       if (!fixtureChannel) {
@@ -130,7 +131,7 @@ describe("Channels Routes", () => {
       };
 
       const response = await app.handle(
-        new Request(`http://localhost/api/channels/${fixtureChannel.id}`, {
+        new Request(`http://localhost/api/channels/by-id/${fixtureChannel.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updateData),
@@ -138,26 +139,26 @@ describe("Channels Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data.name).toBe("Updated Name");
       expect(data.id).toBe(fixtureChannel.id);
     });
 
     test("returns error for non-existent channel", async () => {
       const response = await app.handle(
-        new Request("http://localhost/api/channels/non-existent-id", {
+        new Request("http://localhost/api/channels/by-id/non-existent-id", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: "Updated" }),
         })
       );
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data).toHaveProperty("error");
     });
   });
 
-  describe("DELETE /api/channels/:id", () => {
+  describe("DELETE /api/channels/by-id/:id", () => {
     test("deletes channel", async () => {
       const fixtureChannel = CHANNEL_FIXTURES[CHANNEL_FIXTURES.length - 1];
       if (!fixtureChannel) {
@@ -165,19 +166,31 @@ describe("Channels Routes", () => {
       }
 
       const response = await app.handle(
-        new Request(`http://localhost/api/channels/${fixtureChannel.id}`, {
+        new Request(`http://localhost/api/channels/by-id/${fixtureChannel.id}`, {
           method: "DELETE",
         })
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data.success).toBe(true);
 
       const dataSource = getTestDataSource();
       const repository = dataSource.getRepository(Channel);
       const deletedChannel = await repository.findOne({ where: { id: fixtureChannel.id } });
       expect(deletedChannel).toBeNull();
+    });
+
+    test("returns 404 when channel not found", async () => {
+      const response = await app.handle(
+        new Request("http://localhost/api/channels/by-id/non-existent-id", {
+          method: "DELETE",
+        })
+      );
+      expect(response.status).toBe(404);
+
+      const data = await parseResponse(response);
+      expect(data.error).toBe("Channel not found");
     });
   });
 });

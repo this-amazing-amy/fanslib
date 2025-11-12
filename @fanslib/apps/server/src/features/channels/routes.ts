@@ -1,45 +1,63 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import { FetchChannelTypesResponseSchema, fetchChannelTypes } from "./operations/channel-type/fetch-all";
 import { CreateChannelRequestBodySchema, CreateChannelResponseSchema, createChannel } from "./operations/channel/create";
-import { DeleteChannelResponseSchema, deleteChannel } from "./operations/channel/delete";
+import { DeleteChannelRequestParamsSchema, DeleteChannelResponseSchema, deleteChannel } from "./operations/channel/delete";
 import { FetchAllChannelsResponseSchema, fetchAllChannels } from "./operations/channel/fetch-all";
-import { FetchChannelByIdResponseSchema, fetchChannelById } from "./operations/channel/fetch-by-id";
-import { UpdateChannelRequestBodySchema, UpdateChannelResponseSchema, updateChannel } from "./operations/channel/update";
+import { FetchChannelByIdRequestParamsSchema, FetchChannelByIdResponseSchema, fetchChannelById } from "./operations/channel/fetch-by-id";
+import { UpdateChannelRequestBodySchema, UpdateChannelRequestParamsSchema, UpdateChannelResponseSchema, updateChannel } from "./operations/channel/update";
 
 export const channelsRoutes = new Elysia({ prefix: "/api/channels" })
-  .get("/", fetchAllChannels, {
+  .get("/all", fetchAllChannels, {
     response: FetchAllChannelsResponseSchema,
   })
   .get("/types", fetchChannelTypes, {
     response: FetchChannelTypesResponseSchema,
   })
-  .get("/:id", async ({ params: { id } }) => {
+  .get("/by-id/:id", async ({ params: { id }, set }) => {
     const channel = await fetchChannelById(id);
     if (!channel) {
+      set.status = 404;
       return { error: "Channel not found" };
     }
     return channel;
   }, {
-    response: FetchChannelByIdResponseSchema,
+    params: FetchChannelByIdRequestParamsSchema,
+    response: {
+      200: FetchChannelByIdResponseSchema,
+      404: t.Object({ error: t.String() }),
+    },
   })
   .post("/", async ({ body }) => createChannel(body), {
     body: CreateChannelRequestBodySchema,
     response: CreateChannelResponseSchema,
   })
-  .patch("/:id", async ({ params: { id }, body }) => {
+  .patch("/by-id/:id", async ({ params: { id }, body, set }) => {
     const channel = await updateChannel(id, body);
     if (!channel) {
+      set.status = 404;
       return { error: "Channel not found" };
     }
     return channel;
   }, {
+    params: UpdateChannelRequestParamsSchema,
     body: UpdateChannelRequestBodySchema,
-    response: UpdateChannelResponseSchema,
+    response: {
+      200: UpdateChannelResponseSchema,
+      404: t.Object({ error: t.String() }),
+    },
   })
-  .delete("/:id", async ({ params: { id } }) => {
-    await deleteChannel(id);
+  .delete("/by-id/:id", async ({ params: { id }, set }) => {
+    const success = await deleteChannel(id);
+    if (!success) {
+      set.status = 404;
+      return { error: "Channel not found" };
+    }
     return { success: true };
   }, {
-    response: DeleteChannelResponseSchema,
+    params: DeleteChannelRequestParamsSchema,
+    response: {
+      200: DeleteChannelResponseSchema,
+      404: t.Object({ error: t.String() }),
+    },
   });
 

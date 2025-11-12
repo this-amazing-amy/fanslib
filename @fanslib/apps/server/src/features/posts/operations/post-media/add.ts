@@ -4,7 +4,7 @@ import { db } from "../../../../lib/db";
 import { Media } from "../../../library/entity";
 import type { Post } from "../../entity";
 import { PostMedia } from "../../entity";
-import { getPostById, GetPostByIdResponseSchema } from "../post/fetch-by-id";
+import { fetchPostById, FetchPostByIdResponseSchema } from "../post/fetch-by-id";
 
 export const AddMediaToPostRequestParamsSchema = t.Object({
   id: t.String(),
@@ -14,17 +14,17 @@ export const AddMediaToPostRequestBodySchema = t.Object({
   mediaIds: t.Array(t.String()),
 });
 
-export const AddMediaToPostResponseSchema = GetPostByIdResponseSchema;
+export const AddMediaToPostResponseSchema = FetchPostByIdResponseSchema;
 
 export const addMediaToPost = async (
   postId: string,
   mediaIds: string[]
-): Promise<typeof AddMediaToPostResponseSchema.static> => {
+): Promise<typeof AddMediaToPostResponseSchema.static | null> => {
   const dataSource = await db();
   const postMediaRepo = dataSource.getRepository(PostMedia);
   const mediaRepo = dataSource.getRepository(Media);
 
-  const post = await getPostById(postId);
+  const post = await fetchPostById(postId);
   if (!post) return null;
 
   const existingCount = !("error" in post) ? post.postMedia?.length ?? 0 : 0;
@@ -40,6 +40,6 @@ export const addMediaToPost = async (
 
   await postMediaRepo.save(postMedia);
 
-  return getPostById(postId);
+  return fetchPostById(postId);
 };
 

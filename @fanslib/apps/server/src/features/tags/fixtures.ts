@@ -1,7 +1,10 @@
-import type { MediaTag, TagDefinition, TagDimension } from "@fanslib/types";
 import { getTestDataSource } from "../../lib/db.test";
 import type { Media } from "../library/entity";
 import { MediaTag as MediaTagEntity, TagDefinition as TagDefinitionEntity, TagDimension as TagDimensionEntity } from "./entity";
+
+type MediaTag = MediaTagEntity;
+type TagDefinition = TagDefinitionEntity;
+type TagDimension = TagDimensionEntity;
 
 export type TagDimensionFixture = Omit<TagDimension, "id" | "createdAt" | "updatedAt" | "validationSchema">;
 
@@ -13,6 +16,7 @@ export const TAG_DIMENSION_FIXTURES: TagDimensionFixture[] = [
     sortOrder: 0,
     stickerDisplay: "color",
     isExclusive: true,
+    tags: [],
   },
   {
     name: "Category",
@@ -21,6 +25,7 @@ export const TAG_DIMENSION_FIXTURES: TagDimensionFixture[] = [
     sortOrder: 1,
     stickerDisplay: "short",
     isExclusive: false,
+    tags: [],
   },
   {
     name: "Duration",
@@ -29,10 +34,11 @@ export const TAG_DIMENSION_FIXTURES: TagDimensionFixture[] = [
     sortOrder: 2,
     stickerDisplay: "none",
     isExclusive: false,
+    tags: [],
   },
 ];
 
-export type TagDefinitionFixture = Omit<TagDefinition, "id" | "dimensionId" | "createdAt" | "updatedAt" | "description" | "metadata" | "shortRepresentation" | "parentTagId"> & {
+export type TagDefinitionFixture = Omit<TagDefinition, "id" | "dimensionId" | "createdAt" | "updatedAt" | "description" | "metadata" | "shortRepresentation" | "parentTagId" | "dimension" | "children" | "mediaTags"> & {
   dimensionName: string;
 };
 

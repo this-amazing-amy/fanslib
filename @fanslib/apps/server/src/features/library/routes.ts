@@ -1,13 +1,14 @@
-import { Elysia } from 'elysia';
-import { DeleteMediaQuerySchema, DeleteMediaResponseSchema, deleteMedia } from './operations/media/delete';
+import { Elysia, t } from 'elysia';
+import { DeleteMediaQuerySchema, DeleteMediaRequestParamsSchema, DeleteMediaResponseSchema, deleteMedia } from './operations/media/delete';
 import { FetchAllMediaRequestBodySchema, FetchAllMediaResponseSchema, fetchAllMedia } from './operations/media/fetch-all';
-import { GetMediaByIdResponseSchema, getMediaById } from './operations/media/fetch-by-id';
-import { FindAdjacentMediaBodySchema, FindAdjacentMediaResponseSchema, findAdjacentMedia } from './operations/media/find-adjacent';
-import { UpdateMediaRequestBodySchema, UpdateMediaResponseSchema, updateMedia } from './operations/media/update';
+import { FetchMediaByIdRequestParamsSchema, FetchMediaByIdResponseSchema, fetchMediaById } from './operations/media/fetch-by-id';
+import { FetchMediaByPathRequestParamsSchema, FetchMediaByPathResponseSchema, fetchMediaByPath } from './operations/media/fetch-by-path';
+import { FindAdjacentMediaBodySchema, FindAdjacentMediaRequestParamsSchema, FindAdjacentMediaResponseSchema, findAdjacentMedia } from './operations/media/find-adjacent';
+import { UpdateMediaRequestBodySchema, UpdateMediaRequestParamsSchema, UpdateMediaResponseSchema, updateMedia } from './operations/media/update';
 import { FileScanResultSchema, ScanFileRequestBodySchema, ScanLibraryResponseSchema, ScanStatusResponseSchema, getScanStatus, scanFile, scanLibrary } from './operations/scan/scan';
 
 export const libraryRoutes = new Elysia({ prefix: '/api/media' })
-  .post('/', async ({ body }) => fetchAllMedia({
+  .post('/all', async ({ body }) => fetchAllMedia({
       page: body.page,
       limit: body.limit,
       filters: body.filters,
@@ -16,8 +17,8 @@ export const libraryRoutes = new Elysia({ prefix: '/api/media' })
     body: FetchAllMediaRequestBodySchema,
     response: FetchAllMediaResponseSchema,
   })
-  .get('/:id', async ({ params: { id }, set }) => {
-    const media = await getMediaById(id);
+  .get('/by-id/:id', async ({ params: { id }, set }) => {
+    const media = await fetchMediaById(id);
     if (!media) {
       set.status = 404;
       return { error: 'Media not found' };
@@ -25,22 +26,59 @@ export const libraryRoutes = new Elysia({ prefix: '/api/media' })
 
     return media;
   }, {
-    response: GetMediaByIdResponseSchema,
+    params: FetchMediaByIdRequestParamsSchema,
+    response: {
+      200: FetchMediaByIdResponseSchema,
+      404: t.Object({ error: t.String() }),
+    }
   })
-  .patch('/:id', async ({ params: { id }, body }) => 
-    updateMedia(id, body), {
+  .get('/by-path/:path', async ({ params: { path }, set }) => {
+    const media = await fetchMediaByPath(path);
+    if (!media) {
+      set.status = 404;
+      return { error: 'Media not found' };
+    }
+    return media;
+  }, {
+    params: FetchMediaByPathRequestParamsSchema,
+    response: {
+      200: FetchMediaByPathResponseSchema,
+      404: t.Object({ error: t.String() }),
+    }
+  })
+    .patch('/by-id/:id', async ({ params: { id }, body, set }) => {
+      const media = await updateMedia(id, body);
+      if (!media) {
+        set.status = 404;
+        return { error: 'Media not found' };
+      }
+      return media;
+    },{
+    params: UpdateMediaRequestParamsSchema,
     body: UpdateMediaRequestBodySchema,
-    response: UpdateMediaResponseSchema,
+    response: {
+      200: UpdateMediaResponseSchema,
+      404: t.Object({ error: t.String() }),
+    }
   })
-  .delete('/:id', async ({ params: { id }, query }) => {
+  .delete('/by-id/:id', async ({ params: { id }, query, set }) => {
     const deleteFile = query.deleteFile === 'true';
-    await deleteMedia(id, deleteFile);
+    const success = await deleteMedia(id, deleteFile);
+    if (!success) {
+      set.status = 404;
+      return { error: 'Media not found' };
+    }
     return { success: true };
   }, {
+    params: DeleteMediaRequestParamsSchema,
     query: DeleteMediaQuerySchema,
-    response: DeleteMediaResponseSchema,
+    response: {
+      200: DeleteMediaResponseSchema,
+      404: t.Object({ error: t.String() }),
+    },
   })
-  .get('/:id/adjacent', ({ params: { id }, body }) => findAdjacentMedia(id, body), {
+  .post('/by-id/:id/adjacent', async ({ params: { id }, body }) => findAdjacentMedia(id, body), {
+    params: FindAdjacentMediaRequestParamsSchema,
     body: FindAdjacentMediaBodySchema,
     response: FindAdjacentMediaResponseSchema,
   })

@@ -1,4 +1,9 @@
+import { t } from "elysia";
 import { saveFanslyCredentials } from "../../settings/operations/credentials/save";
+
+export const UpdateCredentialsFromFetchRequestBodySchema = t.Object({
+  fetchRequest: t.String(),
+});
 
 const parseFetchRequest = (fetchRequest: string): Partial<{
   fanslyAuth?: string;
@@ -28,8 +33,8 @@ const parseFetchRequest = (fetchRequest: string): Partial<{
     if (clientIdMatch?.[1]) {
       credentials.fanslyClientId = clientIdMatch[1];
     }
-  } catch (error) {
-    console.error("Error parsing fetch request:", error);
+  } catch {
+    // Ignore parsing errors
   }
 
   return credentials;

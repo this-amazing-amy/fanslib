@@ -24,13 +24,13 @@ export class TagDimension {
   name!: string;
 
   @Column("text", { nullable: true })
-  description?: string;
+  description: string | null = null;
 
   @Column("varchar")
   dataType!: "categorical" | "numerical" | "boolean";
 
   @Column("text", { nullable: true })
-  validationSchema?: string;
+  validationSchema: string | null = null;
 
   @Column("int", { default: 0 })
   sortOrder!: number;
@@ -71,22 +71,22 @@ export class TagDefinition {
   displayName!: string;
 
   @Column("text", { nullable: true })
-  description?: string;
+  description: string | null = null;
 
   @Column("text", { nullable: true })
-  metadata?: string;
+  metadata: string | null = null;
 
   @Column("varchar", { nullable: true })
-  color?: string;
+  color: string | null = null;
 
   @Column("varchar", { nullable: true })
-  shortRepresentation?: string;
+  shortRepresentation: string | null = null;
 
   @Column("int", { default: 0 })
   sortOrder!: number;
 
   @Column("int", { nullable: true })
-  parentTagId?: number;
+  parentTagId: number | null = null;
 
   @ManyToOne(() => TagDefinition, { nullable: true })
   @JoinColumn({ name: "parentTagId" })
@@ -144,22 +144,22 @@ export class MediaTag {
   tagDisplayName!: string;
 
   @Column("varchar", { nullable: true })
-  color?: string;
+  color: string | null = null;
 
   @Column("varchar", { default: "none" })
   stickerDisplay!: StickerDisplayMode;
 
   @Column("varchar", { nullable: true })
-  shortRepresentation?: string;
+  shortRepresentation: string | null = null;
 
   @Column("real", { nullable: true })
-  numericValue?: number;
+  numericValue: number | null = null;
 
   @Column("boolean", { nullable: true })
-  booleanValue?: boolean;
+  booleanValue: boolean | null = null;
 
   @Column("real", { nullable: true })
-  confidence?: number;
+  confidence: number | null = null;
 
   @Column("varchar")
   source!: "manual" | "automated" | "imported";
@@ -190,9 +190,9 @@ export const TagSourceSchema = t.Union([
 export const TagDimensionSchema = t.Object({
   id: t.Number(),
   name: t.String(),
-  description: t.Optional(t.String()),
+  description: t.Nullable(t.String()),
   dataType: DataTypeSchema,
-  validationSchema: t.Optional(t.String()),
+  validationSchema: t.Nullable(t.String()),
   sortOrder: t.Number(),
   stickerDisplay: StickerDisplayModeSchema,
   isExclusive: t.Boolean(),
@@ -205,12 +205,12 @@ export const TagDefinitionSchema = t.Object({
   dimensionId: t.Number(),
   value: t.String(),
   displayName: t.String(),
-  description: t.Optional(t.String()),
-  metadata: t.Optional(t.String()),
-  color: t.Optional(t.String()),
-  shortRepresentation: t.Optional(t.String()),
+  description: t.Nullable(t.String()),
+  metadata: t.Nullable(t.String()),
+  color: t.Nullable(t.String()),
+  shortRepresentation: t.Nullable(t.String()),
   sortOrder: t.Number(),
-  parentTagId: t.Optional(t.Number()),
+  parentTagId: t.Nullable(t.Number()),
   createdAt: t.Date(),
   updatedAt: t.Date(),
 });
@@ -224,12 +224,12 @@ export const MediaTagSchema = t.Object({
   dataType: DataTypeSchema,
   tagValue: t.String(),
   tagDisplayName: t.String(),
-  color: t.Optional(t.String()),
+  color: t.Nullable(t.String()),
   stickerDisplay: StickerDisplayModeSchema,
-  shortRepresentation: t.Optional(t.String()),
-  numericValue: t.Optional(t.Number()),
-  booleanValue: t.Optional(t.Boolean()),
-  confidence: t.Optional(t.Number()),
+  shortRepresentation: t.Nullable(t.String()),
+  numericValue: t.Nullable(t.Number()),
+  booleanValue: t.Nullable(t.Boolean()),
+  confidence: t.Nullable(t.Number()),
   source: TagSourceSchema,
   assignedAt: t.Date(),
 });

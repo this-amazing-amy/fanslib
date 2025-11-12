@@ -2,13 +2,19 @@ import { t } from "elysia";
 import { db } from "../../../../lib/db";
 import { MediaFilterSchema } from "../../../library/schemas/media-filter";
 import { FilterPreset, FilterPresetSchema } from "../../entity";
+import { validateAndCleanFilters } from "../../validation";
 
 export const CreateFilterPresetRequestBodySchema = t.Object({
   name: t.String(),
   filters: MediaFilterSchema,
 });
 
-export const CreateFilterPresetResponseSchema = FilterPresetSchema;
+export const CreateFilterPresetResponseSchema = t.Composite([
+  t.Omit(FilterPresetSchema, ["filtersJson"]),
+  t.Object({
+    filters: MediaFilterSchema,
+  }),
+]);
 
 export const createFilterPreset = async (
   payload: typeof CreateFilterPresetRequestBodySchema.static
@@ -21,6 +27,13 @@ export const createFilterPreset = async (
     filtersJson: JSON.stringify(payload.filters),
   });
 
-  return repository.save(preset);
+  const savedPreset = await repository.save(preset);
+
+  const validatedFilters = await validateAndCleanFilters(JSON.parse(savedPreset.filtersJson));
+
+  return {
+    ...savedPreset,
+    filters: validatedFilters,
+  };
 };
 

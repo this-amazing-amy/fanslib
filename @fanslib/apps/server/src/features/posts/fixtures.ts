@@ -1,9 +1,11 @@
-import type { Post, PostMedia } from "@fanslib/types";
 import { getTestDataSource } from "../../lib/db.test";
 import type { Channel } from "../channels/entity";
 import type { Media } from "../library/entity";
 import type { Subreddit } from "../subreddits/entity";
 import { Post as PostEntity, PostMedia as PostMediaEntity } from "./entity";
+
+type Post = PostEntity;
+type PostMedia = PostMediaEntity;
 
 export type PostFixture = Pick<Post, "id" | "channelId" | "subredditId" | "caption" | "status" | "date">;
 
@@ -14,6 +16,7 @@ export const POST_FIXTURES: PostFixture[] = [
     caption: "Check out this amazing content!",
     status: "draft",
     date: "2024-01-15",
+    subredditId: null
   },
   {
     id: "post-2",
@@ -29,6 +32,7 @@ export const POST_FIXTURES: PostFixture[] = [
     caption: "Posted content",
     status: "posted",
     date: "2024-01-17",
+    subredditId: null
   },
 ];
 

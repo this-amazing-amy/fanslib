@@ -1,9 +1,10 @@
-import type { Shoot } from "@fanslib/types";
 import { getTestDataSource } from "../../lib/db.test";
 import type { Media } from "../library/entity";
 import { Shoot as ShootEntity } from "./entity";
 
-export type ShootFixture = Omit<Shoot, "createdAt" | "updatedAt" | "shootDate"> & {
+type Shoot = ShootEntity;
+
+export type ShootFixture = Omit<Shoot, "createdAt" | "updatedAt" | "shootDate" | "media"> & {
   shootDate: string;
   mediaIds: string[];
 };

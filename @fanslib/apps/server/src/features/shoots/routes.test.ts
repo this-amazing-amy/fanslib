@@ -2,7 +2,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:tes
 import { Elysia } from "elysia";
 import "reflect-metadata";
 import { getTestDataSource, resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
-import { serializeJson } from "../../lib/serialize-json";
+import { mapResponse } from "../../lib/serialization";
+import { logError, parseResponse } from "../../test-utils/setup";
 import { Shoot } from "./entity";
 import { SHOOT_FIXTURES } from "./fixtures";
 import { shootsRoutes } from "./routes";
@@ -17,7 +18,7 @@ describe("Shoots Routes", () => {
     await setupTestDatabase();
     fixtures = await resetAllFixtures();
     void fixtures;
-    app = new Elysia().mapResponse(serializeJson).use(shootsRoutes);
+    app = new Elysia().onError(logError()).mapResponse(mapResponse).use(shootsRoutes);
   });
 
   afterAll(async () => {
@@ -28,12 +29,15 @@ describe("Shoots Routes", () => {
     fixtures = await resetAllFixtures();
   });
 
-  describe("GET /api/shoots", () => {
+  describe("POST /api/shoots/all", () => {
     test("returns all shoots", async () => {
-      const response = await app.handle(new Request("http://localhost/api/shoots"));
+      const response = await app.handle(new Request("http://localhost/api/shoots/all", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      }));
       expect(response.status).toBe(200);
       
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(Array.isArray(data.items)).toBe(true);
       expect(data.items.length).toBeGreaterThanOrEqual(SHOOT_FIXTURES.length);
       
@@ -46,9 +50,16 @@ describe("Shoots Routes", () => {
 
     test("supports pagination", async () => {
       const response = await app.handle(
-        new Request("http://localhost/api/shoots?page=1&limit=2")
+        new Request("http://localhost/api/shoots/all", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            page: 1,
+            limit: 2,
+          }),
+        })
       );
-      const data = await response.json();
+      const data = await parseResponse(response);
 
       expect(data.items).toHaveLength(2);
       expect(data.total).toBeGreaterThanOrEqual(SHOOT_FIXTURES.length);
@@ -57,7 +68,7 @@ describe("Shoots Routes", () => {
     });
   });
 
-  describe("GET /api/shoots/:id", () => {
+  describe("GET /api/shoots/by-id/:id", () => {
     test("returns shoot by id", async () => {
       const fixtureShoot = SHOOT_FIXTURES[0];
       if (!fixtureShoot) {
@@ -65,21 +76,21 @@ describe("Shoots Routes", () => {
       }
 
       const response = await app.handle(
-        new Request(`http://localhost/api/shoots/${fixtureShoot.id}`)
+        new Request(`http://localhost/api/shoots/by-id/${fixtureShoot.id}`)
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data.id).toBe(fixtureShoot.id);
       expect(data.name).toBe(fixtureShoot.name);
     });
 
     test("returns error for non-existent shoot", async () => {
       const response = await app.handle(
-        new Request("http://localhost/api/shoots/non-existent-id")
+        new Request("http://localhost/api/shoots/by-id/non-existent-id")
       );
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data).toHaveProperty("error");
       expect(data.error).toBe("Shoot not found");
     });
@@ -101,12 +112,12 @@ describe("Shoots Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data.name).toBe("New Shoot");
     });
   });
 
-  describe("PATCH /api/shoots/:id", () => {
+  describe("PATCH /api/shoots/by-id/:id", () => {
     test("updates shoot", async () => {
       const fixtureShoot = SHOOT_FIXTURES[0];
       if (!fixtureShoot) {
@@ -118,7 +129,7 @@ describe("Shoots Routes", () => {
       };
 
       const response = await app.handle(
-        new Request(`http://localhost/api/shoots/${fixtureShoot.id}`, {
+        new Request(`http://localhost/api/shoots/by-id/${fixtureShoot.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updateData),
@@ -126,13 +137,13 @@ describe("Shoots Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data.name).toBe("Updated Name");
       expect(data.id).toBe(fixtureShoot.id);
     });
   });
 
-  describe("DELETE /api/shoots/:id", () => {
+  describe("DELETE /api/shoots/by-id/:id", () => {
     test("deletes shoot", async () => {
       const fixtureShoot = SHOOT_FIXTURES[SHOOT_FIXTURES.length - 1];
       if (!fixtureShoot) {
@@ -140,19 +151,31 @@ describe("Shoots Routes", () => {
       }
 
       const response = await app.handle(
-        new Request(`http://localhost/api/shoots/${fixtureShoot.id}`, {
+        new Request(`http://localhost/api/shoots/by-id/${fixtureShoot.id}`, {
           method: "DELETE",
         })
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data.success).toBe(true);
 
       const dataSource = getTestDataSource();
       const repository = dataSource.getRepository(Shoot);
       const deletedShoot = await repository.findOne({ where: { id: fixtureShoot.id } });
       expect(deletedShoot).toBeNull();
+    });
+
+    test("returns 404 when shoot not found", async () => {
+      const response = await app.handle(
+        new Request("http://localhost/api/shoots/by-id/non-existent-id", {
+          method: "DELETE",
+        })
+      );
+      expect(response.status).toBe(404);
+
+      const data = await parseResponse(response);
+      expect(data.error).toBe("Shoot not found");
     });
   });
 });

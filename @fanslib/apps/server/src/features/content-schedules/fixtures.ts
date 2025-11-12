@@ -11,6 +11,7 @@ export const CONTENT_SCHEDULE_FIXTURES: ContentScheduleFixture[] = [
     channelId: "channel-1",
     type: "daily",
     postsPerTimeframe: 2,
+    preferredDays: null,
     preferredTimes: ["09:00", "18:00"],
   },
   {

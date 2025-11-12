@@ -64,6 +64,7 @@ export class Media {
   })
   shoots!: Shoot[];
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @OneToMany("MediaTag", (mediaTag: any) => mediaTag.media)
   mediaTags!: MediaTag[];
 }
@@ -76,8 +77,8 @@ export const MediaSchema = t.Object({
   type: MediaTypeSchema,
   name: t.String(),
   size: t.Number(),
-  duration: t.Union([t.Number(), t.Null()]),
-  redgifsUrl: t.Union([t.String(), t.Null()]),
+  duration: t.Nullable(t.Number()),
+  redgifsUrl: t.Nullable(t.String()),
   createdAt: t.Date(),
   updatedAt: t.Date(),
   fileCreationDate: t.Date(),

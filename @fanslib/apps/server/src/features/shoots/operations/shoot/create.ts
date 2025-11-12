@@ -11,7 +11,10 @@ export const CreateShootRequestBodySchema = t.Object({
   mediaIds: t.Optional(t.Array(t.String())),
 });
 
-export const CreateShootResponseSchema = t.Intersect([ShootSchema, t.Object({ media: t.Array(MediaSchema) })]);
+export const CreateShootResponseSchema = t.Composite([
+  ShootSchema,
+  t.Object({ media: t.Array(MediaSchema) }),
+]);
 
 export const createShoot = async (payload: typeof CreateShootRequestBodySchema.static): Promise<typeof CreateShootResponseSchema.static> => {
   const database = await db();

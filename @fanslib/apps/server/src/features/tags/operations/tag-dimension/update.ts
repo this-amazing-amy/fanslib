@@ -4,17 +4,17 @@ import { STICKER_DISPLAY_MODES, TagDimension, TagDimensionSchema } from "../../e
 import { syncDenormalizedFieldsForDimension, validateExistingAssignments } from "../helpers";
 
 export const UpdateTagDimensionParamsSchema = t.Object({
-  id: t.Number(),
+  id: t.String(),
 });
 
-export const UpdateTagDimensionRequestBodySchema = t.Omit(TagDimensionSchema, ["id", "createdAt", "updatedAt"]);
+export const UpdateTagDimensionRequestBodySchema = t.Partial(t.Omit(TagDimensionSchema, ["id", "createdAt", "updatedAt"]));
 
 export const UpdateTagDimensionResponseSchema = TagDimensionSchema;
 
 export const updateTagDimension = async (
-  params: typeof UpdateTagDimensionParamsSchema.static,
+  id: number,
   payload: typeof UpdateTagDimensionRequestBodySchema.static
-): Promise<typeof UpdateTagDimensionResponseSchema.static> => {
+): Promise<typeof UpdateTagDimensionResponseSchema.static | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(TagDimension);
 
@@ -25,21 +25,25 @@ export const updateTagDimension = async (
   }
 
   if (payload.isExclusive !== undefined && payload.isExclusive) {
-    const currentDimension = await repository.findOne({ where: { id: params.id } });
+    const currentDimension = await repository.findOne({ where: { id } });
     if (currentDimension && !currentDimension.isExclusive) {
-      await validateExistingAssignments(params.id);
+      await validateExistingAssignments(id);
     }
   }
 
-  await repository.update(params.id, payload);
-  const dimension = await repository.findOne({ where: { id: params.id } });
+  const updatePayload = Object.fromEntries(
+    Object.entries(payload).filter(([key, value]) => value !== undefined && key !== "tags")
+  ) as Partial<Omit<TagDimension, "tags">>;
+
+  await repository.update(id, updatePayload);
+  const dimension = await repository.findOne({ where: { id } });
 
   if (!dimension) {
-    throw new Error(`TagDimension with id ${params.id} not found`);
+    return null;
   }
 
   if (payload.stickerDisplay !== undefined) {
-    await syncDenormalizedFieldsForDimension(params.id);
+    await syncDenormalizedFieldsForDimension(id);
   }
 
   return dimension;

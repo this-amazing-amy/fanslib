@@ -1,4 +1,3 @@
-import type { PostToRedditPayload } from "@fanslib/types";
 import { Elysia, t } from "elysia";
 import { db } from "~/lib/db";
 import { isRedditAutomationRunning } from "./operations/automation/check-status";
@@ -6,13 +5,22 @@ import { postToReddit } from "./operations/automation/post-to-reddit";
 import { generateRandomPost } from "./operations/generation/generate-random-post";
 import { checkLoginStatus, generatePosts, getScheduledPosts, loginToReddit, regenerateMedia, scheduleAllPosts } from "./reddit-poster";
 
-export const redditAutomationRoutes = new Elysia({ prefix: "/reddit-automation" })
+type PostToRedditPayload = {
+  subredditId: string;
+  mediaId: string;
+  caption: string;
+};
+
+export const redditAutomationRoutes = new Elysia({ prefix: "/api/reddit-automation" })
   .get(
     "/is-running",
     async () => {
       const isRunning = isRedditAutomationRunning();
       return { isRunning };
     },
+    {
+      response: t.Object({ isRunning: t.Boolean() }),
+    }
   )
   .post(
     "/generate-random-post",
@@ -25,6 +33,7 @@ export const redditAutomationRoutes = new Elysia({ prefix: "/reddit-automation" 
         subreddits: t.Array(t.Any()),
         channelId: t.String(),
       }),
+      response: t.Any(),
       detail: {
         summary: "Generate a random Reddit post",
         tags: ["Reddit Poster"],
@@ -44,6 +53,7 @@ export const redditAutomationRoutes = new Elysia({ prefix: "/reddit-automation" 
         subreddits: t.Array(t.Any()),
         channelId: t.String(),
       }),
+      response: t.Array(t.Any()),
       detail: {
         summary: "Generate multiple Reddit posts",
         tags: ["Reddit Poster"],
@@ -61,6 +71,7 @@ export const redditAutomationRoutes = new Elysia({ prefix: "/reddit-automation" 
         subredditId: t.String(),
         channelId: t.String(),
       }),
+      response: t.Any(),
       detail: {
         summary: "Regenerate media for a subreddit",
         tags: ["Reddit Poster"],
@@ -78,6 +89,7 @@ export const redditAutomationRoutes = new Elysia({ prefix: "/reddit-automation" 
       body: t.Object({
         posts: t.Array(t.Any()),
       }),
+      response: t.Array(t.String()),
       detail: {
         summary: "Schedule Reddit posts",
         tags: ["Reddit Poster"],
@@ -92,6 +104,7 @@ export const redditAutomationRoutes = new Elysia({ prefix: "/reddit-automation" 
       return posts;
     },
     {
+      response: t.Array(t.Any()),
       detail: {
         summary: "Get scheduled Reddit posts",
         tags: ["Reddit Poster"],
@@ -104,6 +117,13 @@ export const redditAutomationRoutes = new Elysia({ prefix: "/reddit-automation" 
       const request = body as PostToRedditPayload;
       return postToReddit(request.subredditId, request.mediaId, request.caption);
     },
+    {
+      response: t.Object({
+        success: t.Boolean(),
+        url: t.Optional(t.String()),
+        error: t.Optional(t.String()),
+      }),
+    }
   )
   .post(
     "/login",
@@ -115,6 +135,7 @@ export const redditAutomationRoutes = new Elysia({ prefix: "/reddit-automation" 
       body: t.Object({
         userId: t.Optional(t.String()),
       }),
+      response: t.Object({ success: t.Boolean() }),
       detail: {
         summary: "Login to Reddit",
         tags: ["Reddit Poster"],
@@ -130,6 +151,10 @@ export const redditAutomationRoutes = new Elysia({ prefix: "/reddit-automation" 
     {
       body: t.Object({
         userId: t.Optional(t.String()),
+      }),
+      response: t.Object({
+        isLoggedIn: t.Boolean(),
+        username: t.Optional(t.String()),
       }),
       detail: {
         summary: "Check Reddit login status",

@@ -9,20 +9,20 @@ export const FetchSnippetsByChannelRequestParamsSchema = t.Object({
 });
 
 export const FetchSnippetsByChannelResponseSchema = t.Array(
-  t.Intersect([
-    CaptionSnippetSchema,
+  t.Composite([
+    t.Omit(CaptionSnippetSchema, ["channelId"]),
     t.Object({
       channel: t.Union([ChannelSchema, t.Null()]),
     }),
   ])
 );
 
-export const fetchSnippetsByChannel = async (payload: typeof FetchSnippetsByChannelRequestParamsSchema.static): Promise<typeof FetchSnippetsByChannelResponseSchema.static> => {
+export const fetchSnippetsByChannel = async (channelId: string): Promise<typeof FetchSnippetsByChannelResponseSchema.static> => {
   const dataSource = await db();
   const repo = dataSource.getRepository(CaptionSnippet);
   return repo.find({
     where: [
-      { channelId: payload.channelId },
+      { channelId },
       { channelId: IsNull() },
     ],
     relations: ["channel"],

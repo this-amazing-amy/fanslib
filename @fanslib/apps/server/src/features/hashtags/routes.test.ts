@@ -1,13 +1,15 @@
-import type { Hashtag } from "@fanslib/types";
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
 import { Elysia } from "elysia";
 import "reflect-metadata";
 import { getTestDataSource, resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
-import { serializeJson } from "../../lib/serialize-json";
+import { mapResponse } from "../../lib/serialization";
+import { logError, parseResponse } from "../../test-utils/setup";
 import { Hashtag as HashtagEntity } from "./entity";
 import { HASHTAG_FIXTURES } from "./fixtures";
 import { normalizeHashtagName } from "./operations/hashtag/helpers";
 import { hashtagsRoutes } from "./routes";
+
+type Hashtag = HashtagEntity;
 
 describe("Hashtags Routes", () => {
   // eslint-disable-next-line functional/no-let
@@ -18,7 +20,7 @@ describe("Hashtags Routes", () => {
   beforeAll(async () => {
     await setupTestDatabase();
     fixtures = await resetAllFixtures();
-    app = new Elysia().mapResponse(serializeJson).use(hashtagsRoutes);
+    app = new Elysia().onError(logError()).mapResponse(mapResponse).use(hashtagsRoutes);
   });
 
   afterAll(async () => {
@@ -29,12 +31,12 @@ describe("Hashtags Routes", () => {
     fixtures = await resetAllFixtures();
   });
 
-  describe("GET /api/hashtags", () => {
+  describe("GET /api/hashtags/all", () => {
     test("returns all hashtags", async () => {
-      const response = await app.handle(new Request("http://localhost/api/hashtags"));
+      const response = await app.handle(new Request("http://localhost/api/hashtags/all"));
       expect(response.status).toBe(200);
       
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(Array.isArray(data)).toBe(true);
       expect(data.length).toBeGreaterThanOrEqual(HASHTAG_FIXTURES.length);
       
@@ -47,7 +49,7 @@ describe("Hashtags Routes", () => {
     });
   });
 
-  describe("GET /api/hashtags/:id", () => {
+  describe("GET /api/hashtags/by-id/:id", () => {
     test("returns hashtag by id", async () => {
       const fixtureHashtag = fixtures.hashtags.hashtags[0];
       if (!fixtureHashtag) {
@@ -55,21 +57,21 @@ describe("Hashtags Routes", () => {
       }
 
       const response = await app.handle(
-        new Request(`http://localhost/api/hashtags/${fixtureHashtag.id}`)
+        new Request(`http://localhost/api/hashtags/by-id/${fixtureHashtag.id}`)
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data.id).toBe(fixtureHashtag.id);
       expect(data.name).toBe(fixtureHashtag.name);
     });
 
     test("returns error for non-existent hashtag", async () => {
       const response = await app.handle(
-        new Request("http://localhost/api/hashtags/999999")
+        new Request("http://localhost/api/hashtags/by-id/999999")
       );
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data).toHaveProperty("error");
       expect(data.error).toBe("Hashtag not found");
     });
@@ -90,7 +92,7 @@ describe("Hashtags Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data.name).toBe("#newhash");
     });
 
@@ -108,16 +110,16 @@ describe("Hashtags Routes", () => {
         })
       );
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data.id).toBe(existing.id);
       expect(data.name).toBe(existing.name);
     });
   });
 
-  describe("POST /api/hashtags/batch", () => {
+  describe("POST /api/hashtags/by-ids", () => {
     test("creates multiple hashtags", async () => {
       const response = await app.handle(
-        new Request("http://localhost/api/hashtags/batch", {
+        new Request("http://localhost/api/hashtags/by-ids", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ names: ["hash1", "hash2", "hash3"] }),
@@ -125,7 +127,7 @@ describe("Hashtags Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data).toHaveLength(3);
       expect(data[0].name).toBe("#hash1");
       expect(data[1].name).toBe("#hash2");
@@ -139,19 +141,19 @@ describe("Hashtags Routes", () => {
       }
 
       const response = await app.handle(
-        new Request("http://localhost/api/hashtags/batch", {
+        new Request("http://localhost/api/hashtags/by-ids", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ names: [existing.name, "#newhash"] }),
         })
       );
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data).toHaveLength(2);
     });
   });
 
-  describe("DELETE /api/hashtags/:id", () => {
+  describe("DELETE /api/hashtags/by-id/:id", () => {
     test("deletes hashtag", async () => {
       const fixtureHashtag = fixtures.hashtags.hashtags[fixtures.hashtags.hashtags.length - 1];
       if (!fixtureHashtag) {
@@ -159,13 +161,13 @@ describe("Hashtags Routes", () => {
       }
 
       const response = await app.handle(
-        new Request(`http://localhost/api/hashtags/${fixtureHashtag.id}`, {
+        new Request(`http://localhost/api/hashtags/by-id/${fixtureHashtag.id}`, {
           method: "DELETE",
         })
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data.success).toBe(true);
 
       const dataSource = getTestDataSource();
@@ -175,7 +177,7 @@ describe("Hashtags Routes", () => {
     });
   });
 
-  describe("GET /api/hashtags/:id/stats", () => {
+  describe("GET /api/hashtags/by-id/:id/stats", () => {
     test("returns hashtag stats", async () => {
       const fixtureHashtag = fixtures.hashtags.hashtags[0];
       if (!fixtureHashtag) {
@@ -183,16 +185,16 @@ describe("Hashtags Routes", () => {
       }
 
       const response = await app.handle(
-        new Request(`http://localhost/api/hashtags/${fixtureHashtag.id}/stats`)
+        new Request(`http://localhost/api/hashtags/by-id/${fixtureHashtag.id}/stats`)
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(Array.isArray(data)).toBe(true);
     });
   });
 
-  describe("POST /api/hashtags/:id/stats", () => {
+  describe("POST /api/hashtags/by-id/:id/stats", () => {
     test("updates hashtag stats", async () => {
       const fixtureHashtag = fixtures.hashtags.hashtags[0];
       const channel = fixtures.channels.channels[0];
@@ -206,7 +208,7 @@ describe("Hashtags Routes", () => {
       };
 
       const response = await app.handle(
-        new Request(`http://localhost/api/hashtags/${fixtureHashtag.id}/stats`, {
+        new Request(`http://localhost/api/hashtags/by-id/${fixtureHashtag.id}/stats`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(statsData),
@@ -214,7 +216,7 @@ describe("Hashtags Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data).toHaveProperty("hashtagId");
       expect(data).toHaveProperty("channelId");
     });
@@ -232,7 +234,7 @@ describe("Hashtags Routes", () => {
       const response = await app.handle(
         new Request(`http://localhost/api/hashtags/by-ids?ids=${encodeURIComponent(ids)}`)
       );
-      const data = await response.json();
+      const data = await parseResponse(response);
 
       expect(data).toHaveLength(2);
     });
@@ -241,7 +243,7 @@ describe("Hashtags Routes", () => {
       const response = await app.handle(
         new Request("http://localhost/api/hashtags/by-ids?ids=[]")
       );
-      const data = await response.json();
+      const data = await parseResponse(response);
 
       expect(data).toEqual([]);
     });

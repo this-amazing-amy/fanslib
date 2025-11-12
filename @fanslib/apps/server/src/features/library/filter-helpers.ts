@@ -1,6 +1,10 @@
-import type { FilterGroup, FilterItem, MediaFilters } from "@fanslib/types";
 import type { SelectQueryBuilder } from "typeorm";
 import type { Media } from "./entity";
+import type { MediaFilterSchema } from "./schemas/media-filter";
+
+type MediaFilters = typeof MediaFilterSchema.static;
+type FilterGroup = MediaFilters[number];
+type FilterItem = FilterGroup['items'][number];
 
 export const buildFilterItemQuery = (
   item: FilterItem,

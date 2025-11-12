@@ -8,14 +8,23 @@ export const FetchPostsByChannelRequestParamsSchema = t.Object({
   channelId: t.String(),
 });
 
-export const FetchPostsByChannelResponseSchema = t.Array(t.Intersect([PostSchema, t.Object({
-  postMedia: t.Array(t.Intersect([PostMediaSchema, t.Object({
-    media: MediaSchema,
-  })])),
-  channel: t.Intersect([ChannelSchema, t.Object({
-    type: ChannelTypeSchema,
-  })]),
-})]));
+export const FetchPostsByChannelResponseSchema = t.Array(t.Composite([
+  PostSchema,
+  t.Object({
+    postMedia: t.Array(t.Composite([
+      PostMediaSchema,
+      t.Object({
+        media: MediaSchema,
+      }),
+    ])),
+    channel: t.Composite([
+      ChannelSchema,
+      t.Object({
+        type: ChannelTypeSchema,
+      }),
+    ]),
+  }),
+]));
 
 export const fetchPostsByChannel = async (channelId: string): Promise<typeof FetchPostsByChannelResponseSchema.static> => {
   const dataSource = await db();

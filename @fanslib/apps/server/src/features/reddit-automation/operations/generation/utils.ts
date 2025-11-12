@@ -1,15 +1,17 @@
-import type { MediaFilters, Subreddit } from "@fanslib/types";
 import { buildFilterGroupQuery } from "~/features/library/filter-helpers";
 import { db } from "~/lib/db";
 import { Media } from "../../../library/entity";
-import type { Post } from "../../../posts/entity";
+import type { MediaFilterSchema } from "../../../library/schemas/media-filter";
 import { PostMedia } from "../../../posts/entity";
 import { fetchPostsByMediaId } from "../../../posts/operations/post/fetch-by-media-id";
+import type { Subreddit } from "../../../subreddits/entity";
+
+type MediaFilters = typeof MediaFilterSchema.static;
 
 const MEDIA_REUSE_RESTRICTION_DAYS = 30;
 
 export const selectRandomMedia = async (
-  eligibleMediaFilter: MediaFilters | undefined,
+  eligibleMediaFilter: MediaFilters | null,
   excludeMediaIds?: string[]
 ): Promise<{ media: Media | null; totalAvailable: number }> => {
   const mediaRepo = (await db()).getRepository(Media);
@@ -76,7 +78,7 @@ export const selectSubreddit = (subreddits: Subreddit[]): Subreddit | undefined 
   return subreddits[randomIndex];
 };
 
-export const getSubredditPosts = (channelPosts: Post[], subredditId: string): Post[] =>
+export const getSubredditPosts = <T extends { subredditId: string | null }>(channelPosts: T[], subredditId: string): T[] =>
   channelPosts.filter((post) => post.subredditId === subredditId);
 
 export const getUsedMediaForSubreddit = async (
@@ -103,7 +105,7 @@ export const getUsedMediaForSubreddit = async (
 
 const addMinutes = (date: Date, minutes: number): Date => new Date(date.getTime() + minutes * 60000);
 
-const hasConflict = (targetDate: Date, existingPosts: Post[], minSpacingMinutes = 5): boolean => existingPosts.some((post) => {
+const hasConflict = <T extends { date: string }>(targetDate: Date, existingPosts: T[], minSpacingMinutes = 5): boolean => existingPosts.some((post) => {
     const postDate = new Date(post.date);
     const timeDiff = Math.abs(targetDate.getTime() - postDate.getTime());
     return timeDiff < minSpacingMinutes * 60000;
@@ -125,10 +127,10 @@ const roundToNextHour = (date: Date): Date => {
   return rounded;
 };
 
-const calculateMinAllowedPostTime = (
+const calculateMinAllowedPostTime = <T extends { date: string }>(
   searchStartDate: Date,
   subreddit: Subreddit,
-  subredditPosts: Post[]
+  subredditPosts: T[]
 ): Date => {
   const minTimeBetweenPosts = subreddit.maxPostFrequencyHours ?? 0;
 
@@ -159,7 +161,7 @@ const createCandidateDate = (baseDate: Date, hour: number): Date => {
   return date;
 };
 
-const isValidTimeSlot = (candidateDate: Date, now: Date, minAllowedPostTime: Date, channelPosts: Post[]): boolean => candidateDate > now &&
+const isValidTimeSlot = <T extends { date: string }>(candidateDate: Date, now: Date, minAllowedPostTime: Date, channelPosts: T[]): boolean => candidateDate > now &&
     candidateDate >= minAllowedPostTime &&
     !hasConflict(candidateDate, channelPosts, 5);
 
@@ -169,12 +171,12 @@ type SubredditPostingTime = {
   score: number;
 };
 
-const getValidTimeSlotsForDay = (
+const getValidTimeSlotsForDay = <T extends { date: string }>(
   dayDate: Date,
   postingTimes: SubredditPostingTime[],
   now: Date,
   minAllowedPostTime: Date,
-  channelPosts: Post[]
+  channelPosts: T[]
 ): Array<{ date: Date; score: number }> => {
   const dayOfWeek = dayDate.getDay();
 
@@ -197,7 +199,7 @@ const getBestTimeSlotForDay = (timeSlots: Array<{ date: Date; score: number }>):
     null as { date: Date; score: number } | null
   );
 
-const generateFallbackDate = (minAllowedPostTime: Date, channelPosts: Post[]): Date => {
+const generateFallbackDate = <T extends { subredditId: string | null; date: string }>(minAllowedPostTime: Date, channelPosts: T[]): Date => {
   const generateCandidates = (startTime: Date): Date[] => Array.from({ length: 48 }, (_, i) => addMinutes(startTime, i * 30));
 
   return (
@@ -206,10 +208,10 @@ const generateFallbackDate = (minAllowedPostTime: Date, channelPosts: Post[]): D
   );
 };
 
-export const calculateOptimalScheduleDate = (
+export const calculateOptimalScheduleDate = <T extends { subredditId: string | null; date: string }>(
   subreddit: Subreddit,
-  subredditPosts: Post[],
-  channelPosts: Post[]
+  subredditPosts: T[],
+  channelPosts: T[]
 ): Date => {
   const postingTimes = (subreddit.postingTimesData ?? []) as SubredditPostingTime[];
   const now = new Date();

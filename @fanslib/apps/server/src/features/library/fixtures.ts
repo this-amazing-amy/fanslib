@@ -1,8 +1,9 @@
-import type { Media } from "@fanslib/types";
 import { getTestDataSource } from "../../lib/db.test";
 import { Media as MediaEntity } from "./entity";
 
-export type MediaFixture = Omit<Media, "createdAt" | "updatedAt" | "fileCreationDate" | "fileModificationDate" | "redgifsUrl">;
+type Media = MediaEntity;
+
+export type MediaFixture = Omit<Media, "createdAt" | "updatedAt" | "fileCreationDate" | "fileModificationDate" | "redgifsUrl" | "postMedia" | "shoots" | "mediaTags">;
 
 export const MEDIA_FIXTURES: MediaFixture[] = [
   {
@@ -11,6 +12,7 @@ export const MEDIA_FIXTURES: MediaFixture[] = [
     type: "image",
     name: "photo1.jpg",
     size: 1024000,
+    duration: null,
   },
   {
     id: "media-2",
@@ -18,6 +20,7 @@ export const MEDIA_FIXTURES: MediaFixture[] = [
     type: "image",
     name: "photo2.jpg",
     size: 2048000,
+    duration: null,
   },
   {
     id: "media-3",
@@ -33,6 +36,7 @@ export const MEDIA_FIXTURES: MediaFixture[] = [
     type: "image",
     name: "photo3.jpg",
     size: 1536000,
+    duration: null,
   },
   {
     id: "media-5",

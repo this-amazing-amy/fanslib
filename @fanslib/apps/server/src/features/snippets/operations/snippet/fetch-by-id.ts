@@ -7,25 +7,22 @@ export const FetchSnippetByIdRequestParamsSchema = t.Object({
   id: t.String(),
 });
 
-export const FetchSnippetByIdResponseSchema = t.Union([
-  t.Intersect([
-    CaptionSnippetSchema,
-    t.Object({
-      channel: t.Union([ChannelSchema, t.Null()]),
-    }),
-  ]),
-  t.Object({ error: t.String() }),
+export const FetchSnippetByIdResponseSchema = t.Composite([
+  t.Omit(CaptionSnippetSchema, ["channelId"]),
+  t.Object({
+    channel: t.Nullable(ChannelSchema),
+  }),
 ]);
 
-export const fetchSnippetById = async (payload: typeof FetchSnippetByIdRequestParamsSchema.static): Promise<typeof FetchSnippetByIdResponseSchema.static> => {
+export const fetchSnippetById = async (id: string): Promise<typeof FetchSnippetByIdResponseSchema.static | null> => {
   const database = await db();
   const snippetRepository = database.getRepository(CaptionSnippet);
   const snippet = await snippetRepository.findOne({
-    where: { id: payload.id },
+    where: { id },
     relations: ["channel"],
   });
   if (!snippet) {
-    return { error: "Snippet not found" } as const;
+    return null;
   }
   return snippet;
 };

@@ -22,7 +22,7 @@ export class ChannelType {
   name!: string;
 
   @Column("varchar", { nullable: true })
-  color?: string;
+  color: string | null = null;
 }
 
 @Entity()
@@ -35,13 +35,13 @@ export class Channel {
   name!: string;
 
   @Column("varchar", { nullable: true })
-  description?: string;
+  description: string | null = null;
 
   @Column("varchar")
   typeId!: string;
 
   @Column("simple-json", { nullable: true })
-  eligibleMediaFilter?: typeof MediaFilterSchema.static;
+  eligibleMediaFilter: typeof MediaFilterSchema.static | null = null;
 
   @ManyToOne(() => ChannelType)
   @JoinColumn({ name: "typeId" })
@@ -61,7 +61,7 @@ export type ChannelWithoutRelations = Omit<Channel, "type">;
 export const ChannelTypeSchema = t.Object({
   id: t.String(),
   name: t.String(),
-  color: t.Optional(t.String()),
+  color: t.Nullable(t.String()),
 });
 
 export const ChannelSchema = t.Object({
@@ -69,5 +69,5 @@ export const ChannelSchema = t.Object({
   name: t.String(),
   description: t.Union([t.String(), t.Null()]),
   typeId: t.String(),
-  eligibleMediaFilter: t.Optional(t.Any()), // MediaFilters - complex type, using Any for now
+  eligibleMediaFilter: t.Nullable(t.Any()), // MediaFilters - complex type, using Any for now
 });

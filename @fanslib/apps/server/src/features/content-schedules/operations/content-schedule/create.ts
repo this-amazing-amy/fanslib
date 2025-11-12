@@ -1,4 +1,5 @@
 import { t } from "elysia";
+import { ChannelSchema } from "~/schemas";
 import { db } from "../../../../lib/db";
 import { MediaFilterSchema } from "../../../library/schemas/media-filter";
 import { ContentSchedule, ContentScheduleSchema, ContentScheduleTypeSchema } from "../../entity";
@@ -12,7 +13,12 @@ export const CreateContentScheduleRequestBodySchema = t.Object({
   mediaFilters: t.Optional(MediaFilterSchema),
 });
 
-export const CreateContentScheduleResponseSchema = ContentScheduleSchema;
+export const CreateContentScheduleResponseSchema = t.Composite([
+  ContentScheduleSchema,
+  t.Object({
+    channel: ChannelSchema,
+  }),
+]);
 
 const stringifyMediaFilters = (filters: Parameters<typeof JSON.stringify>[0]): string =>
   JSON.stringify(filters);

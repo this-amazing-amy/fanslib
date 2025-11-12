@@ -10,10 +10,14 @@ export const DeleteSubredditResponseSchema = t.Object({
   success: t.Boolean(),
 });
 
-export const deleteSubreddit = async (payload: typeof DeleteSubredditParamsSchema.static): Promise<typeof DeleteSubredditResponseSchema.static> => {
+export const deleteSubreddit = async (id: string): Promise<boolean> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Subreddit);
-  await repository.delete({ id: payload.id });
-  return { success: true };
+  const subreddit = await repository.findOne({ where: { id } });
+  if (!subreddit) {
+    return false;
+  }
+  await repository.delete({ id });
+  return true;
 };
 

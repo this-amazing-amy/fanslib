@@ -6,26 +6,31 @@ import { SubredditSchema } from "~/features/subreddits/entity";
 import { db } from "../../../../lib/db";
 import { Post, PostMediaSchema, PostSchema } from "../../entity";
 
-export const GetPostByIdRequestParamsSchema = t.Object({
+export const FetchPostByIdRequestParamsSchema = t.Object({
   id: t.String(),
 });
 
-export const GetPostByIdResponseSchema = t.Union([
-  t.Intersect([PostSchema, t.Object({
-    postMedia: t.Array(t.Intersect([PostMediaSchema, t.Object({
-      media: MediaSchema,
-    })])),
-    channel: t.Intersect([ChannelSchema, t.Object({
-      type: ChannelTypeSchema,
-      defaultHashtags: t.Array(HashtagSchema),
-    })]),
-    subreddit: t.Optional(SubredditSchema),
-  })]),
-  t.Object({ error: t.String() }),
-  t.Null(),
+export const FetchPostByIdResponseSchema = t.Composite([
+  PostSchema,
+  t.Object({
+    postMedia: t.Array(t.Composite([
+      PostMediaSchema,
+      t.Object({
+        media: MediaSchema,
+      }),
+    ])),
+    channel: t.Composite([
+      ChannelSchema,
+      t.Object({
+        type: ChannelTypeSchema,
+        defaultHashtags: t.Array(HashtagSchema),
+      }),
+    ]),
+    subreddit: t.Optional(t.Partial(  SubredditSchema)),
+  }),
 ]);
 
-export const getPostById = async (id: string): Promise<typeof GetPostByIdResponseSchema.static> => {
+export const fetchPostById = async (id: string): Promise<typeof FetchPostByIdResponseSchema.static | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Post);
 

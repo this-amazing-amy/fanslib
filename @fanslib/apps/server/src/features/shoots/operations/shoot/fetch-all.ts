@@ -15,7 +15,10 @@ export const FetchAllShootsRequestBodySchema = t.Object({
   filter: t.Optional(ShootFiltersSchema),
 });
 
-export const FetchAllShootsResponseSchema = paginatedResponseSchema(t.Intersect([ShootSchema, t.Object({ mediaCount: t.Number() })]));
+export const FetchAllShootsResponseSchema = paginatedResponseSchema(t.Composite([
+  ShootSchema,
+  t.Object({ mediaCount: t.Number() }),
+]));
 
 export const listShoots = async (payload: typeof FetchAllShootsRequestBodySchema.static): Promise<typeof FetchAllShootsResponseSchema.static> => {
   const { page = 1, limit = 50, filter } = payload;

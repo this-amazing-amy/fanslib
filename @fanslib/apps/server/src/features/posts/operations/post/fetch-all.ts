@@ -10,15 +10,24 @@ export const FetchAllPostsRequestQuerySchema = t.Object({
   filters: t.Optional(t.String()), // JSON stringified PostFilters
 });
 
-export const FetchAllPostsResponseSchema = t.Array(t.Intersect([PostSchema, t.Object({
-  postMedia: t.Array(t.Intersect([PostMediaSchema, t.Object({
-    media: MediaSchema,
-  })])),
-  channel: t.Intersect([ChannelSchema, t.Object({
-    type: ChannelTypeSchema,
-  })]),
-  subreddit: t.Optional(SubredditSchema),
-})]));
+export const FetchAllPostsResponseSchema = t.Array(t.Composite([
+  PostSchema,
+  t.Object({
+    postMedia: t.Array(t.Composite([
+      PostMediaSchema,
+      t.Object({
+        media: MediaSchema,
+      }),
+    ])),
+    channel: t.Composite([
+      ChannelSchema,
+      t.Object({
+        type: ChannelTypeSchema,
+      }),
+    ]),
+    subreddit: t.Nullable(SubredditSchema),
+  }),
+]));
 
 export const fetchAllPosts = async (filters?: typeof PostFiltersSchema.static): Promise<typeof FetchAllPostsResponseSchema.static> => {
   const dataSource = await db();
@@ -62,6 +71,10 @@ export const fetchAllPosts = async (filters?: typeof PostFiltersSchema.static): 
   queryBuilder.orderBy("post.date", "DESC");
   queryBuilder.addOrderBy("postMedia.order", "ASC");
 
-  return queryBuilder.getMany();
+  const posts = await queryBuilder.getMany();
+  return posts.map((post) => ({
+    ...post,
+    subreddit: post.subreddit ?? null,
+  }));
 };
 

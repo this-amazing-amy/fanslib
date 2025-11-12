@@ -18,13 +18,13 @@ export class ContentSchedule {
   type!: "daily" | "weekly" | "monthly";
 
   @Column("int", { nullable: true })
-  postsPerTimeframe?: number;
+  postsPerTimeframe: number | null = null;
 
   @Column("simple-array", { nullable: true })
-  preferredDays?: string[];
+  preferredDays: string[] | null = null;
 
   @Column("simple-array", { nullable: true })
-  preferredTimes?: string[];
+  preferredTimes: string[] | null = null;
 
   @Column("varchar")
   updatedAt!: string;
@@ -33,7 +33,7 @@ export class ContentSchedule {
   createdAt!: string;
 
   @Column("text", { nullable: true })
-  mediaFilters?: string;
+  mediaFilters: string | null = null;
 
   @ManyToOne("Channel")
   @JoinColumn({ name: "channelId" })
@@ -50,12 +50,12 @@ export const ContentScheduleSchema = t.Object({
   id: t.String(),
   channelId: t.String(),
   type: ContentScheduleTypeSchema,
-  postsPerTimeframe: t.Optional(t.Number()),
-  preferredDays: t.Optional(t.Array(t.String())),
-  preferredTimes: t.Optional(t.Array(t.String())),
+  postsPerTimeframe: t.Nullable(t.Number()),
+  preferredDays: t.Nullable(t.Array(t.String())),
+  preferredTimes: t.Nullable(t.Array(t.String())),
   updatedAt: t.String(),
   createdAt: t.String(),
-  mediaFilters: t.Optional(t.String()),
+  mediaFilters: t.Nullable(t.String()),
 });
 
 

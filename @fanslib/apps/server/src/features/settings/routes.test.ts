@@ -2,6 +2,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:tes
 import { Elysia } from "elysia";
 import "reflect-metadata";
 import { resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
+import { mapResponse } from "../../lib/serialization";
+import { logError, parseResponse } from "../../test-utils/setup";
 import { settingsRoutes } from "./routes";
 
 describe("Settings Routes", () => {
@@ -14,7 +16,7 @@ describe("Settings Routes", () => {
     await setupTestDatabase();
     fixtures = await resetAllFixtures();
     void fixtures;
-    app = new Elysia().use(settingsRoutes);
+    app = new Elysia().onError(logError()).mapResponse(mapResponse).use(settingsRoutes);
   });
 
   afterAll(async () => {
@@ -30,7 +32,7 @@ describe("Settings Routes", () => {
       const response = await app.handle(new Request("http://localhost/api/settings"));
       expect(response.status).toBe(200);
       
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(typeof data).toBe("object");
     });
   });
@@ -51,7 +53,7 @@ describe("Settings Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(typeof data).toBe("object");
     });
   });
@@ -65,7 +67,7 @@ describe("Settings Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data).toHaveProperty("sfwMode");
       expect(typeof data.sfwMode).toBe("boolean");
     });
@@ -79,7 +81,7 @@ describe("Settings Routes", () => {
         );
         expect(response.status).toBe(200);
         
-        const data = await response.json();
+        const data = await parseResponse(response);
         expect(typeof data).toBe("object");
       });
     });
@@ -100,7 +102,7 @@ describe("Settings Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         expect(data.success).toBe(true);
       });
     });
@@ -114,7 +116,7 @@ describe("Settings Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await response.json();
+        const data = await parseResponse(response);
         expect(data.success).toBe(true);
       });
     });

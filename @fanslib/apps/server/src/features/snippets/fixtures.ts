@@ -1,9 +1,10 @@
-import type { CaptionSnippet } from "@fanslib/types";
 import { getTestDataSource } from "../../lib/db.test";
 import type { Channel } from "../channels/entity";
 import { CaptionSnippet as CaptionSnippetEntity } from "./entity";
 
-export type CaptionSnippetFixture = Omit<CaptionSnippet, "createdAt" | "updatedAt">;
+type CaptionSnippet = CaptionSnippetEntity;
+
+export type CaptionSnippetFixture = Omit<CaptionSnippet, "createdAt" | "updatedAt" | "channel">;
 
 export const CAPTION_SNIPPET_FIXTURES: CaptionSnippetFixture[] = [
   {

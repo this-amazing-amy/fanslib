@@ -1,4 +1,7 @@
 import { t } from "elysia";
+import { ChannelSchema } from "~/features/channels/entity";
+import { PostMediaSchema, PostSchema } from "~/features/posts/entity";
+import { SubredditSchema } from "~/features/subreddits/entity";
 import { db } from "../../../../lib/db";
 import { Media, MediaSchema, MediaTypeSchema } from "../../entity";
 
@@ -17,9 +20,26 @@ export const UpdateMediaRequestBodySchema = t.Partial(t.Object({
   fileModificationDate: t.Date(),
 }));
 
-export const UpdateMediaResponseSchema = t.Union([MediaSchema, t.Null()]);
+export const UpdateMediaResponseSchema = t.Composite([
+  MediaSchema,
+  t.Object({
+    postMedia: t.Array(t.Composite([
+      PostMediaSchema,
+      t.Object({
+        post: t.Composite([
+          PostSchema,
+          t.Object({
+            channel: ChannelSchema,
+            subreddit: t.Optional(t.Nullable(SubredditSchema)),
+          }),
+        ]),
+      }),
+    ])),
+    shoots: t.Array(t.Any()),
+  }),
+]);
 
-export const updateMedia = async (id: string, updates: typeof UpdateMediaRequestBodySchema.static): Promise<typeof UpdateMediaResponseSchema.static> => {
+export const updateMedia = async (id: string, updates: typeof UpdateMediaRequestBodySchema.static): Promise<typeof UpdateMediaResponseSchema.static | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Media);
 
@@ -29,6 +49,7 @@ export const updateMedia = async (id: string, updates: typeof UpdateMediaRequest
       postMedia: {
         post: {
           channel: true,
+          subreddit: true,
         },
       },
       shoots: true,
@@ -43,8 +64,14 @@ export const updateMedia = async (id: string, updates: typeof UpdateMediaRequest
   return repository.findOne({
     where: { id },
     relations: {
-      postMedia: true,
+      postMedia: {
+        post: {
+          channel: true,
+          subreddit: true,
+        },
+      },
       shoots: true,
+      mediaTags: true,
     },
   });
 };

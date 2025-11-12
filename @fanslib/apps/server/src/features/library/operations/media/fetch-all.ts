@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
 import { t } from "elysia";
 import { db } from "../../../../lib/db";
 import { paginatedResponseSchema } from "../../../../lib/pagination";
@@ -7,8 +8,8 @@ import { MediaFilterSchema } from "../../schemas/media-filter";
 import { MediaSortSchema } from "../../schemas/media-sort";
 
 export const FetchAllMediaRequestBodySchema = t.Object({
-  page: t.Optional(t.Numeric()),
-  limit: t.Optional(t.Numeric()),
+  page: t.Optional(t.Numeric({default: 1})),
+  limit: t.Optional(t.Numeric({default: 50})),
   filters: t.Optional(MediaFilterSchema),
   sort: t.Optional(MediaSortSchema),
 });
@@ -18,8 +19,8 @@ export const FetchAllMediaResponseSchema = paginatedResponseSchema(MediaSchema);
 export const fetchAllMedia = async (
   params?: typeof FetchAllMediaRequestBodySchema.static,
 ): Promise<typeof FetchAllMediaResponseSchema.static> => {
-  const page = params?.page ?? 1;
-  const limit = params?.limit ?? 50;
+  const page = params?.page || 1;
+  const limit = params?.limit || 50;
   const skip = (page - 1) * limit;
 
   const database = await db();
@@ -64,12 +65,13 @@ export const fetchAllMedia = async (
 
   const [items, total] = await queryBuilder.skip(skip).take(limit).getManyAndCount();
 
-  return {
+  const r =  {
     items,
     total,
     page,
     limit,
-    totalPages: Math.ceil(total / limit),
+    totalPages: Math.max(1, Math.ceil(total / limit)),
   };
+  return r;
 };
 

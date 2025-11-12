@@ -10,9 +10,14 @@ export const DeleteChannelResponseSchema = t.Object({
   success: t.Boolean(),
 });
 
-export const deleteChannel = async (id: string): Promise<void> => {
+export const deleteChannel = async (id: string): Promise<boolean> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Channel);
+  const channel = await repository.findOne({ where: { id } });
+  if (!channel) {
+    return false;
+  }
   await repository.delete({ id });
+  return true;
 };
 

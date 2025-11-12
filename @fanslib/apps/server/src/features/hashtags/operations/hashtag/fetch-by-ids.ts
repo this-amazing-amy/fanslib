@@ -2,15 +2,20 @@ import { t } from "elysia";
 import { db } from "../../../../lib/db";
 import { Hashtag, HashtagChannelStatsSchema, HashtagSchema } from "../../entity";
 
-export const GetHashtagsByIdsQuerySchema = t.Object({
+export const FetchHashtagsByIdsQuerySchema = t.Object({
   ids: t.Optional(t.String()), // JSON stringified number[]
 });
 
-export const GetHashtagsByIdsResponseSchema = t.Array(t.Intersect([HashtagSchema, t.Object({
-  channelStats: t.Array(HashtagChannelStatsSchema),
-})]));
+export const FetchHashtagsByIdsResponseSchema = t.Array(
+  t.Composite([
+    HashtagSchema,
+    t.Object({
+      channelStats: t.Array(HashtagChannelStatsSchema),
+    }),
+  ])
+);
 
-export const getHashtagsByIds = async (ids: number[]): Promise<typeof GetHashtagsByIdsResponseSchema.static> =>{
+export const fetchHashtagsByIds = async (ids: number[]): Promise<typeof FetchHashtagsByIdsResponseSchema.static> =>{
   if (ids.length === 0) return [];
 
   const dataSource = await db();

@@ -12,16 +12,19 @@ export const UpdateSnippetRequestBodySchema = t.Object({
   channelId: t.Optional(t.String()),
 });
 
-export const UpdateSnippetResponseSchema = CaptionSnippetSchema;
+export const UpdateSnippetResponseSchema = t.Omit(CaptionSnippetSchema, ["channelId"]);
 
 export const updateSnippet = async (
-  params: typeof UpdateSnippetRequestParamsSchema.static,
+  id: string,
   data: typeof UpdateSnippetRequestBodySchema.static,
-): Promise<typeof UpdateSnippetResponseSchema.static> => {
+): Promise<typeof UpdateSnippetResponseSchema.static | null> => {
   const dataSource = await db();
   const repo = dataSource.getRepository(CaptionSnippet);
 
-  const snippet = await repo.findOneOrFail({ where: { id: params.id } });
+  const snippet = await repo.findOne({ where: { id } });
+  if (!snippet) {
+    return null;
+  }
 
   if (data.name && data.name !== snippet.name) {
     const existing = await repo.findOne({
@@ -31,7 +34,7 @@ export const updateSnippet = async (
       },
     });
 
-    if (existing && existing.id !== params.id) {
+    if (existing && existing.id !== id) {
       throw new Error(
         data.channelId !== undefined
           ? "A snippet with this name already exists for this channel"

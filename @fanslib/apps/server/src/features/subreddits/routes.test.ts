@@ -14,7 +14,8 @@ import {
   setupTestDatabase,
   teardownTestDatabase,
 } from "../../lib/db.test";
-import { serializeJson } from "../../lib/serialize-json";
+import { mapResponse } from "../../lib/serialization";
+import { logError, parseResponse } from "../../test-utils/setup";
 import { Subreddit } from "./entity";
 import { SUBREDDIT_FIXTURES } from "./fixtures";
 import { subredditsRoutes } from "./routes";
@@ -28,7 +29,10 @@ describe("Subreddits Routes", () => {
   beforeAll(async () => {
     await setupTestDatabase();
     fixtures = await resetAllFixtures();
-    app = new Elysia().mapResponse(serializeJson).use(subredditsRoutes);
+    app = new Elysia()
+      .onError(logError())
+      .mapResponse(mapResponse)
+      .use(subredditsRoutes);
   });
 
   afterAll(async () => {
@@ -39,14 +43,14 @@ describe("Subreddits Routes", () => {
     fixtures = await resetAllFixtures();
   });
 
-  describe("GET /api/subreddits", () => {
+  describe("GET /api/subreddits/all", () => {
     test("returns all subreddits", async () => {
       const response = await app.handle(
-        new Request("http://localhost/api/subreddits")
+        new Request("http://localhost/api/subreddits/all")
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(Array.isArray(data)).toBe(true);
       expect(data.length).toBeGreaterThanOrEqual(SUBREDDIT_FIXTURES.length);
       
@@ -58,7 +62,7 @@ describe("Subreddits Routes", () => {
     });
   });
 
-  describe("GET /api/subreddits/:id", () => {
+  describe("GET /api/subreddits/by-id/:id", () => {
     test("returns subreddit by id", async () => {
       const fixtureSubreddit = SUBREDDIT_FIXTURES[0];
       if (!fixtureSubreddit) {
@@ -66,21 +70,21 @@ describe("Subreddits Routes", () => {
       }
 
       const response = await app.handle(
-        new Request(`http://localhost/api/subreddits/${fixtureSubreddit.id}`)
+        new Request(`http://localhost/api/subreddits/by-id/${fixtureSubreddit.id}`)
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data.id).toBe(fixtureSubreddit.id);
       expect(data.name).toBe(fixtureSubreddit.name);
     });
 
     test("returns error for non-existent subreddit", async () => {
       const response = await app.handle(
-        new Request("http://localhost/api/subreddits/non-existent-id")
+        new Request("http://localhost/api/subreddits/by-id/non-existent-id")
       );
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data).toHaveProperty("error");
       expect(data.error).toBe("Subreddit not found");
     });
@@ -101,12 +105,12 @@ describe("Subreddits Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data.name).toBe("newsubreddit");
     });
   });
 
-  describe("PATCH /api/subreddits/:id", () => {
+  describe("PATCH /api/subreddits/by-id/:id", () => {
     test("updates subreddit", async () => {
       const fixtureSubreddit = SUBREDDIT_FIXTURES[0];
       if (!fixtureSubreddit) {
@@ -115,11 +119,11 @@ describe("Subreddits Routes", () => {
 
       const updateData = {
         name: "updated",
-        enabled: false,
+        notes: "Updated notes",
       };
 
       const response = await app.handle(
-        new Request(`http://localhost/api/subreddits/${fixtureSubreddit.id}`, {
+        new Request(`http://localhost/api/subreddits/by-id/${fixtureSubreddit.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updateData),
@@ -127,14 +131,14 @@ describe("Subreddits Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data.name).toBe("updated");
-      expect(data.enabled).toBe(false);
+      expect(data.notes).toBe("Updated notes");
       expect(data.id).toBe(fixtureSubreddit.id);
     });
   });
 
-  describe("DELETE /api/subreddits/:id", () => {
+  describe("DELETE /api/subreddits/by-id/:id", () => {
     test("deletes subreddit", async () => {
       const fixtureSubreddit = SUBREDDIT_FIXTURES[SUBREDDIT_FIXTURES.length - 1];
       if (!fixtureSubreddit) {
@@ -142,13 +146,13 @@ describe("Subreddits Routes", () => {
       }
 
       const response = await app.handle(
-        new Request(`http://localhost/api/subreddits/${fixtureSubreddit.id}`, {
+        new Request(`http://localhost/api/subreddits/by-id/${fixtureSubreddit.id}`, {
           method: "DELETE",
         })
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(data.success).toBe(true);
 
       const dataSource = getTestDataSource();
@@ -157,6 +161,18 @@ describe("Subreddits Routes", () => {
         where: { id: fixtureSubreddit.id },
       });
       expect(deletedSubreddit).toBeNull();
+    });
+
+    test("returns 404 when subreddit not found", async () => {
+      const response = await app.handle(
+        new Request("http://localhost/api/subreddits/by-id/non-existent-id", {
+          method: "DELETE",
+        })
+      );
+      expect(response.status).toBe(404);
+
+      const data = await parseResponse(response);
+      expect(data.error).toBe("Subreddit not found");
     });
   });
 
@@ -179,7 +195,7 @@ describe("Subreddits Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(typeof data).toBe("object");
       expect(data).not.toBeNull();
     });
@@ -194,7 +210,7 @@ describe("Subreddits Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       expect(typeof data).toBe("object");
       expect(Object.keys(data)).toHaveLength(0);
     });
