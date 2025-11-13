@@ -1,4 +1,6 @@
 import { Elysia, t } from 'elysia';
+import { promises as fs } from 'fs';
+import path from 'path';
 import { DeleteMediaQuerySchema, DeleteMediaRequestParamsSchema, DeleteMediaResponseSchema, deleteMedia } from './operations/media/delete';
 import { FetchAllMediaRequestBodySchema, FetchAllMediaResponseSchema, fetchAllMedia } from './operations/media/fetch-all';
 import { FetchMediaByIdRequestParamsSchema, FetchMediaByIdResponseSchema, fetchMediaById } from './operations/media/fetch-by-id';
@@ -6,6 +8,26 @@ import { FetchMediaByPathRequestParamsSchema, FetchMediaByPathResponseSchema, fe
 import { FindAdjacentMediaBodySchema, FindAdjacentMediaRequestParamsSchema, FindAdjacentMediaResponseSchema, findAdjacentMedia } from './operations/media/find-adjacent';
 import { UpdateMediaRequestBodySchema, UpdateMediaRequestParamsSchema, UpdateMediaResponseSchema, updateMedia } from './operations/media/update';
 import { FileScanResultSchema, ScanFileRequestBodySchema, ScanLibraryResponseSchema, ScanStatusResponseSchema, getScanStatus, scanFile, scanLibrary } from './operations/scan/scan';
+import { getThumbnailPath } from './operations/scan/thumbnail';
+import { resolveMediaPath } from './path-utils';
+
+const getMimeType = (filePath: string): string => {
+  const ext = path.extname(filePath).toLowerCase();
+  const mimeTypes: Record<string, string> = {
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.png': 'image/png',
+    '.gif': 'image/gif',
+    '.webp': 'image/webp',
+    '.avif': 'image/avif',
+    '.mp4': 'video/mp4',
+    '.webm': 'video/webm',
+    '.mov': 'video/quicktime',
+    '.avi': 'video/x-msvideo',
+    '.mkv': 'video/x-matroska',
+  };
+  return mimeTypes[ext] ?? 'application/octet-stream';
+};
 
 export const libraryRoutes = new Elysia({ prefix: '/api/media' })
   .post('/all', async ({ body }) => fetchAllMedia({
@@ -97,5 +119,57 @@ export const libraryRoutes = new Elysia({ prefix: '/api/media' })
   })
   .get('/scan/status', async () => getScanStatus(), {
     response: ScanStatusResponseSchema,
+  })
+  .get('/:id/file', async ({ params: { id }, set }) => {
+    const media = await fetchMediaById(id);
+    if (!media) {
+      set.status = 404;
+      return { error: 'Media not found' };
+    }
+
+    const filePath = resolveMediaPath(media.relativePath);
+
+    try {
+      await fs.access(filePath);
+    } catch {
+      set.status = 404;
+      return { error: 'File not found' };
+    }
+
+    const file = Bun.file(filePath);
+    const mimeType = getMimeType(filePath);
+    
+    set.headers['Content-Type'] = mimeType;
+    
+    return file;
+  }, {
+    params: FetchMediaByIdRequestParamsSchema,
+    response: {
+      200: t.Any(),
+      404: t.Object({ error: t.String() }),
+    },
+  })
+  .get('/:id/thumbnail', async ({ params: { id }, set }) => {
+    const thumbnailPath = getThumbnailPath(id);
+    
+    try {
+      await fs.access(thumbnailPath);
+    } catch {
+      set.status = 404;
+      return { error: 'Thumbnail not found' };
+    }
+
+    const file = Bun.file(thumbnailPath);
+    
+    set.headers['Content-Type'] = 'image/jpeg';
+    set.headers['Cache-Control'] = 'public, max-age=31536000';
+    
+    return file;
+  }, {
+    params: FetchMediaByIdRequestParamsSchema,
+    response: {
+      200: t.Any(),
+      404: t.Object({ error: t.String() }),
+    },
   });
 
