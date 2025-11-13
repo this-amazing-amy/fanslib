@@ -3,10 +3,10 @@ import * as driftPrevention from "./drift-prevention";
 import { AssignTagsToMediaRequestBodySchema, AssignTagsToMediaResponseSchema, assignTagsToMedia } from "./operations/media-tag/assign";
 import { BulkAssignTagsRequestBodySchema, BulkAssignTagsResponseSchema, bulkAssignTags } from "./operations/media-tag/bulk-assign";
 import { FetchMediaTagsRequestParamsSchema, FetchMediaTagsRequestQuerySchema, FetchMediaTagsResponseSchema, fetchMediaTags } from "./operations/media-tag/fetch";
-import { RemoveTagsFromMediaParamsSchema, RemoveTagsFromMediaRequestBodySchema, RemoveTagsFromMediaResponseSchema, removeTagsFromMedia } from "./operations/media-tag/remove";
+import { RemoveTagsFromMediaRequestBodySchema, RemoveTagsFromMediaRequestParamsSchema, RemoveTagsFromMediaResponseSchema, removeTagsFromMedia } from "./operations/media-tag/remove";
 import { CreateTagDefinitionRequestBodySchema, CreateTagDefinitionResponseSchema, createTagDefinition } from "./operations/tag-definition/create";
 import { DeleteTagDefinitionParamsSchema, DeleteTagDefinitionResponseSchema, deleteTagDefinition } from "./operations/tag-definition/delete";
-import { GetTagsByDimensionQuerySchema, GetTagsByDimensionResponseSchema, fetchTagsByDimension } from "./operations/tag-definition/fetch-by-dimension";
+import { FetchTagsByDimensionQuerySchema, FetchTagsByDimensionResponseSchema, fetchTagsByDimension } from "./operations/tag-definition/fetch-by-dimension";
 import { FetchTagDefinitionByIdRequestParamsSchema, FetchTagDefinitionByIdResponseSchema, fetchTagDefinitionById } from "./operations/tag-definition/fetch-by-id";
 import { FetchTagDefinitionsByIdsRequestQuerySchema, FetchTagDefinitionsByIdsResponseSchema, fetchTagDefinitionsByIds } from "./operations/tag-definition/fetch-by-ids";
 import { UpdateTagDefinitionParamsSchema, UpdateTagDefinitionRequestBodySchema, UpdateTagDefinitionResponseSchema, updateTagDefinition } from "./operations/tag-definition/update";
@@ -68,8 +68,8 @@ export const tagsRoutes = new Elysia({ prefix: "/api/tags" })
     },
   })
   .get("/definitions", ({ query }) => fetchTagsByDimension(query), {
-    query: GetTagsByDimensionQuerySchema,
-    response: GetTagsByDimensionResponseSchema,
+    query: FetchTagsByDimensionQuerySchema,
+    response: FetchTagsByDimensionResponseSchema,
   })
   .get("/definitions/by-ids", ({ query }) => fetchTagDefinitionsByIds(query), {
     query: FetchTagDefinitionsByIdsRequestQuerySchema,
@@ -136,7 +136,7 @@ export const tagsRoutes = new Elysia({ prefix: "/api/tags" })
     response: BulkAssignTagsResponseSchema,
   })
   .delete("/media/by-media-id/:mediaId", async ({ params: { mediaId }, body }) => removeTagsFromMedia({ mediaId }, body), {
-    params: RemoveTagsFromMediaParamsSchema,
+    params: RemoveTagsFromMediaRequestParamsSchema,
     body: RemoveTagsFromMediaRequestBodySchema,
     response: RemoveTagsFromMediaResponseSchema,
   })

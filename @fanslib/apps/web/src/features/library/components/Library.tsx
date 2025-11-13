@@ -5,7 +5,7 @@ import { SectionHeader } from "~/components/ui/SectionHeader";
 import { FilterPresetProvider } from "~/contexts/FilterPresetContext";
 import { useLibraryPreferences } from "~/contexts/LibraryPreferencesContext";
 import { useScan } from "~/hooks/useScan";
-import { useMediaListQuery } from "~/lib/queries/media";
+import { useMediaListQuery } from "~/lib/queries/library";
 import { Gallery } from "./Gallery/Gallery";
 import { GalleryPagination } from "./Gallery/GalleryPagination";
 import { GalleryViewSettings } from "./Gallery/GalleryViewSettings";
@@ -29,6 +29,7 @@ export const Library = ({ showHeader = true }: LibraryProps) => {
     filters: preferences.filter,
   });
   const { isScanning, scanProgress, handleScan, scanResult } = useScan();
+
 
   const updateFilters = (filters: MediaFilters) => {
     updatePreferences({

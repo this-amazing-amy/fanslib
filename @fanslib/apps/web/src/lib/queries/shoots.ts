@@ -11,7 +11,7 @@ export const useShootsQuery = (params?: typeof FetchAllShootsRequestBodySchema.s
   useQuery({
     queryKey: ['shoots', 'list', params],
     queryFn: async () => {
-      const result = await eden.api.shoots['fetch-all'].post(params);
+      const result = await eden.api.shoots.all.post(params);
       return result.data;
     },
   });
@@ -20,7 +20,7 @@ export const useShootQuery = (params: typeof FetchShootByIdRequestParamsSchema.s
   useQuery({
     queryKey: ['shoots', params.id],
     queryFn: async () => {
-      const result = await eden.api.shoots({ id: params.id }).get();
+      const result = await eden.api.shoots['by-id']({ id: params.id }).get();
       return result.data;
     },
     enabled: !!params.id,
@@ -49,7 +49,7 @@ export const useUpdateShootMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdateShootParams) => {
-      const result = await eden.api.shoots({ id }).patch(updates);
+      const result = await eden.api.shoots['by-id']({ id }).patch(updates);
       return result.data;
     },
     onSuccess: (data, variables) => {
@@ -64,7 +64,7 @@ export const useDeleteShootMutation = () => {
 
   return useMutation({
     mutationFn: async (params: typeof FetchShootByIdRequestParamsSchema.static) => {
-      const result = await eden.api.shoots({ id: params.id }).delete();
+      const result = await eden.api.shoots['by-id']({ id: params.id }).delete();
       return result.data;
     },
     onSuccess: () => {

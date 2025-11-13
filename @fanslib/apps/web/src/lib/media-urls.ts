@@ -1,3 +1,5 @@
-export const getMediaFileUrl = (id: string) => `/api/media/${id}/file`;
+const backendBaseUrl = `http://localhost:8001`;
 
-export const getMediaThumbnailUrl = (id: string) => `/api/media/${id}/thumbnail`;
+export const getMediaFileUrl = (id: string) => `${backendBaseUrl}/api/media/${id}/file`;
+
+export const getMediaThumbnailUrl = (id: string) => `${backendBaseUrl}/api/media/${id}/thumbnail`;

@@ -5,14 +5,14 @@ import type {
   CreateTagDimensionRequestBodySchema,
   DeleteTagDefinitionParamsSchema,
   DeleteTagDimensionParamsSchema,
-  GetMediaTagsParamsSchema,
-  GetMediaTagsQuerySchema,
-  GetTagDefinitionByIdParamsSchema,
-  GetTagDefinitionsByIdsQuerySchema,
-  GetTagDimensionByIdParamsSchema,
-  GetTagsByDimensionQuerySchema,
-  RemoveTagsFromMediaParamsSchema,
+  FetchMediaTagsRequestParamsSchema,
+  FetchMediaTagsRequestQuerySchema,
+  FetchTagDefinitionByIdRequestParamsSchema,
+  FetchTagDefinitionsByIdsRequestQuerySchema,
+  FetchTagDimensionByIdRequestParamsSchema,
+  FetchTagsByDimensionQuerySchema,
   RemoveTagsFromMediaRequestBodySchema,
+  RemoveTagsFromMediaRequestParamsSchema,
   UpdateTagDefinitionParamsSchema,
   UpdateTagDefinitionRequestBodySchema,
   UpdateTagDimensionParamsSchema,
@@ -31,11 +31,11 @@ export const useTagDimensionsQuery = () =>
     },
   });
 
-export const useTagDimensionQuery = (params: typeof GetTagDimensionByIdParamsSchema.static) =>
+export const useTagDimensionQuery = (params: typeof FetchTagDimensionByIdRequestParamsSchema.static) =>
   useQuery({
     queryKey: ['tags', 'dimensions', params.id],
     queryFn: async () => {
-      const result = await eden.api.tags.dimensions({ id: params.id }).get();
+      const result = await eden.api.tags.dimensions['by-id']({ id: params.id }).get();
       return result.data;
     },
     enabled: !!params.id,
@@ -64,7 +64,7 @@ export const useUpdateTagDimensionMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdateTagDimensionParams) => {
-      const result = await eden.api.tags.dimensions({ id }).patch(updates);
+      const result = await eden.api.tags.dimensions['by-id']({ id }).patch(updates);
       return result.data;
     },
     onSuccess: (data, variables) => {
@@ -79,7 +79,7 @@ export const useDeleteTagDimensionMutation = () => {
 
   return useMutation({
     mutationFn: async (params: typeof DeleteTagDimensionParamsSchema.static) => {
-      const result = await eden.api.tags.dimensions({ id: params.id }).delete();
+      const result = await eden.api.tags.dimensions['by-id']({ id: params.id }).delete();
       return result.data;
     },
     onSuccess: () => {
@@ -90,31 +90,31 @@ export const useDeleteTagDimensionMutation = () => {
 };
 
 // Tag Definitions
-export const useTagDefinitionsByDimensionQuery = (query: typeof GetTagsByDimensionQuerySchema.static) =>
+export const useTagDefinitionsByDimensionQuery = (query: typeof FetchTagsByDimensionQuerySchema.static) =>
   useQuery({
     queryKey: ['tags', 'definitions', 'by-dimension', query.dimensionId],
     queryFn: async () => {
-      const result = await eden.api.tags.definitions.get({ query });
+      const result = await eden.api.tags.definitions.get({ query: query });
       return result.data;
     },
     enabled: !!query.dimensionId,
   });
 
-export const useTagDefinitionQuery = (params: typeof GetTagDefinitionByIdParamsSchema.static) =>
+export const useTagDefinitionQuery = (params: typeof FetchTagDefinitionByIdRequestParamsSchema.static) =>
   useQuery({
     queryKey: ['tags', 'definitions', params.id],
     queryFn: async () => {
-      const result = await eden.api.tags.definitions({ id: params.id }).get();
+      const result = await eden.api.tags.definitions['by-id']({ id: params.id }).get();
       return result.data;
     },
     enabled: !!params.id,
   });
 
-export const useTagDefinitionsByIdsQuery = (query: typeof GetTagDefinitionsByIdsQuerySchema.static) =>
+export const useTagDefinitionsByIdsQuery = (query: typeof FetchTagDefinitionsByIdsRequestQuerySchema.static) =>
   useQuery({
     queryKey: ['tags', 'definitions', 'by-ids', query.ids],
     queryFn: async () => {
-      const result = await eden.api.tags.definitions['by-ids'].get({ query });
+      const result = await eden.api.tags.definitions['by-ids'].get({ query: { ids: query.ids } });
       return result.data;
     },
     enabled: query.ids.length > 0,
@@ -131,7 +131,7 @@ export const useCreateTagDefinitionMutation = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['tags', 'definitions'] });
       queryClient.invalidateQueries({
-        queryKey: ['tags', 'definitions', 'by-dimension', data.dimensionId],
+        queryKey: ['tags', 'definitions', 'by-dimension', data?.dimensionId],
       });
     },
   });
@@ -146,14 +146,14 @@ export const useUpdateTagDefinitionMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdateTagDefinitionParams) => {
-      const result = await eden.api.tags.definitions({ id }).patch(updates);
+      const result = await eden.api.tags.definitions['by-id']({ id }).patch(updates);
       return result.data;
     },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['tags', 'definitions'] });
       queryClient.setQueryData(['tags', 'definitions', variables.id], data);
       queryClient.invalidateQueries({
-        queryKey: ['tags', 'definitions', 'by-dimension', data.dimensionId],
+        queryKey: ['tags', 'definitions', 'by-dimension', data?.dimensionId],
       });
     },
   });
@@ -164,7 +164,7 @@ export const useDeleteTagDefinitionMutation = () => {
 
   return useMutation({
     mutationFn: async (params: typeof DeleteTagDefinitionParamsSchema.static) => {
-      const result = await eden.api.tags.definitions({ id: params.id }).delete();
+      const result = await eden.api.tags.definitions['by-id']({ id: params.id }).delete();
       return result.data;
     },
     onSuccess: () => {
@@ -176,13 +176,13 @@ export const useDeleteTagDefinitionMutation = () => {
 
 // Media Tags
 export const useMediaTagsQuery = (
-  params: typeof GetMediaTagsParamsSchema.static,
-  query?: typeof GetMediaTagsQuerySchema.static
+  params: typeof FetchMediaTagsRequestParamsSchema.static,
+  query?: typeof FetchMediaTagsRequestQuerySchema.static
 ) =>
   useQuery({
     queryKey: ['tags', 'media', params.mediaId, query?.dimensionId],
     queryFn: async () => {
-      const result = await eden.api.tags.media({ mediaId: params.mediaId }).get({ query });
+      const result = await eden.api.tags.media['by-media-id']({ mediaId: params.mediaId }).get({ query: query });
       return result.data;
     },
     enabled: !!params.mediaId,
@@ -195,7 +195,7 @@ export const useBulkMediaTagsQuery = (mediaIds: string[], dimensionId?: number) 
       if (mediaIds.length === 0) return [];
 
       const tagPromises = mediaIds.map(async (mediaId) => {
-        const result = await eden.api.tags.media({ mediaId }).get({
+        const result = await eden.api.tags.media['by-media-id']({ mediaId }).get({
           query: dimensionId ? { dimensionId } : undefined,
         });
         return result.data;
@@ -211,7 +211,7 @@ export const useAssignTagsToMediaMutation = () => {
 
   return useMutation({
     mutationFn: async (data: typeof AssignTagsToMediaRequestBodySchema.static) => {
-      const result = await eden.api.tags.media.assign.post(data);
+      const result = await eden.api.tags.media['assign'].post(data);
       return result.data;
     },
     onSuccess: (_, variables) => {
@@ -230,7 +230,7 @@ export const useBulkAssignTagsMutation = () => {
       return result.data;
     },
     onSuccess: (_, variables) => {
-      variables.assignments.forEach((assignment) => {
+      variables.forEach((assignment) => {
         queryClient.invalidateQueries({ queryKey: ['tags', 'media', assignment.mediaId] });
         queryClient.invalidateQueries({ queryKey: ['media', assignment.mediaId] });
       });
@@ -239,16 +239,14 @@ export const useBulkAssignTagsMutation = () => {
   });
 };
 
-type RemoveTagsFromMediaParams = typeof RemoveTagsFromMediaParamsSchema.static & {
-  tagIds: typeof RemoveTagsFromMediaRequestBodySchema.static['tagIds'];
-};
+type RemoveTagsFromMediaParams = typeof RemoveTagsFromMediaRequestParamsSchema.static & typeof RemoveTagsFromMediaRequestBodySchema.static;
 
 export const useRemoveTagsFromMediaMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ mediaId, tagIds }: RemoveTagsFromMediaParams) => {
-      const result = await eden.api.tags.media({ mediaId }).delete({ tagIds });
+      const result = await eden.api.tags.media['by-media-id']({ mediaId }).delete({ tagIds });
       return result.data;
     },
     onSuccess: (_, variables) => {

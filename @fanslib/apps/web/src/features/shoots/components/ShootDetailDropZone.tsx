@@ -4,7 +4,7 @@ import { type FC } from "react";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
 import { useDragOver } from "~/hooks/useDragOver";
 import { cn } from "~/lib/cn";
-import { useMediaListQuery } from "~/lib/queries/media";
+import { useMediaListQuery } from "~/lib/queries/library";
 import { useUpdateShootMutation } from "~/lib/queries/shoots";
 
 type ShootDetailDropZoneProps = {

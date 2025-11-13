@@ -1,9 +1,9 @@
 import type {
   DeleteMediaRequestParamsSchema,
   FetchAllMediaRequestBodySchema,
+  FetchMediaByIdRequestParamsSchema,
   FindAdjacentMediaBodySchema,
   FindAdjacentMediaRequestParamsSchema,
-  GetMediaByIdRequestParamsSchema,
   UpdateMediaRequestBodySchema,
   UpdateMediaRequestParamsSchema,
 } from '@fanslib/server/schemas';
@@ -14,16 +14,16 @@ export const useMediaListQuery = (params?: typeof FetchAllMediaRequestBodySchema
   useQuery({
     queryKey: ['media', 'list', params],
     queryFn: async () => {
-      const result = await eden.api.media.post(params);
+      const result = await eden.api.media.all.post(params);
       return result.data;
     },
   });
 
-export const useMediaQuery = (params: typeof GetMediaByIdRequestParamsSchema.static) =>
+export const useMediaQuery = (params: typeof FetchMediaByIdRequestParamsSchema.static) =>
   useQuery({
     queryKey: ['media', params.id],
     queryFn: async () => {
-      const result = await eden.api.media({ id: params.id }).get();
+      const result = await eden.api.media['by-id']({ id: params.id }).get();
       return result.data;
     },
     enabled: !!params.id,
@@ -36,7 +36,7 @@ export const useMediaAdjacentQuery = (
   useQuery({
     queryKey: ['media', params.id, 'adjacent', body],
     queryFn: async () => {
-      const result = await eden.api.media({ id: params.id }).adjacent.get(body);
+      const result = await eden.api.media['by-id']({ id: params.id }).adjacent.post(body);
       return result.data;
     },
     enabled: !!params.id,
@@ -51,7 +51,7 @@ export const useUpdateMediaMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdateMediaParams) => {
-      const result = await eden.api.media({ id }).patch(updates);
+      const result = await eden.api.media['by-id']({ id }).patch(updates);
       return result.data;
     },
     onSuccess: (data, variables) => {
@@ -70,7 +70,7 @@ export const useDeleteMediaMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, deleteFile = false }: DeleteMediaParams) => {
-      const result = await eden.api.media({ id }).delete({ query: { deleteFile: deleteFile ? 'true' : undefined } });
+      const result = await eden.api.media['by-id']({ id }).delete({ query: { deleteFile: deleteFile ? 'true' : undefined } });
       return result.data;
     },
     onSuccess: () => {

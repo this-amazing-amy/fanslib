@@ -17,10 +17,14 @@ import { subredditsRoutes } from "./features/subreddits/routes";
 import { tagsRoutes } from "./features/tags/routes";
 import { db } from "./lib/db";
 import { env } from "./lib/env";
-import { mapResponse } from "./lib/serialization";
+
 
 const app = new Elysia()
-  .use(cors())
+.use(cors({
+
+
+  exposeHeaders: ["X-Serialization", "Content-Type", "Content-Length"],
+}))
   .use(swagger({
     documentation: {
       info: {
@@ -29,7 +33,6 @@ const app = new Elysia()
       },
     },
   }))
-  .mapResponse(mapResponse)
   .get("/health", () => ({ status: "ok", timestamp: new Date().toISOString() }))
   .use(libraryRoutes)
   .use(postsRoutes)

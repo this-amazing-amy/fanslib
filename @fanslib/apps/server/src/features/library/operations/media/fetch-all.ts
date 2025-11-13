@@ -72,6 +72,7 @@ export const fetchAllMedia = async (
     limit,
     totalPages: Math.max(1, Math.ceil(total / limit)),
   };
+
   return r;
 };
 

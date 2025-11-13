@@ -13,7 +13,7 @@ import { ShootCreateDropZone } from "~/features/shoots/components/ShootCreateDro
 import { ShootDetail } from "~/features/shoots/components/ShootDetail";
 import { useScrollPosition } from "~/hooks/useScrollPosition";
 import { cn } from "~/lib/cn";
-import { useMediaListQuery } from "~/lib/queries/media";
+import { useMediaListQuery } from "~/lib/queries/library";
 import { ShootViewSettings } from "./ShootViewSettings";
 import { useShootsMedia } from "./useShootsMedia";
 

@@ -1,4 +1,4 @@
-import superjson from "superjson";
+import * as devalue from "devalue";
 
 export const mapResponse = ({
   responseValue,
@@ -15,11 +15,10 @@ export const mapResponse = ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const ctor = (responseValue?.constructor as any) ?? null;
   if (ctor && [Array, Object].includes(ctor)) {
-    const body = superjson.stringify(responseValue);
+    const body = devalue.stringify(responseValue);
     return new Response(body, {
       headers: {
         "Content-Type": "application/json; charset=utf-8",
-        "X-Serialization": "superjson",
       },
     });
   }

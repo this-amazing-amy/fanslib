@@ -13,7 +13,7 @@ export const useSubredditsQuery = () =>
   useQuery({
     queryKey: ['subreddits', 'list'],
     queryFn: async () => {
-      const result = await eden.api.subreddits.get();
+      const result = await eden.api.subreddits.all.get();
       return result.data;
     },
   });
@@ -22,7 +22,7 @@ export const useSubredditQuery = (params: typeof FetchSubredditByIdRequestParams
   useQuery({
     queryKey: ['subreddits', params.id],
     queryFn: async () => {
-      const result = await eden.api.subreddits({ id: params.id }).get();
+      const result = await eden.api.subreddits['by-id']({ id: params.id }).get();
       return result.data;
     },
     enabled: !!params.id,
@@ -32,7 +32,7 @@ export const useLastPostDatesQuery = (params: typeof FetchLastPostDatesRequestBo
   useQuery({
     queryKey: ['subreddits', 'last-post-dates', params.subredditIds],
     queryFn: async () => {
-      const result = await eden.api.subreddits['last-post-dates'].post(params);
+      const result = await eden.api.subreddits['last-post-dates'].post({ subredditIds: params.subredditIds });
       return result.data;
     },
     enabled: params.subredditIds.length > 0,
@@ -61,7 +61,7 @@ export const useUpdateSubredditMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdateSubredditParams) => {
-      const result = await eden.api.subreddits({ id }).patch(updates);
+      const result = await eden.api.subreddits['by-id']({ id }).patch(updates);
       return result.data;
     },
     onSuccess: (data, variables) => {
@@ -76,7 +76,7 @@ export const useDeleteSubredditMutation = () => {
 
   return useMutation({
     mutationFn: async (params: typeof DeleteSubredditParamsSchema.static) => {
-      const result = await eden.api.subreddits({ id: params.id }).delete();
+      const result = await eden.api.subreddits['by-id']({ id: params.id }).delete();
       return result.data;
     },
     onSuccess: () => {

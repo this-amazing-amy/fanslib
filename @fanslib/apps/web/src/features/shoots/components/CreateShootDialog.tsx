@@ -14,7 +14,7 @@ import { Input } from "~/components/ui/Input";
 import { ScrollArea } from "~/components/ui/ScrollArea";
 import { useShootContext } from "~/contexts/ShootContext";
 import { MediaTileLite } from "~/features/library/components/MediaTile/MediaTileLite";
-import { useMediaListQuery } from "~/lib/queries/media";
+import { useMediaListQuery } from "~/lib/queries/library";
 
 const DATE_FORMATS = [
   "yyyy-MM-dd",

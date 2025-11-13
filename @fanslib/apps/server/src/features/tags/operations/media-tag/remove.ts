@@ -3,7 +3,7 @@ import { In } from "typeorm";
 import { db } from "../../../../lib/db";
 import { MediaTag } from "../../entity";
 
-export const RemoveTagsFromMediaParamsSchema = t.Object({
+export const RemoveTagsFromMediaRequestParamsSchema = t.Object({
   mediaId: t.String(),
 });
 
@@ -15,7 +15,7 @@ export const RemoveTagsFromMediaResponseSchema = t.Object({
   success: t.Boolean(),
 });
 
-export const removeTagsFromMedia = async (params: typeof RemoveTagsFromMediaParamsSchema.static, payload: typeof RemoveTagsFromMediaRequestBodySchema.static): Promise<typeof RemoveTagsFromMediaResponseSchema.static> => {
+export const removeTagsFromMedia = async (params: typeof RemoveTagsFromMediaRequestParamsSchema.static, payload: typeof RemoveTagsFromMediaRequestBodySchema.static): Promise<typeof RemoveTagsFromMediaResponseSchema.static> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(MediaTag);
 

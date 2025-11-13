@@ -72,7 +72,7 @@ export const useFetchFanslyDataMutation = () => {
       startDate?: string;
       endDate?: string;
     }) => {
-      const { data, error } = await eden.api.analytics.fetch[postId].post({
+      const { data, error } = await eden.api.analytics.fetch({ postId: postId }).post({
         startDate,
         endDate,
       });

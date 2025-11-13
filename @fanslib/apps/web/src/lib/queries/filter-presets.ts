@@ -9,7 +9,7 @@ export const useFilterPresetsQuery = () =>
   useQuery({
     queryKey: ['filter-presets', 'list'],
     queryFn: async () => {
-      const result = await eden.api['filter-presets'].get();
+      const result = await eden.api['filter-presets'].all.get();
       return result.data;
     },
   });
@@ -18,7 +18,7 @@ export const useFilterPresetQuery = (id: string) =>
   useQuery({
     queryKey: ['filter-presets', id],
     queryFn: async () => {
-      const result = await eden.api['filter-presets']({ id }).get();
+      const result = await eden.api['filter-presets']['by-id']({ id }).get();
       return result.data;
     },
     enabled: !!id,
@@ -48,7 +48,7 @@ export const useUpdateFilterPresetMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdateFilterPresetParams) => {
-      const result = await eden.api['filter-presets']({ id }).patch(updates);
+      const result = await eden.api['filter-presets']['by-id']({ id }).patch(updates);
       return result.data;
     },
     onSuccess: (data, variables) => {
@@ -63,7 +63,7 @@ export const useDeleteFilterPresetMutation = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const result = await eden.api['filter-presets']({ id }).delete();
+      const result = await eden.api['filter-presets']['by-id']({ id }).delete();
       return result.data;
     },
     onSuccess: () => {

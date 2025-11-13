@@ -20,7 +20,6 @@ type FilterPresetDropdownProps = {
 
 export const FilterPresetDropdown = ({ disabled = false }: FilterPresetDropdownProps) => {
   const { presets, isLoading, applyPreset } = useFilterPresetContext();
-  console.log("presets", presets);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const { filters, hasActiveFilters } = useMediaFilters();
 

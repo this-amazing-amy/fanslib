@@ -12,7 +12,7 @@ export const useChannelsQuery = () =>
   useQuery({
     queryKey: ['channels', 'list'],
     queryFn: async () => {
-      const result = await eden.api.channels.get();
+      const result = await eden.api.channels.all.get();
       return result.data;
     },
   });
@@ -21,7 +21,7 @@ export const useChannelQuery = (params: typeof FetchChannelByIdRequestParamsSche
   useQuery({
     queryKey: ['channels', params.id],
     queryFn: async () => {
-      const result = await eden.api.channels({ id: params.id }).get();
+      const result = await eden.api.channels['by-id']({ id: params.id }).get();
       return result.data;
     },
     enabled: !!params.id,
@@ -31,7 +31,7 @@ export const useChannelTypesQuery = () =>
   useQuery({
     queryKey: ['channels', 'types'],
     queryFn: async () => {
-      const result = await eden.api.channels.types.get();
+      const result = await eden.api.channels.all.get();
       return result.data;
     },
   });
@@ -59,7 +59,7 @@ export const useUpdateChannelMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdateChannelParams) => {
-      const result = await eden.api.channels({ id }).patch(updates);
+      const result = await eden.api.channels['by-id']({ id }).patch(updates);
       return result.data;
     },
     onSuccess: (data, variables) => {
@@ -74,7 +74,7 @@ export const useDeleteChannelMutation = () => {
 
   return useMutation({
     mutationFn: async (params: typeof DeleteChannelRequestParamsSchema.static) => {
-      const result = await eden.api.channels({ id: params.id }).delete();
+      const result = await eden.api.channels['by-id']({ id: params.id }).delete();
       return result.data;
     },
     onSuccess: () => {

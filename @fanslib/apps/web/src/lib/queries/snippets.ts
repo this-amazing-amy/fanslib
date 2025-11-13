@@ -13,7 +13,7 @@ export const useSnippetsQuery = () =>
   useQuery({
     queryKey: ['snippets', 'list'],
     queryFn: async () => {
-      const result = await eden.api.snippets.get();
+      const result = await eden.api.snippets.all.get();
       return result.data;
     },
   });
@@ -31,7 +31,7 @@ export const useSnippetsByChannelQuery = (params: typeof FetchSnippetsByChannelR
   useQuery({
     queryKey: ['snippets', 'by-channel', params.channelId],
     queryFn: async () => {
-      const result = await eden.api.snippets['by-channel']({ channelId: params.channelId }).get();
+      const result = await eden.api.snippets['by-channel-id']({ channelId: params.channelId }).get();
       return result.data;
     },
     enabled: !!params.channelId,
@@ -41,7 +41,7 @@ export const useSnippetQuery = (params: typeof FetchSnippetByIdRequestParamsSche
   useQuery({
     queryKey: ['snippets', params.id],
     queryFn: async () => {
-      const result = await eden.api.snippets({ id: params.id }).get();
+      const result = await eden.api.snippets['by-id']({ id: params.id }).get();
       return result.data;
     },
     enabled: !!params.id,
@@ -58,8 +58,8 @@ export const useCreateSnippetMutation = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['snippets', 'list'] });
       queryClient.invalidateQueries({ queryKey: ['snippets', 'global'] });
-      if (data.channelId) {
-        queryClient.invalidateQueries({ queryKey: ['snippets', 'by-channel', data.channelId] });
+      if (data?.channel) {
+        queryClient.invalidateQueries({ queryKey: ['snippets', 'by-channel', data.channel.id] });
       }
     },
   });
@@ -74,16 +74,13 @@ export const useUpdateSnippetMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdateSnippetParams) => {
-      const result = await eden.api.snippets({ id }).patch(updates);
+      const result = await eden.api.snippets['by-id']({ id }).patch(updates);
       return result.data;
     },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['snippets', 'list'] });
       queryClient.invalidateQueries({ queryKey: ['snippets', 'global'] });
       queryClient.setQueryData(['snippets', variables.id], data);
-      if (data.channelId) {
-        queryClient.invalidateQueries({ queryKey: ['snippets', 'by-channel', data.channelId] });
-      }
     },
   });
 };
@@ -93,7 +90,7 @@ export const useDeleteSnippetMutation = () => {
 
   return useMutation({
     mutationFn: async (params: typeof DeleteSnippetRequestParamsSchema.static) => {
-      const result = await eden.api.snippets({ id: params.id }).delete();
+      const result = await eden.api.snippets['by-id']({ id: params.id }).delete();
       return result.data;
     },
     onSuccess: () => {

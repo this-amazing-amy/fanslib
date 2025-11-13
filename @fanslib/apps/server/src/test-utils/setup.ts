@@ -1,5 +1,5 @@
+import * as devalue from "devalue";
 import "reflect-metadata";
-import superjson from "superjson";
 import { Channel } from "../features/channels/entity";
 import { Media } from "../features/library/entity";
 import { Post } from "../features/posts/entity";
@@ -7,20 +7,10 @@ import { Subreddit } from "../features/subreddits/entity";
 import { TagDefinition, TagDimension } from "../features/tags/entity";
 import { getTestDataSource } from "../lib/db.test";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const parseResponse = async <T = any>(response: Response): Promise<T | null> => {
-  const isSuperjson = response.headers.get("X-Serialization") === "superjson";
-  if (isSuperjson) {
-    const text = await response.text();
-    if (text.length === 0) return null;
-    return superjson.parse(text) as T;
-  }
-  // Fallback: normal JSON response
-  if (response.headers.get("Content-Type")?.includes("application/json")) {
-    return response.json() as T;
-  }
+export const parseResponse = async <T>(response: Response): Promise<T | null> => {
   const text = await response.text();
-  return text.length ? text as T : null;
+  if (text.length === 0) return null;
+  return devalue.parse(text) as T;
 };
 
 export const createTestMedia = async (overrides: Partial<Media> = {}) => {

@@ -3,9 +3,9 @@ import type {
   AddMediaToPostRequestParamsSchema,
   CreatePostRequestBodySchema,
   DeletePostRequestParamsSchema,
-  FetchAllPostsRequestBodySchema,
+  FetchAllPostsRequestQuerySchema,
+  FetchPostByIdRequestParamsSchema,
   FetchPostsByChannelRequestParamsSchema,
-  GetPostByIdRequestParamsSchema,
   RemoveMediaFromPostRequestBodySchema,
   RemoveMediaFromPostRequestParamsSchema,
   UpdatePostRequestBodySchema,
@@ -14,20 +14,20 @@ import type {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { eden } from '../api/eden';
 
-export const usePostsQuery = (params?: typeof FetchAllPostsRequestBodySchema.static) =>
+export const usePostsQuery = (params?: typeof FetchAllPostsRequestQuerySchema.static) =>
   useQuery({
     queryKey: ['posts', 'list', params],
     queryFn: async () => {
-      const result = await eden.api.posts.get(params);
+      const result = await eden.api.posts.all.get({ query: params });
       return result.data;
     },
   });
 
-export const usePostQuery = (params: typeof GetPostByIdRequestParamsSchema.static) =>
+export const usePostQuery = (params: typeof FetchPostByIdRequestParamsSchema.static) =>
   useQuery({
     queryKey: ['posts', params.id],
     queryFn: async () => {
-      const result = await eden.api.posts({ id: params.id }).get();
+      const result = await eden.api.posts['by-id']({ id: params.id }).get();
       return result.data;
     },
     enabled: !!params.id,
@@ -37,7 +37,7 @@ export const usePostsByChannelQuery = (params: typeof FetchPostsByChannelRequest
   useQuery({
     queryKey: ['posts', 'by-channel', params.channelId],
     queryFn: async () => {
-      const result = await eden.api.posts['by-channel']({ channelId: params.channelId }).get();
+      const result = await eden.api.posts['by-channel-id']({ channelId: params.channelId }).get();
       return result.data;
     },
     enabled: !!params.channelId,
@@ -67,7 +67,7 @@ export const useUpdatePostMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdatePostParams) => {
-      const result = await eden.api.posts({ id }).patch(updates);
+      const result = await eden.api.posts['by-id']({ id }).patch(updates);
       return result.data;
     },
     onSuccess: (data, variables) => {
@@ -82,7 +82,7 @@ export const useDeletePostMutation = () => {
 
   return useMutation({
     mutationFn: async (params: typeof DeletePostRequestParamsSchema.static) => {
-      const result = await eden.api.posts({ id: params.id }).delete();
+      const result = await eden.api.posts['by-id']({ id: params.id }).delete();
       return result.data;
     },
     onSuccess: () => {
@@ -100,7 +100,7 @@ export const useAddMediaToPostMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, mediaIds }: AddMediaToPostParams) => {
-      const result = await eden.api.posts({ id }).media.post({ mediaIds });
+      const result = await eden.api.posts['by-id']({ id }).media.post({ mediaIds });
       return result.data;
     },
     onSuccess: (data, variables) => {
@@ -119,7 +119,7 @@ export const useRemoveMediaFromPostMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, mediaIds }: RemoveMediaFromPostParams) => {
-      const result = await eden.api.posts({ id }).media.delete({ mediaIds });
+      const result = await eden.api.posts['by-id']({ id }).media.delete({ mediaIds });
       return result.data;
     },
     onSuccess: (data, variables) => {
