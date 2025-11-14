@@ -102,10 +102,11 @@ const ResizablePanel = ({
     }
   }, [groupRef, id, isFirst]);
 
-  const autoCollapseThreshold = 10;
-
   const handleResize = useCallback(
     (size: number) => {
+      if (!collapsible) return;
+      
+      const autoCollapseThreshold = 10;
       if (!isCollapsed && size <= autoCollapseThreshold) {
         setIsCollapsed(true);
         onCollapsedChange?.(true);
@@ -114,7 +115,7 @@ const ResizablePanel = ({
         onCollapsedChange?.(false);
       }
     },
-    [isCollapsed, onCollapsedChange]
+    [isCollapsed, onCollapsedChange, collapsible]
   );
 
   const toggleCollapse = useCallback(() => {
@@ -167,7 +168,7 @@ const ResizablePanel = ({
       {...props}
     >
       <div className="h-full w-full flex flex-col">
-        {collapsible && !isCollapsed && (
+        {collapsible && !isCollapsed && headerSlot && (
           <div className="flex items-center gap-2 py-6 px-6 flex-none">
             <div
               className={cn(
@@ -183,14 +184,14 @@ const ResizablePanel = ({
           className={cn(
             "flex-1 min-h-0",
             !collapsible && "h-full",
-            !shouldAnimate && "transition-opacity duration-300",
-            isCollapsed ? "opacity-0" : "opacity-100"
+            collapsible && !shouldAnimate && "transition-opacity duration-300",
+            collapsible && isCollapsed ? "opacity-0" : "opacity-100"
           )}
         >
           {children}
         </div>
 
-        {isCollapsed && (
+        {collapsible && isCollapsed && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div
               className={cn(
@@ -228,8 +229,7 @@ const ResizableHandle = ({
     >
       <ResizablePrimitive.PanelResizeHandle
         className={cn(
-          "relative flex w-3 cursor-col-resize items-center justify-center rounded-full bg-base-300/70 transition-colors hover:bg-primary/40 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-base-100 data-[panel-group-direction=vertical]:h-3 data-[panel-group-direction=vertical]:w-full data-[panel-group-direction=vertical]:cursor-row-resize",
-          "before:absolute before:inset-y-2 before:left-1/2 before:w-px before:-translate-x-1/2 before:rounded-full before:bg-base-100/80 data-[panel-group-direction=vertical]:before:inset-x-2 data-[panel-group-direction=vertical]:before:top-1/2 data-[panel-group-direction=vertical]:before:h-px data-[panel-group-direction=vertical]:before:-translate-y-1/2 data-[panel-group-direction=vertical]:before:w-full",
+          "relative flex w-3 h-full cursor-col-resize items-center justify-center rounded-full bg-primary/30 transition-colors hover:bg-primary/40 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-base-100 data-[panel-group-direction=vertical]:h-3 data-[panel-group-direction=vertical]:w-full data-[panel-group-direction=vertical]:cursor-row-resize",
           className
         )}
         onDragging={(isDragging) => {
@@ -238,8 +238,8 @@ const ResizableHandle = ({
         {...props}
       >
         {withHandle && (
-          <div className="z-10 flex h-10 w-5 items-center justify-center rounded-lg border border-base-300 bg-base-100 shadow-md">
-            <GripVertical className="h-3.5 w-3 text-muted-foreground" />
+          <div className="z-10 flex h-10 w-5 items-center justify-center rounded-lg border border-primary/20 bg-base-100 shadow-md">
+            <GripVertical className="h-3.5 w-3 text-primary/60" />
           </div>
         )}
       </ResizablePrimitive.PanelResizeHandle>
@@ -261,6 +261,7 @@ type SplitViewLayoutProps = {
   id: string;
   mainContent: ReactNode;
   sideContent: ReactNode;
+  mainContentHeader?: ReactNode;
   sideContentHeader?: ReactNode;
   mainDefaultSize?: number;
   sideDefaultSize?: number;
@@ -273,6 +274,7 @@ export const SplitViewLayout = ({
   id,
   mainContent,
   sideContent,
+  mainContentHeader,
   sideContentHeader,
   mainDefaultSize = 70,
   sideDefaultSize = 30,
@@ -293,7 +295,12 @@ export const SplitViewLayout = ({
           panelIndex={0}
           groupRef={panelGroupRef as React.RefObject<ImperativePanelGroupHandle>}
         >
-          <div className="flex h-full w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+          <div className="flex h-full w-full flex-col overflow-hidden bg-base-100">
+            {mainContentHeader && (
+              <div className="flex items-center gap-2 py-6 px-6 flex-none">
+                {mainContentHeader}
+              </div>
+            )}
             {mainContent}
           </div>
         </ResizablePanel>
@@ -304,12 +311,15 @@ export const SplitViewLayout = ({
           defaultSize={sideDefaultSize}
           minSize={sideMinSize}
           maxSize={sideMaxSize}
-          collapsible
-          headerSlot={sideContentHeader}
           panelIndex={1}
           groupRef={panelGroupRef as React.RefObject<ImperativePanelGroupHandle>}
         >
-          <div className="flex h-full w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+          <div className="flex h-full w-full flex-col overflow-hidden bg-base-100">
+            {sideContentHeader && (
+              <div className="flex items-center gap-2 py-6 px-6 flex-none">
+                {sideContentHeader}
+              </div>
+            )}
             {sideContent}
           </div>
         </ResizablePanel>

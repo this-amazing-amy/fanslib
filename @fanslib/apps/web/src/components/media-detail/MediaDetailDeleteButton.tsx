@@ -26,7 +26,7 @@ export const MediaDetailDeleteButton = ({ id, mediaType }: MediaDetailDeleteButt
   const handleDelete = async () => {
     try {
       await deleteMutation.mutateAsync({ id, deleteFile });
-      navigate({ to: "/library" });
+      navigate({ to: "/content/library/media" });
     } catch (error) {
       console.error("Failed to delete media:", error);
     }

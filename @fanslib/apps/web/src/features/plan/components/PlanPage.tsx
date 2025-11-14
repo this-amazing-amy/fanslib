@@ -1,24 +1,23 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Post } from "@fanslib/types";
-import { PostFilters } from "./PostFilters";
-import { PageHeader } from "~/components/ui/PageHeader";
-import { SectionHeader } from "~/components/ui/SectionHeader";
-import { MediaSelectionProvider } from "~/contexts/MediaSelectionContext";
-import { usePlanPreferences } from "~/contexts/PlanPreferencesContext";
-import { useScrollPosition } from "~/hooks/useScrollPosition";
-import { useChannelsQuery } from "~/lib/queries/channels";
-import { usePostsQuery } from "~/lib/queries/posts";
-import { useContentSchedulesQuery } from "~/lib/queries/content-schedules";
-import { useMediaListQuery } from "~/lib/queries/library";
-import { generateVirtualPosts, isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
-import { Library } from "~/features/library/components/Library";
-import { Shoots } from "~/features/shoots/components/Shoots";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { SplitViewLayout } from "~/components/SplitViewLayout";
 import { TabNavigation } from "~/components/TabNavigation";
+import { PageHeader } from "~/components/ui/PageHeader";
+import { ViewNavigationToggle } from "~/components/ViewNavigationToggle";
+import { usePlanPreferences } from "~/contexts/PlanPreferencesContext";
+import { Library } from "~/features/library/components/Library";
+import { Shoots } from "~/features/shoots/components/Shoots";
+import { useScrollPosition } from "~/hooks/useScrollPosition";
 import { useTabNavigation } from "~/hooks/useTabNavigation";
+import { useChannelsQuery } from "~/lib/queries/channels";
+import { useContentSchedulesQuery } from "~/lib/queries/content-schedules";
+import { useMediaListQuery } from "~/lib/queries/library";
+import { usePostsQuery } from "~/lib/queries/posts";
+import { generateVirtualPosts, type VirtualPost } from "~/lib/virtual-posts";
 import { PlanEmptyState } from "./PlanEmptyState";
 import { PlanViewSettings } from "./PlanViewSettings";
 import { PostCalendar } from "./PostCalendar/PostCalendar";
+import { PostFilters } from "./PostFilters";
 import { PostTimeline } from "./PostTimeline";
 
 const PlanPageContent = () => {
@@ -34,21 +33,21 @@ const PlanPageContent = () => {
 
   const tabs = [
     {
+      id: "library" as const,
+      label: "Library",
+      content: <Library />,
+    },
+    {
       id: "shoots" as const,
       label: "Shoots",
       content: <Shoots />,
-    },
-    {
-      id: "library" as const,
-      label: "Library",
-      content: <Library showHeader={false} />,
     },
   ];
 
   const { activeTabId, activeTab, updateActiveTab } = useTabNavigation({
     tabs,
     storageKey: "plan-side-content-view",
-    defaultTabId: "shoots",
+    defaultTabId: "library",
   });
 
   const filtersQuery = useMemo(() => {
@@ -113,48 +112,61 @@ const PlanPageContent = () => {
   }, [refetchLibrary, fetchPosts]);
 
   return (
-    <SplitViewLayout
-      id="plan"
-      mainContent={
-        <div className="h-full w-full overflow-hidden flex flex-col">
-          <PageHeader
-            title="Plan"
-            description="Schedule and organize your content publication timeline"
-            className="py-6 pl-6 pr-4 flex-none"
-          />
-          <div className="px-6 pb-4">
-            <SectionHeader title="" actions={<PlanViewSettings />} />
-            <div className="mt-2">
-              <PostFilters
-                value={preferences.filter}
-                onFilterChange={(filter) => {
-                  updatePreferences({ filter });
-                }}
+    <>
+      <SplitViewLayout
+        id="plan"
+        mainDefaultSize={75}
+        sideDefaultSize={25}
+        sideMinSize={25}
+        sideMaxSize={75}
+        mainContent={activeTab?.content}
+        mainContentHeader={
+          <TabNavigation tabs={tabs} activeTabId={activeTabId} onTabChange={updateActiveTab} />
+        }
+        sideContent={
+          <div className="h-full w-full overflow-hidden flex flex-col">
+            <div className="flex-none px-6 pt-6">
+              <PageHeader
+                title="Plan"
+                className="mb-0"
               />
             </div>
+            <div className="px-6 py-6 mb-6">
+              <div className="flex items-center gap-2">
+                <PlanViewSettings />
+                <PostFilters
+                  value={preferences.filter}
+                  onFilterChange={(filter) => {
+                    updatePreferences({ filter });
+                  }}
+                />
+              </div>
+            </div>
+            <div className="flex-1 overflow-hidden px-6">
+              {!channels.length && <PlanEmptyState />}
+              {channels.length && preferences.view.viewType === "timeline" && (
+                <PostTimeline posts={posts} onUpdate={refetchPostsAndLibrary} />
+              )}
+              {channels.length && preferences.view.viewType === "calendar" && (
+                <PostCalendar posts={posts} onUpdate={refetchPostsAndLibrary} scrollRef={scrollRef} />
+              )}
+            </div>
           </div>
-          <div className="flex-1 overflow-hidden px-6">
-            {!channels.length && <PlanEmptyState />}
-            {channels.length && preferences.view.viewType === "timeline" && (
-              <PostTimeline posts={posts} onUpdate={refetchPostsAndLibrary} />
-            )}
-            {channels.length && preferences.view.viewType === "calendar" && (
-              <PostCalendar posts={posts} onUpdate={refetchPostsAndLibrary} scrollRef={scrollRef} />
-            )}
-          </div>
-        </div>
-      }
-      sideContent={activeTab?.content}
-      sideContentHeader={
-        <TabNavigation tabs={tabs} activeTabId={activeTabId} onTabChange={updateActiveTab} />
-      }
-    />
+        }
+      />
+      <ViewNavigationToggle
+        position="left"
+        to={activeTabId === "library" ? "/content/library/media" : "/content/library/shoots"}
+        label="Go to library view"
+      />
+      <ViewNavigationToggle
+        position="right"
+        to="/content/calendar"
+        label="Go to calendar view"
+      />
+    </>
   );
 };
 
-export const PlanPage = () => (
-  <MediaSelectionProvider media={[]}>
-    <PlanPageContent />
-  </MediaSelectionProvider>
-);
+export const PlanPage = () => <PlanPageContent />;
 

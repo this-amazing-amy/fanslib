@@ -97,8 +97,7 @@ export const MediaTile = (props: MediaTileProps) => {
   );
 
   const wrappedContent = withNavigation ? (
-
-    <Link to="/library/$mediaId" params={{ mediaId: media.id }}>
+    <Link to="/content/library/media/$mediaId" params={{ mediaId: media.id }}>
       {content}
     </Link>
   ) : (

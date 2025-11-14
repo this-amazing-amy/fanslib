@@ -30,7 +30,7 @@ type SidebarProps = {
 
 export const Sidebar = ({
   children,
-  defaultOpen = true,
+  defaultOpen = false,
   open: controlledOpen,
   onOpenChange,
   className = '',
@@ -93,7 +93,7 @@ type SidebarProviderProps = {
 
 export const SidebarProvider = ({
   children,
-  defaultOpen = true,
+  defaultOpen = false,
   open: controlledOpen,
   onOpenChange,
   className = '',

@@ -3,12 +3,12 @@ import { atom } from 'jotai';
 const STORAGE_KEY = 'sidebarCollapsed';
 
 const getInitialCollapsedState = (): boolean => {
-  if (typeof window === 'undefined') return false;
+  if (typeof window === 'undefined') return true;
   try {
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : false;
+    return stored ? JSON.parse(stored) : true;
   } catch {
-    return false;
+    return true;
   }
 };
 

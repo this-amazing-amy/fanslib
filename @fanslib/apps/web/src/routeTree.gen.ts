@@ -9,12 +9,25 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ContentRouteImport } from './routes/content'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShootsIndexRouteImport } from './routes/shoots/index'
 import { Route as PlanIndexRouteImport } from './routes/plan/index'
 import { Route as LibraryIndexRouteImport } from './routes/library/index'
 import { Route as LibraryMediaIdRouteImport } from './routes/library/$mediaId'
+import { Route as ContentScheduleRouteImport } from './routes/content/schedule'
+import { Route as ContentLibraryRouteImport } from './routes/content/library'
+import { Route as ContentChannelsRouteImport } from './routes/content/channels'
+import { Route as ContentCalendarRouteImport } from './routes/content/calendar'
+import { Route as ContentLibraryShootsRouteImport } from './routes/content/library/shoots'
+import { Route as ContentLibraryMediaRouteImport } from './routes/content/library/media'
+import { Route as ContentLibraryMediaMediaIdRouteImport } from './routes/content/library/media/$mediaId'
 
+const ContentRoute = ContentRouteImport.update({
+  id: '/content',
+  path: '/content',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -40,45 +53,140 @@ const LibraryMediaIdRoute = LibraryMediaIdRouteImport.update({
   path: '/library/$mediaId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContentScheduleRoute = ContentScheduleRouteImport.update({
+  id: '/schedule',
+  path: '/schedule',
+  getParentRoute: () => ContentRoute,
+} as any)
+const ContentLibraryRoute = ContentLibraryRouteImport.update({
+  id: '/library',
+  path: '/library',
+  getParentRoute: () => ContentRoute,
+} as any)
+const ContentChannelsRoute = ContentChannelsRouteImport.update({
+  id: '/channels',
+  path: '/channels',
+  getParentRoute: () => ContentRoute,
+} as any)
+const ContentCalendarRoute = ContentCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => ContentRoute,
+} as any)
+const ContentLibraryShootsRoute = ContentLibraryShootsRouteImport.update({
+  id: '/shoots',
+  path: '/shoots',
+  getParentRoute: () => ContentLibraryRoute,
+} as any)
+const ContentLibraryMediaRoute = ContentLibraryMediaRouteImport.update({
+  id: '/media',
+  path: '/media',
+  getParentRoute: () => ContentLibraryRoute,
+} as any)
+const ContentLibraryMediaMediaIdRoute =
+  ContentLibraryMediaMediaIdRouteImport.update({
+    id: '/$mediaId',
+    path: '/$mediaId',
+    getParentRoute: () => ContentLibraryMediaRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/content': typeof ContentRouteWithChildren
+  '/content/calendar': typeof ContentCalendarRoute
+  '/content/channels': typeof ContentChannelsRoute
+  '/content/library': typeof ContentLibraryRouteWithChildren
+  '/content/schedule': typeof ContentScheduleRoute
   '/library/$mediaId': typeof LibraryMediaIdRoute
   '/library': typeof LibraryIndexRoute
   '/plan': typeof PlanIndexRoute
   '/shoots': typeof ShootsIndexRoute
+  '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
+  '/content/library/shoots': typeof ContentLibraryShootsRoute
+  '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/content': typeof ContentRouteWithChildren
+  '/content/calendar': typeof ContentCalendarRoute
+  '/content/channels': typeof ContentChannelsRoute
+  '/content/library': typeof ContentLibraryRouteWithChildren
+  '/content/schedule': typeof ContentScheduleRoute
   '/library/$mediaId': typeof LibraryMediaIdRoute
   '/library': typeof LibraryIndexRoute
   '/plan': typeof PlanIndexRoute
   '/shoots': typeof ShootsIndexRoute
+  '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
+  '/content/library/shoots': typeof ContentLibraryShootsRoute
+  '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/content': typeof ContentRouteWithChildren
+  '/content/calendar': typeof ContentCalendarRoute
+  '/content/channels': typeof ContentChannelsRoute
+  '/content/library': typeof ContentLibraryRouteWithChildren
+  '/content/schedule': typeof ContentScheduleRoute
   '/library/$mediaId': typeof LibraryMediaIdRoute
   '/library/': typeof LibraryIndexRoute
   '/plan/': typeof PlanIndexRoute
   '/shoots/': typeof ShootsIndexRoute
+  '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
+  '/content/library/shoots': typeof ContentLibraryShootsRoute
+  '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/library/$mediaId' | '/library' | '/plan' | '/shoots'
+  fullPaths:
+    | '/'
+    | '/content'
+    | '/content/calendar'
+    | '/content/channels'
+    | '/content/library'
+    | '/content/schedule'
+    | '/library/$mediaId'
+    | '/library'
+    | '/plan'
+    | '/shoots'
+    | '/content/library/media'
+    | '/content/library/shoots'
+    | '/content/library/media/$mediaId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/library/$mediaId' | '/library' | '/plan' | '/shoots'
+  to:
+    | '/'
+    | '/content'
+    | '/content/calendar'
+    | '/content/channels'
+    | '/content/library'
+    | '/content/schedule'
+    | '/library/$mediaId'
+    | '/library'
+    | '/plan'
+    | '/shoots'
+    | '/content/library/media'
+    | '/content/library/shoots'
+    | '/content/library/media/$mediaId'
   id:
     | '__root__'
     | '/'
+    | '/content'
+    | '/content/calendar'
+    | '/content/channels'
+    | '/content/library'
+    | '/content/schedule'
     | '/library/$mediaId'
     | '/library/'
     | '/plan/'
     | '/shoots/'
+    | '/content/library/media'
+    | '/content/library/shoots'
+    | '/content/library/media/$mediaId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ContentRoute: typeof ContentRouteWithChildren
   LibraryMediaIdRoute: typeof LibraryMediaIdRoute
   LibraryIndexRoute: typeof LibraryIndexRoute
   PlanIndexRoute: typeof PlanIndexRoute
@@ -87,6 +195,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/content': {
+      id: '/content'
+      path: '/content'
+      fullPath: '/content'
+      preLoaderRoute: typeof ContentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -122,11 +237,103 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryMediaIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/content/schedule': {
+      id: '/content/schedule'
+      path: '/schedule'
+      fullPath: '/content/schedule'
+      preLoaderRoute: typeof ContentScheduleRouteImport
+      parentRoute: typeof ContentRoute
+    }
+    '/content/library': {
+      id: '/content/library'
+      path: '/library'
+      fullPath: '/content/library'
+      preLoaderRoute: typeof ContentLibraryRouteImport
+      parentRoute: typeof ContentRoute
+    }
+    '/content/channels': {
+      id: '/content/channels'
+      path: '/channels'
+      fullPath: '/content/channels'
+      preLoaderRoute: typeof ContentChannelsRouteImport
+      parentRoute: typeof ContentRoute
+    }
+    '/content/calendar': {
+      id: '/content/calendar'
+      path: '/calendar'
+      fullPath: '/content/calendar'
+      preLoaderRoute: typeof ContentCalendarRouteImport
+      parentRoute: typeof ContentRoute
+    }
+    '/content/library/shoots': {
+      id: '/content/library/shoots'
+      path: '/shoots'
+      fullPath: '/content/library/shoots'
+      preLoaderRoute: typeof ContentLibraryShootsRouteImport
+      parentRoute: typeof ContentLibraryRoute
+    }
+    '/content/library/media': {
+      id: '/content/library/media'
+      path: '/media'
+      fullPath: '/content/library/media'
+      preLoaderRoute: typeof ContentLibraryMediaRouteImport
+      parentRoute: typeof ContentLibraryRoute
+    }
+    '/content/library/media/$mediaId': {
+      id: '/content/library/media/$mediaId'
+      path: '/$mediaId'
+      fullPath: '/content/library/media/$mediaId'
+      preLoaderRoute: typeof ContentLibraryMediaMediaIdRouteImport
+      parentRoute: typeof ContentLibraryMediaRoute
+    }
   }
 }
 
+interface ContentLibraryMediaRouteChildren {
+  ContentLibraryMediaMediaIdRoute: typeof ContentLibraryMediaMediaIdRoute
+}
+
+const ContentLibraryMediaRouteChildren: ContentLibraryMediaRouteChildren = {
+  ContentLibraryMediaMediaIdRoute: ContentLibraryMediaMediaIdRoute,
+}
+
+const ContentLibraryMediaRouteWithChildren =
+  ContentLibraryMediaRoute._addFileChildren(ContentLibraryMediaRouteChildren)
+
+interface ContentLibraryRouteChildren {
+  ContentLibraryMediaRoute: typeof ContentLibraryMediaRouteWithChildren
+  ContentLibraryShootsRoute: typeof ContentLibraryShootsRoute
+}
+
+const ContentLibraryRouteChildren: ContentLibraryRouteChildren = {
+  ContentLibraryMediaRoute: ContentLibraryMediaRouteWithChildren,
+  ContentLibraryShootsRoute: ContentLibraryShootsRoute,
+}
+
+const ContentLibraryRouteWithChildren = ContentLibraryRoute._addFileChildren(
+  ContentLibraryRouteChildren,
+)
+
+interface ContentRouteChildren {
+  ContentCalendarRoute: typeof ContentCalendarRoute
+  ContentChannelsRoute: typeof ContentChannelsRoute
+  ContentLibraryRoute: typeof ContentLibraryRouteWithChildren
+  ContentScheduleRoute: typeof ContentScheduleRoute
+}
+
+const ContentRouteChildren: ContentRouteChildren = {
+  ContentCalendarRoute: ContentCalendarRoute,
+  ContentChannelsRoute: ContentChannelsRoute,
+  ContentLibraryRoute: ContentLibraryRouteWithChildren,
+  ContentScheduleRoute: ContentScheduleRoute,
+}
+
+const ContentRouteWithChildren =
+  ContentRoute._addFileChildren(ContentRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ContentRoute: ContentRouteWithChildren,
   LibraryMediaIdRoute: LibraryMediaIdRoute,
   LibraryIndexRoute: LibraryIndexRoute,
   PlanIndexRoute: PlanIndexRoute,

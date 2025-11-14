@@ -62,7 +62,10 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             </div>
           </header>
 
-          <main className='flex-1 p-4 sm:p-6 lg:p-8 content-area overflow-x-auto'>
+          <main 
+            className='flex-1 p-4 sm:p-6 lg:p-8 content-area overflow-x-auto'
+            style={{ viewTransitionName: 'main-content' }}
+          >
             {children}
           </main>
         </div>

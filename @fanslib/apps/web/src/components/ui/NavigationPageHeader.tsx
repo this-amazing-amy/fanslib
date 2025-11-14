@@ -28,7 +28,7 @@ export const NavigationPageHeader = ({
           const isActive = 
             currentPath === tab.to || 
             currentPath.startsWith(`${tab.to}/`) ||
-            (currentPath === '/' && tab.to === '/library');
+            (currentPath === '/' && tab.to === '/content/library/media');
           return (
             <Link
               key={tab.to}

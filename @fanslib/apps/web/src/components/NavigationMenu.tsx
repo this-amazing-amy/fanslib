@@ -13,9 +13,9 @@ type MenuItem = {
 
 const menuItems: MenuItem[] = [
   { to: '/', label: 'Dashboard', icon: Home },
-  { to: '/library', label: 'Media', icon: Clapperboard },
-  { to: '/plan', label: 'Plan', icon: Calendar },
-  { to: '/channels', label: 'Channels', icon: Monitor },
+  { to: '/content/library/media', label: 'Media', icon: Clapperboard },
+  { to: '/content/schedule', label: 'Plan', icon: Calendar },
+  { to: '/content/channels', label: 'Channels', icon: Monitor },
   { to: '/settings', label: 'Settings', icon: Settings },
 ];
 

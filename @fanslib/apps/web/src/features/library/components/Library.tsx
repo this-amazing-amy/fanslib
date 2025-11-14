@@ -9,6 +9,10 @@ import { MediaFilters as MediaFiltersComponent } from "./MediaFilters/MediaFilte
 import { MediaFiltersProvider } from "./MediaFilters/MediaFiltersContext";
 import { ScanProgress } from "./ScanProgress";
 import { useScan } from "~/hooks/useScan";
+import { FilterActions } from "./MediaFilters/FilterActions";
+import { GalleryViewSettings } from "./Gallery/GalleryViewSettings";
+import { LibrarySortOptions } from "./Gallery/LibrarySortOptions";
+import { ScanButton } from "./ScanButton";
 
 export type LibraryProps = {
   showHeader?: boolean;
@@ -38,6 +42,22 @@ export const Library = ({ showHeader = true }: LibraryProps) => {
         <PageContainer className="flex h-full w-full flex-col overflow-hidden px-0 py-0">
           <div className="flex-1 min-h-0 p-6 flex flex-col">
             <div className="mb-4">
+              <div className="flex items-center justify-end gap-2 mb-4">
+                <GalleryViewSettings />
+                <LibrarySortOptions
+                  value={preferences.sort}
+                  onChange={(sort) => {
+                    updatePreferences({
+                      sort,
+                      pagination: { page: 1 },
+                    });
+                  }}
+                />
+                <ScanButton isScanning={isScanning} onScan={handleScan} />
+              </div>
+              <div className="mb-4">
+                <FilterActions />
+              </div>
               <MediaFiltersComponent />
             </div>
 

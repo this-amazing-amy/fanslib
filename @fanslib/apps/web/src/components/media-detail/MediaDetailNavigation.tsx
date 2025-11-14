@@ -7,7 +7,7 @@ import { useMediaAdjacentQuery } from "~/lib/queries/library";
 
 export const MediaDetailNavigation = () => {
   const navigate = useNavigate();
-  const { mediaId } = useParams({ from: "/library/$mediaId" });
+  const { mediaId } = useParams({ from: "/content/library/media/$mediaId" });
   const { preferences } = useLibraryPreferences();
 
   const adjacentParams = {
@@ -26,7 +26,7 @@ export const MediaDetailNavigation = () => {
   const navigateToPrevious = useCallback(() => {
     if (adjacentMedia?.previous) {
       navigate({
-        to: "/library/$mediaId",
+        to: "/content/library/media/$mediaId",
         params: { mediaId: adjacentMedia.previous.id },
       });
     }
@@ -35,7 +35,7 @@ export const MediaDetailNavigation = () => {
   const navigateToNext = useCallback(() => {
     if (adjacentMedia?.next) {
       navigate({
-        to: "/library/$mediaId",
+        to: "/content/library/media/$mediaId",
         params: { mediaId: adjacentMedia.next.id },
       });
     }

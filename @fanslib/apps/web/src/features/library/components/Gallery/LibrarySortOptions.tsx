@@ -74,7 +74,7 @@ export const LibrarySortOptions = ({ value, onChange }: LibrarySortOptionsProps)
           <span>{selectedOption?.label ?? "Sort by..."}</span>
         </Button>
       </SelectTrigger>
-      <SelectContent className="w-[280px]">
+      <SelectContent className="w-[280px]" align="end">
         {sortOptions.map((option) => {
           return (
             <SelectItem key={option.value} value={option.value}>

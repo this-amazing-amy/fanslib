@@ -42,7 +42,7 @@ export const MediaView = ({
     <div className={cn("aspect-square overflow-hidden rounded-lg bg-base-300", className)}>
       {linkToMediaDetail ? (
         <Link
-          to="/library/$mediaId"
+          to="/content/library/media/$mediaId"
           params={{ mediaId: media.id }}
           className="block w-full h-full hover:opacity-90 transition-opacity"
         >

@@ -12,6 +12,17 @@ export const getRouter = () => {
     defaultErrorComponent: ErrorComponent,
     defaultNotFoundComponent: () => <NotFound />,
     scrollRestoration: true,
+    defaultViewTransition: {
+      types: ({ fromLocation, toLocation }) => {
+        if (!fromLocation) return ['initial'];
+        
+        const fromIndex = fromLocation.state.__TSR_index || 0;
+        const toIndex = toLocation.state.__TSR_index || 0;
+        const direction = fromIndex > toIndex ? 'back' : 'forward';
+        
+        return [`slide-${direction}`];
+      },
+    },
   });
 
   return router;

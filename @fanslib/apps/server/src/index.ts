@@ -17,6 +17,7 @@ import { subredditsRoutes } from "./features/subreddits/routes";
 import { tagsRoutes } from "./features/tags/routes";
 import { db } from "./lib/db";
 import { env } from "./lib/env";
+import { seedDatabase } from "./lib/seed";
 
 
 const app = new Elysia()
@@ -50,13 +51,16 @@ const app = new Elysia()
   // .use(redditAutomationRoutes)
   .listen(env().port);
 
-db().then(() => {
-  console.log(`🚀 Server running at http://localhost:${app.server?.port}`);
-  console.log(`📊 Database initialized`);
-}).catch((error) => {
-  console.error("Failed to initialize database:", error);
-  process.exit(1);
-});
+db()
+  .then(async () => {
+    await seedDatabase();
+    console.log(`🚀 Server running at http://localhost:${app.server?.port}`);
+    console.log(`📊 Database initialized`);
+  })
+  .catch((error) => {
+    console.error("Failed to initialize database:", error);
+    process.exit(1);
+  });
 
 // Export app type for Eden Treaty
 export type App = typeof app;
