@@ -23,7 +23,7 @@ export const Calendar = ({
         weekdays: "grid grid-cols-7",
         outside: "text-muted-foreground opacity-50",
         day: "btn btn-ghost h-9 w-9 p-0 font-normal aria-selected:opacity-100",
-        day_button: "h-9 w-9 p-0 z-10 cursor-pointer",
+        day_button: "h-9 w-9 p-0 z-20 cursor-pointer relative",
         selected: cn(
           "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
           selectedClassNames

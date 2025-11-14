@@ -87,7 +87,7 @@ export const TimePicker = ({ date, setDate, className, preferredTimes = [] }: Ti
 
   return (
     <div className={cn(className)}>
-      <Button variant="secondary" onPress={openModal} className="w-full">
+      <Button variant="ghost" onPress={openModal} className="w-full">
         {currentTime}
       </Button>
 
@@ -121,7 +121,7 @@ export const TimePicker = ({ date, setDate, className, preferredTimes = [] }: Ti
                     <Button
                       key={hour}
                       size="sm"
-                      variant={tempDate?.getHours() === hour ? "primary" : "secondary"}
+                      variant={tempDate?.getHours() === hour ? "primary" : "ghost"}
                       onPress={() => selectHour(hour)}
                     >
                       {hour.toString().padStart(2, "0")}
@@ -136,7 +136,7 @@ export const TimePicker = ({ date, setDate, className, preferredTimes = [] }: Ti
                       <Button
                         key={minute}
                         size="sm"
-                        variant={tempDate?.getMinutes() === minute ? "primary" : "secondary"}
+                        variant={tempDate?.getMinutes() === minute ? "primary" : "ghost"}
                         onPress={() => selectMinute(minute)}
                       >
                         {minute.toString().padStart(2, "0")}
@@ -159,10 +159,10 @@ export const TimePicker = ({ date, setDate, className, preferredTimes = [] }: Ti
               <div className="flex flex-col items-end gap-3 w-full">
                 <span className="text-sm text-muted-foreground text-right">Quick select</span>
                 <div className="flex flex-wrap gap-2 justify-end">
-                  <Button size="sm" variant="secondary" onPress={setToNow}>
+                  <Button size="sm" variant="ghost" onPress={setToNow}>
                     Now
                   </Button>
-                  <Button size="sm" variant="secondary" onPress={setToNextHour}>
+                  <Button size="sm" variant="ghost" onPress={setToNextHour}>
                     Next hour
                   </Button>
                   <div className="w-full border-t my-2" />
@@ -170,7 +170,7 @@ export const TimePicker = ({ date, setDate, className, preferredTimes = [] }: Ti
                     <Button
                       key={time}
                       size="sm"
-                      variant={time === currentTime ? "primary" : "secondary"}
+                      variant={time === currentTime ? "primary" : "ghost"}
                       onPress={() => setTimeFromString(time)}
                     >
                       {time}

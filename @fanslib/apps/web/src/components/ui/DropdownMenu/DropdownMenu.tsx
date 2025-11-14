@@ -1,157 +1,81 @@
+import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import type { ReactElement, ReactNode } from 'react';
-import { cloneElement, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import * as React from 'react';
 import { cn } from '~/lib/cn';
 
-type DropdownMenuContextValue = {
-  isOpen: boolean;
-  open: () => void;
-  close: () => void;
-  toggle: () => void;
-  triggerRef: React.RefObject<HTMLElement | null>;
-};
+export const DropdownMenu = DropdownMenuPrimitive.Root;
 
-const DropdownMenuContext = createContext<DropdownMenuContextValue | null>(null);
-
-export const DropdownMenu = ({ children }: { children: ReactNode }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const triggerRef = useRef<HTMLElement | null>(null);
-
-  const open = useCallback(() => setIsOpen(true), []);
-  const close = useCallback(() => setIsOpen(false), []);
-  const toggle = useCallback(() => setIsOpen((v) => !v), []);
-
-  const value = useMemo(
-    () => ({ isOpen, open, close, toggle, triggerRef }),
-    [isOpen, open, close, toggle]
-  );
-
-  return <DropdownMenuContext.Provider value={value}>{children}</DropdownMenuContext.Provider>;
-};
-
-export const DropdownMenuTrigger = ({ children }: { children: ReactElement }) => {
-  const ctx = useContext(DropdownMenuContext);
-  if (!ctx) return null;
-
-  const { toggle, triggerRef } = ctx;
-
-  const childProps = children.props as { onClick?: (e: React.MouseEvent) => void; ref?: React.Ref<HTMLElement> };
-  return cloneElement(children, {
-    ref: (node: HTMLElement | null) => {
-      (triggerRef as React.MutableRefObject<HTMLElement | null>).current = node;
-      if (typeof childProps.ref === 'function') {
-        childProps.ref(node);
-      } else if (childProps.ref) {
-        (childProps.ref as React.MutableRefObject<HTMLElement | null>).current = node;
-      }
-    },
-    onClick: (e: React.MouseEvent) => {
-      childProps.onClick?.(e);
-      if (!e.defaultPrevented) {
-        toggle();
-      }
-    },
-    'aria-haspopup': 'menu',
-    'aria-expanded': ctx.isOpen,
-  } as Partial<unknown>);
-};
+export const DropdownMenuTrigger = ({ children, asChild = true }: { children: ReactElement; asChild?: boolean }) => (
+  <DropdownMenuPrimitive.Trigger asChild={asChild}>{children}</DropdownMenuPrimitive.Trigger>
+);
 
 export const DropdownMenuContent = ({
   children,
   className,
   align = 'start',
+  sideOffset = 4,
 }: {
   children: ReactNode;
   className?: string;
-  align?: 'start' | 'end';
-}) => {
-  const ctx = useContext(DropdownMenuContext);
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  useEffect(() => {
-    if (!ctx) return;
-    if (ctx.isOpen) setTimeout(() => setIsAnimating(true), 10);
-    else setIsAnimating(false);
-  }, [ctx]);
-
-  useEffect(() => {
-    if (!ctx?.isOpen) return;
-    const onDocClick = (e: MouseEvent) => {
-      const target = e.target as Node;
-      if (ctx.triggerRef.current?.contains(target as Node)) return;
-      ctx.close();
-    };
-    document.addEventListener('mousedown', onDocClick);
-    return () => document.removeEventListener('mousedown', onDocClick);
-  }, [ctx]);
-
-  if (!ctx?.isOpen) return null;
-
-  const rect = ctx.triggerRef.current?.getBoundingClientRect();
-  const top = rect ? rect.bottom + window.scrollY : 0;
-  const leftBase = rect ? rect.left + window.scrollX : 0;
-  const rightBase = rect ? rect.right + window.scrollX : 0;
-  const left = align === 'end' ? Math.max(0, rightBase - 224) : leftBase; // 224px default width fallback
-
-  return (
-    <div className="fixed inset-0 z-50">
-      <div className="absolute inset-0" onClick={ctx.close} />
-      <div
-        className={cn(
-          'absolute mt-2 rounded-xl bg-base-100 border-2 border-base-content shadow-lg p-1',
-          'transition-all duration-200 ease-out origin-top',
-          isAnimating ? 'opacity-100 scale-100' : 'opacity-0 scale-95',
-          className
-        )}
-        style={{ top, left }}
-        role="menu"
-      >
-        {children}
-      </div>
-    </div>
-  );
-};
-
-
-
-export const DropdownMenuItem = ({
-  children,
-  className,
-  onClick,
-  disabled,
-}: {
-  children: ReactNode;
-  className?: string;
-  onClick?: () => void;
-  disabled?: boolean;
-}) => {
-  const ctx = useContext(DropdownMenuContext);
-  const onSelect = () => {
-    if (disabled) return;
-    onClick?.();
-    ctx?.close();
-  };
-  return (
-    <div
-      onClick={onSelect}
-      role="menuitem"
-      aria-disabled={disabled}
+  align?: 'start' | 'end' | 'center';
+  sideOffset?: number;
+}) => (
+  <DropdownMenuPrimitive.Portal>
+    <DropdownMenuPrimitive.Content
+      align={align}
+      sideOffset={sideOffset}
       className={cn(
-        'rounded-md px-2 py-1.5 text-sm cursor-pointer select-none outline-none transition-colors',
-        disabled ? 'opacity-50 pointer-events-none' : 'hover:bg-primary/20 hover:ring-2 hover:ring-primary',
+        'z-50 min-w-[8rem] overflow-hidden rounded-xl bg-base-100 border-2 border-base-content shadow-lg p-1',
+        'data-[state=open]:animate-in data-[state=closed]:animate-out',
+        'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+        'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+        'data-[side=bottom]:slide-in-from-top-2',
+        'data-[side=left]:slide-in-from-right-2',
+        'data-[side=right]:slide-in-from-left-2',
+        'data-[side=top]:slide-in-from-bottom-2',
         className
       )}
     >
       {children}
-    </div>
-  );
-};
+    </DropdownMenuPrimitive.Content>
+  </DropdownMenuPrimitive.Portal>
+);
+
+export const DropdownMenuItem = React.forwardRef<
+  React.ElementRef<typeof DropdownMenuPrimitive.Item>,
+  React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Item> & {
+    onClick?: () => void;
+    disabled?: boolean;
+  }
+>(({ className, onClick, disabled, ...props }, ref) => (
+  <DropdownMenuPrimitive.Item
+    ref={ref}
+    disabled={disabled}
+    onSelect={(e) => {
+      if (disabled) {
+        e.preventDefault();
+        return;
+      }
+      onClick?.();
+    }}
+    className={cn(
+      'rounded-md px-2 py-1.5 text-sm cursor-pointer select-none outline-none transition-colors',
+      'focus:bg-primary/20 focus:ring-2 focus:ring-primary',
+      'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      disabled ? 'opacity-50 pointer-events-none' : 'hover:bg-primary/20 hover:ring-2 hover:ring-primary',
+      className
+    )}
+    {...props}
+  />
+));
+DropdownMenuItem.displayName = DropdownMenuPrimitive.Item.displayName;
 
 export type DropdownMenuSeparatorProps = {
   className?: string;
 };
 
 export const DropdownMenuSeparator = ({ className }: DropdownMenuSeparatorProps) => (
-  <div className={cn('hidden', className)} />
+  <DropdownMenuPrimitive.Separator className={cn('hidden', className)} />
 );
 
 export type DropdownMenuLabelProps = {
@@ -160,5 +84,7 @@ export type DropdownMenuLabelProps = {
 };
 
 export const DropdownMenuLabel = ({ children, className }: DropdownMenuLabelProps) => (
-  <div className={cn('px-2 py-1.5 text-base font-semibold', className)}>{children}</div>
+  <DropdownMenuPrimitive.Label className={cn('px-2 py-1.5 text-base font-semibold', className)}>
+    {children}
+  </DropdownMenuPrimitive.Label>
 );

@@ -71,7 +71,7 @@ export const MediaTileLite = memo(
     }, [isActivePreview, media.type]);
 
     return (
-      <div className={cn("relative aspect-square bg-muted rounded-md overflow-hidden", className)}>
+      <div className={cn("relative aspect-square bg-base-300 rounded-lg overflow-hidden", className)}>
         {media.type === "video" ? (
           <>
             {!isActivePreview && (

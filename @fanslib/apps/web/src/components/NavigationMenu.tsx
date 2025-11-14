@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useAtom } from 'jotai';
 import type { LucideIcon } from 'lucide-react';
-import { Calendar, Clapperboard, FileText, Home, Monitor, PanelLeft, PanelLeftClose, Settings } from 'lucide-react';
+import { Calendar, Clapperboard, Home, Monitor, PanelLeft, PanelLeftClose, Settings } from 'lucide-react';
 import { cn } from '~/lib/cn';
 import { closeSidebarAtom, toggleSidebarCollapsedAtom } from '~/state/sidebar';
 
@@ -14,8 +14,7 @@ type MenuItem = {
 const menuItems: MenuItem[] = [
   { to: '/', label: 'Dashboard', icon: Home },
   { to: '/library', label: 'Media', icon: Clapperboard },
-  { to: '/posts', label: 'Posts', icon: FileText },
-  { to: '/calendar', label: 'Calendar', icon: Calendar },
+  { to: '/plan', label: 'Plan', icon: Calendar },
   { to: '/channels', label: 'Channels', icon: Monitor },
   { to: '/settings', label: 'Settings', icon: Settings },
 ];

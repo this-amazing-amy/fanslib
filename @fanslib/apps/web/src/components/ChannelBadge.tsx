@@ -4,7 +4,7 @@ import { Badge } from "./ui/Badge";
 import { ChannelTypeIcon } from "./ChannelTypeIcon";
 
 type ChannelBadgeProps = {
-  name: string;
+  name?: string;
   typeId: string;
   size?: "default" | "sm" | "lg";
   selected?: boolean;
@@ -12,10 +12,11 @@ type ChannelBadgeProps = {
   disabled?: boolean;
   onClick?: () => void;
   className?: string;
+  noName?: boolean;
 };
 
 export const ChannelBadge = ({
-  name,
+  name = "",
   typeId,
   size = "default",
   selected = false,
@@ -23,6 +24,7 @@ export const ChannelBadge = ({
   disabled = false,
   onClick,
   className,
+  noName = false,
 }: ChannelBadgeProps) => {
   const channelType = CHANNEL_TYPES[typeId as ChannelTypeId];
 
@@ -54,7 +56,7 @@ export const ChannelBadge = ({
         color={(selectable && selected) || !selectable ? "white" : channelType.color}
         className={cn("w-4 h-4", size === "sm" && "w-3 h-3")}
       />
-      {name}
+      {!noName && name}
     </Badge>
   );
 };

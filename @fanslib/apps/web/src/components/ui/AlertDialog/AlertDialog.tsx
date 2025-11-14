@@ -1,6 +1,6 @@
+import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog';
 import type { ReactElement, ReactNode } from 'react';
-import { cloneElement, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { FocusScope, usePreventScroll } from 'react-aria';
+import * as React from 'react';
 import { cn } from '~/lib/cn';
 import type { ButtonProps } from '../Button';
 import { Button } from '../Button';
@@ -11,99 +11,71 @@ export type AlertDialogProps = {
   onOpenChange?: (open: boolean) => void;
 };
 
-type AlertDialogContextValue = {
-  isOpen: boolean;
-  setOpen: (v: boolean) => void;
-  toggle: () => void;
-};
+export const AlertDialog = AlertDialogPrimitive.Root;
 
-const AlertDialogContext = createContext<AlertDialogContextValue | null>(null);
+export const AlertDialogTrigger = ({ children, asChild = true }: { children: ReactElement; asChild?: boolean }) => (
+  <AlertDialogPrimitive.Trigger asChild={asChild}>{children}</AlertDialogPrimitive.Trigger>
+);
 
-export const AlertDialog = ({ children, open, onOpenChange }: AlertDialogProps) => {
-  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
-  const isControlled = typeof open === 'boolean';
-  const isOpen = isControlled ? open : uncontrolledOpen;
-  const setOpen = useCallback((v: boolean) => {
-    if (isControlled) onOpenChange?.(v);
-    else setUncontrolledOpen(v);
-  }, [isControlled, onOpenChange]);
-  const toggle = useCallback(() => setOpen(!isOpen), [setOpen, isOpen]);
-  const value = useMemo(() => ({ isOpen, setOpen, toggle }), [isOpen, setOpen, toggle]);
-  return <AlertDialogContext.Provider value={value}>{children}</AlertDialogContext.Provider>;
-};
+const AlertDialogOverlay = React.forwardRef<
+  React.ElementRef<typeof AlertDialogPrimitive.Overlay>,
+  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Overlay>
+>(({ className, ...props }, ref) => (
+  <AlertDialogPrimitive.Overlay
+    ref={ref}
+    className={cn(
+      'fixed inset-0 z-50 bg-black/50',
+      'data-[state=open]:animate-in data-[state=closed]:animate-out',
+      'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+      className
+    )}
+    {...props}
+  />
+));
+AlertDialogOverlay.displayName = AlertDialogPrimitive.Overlay.displayName;
 
-export const AlertDialogTrigger = ({ children }: { children: ReactElement }) => {
-  const ctx = useContext(AlertDialogContext);
-  if (!ctx) return null;
-
-  const { toggle, isOpen } = ctx;
-
-  const childProps = children.props as { onClick?: (e: React.MouseEvent) => void };
-  return cloneElement(children, {
-    onClick: (e: React.MouseEvent) => {
-      childProps.onClick?.(e);
-      if (!e.defaultPrevented) {
-        toggle();
-      }
-    },
-    'aria-haspopup': 'dialog',
-    'aria-expanded': isOpen,
-  } as Partial<unknown>);
-};
-
-export const AlertDialogContent = ({ children, className, isDismissable = false }: { children: ReactNode; className?: string; isDismissable?: boolean }) => {
-  const ctx = useContext(AlertDialogContext);
-  const ref = useRef<HTMLDivElement>(null);
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  usePreventScroll();
-
-  useEffect(() => {
-    if (!ctx) return;
-    if (ctx.isOpen) setIsAnimating(true);
-  }, [ctx]);
-
-  useEffect(() => {
-    if (!ctx?.isOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isDismissable) ctx.setOpen(false);
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [ctx, isDismissable]);
-
-  if (!ctx?.isOpen) return null;
-
-  return (
-    <div
+export const AlertDialogContent = ({
+  children,
+  className,
+  isDismissable = false,
+}: {
+  children: ReactNode;
+  className?: string;
+  isDismissable?: boolean;
+}) => (
+  <AlertDialogPrimitive.Portal>
+    <AlertDialogOverlay />
+    <AlertDialogPrimitive.Content
       className={cn(
-        'fixed inset-0 z-50 flex items-center justify-center bg-black/50',
-        'transition-opacity duration-200 ease-out',
-        isAnimating ? 'opacity-100' : 'opacity-0'
+        'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-base-100 p-6 shadow-xl duration-200',
+        'data-[state=open]:animate-in data-[state=closed]:animate-out',
+        'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+        'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+        'data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]',
+        'data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]',
+        'rounded-lg',
+        className
       )}
-      onClick={(e) => {
-        if (isDismissable && e.target === e.currentTarget) ctx.setOpen(false);
+      onEscapeKeyDown={(e) => {
+        if (!isDismissable) {
+          e.preventDefault();
+        }
+      }}
+      onPointerDownOutside={(e) => {
+        if (!isDismissable) {
+          e.preventDefault();
+        }
+      }}
+      onInteractOutside={(e) => {
+        if (!isDismissable) {
+          e.preventDefault();
+        }
       }}
     >
-      <FocusScope contain restoreFocus autoFocus>
-        <div
-          ref={ref}
-          role="alertdialog"
-          aria-modal="true"
-          className={cn(
-            'bg-base-100 rounded-lg shadow-xl p-6 w-full max-w-lg',
-            'transition-all duration-200 ease-out',
-            isAnimating ? 'opacity-100 scale-100' : 'opacity-0 scale-95',
-            className
-          )}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {children}
-        </div>
-      </FocusScope>
-    </div>
-  );
-};
+      {children}
+    </AlertDialogPrimitive.Content>
+  </AlertDialogPrimitive.Portal>
+);
 
 export type AlertDialogHeaderProps = {
   children: ReactNode;
@@ -120,7 +92,7 @@ export type AlertDialogTitleProps = {
 };
 
 export const AlertDialogTitle = ({ children, className }: AlertDialogTitleProps) => (
-  <h3 className={cn('font-bold text-lg', className)}>{children}</h3>
+  <AlertDialogPrimitive.Title className={cn('font-bold text-lg', className)}>{children}</AlertDialogPrimitive.Title>
 );
 
 export type AlertDialogDescriptionProps = {
@@ -129,7 +101,9 @@ export type AlertDialogDescriptionProps = {
 };
 
 export const AlertDialogDescription = ({ children, className }: AlertDialogDescriptionProps) => (
-  <p className={cn('text-sm opacity-70', className)}>{children}</p>
+  <AlertDialogPrimitive.Description className={cn('text-sm opacity-70', className)}>
+    {children}
+  </AlertDialogPrimitive.Description>
 );
 
 export type AlertDialogFooterProps = {
@@ -145,33 +119,32 @@ export type AlertDialogActionProps = ButtonProps & {
   children: ReactNode;
 };
 
-export const AlertDialogAction = ({ children, variant = 'error', onClick, ...props }: AlertDialogActionProps & { onClick?: () => void }) => {
-  const ctx = useContext(AlertDialogContext);
-  const click = () => {
-    onClick?.();
-    ctx?.setOpen(false);
-  };
-  return (
-    <Button variant={variant} {...props} onClick={click}>
+export const AlertDialogAction = ({
+  children,
+  variant = 'error',
+  onClick,
+  ...props
+}: AlertDialogActionProps & { onClick?: () => void }) => (
+  <AlertDialogPrimitive.Action asChild>
+    <Button variant={variant} {...props} onClick={onClick}>
       {children}
     </Button>
-  );
-};
+  </AlertDialogPrimitive.Action>
+);
 
 export type AlertDialogCancelProps = ButtonProps & {
   children: ReactNode;
 };
 
-export const AlertDialogCancel = ({ children, variant = 'ghost', onClick, ...props }: AlertDialogCancelProps & { onClick?: () => void }) => {
-  const ctx = useContext(AlertDialogContext);
-  const click = () => {
-    onClick?.();
-    ctx?.setOpen(false);
-  };
-  return (
-    <Button variant={variant} {...props} onClick={click}>
+export const AlertDialogCancel = ({
+  children,
+  variant = 'ghost',
+  onClick,
+  ...props
+}: AlertDialogCancelProps & { onClick?: () => void }) => (
+  <AlertDialogPrimitive.Cancel asChild>
+    <Button variant={variant} {...props} onClick={onClick}>
       {children}
     </Button>
-  );
-};
-
+  </AlertDialogPrimitive.Cancel>
+);

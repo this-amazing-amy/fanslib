@@ -1,116 +1,45 @@
+import * as PopoverPrimitive from '@radix-ui/react-popover';
 import type { ReactElement, ReactNode } from 'react';
-import { cloneElement, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '~/lib/cn';
 
-type PopoverContextValue = {
-  isOpen: boolean;
-  setOpen: (v: boolean) => void;
-  toggle: () => void;
-  triggerRef: React.RefObject<HTMLElement | null>;
-};
+export const Popover = PopoverPrimitive.Root;
 
-const PopoverContext = createContext<PopoverContextValue | null>(null);
-
-export const Popover = ({ children, open, onOpenChange }: { children: ReactNode; open?: boolean; onOpenChange?: (v: boolean) => void }) => {
-  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
-  const isControlled = typeof open === 'boolean';
-  const isOpen = isControlled ? open : uncontrolledOpen;
-  const setOpen = useCallback((v: boolean) => {
-    if (isControlled) onOpenChange?.(v);
-    else setUncontrolledOpen(v);
-  }, [isControlled, onOpenChange]);
-  const toggle = useCallback(() => setOpen(!isOpen), [setOpen, isOpen]);
-  const triggerRef = useRef<HTMLElement | null>(null);
-
-  const value = useMemo(() => ({ isOpen, setOpen, toggle, triggerRef }), [isOpen, setOpen, toggle]);
-  return <PopoverContext.Provider value={value}>{children}</PopoverContext.Provider>;
-};
-
-export const PopoverTrigger = ({ children }: { children: ReactElement }) => {
-  const ctx = useContext(PopoverContext);
-  if (!ctx) return null;
-
-  const { toggle, triggerRef, isOpen } = ctx;
-
-  const childProps = children.props as { onClick?: (e: React.MouseEvent) => void; ref?: React.Ref<HTMLElement> };
-  return cloneElement(children, {
-    ref: (node: HTMLElement | null) => {
-      (triggerRef as React.MutableRefObject<HTMLElement | null>).current = node;
-      if (typeof childProps.ref === 'function') {
-        childProps.ref(node);
-      } else if (childProps.ref) {
-        (childProps.ref as React.MutableRefObject<HTMLElement | null>).current = node;
-      }
-    },
-    onClick: (e: React.MouseEvent) => {
-      childProps.onClick?.(e);
-      if (!e.defaultPrevented) {
-        toggle();
-      }
-    },
-    'aria-haspopup': 'dialog',
-    'aria-expanded': isOpen,
-  } as Partial<unknown>);
-};
+export const PopoverTrigger = ({ children, asChild = true }: { children: ReactElement; asChild?: boolean }) => (
+  <PopoverPrimitive.Trigger asChild={asChild}>{children}</PopoverPrimitive.Trigger>
+);
 
 export const PopoverContent = ({
   children,
   className,
   align = 'start',
   side = 'bottom',
+  sideOffset = 4,
 }: {
   children: ReactNode;
   className?: string;
-  align?: 'start' | 'end';
+  align?: 'start' | 'end' | 'center';
   side?: 'top' | 'right' | 'bottom' | 'left';
-}) => {
-  const ctx = useContext(PopoverContext);
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  useEffect(() => {
-    if (!ctx) return;
-    if (ctx.isOpen) setTimeout(() => setIsAnimating(true), 10);
-    else setIsAnimating(false);
-  }, [ctx]);
-
-  useEffect(() => {
-    if (!ctx?.isOpen) return;
-    const onDocClick = (e: MouseEvent) => {
-      const target = e.target as Node;
-      if (ctx.triggerRef.current?.contains(target as Node)) return;
-      ctx.setOpen(false);
-    };
-    document.addEventListener('mousedown', onDocClick);
-    return () => document.removeEventListener('mousedown', onDocClick);
-  }, [ctx]);
-
-  if (!ctx?.isOpen) return null;
-
-  const rect = ctx.triggerRef.current?.getBoundingClientRect();
-  const triggerTop = rect ? rect.top + window.scrollY : 0;
-  const triggerBottom = rect ? rect.bottom + window.scrollY : 0;
-  const triggerLeft = rect ? rect.left + window.scrollX : 0;
-  const triggerRight = rect ? rect.right + window.scrollX : 0;
-
-  const top = side === 'top' ? triggerTop : side === 'bottom' ? triggerBottom : triggerTop;
-  const leftBase = align === 'end' ? Math.max(0, triggerRight - 288) : triggerLeft; // 288px default width fallback
-
-  return (
-    <div className="fixed inset-0 z-50">
-      <div className="absolute inset-0" onClick={() => ctx.setOpen(false)} />
-      <div
-        className={cn(
-          'absolute mt-2 rounded-lg bg-base-100 border border-base-300 shadow-lg p-4',
-          'transition-opacity duration-150 ease-out',
-          isAnimating ? 'opacity-100' : 'opacity-0',
-          className
-        )}
-        style={{ top, left: leftBase }}
-        role="dialog"
-      >
-        {children}
-      </div>
-    </div>
-  );
-};
-
+  sideOffset?: number;
+}) => (
+  <PopoverPrimitive.Portal>
+    <PopoverPrimitive.Content
+      align={align}
+      side={side}
+      sideOffset={sideOffset}
+      data-radix-popover-content="true"
+      className={cn(
+        'z-[80] rounded-lg bg-base-100 border border-base-300 shadow-lg p-4 outline-none',
+        'data-[state=open]:animate-in data-[state=closed]:animate-out',
+        'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+        'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+        'data-[side=bottom]:slide-in-from-top-2',
+        'data-[side=left]:slide-in-from-right-2',
+        'data-[side=right]:slide-in-from-left-2',
+        'data-[side=top]:slide-in-from-bottom-2',
+        className
+      )}
+    >
+      {children}
+    </PopoverPrimitive.Content>
+  </PopoverPrimitive.Portal>
+);

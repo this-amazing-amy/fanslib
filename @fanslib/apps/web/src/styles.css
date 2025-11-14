@@ -84,6 +84,28 @@
 }
 
 @layer components {
+  /* Override secondary button color to soft pastel teal */
+  .btn.btn-secondary,
+  button.btn-secondary {
+    --tw-bg-opacity: 1 !important;
+    background-color: oklch(85% 0.08 200 / var(--tw-bg-opacity)) !important;
+    --tw-text-opacity: 1 !important;
+    color: oklch(45% 0.12 200 / var(--tw-text-opacity)) !important;
+    border-color: oklch(85% 0.08 200 / var(--tw-bg-opacity)) !important;
+  }
+
+  .btn.btn-secondary:hover,
+  button.btn-secondary:hover {
+    background-color: oklch(80% 0.10 200) !important;
+    border-color: oklch(80% 0.10 200) !important;
+  }
+
+  .btn.btn-secondary:active,
+  button.btn-secondary:active {
+    background-color: oklch(75% 0.12 200) !important;
+    border-color: oklch(75% 0.12 200) !important;
+  }
+
   /* Content status indicators */
   .status-draft {
     background-color: var(--color-content-draft);

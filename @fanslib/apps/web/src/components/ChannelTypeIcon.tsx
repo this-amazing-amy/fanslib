@@ -1,4 +1,4 @@
-import { SVGProps } from "react";
+import type { SVGProps } from "react";
 import { cn } from "~/lib/cn";
 import { CHANNEL_TYPES, type ChannelTypeId } from "~/lib/channel-types";
 import {

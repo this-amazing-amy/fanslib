@@ -1,5 +1,5 @@
 import type { Media } from "@fanslib/types";
-import { format, formatDistanceToNow, isSameDay, parse } from "date-fns";
+import { format, isSameDay, parse } from "date-fns";
 import { useEffect, useRef, useState } from "react";
 import { DateTimePicker } from "~/components/DateTimePicker";
 import { Button } from "~/components/ui/Button";
@@ -165,9 +165,6 @@ export const CreateShootDialog = ({
                     </div>
                     <div className="min-w-0">
                       <div className="truncate font-medium">{media.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {formatDistanceToNow(media.fileCreationDate, { addSuffix: true })}
-                      </div>
                     </div>
                     <div className="text-sm text-muted-foreground whitespace-nowrap">
                       {format(media.fileCreationDate, "PPP")}

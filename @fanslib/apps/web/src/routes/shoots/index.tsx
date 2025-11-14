@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { NavigationPageHeader } from '~/components/ui/NavigationPageHeader';
 import { AnalyticsProvider } from '~/contexts/AnalyticsContext';
+import { LibraryPreferencesProvider } from '~/contexts/LibraryPreferencesContext';
 import { MediaDragProvider } from '~/contexts/MediaDragContext';
 import { MediaSelectionProvider } from '~/contexts/MediaSelectionContext';
 import { PlanPreferencesProvider } from '~/contexts/PlanPreferencesContext';
@@ -54,9 +55,11 @@ const ShootsPageContent = () => {
 };
 
 export const ShootsPage = () => (
-  <ShootProvider>
-    <ShootsPageContent />
-  </ShootProvider>
+  <LibraryPreferencesProvider>
+    <ShootProvider>
+      <ShootsPageContent />
+    </ShootProvider>
+  </LibraryPreferencesProvider>
 );
 
 export const Route = createFileRoute('/shoots/')({
