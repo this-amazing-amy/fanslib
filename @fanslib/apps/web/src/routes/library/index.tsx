@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { SplitViewLayout } from '~/components/SplitViewLayout';
+import { NavigationPageHeader } from '~/components/ui/NavigationPageHeader';
 import { AnalyticsProvider } from '~/contexts/AnalyticsContext';
 import { FilterPresetProvider } from '~/contexts/FilterPresetContext';
 import { LibraryPreferencesProvider, useLibraryPreferences } from '~/contexts/LibraryPreferencesContext';
@@ -11,11 +11,17 @@ import { RedditPostProvider } from '~/contexts/RedditPostContext';
 import { ShootProvider } from '~/contexts/ShootContext';
 import { ShootPreferencesProvider } from '~/contexts/ShootPreferencesContext';
 import { TagDragProvider } from '~/contexts/TagDragContext';
+import { FilterActions } from '~/features/library/components/MediaFilters/FilterActions';
+import { MediaFiltersProvider } from '~/features/library/components/MediaFilters/MediaFiltersContext';
+import { GalleryViewSettings } from '~/features/library/components/Gallery/GalleryViewSettings';
+import { LibrarySortOptions } from '~/features/library/components/Gallery/LibrarySortOptions';
+import { ScanButton } from '~/features/library/components/ScanButton';
+import { useScan } from '~/hooks/useScan';
 import { Library } from '~/features/library/components/Library';
-import { Shoots } from '~/features/shoots/components/Shoots';
 
 const LibraryPageContent = () => {
-  const { updatePreferences } = useLibraryPreferences();
+  const { preferences, updatePreferences } = useLibraryPreferences();
+  const { isScanning, handleScan } = useScan();
 
   return (
       <MediaSelectionProvider media={[]}>
@@ -27,17 +33,37 @@ const LibraryPageContent = () => {
                     <AnalyticsProvider>
                       <PlanPreferencesProvider>
                         <RedditPostProvider>
-
-
-    <SplitViewLayout
-      id="manage-page"
-      mainContent={<Library />}
-      sideContent={<Shoots />}
-      mainDefaultSize={50}
-      sideDefaultSize={50}
-      sideMaxSize={50}
-    />
-
+                          <MediaFiltersProvider value={preferences.filter} onChange={(filters) => updatePreferences({ filter: filters, pagination: { page: 1 } })}>
+                            <div className="flex h-full w-full flex-col overflow-hidden">
+                              <div className="flex-none px-6 py-6">
+                                <NavigationPageHeader
+                                  tabs={[
+                                    { label: 'Library', to: '/library' },
+                                    { label: 'Shoots', to: '/shoots' },
+                                  ]}
+                                  actions={
+                                    <div className="flex items-center gap-2">
+                                      <FilterActions />
+                                      <GalleryViewSettings />
+                                      <LibrarySortOptions
+                                        value={preferences.sort}
+                                        onChange={(sort) => {
+                                          updatePreferences({
+                                            sort,
+                                            pagination: { page: 1 },
+                                          });
+                                        }}
+                                      />
+                                      <ScanButton isScanning={isScanning} onScan={handleScan} />
+                                    </div>
+                                  }
+                                />
+                              </div>
+                              <div className="flex-1 min-h-0 overflow-hidden">
+                                <Library showHeader={false} />
+                              </div>
+                            </div>
+                          </MediaFiltersProvider>
                         </RedditPostProvider>
                       </PlanPreferencesProvider>
                     </AnalyticsProvider>

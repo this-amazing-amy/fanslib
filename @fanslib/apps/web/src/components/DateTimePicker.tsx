@@ -24,7 +24,7 @@ export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
+      <PopoverTrigger>
       <Button
         variant="secondary"
         className={cn(

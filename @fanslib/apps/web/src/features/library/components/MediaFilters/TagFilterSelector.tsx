@@ -102,7 +102,7 @@ export const TagFilterSelector = ({ value, onChange }: TagFilterSelectorProps) =
 
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
-      <PopoverTrigger asChild>
+      <PopoverTrigger>
         <Button
           variant="outline"
           aria-expanded={open}
@@ -133,7 +133,7 @@ export const TagFilterSelector = ({ value, onChange }: TagFilterSelectorProps) =
                   open={isExpanded}
                   onOpenChange={() => toggleDimension(dimension.id)}
                 >
-                  <CollapsibleTrigger asChild>
+                  <CollapsibleTrigger>
                     <div className="flex items-center justify-between w-full px-2 py-1.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground cursor-pointer border-b">
                       <div className="flex items-center gap-2">
                         <span>{dimension.name}</span>

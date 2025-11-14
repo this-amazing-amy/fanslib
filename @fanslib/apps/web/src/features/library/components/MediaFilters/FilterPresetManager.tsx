@@ -130,7 +130,7 @@ export const FilterPresetManager = ({ open, onOpenChange }: FilterPresetManagerP
                         </div>
                       ) : (
                         <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
+                          <DropdownMenuTrigger>
                             <Button variant="ghost" size="icon" className="h-8 w-8">
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>

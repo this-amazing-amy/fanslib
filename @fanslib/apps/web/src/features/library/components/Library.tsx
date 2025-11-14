@@ -1,20 +1,14 @@
 import type { MediaFilters } from "@fanslib/types";
 import { PageContainer } from "~/components/ui/PageContainer";
-import { PageHeader } from "~/components/ui/PageHeader";
-import { SectionHeader } from "~/components/ui/SectionHeader";
 import { FilterPresetProvider } from "~/contexts/FilterPresetContext";
 import { useLibraryPreferences } from "~/contexts/LibraryPreferencesContext";
-import { useScan } from "~/hooks/useScan";
 import { useMediaListQuery } from "~/lib/queries/library";
 import { Gallery } from "./Gallery/Gallery";
 import { GalleryPagination } from "./Gallery/GalleryPagination";
-import { GalleryViewSettings } from "./Gallery/GalleryViewSettings";
-import { LibrarySortOptions } from "./Gallery/LibrarySortOptions";
-import { FilterActions } from "./MediaFilters/FilterActions";
 import { MediaFilters as MediaFiltersComponent } from "./MediaFilters/MediaFilters";
 import { MediaFiltersProvider } from "./MediaFilters/MediaFiltersContext";
-import { ScanButton } from "./ScanButton";
 import { ScanProgress } from "./ScanProgress";
+import { useScan } from "~/hooks/useScan";
 
 export type LibraryProps = {
   showHeader?: boolean;
@@ -41,34 +35,8 @@ export const Library = ({ showHeader = true }: LibraryProps) => {
   return (
     <FilterPresetProvider onFiltersChange={updateFilters}>
       <MediaFiltersProvider value={preferences.filter} onChange={updateFilters}>
-        <PageContainer className="h-full w-full overflow-hidden flex flex-col">
-          {showHeader && (
-            <PageHeader
-              title="Library"
-              description="Browse and manage your media collection"
-              actions={<ScanButton isScanning={isScanning} onScan={handleScan} />}
-              className="py-6 px-6 flex-none"
-            />
-          )}
+        <PageContainer className="flex h-full w-full flex-col overflow-hidden px-0 py-0">
           <div className="flex-1 min-h-0 p-6 flex flex-col">
-            <SectionHeader
-              title=""
-              actions={
-                <div className="flex items-center gap-2">
-                  <FilterActions />
-                  <GalleryViewSettings />
-                  <LibrarySortOptions
-                    value={preferences.sort}
-                    onChange={(sort) => {
-                      updatePreferences({
-                        sort,
-                        pagination: { page: 1 },
-                      });
-                    }}
-                  />
-                </div>
-              }
-            />
             <div className="mb-4">
               <MediaFiltersComponent />
             </div>

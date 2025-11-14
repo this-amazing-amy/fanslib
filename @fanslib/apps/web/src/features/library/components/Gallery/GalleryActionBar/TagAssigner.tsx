@@ -18,7 +18,7 @@ export const TagAssigner = ({ selectedMedia, disabled = false }: TagAssignerProp
   };
   return (
     <Popover open={isOpen} onOpenChange={handleOpenChange}>
-      <PopoverTrigger asChild>
+      <PopoverTrigger>
         <Button
           variant="outline"
           className="flex items-center gap-2"

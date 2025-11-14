@@ -1,17 +1,20 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { type ReactNode, useState } from 'react';
+import { Logo } from '~/components/Logo';
 import { NavigationMenu } from '~/components/NavigationMenu';
 import { BurgerIcon } from '~/components/ui/BurgerIcon';
-import { sidebarOpenAtom, toggleSidebarAtom } from '~/state/sidebar';
+import { cn } from '~/lib/cn';
+import { mobileNavigationDrawerOpenAtom, sidebarCollapsedAtom, toggleSidebarAtom } from '~/state/sidebar';
 
 export interface AppLayoutProps {
   children: ReactNode;
 }
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
-  const [sidebarOpen] = useAtom(sidebarOpenAtom);
+  const [sidebarOpen] = useAtom(mobileNavigationDrawerOpenAtom);
   const [, toggleSidebar] = useAtom(toggleSidebarAtom);
+  const [isCollapsed] = useAtom(sidebarCollapsedAtom);
 
   const [queryClient] = useState(
     () =>
@@ -70,20 +73,13 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             htmlFor='drawer-toggle'
             className='drawer-overlay lg:hidden'
           ></label>
-          <aside className='sidebar min-h-full w-64 sm:w-72 lg:w-80 bg-base-200 text-base-content'>
+          <aside className={cn('sidebar min-h-full bg-base-200 text-base-content flex flex-col', 'w-64 sm:w-72', isCollapsed ? 'lg:w-20' : 'lg:w-80')}>
             {/* Sidebar header - Touch-friendly */}
-            <div className='p-4 lg:p-6 border-b border-base-300'>
-              <div className='flex items-center space-x-3'>
-                <div className='w-8 h-8 lg:w-10 lg:h-10 bg-primary rounded-lg flex items-center justify-center'>
-                  <span className='text-primary-content font-bold text-lg lg:text-xl'>
-                    F
-                  </span>
-                </div>
-                <span className='text-xl lg:text-2xl font-bold'>FansLib</span>
-              </div>
+            <div className={cn('p-4 lg:p-6', isCollapsed && 'lg:p-4')}>
+              <Logo isCollapsed={isCollapsed} />
             </div>
 
-            <NavigationMenu />
+            <NavigationMenu isCollapsed={isCollapsed} />
           </aside>
         </div>
       </div>

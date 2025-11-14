@@ -16,7 +16,7 @@ export const GalleryViewSettings = () => {
 
   return (
     <DropdownMenu >
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger>
         <Button variant="ghost" size="icon" className="h-9 w-9">
           <Settings2 className="h-4 w-4" />
         </Button>

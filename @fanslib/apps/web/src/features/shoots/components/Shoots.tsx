@@ -1,10 +1,8 @@
 import { Camera } from "lucide-react";
 import type { FC } from "react";
-import { ShootsFilter } from "~/components/ShootsFilter";
 import { EmptyState } from "~/components/ui/EmptyState";
 import { ErrorState } from "~/components/ui/ErrorState";
 import { ScrollArea } from "~/components/ui/ScrollArea";
-import { SectionHeader } from "~/components/ui/SectionHeader";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
 import { MediaSelectionProvider } from "~/contexts/MediaSelectionContext";
 import { useShootContext } from "~/contexts/ShootContext";
@@ -14,7 +12,6 @@ import { ShootDetail } from "~/features/shoots/components/ShootDetail";
 import { useScrollPosition } from "~/hooks/useScrollPosition";
 import { cn } from "~/lib/cn";
 import { useMediaListQuery } from "~/lib/queries/library";
-import { ShootViewSettings } from "./ShootViewSettings";
 import { useShootsMedia } from "./useShootsMedia";
 
 type ShootsProps = {
@@ -47,16 +44,6 @@ const ShootsContent: FC<ShootsProps> = ({ className }) => {
       media={new Map(Array.from(allMedia.entries()).map(([key, value]) => [key.viewIndex, value]))}
     >
       <div className={cn(className, "flex h-full flex-col")}>
-        <div className="flex-none bg-background p-6">
-          <SectionHeader
-            title="Shoots"
-            description="Organize your media into themed collections"
-            actions={<ShootViewSettings />}
-          />
-          <div className="mt-4">
-            <ShootsFilter />
-          </div>
-        </div>
         <div className="flex-1 min-h-0">
           <ScrollArea className="h-full" ref={scrollRef}>
             <div className="flex flex-col px-6 pt-4 gap-2 pb-48">

@@ -136,7 +136,7 @@ export const FilterItemRenderer = ({
           value && "value" in value && value.value instanceof Date ? value.value : undefined;
         return (
           <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-            <PopoverTrigger asChild>
+            <PopoverTrigger>
               <Button
                 variant="outline"
                 className={cn(

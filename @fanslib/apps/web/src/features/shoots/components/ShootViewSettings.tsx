@@ -9,7 +9,7 @@ import {
 } from "~/components/ui/DropdownMenu";
 
 export const ShootViewSettings = () => <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger>
         <Button variant="outline" size="icon">
           <Settings2 className="h-4 w-4" />
         </Button>

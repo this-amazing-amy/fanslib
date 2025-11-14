@@ -29,7 +29,7 @@ export const ChannelFilterSelector = ({ value, onChange }: ChannelFilterSelector
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+      <PopoverTrigger>
         <Button
           variant="outline"
           aria-expanded={open}

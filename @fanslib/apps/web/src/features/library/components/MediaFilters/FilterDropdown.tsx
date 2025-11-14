@@ -54,7 +54,7 @@ export const FilterDropdown = ({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger>
                 <Button variant="ghost" size="icon" className="h-9 w-9" isDisabled={disabled}>
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -66,7 +66,7 @@ export const FilterDropdown = ({
           </Tooltip>
         </TooltipProvider>
       ) : (
-        <DropdownMenuTrigger asChild>
+        <DropdownMenuTrigger>
           <Button variant="outline" isDisabled={disabled}>
             <Filter className="h-4 w-4" />
             Filter

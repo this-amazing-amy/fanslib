@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ShootsIndexRouteImport } from './routes/shoots/index'
 import { Route as LibraryIndexRouteImport } from './routes/library/index'
 import { Route as LibraryMediaIdRouteImport } from './routes/library/$mediaId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShootsIndexRoute = ShootsIndexRouteImport.update({
+  id: '/shoots/',
+  path: '/shoots/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LibraryIndexRoute = LibraryIndexRouteImport.update({
@@ -33,30 +39,34 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/library/$mediaId': typeof LibraryMediaIdRoute
   '/library': typeof LibraryIndexRoute
+  '/shoots': typeof ShootsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/library/$mediaId': typeof LibraryMediaIdRoute
   '/library': typeof LibraryIndexRoute
+  '/shoots': typeof ShootsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/library/$mediaId': typeof LibraryMediaIdRoute
   '/library/': typeof LibraryIndexRoute
+  '/shoots/': typeof ShootsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/library/$mediaId' | '/library'
+  fullPaths: '/' | '/library/$mediaId' | '/library' | '/shoots'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/library/$mediaId' | '/library'
-  id: '__root__' | '/' | '/library/$mediaId' | '/library/'
+  to: '/' | '/library/$mediaId' | '/library' | '/shoots'
+  id: '__root__' | '/' | '/library/$mediaId' | '/library/' | '/shoots/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LibraryMediaIdRoute: typeof LibraryMediaIdRoute
   LibraryIndexRoute: typeof LibraryIndexRoute
+  ShootsIndexRoute: typeof ShootsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shoots/': {
+      id: '/shoots/'
+      path: '/shoots'
+      fullPath: '/shoots'
+      preLoaderRoute: typeof ShootsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/library/': {
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LibraryMediaIdRoute: LibraryMediaIdRoute,
   LibraryIndexRoute: LibraryIndexRoute,
+  ShootsIndexRoute: ShootsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

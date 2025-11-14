@@ -1,5 +1,5 @@
-import { ChevronDown } from 'lucide-react';
-import { type ReactNode, createContext, useContext, useState } from 'react';
+import { cloneElement, type ReactElement, type ReactNode, createContext, useContext, useState } from 'react';
+import { cn } from '~/lib/cn';
 
 type AccordionContextType = {
   type: 'single' | 'multiple';
@@ -109,31 +109,26 @@ export const AccordionItem = ({ children, value, className = '' }: AccordionItem
 };
 
 type AccordionTriggerProps = {
-  children: ReactNode;
+  children: ReactElement;
   className?: string;
   onClick?: (e: React.MouseEvent<HTMLElement>) => void;
-  asChild?: boolean;
 };
 
-export const AccordionTrigger = ({ children, className = '', onClick, asChild = false }: AccordionTriggerProps) => {
+export const AccordionTrigger = ({ children, className, onClick }: AccordionTriggerProps) => {
   const { isOpen, toggle } = useAccordionItemContext();
 
-  if (asChild) {
-    return <div onClick={(e) => onClick?.(e) ?? toggle()}>{children}</div>;
-  }
-
-  return (
-    <button
-      type="button"
-      onClick={onClick ?? toggle}
-      className={`flex w-full items-center justify-between py-4 px-4 font-medium text-left transition-all hover:bg-base-200 rounded-t-lg ${className}`}
-    >
-      {children}
-      <ChevronDown
-        className={`h-4 w-4 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-      />
-    </button>
-  );
+  const childProps = children.props as { onClick?: (e: React.MouseEvent) => void; className?: string };
+  return cloneElement(children, {
+    onClick: (e: React.MouseEvent) => {
+      childProps.onClick?.(e);
+      onClick?.(e);
+      if (!e.defaultPrevented) {
+        toggle();
+      }
+    },
+    className: cn(childProps.className, className),
+    'aria-expanded': isOpen,
+  } as Partial<unknown>);
 };
 
 type AccordionContentProps = {

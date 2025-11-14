@@ -1,6 +1,6 @@
 import { X } from 'lucide-react';
 import type { ReactElement, ReactNode } from 'react';
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { cloneElement, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { FocusScope, usePreventScroll } from 'react-aria';
 import { cn } from '~/lib/cn';
 import { Button } from '../Button';
@@ -41,18 +41,23 @@ export const Dialog = ({ children, open, onOpenChange }: DialogProps) => {
   return <DialogContext.Provider value={value}>{children}</DialogContext.Provider>;
 };
 
-export const DialogTrigger = ({ asChild = false, children }: { asChild?: boolean; children: ReactElement }) => {
+export const DialogTrigger = ({ children }: { children: ReactElement }) => {
   const ctx = useContext(DialogContext);
   if (!ctx) return null;
+
   const { toggle, isOpen } = ctx;
-  if (asChild) {
-    return (
-      <span onClick={toggle} aria-haspopup="dialog" aria-expanded={isOpen} className="inline-flex">
-        {children}
-      </span>
-    );
-  }
-  return <button onClick={toggle} aria-haspopup="dialog" aria-expanded={isOpen} />;
+
+  const childProps = children.props as { onClick?: (e: React.MouseEvent) => void };
+  return cloneElement(children, {
+    onClick: (e: React.MouseEvent) => {
+      childProps.onClick?.(e);
+      if (!e.defaultPrevented) {
+        toggle();
+      }
+    },
+    'aria-haspopup': 'dialog',
+    'aria-expanded': isOpen,
+  } as Partial<unknown>);
 };
 
 export const DialogContent = ({

@@ -29,7 +29,7 @@ export const ShootFilterSelector = ({ value, onChange }: ShootFilterSelectorProp
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+      <PopoverTrigger>
         <Button
           variant="outline"
           aria-expanded={open}

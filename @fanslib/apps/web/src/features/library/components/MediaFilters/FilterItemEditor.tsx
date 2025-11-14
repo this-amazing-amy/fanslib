@@ -218,7 +218,7 @@ export const FilterItemEditor = ({
           <div className="space-y-2">
             <Label>{type === "createdDateStart" ? "Created After" : "Created Before"}</Label>
             <Popover>
-              <PopoverTrigger asChild>
+              <PopoverTrigger>
                 <Button
                   variant="outline"
                   className={cn(

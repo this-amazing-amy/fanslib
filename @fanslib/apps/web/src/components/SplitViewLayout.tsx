@@ -1,9 +1,8 @@
 import { GripVertical, PanelRightClose, PanelRightOpen } from "lucide-react";
 import React, { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
-import * as ResizablePrimitive from "react-resizable-panels";
 import type { ImperativePanelGroupHandle } from "react-resizable-panels";
+import * as ResizablePrimitive from "react-resizable-panels";
 import { cn } from "~/lib/cn";
-import { Button } from "~/components/ui/Button";
 
 type ResizableContextType = {
   isDragging: boolean;
@@ -168,25 +167,12 @@ const ResizablePanel = ({
       {...props}
     >
       <div className="h-full w-full flex flex-col">
-        {collapsible && (
+        {collapsible && !isCollapsed && (
           <div className="flex items-center gap-2 py-6 px-6 flex-none">
-            {!isCollapsed && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleCollapse();
-                }}
-                className="h-6 w-6"
-              >
-                {collapseIcon}
-              </Button>
-            )}
             <div
               className={cn(
                 shouldAnimate && "transition-opacity duration-300",
-                isCollapsed ? "opacity-0" : "opacity-100"
+                "opacity-100"
               )}
             >
               {headerSlot}
@@ -225,29 +211,49 @@ const ResizablePanel = ({
 const ResizableHandle = ({
   className,
   withHandle,
+  collapseButton,
   ...props
 }: React.ComponentProps<typeof ResizablePrimitive.PanelResizeHandle> & {
   withHandle?: boolean;
+  collapseButton?: ReactNode;
 }) => {
   const { setIsDragging } = useContext(ResizableContext);
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <ResizablePrimitive.PanelResizeHandle
-      className={cn(
-        "relative flex w-px items-center justify-center bg-border after:absolute after:inset-y-0 after:left-1/2 after:w-4 after:-translate-x-1/2 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 data-[panel-group-direction=vertical]:h-px data-[panel-group-direction=vertical]:w-full data-[panel-group-direction=vertical]:after:left-0 data-[panel-group-direction=vertical]:after:h-4 data-[panel-group-direction=vertical]:after:w-full data-[panel-group-direction=vertical]:after:-translate-y-1/2 data-[panel-group-direction=vertical]:after:translate-x-0 [&[data-panel-group-direction=vertical]>div]:rotate-90",
-        className
-      )}
-      onDragging={(isDragging) => {
-        setIsDragging(isDragging);
-      }}
-      {...props}
+    <div
+      className="relative group"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      {withHandle && (
-        <div className="z-10 flex h-4 w-3 items-center justify-center rounded-sm border bg-border">
-          <GripVertical className="h-2.5 w-2.5" />
+      <ResizablePrimitive.PanelResizeHandle
+        className={cn(
+          "relative flex w-3 cursor-col-resize items-center justify-center rounded-full bg-base-300/70 transition-colors hover:bg-primary/40 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-base-100 data-[panel-group-direction=vertical]:h-3 data-[panel-group-direction=vertical]:w-full data-[panel-group-direction=vertical]:cursor-row-resize",
+          "before:absolute before:inset-y-2 before:left-1/2 before:w-px before:-translate-x-1/2 before:rounded-full before:bg-base-100/80 data-[panel-group-direction=vertical]:before:inset-x-2 data-[panel-group-direction=vertical]:before:top-1/2 data-[panel-group-direction=vertical]:before:h-px data-[panel-group-direction=vertical]:before:-translate-y-1/2 data-[panel-group-direction=vertical]:before:w-full",
+          className
+        )}
+        onDragging={(isDragging) => {
+          setIsDragging(isDragging);
+        }}
+        {...props}
+      >
+        {withHandle && (
+          <div className="z-10 flex h-10 w-5 items-center justify-center rounded-lg border border-base-300 bg-base-100 shadow-md">
+            <GripVertical className="h-3.5 w-3 text-muted-foreground" />
+          </div>
+        )}
+      </ResizablePrimitive.PanelResizeHandle>
+      {collapseButton && (
+        <div
+          className={cn(
+            "absolute right-0 top-1/2 -translate-y-1/2 translate-x-full z-20 transition-opacity duration-200",
+            isHovered ? "opacity-100" : "opacity-0 pointer-events-none"
+          )}
+        >
+          {collapseButton}
         </div>
       )}
-    </ResizablePrimitive.PanelResizeHandle>
+    </div>
   );
 };
 
@@ -287,9 +293,11 @@ export const SplitViewLayout = ({
           panelIndex={0}
           groupRef={panelGroupRef as React.RefObject<ImperativePanelGroupHandle>}
         >
-          {mainContent}
+          <div className="flex h-full w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+            {mainContent}
+          </div>
         </ResizablePanel>
-        <ResizableHandle />
+        <ResizableHandle withHandle className="mx-2" />
         <ResizablePanel
           id={id}
           isFirst={false}
@@ -301,7 +309,9 @@ export const SplitViewLayout = ({
           panelIndex={1}
           groupRef={panelGroupRef as React.RefObject<ImperativePanelGroupHandle>}
         >
-          {sideContent}
+          <div className="flex h-full w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+            {sideContent}
+          </div>
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>

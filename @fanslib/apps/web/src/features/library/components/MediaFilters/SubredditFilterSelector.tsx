@@ -29,7 +29,7 @@ export const SubredditFilterSelector = ({ value, onChange }: SubredditFilterSele
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+      <PopoverTrigger>
         <Button
           variant="outline"
           aria-expanded={open}

@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { cloneElement, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '~/lib/cn';
 
 type PopoverContextValue = {
@@ -26,26 +26,31 @@ export const Popover = ({ children, open, onOpenChange }: { children: ReactNode;
   return <PopoverContext.Provider value={value}>{children}</PopoverContext.Provider>;
 };
 
-export const PopoverTrigger = ({ asChild = false, children }: { asChild?: boolean; children: ReactElement }) => {
+export const PopoverTrigger = ({ children }: { children: ReactElement }) => {
   const ctx = useContext(PopoverContext);
   if (!ctx) return null;
+
   const { toggle, triggerRef, isOpen } = ctx;
-  if (asChild) {
-    return (
-      <span
-        ref={triggerRef as React.RefObject<HTMLSpanElement>}
-        onClick={toggle}
-        aria-haspopup="dialog"
-        aria-expanded={isOpen}
-        className="inline-flex"
-      >
-        {children}
-      </span>
-    );
-  }
-  return (
-    <button ref={triggerRef as React.RefObject<HTMLButtonElement>} onClick={toggle} aria-haspopup="dialog" aria-expanded={isOpen} />
-  );
+
+  const childProps = children.props as { onClick?: (e: React.MouseEvent) => void; ref?: React.Ref<HTMLElement> };
+  return cloneElement(children, {
+    ref: (node: HTMLElement | null) => {
+      (triggerRef as React.MutableRefObject<HTMLElement | null>).current = node;
+      if (typeof childProps.ref === 'function') {
+        childProps.ref(node);
+      } else if (childProps.ref) {
+        (childProps.ref as React.MutableRefObject<HTMLElement | null>).current = node;
+      }
+    },
+    onClick: (e: React.MouseEvent) => {
+      childProps.onClick?.(e);
+      if (!e.defaultPrevented) {
+        toggle();
+      }
+    },
+    'aria-haspopup': 'dialog',
+    'aria-expanded': isOpen,
+  } as Partial<unknown>);
 };
 
 export const PopoverContent = ({

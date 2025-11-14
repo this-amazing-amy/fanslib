@@ -3,7 +3,7 @@ import { Button } from '../Button';
 import { Popover, PopoverContent, PopoverTrigger } from './Popover';
 
 const PopoverWrapper = () => <Popover>
-      <PopoverTrigger asChild>
+      <PopoverTrigger>
         <Button>
           Open Popover
         </Button>

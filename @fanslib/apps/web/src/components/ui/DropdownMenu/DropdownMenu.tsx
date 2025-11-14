@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { cloneElement, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '~/lib/cn';
 
 type DropdownMenuContextValue = {
@@ -28,29 +28,31 @@ export const DropdownMenu = ({ children }: { children: ReactNode }) => {
   return <DropdownMenuContext.Provider value={value}>{children}</DropdownMenuContext.Provider>;
 };
 
-export const DropdownMenuTrigger = ({ asChild = false, children }: { asChild?: boolean; children: ReactElement }) => {
+export const DropdownMenuTrigger = ({ children }: { children: ReactElement }) => {
   const ctx = useContext(DropdownMenuContext);
   if (!ctx) return null;
 
   const { toggle, triggerRef } = ctx;
 
-  if (asChild) {
-    return (
-      <span
-        ref={triggerRef as React.RefObject<HTMLSpanElement>}
-        onClick={toggle}
-        aria-haspopup="menu"
-        aria-expanded={ctx.isOpen}
-        className="inline-flex"
-      >
-        {children}
-      </span>
-    );
-  }
-
-  return (
-    <button ref={triggerRef as React.RefObject<HTMLButtonElement>} onClick={toggle} aria-haspopup="menu" aria-expanded={ctx.isOpen} />
-  );
+  const childProps = children.props as { onClick?: (e: React.MouseEvent) => void; ref?: React.Ref<HTMLElement> };
+  return cloneElement(children, {
+    ref: (node: HTMLElement | null) => {
+      (triggerRef as React.MutableRefObject<HTMLElement | null>).current = node;
+      if (typeof childProps.ref === 'function') {
+        childProps.ref(node);
+      } else if (childProps.ref) {
+        (childProps.ref as React.MutableRefObject<HTMLElement | null>).current = node;
+      }
+    },
+    onClick: (e: React.MouseEvent) => {
+      childProps.onClick?.(e);
+      if (!e.defaultPrevented) {
+        toggle();
+      }
+    },
+    'aria-haspopup': 'menu',
+    'aria-expanded': ctx.isOpen,
+  } as Partial<unknown>);
 };
 
 export const DropdownMenuContent = ({
