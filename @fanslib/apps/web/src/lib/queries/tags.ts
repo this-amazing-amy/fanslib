@@ -206,6 +206,22 @@ export const useBulkMediaTagsQuery = (mediaIds: string[], dimensionId?: number) 
     enabled: mediaIds.length > 0,
   });
 
+export const useTagsForMediasQuery = (mediaIds: string[]) =>
+  useQuery({
+    queryKey: ['tags', 'media', 'for-medias', mediaIds],
+    queryFn: async () => {
+      if (mediaIds.length === 0) return [];
+
+      const tagPromises = mediaIds.map(async (mediaId) => {
+        const result = await eden.api.tags.media['by-media-id']({ mediaId }).get();
+        return result.data;
+      });
+      const results = await Promise.all(tagPromises);
+      return results.flat();
+    },
+    enabled: mediaIds.length > 0,
+  });
+
 export const useAssignTagsToMediaMutation = () => {
   const queryClient = useQueryClient();
 

@@ -97,7 +97,7 @@ export const DropdownMenuContent = ({
       <div className="absolute inset-0" onClick={ctx.close} />
       <div
         className={cn(
-          'absolute mt-2 rounded-lg bg-base-100 border border-base-300 shadow-lg p-1',
+          'absolute mt-2 rounded-xl bg-base-100 border-2 border-base-content shadow-lg p-1',
           'transition-all duration-200 ease-out origin-top',
           isAnimating ? 'opacity-100 scale-100' : 'opacity-0 scale-95',
           className
@@ -136,8 +136,8 @@ export const DropdownMenuItem = ({
       role="menuitem"
       aria-disabled={disabled}
       className={cn(
-        'rounded-md px-2 py-1.5 text-sm cursor-default select-none outline-none transition-colors',
-        disabled ? 'opacity-50 pointer-events-none' : 'hover:bg-base-200',
+        'rounded-md px-2 py-1.5 text-sm cursor-pointer select-none outline-none transition-colors',
+        disabled ? 'opacity-50 pointer-events-none' : 'hover:bg-primary/20 hover:ring-2 hover:ring-primary',
         className
       )}
     >
@@ -151,7 +151,7 @@ export type DropdownMenuSeparatorProps = {
 };
 
 export const DropdownMenuSeparator = ({ className }: DropdownMenuSeparatorProps) => (
-  <div className={cn('divider my-1', className)} />
+  <div className={cn('hidden', className)} />
 );
 
 export type DropdownMenuLabelProps = {
@@ -160,5 +160,5 @@ export type DropdownMenuLabelProps = {
 };
 
 export const DropdownMenuLabel = ({ children, className }: DropdownMenuLabelProps) => (
-  <div className={cn('px-2 py-1.5 text-sm font-semibold', className)}>{children}</div>
+  <div className={cn('px-2 py-1.5 text-base font-semibold', className)}>{children}</div>
 );

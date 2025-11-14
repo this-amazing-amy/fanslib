@@ -17,7 +17,9 @@ export const MediaTileImage = ({ media, cover }: MediaTileImageProps) => {
     <img
       src={imageError ? getMediaFileUrl(media.id) : getMediaThumbnailUrl(media.id)}
       alt={media.name}
-      className={getBlurClassName(cn("w-full h-full", cover ? "object-cover" : "object-contain"))}
+      className={getBlurClassName(
+        cn("w-full h-full bg-base-300", cover ? "object-cover" : "object-contain")
+      )}
       onError={() => setImageError(true)}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

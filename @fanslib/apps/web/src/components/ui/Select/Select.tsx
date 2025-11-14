@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { cloneElement, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '~/lib/cn';
 
 type SelectContextValue = {
@@ -50,16 +50,22 @@ export const SelectTrigger = ({ asChild = false, children, className }: { asChil
   if (!ctx) return null;
   const toggle = () => ctx.setOpen(!ctx.open);
   if (asChild) {
-    return (
-      <span
-        ref={ctx.triggerRef as React.RefObject<HTMLSpanElement>}
-        onClick={toggle}
-        className={cn('inline-flex w-full', className)}
-        aria-expanded={ctx.open}
-      >
-        {children}
-      </span>
-    );
+    return cloneElement(children, {
+      ref: (node: HTMLElement | null) => {
+        (ctx.triggerRef as React.MutableRefObject<HTMLElement | null>).current = node;
+        if (typeof (children as any).ref === 'function') {
+          (children as any).ref(node);
+        } else if ((children as any).ref) {
+          (children as any).ref.current = node;
+        }
+      },
+      onClick: (e: React.MouseEvent) => {
+        toggle();
+        children.props.onClick?.(e);
+      },
+      'aria-expanded': ctx.open,
+      className: cn(children.props.className, className),
+    } as any);
   }
   return (
     <button ref={ctx.triggerRef as React.RefObject<HTMLButtonElement>} onClick={toggle} aria-expanded={ctx.open} className={cn('input input-bordered w-full flex items-center justify-between focus:outline-none', className)} />
@@ -74,6 +80,7 @@ export const SelectValue = ({ placeholder: ph }: { placeholder?: string }) => {
 
 export const SelectContent = ({ children, className }: { children: ReactNode; className?: string }) => {
   const ctx = useContext(SelectContext);
+  const contentRef = useRef<HTMLUListElement>(null);
   const [position, setPosition] = useState<{ top: number; left: number; width: number } | null>(null);
   useEffect(() => {
     if (!ctx?.open) return;
@@ -83,6 +90,7 @@ export const SelectContent = ({ children, className }: { children: ReactNode; cl
     const onDoc = (e: MouseEvent) => {
       const target = e.target as Node;
       if (ctx.triggerRef.current?.contains(target)) return;
+      if (contentRef.current?.contains(target)) return;
       ctx.setOpen(false);
     };
     document.addEventListener('mousedown', onDoc);
@@ -91,7 +99,8 @@ export const SelectContent = ({ children, className }: { children: ReactNode; cl
   if (!ctx?.open || !position) return null;
   return (
     <ul
-      className={cn('bg-base-200 rounded-box shadow-lg absolute z-50 mt-1 max-h-60 overflow-y-auto', className)}
+      ref={contentRef}
+      className={cn('bg-base-100 rounded-xl border-2 border-base-content shadow-lg absolute z-50 mt-1 max-h-60 overflow-y-auto', className)}
       style={{ top: position.top, left: position.left, width: position.width }}
       role="listbox"
     >
@@ -114,7 +123,7 @@ export const SelectItem = ({ value, children, className, onSelect }: { value: st
     <li
       onClick={select}
       className={cn(
-        'px-4 py-2 cursor-pointer hover:bg-base-300',
+        'px-4 py-2 cursor-pointer hover:bg-primary/20 hover:ring-2 hover:ring-primary',
         isSelected && 'bg-primary text-primary-content hover:bg-primary',
         className
       )}

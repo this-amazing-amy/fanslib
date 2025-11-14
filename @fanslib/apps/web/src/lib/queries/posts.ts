@@ -128,3 +128,13 @@ export const useRemoveMediaFromPostMutation = () => {
     },
   });
 };
+
+export const usePostsByMediaIdQuery = (mediaId: string) =>
+  useQuery({
+    queryKey: ['posts', 'by-media', mediaId],
+    queryFn: async () => {
+      const result = await eden.api.posts['by-media-id']({ mediaId }).get();
+      return result.data;
+    },
+    enabled: !!mediaId,
+  });

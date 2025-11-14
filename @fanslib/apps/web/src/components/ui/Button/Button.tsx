@@ -30,12 +30,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
   const variantClasses = {
     primary: 'btn-primary',
     secondary: 'btn-secondary',
-    ghost: 'btn-ghost',
+    ghost: 'btn-ghost hover:bg-primary/20 hover:ring-2 hover:ring-primary',
     error: 'btn-error',
     success: 'btn-success',
     warning: 'btn-warning',
     info: 'btn-info',
-    outline: 'btn-outline',
+    outline: 'btn-outline border-1 hover:bg-primary/20 hover:ring-2 hover:ring-primary',
   };
 
   const sizeClasses = {

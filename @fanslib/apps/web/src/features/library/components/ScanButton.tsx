@@ -20,7 +20,7 @@ export const ScanButton = ({ isScanning, onScan }: ScanButtonProps) => (
         variant="ghost"
         size="icon"
         isDisabled={isScanning}
-        className="border border-base-300/40 bg-base-100 text-base-content shadow-sm hover:border-base-300/60 hover:bg-base-200"
+        className="bg-base-100 text-base-content hover:bg-base-200"
       >
         <MoreVertical className="h-5 w-5" />
       </Button>

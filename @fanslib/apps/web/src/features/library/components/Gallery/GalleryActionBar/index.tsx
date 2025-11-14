@@ -24,7 +24,7 @@ export const GalleryActionBar = ({
   if (selectedCount === 0) return null;
 
   return (
-    <div className="fixed bottom-6 left-0 right-0 flex justify-center z-50">
+    <div className="bg-base-100 fixed bottom-6 left-0 right-0 flex justify-center z-50">
       <div
         className={cn(
           "w-[70%] bg-background",

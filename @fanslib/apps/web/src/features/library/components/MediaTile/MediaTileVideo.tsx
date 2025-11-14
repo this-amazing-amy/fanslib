@@ -34,7 +34,10 @@ export const MediaTileVideo = ({
           src={getMediaThumbnailUrl(media.id)}
           alt={media.name}
           className={getBlurClassName(
-            cn("absolute inset-0 w-full h-full", cover ? "object-cover" : "object-contain")
+            cn(
+              "absolute inset-0 w-full h-full bg-base-300",
+              cover ? "object-cover" : "object-contain"
+            )
           )}
           loading="lazy"
           draggable={false}
@@ -45,7 +48,7 @@ export const MediaTileVideo = ({
         src={getMediaFileUrl(media.id)}
         className={getBlurClassName(
           cn(
-            "absolute inset-0 w-full h-full",
+            "absolute inset-0 w-full h-full bg-base-300",
             cover ? "object-cover" : "object-contain",
             !isPreviewActive && "hidden"
           )

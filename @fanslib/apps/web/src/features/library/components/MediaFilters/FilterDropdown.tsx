@@ -86,9 +86,10 @@ export const FilterDropdown = ({
                   addFilterWithTypeToGroup(groupIndex, option.value);
                 }
               }}
+              className="flex items-center gap-2"
             >
-              <Icon className="mr-2 h-4 w-4" />
-              {option.label}
+              <Icon className="h-4 w-4" />
+              <span>{option.label}</span>
             </DropdownMenuItem>
           );
         })}

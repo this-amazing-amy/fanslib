@@ -46,8 +46,7 @@ export const MediaTile = (props: MediaTileProps) => {
     }
 
     const isSelectionCircleClicked = (e.target as HTMLElement).closest(".selection-circle");
-    if (!isSelectionCircleClicked && withNavigation) {
-      // Note: Navigation will be handled by the Link wrapper when enabled
+    if (isSelectionCircleClicked) {
       e.preventDefault();
     }
   };
@@ -68,7 +67,7 @@ export const MediaTile = (props: MediaTileProps) => {
   const content = (
     <div
       className={cn(
-        "relative aspect-square bg-muted rounded-lg overflow-hidden group",
+        "relative aspect-square bg-base-300 rounded-lg overflow-hidden group",
         (withNavigation || (withSelection && selectedMediaIds.size > 0)) && "cursor-pointer",
         isHighlighted(media.id) && "ring-2 ring-primary/50",
         isSelected && "ring-2 ring-primary/50",
