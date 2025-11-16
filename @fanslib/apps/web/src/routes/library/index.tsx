@@ -1,23 +1,23 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { NavigationPageHeader } from '~/components/ui/NavigationPageHeader';
+import { PostPreferencesProvider } from '~/contexts/PostPreferencesContext';
 import { AnalyticsProvider } from '~/contexts/AnalyticsContext';
 import { FilterPresetProvider } from '~/contexts/FilterPresetContext';
 import { LibraryPreferencesProvider, useLibraryPreferences } from '~/contexts/LibraryPreferencesContext';
 import { MediaDragProvider } from '~/contexts/MediaDragContext';
 import { MediaSelectionProvider } from '~/contexts/MediaSelectionContext';
-import { PlanPreferencesProvider } from '~/contexts/PlanPreferencesContext';
 import { PostDragProvider } from '~/contexts/PostDragContext';
 import { RedditPostProvider } from '~/contexts/RedditPostContext';
 import { ShootProvider } from '~/contexts/ShootContext';
 import { ShootPreferencesProvider } from '~/contexts/ShootPreferencesContext';
 import { TagDragProvider } from '~/contexts/TagDragContext';
-import { FilterActions } from '~/features/library/components/MediaFilters/FilterActions';
-import { MediaFiltersProvider } from '~/features/library/components/MediaFilters/MediaFiltersContext';
 import { GalleryViewSettings } from '~/features/library/components/Gallery/GalleryViewSettings';
 import { LibrarySortOptions } from '~/features/library/components/Gallery/LibrarySortOptions';
+import { Library } from '~/features/library/components/Library';
+import { FilterActions } from '~/features/library/components/MediaFilters/FilterActions';
+import { MediaFiltersProvider } from '~/features/library/components/MediaFilters/MediaFiltersContext';
 import { ScanButton } from '~/features/library/components/ScanButton';
 import { useScan } from '~/hooks/useScan';
-import { Library } from '~/features/library/components/Library';
 
 const LibraryPageContent = () => {
   const { preferences, updatePreferences } = useLibraryPreferences();
@@ -31,7 +31,7 @@ const LibraryPageContent = () => {
               <FilterPresetProvider onFiltersChange={(filters) => updatePreferences({ filter: filters })}>
                   <ShootPreferencesProvider>
                     <AnalyticsProvider>
-                      <PlanPreferencesProvider>
+                      <PostPreferencesProvider>
                         <RedditPostProvider>
                           <MediaFiltersProvider value={preferences.filter} onChange={(filters) => updatePreferences({ filter: filters, pagination: { page: 1 } })}>
                             <div className="flex h-full w-full flex-col overflow-hidden">
@@ -65,7 +65,7 @@ const LibraryPageContent = () => {
                             </div>
                           </MediaFiltersProvider>
                         </RedditPostProvider>
-                      </PlanPreferencesProvider>
+                      </PostPreferencesProvider>
                     </AnalyticsProvider>
                   </ShootPreferencesProvider>
               </FilterPresetProvider>

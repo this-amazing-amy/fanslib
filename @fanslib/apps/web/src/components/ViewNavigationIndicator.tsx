@@ -6,7 +6,7 @@ export const ViewNavigationIndicator = () => {
   const navigate = useNavigate();
 
   const navigateToSchedule = () => {
-    navigate({ to: "/content/schedule" });
+    navigate({ to: "/orchestrate" });
   };
 
   return (

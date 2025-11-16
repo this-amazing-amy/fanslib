@@ -11,7 +11,6 @@ import {
   Search,
   Tag,
 } from "lucide-react";
-import { Button } from "~/components/ui/Button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +19,7 @@ import {
 } from "~/components/ui/DropdownMenu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/Tooltip";
 import { useMediaFilters } from "./MediaFiltersContext";
+import { cn } from "~/lib/cn";
 
 type FilterDropdownProps = {
   disabled?: boolean;
@@ -55,9 +55,15 @@ export const FilterDropdown = ({
           <Tooltip>
             <TooltipTrigger asChild>
               <DropdownMenuTrigger>
-                <Button variant="ghost" size="icon" className="h-9 w-9" isDisabled={disabled}>
+                <button
+                  disabled={disabled}
+                  className={cn(
+                    "btn btn-ghost hover:bg-primary/20 hover:ring-2 hover:ring-primary btn-square h-9 w-9",
+                    disabled && "opacity-50 cursor-not-allowed"
+                  )}
+                >
                   <Plus className="h-4 w-4" />
-                </Button>
+                </button>
               </DropdownMenuTrigger>
             </TooltipTrigger>
             <TooltipContent>
@@ -67,10 +73,16 @@ export const FilterDropdown = ({
         </TooltipProvider>
       ) : (
         <DropdownMenuTrigger>
-          <Button variant="outline" isDisabled={disabled}>
+          <button
+            disabled={disabled}
+            className={cn(
+              "btn btn-outline border-1 hover:bg-primary/20 hover:ring-2 hover:ring-primary btn-md",
+              disabled && "opacity-50 cursor-not-allowed"
+            )}
+          >
             <Filter className="h-4 w-4" />
             Filter
-          </Button>
+          </button>
         </DropdownMenuTrigger>
       )}
       <DropdownMenuContent align="start">

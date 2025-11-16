@@ -20,7 +20,7 @@ export const FilterGroupEditor = ({ className = "" }: FilterGroupEditorProps) =>
           <div key={groupIndex} className="border rounded-lg">
             <div className="px-3 py-2">
               <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-0.5">
+                <div className="flex items-center gap-2">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
@@ -40,9 +40,7 @@ export const FilterGroupEditor = ({ className = "" }: FilterGroupEditorProps) =>
                       <p>{group.include ? "Include filters" : "Exclude filters"}</p>
                     </TooltipContent>
                   </Tooltip>
-                </div>
 
-                <div className="flex items-center gap-2 flex-1 min-w-0">
                   {group.items.map((item, itemIndex) => (
                     <div key={itemIndex} className="flex-shrink-0">
                       <FilterItemRenderer
@@ -53,28 +51,25 @@ export const FilterGroupEditor = ({ className = "" }: FilterGroupEditorProps) =>
                       />
                     </div>
                   ))}
-                  <div className="flex-shrink-0">
-                    <FilterDropdown groupIndex={groupIndex} variant="compact" />
-                  </div>
+
+                  <FilterDropdown groupIndex={groupIndex} variant="compact" />
                 </div>
 
-                <div className="flex items-center gap-1">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeGroup(groupIndex)}
-                        className="h-9 w-9"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Remove group</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeGroup(groupIndex)}
+                      className="h-9 w-9"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Remove group</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
             </div>
           </div>

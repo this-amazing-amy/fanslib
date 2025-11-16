@@ -1,2 +1,11 @@
-export { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './Select';
+export { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue,
+  SelectGroup,
+  SelectSeparator,
+  SelectLabel,
+} from './Select';
 

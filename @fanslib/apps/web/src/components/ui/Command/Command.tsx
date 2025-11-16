@@ -15,7 +15,7 @@ export const Command = ({ children, className }: { children: ReactNode; classNam
   const value = useMemo(() => ({ query, setQuery }), [query]);
   return (
     <CommandContext.Provider value={value}>
-      <div className={cn('flex flex-col w-full max-w-2xl bg-base-100 border border-base-300 rounded-lg shadow-lg overflow-hidden', className)}>
+      <div className={cn('flex flex-col w-full max-w-2xl overflow-hidden rounded-xl bg-base-100 shadow-lg', className)}>
         {children}
       </div>
     </CommandContext.Provider>

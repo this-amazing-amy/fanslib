@@ -4,6 +4,8 @@ import { type ReactNode, useState } from 'react';
 import { Logo } from '~/components/Logo';
 import { NavigationMenu } from '~/components/NavigationMenu';
 import { BurgerIcon } from '~/components/ui/BurgerIcon';
+import { ThemeProvider } from '~/contexts/ThemeContext';
+import { useSfwMode } from '~/hooks/useSfwMode';
 import { cn } from '~/lib/cn';
 import { mobileNavigationDrawerOpenAtom, sidebarCollapsedAtom, toggleSidebarAtom } from '~/state/sidebar';
 
@@ -11,25 +13,29 @@ export interface AppLayoutProps {
   children: ReactNode;
 }
 
-export const AppLayout = ({ children }: AppLayoutProps) => {
+const MainContent = ({ children }: { children: ReactNode }) => {
+  const { sfwMode, getBlurClassName } = useSfwMode();
+
+  return (
+    <main 
+      className={cn(
+        'flex-1 p-4 sm:p-6 lg:p-8 content-area overflow-x-auto',
+        sfwMode && getBlurClassName()
+      )}
+      style={{ viewTransitionName: 'main-content' }}
+    >
+      {children}
+    </main>
+  );
+};
+
+const LayoutContent = ({ children }: AppLayoutProps) => {
   const [sidebarOpen] = useAtom(mobileNavigationDrawerOpenAtom);
   const [, toggleSidebar] = useAtom(toggleSidebarAtom);
   const [isCollapsed] = useAtom(sidebarCollapsedAtom);
 
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 5 * 60 * 1000, // 5 minutes
-            gcTime: 10 * 60 * 1000, // 10 minutes
-          },
-        },
-      })
-  );
-
   return (
-    <QueryClientProvider client={queryClient}>
+    <ThemeProvider>
       <div className='drawer lg:drawer-open'>
         <input
           id='drawer-toggle'
@@ -62,12 +68,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             </div>
           </header>
 
-          <main 
-            className='flex-1 p-4 sm:p-6 lg:p-8 content-area overflow-x-auto'
-            style={{ viewTransitionName: 'main-content' }}
-          >
-            {children}
-          </main>
+          <MainContent>{children}</MainContent>
         </div>
 
         {/* Sidebar - Responsive width and touch-friendly */}
@@ -86,6 +87,26 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           </aside>
         </div>
       </div>
+    </ThemeProvider>
+  );
+};
+
+export const AppLayout = ({ children }: AppLayoutProps) => {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 5 * 60 * 1000, // 5 minutes
+            gcTime: 10 * 60 * 1000, // 10 minutes
+          },
+        },
+      })
+  );
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <LayoutContent>{children}</LayoutContent>
     </QueryClientProvider>
   );
 };

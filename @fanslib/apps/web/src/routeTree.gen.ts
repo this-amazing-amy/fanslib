@@ -9,23 +9,53 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as OrchestrateRouteImport } from './routes/orchestrate'
+import { Route as HashtagsRouteImport } from './routes/hashtags'
 import { Route as ContentRouteImport } from './routes/content'
+import { Route as ComponentShowcaseRouteImport } from './routes/component-showcase'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShootsIndexRouteImport } from './routes/shoots/index'
+import { Route as SettingsIndexRouteImport } from './routes/settings/index'
 import { Route as PlanIndexRouteImport } from './routes/plan/index'
 import { Route as LibraryIndexRouteImport } from './routes/library/index'
+import { Route as SettingsSnippetsRouteImport } from './routes/settings/snippets'
+import { Route as SettingsIntegrationsRouteImport } from './routes/settings/integrations'
+import { Route as SettingsFilterPresetsRouteImport } from './routes/settings/filter-presets'
+import { Route as SettingsContentTagsRouteImport } from './routes/settings/content-tags'
+import { Route as SettingsContentSafetyRouteImport } from './routes/settings/content-safety'
+import { Route as SettingsAppearanceRouteImport } from './routes/settings/appearance'
 import { Route as LibraryMediaIdRouteImport } from './routes/library/$mediaId'
-import { Route as ContentScheduleRouteImport } from './routes/content/schedule'
 import { Route as ContentLibraryRouteImport } from './routes/content/library'
 import { Route as ContentChannelsRouteImport } from './routes/content/channels'
-import { Route as ContentCalendarRouteImport } from './routes/content/calendar'
 import { Route as ContentLibraryShootsRouteImport } from './routes/content/library/shoots'
 import { Route as ContentLibraryMediaRouteImport } from './routes/content/library/media'
+import { Route as ContentLibraryMediaIndexRouteImport } from './routes/content/library/media/index'
 import { Route as ContentLibraryMediaMediaIdRouteImport } from './routes/content/library/media/$mediaId'
 
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrchestrateRoute = OrchestrateRouteImport.update({
+  id: '/orchestrate',
+  path: '/orchestrate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HashtagsRoute = HashtagsRouteImport.update({
+  id: '/hashtags',
+  path: '/hashtags',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContentRoute = ContentRouteImport.update({
   id: '/content',
   path: '/content',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ComponentShowcaseRoute = ComponentShowcaseRouteImport.update({
+  id: '/component-showcase',
+  path: '/component-showcase',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -38,6 +68,11 @@ const ShootsIndexRoute = ShootsIndexRouteImport.update({
   path: '/shoots/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsIndexRoute = SettingsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SettingsRoute,
+} as any)
 const PlanIndexRoute = PlanIndexRouteImport.update({
   id: '/plan/',
   path: '/plan/',
@@ -48,15 +83,40 @@ const LibraryIndexRoute = LibraryIndexRouteImport.update({
   path: '/library/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsSnippetsRoute = SettingsSnippetsRouteImport.update({
+  id: '/snippets',
+  path: '/snippets',
+  getParentRoute: () => SettingsRoute,
+} as any)
+const SettingsIntegrationsRoute = SettingsIntegrationsRouteImport.update({
+  id: '/integrations',
+  path: '/integrations',
+  getParentRoute: () => SettingsRoute,
+} as any)
+const SettingsFilterPresetsRoute = SettingsFilterPresetsRouteImport.update({
+  id: '/filter-presets',
+  path: '/filter-presets',
+  getParentRoute: () => SettingsRoute,
+} as any)
+const SettingsContentTagsRoute = SettingsContentTagsRouteImport.update({
+  id: '/content-tags',
+  path: '/content-tags',
+  getParentRoute: () => SettingsRoute,
+} as any)
+const SettingsContentSafetyRoute = SettingsContentSafetyRouteImport.update({
+  id: '/content-safety',
+  path: '/content-safety',
+  getParentRoute: () => SettingsRoute,
+} as any)
+const SettingsAppearanceRoute = SettingsAppearanceRouteImport.update({
+  id: '/appearance',
+  path: '/appearance',
+  getParentRoute: () => SettingsRoute,
+} as any)
 const LibraryMediaIdRoute = LibraryMediaIdRouteImport.update({
   id: '/library/$mediaId',
   path: '/library/$mediaId',
   getParentRoute: () => rootRouteImport,
-} as any)
-const ContentScheduleRoute = ContentScheduleRouteImport.update({
-  id: '/schedule',
-  path: '/schedule',
-  getParentRoute: () => ContentRoute,
 } as any)
 const ContentLibraryRoute = ContentLibraryRouteImport.update({
   id: '/library',
@@ -66,11 +126,6 @@ const ContentLibraryRoute = ContentLibraryRouteImport.update({
 const ContentChannelsRoute = ContentChannelsRouteImport.update({
   id: '/channels',
   path: '/channels',
-  getParentRoute: () => ContentRoute,
-} as any)
-const ContentCalendarRoute = ContentCalendarRouteImport.update({
-  id: '/calendar',
-  path: '/calendar',
   getParentRoute: () => ContentRoute,
 } as any)
 const ContentLibraryShootsRoute = ContentLibraryShootsRouteImport.update({
@@ -83,6 +138,12 @@ const ContentLibraryMediaRoute = ContentLibraryMediaRouteImport.update({
   path: '/media',
   getParentRoute: () => ContentLibraryRoute,
 } as any)
+const ContentLibraryMediaIndexRoute =
+  ContentLibraryMediaIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => ContentLibraryMediaRoute,
+  } as any)
 const ContentLibraryMediaMediaIdRoute =
   ContentLibraryMediaMediaIdRouteImport.update({
     id: '/$mediaId',
@@ -92,101 +153,161 @@ const ContentLibraryMediaMediaIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/component-showcase': typeof ComponentShowcaseRoute
   '/content': typeof ContentRouteWithChildren
-  '/content/calendar': typeof ContentCalendarRoute
+  '/hashtags': typeof HashtagsRoute
+  '/orchestrate': typeof OrchestrateRoute
+  '/settings': typeof SettingsRouteWithChildren
   '/content/channels': typeof ContentChannelsRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
-  '/content/schedule': typeof ContentScheduleRoute
   '/library/$mediaId': typeof LibraryMediaIdRoute
+  '/settings/appearance': typeof SettingsAppearanceRoute
+  '/settings/content-safety': typeof SettingsContentSafetyRoute
+  '/settings/content-tags': typeof SettingsContentTagsRoute
+  '/settings/filter-presets': typeof SettingsFilterPresetsRoute
+  '/settings/integrations': typeof SettingsIntegrationsRoute
+  '/settings/snippets': typeof SettingsSnippetsRoute
   '/library': typeof LibraryIndexRoute
   '/plan': typeof PlanIndexRoute
+  '/settings/': typeof SettingsIndexRoute
   '/shoots': typeof ShootsIndexRoute
   '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
   '/content/library/shoots': typeof ContentLibraryShootsRoute
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
+  '/content/library/media/': typeof ContentLibraryMediaIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/component-showcase': typeof ComponentShowcaseRoute
   '/content': typeof ContentRouteWithChildren
-  '/content/calendar': typeof ContentCalendarRoute
+  '/hashtags': typeof HashtagsRoute
+  '/orchestrate': typeof OrchestrateRoute
   '/content/channels': typeof ContentChannelsRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
-  '/content/schedule': typeof ContentScheduleRoute
   '/library/$mediaId': typeof LibraryMediaIdRoute
+  '/settings/appearance': typeof SettingsAppearanceRoute
+  '/settings/content-safety': typeof SettingsContentSafetyRoute
+  '/settings/content-tags': typeof SettingsContentTagsRoute
+  '/settings/filter-presets': typeof SettingsFilterPresetsRoute
+  '/settings/integrations': typeof SettingsIntegrationsRoute
+  '/settings/snippets': typeof SettingsSnippetsRoute
   '/library': typeof LibraryIndexRoute
   '/plan': typeof PlanIndexRoute
+  '/settings': typeof SettingsIndexRoute
   '/shoots': typeof ShootsIndexRoute
-  '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
   '/content/library/shoots': typeof ContentLibraryShootsRoute
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
+  '/content/library/media': typeof ContentLibraryMediaIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/component-showcase': typeof ComponentShowcaseRoute
   '/content': typeof ContentRouteWithChildren
-  '/content/calendar': typeof ContentCalendarRoute
+  '/hashtags': typeof HashtagsRoute
+  '/orchestrate': typeof OrchestrateRoute
+  '/settings': typeof SettingsRouteWithChildren
   '/content/channels': typeof ContentChannelsRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
-  '/content/schedule': typeof ContentScheduleRoute
   '/library/$mediaId': typeof LibraryMediaIdRoute
+  '/settings/appearance': typeof SettingsAppearanceRoute
+  '/settings/content-safety': typeof SettingsContentSafetyRoute
+  '/settings/content-tags': typeof SettingsContentTagsRoute
+  '/settings/filter-presets': typeof SettingsFilterPresetsRoute
+  '/settings/integrations': typeof SettingsIntegrationsRoute
+  '/settings/snippets': typeof SettingsSnippetsRoute
   '/library/': typeof LibraryIndexRoute
   '/plan/': typeof PlanIndexRoute
+  '/settings/': typeof SettingsIndexRoute
   '/shoots/': typeof ShootsIndexRoute
   '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
   '/content/library/shoots': typeof ContentLibraryShootsRoute
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
+  '/content/library/media/': typeof ContentLibraryMediaIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/component-showcase'
     | '/content'
-    | '/content/calendar'
+    | '/hashtags'
+    | '/orchestrate'
+    | '/settings'
     | '/content/channels'
     | '/content/library'
-    | '/content/schedule'
     | '/library/$mediaId'
+    | '/settings/appearance'
+    | '/settings/content-safety'
+    | '/settings/content-tags'
+    | '/settings/filter-presets'
+    | '/settings/integrations'
+    | '/settings/snippets'
     | '/library'
     | '/plan'
+    | '/settings/'
     | '/shoots'
     | '/content/library/media'
     | '/content/library/shoots'
     | '/content/library/media/$mediaId'
+    | '/content/library/media/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/component-showcase'
     | '/content'
-    | '/content/calendar'
+    | '/hashtags'
+    | '/orchestrate'
     | '/content/channels'
     | '/content/library'
-    | '/content/schedule'
     | '/library/$mediaId'
+    | '/settings/appearance'
+    | '/settings/content-safety'
+    | '/settings/content-tags'
+    | '/settings/filter-presets'
+    | '/settings/integrations'
+    | '/settings/snippets'
     | '/library'
     | '/plan'
+    | '/settings'
     | '/shoots'
-    | '/content/library/media'
     | '/content/library/shoots'
     | '/content/library/media/$mediaId'
+    | '/content/library/media'
   id:
     | '__root__'
     | '/'
+    | '/component-showcase'
     | '/content'
-    | '/content/calendar'
+    | '/hashtags'
+    | '/orchestrate'
+    | '/settings'
     | '/content/channels'
     | '/content/library'
-    | '/content/schedule'
     | '/library/$mediaId'
+    | '/settings/appearance'
+    | '/settings/content-safety'
+    | '/settings/content-tags'
+    | '/settings/filter-presets'
+    | '/settings/integrations'
+    | '/settings/snippets'
     | '/library/'
     | '/plan/'
+    | '/settings/'
     | '/shoots/'
     | '/content/library/media'
     | '/content/library/shoots'
     | '/content/library/media/$mediaId'
+    | '/content/library/media/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ComponentShowcaseRoute: typeof ComponentShowcaseRoute
   ContentRoute: typeof ContentRouteWithChildren
+  HashtagsRoute: typeof HashtagsRoute
+  OrchestrateRoute: typeof OrchestrateRoute
+  SettingsRoute: typeof SettingsRouteWithChildren
   LibraryMediaIdRoute: typeof LibraryMediaIdRoute
   LibraryIndexRoute: typeof LibraryIndexRoute
   PlanIndexRoute: typeof PlanIndexRoute
@@ -195,11 +316,39 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/orchestrate': {
+      id: '/orchestrate'
+      path: '/orchestrate'
+      fullPath: '/orchestrate'
+      preLoaderRoute: typeof OrchestrateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hashtags': {
+      id: '/hashtags'
+      path: '/hashtags'
+      fullPath: '/hashtags'
+      preLoaderRoute: typeof HashtagsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/content': {
       id: '/content'
       path: '/content'
       fullPath: '/content'
       preLoaderRoute: typeof ContentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/component-showcase': {
+      id: '/component-showcase'
+      path: '/component-showcase'
+      fullPath: '/component-showcase'
+      preLoaderRoute: typeof ComponentShowcaseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -216,6 +365,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShootsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings/': {
+      id: '/settings/'
+      path: '/'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof SettingsIndexRouteImport
+      parentRoute: typeof SettingsRoute
+    }
     '/plan/': {
       id: '/plan/'
       path: '/plan'
@@ -230,19 +386,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings/snippets': {
+      id: '/settings/snippets'
+      path: '/snippets'
+      fullPath: '/settings/snippets'
+      preLoaderRoute: typeof SettingsSnippetsRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/settings/integrations': {
+      id: '/settings/integrations'
+      path: '/integrations'
+      fullPath: '/settings/integrations'
+      preLoaderRoute: typeof SettingsIntegrationsRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/settings/filter-presets': {
+      id: '/settings/filter-presets'
+      path: '/filter-presets'
+      fullPath: '/settings/filter-presets'
+      preLoaderRoute: typeof SettingsFilterPresetsRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/settings/content-tags': {
+      id: '/settings/content-tags'
+      path: '/content-tags'
+      fullPath: '/settings/content-tags'
+      preLoaderRoute: typeof SettingsContentTagsRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/settings/content-safety': {
+      id: '/settings/content-safety'
+      path: '/content-safety'
+      fullPath: '/settings/content-safety'
+      preLoaderRoute: typeof SettingsContentSafetyRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/settings/appearance': {
+      id: '/settings/appearance'
+      path: '/appearance'
+      fullPath: '/settings/appearance'
+      preLoaderRoute: typeof SettingsAppearanceRouteImport
+      parentRoute: typeof SettingsRoute
+    }
     '/library/$mediaId': {
       id: '/library/$mediaId'
       path: '/library/$mediaId'
       fullPath: '/library/$mediaId'
       preLoaderRoute: typeof LibraryMediaIdRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/content/schedule': {
-      id: '/content/schedule'
-      path: '/schedule'
-      fullPath: '/content/schedule'
-      preLoaderRoute: typeof ContentScheduleRouteImport
-      parentRoute: typeof ContentRoute
     }
     '/content/library': {
       id: '/content/library'
@@ -256,13 +447,6 @@ declare module '@tanstack/react-router' {
       path: '/channels'
       fullPath: '/content/channels'
       preLoaderRoute: typeof ContentChannelsRouteImport
-      parentRoute: typeof ContentRoute
-    }
-    '/content/calendar': {
-      id: '/content/calendar'
-      path: '/calendar'
-      fullPath: '/content/calendar'
-      preLoaderRoute: typeof ContentCalendarRouteImport
       parentRoute: typeof ContentRoute
     }
     '/content/library/shoots': {
@@ -279,6 +463,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContentLibraryMediaRouteImport
       parentRoute: typeof ContentLibraryRoute
     }
+    '/content/library/media/': {
+      id: '/content/library/media/'
+      path: '/'
+      fullPath: '/content/library/media/'
+      preLoaderRoute: typeof ContentLibraryMediaIndexRouteImport
+      parentRoute: typeof ContentLibraryMediaRoute
+    }
     '/content/library/media/$mediaId': {
       id: '/content/library/media/$mediaId'
       path: '/$mediaId'
@@ -291,10 +482,12 @@ declare module '@tanstack/react-router' {
 
 interface ContentLibraryMediaRouteChildren {
   ContentLibraryMediaMediaIdRoute: typeof ContentLibraryMediaMediaIdRoute
+  ContentLibraryMediaIndexRoute: typeof ContentLibraryMediaIndexRoute
 }
 
 const ContentLibraryMediaRouteChildren: ContentLibraryMediaRouteChildren = {
   ContentLibraryMediaMediaIdRoute: ContentLibraryMediaMediaIdRoute,
+  ContentLibraryMediaIndexRoute: ContentLibraryMediaIndexRoute,
 }
 
 const ContentLibraryMediaRouteWithChildren =
@@ -315,25 +508,49 @@ const ContentLibraryRouteWithChildren = ContentLibraryRoute._addFileChildren(
 )
 
 interface ContentRouteChildren {
-  ContentCalendarRoute: typeof ContentCalendarRoute
   ContentChannelsRoute: typeof ContentChannelsRoute
   ContentLibraryRoute: typeof ContentLibraryRouteWithChildren
-  ContentScheduleRoute: typeof ContentScheduleRoute
 }
 
 const ContentRouteChildren: ContentRouteChildren = {
-  ContentCalendarRoute: ContentCalendarRoute,
   ContentChannelsRoute: ContentChannelsRoute,
   ContentLibraryRoute: ContentLibraryRouteWithChildren,
-  ContentScheduleRoute: ContentScheduleRoute,
 }
 
 const ContentRouteWithChildren =
   ContentRoute._addFileChildren(ContentRouteChildren)
 
+interface SettingsRouteChildren {
+  SettingsAppearanceRoute: typeof SettingsAppearanceRoute
+  SettingsContentSafetyRoute: typeof SettingsContentSafetyRoute
+  SettingsContentTagsRoute: typeof SettingsContentTagsRoute
+  SettingsFilterPresetsRoute: typeof SettingsFilterPresetsRoute
+  SettingsIntegrationsRoute: typeof SettingsIntegrationsRoute
+  SettingsSnippetsRoute: typeof SettingsSnippetsRoute
+  SettingsIndexRoute: typeof SettingsIndexRoute
+}
+
+const SettingsRouteChildren: SettingsRouteChildren = {
+  SettingsAppearanceRoute: SettingsAppearanceRoute,
+  SettingsContentSafetyRoute: SettingsContentSafetyRoute,
+  SettingsContentTagsRoute: SettingsContentTagsRoute,
+  SettingsFilterPresetsRoute: SettingsFilterPresetsRoute,
+  SettingsIntegrationsRoute: SettingsIntegrationsRoute,
+  SettingsSnippetsRoute: SettingsSnippetsRoute,
+  SettingsIndexRoute: SettingsIndexRoute,
+}
+
+const SettingsRouteWithChildren = SettingsRoute._addFileChildren(
+  SettingsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ComponentShowcaseRoute: ComponentShowcaseRoute,
   ContentRoute: ContentRouteWithChildren,
+  HashtagsRoute: HashtagsRoute,
+  OrchestrateRoute: OrchestrateRoute,
+  SettingsRoute: SettingsRouteWithChildren,
   LibraryMediaIdRoute: LibraryMediaIdRoute,
   LibraryIndexRoute: LibraryIndexRoute,
   PlanIndexRoute: PlanIndexRoute,

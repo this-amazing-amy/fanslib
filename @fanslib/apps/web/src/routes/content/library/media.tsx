@@ -1,10 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { ViewNavigationIndicator } from "~/components/ViewNavigationIndicator";
-import { Library } from "~/features/library/components/Library";
 
 const LibraryMediaPageContent = () => (
   <div className="relative flex h-full w-full flex-col overflow-hidden">
-    <Library />
+    <Outlet />
     <ViewNavigationIndicator />
   </div>
 );

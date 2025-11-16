@@ -1,10 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { ShootsFilter } from '~/components/ShootsFilter';
 import { NavigationPageHeader } from '~/components/ui/NavigationPageHeader';
+import { PostPreferencesProvider } from '~/contexts/PostPreferencesContext';
 import { AnalyticsProvider } from '~/contexts/AnalyticsContext';
 import { LibraryPreferencesProvider } from '~/contexts/LibraryPreferencesContext';
 import { MediaDragProvider } from '~/contexts/MediaDragContext';
 import { MediaSelectionProvider } from '~/contexts/MediaSelectionContext';
-import { PlanPreferencesProvider } from '~/contexts/PlanPreferencesContext';
 import { PostDragProvider } from '~/contexts/PostDragContext';
 import { RedditPostProvider } from '~/contexts/RedditPostContext';
 import { ShootProvider } from '~/contexts/ShootContext';
@@ -12,7 +13,6 @@ import { ShootPreferencesProvider } from '~/contexts/ShootPreferencesContext';
 import { TagDragProvider } from '~/contexts/TagDragContext';
 import { Shoots } from '~/features/shoots/components/Shoots';
 import { ShootViewSettings } from '~/features/shoots/components/ShootViewSettings';
-import { ShootsFilter } from '~/components/ShootsFilter';
 
 const ShootsPageContent = () => {
   return (
@@ -22,7 +22,7 @@ const ShootsPageContent = () => {
           <PostDragProvider>
             <ShootPreferencesProvider>
               <AnalyticsProvider>
-                <PlanPreferencesProvider>
+                <PostPreferencesProvider>
                   <RedditPostProvider>
                     <div className="flex h-full w-full flex-col overflow-hidden">
                       <div className="flex-none px-6 py-6">
@@ -44,7 +44,7 @@ const ShootsPageContent = () => {
                       </div>
                     </div>
                   </RedditPostProvider>
-                </PlanPreferencesProvider>
+                </PostPreferencesProvider>
               </AnalyticsProvider>
             </ShootPreferencesProvider>
           </PostDragProvider>

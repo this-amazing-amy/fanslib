@@ -10,9 +10,6 @@ import {
   startOfMonth,
   startOfWeek,
 } from "date-fns";
-import type { ContentSchedule } from "@fanslib/types";
-import type { MediaFilters } from "@fanslib/types";
-import type { Post } from "@fanslib/types";
 
 const SCHEDULE_HORIZON_MONTHS = 3;
 
@@ -26,13 +23,12 @@ export type VirtualPost = Omit<Post, "id" | "createdAt" | "updatedAt" | "postMed
   subreddit: string | null;
   subredditId: string | null;
   mediaFilters: MediaFilters | null;
+  
   fanslyAnalyticsAggregate: undefined;
   channel: ContentSchedule["channel"];
 };
 
-export const isVirtualPost = (post: Post | VirtualPost): post is VirtualPost => {
-  return "isVirtual" in post && post.isVirtual === true;
-};
+export const isVirtualPost = (post: Post | VirtualPost): post is VirtualPost => "isVirtual" in post && post.isVirtual === true;
 
 const parseMediaFilters = (mediaFilters?: string | null): MediaFilters | null => {
   if (!mediaFilters) return null;
@@ -51,15 +47,13 @@ const generateScheduleDates = (schedule: ContentSchedule & { channel: any }, sta
       const days = eachDayOfInterval({ start: startDate, end: endDate });
       const postsPerDay = schedule.postsPerTimeframe || 1;
 
-      const dates = days.flatMap((day) => {
-        return Array.from({ length: postsPerDay }).map((_, j) => {
+      const dates = days.flatMap((day) => Array.from({ length: postsPerDay }).map((_, j) => {
           const date = new Date(day);
           const time = schedule.preferredTimes?.at(j % (schedule.preferredTimes?.length || 1));
           date.setHours(Number(time?.split(":")[0]) || 12);
           date.setMinutes(Number(time?.split(":")[1]) || 0);
           return date;
-        });
-      });
+        }));
 
       return dates;
     }
@@ -68,8 +62,7 @@ const generateScheduleDates = (schedule: ContentSchedule & { channel: any }, sta
       const weeks = eachWeekOfInterval({ start: startDate, end: endDate });
       const postsPerWeek = schedule.postsPerTimeframe || 1;
 
-      const dates = weeks.flatMap((week) => {
-        return Array.from({ length: postsPerWeek }).map((_, i) => {
+      const dates = weeks.flatMap((week) => Array.from({ length: postsPerWeek }).map((_, i) => {
           const date = addDays(
             startOfWeek(week),
             parseInt(schedule.preferredDays?.at(i % (schedule.preferredDays?.length || 1)) || "0")
@@ -78,8 +71,7 @@ const generateScheduleDates = (schedule: ContentSchedule & { channel: any }, sta
           date.setHours(Number(time?.split(":")[0]) || 12);
           date.setMinutes(Number(time?.split(":")[1]) || 0);
           return date;
-        });
-      });
+        }));
 
       return dates;
     }
@@ -107,20 +99,13 @@ const generateScheduleDates = (schedule: ContentSchedule & { channel: any }, sta
   }
 };
 
-export const generateVirtualPosts = (
-  schedules: (ContentSchedule & { channel: any })[],
-  existingPosts: Post[] = [],
-  currentTime: Date = new Date()
-): VirtualPost[] => {
-  return schedules.flatMap((schedule) => {
+export const generateVirtualPosts = (schedules: (ContentSchedule & { channel: any })[], existingPosts: Post[] = [], currentTime: Date = new Date()): VirtualPost[] => schedules.flatMap((schedule) => {
     const dates = generateScheduleDates(schedule, currentTime);
 
-    const filteredDates = dates.filter((date) => {
-      return !existingPosts.some((post) => {
+    const filteredDates = dates.filter((date) => !existingPosts.some((post) => {
         const postDate = new Date(post.date);
         return isSameMinute(postDate, date) && schedule.channelId === post.channelId;
-      });
-    });
+      }));
 
     const mediaFilters = parseMediaFilters(schedule.mediaFilters);
 
@@ -143,5 +128,4 @@ export const generateVirtualPosts = (
       fypRemovedAt: null,
     }));
   });
-};
 

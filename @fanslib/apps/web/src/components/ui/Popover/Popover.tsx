@@ -28,7 +28,7 @@ export const PopoverContent = ({
       sideOffset={sideOffset}
       data-radix-popover-content="true"
       className={cn(
-        'z-[80] rounded-lg bg-base-100 border border-base-300 shadow-lg p-4 outline-none',
+        'z-[80] overflow-hidden rounded-xl bg-base-100 border-2 border-base-content shadow-lg p-4 outline-none',
         'data-[state=open]:animate-in data-[state=closed]:animate-out',
         'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
         'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',

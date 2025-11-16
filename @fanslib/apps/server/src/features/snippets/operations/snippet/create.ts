@@ -23,7 +23,7 @@ export const createSnippet = async (data: typeof CreateSnippetRequestBodySchema.
   const existing = await repo.findOne({
     where: {
       name: data.name,
-      channelId: data.channelId
+      channelId: data.channelId || null
     },
   });
 
@@ -35,16 +35,19 @@ export const createSnippet = async (data: typeof CreateSnippetRequestBodySchema.
     );
   }
 
-  const channel = await database.getRepository(Channel).findOne({ where: { id: data.channelId } });
-  if (!channel) {
-    throw new Error(`Channel with id ${data.channelId} not found`);
-  }
-
   const snippet = repo.create({
     ...data,
   });
 
-  snippet.channel = channel;
+  if (data.channelId) {
+    const channel = await database.getRepository(Channel).findOne({ where: { id: data.channelId } });
+    if (!channel) {
+      throw new Error(`Channel with id ${data.channelId} not found`);
+    }
+    snippet.channel = channel;
+  } else {
+    snippet.channel = null;
+  }
 
   const savedSnippet = await repo.save(snippet);
   return savedSnippet;

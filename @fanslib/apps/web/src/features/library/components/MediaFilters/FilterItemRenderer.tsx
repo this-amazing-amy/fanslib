@@ -172,13 +172,11 @@ export const FilterItemRenderer = ({
 
   return (
     <TooltipProvider>
-      <Tooltip delay={0}>
+      <Tooltip>
         <TooltipTrigger asChild>
           <div className="cursor-pointer">{renderInput()}</div>
         </TooltipTrigger>
-        <TooltipContent
-          className="flex gap-1 bg-background border border-border px-1.5"
-        >
+        <TooltipContent className="flex gap-1 px-1.5 py-1">
           <Button
             variant="ghost"
             size="icon"

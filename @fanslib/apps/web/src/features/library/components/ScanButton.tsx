@@ -1,5 +1,4 @@
 import { MoreVertical, RefreshCw } from "lucide-react";
-import { Button } from "~/components/ui/Button/Button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,14 +15,15 @@ type ScanButtonProps = {
 export const ScanButton = ({ isScanning, onScan }: ScanButtonProps) => (
     <DropdownMenu>
     <DropdownMenuTrigger>
-      <Button
-        variant="ghost"
-        size="icon"
-        isDisabled={isScanning}
-        className="bg-base-100 text-base-content hover:bg-base-200"
+      <button
+        disabled={isScanning}
+        className={cn(
+          "btn btn-ghost hover:bg-primary/20 hover:ring-2 hover:ring-primary btn-square bg-base-100 text-base-content hover:bg-base-200",
+          isScanning && "opacity-50 cursor-not-allowed"
+        )}
       >
         <MoreVertical className="h-5 w-5" />
-      </Button>
+      </button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end" className="w-48">
       <DropdownMenuItem

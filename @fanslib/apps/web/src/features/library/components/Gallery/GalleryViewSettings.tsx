@@ -1,5 +1,4 @@
 import { Settings2 } from "lucide-react";
-import { Button } from "~/components/ui/Button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,9 +16,9 @@ export const GalleryViewSettings = () => {
   return (
     <DropdownMenu >
       <DropdownMenuTrigger>
-        <Button variant="ghost" size="icon" className="h-9 w-9">
+        <button className="btn btn-ghost hover:bg-primary/20 hover:ring-2 hover:ring-primary btn-square h-9 w-9">
           <Settings2 className="h-4 w-4" />
-        </Button>
+        </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>View Settings</DropdownMenuLabel>
