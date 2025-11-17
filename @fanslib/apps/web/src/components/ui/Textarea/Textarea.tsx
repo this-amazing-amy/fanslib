@@ -18,7 +18,7 @@ export const Textarea = ({ className, rows = 3, ...props }: TextareaProps) => {
       {...(inputProps as unknown as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
       ref={ref}
       rows={rows}
-      className={cn('textarea textarea-bordered w-full rounded-lg focus:outline-none', className)}
+      className={cn('textarea border w-full rounded-lg focus:outline-none', className)}
     />
   );
 };

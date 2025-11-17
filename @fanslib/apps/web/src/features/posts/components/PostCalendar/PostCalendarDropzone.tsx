@@ -1,7 +1,10 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import type { Media, Post } from "@fanslib/types";
+import { MediaSchema, PostWithRelationsSchema } from "@fanslib/server/schemas";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
+
+type Media = typeof MediaSchema.static;
+type Post = typeof PostWithRelationsSchema.static;
 import { usePostDrag } from "~/contexts/PostDragContext";
 import { useAddMediaToPostMutation } from "~/lib/queries/posts";
 import { useDragOver } from "~/hooks/useDragOver";
@@ -49,8 +52,8 @@ export const PostCalendarDropzone = ({ post, children, onUpdate }: PostCalendarD
         endMediaDrag();
       } else if (isPostDragging && draggedPost && isVirtualPost(post)) {
         setCreatePostData({
-          media: !isVirtualPost(draggedPost) ? draggedPost.postMedia.map((pm) => pm.media) : [],
-          caption: draggedPost.caption,
+          media: !isVirtualPost(draggedPost) && draggedPost.postMedia ? draggedPost.postMedia.map((pm) => pm.media) : [],
+          caption: draggedPost.caption ?? undefined,
         });
         endPostDrag();
       }

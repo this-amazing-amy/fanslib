@@ -4,8 +4,8 @@ import { Button } from "~/components/ui/Button";
 import { Card, CardBody, CardTitle } from "~/components/ui/Card";
 import {
   DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuPopover,
   DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
 import { cn } from "~/lib/cn";
@@ -113,23 +113,28 @@ export const DimensionCard = ({
               Add Tag
             </Button>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                  <MoreHorizontal className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onSelect={handleEditDimension}>
-                  <PenLine className="w-4 h-4 mr-2" />
-                  Edit Dimension
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={handleDeleteDimension} className="text-error">
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete Dimension
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <DropdownMenuTrigger>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <MoreHorizontal className="w-4 h-4" />
+              </Button>
+              <DropdownMenuPopover placement="bottom end">
+                <DropdownMenu
+                  onAction={(key) => {
+                    if (key === "edit") handleEditDimension();
+                    if (key === "delete") handleDeleteDimension();
+                  }}
+                >
+                  <DropdownMenuItem id="edit">
+                    <PenLine className="w-4 h-4 mr-2" />
+                    Edit Dimension
+                  </DropdownMenuItem>
+                  <DropdownMenuItem id="delete" className="text-error">
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete Dimension
+                  </DropdownMenuItem>
+                </DropdownMenu>
+              </DropdownMenuPopover>
+            </DropdownMenuTrigger>
           </div>
         </div>
 

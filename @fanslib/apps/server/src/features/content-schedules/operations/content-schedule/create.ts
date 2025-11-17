@@ -47,7 +47,7 @@ export const createContentSchedule = async (
   return repository.findOne({
     where: { id: schedule.id },
     relations: {
-      channel: true,
+      channel: { type: true, defaultHashtags: true },
     },
   }) as Promise<ContentSchedule>;
 };

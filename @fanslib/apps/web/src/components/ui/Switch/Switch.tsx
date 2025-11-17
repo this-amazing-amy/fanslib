@@ -13,7 +13,7 @@ export const Switch = ({ ...props }: SwitchProps) => {
 
   return (
     <label className="flex items-center gap-2 cursor-pointer">
-      <input {...inputProps} ref={ref} type="checkbox" className="toggle toggle-primary" checked={state.isSelected} />
+      <input {...inputProps} ref={ref} type="checkbox" className="toggle toggle-primary text-base-content/20 [&:checked]:border-primary [&:checked]:text-primary" checked={state.isSelected} />
       {props.children && <span className="label-text">{props.children}</span>}
     </label>
   );

@@ -1,3 +1,8 @@
+import type {
+  ContentScheduleWithChannelSchema,
+  MediaFilterSchema,
+  PostSchema,
+} from "@fanslib/server/schemas";
 import {
   addDays,
   addMonths,
@@ -11,12 +16,17 @@ import {
   startOfWeek,
 } from "date-fns";
 
+type Post = typeof PostSchema.static;
+type ContentSchedule = typeof ContentScheduleWithChannelSchema.static;
+type MediaFilters = typeof MediaFilterSchema.static;
+
 const SCHEDULE_HORIZON_MONTHS = 3;
 
 export type VirtualPost = Omit<Post, "id" | "createdAt" | "updatedAt" | "postMedia"> & {
   isVirtual: true;
   scheduleId: string;
   virtualId: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fanslyAnalyticsDatapoints: any[];
   fanslyStatisticsId: string | null;
   url: string | null;
@@ -39,17 +49,18 @@ const parseMediaFilters = (mediaFilters?: string | null): MediaFilters | null =>
   }
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const generateScheduleDates = (schedule: ContentSchedule & { channel: any }, startDate: Date = new Date()): Date[] => {
   const endDate = addMonths(startDate, SCHEDULE_HORIZON_MONTHS);
 
   switch (schedule.type) {
     case "daily": {
       const days = eachDayOfInterval({ start: startDate, end: endDate });
-      const postsPerDay = schedule.postsPerTimeframe || 1;
+      const postsPerDay = schedule.postsPerTimeframe ?? 1;
 
       const dates = days.flatMap((day) => Array.from({ length: postsPerDay }).map((_, j) => {
           const date = new Date(day);
-          const time = schedule.preferredTimes?.at(j % (schedule.preferredTimes?.length || 1));
+          const time = schedule.preferredTimes?.at(j % (schedule.preferredTimes?.length ?? 1));
           date.setHours(Number(time?.split(":")[0]) || 12);
           date.setMinutes(Number(time?.split(":")[1]) || 0);
           return date;
@@ -60,14 +71,14 @@ const generateScheduleDates = (schedule: ContentSchedule & { channel: any }, sta
 
     case "weekly": {
       const weeks = eachWeekOfInterval({ start: startDate, end: endDate });
-      const postsPerWeek = schedule.postsPerTimeframe || 1;
+      const postsPerWeek = schedule.postsPerTimeframe ?? 1;
 
       const dates = weeks.flatMap((week) => Array.from({ length: postsPerWeek }).map((_, i) => {
           const date = addDays(
             startOfWeek(week),
-            parseInt(schedule.preferredDays?.at(i % (schedule.preferredDays?.length || 1)) || "0")
+            parseInt(schedule.preferredDays?.at(i % (schedule.preferredDays?.length ?? 1)) ?? "0")
           );
-          const time = schedule.preferredTimes?.at(i % (schedule.preferredTimes?.length || 1));
+          const time = schedule.preferredTimes?.at(i % (schedule.preferredTimes?.length ?? 1));
           date.setHours(Number(time?.split(":")[0]) || 12);
           date.setMinutes(Number(time?.split(":")[1]) || 0);
           return date;
@@ -82,7 +93,7 @@ const generateScheduleDates = (schedule: ContentSchedule & { channel: any }, sta
       const dates: Date[] = [];
 
       months.forEach((month) => {
-        preferredDays.forEach((day) => {
+        preferredDays.forEach((day: string) => {
           const date = addDays(startOfMonth(month), parseInt(day) - 1);
           if (date <= endOfMonth(month) && date <= endDate) {
             dates.push(date);
@@ -90,7 +101,7 @@ const generateScheduleDates = (schedule: ContentSchedule & { channel: any }, sta
         });
       });
 
-      const postsPerMonth = schedule.postsPerTimeframe || preferredDays.length;
+      const postsPerMonth = schedule.postsPerTimeframe ?? preferredDays.length;
       return dates.slice(0, postsPerMonth * months.length);
     }
 
@@ -99,6 +110,7 @@ const generateScheduleDates = (schedule: ContentSchedule & { channel: any }, sta
   }
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const generateVirtualPosts = (schedules: (ContentSchedule & { channel: any })[], existingPosts: Post[] = [], currentTime: Date = new Date()): VirtualPost[] => schedules.flatMap((schedule) => {
     const dates = generateScheduleDates(schedule, currentTime);
 

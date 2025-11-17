@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
 import { useRef } from 'react';
 import type { AriaRadioGroupProps } from 'react-aria';
-import { useRadioGroup, useRadio, useFocusRing, mergeProps } from 'react-aria';
-import { useRadioGroupState } from 'react-stately';
+import { mergeProps, useFocusRing, useRadio, useRadioGroup } from 'react-aria';
 import type { RadioGroupState } from 'react-stately';
+import { useRadioGroupState } from 'react-stately';
 import { cn } from '~/lib/cn';
 
 export type ToggleGroupOption = {
@@ -15,7 +15,7 @@ export type ToggleGroupOption = {
 
 export type ToggleGroupProps = Omit<AriaRadioGroupProps, 'children'> & {
   options: ToggleGroupOption[];
-  variant?: 'default' | 'outline' | 'primary';
+  variant?: 'primary' | 'outline';
   size?: 'sm' | 'md' | 'lg';
   orientation?: 'horizontal' | 'vertical';
   className?: string;
@@ -23,7 +23,7 @@ export type ToggleGroupProps = Omit<AriaRadioGroupProps, 'children'> & {
 
 export const ToggleGroup = ({
   options,
-  variant = 'default',
+  variant = 'primary',
   size = 'md',
   orientation = 'horizontal',
   className,
@@ -41,7 +41,7 @@ export const ToggleGroup = ({
       )}
       <div
         className={cn(
-          'btn-group',
+          'btn-group gap-2',
           orientation === 'vertical' && 'btn-group-vertical'
         )}
       >
@@ -62,7 +62,7 @@ export const ToggleGroup = ({
 type ToggleGroupItemProps = {
   option: ToggleGroupOption;
   state: RadioGroupState;
-  variant: 'default' | 'outline' | 'primary';
+  variant: 'primary' | 'outline';
   size: 'sm' | 'md' | 'lg';
 };
 
@@ -86,17 +86,13 @@ const ToggleGroupItem = ({
   const isSelected = state.selectedValue === option.value;
 
   const variantClasses = {
-    default: cn(
-      'bg-transparent hover:bg-base-200',
-      isSelected && 'bg-base-200'
+    primary: cn(
+      'bg-transparent hover:bg-primary/10',
+      isSelected && 'bg-primary text-primary-content font-semibold border-2 border-primary'
     ),
     outline: cn(
       'border border-base-300 bg-transparent hover:bg-base-200',
-      isSelected && 'bg-base-200 border-base-300'
-    ),
-    primary: cn(
-      'bg-transparent hover:bg-base-200',
-      isSelected && 'btn-primary'
+      isSelected && 'bg-base-300 border-base-content/30 font-semibold'
     ),
   };
 

@@ -1,7 +1,9 @@
 export {
-  DropdownMenu, DropdownMenuContent,
+  DropdownMenu,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator, DropdownMenuTrigger
+  DropdownMenuPopover,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from './DropdownMenu';
 

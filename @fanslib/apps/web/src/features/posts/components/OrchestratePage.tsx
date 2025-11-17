@@ -1,4 +1,4 @@
-import type { Post } from "@fanslib/types";
+import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
 import { useCallback, useEffect, useMemo } from "react";
 import { SplitViewLayout } from "~/components/SplitViewLayout";
 import { TabNavigation } from "~/components/TabNavigation";
@@ -20,6 +20,8 @@ import { PlanViewSettings } from "./PlanViewSettings";
 import { PostCalendar } from "./PostCalendar/PostCalendar";
 import { PostFilters } from "./PostFilters";
 import { PostTimeline } from "./PostTimeline";
+
+type Post = typeof PostWithRelationsSchema.static;
 
 const OrchestratePageContent = () => {
   const { data: channels = [] } = useChannelsQuery();

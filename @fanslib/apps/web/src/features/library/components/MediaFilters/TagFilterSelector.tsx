@@ -1,11 +1,16 @@
+import type { TagDefinitionSchema, TagDimensionSchema } from "@fanslib/server/schemas";
 import { Check, ChevronRight, ChevronsUpDown } from "lucide-react";
 import { useMemo, useState } from "react";
-import { useTagDimensionsQuery } from "~/lib/queries/tags";
-import { cn } from "~/lib/cn";
 import { Button } from "~/components/ui/Button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "~/components/ui/Command";
-import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/Popover";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "~/components/ui/Collapsible";
+import { Popover, PopoverTrigger } from "~/components/ui/Popover";
+import { cn } from "~/lib/cn";
+import { useTagDimensionsQuery } from "~/lib/queries/tags";
+
+type TagDimensionWithTags = typeof TagDimensionSchema.static & {
+  tags?: typeof TagDefinitionSchema.static[];
+};
+type TagDefinition = typeof TagDefinitionSchema.static;
 
 type TagFilterSelectorProps = {
   value?: string;
@@ -19,15 +24,15 @@ export const TagFilterSelector = ({ value, onChange }: TagFilterSelectorProps) =
   const { data: dimensions = [], isLoading } = useTagDimensionsQuery();
 
   const categoricalDimensions = useMemo(
-    () => dimensions.filter((d) => d.dataType === "categorical"),
+    () => (dimensions as TagDimensionWithTags[] ?? []).filter((d) => d.dataType === "categorical"),
     [dimensions]
   );
 
   const selectedDimension = categoricalDimensions.find((d) =>
-    d.tags?.some((tag) => tag.id.toString() === value)
+    d.tags?.some((tag: TagDefinition) => tag.id.toString() === value)
   );
 
-  const selectedTag = selectedDimension?.tags?.find((tag) => tag.id.toString() === value);
+  const selectedTag = selectedDimension?.tags?.find((tag: TagDefinition) => tag.id.toString() === value);
 
   // Filter dimensions and tags based on search
   const filteredDimensionsWithTags = useMemo(() => {
@@ -44,7 +49,7 @@ export const TagFilterSelector = ({ value, onChange }: TagFilterSelectorProps) =
       .map((dimension) => {
         const dimensionMatches = dimension.name.toLowerCase().includes(lowerSearch);
         const matchingTags = (dimension.tags || []).filter(
-          (tag) =>
+          (tag: TagDefinition) =>
             tag.displayName.toLowerCase().includes(lowerSearch) ||
             dimension.name.toLowerCase().includes(lowerSearch)
         );
@@ -101,18 +106,16 @@ export const TagFilterSelector = ({ value, onChange }: TagFilterSelectorProps) =
   };
 
   return (
-    <Popover open={open} onOpenChange={handleOpenChange}>
-      <PopoverTrigger>
-        <Button
-          variant="outline"
-          aria-expanded={open}
-          className="w-full justify-between"
-        >
-          <span className="truncate">{getDisplayValue()}</span>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-full p-0" align="start">
+    <PopoverTrigger isOpen={open} onOpenChange={handleOpenChange}>
+      <Button
+        variant="outline"
+        aria-expanded={open}
+        className="w-full justify-between"
+      >
+        <span className="truncate">{getDisplayValue()}</span>
+        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+      </Button>
+      <Popover className="w-full p-0" placement="bottom start">
         <Command>
           <CommandInput
             placeholder="Search tags and dimensions..."
@@ -125,33 +128,30 @@ export const TagFilterSelector = ({ value, onChange }: TagFilterSelectorProps) =
               if (!hasMatches) return null;
 
               const isExpanded = expandedDimensions.has(dimension.id);
-              const hasSelectedTag = tags.some((tag) => tag.id.toString() === value);
+              const hasSelectedTag = tags.some((tag: TagDefinition) => tag.id.toString() === value);
 
               return (
-                <Collapsible
-                  key={dimension.id}
-                  open={isExpanded}
-                  onOpenChange={() => toggleDimension(dimension.id)}
-                >
-                  <CollapsibleTrigger>
-                    <div className="flex items-center justify-between w-full px-2 py-1.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground cursor-pointer border-b">
-                      <div className="flex items-center gap-2">
-                        <span>{dimension.name}</span>
-                        {hasSelectedTag && <div className="w-2 h-2 bg-blue-500 rounded-full" />}
-                        <span className="text-xs text-muted-foreground">
-                          ({tags.length} {searchValue.trim() ? "matching " : ""}tags)
-                        </span>
-                      </div>
-                      <ChevronRight
-                        className={cn("h-4 w-4 transition-transform", isExpanded && "rotate-90")}
-                      />
+                <div key={dimension.id}>
+                  <div
+                    className="flex items-center justify-between w-full px-2 py-1.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground cursor-pointer border-b"
+                    onClick={() => toggleDimension(dimension.id)}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span>{dimension.name}</span>
+                      {hasSelectedTag && <div className="w-2 h-2 bg-blue-500 rounded-full" />}
+                      <span className="text-xs text-muted-foreground">
+                        ({tags.length} {searchValue.trim() ? "matching " : ""}tags)
+                      </span>
                     </div>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
+                    <ChevronRight
+                      className={cn("h-4 w-4 transition-transform", isExpanded && "rotate-90")}
+                    />
+                  </div>
+                  {isExpanded && (
                     <CommandGroup>
                       {tags
-                        .sort((a, b) => a.displayName.localeCompare(b.displayName))
-                        .map((tag) => (
+                        .sort((a: TagDefinition, b: TagDefinition) => a.displayName.localeCompare(b.displayName))
+                        .map((tag: TagDefinition) => (
                           <CommandItem
                             key={tag.id}
                             value={`${dimension.name} ${tag.displayName}`}
@@ -166,19 +166,19 @@ export const TagFilterSelector = ({ value, onChange }: TagFilterSelectorProps) =
                             />
                             <div
                               className="w-3 h-3 rounded-full mr-2 flex-shrink-0"
-                              style={{ backgroundColor: tag.color }}
+                              style={{ backgroundColor: tag.color ?? undefined }}
                             />
                             <span className="flex-1 truncate">{tag.displayName}</span>
                           </CommandItem>
                         ))}
                     </CommandGroup>
-                  </CollapsibleContent>
-                </Collapsible>
+                  )}
+                </div>
               );
             })}
           </div>
         </Command>
-      </PopoverContent>
-    </Popover>
+      </Popover>
+    </PopoverTrigger>
   );
 };

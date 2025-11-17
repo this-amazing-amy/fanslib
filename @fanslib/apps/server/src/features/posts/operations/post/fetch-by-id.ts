@@ -1,6 +1,5 @@
 import { t } from "elysia";
-import { ChannelSchema, ChannelTypeSchema } from "~/features/channels/entity";
-import { HashtagSchema } from "~/features/hashtags/entity";
+import { ChannelSchema } from "~/features/channels/entity";
 import { MediaSchema } from "~/features/library/entity";
 import { SubredditSchema } from "~/features/subreddits/entity";
 import { db } from "../../../../lib/db";
@@ -19,14 +18,8 @@ export const FetchPostByIdResponseSchema = t.Composite([
         media: MediaSchema,
       }),
     ])),
-    channel: t.Composite([
-      ChannelSchema,
-      t.Object({
-        type: ChannelTypeSchema,
-        defaultHashtags: t.Array(HashtagSchema),
-      }),
-    ]),
-    subreddit: t.Optional(t.Partial(  SubredditSchema)),
+    channel: ChannelSchema,
+    subreddit: t.Optional(t.Partial(SubredditSchema)),
   }),
 ]);
 

@@ -1,4 +1,6 @@
-import type { TagDimension } from "@fanslib/types";
+import type { TagDimensionSchema } from "@fanslib/server/schemas";
+
+type TagDimension = typeof TagDimensionSchema.static;
 
 // Schema type definitions
 export type NumericSchema = {
@@ -19,7 +21,7 @@ export type BooleanSchema = {
 export type ValidationSchema = NumericSchema | BooleanSchema;
 
 // Schema parsing functions
-export const parseNumericSchema = (schemaString?: string): NumericSchema => {
+export const parseNumericSchema = (schemaString?: string | null): NumericSchema => {
   if (!schemaString) {
     return { min: 0, step: 1 };
   }
@@ -39,7 +41,7 @@ export const parseNumericSchema = (schemaString?: string): NumericSchema => {
   }
 };
 
-export const parseBooleanSchema = (schemaString?: string): BooleanSchema => {
+export const parseBooleanSchema = (schemaString?: string | null): BooleanSchema => {
   if (!schemaString) {
     return { trueLabel: "Yes", falseLabel: "No", defaultValue: false };
   }
@@ -107,14 +109,14 @@ export const validateTagValue = (value: unknown, dimension: TagDimension): strin
       if (typeof value !== "number") {
         return "Numeric value required";
       }
-      const schema = parseNumericSchema(dimension.validationSchema);
+      const schema = parseNumericSchema(dimension.validationSchema ?? undefined);
       return validateNumericValue(value, schema);
     }
     case "boolean": {
       if (typeof value !== "boolean") {
         return "Boolean value required";
       }
-      const schema = parseBooleanSchema(dimension.validationSchema);
+      const schema = parseBooleanSchema(dimension.validationSchema ?? undefined);
       return validateBooleanValue(value, schema);
     }
     case "categorical":
@@ -167,11 +169,11 @@ export const formatNumericValue = (value: number, schema: NumericSchema): string
 export const getDefaultValue = (dimension: TagDimension): unknown => {
   switch (dimension.dataType) {
     case "numerical": {
-      const schema = parseNumericSchema(dimension.validationSchema);
+      const schema = parseNumericSchema(dimension.validationSchema ?? undefined);
       return schema.defaultValue ?? schema.min ?? 0;
     }
     case "boolean": {
-      const schema = parseBooleanSchema(dimension.validationSchema);
+      const schema = parseBooleanSchema(dimension.validationSchema ?? undefined);
       return schema.defaultValue ?? false;
     }
     case "categorical":

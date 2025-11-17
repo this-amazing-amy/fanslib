@@ -13,7 +13,7 @@ const meta: Meta<typeof ToggleGroup> = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['default', 'outline', 'primary'],
+      options: ['primary', 'outline'],
     },
     size: {
       control: 'select',
@@ -83,17 +83,16 @@ export const WithLabel: Story = {
 const VariantsComponent = () => {
   const [value1, setValue1] = useState('left');
   const [value2, setValue2] = useState('left');
-  const [value3, setValue3] = useState('left');
 
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-sm mb-2">Default</p>
+        <p className="text-sm mb-2">Primary</p>
         <ToggleGroup
           options={alignmentOptions}
           value={value1}
           onChange={setValue1}
-          variant="default"
+          variant="primary"
         />
       </div>
       <div>
@@ -103,15 +102,6 @@ const VariantsComponent = () => {
           value={value2}
           onChange={setValue2}
           variant="outline"
-        />
-      </div>
-      <div>
-        <p className="text-sm mb-2">Primary</p>
-        <ToggleGroup
-          options={alignmentOptions}
-          value={value3}
-          onChange={setValue3}
-          variant="primary"
         />
       </div>
     </div>

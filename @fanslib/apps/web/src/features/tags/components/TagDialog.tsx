@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "~/components/ui/Dialog";
+import {
+  Dialog,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogModal,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/Dialog";
 import { Input } from "~/components/ui/Input";
 import { Label } from "~/components/ui/Label";
 import {
@@ -165,56 +173,65 @@ export const TagDialog = ({ editingTag, dimension, availableTags, onClose, onSub
   };
 
   return (
-    <Dialog open={!!editingTag} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle>{getDialogTitle()}</DialogTitle>
-          <DialogDescription>{getDialogDescription()}</DialogDescription>
-        </DialogHeader>
+    <DialogTrigger isOpen={!!editingTag} onOpenChange={(open) => !open && onClose()}>
+      <DialogModal>
+        <Dialog maxWidth="lg" showCloseButton={false}>
+          {({ close }) => (
+            <>
+              <DialogHeader>
+                <DialogTitle>{getDialogTitle()}</DialogTitle>
+                <DialogDescription>{getDialogDescription()}</DialogDescription>
+              </DialogHeader>
 
-        <div className="space-y-4">
-          {(isNumeric || isBoolean) && (
-            <div className="space-y-2">
-              <Label htmlFor="displayName">Tag Name *</Label>
-              <Input
-                id="displayName"
-                value={formData.displayName}
-                onChange={(value) => setFormData((prev) => ({ ...prev, displayName: value }))}
-                placeholder={isNumeric ? "e.g., Duration, Count, Rating" : "e.g., Is Featured, Has Audio"}
-                isRequired
-              />
-            </div>
+              <div className="space-y-4">
+                {(isNumeric || isBoolean) && (
+                  <div className="space-y-2">
+                    <Label htmlFor="displayName">Tag Name *</Label>
+                    <Input
+                      id="displayName"
+                      value={formData.displayName}
+                      onChange={(value) => setFormData((prev) => ({ ...prev, displayName: value }))}
+                      placeholder={isNumeric ? "e.g., Duration, Count, Rating" : "e.g., Is Featured, Has Audio"}
+                      isRequired
+                    />
+                  </div>
+                )}
+
+                {renderValueInput()}
+
+                {(isNumeric || isBoolean) && (
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description (optional)</Label>
+                    <Input
+                      id="description"
+                      value={formData.description}
+                      onChange={(value) => setFormData((prev) => ({ ...prev, description: value }))}
+                      placeholder="Brief description of this tag"
+                    />
+                  </div>
+                )}
+
+                {validationError && <p className="text-xs text-error">{validationError}</p>}
+              </div>
+
+              <DialogFooter>
+                <Button variant="outline" onPress={close} isDisabled={isSubmitting}>
+                  Cancel
+                </Button>
+                <Button
+                  onPress={() => {
+                    handleSubmit();
+                    close();
+                  }}
+                  isDisabled={isSubmitting || !!validationError || !formData.displayName.trim()}
+                >
+                  {isSubmitting ? "Saving..." : editingTag?.mode === "edit" ? "Update Tag" : "Create Tag"}
+                </Button>
+              </DialogFooter>
+            </>
           )}
-
-          {renderValueInput()}
-
-          {(isNumeric || isBoolean) && (
-            <div className="space-y-2">
-              <Label htmlFor="description">Description (optional)</Label>
-              <Input
-                id="description"
-                value={formData.description}
-                onChange={(value) => setFormData((prev) => ({ ...prev, description: value }))}
-                placeholder="Brief description of this tag"
-              />
-            </div>
-          )}
-
-          {validationError && <p className="text-xs text-error">{validationError}</p>}
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onPress={onClose} isDisabled={isSubmitting}>
-            Cancel
-          </Button>
-          <Button
-            onPress={handleSubmit}
-            isDisabled={isSubmitting || !!validationError || !formData.displayName.trim()}
-          >
-            {isSubmitting ? "Saving..." : editingTag?.mode === "edit" ? "Update Tag" : "Create Tag"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </Dialog>
+      </DialogModal>
+    </DialogTrigger>
   );
 };

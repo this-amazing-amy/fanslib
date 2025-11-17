@@ -1,10 +1,10 @@
-import { useChannelsQuery } from "~/lib/queries/channels";
-import { cn } from "~/lib/cn";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "~/components/ui/Button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "~/components/ui/Command";
-import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/Popover";
+import { Popover, PopoverTrigger } from "~/components/ui/Popover";
+import { cn } from "~/lib/cn";
+import { useChannelsQuery } from "~/lib/queries/channels";
 
 type ChannelFilterSelectorProps = {
   value?: string;
@@ -16,7 +16,7 @@ export const ChannelFilterSelector = ({ value, onChange }: ChannelFilterSelector
   const { data: channels = [], isLoading } = useChannelsQuery();
 
   const selectedChannel = useMemo(
-    () => channels.find((channel) => channel.id === value),
+    () => (channels ?? []).find((channel) => channel.id === value),
     [channels, value]
   );
 
@@ -28,25 +28,23 @@ export const ChannelFilterSelector = ({ value, onChange }: ChannelFilterSelector
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger>
-        <Button
-          variant="outline"
-          aria-expanded={open}
-          className="w-full justify-between"
-        >
-          <div className="flex items-center gap-2">
-            {isLoading ? "Loading..." : displayValue}
-          </div>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-full p-0">
+    <PopoverTrigger isOpen={open} onOpenChange={setOpen}>
+      <Button
+        variant="outline"
+        aria-expanded={open}
+        className="w-full justify-between"
+      >
+        <div className="flex items-center gap-2">
+          {isLoading ? "Loading..." : displayValue}
+        </div>
+        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+      </Button>
+      <Popover className="w-full p-0">
         <Command>
           <CommandInput placeholder="Search channels..." />
           <CommandEmpty>No channel found.</CommandEmpty>
           <CommandGroup>
-            {channels.map((channel) => (
+            {(channels ?? []).map((channel) => (
               <CommandItem
                 key={channel.id}
                 value={channel.name}
@@ -66,7 +64,7 @@ export const ChannelFilterSelector = ({ value, onChange }: ChannelFilterSelector
             ))}
           </CommandGroup>
         </Command>
-      </PopoverContent>
-    </Popover>
+      </Popover>
+    </PopoverTrigger>
   );
 };

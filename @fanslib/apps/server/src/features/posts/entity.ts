@@ -13,6 +13,7 @@ import {
 import type { FanslyAnalyticsAggregate, FanslyAnalyticsDatapoint } from "../analytics/entity";
 import type { Channel } from "../channels/entity";
 import type { Media } from "../library/entity";
+import { MediaSchema } from "../library/entity";
 import { Subreddit } from "../subreddits/entity";
 
 export type PostStatus = "draft" | "scheduled" | "posted";
@@ -127,6 +128,13 @@ export const PostMediaSchema = t.Object({
   createdAt: t.Date(),
   updatedAt: t.Date(),
 });
+
+export const PostMediaWithMediaSchema = t.Composite([
+  PostMediaSchema,
+  t.Object({
+    media: MediaSchema,
+  }),
+]);
 
 export const PostSchema = t.Object({
   id: t.String(),

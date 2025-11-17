@@ -35,6 +35,10 @@ export const ChannelTypeIcon = ({ typeId, color, className }: ChannelTypeIconPro
   const channelType = CHANNEL_TYPES[typeId];
   const Icon = CHANNEL_ICONS[channelType.id];
 
+  if (!Icon) {
+    return null;
+  }
+
   return (
     <div className={cn("w-8 h-8", className)} style={{ color: color ?? channelType.color }}>
       <Icon className="w-full h-full" />

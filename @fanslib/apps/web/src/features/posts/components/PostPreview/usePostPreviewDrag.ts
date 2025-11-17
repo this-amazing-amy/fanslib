@@ -1,10 +1,12 @@
-import { useRef, useState } from "react";
+import type { CreatePostRequestBodySchema, PostWithRelationsSchema } from "@fanslib/server/schemas";
 import { useNavigate } from "@tanstack/react-router";
-import type { Post } from "@fanslib/types";
+import { useRef, useState } from "react";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
-import { useCreatePostMutation, useAddMediaToPostMutation } from "~/lib/queries/posts";
 import { useMediaListQuery } from "~/lib/queries/library";
+import { useAddMediaToPostMutation, useCreatePostMutation } from "~/lib/queries/posts";
 import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
+
+type Post = typeof PostWithRelationsSchema.static;
 
 type UsePostPreviewDragProps = {
   post: Post | VirtualPost;
@@ -75,18 +77,22 @@ export const usePostPreviewDrag = ({
 
     try {
       if (isVirtualPost(post)) {
-        const newPost = await createPostMutation.mutateAsync({
+        const createPostData: typeof CreatePostRequestBodySchema.static = {
           date: post.date,
           channelId: post.channelId,
           status: "draft",
           caption: "",
           mediaIds: draggedMedias.map((media) => media.id),
-        } as any);
+        };
+        const newPost = await createPostMutation.mutateAsync(createPostData);
         await onUpdate();
         endMediaDrag();
         refetch();
 
-        navigate({ to: "/posts/$postId", params: { postId: newPost.id } });
+        if (newPost) {
+          // Navigate to orchestrate page after creating post
+          navigate({ to: "/orchestrate" });
+        }
         return;
       }
 

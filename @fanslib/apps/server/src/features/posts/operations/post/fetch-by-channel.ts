@@ -1,5 +1,5 @@
 import { t } from "elysia";
-import { ChannelSchema, ChannelTypeSchema } from "~/features/channels/entity";
+import { ChannelSchema } from "~/features/channels/entity";
 import { MediaSchema } from "~/features/library/entity";
 import { db } from "../../../../lib/db";
 import { Post, PostMediaSchema, PostSchema } from "../../entity";
@@ -17,12 +17,7 @@ export const FetchPostsByChannelResponseSchema = t.Array(t.Composite([
         media: MediaSchema,
       }),
     ])),
-    channel: t.Composite([
-      ChannelSchema,
-      t.Object({
-        type: ChannelTypeSchema,
-      }),
-    ]),
+    channel: ChannelSchema,
   }),
 ]));
 
@@ -38,6 +33,7 @@ export const fetchPostsByChannel = async (channelId: string): Promise<typeof Fet
       },
       channel: {
         type: true,
+        defaultHashtags: true,
       },
     },
     order: {

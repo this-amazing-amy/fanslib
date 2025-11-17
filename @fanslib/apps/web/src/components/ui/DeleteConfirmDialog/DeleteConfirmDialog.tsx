@@ -1,14 +1,14 @@
 import type { ReactNode } from 'react';
 import {
   AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
   AlertDialogDescription,
   AlertDialogFooter,
-  AlertDialogAction,
-  AlertDialogCancel,
+  AlertDialogHeader,
+  AlertDialogModal,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from '../AlertDialog';
+import { Button } from '../Button';
 
 export type DeleteConfirmDialogProps = {
   open: boolean;
@@ -43,23 +43,37 @@ export const DeleteConfirmDialog = ({
     `Are you sure you want to delete ${itemName ? `"${itemName}"` : `this ${itemType}`}? This action cannot be undone.`;
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{defaultTitle}</AlertDialogTitle>
-          <AlertDialogDescription>{defaultDescription}</AlertDialogDescription>
-        </AlertDialogHeader>
-        {children}
-        <AlertDialogFooter>
-          <AlertDialogCancel isDisabled={isLoading}>
-            {cancelText}
-          </AlertDialogCancel>
-          <AlertDialogAction onPress={onConfirm} isDisabled={isLoading} isLoading={isLoading}>
-            {isLoading ? 'Deleting...' : confirmText}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <AlertDialogTrigger isOpen={open} onOpenChange={onOpenChange}>
+      <AlertDialogModal isDismissable={false}>
+        <AlertDialog>
+          {({ close }) => (
+            <>
+              <AlertDialogHeader>
+                <AlertDialogTitle>{defaultTitle}</AlertDialogTitle>
+                <AlertDialogDescription>{defaultDescription}</AlertDialogDescription>
+              </AlertDialogHeader>
+              {children}
+              <AlertDialogFooter>
+                <Button variant="ghost" onPress={close} isDisabled={isLoading}>
+                  {cancelText}
+                </Button>
+                <Button
+                  variant="error"
+                  onPress={async () => {
+                    await onConfirm();
+                    close();
+                  }}
+                  isDisabled={isLoading}
+                  isLoading={isLoading}
+                >
+                  {isLoading ? 'Deleting...' : confirmText}
+                </Button>
+              </AlertDialogFooter>
+            </>
+          )}
+        </AlertDialog>
+      </AlertDialogModal>
+    </AlertDialogTrigger>
   );
 };
 

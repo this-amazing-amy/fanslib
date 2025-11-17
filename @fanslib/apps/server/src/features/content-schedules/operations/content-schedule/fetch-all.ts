@@ -1,17 +1,12 @@
 import { t } from "elysia";
-import { ChannelSchema, ChannelTypeSchema } from "~/schemas";
+import { ChannelSchema } from "~/schemas";
 import { db } from "../../../../lib/db";
 import { ContentSchedule, ContentScheduleSchema } from "../../entity";
 
 export const FetchAllContentSchedulesResponseSchema = t.Array(t.Composite([
   ContentScheduleSchema,
   t.Object({
-    channel: t.Composite([
-      ChannelSchema,
-      t.Object({
-        type: ChannelTypeSchema,
-      }),
-    ]),
+    channel: ChannelSchema,
   }),
 ]));
 
@@ -23,6 +18,7 @@ export const fetchAllContentSchedules = async (): Promise<typeof FetchAllContent
     relations: {
       channel: {
         type: true,
+        defaultHashtags: true,
       },
     },
     order: {

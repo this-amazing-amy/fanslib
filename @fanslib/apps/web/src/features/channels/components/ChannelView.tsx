@@ -1,15 +1,22 @@
-import type { Channel } from "@fanslib/types";
 import type {
+  ChannelSchema,
   CreateContentScheduleRequestBodySchema,
-  FetchContentSchedulesByChannelResponseSchema,
+  ContentScheduleWithChannelSchema, FetchContentSchedulesByChannelResponseSchema,
+  MediaFilterSchema,
 } from "@fanslib/server/schemas";
-import type { MediaFilters } from "@fanslib/types";
+
+type Channel = typeof ChannelSchema.static;
+type MediaFilters = typeof MediaFilterSchema.static;
 import { useState, useEffect } from "react";
 import { Edit2, Save, X, Plus, Trash2 } from "lucide-react";
 import { Button } from "~/components/ui/Button/Button";
 import { Input } from "~/components/ui/Input/Input";
 import { Textarea } from "~/components/ui/Textarea";
-import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/Dialog/Dialog";
+import {
+  Dialog,
+  DialogModal,
+  DialogTrigger,
+} from "~/components/ui/Dialog";
 import { MediaFilters as MediaFiltersComponent } from "~/features/library/components/MediaFilters/MediaFilters";
 import { MediaFiltersProvider } from "~/features/library/components/MediaFilters/MediaFiltersContext";
 import { FilterPresetProvider } from "~/contexts/FilterPresetContext";
@@ -29,7 +36,7 @@ type ChannelViewProps = {
   onDelete?: () => void;
 };
 
-type ContentSchedule = (typeof FetchContentSchedulesByChannelResponseSchema.static)[number];
+type ContentSchedule = typeof ContentScheduleWithChannelSchema.static;
 
 export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -131,13 +138,13 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
               <div className="flex-1 space-y-2">
                 <Input
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(value) => setName(value)}
                   placeholder="Channel name"
                   className="font-semibold"
                 />
                 <Textarea
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  onChange={(value) => setDescription(value)}
                   placeholder="Channel description (optional)"
                   rows={2}
                 />
@@ -158,51 +165,56 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
                 <Button
                   variant="primary"
                   size="sm"
-                  onClick={handleSave}
-                  disabled={updateChannel.isPending}
+                  onPress={handleSave}
+                  isDisabled={updateChannel.isPending}
                 >
                   <Save className="w-4 h-4" />
                   Save
                 </Button>
-                <Button variant="ghost" size="sm" onClick={handleCancel}>
+                <Button variant="ghost" size="sm" onPress={handleCancel}>
                   <X className="w-4 h-4" />
                   Cancel
                 </Button>
               </>
             ) : (
               <>
-                <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
+                <Button variant="ghost" size="sm" onPress={() => setIsEditing(true)}>
                   <Edit2 className="w-4 h-4" />
                   Edit
                 </Button>
-                <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-                  <DialogTrigger asChild>
-                    <Button variant="ghost" size="sm">
-                      <Trash2 className="w-4 h-4" />
-                      Delete
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">Delete Channel</h3>
-                      <p>
-                        Are you sure you want to delete this channel? This action cannot be undone.
-                      </p>
-                      <div className="flex justify-end gap-2">
-                        <Button variant="ghost" onClick={() => setShowDeleteDialog(false)}>
-                          Cancel
-                        </Button>
-                        <Button
-                          variant="primary"
-                          onClick={handleDelete}
-                          disabled={deleteChannel.isPending}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <DialogTrigger isOpen={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+                  <Button variant="ghost" size="sm">
+                    <Trash2 className="w-4 h-4" />
+                    Delete
+                  </Button>
+                  <DialogModal>
+                    <Dialog>
+                      {({ close }) => (
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold">Delete Channel</h3>
+                          <p>
+                            Are you sure you want to delete this channel? This action cannot be undone.
+                          </p>
+                          <div className="flex justify-end gap-2">
+                            <Button variant="ghost" onPress={close}>
+                              Cancel
+                            </Button>
+                            <Button
+                              variant="primary"
+                              onPress={async () => {
+                                await handleDelete();
+                                close();
+                              }}
+                              isDisabled={deleteChannel.isPending}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </Dialog>
+                  </DialogModal>
+                </DialogTrigger>
               </>
             )}
           </div>
@@ -217,7 +229,7 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
           {isEditing ? (
             <FilterPresetProvider onFiltersChange={setEligibleMediaFilter}>
               <MediaFiltersProvider
-                filters={eligibleMediaFilter}
+                value={eligibleMediaFilter}
                 onChange={setEligibleMediaFilter}
               >
                 <MediaFiltersComponent />
@@ -228,7 +240,7 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
               {eligibleMediaFilter.length > 0 ? (
                 <FilterPresetProvider onFiltersChange={() => {}}>
                   <MediaFiltersProvider
-                    filters={eligibleMediaFilter}
+                    value={eligibleMediaFilter}
                     onChange={() => {}}
                   >
                     <MediaFiltersComponent />
@@ -249,7 +261,7 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
               <Button
                 variant="secondary"
                 size="sm"
-                onClick={() => setShowScheduleForm(true)}
+                onPress={() => setShowScheduleForm(true)}
               >
                 <Plus className="w-4 h-4" />
                 Add Schedule

@@ -1,9 +1,12 @@
+import type { TagDefinitionSchema } from "@fanslib/server/schemas";
 import { Edit, Trash2 } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { cn } from "~/lib/cn";
 
+type TagDefinition = typeof TagDefinitionSchema.static;
+
 type TagListItemProps = {
-  tag: any;
+  tag: TagDefinition;
   isSelected?: boolean;
   onSelect?: () => void;
   onEdit: () => void;
@@ -36,8 +39,7 @@ export const TagListItem = ({ tag, isSelected = false, onSelect, onEdit, onDelet
           variant="ghost"
           size="sm"
           className="h-8 w-8 p-0"
-          onPress={(e) => {
-            e.stopPropagation();
+          onPress={() => {
             onEdit();
           }}
           aria-label="Edit tag"
@@ -49,8 +51,7 @@ export const TagListItem = ({ tag, isSelected = false, onSelect, onEdit, onDelet
           variant="ghost"
           size="sm"
           className="h-8 w-8 p-0 text-error hover:text-error"
-          onPress={(e) => {
-            e.stopPropagation();
+          onPress={() => {
             handleDelete();
           }}
           aria-label="Delete tag"

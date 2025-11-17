@@ -1,4 +1,6 @@
-import type { TagDefinition } from "@fanslib/types";
+import { TagDefinitionSchema } from "@fanslib/server/schemas";
+
+type TagDefinition = typeof TagDefinitionSchema.static;
 import { Check, Circle, Minus } from "lucide-react";
 import { Badge } from "~/components/ui/Badge";
 import type { BadgeVariant } from "~/components/ui/Badge/Badge";
@@ -50,9 +52,9 @@ export const TagBadge = ({
       )}
       size="lg"
       style={{
-        backgroundColor: selectionState !== "unchecked" ? tag.color : "transparent",
+        backgroundColor: selectionState !== "unchecked" ? (tag.color ?? undefined) : "transparent",
         borderColor: tag.color ?? "hsl(var(--border))",
-        color: selectionState !== "unchecked" ? "white" : tag.color ?? "hsl(var(--foreground))",
+        color: selectionState !== "unchecked" ? "white" : (tag.color ?? "hsl(var(--foreground))"),
       }}
       onClick={onClick}
     >

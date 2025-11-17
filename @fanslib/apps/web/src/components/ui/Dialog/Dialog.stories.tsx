@@ -1,7 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
 import { Button } from '../Button';
-import { Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './Dialog';
+import {
+  Dialog,
+  DialogBody,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogModal,
+  DialogTitle,
+  DialogTrigger,
+} from './Dialog';
 
 type DialogWrapperProps = {
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
@@ -9,35 +17,39 @@ type DialogWrapperProps = {
 };
 
 const DialogWrapper = ({ maxWidth = 'lg', isDismissable = true }: DialogWrapperProps) => {
-  const [open, setOpen] = useState(false);
-
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <Button onClick={() => setOpen(true)}>Open Dialog</Button>
-      <DialogContent maxWidth={maxWidth} isDismissable={isDismissable}>
-        <DialogHeader>
-          <DialogTitle>Dialog Title</DialogTitle>
-          <DialogDescription>This is a dialog description.</DialogDescription>
-        </DialogHeader>
-        <DialogBody>
-          <p>Dialog content goes here.</p>
-        </DialogBody>
-        <DialogFooter>
-          <Button variant="ghost" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={() => setOpen(false)}>
-            Confirm
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <DialogTrigger>
+      <Button>Open Dialog</Button>
+      <DialogModal isDismissable={isDismissable}>
+        <Dialog maxWidth={maxWidth}>
+          {({ close }) => (
+            <>
+              <DialogHeader>
+                <DialogTitle>Dialog Title</DialogTitle>
+                <DialogDescription>This is a dialog description.</DialogDescription>
+              </DialogHeader>
+              <DialogBody>
+                <p>Dialog content goes here.</p>
+              </DialogBody>
+              <DialogFooter>
+                <Button variant="ghost" onPress={close}>
+                  Cancel
+                </Button>
+                <Button variant="primary" onPress={close}>
+                  Confirm
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </Dialog>
+      </DialogModal>
+    </DialogTrigger>
   );
 };
 
-const meta: Meta<typeof Dialog> = {
+const meta: Meta<typeof DialogWrapper> = {
   title: 'Overlays/Dialog',
-  component: () => <DialogWrapper />,
+  component: DialogWrapper,
   parameters: {
     layout: 'centered',
   },

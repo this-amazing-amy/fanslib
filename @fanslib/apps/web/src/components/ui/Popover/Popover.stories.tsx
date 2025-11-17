@@ -1,19 +1,17 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Button } from '../Button';
-import { Popover, PopoverContent, PopoverTrigger } from './Popover';
+import { Popover, PopoverTrigger } from './Popover';
 
-const PopoverWrapper = () => <Popover>
-      <PopoverTrigger>
-        <Button>
-          Open Popover
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent>
-        <p>This is the popover content.</p>
-      </PopoverContent>
-    </Popover>;
+const PopoverWrapper = () => (
+  <PopoverTrigger>
+    <Button>Open Popover</Button>
+    <Popover>
+      <p>This is the popover content.</p>
+    </Popover>
+  </PopoverTrigger>
+);
 
-const meta: Meta<typeof Popover> = {
+const meta: Meta<typeof PopoverWrapper> = {
   title: 'Overlays/Popover',
   component: PopoverWrapper,
   parameters: {

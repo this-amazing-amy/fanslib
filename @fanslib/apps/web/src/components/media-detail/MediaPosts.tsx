@@ -1,5 +1,8 @@
+import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
 import { PostCard } from "~/components/PostCard";
 import { usePostsByMediaIdQuery } from "~/lib/queries/posts";
+
+type Post = typeof PostWithRelationsSchema.static;
 
 type MediaPostsProps = {
   mediaId: string;
@@ -23,7 +26,7 @@ export const MediaPosts = ({ mediaId }: MediaPostsProps) => {
   return (
     <div className="flex flex-col gap-2">
       {posts.map((post) => (
-        <PostCard key={post.id} post={post} />
+        <PostCard key={post.id} post={post as Post} />
       ))}
     </div>
   );

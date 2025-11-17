@@ -1,19 +1,12 @@
 import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { HashtagSchema } from "../../../hashtags/entity";
-import { Channel, ChannelSchema, ChannelTypeSchema } from "../../entity";
+import { Channel, ChannelSchema } from "../../entity";
 
 export const FetchChannelByIdRequestParamsSchema = t.Object({
   id: t.String(),
 });
 
-export const FetchChannelByIdResponseSchema = t.Composite([
-  ChannelSchema,
-  t.Object({
-    type: ChannelTypeSchema,
-    defaultHashtags: t.Array(HashtagSchema),
-  }),
-]);
+export const FetchChannelByIdResponseSchema = ChannelSchema;
 
 export const fetchChannelById = async (id: string): Promise<typeof FetchChannelByIdResponseSchema.static | null> => {
   const dataSource = await db();

@@ -1,7 +1,10 @@
-import type { PostToRedditPayload } from '@fanslib/types';
 import { apiRequest } from './client';
 
-export type PostToRedditRequest = PostToRedditPayload;
+export type PostToRedditRequest = {
+  subredditId: string;
+  mediaId: string;
+  caption: string;
+};
 
 export type PostToRedditResponse = {
   success: boolean;

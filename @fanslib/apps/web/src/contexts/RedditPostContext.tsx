@@ -1,7 +1,10 @@
-import type { Media, Subreddit } from "@fanslib/types";
+import type { MediaSchema, SubredditSchema } from "@fanslib/server/schemas";
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { useChannelsQuery } from "~/lib/queries/channels";
 import { useCreatePostMutation, useUpdatePostMutation } from "~/lib/queries/posts";
+
+type Media = typeof MediaSchema.static;
+type Subreddit = typeof SubredditSchema.static;
 
 export type SubredditPostDraft = {
   subreddit: Subreddit;
@@ -57,7 +60,7 @@ export const RedditPostProvider = ({ children }: { children: ReactNode }) => {
   const submitDrafts = async () => {
     setIsSubmitting(true);
     try {
-      const redditChannel = channels.find((c) => c.typeId === "reddit");
+      const redditChannel = (channels ?? []).find((c) => c.typeId === "reddit");
       if (!redditChannel) {
         throw new Error("Reddit channel not found");
       }

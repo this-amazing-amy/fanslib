@@ -1,4 +1,4 @@
-import type { Post } from "@fanslib/types";
+import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PageHeader } from "~/components/ui/PageHeader";
 import { SectionHeader } from "~/components/ui/SectionHeader";
@@ -15,6 +15,8 @@ import { PlanViewSettings } from "./PlanViewSettings";
 import { PostCalendar } from "./PostCalendar/PostCalendar";
 import { PostFilters } from "./PostFilters";
 import { PostTimeline } from "./PostTimeline";
+
+type Post = typeof PostWithRelationsSchema.static;
 
 const PlanPageContent = () => {
   const { data: channels = [] } = useChannelsQuery();
@@ -41,7 +43,7 @@ const PlanPageContent = () => {
     filters: allPostsFiltersQuery,
   });
 
-  const { data: schedules = [], refetch: refetchSchedules } = useContentSchedulesQuery();
+  const { data: schedules, refetch: refetchSchedules } = useContentSchedulesQuery();
 
   const fetchPosts = useCallback(async () => {
     try {
@@ -61,11 +63,11 @@ const PlanPageContent = () => {
 
     const virtualPosts = shouldShowDraftPosts
       ? generateVirtualPosts(
-          schedules.filter(
+          (schedules ?? []).filter(
             (s) =>
-              !preferences.filter.channels || preferences.filter.channels?.includes(s.channel.id)
+              !preferences.filter.channels || preferences.filter.channels?.includes((s.channel as { id: string })?.id)
           ),
-          allPosts
+          allPosts ?? []
         )
       : [];
 

@@ -1,14 +1,17 @@
-import type { Media } from "@fanslib/types";
+import { MediaSchema } from "@fanslib/server/schemas";
 import { format, isSameDay, parse } from "date-fns";
 import { useEffect, useRef, useState } from "react";
 import { DateTimePicker } from "~/components/DateTimePicker";
+
+type Media = typeof MediaSchema.static;
 import { Button } from "~/components/ui/Button";
 import {
   Dialog,
-  DialogContent,
   DialogFooter,
   DialogHeader,
+  DialogModal,
   DialogTitle,
+  DialogTrigger,
 } from "~/components/ui/Dialog";
 import { Input } from "~/components/ui/Input";
 import { ScrollArea } from "~/components/ui/ScrollArea";
@@ -133,57 +136,68 @@ export const CreateShootDialog = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Create New Shoot</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Name</label>
-            <Input
-              value={shootName}
-              onChange={(value) => setShootName(value)}
-              placeholder="Enter shoot name"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Date</label>
-            <DateTimePicker date={shootDate} setDate={setShootDate} />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Media ({selectedMedia.length} items)</label>
-            <ScrollArea className="h-[300px] border rounded-md p-2">
-              <div className="space-y-2">
-                {selectedMedia.map((media) => (
-                  <div
-                    key={media.id}
-                    className="grid grid-cols-[100px_1fr_auto] gap-4 items-center"
-                  >
-                    <div className="aspect-square">
-                      <MediaTileLite media={media} />
+    <DialogTrigger isOpen={open} onOpenChange={onOpenChange}>
+      <DialogModal>
+        <Dialog>
+          {({ close }) => (
+            <>
+              <DialogHeader>
+                <DialogTitle>Create New Shoot</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Name</label>
+                  <Input
+                    value={shootName}
+                    onChange={(value) => setShootName(value)}
+                    placeholder="Enter shoot name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Date</label>
+                  <DateTimePicker date={shootDate} setDate={setShootDate} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Media ({selectedMedia.length} items)</label>
+                  <ScrollArea className="h-[300px] border rounded-md p-2">
+                    <div className="space-y-2">
+                      {selectedMedia.map((media) => (
+                        <div
+                          key={media.id}
+                          className="grid grid-cols-[100px_1fr_auto] gap-4 items-center"
+                        >
+                          <div className="aspect-square">
+                            <MediaTileLite media={media} />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="truncate font-medium">{media.name}</div>
+                          </div>
+                          <div className="text-sm text-muted-foreground whitespace-nowrap">
+                            {format(media.fileCreationDate, "PPP")}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <div className="min-w-0">
-                      <div className="truncate font-medium">{media.name}</div>
-                    </div>
-                    <div className="text-sm text-muted-foreground whitespace-nowrap">
-                      {format(media.fileCreationDate, "PPP")}
-                    </div>
-                  </div>
-                ))}
+                  </ScrollArea>
+                </div>
               </div>
-            </ScrollArea>
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleCreateShoot}>
-            Create Shoot with {selectedMedia.length} {selectedMedia.length === 1 ? "item" : "items"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+              <DialogFooter>
+                <Button variant="outline" onPress={close}>
+                  Cancel
+                </Button>
+                <Button
+                  onPress={async () => {
+                    await handleCreateShoot();
+                    close();
+                  }}
+                >
+                  Create Shoot with {selectedMedia.length} {selectedMedia.length === 1 ? "item" : "items"}
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </Dialog>
+      </DialogModal>
+    </DialogTrigger>
   );
 };

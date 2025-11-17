@@ -1,13 +1,13 @@
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogModal,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "~/components/ui/AlertDialog";
+import { Button } from "~/components/ui/Button";
 
 type DeleteTagDialogProps = {
   isOpen: boolean;
@@ -22,20 +22,35 @@ export const DeleteTagDialog = ({
   onCancel,
   isDeleting = false,
 }: DeleteTagDialogProps) => (
-  <AlertDialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
-    <AlertDialogContent>
-      <AlertDialogHeader>
-        <AlertDialogTitle>Delete Tag</AlertDialogTitle>
-        <AlertDialogDescription>
-          Are you sure you want to delete this tag? This action cannot be undone.
-        </AlertDialogDescription>
-      </AlertDialogHeader>
-      <AlertDialogFooter>
-        <AlertDialogCancel isDisabled={isDeleting}>Cancel</AlertDialogCancel>
-        <AlertDialogAction className="btn-error" onPress={onConfirm} isDisabled={isDeleting}>
-          {isDeleting ? "Deleting..." : "Delete Tag"}
-        </AlertDialogAction>
-      </AlertDialogFooter>
-    </AlertDialogContent>
-  </AlertDialog>
+  <AlertDialogTrigger isOpen={isOpen} onOpenChange={(open) => !open && onCancel()}>
+    <AlertDialogModal isDismissable={false}>
+      <AlertDialog>
+        {({ close }) => (
+          <>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Tag</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete this tag? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <Button variant="ghost" onPress={close} isDisabled={isDeleting}>
+                Cancel
+              </Button>
+              <Button
+                variant="error"
+                onPress={() => {
+                  onConfirm();
+                  close();
+                }}
+                isDisabled={isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Delete Tag"}
+              </Button>
+            </AlertDialogFooter>
+          </>
+        )}
+      </AlertDialog>
+    </AlertDialogModal>
+  </AlertDialogTrigger>
 );

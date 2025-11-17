@@ -1,19 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Button } from '../Button';
-import { Tooltip, TooltipContent, TooltipTrigger } from './Tooltip';
+import { Tooltip, TooltipTrigger } from './Tooltip';
 
-const TooltipWrapper = () => <Tooltip>
-      <TooltipTrigger
-      asChild
-      >
-        <Button>Hover me</Button>
-      </TooltipTrigger>
-        <TooltipContent>
-          This is a tooltip
-        </TooltipContent>
-    </Tooltip>;
+const TooltipWrapper = () => (
+  <TooltipTrigger>
+    <Button>Hover me</Button>
+    <Tooltip>This is a tooltip</Tooltip>
+  </TooltipTrigger>
+);
 
-const meta: Meta<typeof Tooltip> = {
+const meta: Meta<typeof TooltipWrapper> = {
   title: 'Overlays/Tooltip',
   component: TooltipWrapper,
   parameters: {

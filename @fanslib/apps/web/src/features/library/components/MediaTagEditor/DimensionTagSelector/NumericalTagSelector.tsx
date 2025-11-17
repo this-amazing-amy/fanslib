@@ -1,4 +1,4 @@
-import type { MediaTag, TagDimension } from "@fanslib/types";
+import type { MediaTagSchema, TagDimensionSchema } from "@fanslib/server/schemas";
 import { X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Slider } from "~/components/ui/Slider";
@@ -11,6 +11,9 @@ import {
   parseNumericSchema,
   validateNumericValue,
 } from "~/lib/tags/tagValidation";
+
+type MediaTag = typeof MediaTagSchema.static;
+type TagDimension = typeof TagDimensionSchema.static;
 
 type NumericalTagSelectorProps = {
   dimension: TagDimension;
@@ -29,7 +32,7 @@ export const NumericalTagSelector = ({
   const lastSavedValueRef = useRef<number | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const { data: availableTags, refetch: refetchTags } = useTagDefinitionsByDimensionQuery(dimension.id);
+  const { data: availableTags, refetch: refetchTags } = useTagDefinitionsByDimensionQuery({ dimensionId: dimension.id });
   const createTagMutation = useCreateTagDefinitionMutation();
 
   const schema = parseNumericSchema(dimension.validationSchema);

@@ -35,7 +35,6 @@ export const UpdateMediaResponseSchema = t.Composite([
         ]),
       }),
     ])),
-    shoots: t.Array(t.Any()),
   }),
 ]);
 
@@ -48,11 +47,10 @@ export const updateMedia = async (id: string, updates: typeof UpdateMediaRequest
     relations: {
       postMedia: {
         post: {
-          channel: true,
+          channel: { type: true, defaultHashtags: true },
           subreddit: true,
         },
       },
-      shoots: true,
     },
   });
 
@@ -66,12 +64,10 @@ export const updateMedia = async (id: string, updates: typeof UpdateMediaRequest
     relations: {
       postMedia: {
         post: {
-          channel: true,
+          channel: { type: true, defaultHashtags: true },
           subreddit: true,
         },
       },
-      shoots: true,
-      mediaTags: true,
     },
   });
 };

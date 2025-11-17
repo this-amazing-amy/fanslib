@@ -1,15 +1,16 @@
-import type { Post } from "@fanslib/types";
-import { Link } from "@tanstack/react-router";
+import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
 import { format } from "date-fns";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { MediaFilterSummary } from "~/components/MediaFilterSummary";
 import { PostTagStickers } from "~/components/PostTagStickers";
-import { usePostPreferences } from "~/contexts/PostPreferencesContext";
 import { usePostDrag } from "~/contexts/PostDragContext";
+import { usePostPreferences } from "~/contexts/PostPreferencesContext";
 import { cn } from "~/lib/cn";
 import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
 import { PostCalendarDropzone } from "./PostCalendarDropzone";
 import { PostCalendarPostMedia } from "./PostCalendarPostMedia";
+
+type Post = typeof PostWithRelationsSchema.static;
 
 type PostCalendarPostProps = {
   post: Post | VirtualPost;
@@ -52,13 +53,13 @@ export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
         <ChannelBadge
           noName
           name=""
-          typeId={post.channel.type?.id || post.channel.typeId}
+          typeId={post.channel.type?.id ?? post.channel.typeId}
           size="sm"
         />
         {isVirtualPost(post) ? (
           <MediaFilterSummary mediaFilters={post.mediaFilters} layout="stacked" />
         ) : (
-          <PostTagStickers postMedia={post.postMedia} />
+          <PostTagStickers postMedia={post.postMedia ?? []} />
         )}
       </div>
       <div className="[grid-area:time] text-xs text-base-content/60">{time}</div>
@@ -79,13 +80,7 @@ export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
 
   return (
     <PostCalendarDropzone post={post} onUpdate={onUpdate}>
-      {isVirtualPost(post) ? (
-        content
-      ) : (
-        <Link to="/posts/$postId" params={{ postId: post.id }} className="block" draggable={false}>
-          {content}
-        </Link>
-      )}
+      {content}
     </PostCalendarDropzone>
   );
 };

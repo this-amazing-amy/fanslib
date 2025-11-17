@@ -1,15 +1,20 @@
 import type {
-  CreateShootRequest,
-  FetchAllShootsRequest,
-  ShootFilter,
-  ShootSummary,
-} from "@fanslib/types";
+  CreateShootRequestBodySchema,
+  FetchAllShootsRequestBodySchema,
+  ShootSummarySchema,
+  ShootFiltersSchema,
+} from "@fanslib/server/schemas";
 import { createContext, useCallback, useContext, useState } from "react";
 import {
   useCreateShootMutation,
   useShootsQuery,
   useUpdateShootMutation,
 } from "~/lib/queries/shoots";
+
+type CreateShootRequest = typeof CreateShootRequestBodySchema.static;
+type FetchAllShootsRequest = typeof FetchAllShootsRequestBodySchema.static;
+type ShootFilter = typeof ShootFiltersSchema.static;
+type ShootSummary = typeof ShootSummarySchema.static;
 
 type ShootContextType = {
   shoots: ShootSummary[];
@@ -77,7 +82,7 @@ export const ShootProvider = ({ children, params }: ShootProviderProps) => {
   );
 
   const value = {
-    shoots: data?.items ?? [],
+    shoots: (data?.items ?? []) as ShootSummary[],
     totalItems: data?.total ?? 0,
     totalPages: data?.totalPages ?? 0,
     isLoading,

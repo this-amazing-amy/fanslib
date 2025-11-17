@@ -27,11 +27,13 @@ export const ChannelBadge = ({
   noName = false,
 }: ChannelBadgeProps) => {
   const channelType = CHANNEL_TYPES[typeId as ChannelTypeId];
+  const badgeSize = size === "default" ? "md" : size;
 
   return (
     <Badge
-      variant={selected ? "default" : "outline"}
-      size={size}
+      variant={selected ? "primary" : "neutral"}
+      outline={!selected}
+      size={badgeSize}
       className={cn(
         "flex items-center cursor-pointer",
         {

@@ -1,7 +1,5 @@
 import type { ReactNode } from 'react';
-import { forwardRef, useRef } from 'react';
-import type { AriaButtonProps } from 'react-aria';
-import { useButton } from 'react-aria';
+import { Button as AriaButton, type ButtonProps as AriaButtonProps } from 'react-aria-components';
 import { cn } from '~/lib/cn';
 
 export type ButtonProps = AriaButtonProps & {
@@ -10,23 +8,19 @@ export type ButtonProps = AriaButtonProps & {
   isLoading?: boolean;
   children: ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 };
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
+export const Button = ({
   variant = 'primary',
   size = 'md',
   children,
   isLoading = false,
   className,
+  style,
+  isDisabled,
   ...props
-}, forwardedRef) => {
-  const internalRef = useRef<HTMLButtonElement>(null);
-  const ref = forwardedRef ?? internalRef;
-  const { buttonProps, isPressed } = useButton(
-    { ...props, isDisabled: props.isDisabled ?? isLoading },
-    ref as React.RefObject<HTMLButtonElement>
-  );
-
+}: ButtonProps) => {
   const variantClasses = {
     primary: 'btn-primary',
     secondary: 'btn-secondary',
@@ -47,16 +41,17 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
   };
 
   return (
-    <button
-      {...buttonProps}
-      ref={ref as React.RefObject<HTMLButtonElement>}
+    <AriaButton
+      {...props}
+      isDisabled={isDisabled ?? isLoading}
       className={cn(
         'btn',
         variantClasses[variant],
         sizeClasses[size],
-        isPressed && 'btn-active',
+        'data-[pressed]:btn-active',
         className
       )}
+      style={style}
     >
       {isLoading ? (
         <>
@@ -66,8 +61,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
       ) : (
         children
       )}
-    </button>
+    </AriaButton>
   );
-});
+};
 
 Button.displayName = 'Button';

@@ -10,6 +10,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import type { Hashtag } from "../hashtags/entity";
+import { HashtagSchema } from "../hashtags/entity";
 import type { MediaFilterSchema } from "../library/schemas/media-filter";
 
 @Entity()
@@ -70,4 +71,6 @@ export const ChannelSchema = t.Object({
   description: t.Union([t.String(), t.Null()]),
   typeId: t.String(),
   eligibleMediaFilter: t.Nullable(t.Any()), // MediaFilters - complex type, using Any for now
+  defaultHashtags: t.Array(HashtagSchema),
+  type: ChannelTypeSchema,
 });

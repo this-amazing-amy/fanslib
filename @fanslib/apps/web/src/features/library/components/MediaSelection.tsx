@@ -1,4 +1,4 @@
-import type { Media } from "@fanslib/types";
+import type { MediaFilterSchema, MediaSchema } from "@fanslib/server/schemas";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/Button";
@@ -10,6 +10,9 @@ import { useMediaListQuery } from "~/lib/queries/library";
 import { MediaFilters } from "./MediaFilters/MediaFilters";
 import { MediaFiltersProvider } from "./MediaFilters/MediaFiltersContext";
 import { MediaTileLite } from "./MediaTile/MediaTileLite";
+
+type Media = typeof MediaSchema.static;
+type MediaFilters = typeof MediaFilterSchema.static;
 
 type MediaSelectionProps = {
   selectedMedia: Media[];
@@ -28,7 +31,7 @@ export const MediaSelection = ({
 }: MediaSelectionProps) => {
   const [activePreviewId, setActivePreviewId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [filters, setFilters] = useState({});
+  const [filters, setFilters] = useState<MediaFilters>([]);
 
   const { data: mediaResponse } = useMediaListQuery({
     limit: pageLimit,
@@ -37,16 +40,16 @@ export const MediaSelection = ({
     filters,
   });
 
-  const media = mediaResponse?.items ?? [];
+  const media: Media[] = (mediaResponse?.items as Media[] | undefined) ?? [];
   const total = mediaResponse?.total ?? 0;
   const totalPages = mediaResponse?.totalPages ?? 1;
 
-  const filteredMedia = media.filter((m) => !excludeMediaIds.includes(m.id));
+  const filteredMedia: Media[] = media.filter((m) => !excludeMediaIds.includes(m.id));
 
   const handleNextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   const handlePrevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
-  const handleFilterChange = (newFilters: unknown) => {
+  const handleFilterChange = (newFilters: MediaFilters) => {
     setFilters(newFilters);
     setCurrentPage(1);
   };

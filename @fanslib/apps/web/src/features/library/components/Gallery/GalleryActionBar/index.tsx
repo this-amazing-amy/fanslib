@@ -1,4 +1,6 @@
-import type { Media } from "@fanslib/types";
+import { MediaSchema } from "@fanslib/server/schemas";
+
+type Media = typeof MediaSchema.static;
 import { Camera, Send, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";

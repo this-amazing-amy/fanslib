@@ -1,22 +1,24 @@
 {
-  "extends": "@fanslib/typescript/react.json",
   "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules", "../server/**/*"],
   "compilerOptions": {
-    "strict": true,
-    "esModuleInterop": true,
-    "jsx": "react-jsx",
+    "target": "ES2022",
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "target": "ES2022",
-    "allowJs": true,
-    "forceConsistentCasingInFileNames": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": ["./src/*", "../server/src/*"]
     },
     "noEmit": true
   }

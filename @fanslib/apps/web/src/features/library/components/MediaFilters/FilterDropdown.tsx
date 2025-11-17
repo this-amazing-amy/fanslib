@@ -11,15 +11,14 @@ import {
   Search,
   Tag,
 } from "lucide-react";
+import { Button } from "~/components/ui/Button";
 import {
   DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuPopover,
   DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/Tooltip";
 import { useMediaFilters } from "./MediaFiltersContext";
-import { cn } from "~/lib/cn";
 
 type FilterDropdownProps = {
   disabled?: boolean;
@@ -48,64 +47,65 @@ export const FilterDropdown = ({
 }: FilterDropdownProps) => {
   const { filters, addGroupWithFilterType, addFilterWithTypeToGroup } = useMediaFilters();
 
+  const handleAction = (key: string | number) => {
+    if (filters.length === 0 || groupIndex === undefined) {
+      addGroupWithFilterType(key as typeof FILTER_TYPE_OPTIONS[number]["value"]);
+    } else {
+      addFilterWithTypeToGroup(groupIndex, key as typeof FILTER_TYPE_OPTIONS[number]["value"]);
+    }
+  };
+
+  if (variant === "compact") {
+    return (
+      <DropdownMenuTrigger>
+        <Button
+          isDisabled={disabled}
+          variant="ghost"
+          size="icon"
+          className="h-9 w-9"
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
+        <DropdownMenuPopover placement="bottom start">
+          <DropdownMenu onAction={handleAction}>
+            {FILTER_TYPE_OPTIONS.map((option) => {
+              const Icon = option.icon;
+              return (
+                <DropdownMenuItem key={option.value} id={option.value} className="flex items-center gap-2">
+                  <Icon className="h-4 w-4" />
+                  <span>{option.label}</span>
+                </DropdownMenuItem>
+              );
+            })}
+          </DropdownMenu>
+        </DropdownMenuPopover>
+      </DropdownMenuTrigger>
+    );
+  }
+
   return (
-    <DropdownMenu>
-      {variant === "compact" ? (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <DropdownMenuTrigger>
-                <button
-                  disabled={disabled}
-                  className={cn(
-                    "btn btn-ghost hover:bg-primary/20 hover:ring-2 hover:ring-primary btn-square h-9 w-9",
-                    disabled && "opacity-50 cursor-not-allowed"
-                  )}
-                >
-                  <Plus className="h-4 w-4" />
-                </button>
-              </DropdownMenuTrigger>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Add filter</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      ) : (
-        <DropdownMenuTrigger>
-          <button
-            disabled={disabled}
-            className={cn(
-              "btn btn-outline border-1 hover:bg-primary/20 hover:ring-2 hover:ring-primary btn-md",
-              disabled && "opacity-50 cursor-not-allowed"
-            )}
-          >
-            <Filter className="h-4 w-4" />
-            Filter
-          </button>
-        </DropdownMenuTrigger>
-      )}
-      <DropdownMenuContent align="start">
-        {FILTER_TYPE_OPTIONS.map((option) => {
-          const Icon = option.icon;
-          return (
-            <DropdownMenuItem
-              key={option.value}
-              onClick={() => {
-                if (filters.length === 0 || groupIndex === undefined) {
-                  addGroupWithFilterType(option.value);
-                } else {
-                  addFilterWithTypeToGroup(groupIndex, option.value);
-                }
-              }}
-              className="flex items-center gap-2"
-            >
-              <Icon className="h-4 w-4" />
-              <span>{option.label}</span>
-            </DropdownMenuItem>
-          );
-        })}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <DropdownMenuTrigger>
+        <Button
+          variant="outline"
+          size="md"
+          isDisabled={disabled}
+      >
+        <Filter className="h-4 w-4" />
+        Filter
+      </Button>
+      <DropdownMenuPopover placement="bottom start">
+        <DropdownMenu onAction={handleAction}>
+          {FILTER_TYPE_OPTIONS.map((option) => {
+            const Icon = option.icon;
+            return (
+              <DropdownMenuItem key={option.value} id={option.value} className="flex items-center gap-2">
+                <Icon className="h-4 w-4" />
+                <span>{option.label}</span>
+              </DropdownMenuItem>
+            );
+          })}
+        </DropdownMenu>
+      </DropdownMenuPopover>
+    </DropdownMenuTrigger>
   );
 };

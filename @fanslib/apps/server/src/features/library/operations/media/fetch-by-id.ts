@@ -24,7 +24,6 @@ export const FetchMediaByIdResponseSchema = t.Composite([
         ]),
       }),
     ])),
-    shoots: t.Array(t.Any()),
   }),
 ]);
 
@@ -36,12 +35,10 @@ export const fetchMediaById = async (id: string): Promise<typeof FetchMediaByIdR
     relations: {
       postMedia: {
         post: {
-          channel: true,
+          channel: { type: true, defaultHashtags: true },
           subreddit: true,
         },
       },
-      shoots: true,
-      mediaTags: true,
     }
   })
   

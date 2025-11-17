@@ -19,7 +19,10 @@ export const fetchHashtagStats = async (hashtagId: number): Promise<typeof Fetch
   return repository.find({
     where: { hashtagId },
     relations: {
-      channel: true,
+      channel: {
+        type: true,
+        defaultHashtags: true,
+      },
     },
   });
 };

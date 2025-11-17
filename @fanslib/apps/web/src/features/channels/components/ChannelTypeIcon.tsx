@@ -18,7 +18,7 @@ type ChannelTypeIconProps = {
   className?: string;
 } & SVGProps<SVGSVGElement>;
 
-const ICON_MAP: Record<string, (props: SVGProps<SVGSVGElement>) => JSX.Element> = {
+const ICON_MAP: Record<string, (props: SVGProps<SVGSVGElement>) => React.ReactElement> = {
   onlyfans: OnlyFansIcon,
   fansly: FanslyIcon,
   manyvids: ManyVidsIcon,

@@ -1,4 +1,4 @@
-import type { Media, Post } from "@fanslib/types";
+import type { MediaSchema, PostWithRelationsSchema } from "@fanslib/server/schemas";
 import { CalendarDays } from "lucide-react";
 import { useState } from "react";
 import { ScrollArea } from "~/components/ui/ScrollArea";
@@ -8,6 +8,9 @@ import { useDragOver } from "~/hooks/useDragOver";
 import { cn } from "~/lib/cn";
 import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
 import { PostPreview } from "./PostPreview/PostPreview";
+
+type Media = typeof MediaSchema.static;
+type Post = typeof PostWithRelationsSchema.static;
 
 type PostTimelineProps = {
   posts: (Post | VirtualPost)[];
@@ -78,7 +81,7 @@ export const PostTimeline = ({ posts, className, onUpdate }: PostTimelineProps) 
       <div className="space-y-4">
         {sortedPosts.map((post, index) => {
           const id = isVirtualPost(post) ? post.virtualId : post.id;
-          const previousPost = index > 0 ? sortedPosts[index - 1] : null;
+          const previousPost = index > 0 ? sortedPosts[index - 1] : undefined;
 
           return (
             <div key={id} className="space-y-4">

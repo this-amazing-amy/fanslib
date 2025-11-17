@@ -1,19 +1,19 @@
 import { ChevronDown } from 'lucide-react';
 import type { ReactNode } from 'react';
 import {
-  Button,
+  Select as AriaSelect,
+  SelectValue as AriaSelectValue,
   Label,
   ListBox,
   ListBoxItem,
   Popover,
-  Select as AriaSelect,
-  SelectValue as AriaSelectValue,
   type SelectProps as AriaSelectProps,
 } from 'react-aria-components';
+import { Button } from '~/components/ui/Button';
 import { cn } from '~/lib/cn';
 
 
-interface SelectProps extends Omit<AriaSelectProps<object>, 'children'> {
+type SelectProps = Omit<AriaSelectProps<object>, 'children'> & {
   children: ReactNode;
   value?: string;
   defaultValue?: string;
@@ -29,9 +29,7 @@ export const Select = ({
   disabled,
   className,
   ...props
-}: SelectProps) => {
-  return (
-    <AriaSelect
+}: SelectProps) => <AriaSelect
       selectedKey={value}
       defaultSelectedKey={defaultValue}
       onSelectionChange={(key) => onValueChange?.(key as string)}
@@ -40,20 +38,17 @@ export const Select = ({
       {...props}
     >
       {children}
-    </AriaSelect>
-  );
-};
+    </AriaSelect>;
 
-interface SelectTriggerProps {
+type SelectTriggerProps = {
   children: ReactNode;
   className?: string;
 }
 
-export const SelectTrigger = ({ children, className }: SelectTriggerProps) => {
-  return (
-    <Button
+export const SelectTrigger = ({ children, className }: SelectTriggerProps) => <Button
+      variant="outline"
       className={cn(
-        'input input-bordered w-full flex items-center justify-between',
+        'input w-full flex items-center justify-between',
         'focus:outline-none focus-visible:outline-none',
         'data-[focused]:ring-2 data-[focused]:ring-primary data-[focused]:ring-offset-2',
         'data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed',
@@ -62,21 +57,17 @@ export const SelectTrigger = ({ children, className }: SelectTriggerProps) => {
     >
       {children}
       <ChevronDown aria-hidden="true" className="h-4 w-4 opacity-50 shrink-0 ml-2" />
-    </Button>
-  );
-};
+    </Button>;
 
-interface SelectValueProps {
+type SelectValueProps = {
   placeholder?: string;
   className?: string;
 }
 
-export const SelectValue = ({ placeholder, className }: SelectValueProps) => {
-  return (
-    <AriaSelectValue
+export const SelectValue = ({ placeholder, className }: SelectValueProps) => <AriaSelectValue
       className={cn(
         'flex-1 text-left truncate block',
-        '[&:has([data-placeholder])]:text-base-content/50',
+        '[&:has([data-placeholder])]:text-base-content/50 [&:has([data-placeholder])]:font-normal',
         className
       )}
     >
@@ -85,19 +76,15 @@ export const SelectValue = ({ placeholder, className }: SelectValueProps) => {
           {selectedText || placeholder}
         </span>
       )}
-    </AriaSelectValue>
-  );
-};
+    </AriaSelectValue>;
 
-interface SelectContentProps {
+type SelectContentProps = {
   children: ReactNode;
   className?: string;
   align?: 'start' | 'end';
 }
 
-export const SelectContent = ({ children, className }: SelectContentProps) => {
-  return (
-    <Popover
+export const SelectContent = ({ children, className }: SelectContentProps) => <Popover
       className={cn(
         'bg-base-100 rounded-xl border-2 border-base-content shadow-lg',
         'min-w-[--trigger-width] max-h-60 overflow-y-auto z-[80]',
@@ -108,11 +95,9 @@ export const SelectContent = ({ children, className }: SelectContentProps) => {
       offset={4}
     >
       <ListBox className="outline-none p-1">{children}</ListBox>
-    </Popover>
-  );
-};
+    </Popover>;
 
-interface SelectItemProps {
+type SelectItemProps = {
   value: string;
   children: ReactNode;
   className?: string;
@@ -126,11 +111,9 @@ export const SelectItem = ({
   className,
   disabled,
   textValue,
-}: SelectItemProps) => {
-  return (
-    <ListBoxItem
+}: SelectItemProps) => <ListBoxItem
       id={value}
-      textValue={textValue || (typeof children === 'string' ? children : undefined)}
+      textValue={textValue ?? (typeof children === 'string' ? children : undefined)}
       isDisabled={disabled}
       className={cn(
         'px-4 py-2 cursor-pointer rounded-lg outline-none',
@@ -142,42 +125,32 @@ export const SelectItem = ({
       )}
     >
       {children}
-    </ListBoxItem>
-  );
-};
+    </ListBoxItem>;
 
 // Optional: Group component for organizing items
-interface SelectGroupProps {
+type SelectGroupProps = {
   children: ReactNode;
   label?: string;
   className?: string;
 }
 
-export const SelectGroup = ({ children, label, className }: SelectGroupProps) => {
-  return (
-    <div className={cn('py-1', className)}>
+export const SelectGroup = ({ children, label, className }: SelectGroupProps) => <div className={cn('py-1', className)}>
       {label && (
         <div className="px-4 py-2 text-xs font-semibold text-base-content/70 uppercase">
           {label}
         </div>
       )}
       {children}
-    </div>
-  );
-};
+    </div>;
 
 // Optional: Separator component
-export const SelectSeparator = ({ className }: { className?: string }) => {
-  return <div className={cn('my-1 h-px bg-base-content/20', className)} />;
-};
+export const SelectSeparator = ({ className }: { className?: string }) => <div className={cn('my-1 h-px bg-base-content/20', className)} />;
 
 // Optional: Label component
-interface SelectLabelProps {
+type SelectLabelProps = {
   children: ReactNode;
   className?: string;
 }
 
-export const SelectLabel = ({ children, className }: SelectLabelProps) => {
-  return <Label className={cn('text-sm font-medium mb-1 block', className)}>{children}</Label>;
-};
+export const SelectLabel = ({ children, className }: SelectLabelProps) => <Label className={cn('text-sm font-medium mb-1 block', className)}>{children}</Label>;
 

@@ -2,7 +2,7 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "~/components/ui/Button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "~/components/ui/Command";
-import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/Popover";
+import { Popover, PopoverTrigger } from "~/components/ui/Popover";
 import { cn } from "~/lib/cn";
 import { useSubredditsQuery } from "~/lib/queries/subreddits";
 
@@ -16,7 +16,7 @@ export const SubredditFilterSelector = ({ value, onChange }: SubredditFilterSele
   const { data: subreddits = [], isLoading } = useSubredditsQuery();
 
   const selectedSubreddit = useMemo(
-    () => subreddits.find((subreddit) => subreddit.id === value),
+    () => (subreddits ?? []).find((subreddit) => subreddit.id === value),
     [subreddits, value]
   );
 
@@ -28,23 +28,21 @@ export const SubredditFilterSelector = ({ value, onChange }: SubredditFilterSele
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger>
-        <Button
-          variant="outline"
-          aria-expanded={open}
-          className="w-full justify-between"
-        >
-          {isLoading ? "Loading..." : displayValue}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-full p-0">
+    <PopoverTrigger isOpen={open} onOpenChange={setOpen}>
+      <Button
+        variant="outline"
+        aria-expanded={open}
+        className="w-full justify-between"
+      >
+        {isLoading ? "Loading..." : displayValue}
+        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+      </Button>
+      <Popover className="w-full p-0">
         <Command>
           <CommandInput placeholder="Search subreddits..." />
           <CommandEmpty>No subreddit found.</CommandEmpty>
           <CommandGroup>
-            {subreddits.map((subreddit) => (
+            {(subreddits ?? []).map((subreddit) => (
               <CommandItem
                 key={subreddit.id}
                 value={subreddit.name}
@@ -61,7 +59,7 @@ export const SubredditFilterSelector = ({ value, onChange }: SubredditFilterSele
             ))}
           </CommandGroup>
         </Command>
-      </PopoverContent>
-    </Popover>
+      </Popover>
+    </PopoverTrigger>
   );
 };

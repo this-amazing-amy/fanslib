@@ -6,6 +6,7 @@ import { DeletePostRequestParamsSchema, DeletePostResponseSchema, deletePost } f
 import { FetchAllPostsRequestQuerySchema, FetchAllPostsResponseSchema, fetchAllPosts } from "./operations/post/fetch-all";
 import { FetchPostsByChannelResponseSchema, fetchPostsByChannel } from "./operations/post/fetch-by-channel";
 import { FetchPostByIdRequestParamsSchema, FetchPostByIdResponseSchema, fetchPostById } from "./operations/post/fetch-by-id";
+import { FetchPostsByMediaIdRequestParamsSchema, FetchPostsByMediaIdResponseSchema, fetchPostsByMediaId } from "./operations/post/fetch-by-media-id";
 import { UpdatePostRequestBodySchema, UpdatePostRequestParamsSchema, UpdatePostResponseSchema, updatePost } from "./operations/post/update";
 
 export const postsRoutes = new Elysia({ prefix: "/api/posts" })
@@ -34,6 +35,12 @@ export const postsRoutes = new Elysia({ prefix: "/api/posts" })
     fetchPostsByChannel(channelId)
   , {
     response: FetchPostsByChannelResponseSchema,
+  })
+  .get("/by-media-id/:mediaId", async ({ params: { mediaId } }) =>
+    fetchPostsByMediaId(mediaId)
+  , {
+    params: FetchPostsByMediaIdRequestParamsSchema,
+    response: FetchPostsByMediaIdResponseSchema,
   })
   .post("/", async ({ body }) => {
     const { mediaIds, ...postData } = body;

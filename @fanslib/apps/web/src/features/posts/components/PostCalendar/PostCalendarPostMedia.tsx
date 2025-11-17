@@ -1,10 +1,12 @@
-import type { PostMediaWithMediaSelect } from "@fanslib/types";
+import { PostMediaWithMediaSchema } from "@fanslib/server/schemas";
 import { MediaSelectionProvider } from "~/contexts/MediaSelectionContext";
 import { cn } from "~/lib/cn";
 import { MediaTile } from "~/features/library/components/MediaTile";
 
+type PostMediaWithMedia = typeof PostMediaWithMediaSchema.static;
+
 type PostCalendarPostMediaProps = {
-  postMedia: PostMediaWithMediaSelect[];
+  postMedia: PostMediaWithMedia[];
   isVirtual: boolean;
 };
 

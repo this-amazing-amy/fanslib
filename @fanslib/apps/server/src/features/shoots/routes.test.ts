@@ -36,13 +36,13 @@ describe("Shoots Routes", () => {
         headers: { "Content-Type": "application/json" },
       }));
       expect(response.status).toBe(200);
-      
-      const data = await parseResponse(response);
-      expect(Array.isArray(data.items)).toBe(true);
-      expect(data.items.length).toBeGreaterThanOrEqual(SHOOT_FIXTURES.length);
-      
+
+      const data = await parseResponse<{ items: Shoot[]; total: number; page: number; limit: number }>(response);
+      expect(Array.isArray(data?.items)).toBe(true);
+      expect(data?.items.length).toBeGreaterThanOrEqual(SHOOT_FIXTURES.length);
+
       SHOOT_FIXTURES.forEach((fixture) => {
-        const shoot = data.items.find((s: Shoot) => s.id === fixture.id);
+        const shoot = data?.items.find((s: Shoot) => s.id === fixture.id);
         expect(shoot).toBeDefined();
         expect(shoot?.name).toBe(fixture.name);
       });
@@ -59,12 +59,12 @@ describe("Shoots Routes", () => {
           }),
         })
       );
-      const data = await parseResponse(response);
+      const data = await parseResponse<{ items: Shoot[]; total: number; page: number; limit: number }>(response);
 
-      expect(data.items).toHaveLength(2);
-      expect(data.total).toBeGreaterThanOrEqual(SHOOT_FIXTURES.length);
-      expect(data.page).toBe(1);
-      expect(data.limit).toBe(2);
+      expect(data?.items).toHaveLength(2);
+      expect(data?.total).toBeGreaterThanOrEqual(SHOOT_FIXTURES.length);
+      expect(data?.page).toBe(1);
+      expect(data?.limit).toBe(2);
     });
   });
 
@@ -80,9 +80,9 @@ describe("Shoots Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.id).toBe(fixtureShoot.id);
-      expect(data.name).toBe(fixtureShoot.name);
+      const data = await parseResponse<Shoot>(response);
+      expect(data?.id).toBe(fixtureShoot.id);
+      expect(data?.name).toBe(fixtureShoot.name);
     });
 
     test("returns error for non-existent shoot", async () => {
@@ -90,9 +90,9 @@ describe("Shoots Routes", () => {
         new Request("http://localhost/api/shoots/by-id/non-existent-id")
       );
 
-      const data = await parseResponse(response);
+      const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
-      expect(data.error).toBe("Shoot not found");
+      expect(data?.error).toBe("Shoot not found");
     });
   });
 
@@ -112,8 +112,8 @@ describe("Shoots Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.name).toBe("New Shoot");
+      const data = await parseResponse<Shoot>(response);
+      expect(data?.name).toBe("New Shoot");
     });
   });
 
@@ -137,9 +137,9 @@ describe("Shoots Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.name).toBe("Updated Name");
-      expect(data.id).toBe(fixtureShoot.id);
+      const data = await parseResponse<Shoot>(response);
+      expect(data?.name).toBe("Updated Name");
+      expect(data?.id).toBe(fixtureShoot.id);
     });
   });
 
@@ -157,8 +157,8 @@ describe("Shoots Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.success).toBe(true);
+      const data = await parseResponse<{ success: boolean }>(response);
+      expect(data?.success).toBe(true);
 
       const dataSource = getTestDataSource();
       const repository = dataSource.getRepository(Shoot);
@@ -174,8 +174,8 @@ describe("Shoots Routes", () => {
       );
       expect(response.status).toBe(404);
 
-      const data = await parseResponse(response);
-      expect(data.error).toBe("Shoot not found");
+      const data = await parseResponse<{ error: string }>(response);
+      expect(data?.error).toBe("Shoot not found");
     });
   });
 });

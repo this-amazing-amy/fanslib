@@ -5,10 +5,10 @@ import { Button } from "~/components/ui/Button";
 import { Checkbox } from "~/components/ui/Checkbox";
 import { DeleteConfirmDialog } from "~/components/ui/DeleteConfirmDialog";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuPopover,
+  DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
 import { useDeleteMediaMutation } from "~/lib/queries/library";
 
@@ -34,26 +34,26 @@ export const MediaDetailDeleteButton = ({ id, mediaType }: MediaDetailDeleteButt
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="bg-base-100 text-base-content hover:bg-base-200"
-          >
-            <MoreVertical className="h-5 w-5" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuItem
-            onClick={() => setIsDeleteDialogOpen(true)}
-            className="flex items-center gap-2 text-sm font-medium text-destructive"
-          >
-            <Trash2 className="h-4 w-4" />
-            Delete Media
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <DropdownMenuTrigger>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="bg-base-100 text-base-content hover:bg-base-200"
+        >
+          <MoreVertical className="h-5 w-5" />
+        </Button>
+        <DropdownMenuPopover placement="bottom end" className="w-48">
+          <DropdownMenu onAction={() => setIsDeleteDialogOpen(true)}>
+            <DropdownMenuItem
+              id="delete"
+              className="flex items-center gap-2 text-sm font-medium text-destructive"
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete Media
+            </DropdownMenuItem>
+          </DropdownMenu>
+        </DropdownMenuPopover>
+      </DropdownMenuTrigger>
 
       <DeleteConfirmDialog
         open={isDeleteDialogOpen}

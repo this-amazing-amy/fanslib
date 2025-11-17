@@ -24,7 +24,6 @@ export const FetchMediaByPathResponseSchema = t.Composite([
         ]),
       }),
     ])),
-    shoots: t.Array(t.Any()),
   }),
 ]);
 
@@ -37,11 +36,10 @@ export const fetchMediaByPath = async (relativePath: string): Promise<typeof Fet
     relations: {
       postMedia: {
         post: {
-          channel: true,
+          channel: { type: true, defaultHashtags: true },
           subreddit: true,
         },
       },
-      shoots: true,
     },
   });
 };

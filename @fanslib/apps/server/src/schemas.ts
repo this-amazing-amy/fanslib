@@ -30,10 +30,18 @@ export {
 // Media entities
 export { MediaSchema, MediaTypeSchema } from './features/library/entity';
 
+// Media filters
+export { MediaFilterSchema } from './features/library/schemas/media-filter';
+
+// Media sort
+export { MediaSortSchema, SortDirectionSchema, SortFieldSchema } from './features/library/schemas/media-sort';
+
 // Posts schemas
 export {
+  ChannelWithTypeSchema,
   FetchAllPostsRequestQuerySchema,
-  FetchAllPostsResponseSchema
+  FetchAllPostsResponseSchema,
+  PostWithRelationsSchema
 } from './features/posts/operations/post/fetch-all';
 
 export {
@@ -45,6 +53,11 @@ export {
   FetchPostsByChannelRequestParamsSchema,
   FetchPostsByChannelResponseSchema
 } from './features/posts/operations/post/fetch-by-channel';
+
+export {
+  FetchPostsByMediaIdRequestParamsSchema,
+  FetchPostsByMediaIdResponseSchema
+} from './features/posts/operations/post/fetch-by-media-id';
 
 export {
   CreatePostRequestBodySchema,
@@ -69,7 +82,10 @@ export {
 } from './features/posts/operations/post-media/remove';
 
 // Posts entities
-export { PostMediaSchema, PostSchema } from './features/posts/entity';
+export { PostMediaSchema, PostMediaWithMediaSchema, PostSchema, PostStatusSchema } from './features/posts/entity';
+
+// Posts filters
+export { PostFiltersSchema } from './features/posts/schemas/post-filters';
 
 // Channels schemas
 export {
@@ -259,7 +275,8 @@ export { HashtagChannelStatsSchema, HashtagSchema } from './features/hashtags/en
 export {
   FetchAllShootsRequestBodySchema,
   FetchAllShootsResponseSchema,
-  ShootFiltersSchema
+  ShootFiltersSchema,
+  ShootSummarySchema
 } from './features/shoots/operations/shoot/fetch-all';
 
 export {
@@ -274,6 +291,7 @@ export {
 
 export {
   UpdateShootRequestBodySchema,
+  UpdateShootRequestParamsSchema,
   UpdateShootResponseSchema
 } from './features/shoots/operations/shoot/update';
 
@@ -294,6 +312,7 @@ export {
 } from './features/content-schedules/operations/content-schedule/fetch-by-id';
 
 export {
+  ContentScheduleWithChannelSchema,
   FetchContentSchedulesByChannelResponseSchema
 } from './features/content-schedules/operations/content-schedule/fetch-by-channel';
 

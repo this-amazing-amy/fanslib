@@ -36,10 +36,10 @@ export class Media {
   size!: number;
 
   @Column({ type: "float", nullable: true })
-  duration: number | null;
+  duration: number | null = null;
 
   @Column({ type: "varchar", nullable: true })
-  redgifsUrl: string | null;
+  redgifsUrl: string | null = null;
 
   @CreateDateColumn({ type: "datetime" })
   createdAt!: Date;

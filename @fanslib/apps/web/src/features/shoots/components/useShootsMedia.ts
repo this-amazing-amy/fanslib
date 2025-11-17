@@ -1,5 +1,8 @@
-import type { Media, ShootSummary } from "@fanslib/types";
+import { ShootSummarySchema, MediaSchema } from "@fanslib/server/schemas";
 import { useMemo } from "react";
+
+type Media = typeof MediaSchema.static;
+type ShootSummary = typeof ShootSummarySchema.static;
 
 type GroupKey = {
   shootId: string;

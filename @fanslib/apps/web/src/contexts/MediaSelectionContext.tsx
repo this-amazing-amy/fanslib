@@ -1,6 +1,8 @@
-import type { Media } from "@fanslib/types";
+import type { MediaSchema } from "@fanslib/server/schemas";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useGalleryKeyboardHandling } from "~/hooks/useGalleryKeyboardHandling";
+
+type Media = typeof MediaSchema.static;
 
 type MediaSelectionContextType = {
   selectedMediaIds: Set<string>;

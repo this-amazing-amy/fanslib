@@ -33,13 +33,13 @@ describe("Posts Routes", () => {
     test("returns all posts", async () => {
       const response = await app.handle(new Request("http://localhost/api/posts/all"));
       expect(response.status).toBe(200);
-      
-      const data = await parseResponse(response);
+
+      const data = await parseResponse<Post[]>(response);
       expect(Array.isArray(data)).toBe(true);
-      expect(data.length).toBeGreaterThanOrEqual(POST_FIXTURES.length);
-      
+      expect(data?.length).toBeGreaterThanOrEqual(POST_FIXTURES.length);
+
       POST_FIXTURES.forEach((fixture) => {
-        const post = data.find((p: Post) => p.id === fixture.id);
+        const post = data?.find((p: Post) => p.id === fixture.id);
         expect(post).toBeDefined();
         expect(post?.channelId).toBe(fixture.channelId);
         if (fixture.caption) {
@@ -56,10 +56,10 @@ describe("Posts Routes", () => {
       const response = await app.handle(
         new Request(`http://localhost/api/posts/all?filters=${encodeURIComponent(filters)}`)
       );
-      const data = await parseResponse(response);
+      const data = await parseResponse<Post[]>(response);
 
       expect(Array.isArray(data)).toBe(true);
-      data.forEach((post: Post) => {
+      data?.forEach((post: Post) => {
         expect(post.status).toBe("draft");
       });
     });
@@ -77,11 +77,11 @@ describe("Posts Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.id).toBe(fixturePost.id);
-      expect(data.channelId).toBe(fixturePost.channelId);
+      const data = await parseResponse<Post>(response);
+      expect(data?.id).toBe(fixturePost.id);
+      expect(data?.channelId).toBe(fixturePost.channelId);
       if (fixturePost.caption) {
-        expect(data.caption).toBe(fixturePost.caption);
+        expect(data?.caption).toBe(fixturePost.caption);
       }
     });
 
@@ -90,9 +90,9 @@ describe("Posts Routes", () => {
         new Request("http://localhost/api/posts/by-id/non-existent-id")
       );
 
-      const data = await parseResponse(response);
+      const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
-      expect(data.error).toBe("Post not found");
+      expect(data?.error).toBe("Post not found");
     });
   });
 
@@ -106,10 +106,10 @@ describe("Posts Routes", () => {
       const response = await app.handle(
         new Request(`http://localhost/api/posts/by-channel-id/${fixtureChannel.id}`)
       );
-      const data = await parseResponse(response);
+      const data = await parseResponse<Post[]>(response);
 
       expect(Array.isArray(data)).toBe(true);
-      data.forEach((post: Post) => {
+      data?.forEach((post: Post) => {
         expect(post.channelId).toBe(fixtureChannel.id);
       });
     });
@@ -139,12 +139,12 @@ describe("Posts Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.caption).toBe("New post caption");
-      expect(data.status).toBe("draft");
-      expect(data.channelId).toBe(channel.id);
-      expect(Array.isArray(data.postMedia)).toBe(true);
-      expect(data.postMedia).toHaveLength(0);
+      const data = await parseResponse<Post>(response);
+      expect(data?.caption).toBe("New post caption");
+      expect(data?.status).toBe("draft");
+      expect(data?.channelId).toBe(channel.id);
+      expect(Array.isArray(data?.postMedia)).toBe(true);
+      expect(data?.postMedia).toHaveLength(0);
     });
 
     test("creates post with media", async () => {
@@ -172,8 +172,8 @@ describe("Posts Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.postMedia).toHaveLength(2);
+      const data = await parseResponse<Post>(response);
+      expect(data?.postMedia).toHaveLength(2);
     });
   });
 
@@ -198,10 +198,10 @@ describe("Posts Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.caption).toBe("Updated caption");
-      expect(data.status).toBe("posted");
-      expect(data.id).toBe(fixturePost.id);
+      const data = await parseResponse<Post>(response);
+      expect(data?.caption).toBe("Updated caption");
+      expect(data?.status).toBe("posted");
+      expect(data?.id).toBe(fixturePost.id);
     });
 
     test("returns error for non-existent post", async () => {
@@ -213,9 +213,9 @@ describe("Posts Routes", () => {
         })
       );
 
-      const data = await parseResponse(response);
+      const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
-      expect(data.error).toBe("Post not found");
+      expect(data?.error).toBe("Post not found");
     });
   });
 
@@ -233,8 +233,8 @@ describe("Posts Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.success).toBe(true);
+      const data = await parseResponse<{ success: boolean }>(response);
+      expect(data?.success).toBe(true);
 
       const dataSource = getTestDataSource();
       const repository = dataSource.getRepository(Post);
@@ -250,8 +250,8 @@ describe("Posts Routes", () => {
       );
       expect(response.status).toBe(404);
 
-      const data = await parseResponse(response);
-      expect(data.error).toBe("Post not found");
+      const data = await parseResponse<{ error: string }>(response);
+      expect(data?.error).toBe("Post not found");
     });
   });
 
@@ -272,9 +272,9 @@ describe("Posts Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(Array.isArray(data.postMedia)).toBe(true);
-      expect(data.postMedia.length).toBeGreaterThan(0);
+      const data = await parseResponse<Post>(response);
+      expect(Array.isArray(data?.postMedia)).toBe(true);
+      expect(data?.postMedia?.length).toBeGreaterThan(0);
     });
 
     test("returns error for non-existent post", async () => {
@@ -286,9 +286,9 @@ describe("Posts Routes", () => {
         })
       );
 
-      const data = await parseResponse(response);
+      const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
-      expect(data.error).toBe("Post not found");
+      expect(data?.error).toBe("Post not found");
     });
   });
 
@@ -309,9 +309,9 @@ describe("Posts Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
+      const data = await parseResponse<Post>(response);
       expect(data).toHaveProperty("id");
-      expect(data.id).toBe(fixturePost.id);
+      expect(data?.id).toBe(fixturePost.id);
     });
 
     test("returns error for non-existent post", async () => {
@@ -323,9 +323,9 @@ describe("Posts Routes", () => {
         })
       );
 
-      const data = await parseResponse(response);
+      const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
-      expect(data.error).toBe("Post not found");
+      expect(data?.error).toBe("Post not found");
     });
   });
 });

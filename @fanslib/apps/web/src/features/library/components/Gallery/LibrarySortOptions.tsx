@@ -1,6 +1,5 @@
-import type { MediaSort, SortField } from "@fanslib/types";
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
-import { Button } from "~/components/ui/Button";
+import type { MediaSortSchema, SortFieldSchema } from "@fanslib/server/schemas";
+import { ArrowUpDown } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -8,9 +7,10 @@ import {
   SelectTrigger,
 } from "~/components/ui/Select";
 
-export type SortOption = MediaSort;
+type MediaSort = typeof MediaSortSchema.static;
+type SortField = typeof SortFieldSchema.static;
 
-type SortDirection = MediaSort['direction'];
+export type SortOption = MediaSort;
 
 const sortFields: { value: SortField; label: string }[] = [
   {
@@ -27,13 +27,7 @@ const sortFields: { value: SortField; label: string }[] = [
   },
 ];
 
-const directionIcons: Record<SortDirection, typeof ArrowUp> = {
-  ASC: ArrowUp,
-  DESC: ArrowDown,
-};
-
-const createSortOptions = () => {
-  return sortFields.flatMap((field) =>
+const createSortOptions = () => sortFields.flatMap((field) =>
     (["ASC", "DESC"] as const).map((direction) => {
       const value = `${field.value}:${direction}`;
       const label = `${field.label} ${direction === "ASC" ? "↑" : "↓"}`;
@@ -46,7 +40,6 @@ const createSortOptions = () => {
       };
     })
   );
-};
 
 const sortOptions = createSortOptions();
 
@@ -68,20 +61,14 @@ export const LibrarySortOptions = ({ value, onChange }: LibrarySortOptionsProps)
 
   return (
     <Select value={currentValue} onValueChange={handleValueChange}>
-      <SelectTrigger asChild>
-        <Button variant="outline" className="flex items-center gap-2">
+      <SelectTrigger>
           <ArrowUpDown className="h-4 w-4" />
           <span>{selectedOption?.label ?? "Sort by..."}</span>
-        </Button>
       </SelectTrigger>
       <SelectContent className="w-[280px]" align="end">
-        {sortOptions.map((option) => {
-          return (
-            <SelectItem key={option.value} value={option.value}>
+        {sortOptions.map((option) => <SelectItem key={option.value} value={option.value}>
               {option.label}
-            </SelectItem>
-          );
-        })}
+            </SelectItem>)}
       </SelectContent>
     </Select>
   );

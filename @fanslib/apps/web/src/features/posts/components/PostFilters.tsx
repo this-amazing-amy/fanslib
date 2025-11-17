@@ -1,10 +1,12 @@
-import type { PostStatus } from "@fanslib/types";
+import type { PostStatusSchema } from "@fanslib/server/schemas";
 import { useMemo } from "react";
 import { ChannelSelect } from "~/components/ChannelSelect";
 import { SearchInput } from "~/components/SearchInput";
 import { StatusSelect } from "~/components/StatusSelect";
 import { Button } from "~/components/ui/Button";
 import { defaultPreferences, type PostFilterPreferences } from "~/contexts/PostPreferencesContext";
+
+type PostStatus = typeof PostStatusSchema.static;
 
 type PostFiltersProps = {
   value: PostFilterPreferences;

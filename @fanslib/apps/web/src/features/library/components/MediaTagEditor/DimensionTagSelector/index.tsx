@@ -1,4 +1,4 @@
-import type { TagDimension } from "@fanslib/types";
+import type { TagDimensionSchema } from "@fanslib/server/schemas";
 import { Plus, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
@@ -12,6 +12,8 @@ import type { SelectionState } from "~/lib/tags/selection-state";
 import { BooleanTagSelector } from "./BooleanTagSelector";
 import { NumericalTagSelector } from "./NumericalTagSelector";
 import { TagBadge } from "./TagBadge";
+
+type TagDimension = typeof TagDimensionSchema.static;
 
 type DimensionTagSelectorProps = {
   dimension: TagDimension;
@@ -27,7 +29,7 @@ export const DimensionTagSelector = ({
   const [isCreating, setIsCreating] = useState(false);
   const [newTagValue, setNewTagValue] = useState("");
 
-  const { data: availableTags, isLoading, refetch } = useTagDefinitionsByDimensionQuery(dimension.id);
+  const { data: availableTags, isLoading, refetch } = useTagDefinitionsByDimensionQuery({ dimensionId: dimension.id });
   const createTagMutation = useCreateTagDefinitionMutation();
 
   const isExclusive = dimension.isExclusive;
@@ -80,9 +82,11 @@ export const DimensionTagSelector = ({
       setNewTagValue("");
 
       // Auto-select the newly created tag
-      setTimeout(() => {
-        onTagToggle(newTag.id, "unchecked");
-      }, 100);
+      if (newTag) {
+        setTimeout(() => {
+          onTagToggle(newTag.id, "unchecked");
+        }, 100);
+      }
     } catch (error) {
       console.error("Failed to create tag:", error);
     }

@@ -1,43 +1,52 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
 import {
   AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
   AlertDialogDescription,
   AlertDialogFooter,
-  AlertDialogAction,
-  AlertDialogCancel,
+  AlertDialogHeader,
+  AlertDialogModal,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from './AlertDialog';
 import { Button } from '../Button';
 
 const AlertDialogWrapper = () => {
-  const [open, setOpen] = useState(false);
-
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger>
-        <Button>Open Alert Dialog</Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete your data.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Continue</AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <AlertDialogTrigger>
+      <Button>Open Alert Dialog</Button>
+      <AlertDialogModal isDismissable={false}>
+        <AlertDialog>
+          {({ close }) => (
+            <>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete your data.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <Button variant="ghost" onPress={close}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="error"
+                  onPress={() => {
+                    console.log('Action confirmed');
+                    close();
+                  }}
+                >
+                  Continue
+                </Button>
+              </AlertDialogFooter>
+            </>
+          )}
+        </AlertDialog>
+      </AlertDialogModal>
+    </AlertDialogTrigger>
   );
 };
 
-const meta: Meta<typeof AlertDialog> = {
+const meta: Meta<typeof AlertDialogWrapper> = {
   title: 'Overlays/AlertDialog',
   component: AlertDialogWrapper,
   parameters: {

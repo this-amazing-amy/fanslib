@@ -1,20 +1,21 @@
 import type {
   CreateContentScheduleRequestBodySchema,
-  FetchContentSchedulesByChannelResponseSchema,
+  ContentScheduleWithChannelSchema, FetchContentSchedulesByChannelResponseSchema,
 } from "@fanslib/server/schemas";
-import type { MediaFilters } from "@fanslib/types";
+import { MediaFilterSchema } from "@fanslib/server/schemas";
+
+type MediaFilters = typeof MediaFilterSchema.static;
 import { useState, useMemo } from "react";
 import { Plus, X } from "lucide-react";
 import { Button } from "~/components/ui/Button/Button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/Select/Select";
-import { Stepper } from "~/components/ui/Stepper/Stepper";
 import { Input } from "~/components/ui/Input/Input";
 import { MediaFilters as MediaFiltersComponent } from "~/features/library/components/MediaFilters/MediaFilters";
 import { MediaFiltersProvider } from "~/features/library/components/MediaFilters/MediaFiltersContext";
 import { cn } from "~/lib/cn";
 import { parseMediaFilters } from "../content-schedule-helpers";
 
-type ContentSchedule = (typeof FetchContentSchedulesByChannelResponseSchema.static)[number];
+type ContentSchedule = typeof ContentScheduleWithChannelSchema.static;
 type ScheduleType = "daily" | "weekly" | "monthly";
 
 type ContentScheduleFormProps = {
@@ -106,9 +107,10 @@ export const ContentScheduleForm = ({
             Posts per {type === "daily" ? "day" : type === "weekly" ? "week" : "month"}
           </span>
         </label>
-        <Stepper
-          value={postsPerTimeframe}
-          onChange={setPostsPerTimeframe}
+        <Input
+          type="number"
+          value={String(postsPerTimeframe)}
+          onChange={(value) => setPostsPerTimeframe(Number(value) || 1)}
           min={1}
           max={100}
         />
@@ -148,14 +150,14 @@ export const ContentScheduleForm = ({
             <Input
               type="time"
               value={newTime}
-              onChange={(e) => setNewTime(e.target.value)}
+              onChange={(value) => setNewTime(value)}
               className="flex-1"
             />
             <Button
               type="button"
               variant="secondary"
-              onClick={handleAddTime}
-              disabled={!newTime}
+              onPress={handleAddTime}
+              isDisabled={!newTime}
             >
               <Plus className="w-4 h-4" />
             </Button>
@@ -187,14 +189,14 @@ export const ContentScheduleForm = ({
             Optional: Define which media is eligible for this schedule
           </span>
         </label>
-        <MediaFiltersProvider filters={mediaFilters} onChange={setMediaFilters}>
+        <MediaFiltersProvider value={mediaFilters} onChange={setMediaFilters}>
           <MediaFiltersComponent />
         </MediaFiltersProvider>
       </div>
 
       {/* Form Actions */}
       <div className="flex justify-end gap-2">
-        <Button type="button" variant="ghost" onClick={onCancel}>
+        <Button type="button" variant="ghost" onPress={onCancel}>
           Cancel
         </Button>
         <Button type="submit" variant="primary">

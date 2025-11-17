@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { PlusCircle } from "lucide-react";
 import { Button } from "~/components/ui/Button/Button";
-import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/Dialog/Dialog";
+import {
+  Dialog,
+  DialogModal,
+  DialogTrigger,
+} from "~/components/ui/Dialog";
 import { PageContainer } from "~/components/ui/PageContainer";
 import { PageHeader } from "~/components/ui/PageHeader/PageHeader";
 import { useChannelsQuery } from "~/lib/queries/channels";
@@ -34,25 +38,32 @@ export const Channels = () => {
         title="Channels"
         description="Manage your content distribution channels and schedules"
         actions={
-          <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-            <DialogTrigger asChild>
-              <Button variant="primary">
-                <PlusCircle className="w-5 h-5" />
-                New Channel
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold">Create New Channel</h3>
-                  <p className="text-sm text-base-content/70 mt-1">
-                    Select a channel type to get started
-                  </p>
-                </div>
-                <CreateChannelForm onSuccess={handleCreateSuccess} />
-              </div>
-            </DialogContent>
-          </Dialog>
+          <DialogTrigger isOpen={showCreateDialog} onOpenChange={setShowCreateDialog}>
+            <Button variant="primary">
+              <PlusCircle className="w-5 h-5" />
+              New Channel
+            </Button>
+            <DialogModal>
+              <Dialog>
+                {({ close }) => (
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-lg font-semibold">Create New Channel</h3>
+                      <p className="text-sm text-base-content/70 mt-1">
+                        Select a channel type to get started
+                      </p>
+                    </div>
+                    <CreateChannelForm
+                      onSuccess={() => {
+                        handleCreateSuccess();
+                        close();
+                      }}
+                    />
+                  </div>
+                )}
+              </Dialog>
+            </DialogModal>
+          </DialogTrigger>
         }
       />
 
@@ -69,25 +80,32 @@ export const Channels = () => {
             <p className="text-base-content/70">
               Get started by creating your first content distribution channel
             </p>
-            <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-              <DialogTrigger asChild>
-                <Button variant="primary" size="lg">
-                  <PlusCircle className="w-5 h-5" />
-                  Create Your First Channel
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-lg font-semibold">Create New Channel</h3>
-                    <p className="text-sm text-base-content/70 mt-1">
-                      Select a channel type to get started
-                    </p>
-                  </div>
-                  <CreateChannelForm onSuccess={handleCreateSuccess} />
-                </div>
-              </DialogContent>
-            </Dialog>
+            <DialogTrigger isOpen={showCreateDialog} onOpenChange={setShowCreateDialog}>
+              <Button variant="primary" size="lg">
+                <PlusCircle className="w-5 h-5" />
+                Create Your First Channel
+              </Button>
+              <DialogModal>
+                <Dialog>
+                  {({ close }) => (
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="text-lg font-semibold">Create New Channel</h3>
+                        <p className="text-sm text-base-content/70 mt-1">
+                          Select a channel type to get started
+                        </p>
+                      </div>
+                      <CreateChannelForm
+                        onSuccess={() => {
+                          handleCreateSuccess();
+                          close();
+                        }}
+                      />
+                    </div>
+                  )}
+                </Dialog>
+              </DialogModal>
+            </DialogTrigger>
           </div>
         </div>
       )}

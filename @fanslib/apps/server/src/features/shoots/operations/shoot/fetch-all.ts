@@ -1,6 +1,7 @@
 import { t } from "elysia";
 import { db } from "../../../../lib/db";
 import { paginatedResponseSchema } from "../../../../lib/pagination";
+import { MediaSchema } from "../../../library/entity";
 import { Shoot, ShootSchema } from "../../entity";
 
 export const ShootFiltersSchema = t.Object({
@@ -15,10 +16,15 @@ export const FetchAllShootsRequestBodySchema = t.Object({
   filter: t.Optional(ShootFiltersSchema),
 });
 
-export const FetchAllShootsResponseSchema = paginatedResponseSchema(t.Composite([
+export const ShootSummarySchema = t.Composite([
   ShootSchema,
-  t.Object({ mediaCount: t.Number() }),
-]));
+  t.Object({ 
+    mediaCount: t.Number(),
+    media: t.Array(MediaSchema),
+  }),
+]);
+
+export const FetchAllShootsResponseSchema = paginatedResponseSchema(ShootSummarySchema);
 
 export const listShoots = async (payload: typeof FetchAllShootsRequestBodySchema.static): Promise<typeof FetchAllShootsResponseSchema.static> => {
   const { page = 1, limit = 50, filter } = payload;

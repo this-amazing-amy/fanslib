@@ -1,24 +1,23 @@
-import type { MediaFilters } from "@fanslib/types";
+import type { MediaFilterSchema, MediaSchema } from "@fanslib/server/schemas";
 import { PageContainer } from "~/components/ui/PageContainer";
 import { FilterPresetProvider } from "~/contexts/FilterPresetContext";
 import { useLibraryPreferences } from "~/contexts/LibraryPreferencesContext";
+import { useScan } from "~/hooks/useScan";
 import { useMediaListQuery } from "~/lib/queries/library";
 import { Gallery } from "./Gallery/Gallery";
 import { GalleryPagination } from "./Gallery/GalleryPagination";
-import { MediaFilters as MediaFiltersComponent } from "./MediaFilters/MediaFilters";
-import { MediaFiltersProvider } from "./MediaFilters/MediaFiltersContext";
-import { ScanProgress } from "./ScanProgress";
-import { useScan } from "~/hooks/useScan";
-import { FilterActions } from "./MediaFilters/FilterActions";
 import { GalleryViewSettings } from "./Gallery/GalleryViewSettings";
 import { LibrarySortOptions } from "./Gallery/LibrarySortOptions";
+import { FilterActions } from "./MediaFilters/FilterActions";
+import { MediaFilters as MediaFiltersComponent } from "./MediaFilters/MediaFilters";
+import { MediaFiltersProvider } from "./MediaFilters/MediaFiltersContext";
 import { ScanButton } from "./ScanButton";
+import { ScanProgress } from "./ScanProgress";
 
-export type LibraryProps = {
-  showHeader?: boolean;
-};
+type MediaFilters = typeof MediaFilterSchema.static;
+type Media = typeof MediaSchema.static;
 
-export const Library = ({ showHeader = true }: LibraryProps) => {
+export const Library = () => {
   const { preferences, updatePreferences } = useLibraryPreferences();
   const { data: mediaList, error } = useMediaListQuery({
     page: preferences.pagination.page,
@@ -65,7 +64,7 @@ export const Library = ({ showHeader = true }: LibraryProps) => {
 
             <div className="flex-1 min-h-0 overflow-auto">
               <Gallery
-                medias={mediaList?.items ?? []}
+                medias={(mediaList?.items as Media[] | undefined) ?? []}
                 error={error ? (error instanceof Error ? error.message : "Unknown error") : undefined}
                 onScan={handleScan}
               />

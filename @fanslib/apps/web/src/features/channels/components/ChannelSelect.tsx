@@ -1,4 +1,6 @@
-import type { Channel } from "@fanslib/types";
+import { ChannelSchema } from "@fanslib/server/schemas";
+
+type Channel = typeof ChannelSchema.static;
 import { useChannelsQuery } from "~/lib/queries/channels";
 import { cn } from "~/lib/cn";
 import { ChannelBadge } from "./ChannelBadge";

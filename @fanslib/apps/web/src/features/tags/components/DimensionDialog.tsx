@@ -1,9 +1,10 @@
 import {
   Dialog,
-  DialogContent,
   DialogDescription,
   DialogHeader,
+  DialogModal,
   DialogTitle,
+  DialogTrigger,
 } from "~/components/ui/Dialog";
 import type {
   CreateTagDimensionRequestBodySchema,
@@ -61,20 +62,26 @@ export const DimensionDialog = ({
   };
 
   return (
-    <Dialog open={!!editingDimension} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{getDialogTitle()}</DialogTitle>
-          <DialogDescription>{getDialogDescription()}</DialogDescription>
-        </DialogHeader>
+    <DialogTrigger isOpen={!!editingDimension} onOpenChange={(open) => !open && onClose()}>
+      <DialogModal>
+        <Dialog maxWidth="3xl" className="max-h-[90vh] overflow-y-auto">
+          {({ close }) => (
+            <>
+              <DialogHeader>
+                <DialogTitle>{getDialogTitle()}</DialogTitle>
+                <DialogDescription>{getDialogDescription()}</DialogDescription>
+              </DialogHeader>
 
-        <DimensionForm
-          initialData={editingDimension?.mode === "edit" ? editingDimension.dimension : undefined}
-          onSubmit={handleFormSubmit}
-          onCancel={onClose}
-          isSubmitting={isSubmitting}
-        />
-      </DialogContent>
-    </Dialog>
+              <DimensionForm
+                initialData={editingDimension?.mode === "edit" ? editingDimension.dimension : undefined}
+                onSubmit={handleFormSubmit}
+                onCancel={close}
+                isSubmitting={isSubmitting}
+              />
+            </>
+          )}
+        </Dialog>
+      </DialogModal>
+    </DialogTrigger>
   );
 };

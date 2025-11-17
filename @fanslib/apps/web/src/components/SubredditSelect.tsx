@@ -1,11 +1,11 @@
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useState } from "react";
-import { formatViewCount } from "~/lib/format-views";
-import { cn } from "~/lib/cn";
-import { useSubredditsQuery } from "~/lib/queries/subreddits";
 import { Button } from "~/components/ui/Button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "~/components/ui/Command";
-import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/Popover";
+import { Popover, PopoverTrigger } from "~/components/ui/Popover";
+import { cn } from "~/lib/cn";
+import { formatViewCount } from "~/lib/format-views";
+import { useSubredditsQuery } from "~/lib/queries/subreddits";
 
 type SubredditSelectProps = {
   value: string[];
@@ -17,7 +17,7 @@ export const SubredditSelect = ({ value, onChange, multiple = false }: Subreddit
   const [open, setOpen] = useState(false);
   const { data: subreddits = [], isLoading } = useSubredditsQuery();
 
-  const selectedSubreddits = subreddits.filter((subreddit) => value.includes(subreddit.id));
+  const selectedSubreddits = (subreddits ?? []).filter((subreddit) => value.includes(subreddit.id));
 
   const displayValue =
     selectedSubreddits.length > 0
@@ -39,22 +39,17 @@ export const SubredditSelect = ({ value, onChange, multiple = false }: Subreddit
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          className="w-full justify-between"
-        >
-          {isLoading ? "Loading..." : displayValue}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-full p-0">
+    <PopoverTrigger isOpen={open} onOpenChange={setOpen}>
+      <Button variant="outline" className="w-full justify-between">
+        {isLoading ? "Loading..." : displayValue}
+        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+      </Button>
+      <Popover className="w-full p-0">
         <Command>
           <CommandInput placeholder="Search subreddits..." />
           <CommandEmpty>No subreddit found.</CommandEmpty>
           <CommandGroup>
-            {subreddits.map((subreddit) => (
+            {(subreddits ?? []).map((subreddit) => (
               <CommandItem
                 key={subreddit.id}
                 value={subreddit.name}
@@ -71,13 +66,13 @@ export const SubredditSelect = ({ value, onChange, multiple = false }: Subreddit
                   r/{subreddit.name}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  {formatViewCount(subreddit.memberCount)}
+                  {formatViewCount(subreddit.memberCount ?? 0)}
                 </div>
               </CommandItem>
             ))}
           </CommandGroup>
         </Command>
-      </PopoverContent>
-    </Popover>
+      </Popover>
+    </PopoverTrigger>
   );
 };

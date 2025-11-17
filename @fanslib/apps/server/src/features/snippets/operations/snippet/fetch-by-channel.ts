@@ -20,13 +20,15 @@ export const FetchSnippetsByChannelResponseSchema = t.Array(
 export const fetchSnippetsByChannel = async (channelId: string): Promise<typeof FetchSnippetsByChannelResponseSchema.static> => {
   const dataSource = await db();
   const repo = dataSource.getRepository(CaptionSnippet);
-  return repo.find({
+  const snippets = await repo.find({
     where: [
       { channelId },
       { channelId: IsNull() },
     ],
-    relations: ["channel"],
+    relations: ["channel", "channel.type", "channel.defaultHashtags"],
     order: { updatedAt: "DESC" },
   });
+  
+  return snippets.map(({ channelId: _, ...snippet }) => snippet);
 };
 

@@ -1,11 +1,35 @@
-
+import { t } from "elysia";
+import { ChannelSchema, ChannelTypeSchema } from "~/features/channels/entity";
+import { MediaSchema } from "~/features/library/entity";
 import { In } from "typeorm";
 import { db } from "~/lib/db";
-import { Post } from "../../entity";
+import { Post, PostMediaSchema, PostSchema } from "../../entity";
+
+export const FetchPostsByMediaIdRequestParamsSchema = t.Object({
+  mediaId: t.String(),
+});
+
+export const FetchPostsByMediaIdResponseSchema = t.Array(t.Composite([
+  PostSchema,
+  t.Object({
+    postMedia: t.Array(t.Composite([
+      PostMediaSchema,
+      t.Object({
+        media: MediaSchema,
+      }),
+    ])),
+    channel: t.Composite([
+      ChannelSchema,
+      t.Object({
+        type: ChannelTypeSchema,
+      }),
+    ]),
+  }),
+]));
 
 export const fetchPostsByMediaId = async (
   mediaId: string
-): Promise<Post[]> => {
+): Promise<typeof FetchPostsByMediaIdResponseSchema.static> => {
   const repository = (await db()).getRepository(Post);
 
   const postsWithMedia = await repository

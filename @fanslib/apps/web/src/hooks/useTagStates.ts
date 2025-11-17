@@ -1,8 +1,10 @@
-import type { Media } from "@fanslib/types";
-import { groupBy } from "remeda";
+import type { MediaSchema } from "@fanslib/server/schemas";
 import { useMemo } from "react";
-import type { SelectionState } from "~/lib/selection-state";
+import { groupBy } from "remeda";
 import { useBulkMediaTagsQuery } from "~/lib/queries/tags";
+import type { SelectionState } from "~/lib/selection-state";
+
+type Media = typeof MediaSchema.static;
 
 export type TagStates = Record<number, SelectionState>;
 
@@ -25,12 +27,12 @@ export const useTagStates = (selectedMedia: Media[]): UseTagStatesResult => {
       return {};
     }
 
-    const tagGroups = groupBy(allMediaTags, (mediaTag) => mediaTag.tagDefinitionId.toString());
+    const tagGroups = groupBy(allMediaTags, (mediaTag) => mediaTag?.tagDefinitionId.toString() ?? "");
 
     const states: TagStates = {};
     Object.entries(tagGroups).forEach(([tagIdStr, mediaTags]) => {
       const tagId = parseInt(tagIdStr, 10);
-      const uniqueMediaIds = new Set(mediaTags.map((mt) => mt.mediaId));
+      const uniqueMediaIds = new Set(mediaTags.filter((mt): mt is NonNullable<typeof mt> => mt != null).map((mt) => mt.mediaId));
 
       if (uniqueMediaIds.size === 0) {
         // No media have this tag

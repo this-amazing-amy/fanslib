@@ -1,7 +1,10 @@
-import type { MediaFilters, MediaSort } from "@fanslib/types";
+import type { MediaFilterSchema, MediaSortSchema } from "@fanslib/server/schemas";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { mergeDeep } from "remeda";
 import type { DeepPartial } from "~/lib/deep-partial";
+
+type MediaFilters = typeof MediaFilterSchema.static;
+type MediaSort = typeof MediaSortSchema.static;
 
 export type GridSize = "small" | "large";
 

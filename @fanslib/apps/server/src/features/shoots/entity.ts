@@ -20,7 +20,7 @@ export class Shoot {
   name!: string;
 
   @Column("text", { nullable: true })
-  description: string | null;
+  description: string | null = null;
 
   @Column("datetime")
   shootDate!: Date;

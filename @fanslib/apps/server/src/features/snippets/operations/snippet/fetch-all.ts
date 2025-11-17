@@ -15,9 +15,11 @@ export const FetchAllSnippetsResponseSchema = t.Array(
 export const fetchAllSnippets = async (): Promise<typeof FetchAllSnippetsResponseSchema.static> => {
   const database = await db();
   const snippetRepository = database.getRepository(CaptionSnippet);
-  return snippetRepository.find({
-    relations: ["channel"],
+  const snippets = await snippetRepository.find({
+    relations: ["channel", "channel.type", "channel.defaultHashtags"],
     order: { updatedAt: "DESC" },
   });
+  
+  return snippets.map(({ channelId: _, ...snippet }) => snippet);
 };
 

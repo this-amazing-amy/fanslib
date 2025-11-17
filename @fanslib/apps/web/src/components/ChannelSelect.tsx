@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import type { PostStatus } from "@fanslib/types";
-import { useChannelsQuery } from "~/lib/queries/channels";
 import { cn } from "~/lib/cn";
+import { useChannelsQuery } from "~/lib/queries/channels";
 import { ChannelBadge } from "./ChannelBadge";
 
 type ChannelSelectProps = {
@@ -39,16 +38,16 @@ export const ChannelSelect = ({
 
   return (
     <div className={cn("flex flex-wrap gap-2", className)}>
-      {channels.length === 0 && (
+      {(!channels || channels.length === 0) && (
         <>
           <div className="text-sm text-base-content/60">No channels found.</div>
-          <Link to="/channels" className="text-sm hover:underline">
+          <Link to="/content/channels" className="text-sm hover:underline">
             Create a channel
           </Link>
         </>
       )}
 
-      {channels.map((channel) => {
+      {channels?.map((channel) => {
         const isDisabled = disabledChannels.includes(channel.id);
         const isSelected = value.includes(channel.id);
 

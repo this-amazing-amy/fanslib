@@ -1,90 +1,87 @@
-import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
-import type { ReactElement, ReactNode } from 'react';
-import * as React from 'react';
+import type { ReactNode } from 'react';
+import {
+  Menu as AriaMenu,
+  MenuItem as AriaMenuItem,
+  Popover,
+  Separator,
+  type MenuItemProps as AriaMenuItemProps,
+  type MenuProps as AriaMenuProps,
+  type PopoverProps as AriaPopoverProps,
+} from 'react-aria-components';
 import { cn } from '~/lib/cn';
 
-export const DropdownMenu = DropdownMenuPrimitive.Root;
+// Re-export MenuTrigger from React Aria
+export { MenuTrigger as DropdownMenuTrigger } from 'react-aria-components';
 
-export const DropdownMenuTrigger = ({ children, asChild = true }: { children: ReactElement; asChild?: boolean }) => (
-  <DropdownMenuPrimitive.Trigger asChild={asChild}>{children}</DropdownMenuPrimitive.Trigger>
-);
-
-export const DropdownMenuContent = ({
-  children,
-  className,
-  align = 'start',
-  sideOffset = 4,
-}: {
+// Styled Popover for Menu
+type DropdownMenuPopoverProps = Omit<AriaPopoverProps, 'children'> & {
   children: ReactNode;
   className?: string;
-  align?: 'start' | 'end' | 'center';
-  sideOffset?: number;
-}) => (
-  <DropdownMenuPrimitive.Portal>
-    <DropdownMenuPrimitive.Content
-      align={align}
-      sideOffset={sideOffset}
-      className={cn(
-        'z-50 min-w-[8rem] overflow-hidden rounded-xl bg-base-100 border-2 border-base-content shadow-lg p-1',
-        'data-[state=open]:animate-in data-[state=closed]:animate-out',
-        'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-        'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-        'data-[side=bottom]:slide-in-from-top-2',
-        'data-[side=left]:slide-in-from-right-2',
-        'data-[side=right]:slide-in-from-left-2',
-        'data-[side=top]:slide-in-from-bottom-2',
-        className
-      )}
-    >
-      {children}
-    </DropdownMenuPrimitive.Content>
-  </DropdownMenuPrimitive.Portal>
-);
+}
 
-export const DropdownMenuItem = React.forwardRef<
-  React.ElementRef<typeof DropdownMenuPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Item> & {
-    onClick?: () => void;
-    disabled?: boolean;
-  }
->(({ className, onClick, disabled, ...props }, ref) => (
-  <DropdownMenuPrimitive.Item
-    ref={ref}
-    disabled={disabled}
-    onSelect={(e) => {
-      if (disabled) {
-        e.preventDefault();
-        return;
-      }
-      onClick?.();
-    }}
+export const DropdownMenuPopover = ({ children, className, offset = 4, ...props }: DropdownMenuPopoverProps) => (
+  <Popover
+    offset={offset}
     className={cn(
-      'rounded-md px-2 py-1.5 text-sm cursor-pointer select-none outline-none transition-colors',
-      'focus:bg-primary/20 focus:ring-2 focus:ring-primary',
-      'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-      disabled ? 'opacity-50 pointer-events-none' : 'hover:bg-primary/20 hover:ring-2 hover:ring-primary',
+      'z-50 min-w-[8rem] overflow-hidden rounded-xl bg-base-100 border-2 border-base-content shadow-lg p-1',
+      'entering:animate-in entering:fade-in entering:zoom-in-95',
+      'exiting:animate-out exiting:fade-out exiting:zoom-out-95',
+      'placement-bottom:slide-in-from-top-2',
+      'placement-top:slide-in-from-bottom-2',
+      'placement-left:slide-in-from-right-2',
+      'placement-right:slide-in-from-left-2',
       className
     )}
     {...props}
-  />
-));
-DropdownMenuItem.displayName = DropdownMenuPrimitive.Item.displayName;
+  >
+    {children}
+  </Popover>
+);
 
+// Styled Menu wrapper
+type MenuProps = Omit<AriaMenuProps<object>, 'children'> & {
+  children: ReactNode;
+  className?: string;
+}
+
+export const DropdownMenu = ({ children, className, ...props }: MenuProps) => <AriaMenu className={cn('outline-none', className)} {...props}>
+      {children}
+    </AriaMenu>;
+
+// Styled MenuItem wrapper
+type MenuItemProps = AriaMenuItemProps & {
+  children: ReactNode;
+  className?: string;
+}
+
+export const DropdownMenuItem = ({ children, className, ...props }: MenuItemProps) => <AriaMenuItem
+      className={cn(
+        'rounded-md px-2 py-1.5 text-sm cursor-pointer select-none outline-none transition-colors',
+        'focus:bg-primary/20 focus:ring-2 focus:ring-primary',
+        'hover:bg-primary/20 hover:ring-2 hover:ring-primary',
+        'data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed',
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </AriaMenuItem>;
+
+// Separator component
 export type DropdownMenuSeparatorProps = {
   className?: string;
 };
 
 export const DropdownMenuSeparator = ({ className }: DropdownMenuSeparatorProps) => (
-  <DropdownMenuPrimitive.Separator className={cn('hidden', className)} />
+  <Separator className={cn('my-1 h-px bg-base-content/20', className)} />
 );
 
+// Label component (for section headers)
 export type DropdownMenuLabelProps = {
   children: ReactNode;
   className?: string;
 };
 
 export const DropdownMenuLabel = ({ children, className }: DropdownMenuLabelProps) => (
-  <DropdownMenuPrimitive.Label className={cn('px-2 py-1.5 text-base font-semibold', className)}>
-    {children}
-  </DropdownMenuPrimitive.Label>
+  <div className={cn('px-2 py-1.5 text-xs font-semibold text-base-content/70 uppercase', className)}>{children}</div>
 );

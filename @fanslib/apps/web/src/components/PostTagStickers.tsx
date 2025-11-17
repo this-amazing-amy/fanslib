@@ -1,11 +1,13 @@
-import type { PostMedia } from "@fanslib/types";
-import { groupBy } from "remeda";
+import type { PostMediaWithMediaSchema } from "@fanslib/server/schemas";
 import { memo, useMemo } from "react";
+import { groupBy } from "remeda";
 import { useTagsForMediasQuery } from "~/lib/queries/tags";
 import { Sticker } from "./ui/Sticker";
 
+type PostMediaWithMedia = typeof PostMediaWithMediaSchema.static;
+
 type PostTagStickersProps = {
-  postMedia: PostMedia[];
+  postMedia: PostMediaWithMedia[];
 };
 
 export const PostTagStickers = memo(({ postMedia }: PostTagStickersProps) => {
@@ -15,20 +17,20 @@ export const PostTagStickers = memo(({ postMedia }: PostTagStickersProps) => {
   const aggregatedTags = useMemo(() => {
     if (!allMediaTags.length) return [];
 
-    const tagGroups = groupBy(allMediaTags, (mediaTag) => mediaTag.tagDefinitionId.toString());
+    const tagGroups = groupBy(allMediaTags, (mediaTag) => mediaTag?.tagDefinitionId.toString());
 
     return Object.values(tagGroups).map((group) => group[0]);
   }, [allMediaTags]);
 
   const stickerTags = useMemo(
-    () => aggregatedTags.filter((tag) => tag.stickerDisplay && tag.stickerDisplay !== "none"),
+    () => aggregatedTags.filter((tag) => tag?.stickerDisplay && tag.stickerDisplay !== "none"),
     [aggregatedTags]
   );
 
   if (!stickerTags.length) return null;
 
-  const colorTags = stickerTags.filter((tag) => tag.stickerDisplay === "color");
-  const shortTags = stickerTags.filter((tag) => tag.stickerDisplay === "short");
+  const colorTags = stickerTags.filter((tag) => tag?.stickerDisplay === "color");
+  const shortTags = stickerTags.filter((tag) => tag?.stickerDisplay === "short");
 
   return (
     <>
@@ -36,19 +38,19 @@ export const PostTagStickers = memo(({ postMedia }: PostTagStickersProps) => {
         <Sticker>
           {colorTags.map((tag) => (
             <div
-              key={tag.id}
+              key={tag?.id ?? undefined}
               className="w-2 h-2 rounded-full"
-              style={{ backgroundColor: tag.color || "#666" }}
+              style={{ backgroundColor: tag?.color ?? "#666" }}
             />
           ))}
         </Sticker>
       )}
 
       {shortTags.map((tag) => {
-        const displayText = tag.shortRepresentation || tag.tagDisplayName || tag.tagValue;
+        const displayText = tag?.shortRepresentation ?? tag?.tagDisplayName ?? tag?.tagValue;
 
         return (
-          <Sticker key={tag.id} className="text-xs">
+          <Sticker key={tag?.id} className="text-xs">
             {displayText}
           </Sticker>
         );

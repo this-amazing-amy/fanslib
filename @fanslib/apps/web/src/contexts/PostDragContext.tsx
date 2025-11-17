@@ -1,5 +1,7 @@
-import type { Post } from "@fanslib/types";
+import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
 import { createContext, useContext, useState, type FC, type ReactNode } from "react";
+
+type Post = typeof PostWithRelationsSchema.static;
 
 type PostDragContextType = {
   draggedPost: Post | null;

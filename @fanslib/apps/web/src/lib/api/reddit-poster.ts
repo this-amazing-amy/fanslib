@@ -1,5 +1,33 @@
-import type { GeneratedPost, RegenerateMediaResult, ScheduledPost, Subreddit } from '@fanslib/types';
+import type { MediaSchema, SubredditSchema } from '@fanslib/server/schemas';
 import { apiRequest } from './client';
+
+type Subreddit = typeof SubredditSchema.static;
+type Media = typeof MediaSchema.static;
+
+type GeneratedPost = {
+  id: string;
+  subreddit: Subreddit;
+  media: Media;
+  caption: string;
+  date: Date;
+};
+
+type ScheduledPost = {
+  id: string;
+  subreddit: Subreddit;
+  media: Media;
+  caption: string;
+  scheduledDate: string;
+  createdAt: string;
+  status?: "queued" | "processing" | "posted" | "failed";
+  errorMessage?: string;
+  postUrl?: string;
+};
+
+type RegenerateMediaResult = {
+  media: Media;
+  caption: string;
+};
 
 export type GenerateRandomPostRequest = {
   subreddits: Subreddit[];

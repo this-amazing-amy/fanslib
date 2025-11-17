@@ -1,6 +1,8 @@
-import type { PostStatus } from "@fanslib/types";
+import type { PostStatusSchema } from "@fanslib/server/schemas";
 import { cn } from "~/lib/cn";
 import { Badge } from "./ui/Badge";
+
+type PostStatus = typeof PostStatusSchema.static;
 
 const STATUS_COLORS = {
   draft: "#94a3b8",

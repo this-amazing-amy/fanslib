@@ -34,12 +34,12 @@ describe("Snippets Routes", () => {
       const response = await app.handle(new Request("http://localhost/api/snippets/all"));
       expect(response.status).toBe(200);
       
-      const data = await parseResponse(response);
+      const data = await parseResponse<CaptionSnippet[]>(response);
       expect(Array.isArray(data)).toBe(true);
-      expect(data.length).toBeGreaterThanOrEqual(CAPTION_SNIPPET_FIXTURES.length);
+      expect(data?.length).toBeGreaterThanOrEqual(CAPTION_SNIPPET_FIXTURES.length);
       
       CAPTION_SNIPPET_FIXTURES.forEach((fixture) => {
-        const snippet = data.find((s: CaptionSnippet) => s.id === fixture.id);
+        const snippet = data?.find((s: CaptionSnippet) => s.id === fixture.id);
         expect(snippet).toBeDefined();
         expect(snippet?.name).toBe(fixture.name);
         expect(snippet?.content).toBe(fixture.content);
@@ -50,10 +50,10 @@ describe("Snippets Routes", () => {
   describe("GET /api/snippets/global", () => {
     test("returns only global snippets", async () => {
       const response = await app.handle(new Request("http://localhost/api/snippets/global"));
-      const data = await parseResponse(response);
+      const data = await parseResponse<CaptionSnippet[]>(response);
 
       expect(Array.isArray(data)).toBe(true);
-      data.forEach((snippet: CaptionSnippet) => {
+      data?.forEach((snippet: CaptionSnippet) => {
         expect(snippet.channelId).toBeFalsy();
       });
     });
@@ -69,10 +69,10 @@ describe("Snippets Routes", () => {
       const response = await app.handle(
         new Request(`http://localhost/api/snippets/by-channel-id/${fixtureChannel.id}`)
       );
-      const data = await parseResponse(response);
+      const data = await parseResponse<CaptionSnippet[]>(response);
 
       expect(Array.isArray(data)).toBe(true);
-      data.forEach((snippet: CaptionSnippet) => {
+      data?.forEach((snippet: CaptionSnippet) => {
         expect(!snippet.channelId || snippet.channelId === fixtureChannel.id).toBe(true);
       });
     });
@@ -90,9 +90,9 @@ describe("Snippets Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.id).toBe(fixtureSnippet.id);
-      expect(data.name).toBe(fixtureSnippet.name);
+      const data = await parseResponse<CaptionSnippet>(response);
+      expect(data?.id).toBe(fixtureSnippet.id);
+      expect(data?.name).toBe(fixtureSnippet.name);
     });
 
     test("returns error for non-existent snippet", async () => {
@@ -100,9 +100,9 @@ describe("Snippets Routes", () => {
         new Request("http://localhost/api/snippets/by-id/non-existent-id")
       );
 
-      const data = await parseResponse(response);
+      const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
-      expect(data.error).toBe("Snippet not found");
+      expect(data?.error).toBe("Snippet not found");
     });
   });
 
@@ -122,9 +122,9 @@ describe("Snippets Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.name).toBe("New Snippet");
-      expect(data.content).toBe("This is a new snippet");
+      const data = await parseResponse<CaptionSnippet>(response);
+      expect(data?.name).toBe("New Snippet");
+      expect(data?.content).toBe("This is a new snippet");
     });
 
     test("creates a channel-specific snippet", async () => {
@@ -173,10 +173,10 @@ describe("Snippets Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.name).toBe("Updated Snippet");
-      expect(data.content).toBe("Updated content");
-      expect(data.id).toBe(fixtureSnippet.id);
+      const data = await parseResponse<CaptionSnippet>(response);
+      expect(data?.name).toBe("Updated Snippet");
+      expect(data?.content).toBe("Updated content");
+      expect(data?.id).toBe(fixtureSnippet.id);
     });
   });
 
@@ -194,8 +194,8 @@ describe("Snippets Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.success).toBe(true);
+      const data = await parseResponse<{ success: boolean }>(response);
+      expect(data?.success).toBe(true);
 
       const dataSource = getTestDataSource();
       const repository = dataSource.getRepository(CaptionSnippet);
@@ -211,8 +211,8 @@ describe("Snippets Routes", () => {
       );
       expect(response.status).toBe(404);
 
-      const data = await parseResponse(response);
-      expect(data.error).toBe("Snippet not found");
+      const data = await parseResponse<{ error: string }>(response);
+      expect(data?.error).toBe("Snippet not found");
     });
   });
 

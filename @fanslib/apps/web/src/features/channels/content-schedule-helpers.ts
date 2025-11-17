@@ -1,6 +1,8 @@
-import type { MediaFilters } from "@fanslib/types";
+import { MediaFilterSchema } from "@fanslib/server/schemas";
 
-export const parseMediaFilters = (mediaFilters?: string): MediaFilters | null => {
+type MediaFilters = typeof MediaFilterSchema.static;
+
+export const parseMediaFilters = (mediaFilters?: string | null): MediaFilters | null => {
   if (!mediaFilters) return null;
 
   try {

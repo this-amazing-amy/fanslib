@@ -1,11 +1,11 @@
-import type { FetchContentSchedulesByChannelResponseSchema } from "@fanslib/server/schemas";
+import type { ContentScheduleWithChannelSchema, FetchContentSchedulesByChannelResponseSchema } from "@fanslib/server/schemas";
 import { Edit, Trash2 } from "lucide-react";
 import { Button } from "~/components/ui/Button/Button";
 import { useDeleteContentScheduleMutation } from "~/lib/queries/content-schedules";
 import { parseMediaFilters } from "../content-schedule-helpers";
 import { MediaFilterSummary } from "~/components/MediaFilterSummary";
 
-type ContentSchedule = (typeof FetchContentSchedulesByChannelResponseSchema.static)[number];
+type ContentSchedule = typeof ContentScheduleWithChannelSchema.static;
 
 type ContentScheduleListProps = {
   schedules: ContentSchedule[];
@@ -80,7 +80,7 @@ export const ContentScheduleList = ({ schedules, onEdit }: ContentScheduleListPr
                 <div className="text-sm">
                   <span className="font-medium">Media filters:</span>
                   <div className="mt-1">
-                    <MediaFilterSummary filters={mediaFilters} />
+                    <MediaFilterSummary mediaFilters={mediaFilters} />
                   </div>
                 </div>
               )}
@@ -90,15 +90,15 @@ export const ContentScheduleList = ({ schedules, onEdit }: ContentScheduleListPr
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => onEdit(schedule)}
+                onPress={() => onEdit(schedule)}
               >
                 <Edit className="w-4 h-4" />
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => handleDelete(schedule.id)}
-                disabled={deleteSchedule.isPending}
+                onPress={() => handleDelete(schedule.id)}
+                isDisabled={deleteSchedule.isPending}
               >
                 <Trash2 className="w-4 h-4" />
               </Button>

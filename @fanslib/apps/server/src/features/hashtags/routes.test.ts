@@ -35,14 +35,14 @@ describe("Hashtags Routes", () => {
     test("returns all hashtags", async () => {
       const response = await app.handle(new Request("http://localhost/api/hashtags/all"));
       expect(response.status).toBe(200);
-      
-      const data = await parseResponse(response);
+
+      const data = await parseResponse<Hashtag[]>(response);
       expect(Array.isArray(data)).toBe(true);
-      expect(data.length).toBeGreaterThanOrEqual(HASHTAG_FIXTURES.length);
-      
+      expect(data?.length).toBeGreaterThanOrEqual(HASHTAG_FIXTURES.length);
+
       HASHTAG_FIXTURES.forEach((fixture) => {
         const normalizedName = normalizeHashtagName(fixture.name);
-        const hashtag = data.find((h: Hashtag) => h.name === normalizedName);
+        const hashtag = data?.find((h: Hashtag) => h.name === normalizedName);
         expect(hashtag).toBeDefined();
         expect(hashtag?.name).toBe(normalizedName);
       });
@@ -61,9 +61,9 @@ describe("Hashtags Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.id).toBe(fixtureHashtag.id);
-      expect(data.name).toBe(fixtureHashtag.name);
+      const data = await parseResponse<Hashtag>(response);
+      expect(data?.id).toBe(fixtureHashtag.id);
+      expect(data?.name).toBe(fixtureHashtag.name);
     });
 
     test("returns error for non-existent hashtag", async () => {
@@ -71,9 +71,9 @@ describe("Hashtags Routes", () => {
         new Request("http://localhost/api/hashtags/by-id/999999")
       );
 
-      const data = await parseResponse(response);
+      const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
-      expect(data.error).toBe("Hashtag not found");
+      expect(data?.error).toBe("Hashtag not found");
     });
   });
 
@@ -92,8 +92,8 @@ describe("Hashtags Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.name).toBe("#newhash");
+      const data = await parseResponse<Hashtag>(response);
+      expect(data?.name).toBe("#newhash");
     });
 
     test("returns existing hashtag if name already exists", async () => {
@@ -110,9 +110,9 @@ describe("Hashtags Routes", () => {
         })
       );
 
-      const data = await parseResponse(response);
-      expect(data.id).toBe(existing.id);
-      expect(data.name).toBe(existing.name);
+      const data = await parseResponse<Hashtag>(response);
+      expect(data?.id).toBe(existing.id);
+      expect(data?.name).toBe(existing.name);
     });
   });
 
@@ -127,11 +127,11 @@ describe("Hashtags Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
+      const data = await parseResponse<Hashtag[]>(response);
       expect(data).toHaveLength(3);
-      expect(data[0].name).toBe("#hash1");
-      expect(data[1].name).toBe("#hash2");
-      expect(data[2].name).toBe("#hash3");
+      expect(data?.[0]?.name).toBe("#hash1");
+      expect(data?.[1]?.name).toBe("#hash2");
+      expect(data?.[2]?.name).toBe("#hash3");
     });
 
     test("handles mix of new and existing hashtags", async () => {
@@ -148,7 +148,7 @@ describe("Hashtags Routes", () => {
         })
       );
 
-      const data = await parseResponse(response);
+      const data = await parseResponse<Hashtag[]>(response);
       expect(data).toHaveLength(2);
     });
   });
@@ -167,8 +167,8 @@ describe("Hashtags Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.success).toBe(true);
+      const data = await parseResponse<{ success: boolean }>(response);
+      expect(data?.success).toBe(true);
 
       const dataSource = getTestDataSource();
       const repository = dataSource.getRepository(HashtagEntity);
@@ -189,7 +189,7 @@ describe("Hashtags Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
+      const data = await parseResponse<unknown[]>(response);
       expect(Array.isArray(data)).toBe(true);
     });
   });
@@ -216,7 +216,7 @@ describe("Hashtags Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
+      const data = await parseResponse<{ hashtagId: number; channelId: string }>(response);
       expect(data).toHaveProperty("hashtagId");
       expect(data).toHaveProperty("channelId");
     });
@@ -234,7 +234,7 @@ describe("Hashtags Routes", () => {
       const response = await app.handle(
         new Request(`http://localhost/api/hashtags/by-ids?ids=${encodeURIComponent(ids)}`)
       );
-      const data = await parseResponse(response);
+      const data = await parseResponse<Hashtag[]>(response);
 
       expect(data).toHaveLength(2);
     });
@@ -243,7 +243,7 @@ describe("Hashtags Routes", () => {
       const response = await app.handle(
         new Request("http://localhost/api/hashtags/by-ids?ids=[]")
       );
-      const data = await parseResponse(response);
+      const data = await parseResponse<Hashtag[]>(response);
 
       expect(data).toEqual([]);
     });

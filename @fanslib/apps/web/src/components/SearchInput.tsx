@@ -1,5 +1,5 @@
 import { Search, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "~/lib/cn";
 import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
@@ -23,7 +23,6 @@ export const SearchInput = ({
 }: SearchInputProps) => {
   const [isOpen, setIsOpen] = useState(Boolean(value) || alwaysOpen);
   const [localValue, setLocalValue] = useState(value);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const open = alwaysOpen || isOpen;
 
@@ -53,7 +52,6 @@ export const SearchInput = ({
   const handleClear = () => {
     setLocalValue("");
     onChange("");
-    inputRef.current?.focus();
   };
 
   return (
@@ -66,9 +64,6 @@ export const SearchInput = ({
       <button
         onClick={() => {
           setIsOpen(!isOpen);
-          if (!isOpen) {
-            setTimeout(() => inputRef.current?.focus(), 0);
-          }
         }}
         className={cn("flex h-9 w-9 shrink-0 items-center justify-center cursor-pointer")}
         aria-label={isOpen ? "Close search" : "Open search"}
@@ -83,11 +78,10 @@ export const SearchInput = ({
       >
         <div className="relative">
           <Input
-            ref={inputRef}
             type="text"
             placeholder={placeholder}
             value={localValue}
-            onChange={(e) => setLocalValue(e.target.value)}
+            onChange={(value) => setLocalValue(value)}
             onBlur={handleBlur}
             className="pl-2 pr-8 border-none rounded-none"
           />

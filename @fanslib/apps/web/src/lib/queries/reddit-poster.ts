@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { Subreddit } from '@fanslib/types';
+import type { SubredditSchema } from '@fanslib/server/schemas';
 import { redditPosterApi } from '../api/reddit-poster';
+
+type Subreddit = typeof SubredditSchema.static;
 
 export const useGenerateRandomPost = () => useMutation({
     mutationFn: ({

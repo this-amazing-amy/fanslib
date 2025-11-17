@@ -19,11 +19,13 @@ export const fetchSnippetById = async (id: string): Promise<typeof FetchSnippetB
   const snippetRepository = database.getRepository(CaptionSnippet);
   const snippet = await snippetRepository.findOne({
     where: { id },
-    relations: ["channel"],
+    relations: ["channel", "channel.type", "channel.defaultHashtags"],
   });
   if (!snippet) {
     return null;
   }
-  return snippet;
+  
+  const { channelId: _, ...snippetWithoutChannelId } = snippet;
+  return snippetWithoutChannelId;
 };
 

@@ -21,7 +21,7 @@ export const fetchContentScheduleById = async (id: string): Promise<typeof Fetch
   return repository.findOne({
     where: { id },
     relations: {
-      channel: true,
+      channel: { type: true, defaultHashtags: true },
     },
   });
 };

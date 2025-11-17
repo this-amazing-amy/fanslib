@@ -1,33 +1,26 @@
 import { t } from "elysia";
-import { ChannelSchema, ChannelTypeSchema } from "~/features/channels/entity";
-import { MediaSchema } from "~/features/library/entity";
+import { ChannelSchema } from "~/features/channels/entity";
 import { SubredditSchema } from "~/features/subreddits/entity";
 import { db } from "../../../../lib/db";
-import { Post, PostMediaSchema, PostSchema } from "../../entity";
+import { Post, PostMediaWithMediaSchema, PostSchema } from "../../entity";
 import type { PostFiltersSchema } from "../../schemas/post-filters";
 
 export const FetchAllPostsRequestQuerySchema = t.Object({
   filters: t.Optional(t.String()), // JSON stringified PostFilters
 });
 
-export const FetchAllPostsResponseSchema = t.Array(t.Composite([
+export const ChannelWithTypeSchema = ChannelSchema;
+
+export const PostWithRelationsSchema = t.Composite([
   PostSchema,
   t.Object({
-    postMedia: t.Array(t.Composite([
-      PostMediaSchema,
-      t.Object({
-        media: MediaSchema,
-      }),
-    ])),
-    channel: t.Composite([
-      ChannelSchema,
-      t.Object({
-        type: ChannelTypeSchema,
-      }),
-    ]),
+    postMedia: t.Array(PostMediaWithMediaSchema),
+    channel: ChannelWithTypeSchema,
     subreddit: t.Nullable(SubredditSchema),
   }),
-]));
+]);
+
+export const FetchAllPostsResponseSchema = t.Array(PostWithRelationsSchema);
 
 export const fetchAllPosts = async (filters?: typeof PostFiltersSchema.static): Promise<typeof FetchAllPostsResponseSchema.static> => {
   const dataSource = await db();
@@ -38,6 +31,7 @@ export const fetchAllPosts = async (filters?: typeof PostFiltersSchema.static): 
     .leftJoinAndSelect("postMedia.media", "media")
     .leftJoinAndSelect("post.channel", "channel")
     .leftJoinAndSelect("channel.type", "type")
+    .leftJoinAndSelect("channel.defaultHashtags", "defaultHashtags")
     .leftJoinAndSelect("post.subreddit", "subreddit");
 
   if (filters?.search) {

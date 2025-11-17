@@ -1,82 +1,80 @@
-import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog';
-import type { ReactElement, ReactNode } from 'react';
-import * as React from 'react';
+import type { ReactNode } from 'react';
+import {
+  DialogTrigger,
+  Modal,
+  Dialog as AriaDialog,
+  Heading,
+  type DialogTriggerProps,
+  type ModalOverlayProps,
+  type DialogProps as AriaDialogProps,
+} from 'react-aria-components';
 import { cn } from '~/lib/cn';
 import type { ButtonProps } from '../Button';
 import { Button } from '../Button';
 
-export type AlertDialogProps = {
-  children: ReactNode;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-};
+// Re-export DialogTrigger as AlertDialogTrigger
+export { DialogTrigger as AlertDialogTrigger } from 'react-aria-components';
 
-export const AlertDialog = AlertDialogPrimitive.Root;
-
-export const AlertDialogTrigger = ({ children, asChild = true }: { children: ReactElement; asChild?: boolean }) => (
-  <AlertDialogPrimitive.Trigger asChild={asChild}>{children}</AlertDialogPrimitive.Trigger>
-);
-
-const AlertDialogOverlay = React.forwardRef<
-  React.ElementRef<typeof AlertDialogPrimitive.Overlay>,
-  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Overlay>
->(({ className, ...props }, ref) => (
-  <AlertDialogPrimitive.Overlay
-    ref={ref}
-    className={cn(
-      'fixed inset-0 z-50 bg-black/50',
-      'data-[state=open]:animate-in data-[state=closed]:animate-out',
-      'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-      className
-    )}
-    {...props}
-  />
-));
-AlertDialogOverlay.displayName = AlertDialogPrimitive.Overlay.displayName;
-
-export const AlertDialogContent = ({
-  children,
-  className,
-  isDismissable = false,
-}: {
+// Modal component for AlertDialog with styled overlay
+type AlertDialogModalProps = Omit<ModalOverlayProps, 'children'> & {
   children: ReactNode;
   className?: string;
-  isDismissable?: boolean;
-}) => (
-  <AlertDialogPrimitive.Portal>
-    <AlertDialogOverlay />
-    <AlertDialogPrimitive.Content
+}
+
+export const AlertDialogModal = ({ children, className, isDismissable = false, ...props }: AlertDialogModalProps) => {
+  return (
+    <Modal
+      isDismissable={isDismissable}
       className={cn(
-        'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-base-100 p-6 shadow-xl duration-200',
-        'data-[state=open]:animate-in data-[state=closed]:animate-out',
-        'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-        'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-        'data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]',
-        'data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]',
-        'rounded-lg',
+        'fixed inset-0 z-50 bg-black/50',
+        'entering:animate-in entering:fade-in',
+        'exiting:animate-out exiting:fade-out',
         className
       )}
-      onEscapeKeyDown={(e) => {
-        if (!isDismissable) {
-          e.preventDefault();
-        }
-      }}
-      onPointerDownOutside={(e) => {
-        if (!isDismissable) {
-          e.preventDefault();
-        }
-      }}
-      onInteractOutside={(e) => {
-        if (!isDismissable) {
-          e.preventDefault();
-        }
-      }}
+      {...props}
     >
       {children}
-    </AlertDialogPrimitive.Content>
-  </AlertDialogPrimitive.Portal>
-);
+    </Modal>
+  );
+};
 
+// AlertDialog component wrapper with content styling
+type AlertDialogProps = Omit<AriaDialogProps, 'children'> & {
+  children: ReactNode | ((opts: { close: () => void }) => ReactNode);
+  className?: string;
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
+}
+
+const maxWidthClasses = {
+  sm: 'max-w-sm',
+  md: 'max-w-md',
+  lg: 'max-w-lg',
+  xl: 'max-w-xl',
+  '2xl': 'max-w-2xl',
+  '3xl': 'max-w-3xl',
+};
+
+export const AlertDialog = ({ children, className, maxWidth = 'lg', ...props }: AlertDialogProps) => {
+  return (
+    <AriaDialog
+      role="alertdialog"
+      className={cn(
+        'fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border-2 border-base-content bg-base-100 p-6 shadow-xl rounded-lg outline-none',
+        maxWidthClasses[maxWidth],
+        'entering:animate-in entering:fade-in entering:zoom-in-95',
+        'entering:slide-in-from-left-1/2 entering:slide-in-from-top-[48%]',
+        'exiting:animate-out exiting:fade-out exiting:zoom-out-95',
+        'exiting:slide-out-to-left-1/2 exiting:slide-out-to-top-[48%]',
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </AriaDialog>
+  );
+};
+
+// Helper components for AlertDialog structure
 export type AlertDialogHeaderProps = {
   children: ReactNode;
   className?: string;
@@ -92,7 +90,9 @@ export type AlertDialogTitleProps = {
 };
 
 export const AlertDialogTitle = ({ children, className }: AlertDialogTitleProps) => (
-  <AlertDialogPrimitive.Title className={cn('font-bold text-lg', className)}>{children}</AlertDialogPrimitive.Title>
+  <Heading slot="title" className={cn('font-bold text-lg', className)}>
+    {children}
+  </Heading>
 );
 
 export type AlertDialogDescriptionProps = {
@@ -101,9 +101,7 @@ export type AlertDialogDescriptionProps = {
 };
 
 export const AlertDialogDescription = ({ children, className }: AlertDialogDescriptionProps) => (
-  <AlertDialogPrimitive.Description className={cn('text-sm opacity-70', className)}>
-    {children}
-  </AlertDialogPrimitive.Description>
+  <p className={cn('text-sm opacity-70', className)}>{children}</p>
 );
 
 export type AlertDialogFooterProps = {
@@ -113,38 +111,4 @@ export type AlertDialogFooterProps = {
 
 export const AlertDialogFooter = ({ children, className }: AlertDialogFooterProps) => (
   <div className={cn('modal-action', className)}>{children}</div>
-);
-
-export type AlertDialogActionProps = ButtonProps & {
-  children: ReactNode;
-};
-
-export const AlertDialogAction = ({
-  children,
-  variant = 'error',
-  onClick,
-  ...props
-}: AlertDialogActionProps & { onClick?: () => void }) => (
-  <AlertDialogPrimitive.Action asChild>
-    <Button variant={variant} {...props} onClick={onClick}>
-      {children}
-    </Button>
-  </AlertDialogPrimitive.Action>
-);
-
-export type AlertDialogCancelProps = ButtonProps & {
-  children: ReactNode;
-};
-
-export const AlertDialogCancel = ({
-  children,
-  variant = 'ghost',
-  onClick,
-  ...props
-}: AlertDialogCancelProps & { onClick?: () => void }) => (
-  <AlertDialogPrimitive.Cancel asChild>
-    <Button variant={variant} {...props} onClick={onClick}>
-      {children}
-    </Button>
-  </AlertDialogPrimitive.Cancel>
 );

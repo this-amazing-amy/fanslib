@@ -31,8 +31,8 @@ describe("Settings Routes", () => {
     test("returns settings object", async () => {
       const response = await app.handle(new Request("http://localhost/api/settings"));
       expect(response.status).toBe(200);
-      
-      const data = await parseResponse(response);
+
+      const data = await parseResponse<Record<string, unknown>>(response);
       expect(typeof data).toBe("object");
     });
   });
@@ -53,7 +53,7 @@ describe("Settings Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
+      const data = await parseResponse<Record<string, unknown>>(response);
       expect(typeof data).toBe("object");
     });
   });
@@ -67,9 +67,9 @@ describe("Settings Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
+      const data = await parseResponse<{ sfwMode: boolean }>(response);
       expect(data).toHaveProperty("sfwMode");
-      expect(typeof data.sfwMode).toBe("boolean");
+      expect(typeof data?.sfwMode).toBe("boolean");
     });
   });
 
@@ -80,8 +80,8 @@ describe("Settings Routes", () => {
           new Request("http://localhost/api/settings/fansly-credentials")
         );
         expect(response.status).toBe(200);
-        
-        const data = await parseResponse(response);
+
+        const data = await parseResponse<Record<string, unknown>>(response);
         expect(typeof data).toBe("object");
       });
     });
@@ -102,8 +102,8 @@ describe("Settings Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await parseResponse(response);
-        expect(data.success).toBe(true);
+        const data = await parseResponse<{ success: boolean }>(response);
+        expect(data?.success).toBe(true);
       });
     });
 
@@ -116,8 +116,8 @@ describe("Settings Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await parseResponse(response);
-        expect(data.success).toBe(true);
+        const data = await parseResponse<{ success: boolean }>(response);
+        expect(data?.success).toBe(true);
       });
     });
   });

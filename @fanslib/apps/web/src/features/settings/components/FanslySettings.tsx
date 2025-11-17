@@ -148,7 +148,7 @@ export const FanslySettings = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setShowTokens(!showTokens)}
+              onPress={() => setShowTokens(!showTokens)}
               className="w-auto"
             >
               {showTokens ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
@@ -202,10 +202,10 @@ export const FanslySettings = () => {
 
           <SettingRow>
             <div className="flex gap-2">
-              <Button onClick={saveCredentials} disabled={isLoading || !hasAllCredentials}>
+              <Button onPress={saveCredentials} isDisabled={isLoading || !hasAllCredentials}>
                 Save Credentials
               </Button>
-              <Button variant="outline" onClick={clearCredentials} disabled={isLoading}>
+              <Button variant="outline" onPress={clearCredentials} isDisabled={isLoading}>
                 Clear All
               </Button>
             </div>
@@ -237,8 +237,8 @@ export const FanslySettings = () => {
             className="min-h-[120px] font-mono text-xs"
           />
           <Button
-            onClick={parseFetchRequestAndUpdateCredentials}
-            disabled={!fetchRequest.trim()}
+            onPress={parseFetchRequestAndUpdateCredentials}
+            isDisabled={!fetchRequest.trim()}
             className="w-fit"
           >
             Parse

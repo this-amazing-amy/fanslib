@@ -4,12 +4,10 @@ import { useState } from "react";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogModal,
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "~/components/ui/AlertDialog";
@@ -81,37 +79,49 @@ const DeleteHashtagButton = ({ hashtagId, hashtagName }: DeleteHashtagButtonProp
   const deleteHashtagMutation = useDeleteHashtagMutation();
 
   const deleteHashtag = async () => {
-    await deleteHashtagMutation.mutateAsync({ id: hashtagId });
+    await deleteHashtagMutation.mutateAsync({ id: hashtagId.toString() });
   };
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <div className="p-2 pr-4 h-12 flex items-center justify-end">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-base-content/60 hover:text-error"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Delete Hashtag</AlertDialogTitle>
-          <AlertDialogDescription>
-            Are you sure you want to delete #{hashtagName}? This action cannot be undone.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction className="btn-error" onClick={deleteHashtag}>
-            Delete
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <AlertDialogTrigger>
+      <div className="p-2 pr-4 h-12 flex items-center justify-end">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-base-content/60 hover:text-error"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+      <AlertDialogModal isDismissable={false}>
+        <AlertDialog>
+          {({ close }) => (
+            <>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Hashtag</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete #{hashtagName}? This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <Button variant="ghost" onPress={close}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="error"
+                  onPress={async () => {
+                    await deleteHashtag();
+                    close();
+                  }}
+                >
+                  Delete
+                </Button>
+              </AlertDialogFooter>
+            </>
+          )}
+        </AlertDialog>
+      </AlertDialogModal>
+    </AlertDialogTrigger>
   );
 };
 
@@ -160,10 +170,10 @@ export const HashtagsTab = () => {
   const { data: hashtags = [], isPending: isLoadingHashtags } = useHashtagsQuery();
   const updateHashtagStatsMutation = useUpdateHashtagStatsMutation();
 
-  const fanslyChannels = channels.filter((channel) => channel.typeId === "fansly");
+  const fanslyChannels = (channels ?? []).filter((channel) => channel.typeId === "fansly");
 
   const updateHashtagStats = async (hashtagId: number, channelId: string, viewCount: number) => {
-    await updateHashtagStatsMutation.mutateAsync({ hashtagId, channelId, viewCount });
+    await updateHashtagStatsMutation.mutateAsync({ id: hashtagId.toString(), updates: { channelId, views: viewCount } });
   };
 
   const getViewCount = (hashtag: any, channelId: string) => {
@@ -208,7 +218,7 @@ export const HashtagsTab = () => {
           </div>
 
           {/* Hashtag Rows */}
-          {hashtags.map((hashtag, i) => (
+          {(hashtags ?? []).map((hashtag, i) => (
             <div
               key={hashtag.id}
               className={cn("grid grid-cols-[1fr_5fr_auto]", i % 2 === 0 && "bg-base-200/50")}

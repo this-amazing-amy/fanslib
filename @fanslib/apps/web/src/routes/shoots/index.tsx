@@ -14,9 +14,7 @@ import { TagDragProvider } from '~/contexts/TagDragContext';
 import { Shoots } from '~/features/shoots/components/Shoots';
 import { ShootViewSettings } from '~/features/shoots/components/ShootViewSettings';
 
-const ShootsPageContent = () => {
-  return (
-    <MediaSelectionProvider media={[]}>
+const ShootsPageContent = () => <MediaSelectionProvider media={[]}>
       <MediaDragProvider>
         <TagDragProvider>
           <PostDragProvider>
@@ -50,9 +48,7 @@ const ShootsPageContent = () => {
           </PostDragProvider>
         </TagDragProvider>
       </MediaDragProvider>
-    </MediaSelectionProvider>
-  );
-};
+    </MediaSelectionProvider>;
 
 export const ShootsPage = () => (
   <LibraryPreferencesProvider>

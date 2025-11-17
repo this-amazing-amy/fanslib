@@ -1,8 +1,9 @@
 import { MoreVertical, RefreshCw } from "lucide-react";
+import { Button } from "~/components/ui/Button";
 import {
   DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuPopover,
   DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
 import { cn } from "~/lib/cn";
@@ -13,27 +14,25 @@ type ScanButtonProps = {
 };
 
 export const ScanButton = ({ isScanning, onScan }: ScanButtonProps) => (
-    <DropdownMenu>
-    <DropdownMenuTrigger>
-      <button
-        disabled={isScanning}
-        className={cn(
-          "btn btn-ghost hover:bg-primary/20 hover:ring-2 hover:ring-primary btn-square bg-base-100 text-base-content hover:bg-base-200",
-          isScanning && "opacity-50 cursor-not-allowed"
-        )}
-      >
-        <MoreVertical className="h-5 w-5" />
-      </button>
-    </DropdownMenuTrigger>
-    <DropdownMenuContent align="end" className="w-48">
-      <DropdownMenuItem
-        onClick={onScan}
-        disabled={isScanning}
-        className="flex items-center gap-2 text-sm font-medium"
-      >
-        <RefreshCw className={cn("h-4 w-4", isScanning && "animate-spin")} />
-        {isScanning ? "Scanning..." : "Scan Library"}
-      </DropdownMenuItem>
-    </DropdownMenuContent>
-  </DropdownMenu>
+  <DropdownMenuTrigger>
+    <Button
+      isDisabled={isScanning}
+      size="icon"
+      variant="ghost"
+    >
+      <MoreVertical className="h-4 w-4" />
+    </Button>
+    <DropdownMenuPopover placement="bottom end" className="w-48">
+      <DropdownMenu onAction={() => onScan()}>
+        <DropdownMenuItem
+          id="scan"
+          isDisabled={isScanning}
+          className="flex items-center gap-2 text-sm font-medium"
+        >
+          <RefreshCw className={cn("h-4 w-4", isScanning && "animate-spin")} />
+          {isScanning ? "Scanning..." : "Scan Library"}
+        </DropdownMenuItem>
+      </DropdownMenu>
+    </DropdownMenuPopover>
+  </DropdownMenuTrigger>
 );

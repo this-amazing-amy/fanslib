@@ -1,7 +1,9 @@
+import { MediaFilterSchema } from "@fanslib/server/schemas";
+
+type MediaFilters = typeof MediaFilterSchema.static;
 import { Calendar, Camera, FileText, Filter, Hash, MapPin, Minus, Plus } from "lucide-react";
-import type { MediaFilters } from "@fanslib/types";
 import { cn } from "~/lib/cn";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/Tooltip";
+import { Tooltip, TooltipTrigger } from "./ui/Tooltip";
 
 type FilterSummaryItem = {
   type: "content" | "location" | "media" | "date" | "tags";
@@ -36,9 +38,7 @@ const getFilterIcon = (type: FilterSummaryItem["type"], size = "h-3 w-3") => {
   }
 };
 
-const getIncludeIcon = (include: boolean) => {
-  return include ? <Plus className="h-2.5 w-2.5" /> : <Minus className="h-2.5 w-2.5" />;
-};
+const getIncludeIcon = (include: boolean) => include ? <Plus className="h-2.5 w-2.5" /> : <Minus className="h-2.5 w-2.5" />;
 
 const FilterBadge = ({ item, compact }: { item: FilterSummaryItem; compact?: boolean }) => {
   const displayLabel = compact
@@ -70,20 +70,18 @@ const FilterBadge = ({ item, compact }: { item: FilterSummaryItem; compact?: boo
   );
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>{badge}</TooltipTrigger>
-        <TooltipContent className="max-w-xs">
-          <p>{item.tooltip}</p>
-          {item.details && item.details.length > 1 && (
-            <div className="mt-1 text-xs opacity-80">
-              {item.details.slice(0, 5).join(", ")}
-              {item.details.length > 5 && ` and ${item.details.length - 5} more`}
-            </div>
-          )}
-        </TooltipContent>
+    <TooltipTrigger>
+      {badge}
+      <Tooltip className="max-w-xs">
+        <p>{item.tooltip}</p>
+        {item.details && item.details.length > 1 && (
+          <div className="mt-1 text-xs opacity-80">
+            {item.details.slice(0, 5).join(", ")}
+            {item.details.length > 5 && ` and ${item.details.length - 5} more`}
+          </div>
+        )}
       </Tooltip>
-    </TooltipProvider>
+    </TooltipTrigger>
   );
 };
 
@@ -102,23 +100,19 @@ const FilterSummary = ({ items, compact }: { items: FilterSummaryItem[]; compact
       ))}
 
       {remainingCount > 0 && (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-base-300 text-base-content/60 text-xs">
-                +{remainingCount}
-              </span>
-            </TooltipTrigger>
-            <TooltipContent className="max-w-xs">
-              <p>
-                {items
-                  .slice(3)
-                  .map((item) => item.label)
-                  .join(", ")}
-              </p>
-            </TooltipContent>
+        <TooltipTrigger>
+          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-base-300 text-base-content/60 text-xs">
+            +{remainingCount}
+          </span>
+          <Tooltip className="max-w-xs">
+            <p>
+              {items
+                .slice(3)
+                .map((item) => item.label)
+                .join(", ")}
+            </p>
           </Tooltip>
-        </TooltipProvider>
+        </TooltipTrigger>
       )}
     </div>
   );

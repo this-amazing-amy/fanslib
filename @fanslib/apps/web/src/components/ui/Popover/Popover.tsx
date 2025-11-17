@@ -1,45 +1,39 @@
-import * as PopoverPrimitive from '@radix-ui/react-popover';
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import {
+  DialogTrigger,
+  Popover as AriaPopover,
+  Dialog,
+  type DialogTriggerProps,
+  type PopoverProps as AriaPopoverProps,
+} from 'react-aria-components';
 import { cn } from '~/lib/cn';
 
-export const Popover = PopoverPrimitive.Root;
+// Re-export DialogTrigger as the trigger mechanism for Popovers
+export { DialogTrigger as PopoverTrigger } from 'react-aria-components';
 
-export const PopoverTrigger = ({ children, asChild = true }: { children: ReactElement; asChild?: boolean }) => (
-  <PopoverPrimitive.Trigger asChild={asChild}>{children}</PopoverPrimitive.Trigger>
-);
-
-export const PopoverContent = ({
-  children,
-  className,
-  align = 'start',
-  side = 'bottom',
-  sideOffset = 4,
-}: {
+// Styled Popover wrapper with default styling
+type PopoverProps = Omit<AriaPopoverProps, 'children'> & {
   children: ReactNode;
   className?: string;
-  align?: 'start' | 'end' | 'center';
-  side?: 'top' | 'right' | 'bottom' | 'left';
-  sideOffset?: number;
-}) => (
-  <PopoverPrimitive.Portal>
-    <PopoverPrimitive.Content
-      align={align}
-      side={side}
-      sideOffset={sideOffset}
-      data-radix-popover-content="true"
+}
+
+export const Popover = ({ children, className, offset = 4, ...props }: PopoverProps) => {
+  return (
+    <AriaPopover
+      offset={offset}
       className={cn(
         'z-[80] overflow-hidden rounded-xl bg-base-100 border-2 border-base-content shadow-lg p-4 outline-none',
-        'data-[state=open]:animate-in data-[state=closed]:animate-out',
-        'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-        'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-        'data-[side=bottom]:slide-in-from-top-2',
-        'data-[side=left]:slide-in-from-right-2',
-        'data-[side=right]:slide-in-from-left-2',
-        'data-[side=top]:slide-in-from-bottom-2',
+        'entering:animate-in entering:fade-in entering:zoom-in-95',
+        'exiting:animate-out exiting:fade-out exiting:zoom-out-95',
+        'placement-bottom:slide-in-from-top-2',
+        'placement-top:slide-in-from-bottom-2',
+        'placement-left:slide-in-from-right-2',
+        'placement-right:slide-in-from-left-2',
         className
       )}
+      {...props}
     >
-      {children}
-    </PopoverPrimitive.Content>
-  </PopoverPrimitive.Portal>
-);
+      <Dialog className="outline-none">{children}</Dialog>
+    </AriaPopover>
+  );
+};

@@ -1,111 +1,119 @@
-import { Calendar as CalendarIcon } from 'lucide-react';
-import { useRef } from 'react';
-import type { AriaDateFieldProps, AriaDatePickerProps, DateValue } from 'react-aria';
-import { useDateField, useDatePicker, useDateSegment, useLocale } from 'react-aria';
-import type { DateFieldState, DateSegment } from 'react-stately';
-import { useDateFieldState, useDatePickerState } from 'react-stately';
-import { createCalendar } from '@internationalized/date';
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  DatePicker as AriaDatePicker,
+  Button,
+  Calendar,
+  CalendarCell,
+  CalendarGrid,
+  CalendarGridBody,
+  CalendarGridHeader,
+  CalendarHeaderCell,
+  DateInput,
+  DateSegment,
+  Dialog,
+  Group,
+  Heading,
+  I18nProvider,
+  Label,
+  Popover,
+  type DatePickerProps as AriaDatePickerProps,
+  type DateValue,
+} from 'react-aria-components';
 import { cn } from '~/lib/cn';
-import { Button } from '../Button';
-import { Calendar } from '../Calendar';
 
 export type DatePickerProps<T extends DateValue> = AriaDatePickerProps<T> & {
   label?: string;
   className?: string;
   error?: string;
+  locale?: string;
 };
 
-export const DatePicker = <T extends DateValue>(props: DatePickerProps<T>) => {
-  const state = useDatePickerState(props);
-  const ref = useRef<HTMLDivElement>(null);
-  const {
-    groupProps,
-    labelProps,
-    fieldProps,
-    buttonProps,
-    dialogProps,
-    calendarProps,
-  } = useDatePicker(props, state, ref);
-
-  return (
-    <div className={cn('form-control', props.className)}>
-      {props.label && (
-        <label {...labelProps} className="label">
-          <span className="label-text">{props.label}</span>
-        </label>
+export const DatePicker = <T extends DateValue>({
+  label,
+  className,
+  error,
+  locale = 'de-DE',
+  ...props
+}: DatePickerProps<T>) => (
+  <I18nProvider locale={locale}>
+    <AriaDatePicker {...props} className={cn('form-control', className)}>
+      {label && (
+        <Label className="label">
+          <span className="label-text">{label}</span>
+        </Label>
       )}
-      <div className="relative">
-        <div {...groupProps} ref={ref} className="flex gap-2">
-          <div className="input input-bordered flex items-center flex-1 px-3">
-            <DateField {...fieldProps} />
-          </div>
-          <Button
-            {...buttonProps}
-            variant="ghost"
-            className="btn-square"
-          >
-            <CalendarIcon className="h-4 w-4" />
-          </Button>
-        </div>
-        {state.isOpen && (
-          <div
-            {...dialogProps}
-            className="absolute z-50 mt-2 bg-base-100 border border-base-300 rounded-lg shadow-lg"
-          >
-            <Calendar {...calendarProps} />
-          </div>
+      <Group className="flex gap-2">
+        <DateInput className="input border flex gap-0 items-center flex-1 px-3">
+          {(segment) => (
+            <DateSegment
+              segment={segment}
+              className={cn(
+                'rounded text-sm tabular-nums outline-none',
+                'focus:bg-primary focus:text-primary-content',
+                'data-[placeholder]:text-base-content/50'
+              )}
+            />
+          )}
+        </DateInput>
+        <Button className="btn btn-ghost btn-square">
+          <CalendarIcon className="h-4 w-4" />
+        </Button>
+      </Group>
+      <Popover
+        className={cn(
+          'z-50 bg-base-100 border border-base-300 rounded-lg shadow-lg',
+          'entering:animate-in entering:fade-in entering:zoom-in-95',
+          'exiting:animate-out exiting:fade-out exiting:zoom-out-95'
         )}
-      </div>
-      {props.error && (
-        <label className="label">
-          <span className="label-text-alt text-error">{props.error}</span>
-        </label>
+        offset={8}
+      >
+        <Dialog>
+          <Calendar className="p-3">
+            <header className="flex items-center justify-between pb-2">
+              <Button slot="previous" className="btn btn-ghost btn-sm">
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Heading className="text-sm font-medium" />
+              <Button slot="next" className="btn btn-ghost btn-sm">
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </header>
+            <CalendarGrid className="w-full border-collapse">
+              <CalendarGridHeader>
+                {(day) => (
+                  <CalendarHeaderCell className="text-xs font-normal text-base-content/50 p-1">
+                    {day}
+                  </CalendarHeaderCell>
+                )}
+              </CalendarGridHeader>
+              <CalendarGridBody>
+                {(date) => (
+                  <CalendarCell
+                    date={date}
+                    className={cn(
+                      'h-9 w-9 p-0 font-normal cursor-pointer flex items-center justify-center text-sm',
+                      'outline-none',
+                      'hover:bg-base-200',
+                      'data-[selected]:bg-primary data-[selected]:text-primary-content data-[selected]:rounded-lg',
+                      'data-[outside-month]:text-base-content/30',
+                      'data-[disabled]:text-base-content/30 data-[disabled]:cursor-not-allowed',
+                      'data-[unavailable]:text-error data-[unavailable]:line-through'
+                    )}
+                  />
+                )}
+              </CalendarGridBody>
+            </CalendarGrid>
+          </Calendar>
+        </Dialog>
+      </Popover>
+      {error && (
+        <div className="label">
+          <span className="label-text-alt text-error">{error}</span>
+        </div>
       )}
-    </div>
-  );
-};
-
-const DateField = <T extends DateValue>(props: AriaDateFieldProps<T>) => {
-  const { locale } = useLocale();
-  const state = useDateFieldState({
-    ...props,
-    locale,
-    createCalendar,
-  });
-  const ref = useRef<HTMLDivElement>(null);
-  const { fieldProps } = useDateField(props, state, ref);
-
-  return (
-    <div {...fieldProps} ref={ref} className="flex gap-1">
-      {state.segments.map((segment, i) => (
-        <DateSegmentComponent key={i} segment={segment} state={state} />
-      ))}
-    </div>
-  );
-};
-
-type DateSegmentProps = {
-  segment: DateSegment;
-  state: DateFieldState;
-};
-
-const DateSegmentComponent = ({ segment, state }: DateSegmentProps) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const { segmentProps } = useDateSegment(segment, state, ref);
-
-  return (
-    <div
-      {...segmentProps}
-      ref={ref}
-      className={cn(
-        'px-0.5 rounded text-sm tabular-nums outline-none focus:bg-primary focus:text-primary-content',
-        segment.isPlaceholder && 'text-base-content/50'
-      )}
-    >
-      {segment.text}
-    </div>
-  );
-};
+    </AriaDatePicker>
+  </I18nProvider>
+);
 
 DatePicker.displayName = 'DatePicker';
 

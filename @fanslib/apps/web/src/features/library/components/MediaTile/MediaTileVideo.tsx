@@ -1,4 +1,6 @@
-import type { Media } from "@fanslib/types";
+import { MediaSchema } from "@fanslib/server/schemas";
+
+type Media = typeof MediaSchema.static;
 import { useMediaSelection } from "~/contexts/MediaSelectionContext";
 import { useSfwMode } from "~/hooks/useSfwMode";
 import { cn } from "~/lib/cn";

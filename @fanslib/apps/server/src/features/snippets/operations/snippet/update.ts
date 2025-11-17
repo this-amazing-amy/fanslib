@@ -44,6 +44,9 @@ export const updateSnippet = async (
   }
 
   Object.assign(snippet, data);
-  return repo.save(snippet);
+  const savedSnippet = await repo.save(snippet);
+  
+  const { channelId: _, ...snippetWithoutChannelId } = savedSnippet;
+  return snippetWithoutChannelId;
 };
 

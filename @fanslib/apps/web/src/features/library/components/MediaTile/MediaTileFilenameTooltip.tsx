@@ -1,4 +1,6 @@
-import type { Media } from "@fanslib/types";
+import { MediaSchema } from "@fanslib/server/schemas";
+
+type Media = typeof MediaSchema.static;
 import { useState } from "react";
 
 type MediaFileFilenameTooltipProps = {

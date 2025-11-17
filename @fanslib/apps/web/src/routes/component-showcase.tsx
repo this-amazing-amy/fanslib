@@ -1,17 +1,38 @@
+import { parseDate } from '@internationalized/date';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '~/components/ui/Accordion';
+import { DateTimePicker } from '~/components/DateTimePicker';
 import { Alert } from '~/components/ui/Alert';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '~/components/ui/AlertDialog';
+import {
+  AlertDialog,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogModal,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '~/components/ui/AlertDialog';
 import { Badge } from '~/components/ui/Badge';
 import { Button } from '~/components/ui/Button';
-import { Calendar } from '~/components/ui/Calendar';
 import { Card, CardActions, CardBody, CardTitle } from '~/components/ui/Card';
 import { Checkbox } from '~/components/ui/Checkbox';
 import { DatePicker } from '~/components/ui/DatePicker';
 import { DateRangePicker } from '~/components/ui/DateRangePicker';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '~/components/ui/Dialog';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/ui/DropdownMenu';
+import {
+  Dialog,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogModal,
+  DialogTitle,
+  DialogTrigger,
+} from '~/components/ui/Dialog';
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuPopover,
+  DropdownMenuTrigger,
+} from '~/components/ui/DropdownMenu';
 import { EmptyState } from '~/components/ui/EmptyState';
 import { ErrorState } from '~/components/ui/ErrorState';
 import { FormActions } from '~/components/ui/FormActions';
@@ -36,18 +57,14 @@ import { TabItem, Tabs } from '~/components/ui/Tabs';
 import { Textarea } from '~/components/ui/Textarea';
 import { Toggle } from '~/components/ui/Toggle';
 import { ToggleGroup } from '~/components/ui/ToggleGroup';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/Tooltip';
-
-export const Route = createFileRoute('/component-showcase')({
-  component: ComponentShowcase,
-});
+import { Tooltip, TooltipTrigger } from '~/components/ui/Tooltip';
 
 const ComponentShowcase = () => {
   const [checkboxChecked, setCheckboxChecked] = useState(false);
   const [switchChecked, setSwitchChecked] = useState(false);
   const [radioValue, setRadioValue] = useState('option1');
   const [sliderValue, setSliderValue] = useState([50]);
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [date, setDate] = useState<Date>(new Date());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [alertDialogOpen, setAlertDialogOpen] = useState(false);
   const [dataType, setDataType] = useState('categorical');
@@ -213,8 +230,8 @@ const ComponentShowcase = () => {
             <div className="flex items-center gap-2">
               <Checkbox
                 id="checkbox-demo"
-                checked={checkboxChecked}
-                onCheckedChange={setCheckboxChecked}
+                isSelected={checkboxChecked}
+                onChange={setCheckboxChecked}
               />
               <Label htmlFor="checkbox-demo">Checkbox Example</Label>
             </div>
@@ -222,25 +239,22 @@ const ComponentShowcase = () => {
             <div className="flex items-center gap-2">
               <Switch
                 id="switch-demo"
-                checked={switchChecked}
-                onCheckedChange={setSwitchChecked}
+                isSelected={switchChecked}
+                onChange={setSwitchChecked}
               />
               <Label htmlFor="switch-demo">Switch Example</Label>
             </div>
 
             <FormField label="Radio Group">
-              <RadioGroup value={radioValue} onValueChange={setRadioValue}>
+              <RadioGroup value={radioValue} onChange={setRadioValue}>
                 <div className="flex items-center gap-2">
-                  <RadioGroupItem value="option1" id="radio1" />
-                  <Label htmlFor="radio1">Option 1</Label>
+                  <RadioGroupItem value="option1" id="radio1">Option 1</RadioGroupItem>
                 </div>
                 <div className="flex items-center gap-2">
-                  <RadioGroupItem value="option2" id="radio2" />
-                  <Label htmlFor="radio2">Option 2</Label>
+                  <RadioGroupItem value="option2" id="radio2">Option 2</RadioGroupItem>
                 </div>
                 <div className="flex items-center gap-2">
-                  <RadioGroupItem value="option3" id="radio3" />
-                  <Label htmlFor="radio3">Option 3</Label>
+                  <RadioGroupItem value="option3" id="radio3">Option 3</RadioGroupItem>
                 </div>
               </RadioGroup>
             </FormField>
@@ -248,9 +262,9 @@ const ComponentShowcase = () => {
             <FormField label="Slider">
               <Slider
                 value={sliderValue}
-                onValueChange={setSliderValue}
-                min={0}
-                max={100}
+                onChange={(value) => setSliderValue(Array.isArray(value) ? value : [value])}
+                minValue={0}
+                maxValue={100}
                 step={1}
               />
               <p className="text-sm text-muted-foreground mt-2">Value: {sliderValue[0]}</p>
@@ -270,16 +284,24 @@ const ComponentShowcase = () => {
           <h2 className="text-2xl font-bold">Date & Time</h2>
           <div className="space-y-6 max-w-md">
             <div>
-              <h3 className="text-lg font-semibold mb-2">Calendar</h3>
-              <Calendar mode="single" selected={date} onSelect={setDate} />
-            </div>
-            <div>
               <h3 className="text-lg font-semibold mb-2">Date Picker</h3>
-              <DatePicker date={date} setDate={setDate} />
+              <DatePicker
+                value={parseDate(date.toISOString().split('T')[0] ?? '')}
+                onChange={(d) => {
+                  if (d) {
+                    setDate(new Date(d.year, d.month - 1, d.day));
+                  }
+                }}
+                label="Select a date"
+              />
             </div>
             <div>
               <h3 className="text-lg font-semibold mb-2">Date Range Picker</h3>
               <DateRangePicker />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Date Time Picker</h3>
+              <DateTimePicker date={date} setDate={setDate} />
             </div>
           </div>
         </section>
@@ -307,10 +329,10 @@ const ComponentShowcase = () => {
           <div className="mt-6">
             <h3 className="text-lg font-semibold mb-2">Status Indicators</h3>
             <div className="flex flex-wrap gap-4">
-              <Status status="active">Active</Status>
-              <Status status="pending">Pending</Status>
-              <Status status="inactive">Inactive</Status>
-              <Status status="error">Error</Status>
+              <Status variant="success">Active</Status>
+              <Status variant="warning">Pending</Status>
+              <Status variant="neutral">Inactive</Status>
+              <Status variant="error">Error</Status>
             </div>
           </div>
 
@@ -389,63 +411,72 @@ const ComponentShowcase = () => {
         <section className="space-y-4">
           <h2 className="text-2xl font-bold">Dialogs & Modals</h2>
           <div className="flex gap-4">
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>Open Dialog</Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Dialog Title</DialogTitle>
-                  <DialogDescription>
-                    This is a dialog description. You can put any content here.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="py-4 space-y-4">
-                  <p>Dialog content goes here.</p>
-                  <FormField label="Select in Dialog" description="Test z-index fix - dropdown should appear above dialog">
-                    <Select value={dialogSelectValue} onValueChange={setDialogSelectValue}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select an option" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="option1">Option 1</SelectItem>
-                        <SelectItem value="option2">Option 2</SelectItem>
-                        <SelectItem value="option3">Option 3</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormField>
-                </div>
-                <DialogFooter>
-                  <Button variant="ghost" onPress={() => setDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button variant="primary" onPress={() => setDialogOpen(false)}>
-                    Confirm
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+            <DialogTrigger isOpen={dialogOpen} onOpenChange={setDialogOpen}>
+              <Button>Open Dialog</Button>
+              <DialogModal>
+                <Dialog>
+                  {({ close }) => (
+                    <>
+                      <DialogHeader>
+                        <DialogTitle>Dialog Title</DialogTitle>
+                        <DialogDescription>
+                          This is a dialog description. You can put any content here.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="py-4 space-y-4">
+                        <p>Dialog content goes here.</p>
+                        <FormField label="Select in Dialog" description="Test z-index fix - dropdown should appear above dialog">
+                          <Select value={dialogSelectValue} onValueChange={setDialogSelectValue}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select an option" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="option1">Option 1</SelectItem>
+                              <SelectItem value="option2">Option 2</SelectItem>
+                              <SelectItem value="option3">Option 3</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormField>
+                      </div>
+                      <DialogFooter>
+                        <Button variant="ghost" onPress={close}>
+                          Cancel
+                        </Button>
+                        <Button variant="primary" onPress={close}>
+                          Confirm
+                        </Button>
+                      </DialogFooter>
+                    </>
+                  )}
+                </Dialog>
+              </DialogModal>
+            </DialogTrigger>
 
-            <Button onPress={() => setAlertDialogOpen(true)}>Open Alert Dialog</Button>
-            
-            <AlertDialog open={alertDialogOpen} onOpenChange={setAlertDialogOpen}>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete the item.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel onClick={() => setAlertDialogOpen(false)}>
-                    Cancel
-                  </AlertDialogCancel>
-                  <AlertDialogAction onClick={() => setAlertDialogOpen(false)}>
-                    Delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <AlertDialogTrigger isOpen={alertDialogOpen} onOpenChange={setAlertDialogOpen}>
+              <Button>Open Alert Dialog</Button>
+              <AlertDialogModal isDismissable={false}>
+                <AlertDialog>
+                  {({ close }) => (
+                    <>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently delete the item.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <Button variant="ghost" onPress={close}>
+                          Cancel
+                        </Button>
+                        <Button variant="error" onPress={close}>
+                          Delete
+                        </Button>
+                      </AlertDialogFooter>
+                    </>
+                  )}
+                </AlertDialog>
+              </AlertDialogModal>
+            </AlertDialogTrigger>
           </div>
         </section>
 
@@ -455,27 +486,23 @@ const ComponentShowcase = () => {
         <section className="space-y-4">
           <h2 className="text-2xl font-bold">Dropdowns & Menus</h2>
           <div className="flex gap-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button>Open Menu</Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>Profile</DropdownMenuItem>
-                <DropdownMenuItem>Settings</DropdownMenuItem>
-                <DropdownMenuItem>Logout</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <DropdownMenuTrigger>
+              <Button>Open Menu</Button>
+              <DropdownMenuPopover>
+                <DropdownMenu onAction={(key) => console.log('Selected:', key)}>
+                  <DropdownMenuItem id="profile">Profile</DropdownMenuItem>
+                  <DropdownMenuItem id="settings">Settings</DropdownMenuItem>
+                  <DropdownMenuItem id="logout">Logout</DropdownMenuItem>
+                </DropdownMenu>
+              </DropdownMenuPopover>
+            </DropdownMenuTrigger>
 
-            <TooltipProvider>
+            <TooltipTrigger>
+              <Button>Hover for Tooltip</Button>
               <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button>Hover for Tooltip</Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>This is a tooltip!</p>
-                </TooltipContent>
+                <p>This is a tooltip!</p>
               </Tooltip>
-            </TooltipProvider>
+            </TooltipTrigger>
           </div>
         </section>
 
@@ -507,45 +534,6 @@ const ComponentShowcase = () => {
               </Card>
             </TabItem>
           </Tabs>
-        </section>
-
-        <Separator />
-
-        {/* Accordion Section */}
-        <section className="space-y-4">
-          <h2 className="text-2xl font-bold">Accordion</h2>
-          <Accordion type="single" collapsible className="max-w-2xl">
-            <AccordionItem value="item-1">
-              <AccordionTrigger>
-                <button className="w-full text-left px-4 py-3 font-medium hover:bg-base-200 rounded-t-lg">
-                  Accordion Item 1
-                </button>
-              </AccordionTrigger>
-              <AccordionContent>
-                This is the content for accordion item 1. It can contain any content.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="item-2">
-              <AccordionTrigger>
-                <button className="w-full text-left px-4 py-3 font-medium hover:bg-base-200">
-                  Accordion Item 2
-                </button>
-              </AccordionTrigger>
-              <AccordionContent>
-                This is the content for accordion item 2. You can expand multiple items if type is "multiple".
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="item-3">
-              <AccordionTrigger>
-                <button className="w-full text-left px-4 py-3 font-medium hover:bg-base-200 rounded-b-lg">
-                  Accordion Item 3
-                </button>
-              </AccordionTrigger>
-              <AccordionContent>
-                This is the content for accordion item 3. Click to toggle visibility.
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
         </section>
 
         <Separator />
@@ -692,7 +680,10 @@ const ComponentShowcase = () => {
               <EmptyState
                 title="No Items Found"
                 description="There are no items to display at this time."
-                action={<Button>Add Item</Button>}
+                action={{
+                  label: "Add Item",
+                  onClick: () => console.log("Add item clicked"),
+                }}
               />
             </div>
             <div>
@@ -700,7 +691,10 @@ const ComponentShowcase = () => {
               <ErrorState
                 title="Something Went Wrong"
                 description="We encountered an error while loading the content."
-                action={<Button>Try Again</Button>}
+                retry={{
+                  label: "Try Again",
+                  onClick: () => console.log("Retry clicked"),
+                }}
               />
             </div>
           </div>
@@ -740,9 +734,9 @@ const ComponentShowcase = () => {
           <h2 className="text-2xl font-bold">Scroll Area</h2>
           <ScrollArea className="h-48 max-w-2xl border rounded-md p-4">
             <div className="space-y-4">
-              {Array.from({ length: 20 }).map((_, i) => (
-                <div key={i} className="text-sm">
-                  Scrollable item {i + 1}
+              {Array.from({ length: 20 }, (_, i) => i + 1).map((itemNumber) => (
+                <div key={`scroll-item-${itemNumber}`} className="text-sm">
+                  Scrollable item {itemNumber}
                 </div>
               ))}
             </div>
@@ -752,4 +746,8 @@ const ComponentShowcase = () => {
     </PageContainer>
   );
 };
+export const Route = createFileRoute('/component-showcase')({
+  component: ComponentShowcase,
+});
+
 

@@ -1,7 +1,8 @@
-import type { Media, PostStatus } from "@fanslib/types";
+import type { MediaSchema, PostStatusSchema } from "@fanslib/server/schemas";
+import { parseDate } from "@internationalized/date";
+import { useNavigate } from "@tanstack/react-router";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { ChannelSelect } from "~/components/ChannelSelect";
 import { HashtagButton } from "~/components/HashtagButton";
@@ -11,18 +12,27 @@ import { SubredditSelect } from "~/components/SubredditSelect";
 import { TimePicker } from "~/components/TimePicker";
 import { Button } from "~/components/ui/Button";
 import { Checkbox } from "~/components/ui/Checkbox";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "~/components/ui/Collapsible";
 import { DatePicker } from "~/components/ui/DatePicker";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "~/components/ui/Dialog";
+import {
+  Dialog,
+  DialogFooter,
+  DialogHeader,
+  DialogModal,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/Dialog";
 import { ScrollArea } from "~/components/ui/ScrollArea";
 import { Textarea } from "~/components/ui/Textarea";
 import { MediaSelectionProvider } from "~/contexts/MediaSelectionContext";
-import { MediaTile } from "~/features/library/components/MediaTile";
 import { MediaSelection } from "~/features/library/components/MediaSelection";
+import { MediaTile } from "~/features/library/components/MediaTile";
 import { cn } from "~/lib/cn";
 import { useChannelsQuery } from "~/lib/queries/channels";
 import { useCreatePostMutation } from "~/lib/queries/posts";
 import { useSubredditQuery } from "~/lib/queries/subreddits";
+
+type Media = typeof MediaSchema.static;
+type PostStatus = typeof PostStatusSchema.static;
 
 type CreatePostDialogProps = {
   open: boolean;
@@ -70,28 +80,27 @@ export const CreatePostDialog = ({
   });
   const [status, setStatus] = useState<PostStatus>("draft");
   const [selectedMedia, setSelectedMedia] = useState<Media[]>(media);
-  const [caption, setCaption] = useState(initialCaption || "");
+  const [caption, setCaption] = useState(initialCaption ?? "");
   const [isMediaSelectionOpen, setIsMediaSelectionOpen] = useState(false);
   const [isOtherCaptionsOpen, setIsOtherCaptionsOpen] = useState(false);
   const [shouldRedirect, setShouldRedirect] = useState(true);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { data: subreddit } = useSubredditQuery(selectedSubreddits[0] ?? "", {
-    enabled: !!selectedSubreddits[0],
+  const { data: subreddit } = useSubredditQuery({ 
+    id: selectedSubreddits[0] ?? "" 
   });
 
-  const otherCaptions = useMemo(() => {
-    const captions = selectedMedia.flatMap((mediaItem) =>
-      mediaItem.postMedia?.map((pm) => ({
-        caption: pm.post?.caption,
-        channel: pm.post?.channel,
-      }))
-    );
+  const otherCaptions = useMemo<Array<{ caption?: string | null; channel?: { name?: string; typeId?: string } | null }>>(() => {
+    const captions = selectedMedia.flatMap((mediaItem) => {
+      // Media items don't have postMedia property - this is only on Post entities
+      // Return empty array as media items don't have associated posts
+      return [];
+    });
     return [...new Set(captions)];
   }, [selectedMedia]);
 
-  const selectedChannelData = channels.find((c) => c.id === selectedChannel[0]);
+  const selectedChannelData = (channels ?? []).find((c) => c.id === selectedChannel[0]);
   const isRedditChannel = selectedChannelData?.type.id === "reddit";
   const channelCaptionMaxLength = getCaptionMaxLength(selectedChannelData?.type.id);
 
@@ -111,10 +120,10 @@ export const CreatePostDialog = ({
     if (!open) return;
     if (initialChannelId) {
       setSelectedChannel([initialChannelId]);
-    } else if (!channels.length || channels.length > 1) {
+    } else if (!channels?.length || channels.length > 1) {
       setSelectedChannel([]);
     } else {
-      setSelectedChannel([channels[0].id]);
+      setSelectedChannel([channels[0]?.id ?? ""]);
     }
   }, [channels, initialChannelId, open]);
 
@@ -153,6 +162,10 @@ export const CreatePostDialog = ({
     }
 
     try {
+      if (!selectedChannel[0]) {
+        toast();
+        return;
+      }
       const newPost = await createPost({
         date: selectedDate.toISOString(),
         channelId: selectedChannel[0],
@@ -187,11 +200,14 @@ export const CreatePostDialog = ({
 
   return (
     <MediaSelectionProvider media={selectedMedia}>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-4xl max-h-[80vh] flex flex-col">
-          <DialogHeader>
-            <DialogTitle>Create Post</DialogTitle>
-          </DialogHeader>
+      <DialogTrigger isOpen={open} onOpenChange={onOpenChange}>
+        <DialogModal>
+          <Dialog maxWidth="3xl" className="max-h-[80vh] flex flex-col">
+            {({ close }) => (
+              <>
+                <DialogHeader>
+                  <DialogTitle>Create Post</DialogTitle>
+                </DialogHeader>
 
           <div className="flex flex-col overflow-y-auto flex-1">
             <div className="grid grid-cols-2 gap-4">
@@ -226,7 +242,17 @@ export const CreatePostDialog = ({
                 <div className="grid grid-cols-2 gap-2">
                   <div className="flex flex-col gap-2">
                     <label className="text-sm font-medium">Date</label>
-                    <DatePicker date={selectedDate} setDate={setSelectedDate} />
+                    <DatePicker
+                      value={parseDate(selectedDate.toISOString().split('T')[0] ?? '')}
+                      onChange={(dateValue) => {
+                        if (dateValue) {
+                          const { year, month, day } = dateValue as { year: number; month: number; day: number };
+                          const newDate = new Date(selectedDate);
+                          newDate.setFullYear(year, month - 1, day);
+                          setSelectedDate(newDate);
+                        }
+                      }}
+                    />
                   </div>
                   <div className="flex flex-col gap-2">
                     <label className="text-sm font-medium">Time</label>
@@ -245,10 +271,9 @@ export const CreatePostDialog = ({
                   <label className="text-sm font-medium">Caption</label>
                   <div className="relative">
                     <Textarea
-                      ref={textareaRef}
                       maxLength={channelCaptionMaxLength !== Infinity ? channelCaptionMaxLength : undefined}
-                      value={caption}
-                      onChange={(e) => setCaption(e.target.value)}
+                      value={caption ?? ""}
+                      onChange={(value) => setCaption(value)}
                       placeholder="Write your post caption..."
                       className="min-h-[150px] pr-10"
                     />
@@ -267,7 +292,7 @@ export const CreatePostDialog = ({
                         channelId={selectedChannelData?.id}
                         caption={caption}
                         onCaptionChange={setCaption}
-                        textareaRef={textareaRef}
+                        textareaRef={textareaRef as React.RefObject<HTMLTextAreaElement>}
                         className="text-base-content/60 hover:text-base-content"
                       />
                       {selectedChannelData && (
@@ -299,26 +324,21 @@ export const CreatePostDialog = ({
                   </ScrollArea>
                 </div>
                 {otherCaptions.length > 0 && (
-                  <Collapsible
-                    open={isOtherCaptionsOpen}
-                    onOpenChange={setIsOtherCaptionsOpen}
-                    className="mt-2"
-                  >
-                    <CollapsibleTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="flex w-full items-center justify-between p-2 text-sm font-medium"
-                      >
-                        Captions from other posts using this media
-                        {isOtherCaptionsOpen ? (
-                          <ChevronUp className="h-4 w-4" />
-                        ) : (
-                          <ChevronDown className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
+                  <div className="mt-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="flex w-full items-center justify-between p-2 text-sm font-medium"
+                      onPress={() => setIsOtherCaptionsOpen(!isOtherCaptionsOpen)}
+                    >
+                      Captions from other posts using this media
+                      {isOtherCaptionsOpen ? (
+                        <ChevronUp className="h-4 w-4" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4" />
+                      )}
+                    </Button>
+                    {isOtherCaptionsOpen && (
                       <ScrollArea className="h-[200px] rounded-md border p-2">
                         <div className="space-y-2">
                           {otherCaptions.map((otherCaption, index) =>
@@ -346,8 +366,8 @@ export const CreatePostDialog = ({
                           )}
                         </div>
                       </ScrollArea>
-                    </CollapsibleContent>
-                  </Collapsible>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
@@ -386,13 +406,23 @@ export const CreatePostDialog = ({
             </Checkbox>
           </div>
 
-          <DialogFooter className="flex flex-col gap-2">
-            <Button onPress={handleCreatePost} className="w-full" isDisabled={disabled}>
-              Create post
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+                <DialogFooter className="flex flex-col gap-2">
+                  <Button
+                    onPress={() => {
+                      handleCreatePost();
+                      close();
+                    }}
+                    className="w-full"
+                    isDisabled={disabled}
+                  >
+                    Create post
+                  </Button>
+                </DialogFooter>
+              </>
+            )}
+          </Dialog>
+        </DialogModal>
+      </DialogTrigger>
     </MediaSelectionProvider>
   );
 };

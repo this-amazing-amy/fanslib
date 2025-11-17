@@ -1,4 +1,4 @@
-import type { FilterPreset, MediaFilters } from "@fanslib/types";
+import type { FilterPresetSchema, MediaFilterSchema } from "@fanslib/server/schemas";
 import { createContext, useContext, type ReactNode } from "react";
 import {
   useCreateFilterPresetMutation,
@@ -6,6 +6,9 @@ import {
   useFilterPresetsQuery,
   useUpdateFilterPresetMutation,
 } from "~/lib/queries/filter-presets";
+
+type FilterPreset = typeof FilterPresetSchema.static;
+type MediaFilters = typeof MediaFilterSchema.static;
 
 type FilterPresetContextValue = {
   presets: FilterPreset[];
@@ -47,7 +50,7 @@ export const FilterPresetProvider = ({ children, onFiltersChange }: FilterPreset
   };
 
   const contextValue: FilterPresetContextValue = {
-    presets,
+    presets: presets ?? [],
     isLoading,
 
     createPreset,

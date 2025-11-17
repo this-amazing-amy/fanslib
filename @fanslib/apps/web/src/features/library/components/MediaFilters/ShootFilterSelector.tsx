@@ -1,10 +1,13 @@
+import type { ShootSchema } from "@fanslib/server/schemas";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "~/components/ui/Button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "~/components/ui/Command";
-import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/Popover";
+import { Popover, PopoverTrigger } from "~/components/ui/Popover";
 import { cn } from "~/lib/cn";
 import { useShootsQuery } from "~/lib/queries/shoots";
+
+type Shoot = typeof ShootSchema.static;
 
 type ShootFilterSelectorProps = {
   value?: string;
@@ -16,7 +19,7 @@ export const ShootFilterSelector = ({ value, onChange }: ShootFilterSelectorProp
   const { data: shoots, isLoading } = useShootsQuery();
 
   const selectedShoot = useMemo(
-    () => shoots?.items.find((shoot) => shoot.id === value),
+    () => (shoots?.items as Shoot[] | undefined)?.find((shoot: Shoot) => shoot.id === value),
     [shoots, value]
   );
 
@@ -28,23 +31,21 @@ export const ShootFilterSelector = ({ value, onChange }: ShootFilterSelectorProp
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger>
-        <Button
-          variant="outline"
-          aria-expanded={open}
-          className="w-full justify-between"
-        >
-          {isLoading ? "Loading..." : displayValue}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-full p-0">
+    <PopoverTrigger isOpen={open} onOpenChange={setOpen}>
+      <Button
+        variant="outline"
+        aria-expanded={open}
+        className="w-full justify-between"
+      >
+        {isLoading ? "Loading..." : displayValue}
+        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+      </Button>
+      <Popover className="w-full p-0">
         <Command>
           <CommandInput placeholder="Search shoots..." />
           <CommandEmpty>No shoot found.</CommandEmpty>
           <CommandGroup>
-            {shoots?.items.map((shoot) => (
+            {(shoots?.items as Shoot[] | undefined)?.map((shoot: Shoot) => (
               <CommandItem
                 key={shoot.id}
                 value={shoot.name}
@@ -58,7 +59,7 @@ export const ShootFilterSelector = ({ value, onChange }: ShootFilterSelectorProp
             ))}
           </CommandGroup>
         </Command>
-      </PopoverContent>
-    </Popover>
+      </Popover>
+    </PopoverTrigger>
   );
 };

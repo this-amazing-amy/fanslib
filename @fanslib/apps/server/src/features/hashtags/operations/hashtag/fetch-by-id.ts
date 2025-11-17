@@ -8,7 +8,7 @@ export const FetchHashtagByIdRequestParamsSchema = t.Object({
 });
 
 export const FetchHashtagByIdResponseSchema = t.Composite([
-  HashtagSchema,
+  t.Omit(HashtagSchema, ["channelStats"]),
   t.Object({
     channelStats: t.Array(t.Composite([
       HashtagChannelStatsSchema,
@@ -25,7 +25,10 @@ export const fetchHashtagById = async (id: number): Promise<typeof FetchHashtagB
     where: { id },
     relations: {
       channelStats: {
-        channel: true,
+        channel: {
+          type: true,
+          defaultHashtags: true,
+        },
       },
     },
   });

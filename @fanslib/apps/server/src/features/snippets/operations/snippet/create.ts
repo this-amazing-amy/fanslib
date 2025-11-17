@@ -1,4 +1,5 @@
 import { t } from "elysia";
+import { IsNull } from "typeorm";
 import { Channel, ChannelSchema } from "~/features/channels/entity";
 import { db } from "../../../../lib/db";
 import { CaptionSnippet, CaptionSnippetSchema } from "../../entity";
@@ -23,7 +24,7 @@ export const createSnippet = async (data: typeof CreateSnippetRequestBodySchema.
   const existing = await repo.findOne({
     where: {
       name: data.name,
-      channelId: data.channelId || null
+      channelId: data.channelId ?? IsNull()
     },
   });
 
@@ -39,17 +40,29 @@ export const createSnippet = async (data: typeof CreateSnippetRequestBodySchema.
     ...data,
   });
 
+  // eslint-disable-next-line functional/no-let
+  let channel: Channel | null = null;
   if (data.channelId) {
-    const channel = await database.getRepository(Channel).findOne({ where: { id: data.channelId } });
-    if (!channel) {
+    const foundChannel = await database.getRepository(Channel).findOne({ 
+      where: { id: data.channelId },
+      relations: ['type', 'defaultHashtags']
+    });
+    if (!foundChannel) {
       throw new Error(`Channel with id ${data.channelId} not found`);
     }
-    snippet.channel = channel;
+    snippet.channel = foundChannel;
+    channel = foundChannel;
   } else {
     snippet.channel = null;
   }
 
   const savedSnippet = await repo.save(snippet);
-  return savedSnippet;
+  
+  // Omit channelId as per the response schema and include the channel relation
+  const { channelId: _, ...snippetWithoutChannelId } = savedSnippet;
+  return {
+    ...snippetWithoutChannelId,
+    channel,
+  };
 };
 

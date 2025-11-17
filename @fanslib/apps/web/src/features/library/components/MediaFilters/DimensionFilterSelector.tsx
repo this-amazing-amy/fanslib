@@ -2,7 +2,7 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "~/components/ui/Command";
-import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/Popover";
+import { Popover, PopoverTrigger } from "~/components/ui/Popover";
 import { cn } from "~/lib/cn";
 import { useTagDimensionsQuery } from "~/lib/queries/tags";
 
@@ -15,7 +15,7 @@ export const DimensionFilterSelector = ({ value, onChange }: DimensionFilterSele
   const [open, setOpen] = useState(false);
   const { data: dimensions = [], isLoading } = useTagDimensionsQuery();
 
-  const selectedDimension = dimensions.find((d) => d.id === value);
+  const selectedDimension = (dimensions ?? []).find((d) => d.id === value);
 
   const handleSelectDimension = (dimensionId: number) => {
     onChange(dimensionId);
@@ -23,27 +23,25 @@ export const DimensionFilterSelector = ({ value, onChange }: DimensionFilterSele
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger>
-        <Button
-          variant="outline"
-          aria-expanded={open}
-          className="w-full justify-between"
-        >
-          {isLoading
-            ? "Loading..."
-            : selectedDimension
-              ? `No ${selectedDimension.name} tags`
-              : "Select dimension..."}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-full p-0">
+    <PopoverTrigger isOpen={open} onOpenChange={setOpen}>
+      <Button
+        variant="outline"
+        aria-expanded={open}
+        className="w-full justify-between"
+      >
+        {isLoading
+          ? "Loading..."
+          : selectedDimension
+            ? `No ${selectedDimension.name} tags`
+            : "Select dimension..."}
+        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+      </Button>
+      <Popover className="w-full p-0">
         <Command>
           <CommandInput placeholder="Search dimensions..." />
           <CommandEmpty>No dimension found.</CommandEmpty>
           <CommandGroup>
-            {dimensions.map((dimension) => (
+            {(dimensions ?? []).map((dimension) => (
               <CommandItem
                 key={dimension.id}
                 value={dimension.name}
@@ -60,7 +58,7 @@ export const DimensionFilterSelector = ({ value, onChange }: DimensionFilterSele
             ))}
           </CommandGroup>
         </Command>
-      </PopoverContent>
-    </Popover>
+      </Popover>
+    </PopoverTrigger>
   );
 };

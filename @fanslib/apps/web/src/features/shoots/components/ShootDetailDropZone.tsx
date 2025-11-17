@@ -1,7 +1,9 @@
-import type { ShootSummary } from "@fanslib/types";
+import { ShootSummarySchema } from "@fanslib/server/schemas";
 import { Plus } from "lucide-react";
 import { type FC } from "react";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
+
+type ShootSummary = typeof ShootSummarySchema.static;
 import { useDragOver } from "~/hooks/useDragOver";
 import { cn } from "~/lib/cn";
 import { useMediaListQuery } from "~/lib/queries/library";

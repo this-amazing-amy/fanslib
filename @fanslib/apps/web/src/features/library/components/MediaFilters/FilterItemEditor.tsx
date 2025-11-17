@@ -1,17 +1,23 @@
-import type { FilterItem } from "@fanslib/types";
+import type { MediaFilterSchema } from "@fanslib/server/schemas";
+import { CalendarDate } from "@internationalized/date";
 import { format } from "date-fns";
 import { CalendarIcon, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { I18nProvider } from "react-aria";
 import { Button } from "~/components/ui/Button";
 import { Calendar } from "~/components/ui/Calendar";
 import { Input } from "~/components/ui/Input";
 import { Label } from "~/components/ui/Label";
-import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/Popover";
+import { Popover, PopoverTrigger } from "~/components/ui/Popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/Select";
 import { Switch } from "~/components/ui/Switch";
 import { cn } from "~/lib/cn";
 import { useChannelsQuery } from "~/lib/queries/channels";
 import { DimensionFilterSelector } from "./DimensionFilterSelector";
+
+type MediaFilters = typeof MediaFilterSchema.static;
+type FilterGroup = MediaFilters[number];
+type FilterItem = FilterGroup["items"][number];
 
 type FilterItemEditorProps = {
   item?: FilterItem;
@@ -162,7 +168,7 @@ export const FilterItemEditor = ({
                 <SelectValue placeholder="Select a channel" />
               </SelectTrigger>
               <SelectContent>
-                {channels.map((channel) => (
+                {(channels ?? []).map((channel) => (
                   <SelectItem key={channel.id} value={channel.id}>
                     {channel.name}
                   </SelectItem>
@@ -213,29 +219,44 @@ export const FilterItemEditor = ({
         );
 
       case "createdDateStart":
-      case "createdDateEnd":
+      case "createdDateEnd": {
+        const calendarValue = dateValue
+          ? new CalendarDate(
+              dateValue.getFullYear(),
+              dateValue.getMonth() + 1,
+              dateValue.getDate()
+            )
+          : undefined;
         return (
           <div className="space-y-2">
             <Label>{type === "createdDateStart" ? "Created After" : "Created Before"}</Label>
-            <Popover>
-              <PopoverTrigger>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !dateValue && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dateValue ? format(dateValue, "PPP") : <span>Pick a date</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar mode="single" selected={dateValue} onSelect={setDateValue} initialFocus />
-              </PopoverContent>
-            </Popover>
+            <PopoverTrigger>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !dateValue && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {dateValue ? format(dateValue, "PPP") : <span>Pick a date</span>}
+              </Button>
+              <Popover className="w-auto p-0">
+                <I18nProvider locale="de-DE">
+                  <Calendar
+                    value={calendarValue}
+                    onChange={(date) => {
+                      if (date) {
+                        setDateValue(new Date(date.year, date.month - 1, date.day));
+                      }
+                    }}
+                  />
+                </I18nProvider>
+              </Popover>
+            </PopoverTrigger>
           </div>
         );
+      }
 
       case "dimensionEmpty":
         return (

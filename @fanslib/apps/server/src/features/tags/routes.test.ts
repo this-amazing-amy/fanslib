@@ -4,7 +4,7 @@ import "reflect-metadata";
 import { getTestDataSource, resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
 import { mapResponse } from "../../lib/serialization";
 import { logError, parseResponse } from "../../test-utils/setup";
-import { TagDefinition, TagDimension } from "./entity";
+import { MediaTag, TagDefinition, TagDimension } from "./entity";
 import { TAG_DIMENSION_FIXTURES } from "./fixtures";
 import { tagsRoutes } from "./routes";
 
@@ -36,13 +36,13 @@ describe("Tags Routes", () => {
       test("returns all dimensions", async () => {
         const response = await app.handle(new Request("http://localhost/api/tags/dimensions"));
         expect(response.status).toBe(200);
-        
-        const data = await parseResponse(response);
+
+        const data = await parseResponse<TagDimension[]>(response);
         expect(Array.isArray(data)).toBe(true);
-        expect(data.length).toBeGreaterThanOrEqual(TAG_DIMENSION_FIXTURES.length);
-        
+        expect(data?.length).toBeGreaterThanOrEqual(TAG_DIMENSION_FIXTURES.length);
+
         TAG_DIMENSION_FIXTURES.forEach((fixture) => {
-          const dimension = data.find((d: TagDimension) => d.name === fixture.name);
+          const dimension = data?.find((d: TagDimension) => d.name === fixture.name);
           expect(dimension).toBeDefined();
           expect(dimension?.name).toBe(fixture.name);
         });
@@ -61,9 +61,9 @@ describe("Tags Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await parseResponse(response);
-        expect(data.id).toBe(fixtureDimension.id);
-        expect(data.name).toBe(fixtureDimension.name);
+        const data = await parseResponse<TagDimension>(response);
+        expect(data?.id).toBe(fixtureDimension.id);
+        expect(data?.name).toBe(fixtureDimension.name);
       });
     });
 
@@ -84,9 +84,9 @@ describe("Tags Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await parseResponse(response);
-        expect(data.name).toBe("New Dimension");
-        expect(data.dataType).toBe("categorical");
+        const data = await parseResponse<TagDimension>(response);
+        expect(data?.name).toBe("New Dimension");
+        expect(data?.dataType).toBe("categorical");
       });
     });
 
@@ -110,9 +110,9 @@ describe("Tags Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await parseResponse(response);
-        expect(data.name).toBe("Updated Dimension");
-        expect(data.id).toBe(fixtureDimension.id);
+        const data = await parseResponse<TagDimension>(response);
+        expect(data?.name).toBe("Updated Dimension");
+        expect(data?.id).toBe(fixtureDimension.id);
       });
     });
 
@@ -130,8 +130,8 @@ describe("Tags Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await parseResponse(response);
-        expect(data.success).toBe(true);
+        const data = await parseResponse<{ success: boolean }>(response);
+        expect(data?.success).toBe(true);
 
         const dataSource = getTestDataSource();
         const repository = dataSource.getRepository(TagDimension);
@@ -147,8 +147,8 @@ describe("Tags Routes", () => {
         );
         expect(response.status).toBe(404);
 
-        const data = await parseResponse(response);
-        expect(data.error).toBe("Tag dimension not found");
+        const data = await parseResponse<{ error: string }>(response);
+        expect(data?.error).toBe("Tag dimension not found");
       });
     });
   });
@@ -158,8 +158,8 @@ describe("Tags Routes", () => {
       test("returns empty array when no dimension specified", async () => {
         const response = await app.handle(new Request("http://localhost/api/tags/definitions"));
         expect(response.status).toBe(200);
-        
-        const data = await parseResponse(response);
+
+        const data = await parseResponse<TagDefinition[]>(response);
         expect(data).toEqual([]);
       });
 
@@ -172,10 +172,10 @@ describe("Tags Routes", () => {
       const response = await app.handle(
         new Request(`http://localhost/api/tags/definitions?dimensionId=${fixtureDimension.id}`)
       );
-      const data = await parseResponse(response);
+      const data = await parseResponse<TagDefinition[]>(response);
 
       expect(Array.isArray(data)).toBe(true);
-      data.forEach((def: TagDefinition) => {
+      data?.forEach((def: TagDefinition) => {
         expect(def.dimensionId).toBe(fixtureDimension.id);
       });
       });
@@ -193,9 +193,9 @@ describe("Tags Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await parseResponse(response);
-        expect(data.id).toBe(fixtureDefinition.id);
-        expect(data.displayName).toBe(fixtureDefinition.displayName);
+        const data = await parseResponse<TagDefinition>(response);
+        expect(data?.id).toBe(fixtureDefinition.id);
+        expect(data?.displayName).toBe(fixtureDefinition.displayName);
       });
     });
 
@@ -211,7 +211,7 @@ describe("Tags Routes", () => {
         const response = await app.handle(
           new Request(`http://localhost/api/tags/definitions/by-ids?ids=${encodeURIComponent(ids)}`)
         );
-        const data = await parseResponse(response);
+        const data = await parseResponse<TagDefinition[]>(response);
 
         expect(data).toHaveLength(2);
       });
@@ -240,9 +240,9 @@ describe("Tags Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.displayName).toBe("New Tag");
-      expect(data.color).toBe("#FF0000");
+      const data = await parseResponse<TagDefinition>(response);
+      expect(data?.displayName).toBe("New Tag");
+      expect(data?.color).toBe("#FF0000");
       });
     });
 
@@ -267,10 +267,10 @@ describe("Tags Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await parseResponse(response);
-        expect(data.displayName).toBe("Updated Tag");
-        expect(data.color).toBe("#00FF00");
-        expect(data.id).toBe(fixtureDefinition.id);
+        const data = await parseResponse<TagDefinition>(response);
+        expect(data?.displayName).toBe("Updated Tag");
+        expect(data?.color).toBe("#00FF00");
+        expect(data?.id).toBe(fixtureDefinition.id);
       });
     });
 
@@ -288,8 +288,8 @@ describe("Tags Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await parseResponse(response);
-        expect(data.success).toBe(true);
+        const data = await parseResponse<{ success: boolean }>(response);
+        expect(data?.success).toBe(true);
 
         const dataSource = getTestDataSource();
         const repository = dataSource.getRepository(TagDefinition);
@@ -305,8 +305,8 @@ describe("Tags Routes", () => {
         );
         expect(response.status).toBe(404);
 
-        const data = await parseResponse(response);
-        expect(data.error).toBe("Tag definition not found");
+        const data = await parseResponse<{ error: string }>(response);
+        expect(data?.error).toBe("Tag definition not found");
       });
     });
   });
@@ -324,7 +324,7 @@ describe("Tags Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await parseResponse(response);
+        const data = await parseResponse<MediaTag[]>(response);
         expect(Array.isArray(data)).toBe(true);
       });
     });
@@ -352,7 +352,7 @@ describe("Tags Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await parseResponse(response);
+        const data = await parseResponse<MediaTag[]>(response);
         expect(Array.isArray(data)).toBe(true);
       });
     });
@@ -380,7 +380,7 @@ describe("Tags Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await parseResponse(response);
+        const data = await parseResponse<MediaTag[]>(response);
         expect(Array.isArray(data)).toBe(true);
       });
     });
@@ -402,8 +402,8 @@ describe("Tags Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await parseResponse(response);
-        expect(data.success).toBe(true);
+        const data = await parseResponse<{ success: boolean }>(response);
+        expect(data?.success).toBe(true);
       });
     });
   });
@@ -416,7 +416,7 @@ describe("Tags Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await parseResponse(response);
+        const data = await parseResponse<Record<string, unknown>>(response);
         expect(data).toHaveProperty("totalMediaTags");
       });
     });
@@ -430,7 +430,7 @@ describe("Tags Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await parseResponse(response);
+        const data = await parseResponse<Record<string, unknown>>(response);
         expect(data).toHaveProperty("orphanedMediaTagsRemoved");
         expect(data).toHaveProperty("stickerDisplayPropertiesSynced");
         expect(data).toHaveProperty("timestamp");
@@ -446,7 +446,7 @@ describe("Tags Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await parseResponse(response);
+        const data = await parseResponse<Record<string, unknown>>(response);
         expect(data).toHaveProperty("updatedCount");
         expect(data).toHaveProperty("updatedIds");
       });

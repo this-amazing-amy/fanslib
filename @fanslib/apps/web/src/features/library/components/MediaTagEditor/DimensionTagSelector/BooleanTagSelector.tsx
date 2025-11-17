@@ -1,4 +1,4 @@
-import type { MediaTag, TagDimension } from "@fanslib/types";
+import type { MediaTagSchema, TagDimensionSchema } from "@fanslib/server/schemas";
 import { X } from "lucide-react";
 import { useState } from "react";
 import { Switch } from "~/components/ui/Switch";
@@ -11,6 +11,9 @@ import {
   parseBooleanSchema,
   validateBooleanValue,
 } from "~/lib/tags/tagValidation";
+
+type MediaTag = typeof MediaTagSchema.static;
+type TagDimension = typeof TagDimensionSchema.static;
 
 type BooleanTagSelectorProps = {
   dimension: TagDimension;
@@ -26,7 +29,7 @@ export const BooleanTagSelector = ({
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { data: availableTags, refetch: refetchTags } = useTagDefinitionsByDimensionQuery(dimension.id);
+  const { data: availableTags, refetch: refetchTags } = useTagDefinitionsByDimensionQuery({ dimensionId: dimension.id });
   const createTagMutation = useCreateTagDefinitionMutation();
 
   const schema = parseBooleanSchema(dimension.validationSchema);

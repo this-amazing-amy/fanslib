@@ -1,22 +1,17 @@
-import type { Post } from "@fanslib/types";
+import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
 import { format } from "date-fns";
-import { Link } from "@tanstack/react-router";
-import { ChannelBadge } from "./ChannelBadge";
-import { StatusSticker } from "./StatusSticker";
-import { PostTagStickers } from "./PostTagStickers";
 import { MediaTile } from "~/features/library/components/MediaTile";
+import { ChannelBadge } from "./ChannelBadge";
+import { PostTagStickers } from "./PostTagStickers";
+import { StatusSticker } from "./StatusSticker";
+
+type Post = typeof PostWithRelationsSchema.static;
 
 type PostCardProps = {
   post: Post;
 };
 
-export const PostCard = ({ post }: PostCardProps) => {
-  return (
-    <Link
-      to="/posts/$postId"
-      params={{ postId: post.id }}
-      className="flex flex-col flex-1 min-h-0"
-    >
+export const PostCard = ({ post }: PostCardProps) => <div className="flex flex-col flex-1 min-h-0">
       <div className="border rounded-md relative group transition-colors hover:bg-accent/50">
         <div className="flex items-center justify-between p-4">
           <div className="flex flex-col gap-2">
@@ -42,7 +37,5 @@ export const PostCard = ({ post }: PostCardProps) => {
           </div>
         </div>
       </div>
-    </Link>
-  );
-};
+    </div>;
 

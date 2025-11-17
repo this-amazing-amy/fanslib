@@ -32,13 +32,13 @@ describe("Content Schedules Routes", () => {
     test("returns all content schedules", async () => {
       const response = await app.handle(new Request("http://localhost/api/content-schedules/all"));
       expect(response.status).toBe(200);
-      
-      const data = await parseResponse(response);
+
+      const data = await parseResponse<ContentSchedule[]>(response);
       expect(Array.isArray(data)).toBe(true);
-      expect(data.length).toBeGreaterThanOrEqual(CONTENT_SCHEDULE_FIXTURES.length);
-      
+      expect(data?.length).toBeGreaterThanOrEqual(CONTENT_SCHEDULE_FIXTURES.length);
+
       CONTENT_SCHEDULE_FIXTURES.forEach((fixture) => {
-        const schedule = data.find((s: ContentSchedule) => s.id === fixture.id);
+        const schedule = data?.find((s: ContentSchedule) => s.id === fixture.id);
         expect(schedule).toBeDefined();
         expect(schedule?.channelId).toBe(fixture.channelId);
         expect(schedule?.type).toBe(fixture.type);
@@ -58,10 +58,10 @@ describe("Content Schedules Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.id).toBe(fixtureSchedule.id);
-      expect(data.channelId).toBe(fixtureSchedule.channelId);
-      expect(data.type).toBe(fixtureSchedule.type);
+      const data = await parseResponse<ContentSchedule>(response);
+      expect(data?.id).toBe(fixtureSchedule.id);
+      expect(data?.channelId).toBe(fixtureSchedule.channelId);
+      expect(data?.type).toBe(fixtureSchedule.type);
     });
 
     test("returns error for non-existent schedule", async () => {
@@ -70,9 +70,9 @@ describe("Content Schedules Routes", () => {
       );
 
       expect(response.status).toBe(404);
-      const data = await parseResponse(response);
+      const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
-      expect(data.error).toBe("Content schedule not found");
+      expect(data?.error).toBe("Content schedule not found");
     });
   });
 
@@ -86,10 +86,10 @@ describe("Content Schedules Routes", () => {
       const response = await app.handle(
         new Request(`http://localhost/api/content-schedules/by-channel-id/${fixtureChannel.id}`)
       );
-      const data = await parseResponse(response);
+      const data = await parseResponse<ContentSchedule[]>(response);
 
       expect(Array.isArray(data)).toBe(true);
-      data.forEach((schedule: ContentSchedule) => {
+      data?.forEach((schedule: ContentSchedule) => {
         expect(schedule.channelId).toBe(fixtureChannel.id);
       });
     });
@@ -118,9 +118,9 @@ describe("Content Schedules Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.type).toBe("daily");
-      expect(data.channelId).toBe(channel.id);
+      const data = await parseResponse<ContentSchedule>(response);
+      expect(data?.type).toBe("daily");
+      expect(data?.channelId).toBe(channel.id);
     });
   });
 
@@ -144,9 +144,9 @@ describe("Content Schedules Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(Array.isArray(data.preferredTimes)).toBe(true);
-      expect(data.id).toBe(fixtureSchedule.id);
+      const data = await parseResponse<ContentSchedule>(response);
+      expect(Array.isArray(data?.preferredTimes)).toBe(true);
+      expect(data?.id).toBe(fixtureSchedule.id);
     });
 
     test("returns error for non-existent schedule", async () => {
@@ -159,9 +159,9 @@ describe("Content Schedules Routes", () => {
       );
 
       expect(response.status).toBe(404);
-      const data = await parseResponse(response);
+      const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
-      expect(data.error).toBe("Content schedule not found");
+      expect(data?.error).toBe("Content schedule not found");
     });
   });
 
@@ -179,8 +179,8 @@ describe("Content Schedules Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.success).toBe(true);
+      const data = await parseResponse<{ success: boolean }>(response);
+      expect(data?.success).toBe(true);
 
       const dataSource = getTestDataSource();
       const repository = dataSource.getRepository(ContentSchedule);
@@ -196,8 +196,8 @@ describe("Content Schedules Routes", () => {
       );
       expect(response.status).toBe(404);
 
-      const data = await parseResponse(response);
-      expect(data.error).toBe("Content schedule not found");
+      const data = await parseResponse<{ error: string }>(response);
+      expect(data?.error).toBe("Content schedule not found");
     });
   });
 });

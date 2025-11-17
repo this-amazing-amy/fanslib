@@ -62,13 +62,6 @@ export class HashtagChannelStats {
   updatedAt!: Date;
 }
 
-export const HashtagSchema = t.Object({
-  id: t.Number(),
-  name: t.String(),
-  createdAt: t.Date(),
-  updatedAt: t.Date(),
-});
-
 export const HashtagChannelStatsSchema = t.Object({
   id: t.Number(),
   hashtagId: t.Number(),
@@ -76,6 +69,14 @@ export const HashtagChannelStatsSchema = t.Object({
   views: t.Number(),
   createdAt: t.Date(),
   updatedAt: t.Date(),
+});
+
+export const HashtagSchema = t.Object({
+  id: t.Number(),
+  name: t.String(),
+  createdAt: t.Date(),
+  updatedAt: t.Date(),
+  channelStats: t.Optional(t.Array(HashtagChannelStatsSchema)),
 });
 
 

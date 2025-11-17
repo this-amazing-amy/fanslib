@@ -122,7 +122,10 @@ export const DimensionForm = ({ initialData, onSubmit, onCancel, isSubmitting = 
       {!isEditing && (
         <div className="space-y-2">
           <Label htmlFor="dataType">Data Type *</Label>
-          <Select value={formData.dataType} onValueChange={handleDataTypeChange}>
+          <Select
+            value={formData.dataType}
+            onValueChange={(value) => handleDataTypeChange(value as "categorical" | "numerical" | "boolean")}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select data type" />
             </SelectTrigger>
@@ -139,7 +142,7 @@ export const DimensionForm = ({ initialData, onSubmit, onCancel, isSubmitting = 
         <Label htmlFor="stickerDisplay">Sticker Display Mode</Label>
         <Select
           value={formData.stickerDisplay || "none"}
-          onValueChange={(value: "none" | "color" | "short") => updateFormData({ stickerDisplay: value })}
+          onValueChange={(value) => updateFormData({ stickerDisplay: value as "none" | "color" | "short" })}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select sticker display mode" />
@@ -158,8 +161,8 @@ export const DimensionForm = ({ initialData, onSubmit, onCancel, isSubmitting = 
           <div className="flex items-center space-x-3">
             <Switch
               id="isExclusive"
-              checked={formData.isExclusive || false}
-              onCheckedChange={(checked) => updateFormData({ isExclusive: checked })}
+              isSelected={formData.isExclusive || false}
+              onChange={(checked) => updateFormData({ isExclusive: checked })}
               isDisabled={formData.dataType !== "categorical"}
             />
             <div className="flex-1">

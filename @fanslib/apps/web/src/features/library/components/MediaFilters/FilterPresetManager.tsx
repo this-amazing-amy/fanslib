@@ -1,11 +1,18 @@
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "~/components/ui/Dialog";
+import {
+  Dialog,
+  DialogDescription,
+  DialogHeader,
+  DialogModal,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/Dialog";
 import {
   DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuPopover,
   DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
 import { Input } from "~/components/ui/Input";
@@ -65,14 +72,17 @@ export const FilterPresetManager = ({ open, onOpenChange }: FilterPresetManagerP
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Manage Filter Presets</DialogTitle>
-          <DialogDescription>
-            Manage your saved filter presets. You can rename or delete existing presets.
-          </DialogDescription>
-        </DialogHeader>
+    <DialogTrigger isOpen={open} onOpenChange={onOpenChange}>
+      <DialogModal>
+        <Dialog maxWidth="md">
+          {({ close }) => (
+            <>
+              <DialogHeader>
+                <DialogTitle>Manage Filter Presets</DialogTitle>
+                <DialogDescription>
+                  Manage your saved filter presets. You can rename or delete existing presets.
+                </DialogDescription>
+              </DialogHeader>
         <div className="py-4">
           {isLoading ? (
             <div className="text-center py-8 text-muted-foreground">Loading presets...</div>
@@ -129,28 +139,31 @@ export const FilterPresetManager = ({ open, onOpenChange }: FilterPresetManagerP
                           </Button>
                         </div>
                       ) : (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() => handleStartEdit(preset.id, preset.name)}
+                        <DropdownMenuTrigger>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                          <DropdownMenuPopover placement="bottom end">
+                            <DropdownMenu
+                              onAction={(key) => {
+                                if (key === "rename") {
+                                  handleStartEdit(preset.id, preset.name);
+                                } else if (key === "delete") {
+                                  setDeleteConfirmId(preset.id);
+                                }
+                              }}
                             >
-                              <Pencil className="h-4 w-4 mr-2" />
-                              Rename
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => setDeleteConfirmId(preset.id)}
-                              className="text-destructive"
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                              <DropdownMenuItem id="rename">
+                                <Pencil className="h-4 w-4 mr-2" />
+                                Rename
+                              </DropdownMenuItem>
+                              <DropdownMenuItem id="delete" className="text-destructive">
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenu>
+                          </DropdownMenuPopover>
+                        </DropdownMenuTrigger>
                       )}
                     </div>
                   </div>
@@ -159,7 +172,10 @@ export const FilterPresetManager = ({ open, onOpenChange }: FilterPresetManagerP
             </ScrollArea>
           )}
         </div>
-      </DialogContent>
-    </Dialog>
+            </>
+          )}
+        </Dialog>
+      </DialogModal>
+    </DialogTrigger>
   );
 };

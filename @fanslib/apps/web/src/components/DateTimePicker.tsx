@@ -1,9 +1,11 @@
+import { CalendarDate } from "@internationalized/date";
 import { addHours, format, startOfHour } from "date-fns";
 import { CalendarIcon, ChevronLeft } from "lucide-react";
 import { useEffect, useState } from "react";
+import { I18nProvider } from "react-aria";
 import { Button } from "~/components/ui/Button";
 import { Calendar } from "~/components/ui/Calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/Popover";
+import { Popover, PopoverTrigger } from "~/components/ui/Popover";
 import { cn } from "~/lib/cn";
 
 type DateTimePickerProps = {
@@ -30,12 +32,12 @@ export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
     }
   }, [open]);
 
-  const handleCalendarChange = (newDate: Date | undefined) => {
+  const handleCalendarChange = (newDate: CalendarDate | null) => {
     if (!newDate) return;
     const updatedDate = new Date(date);
-    updatedDate.setFullYear(newDate.getFullYear());
-    updatedDate.setMonth(newDate.getMonth());
-    updatedDate.setDate(newDate.getDate());
+    updatedDate.setFullYear(newDate.year);
+    updatedDate.setMonth(newDate.month - 1);
+    updatedDate.setDate(newDate.day);
     setDate(updatedDate);
   };
 
@@ -105,16 +107,6 @@ export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
     handleTimeChange(newDate.getHours(), newDate.getMinutes());
   };
 
-  const setTimeFromString = (timeString: string) => {
-    const [hours, minutes] = timeString.split(":").map(Number);
-    if (hours === undefined || minutes === undefined) return;
-    const newDate = new Date(date);
-    newDate.setHours(hours);
-    newDate.setMinutes(minutes);
-    setTempDate(newDate);
-    handleTimeChange(hours, minutes);
-    setClockView("hours");
-  };
 
   const hours = Array.from({ length: 24 }, (_, index) => index);
   const minutes = Array.from({ length: 60 }, (_, index) => index);
@@ -122,20 +114,19 @@ export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
   const currentDate = format(date, "PPP");
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          className={cn(
-            "w-full justify-start text-left font-normal",
-            !date && "text-muted-foreground"
-          )}
-        >
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "PPP p") : <span>Pick a date</span>}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
+    <PopoverTrigger isOpen={open} onOpenChange={setOpen}>
+      <Button
+        variant="outline"
+        className={cn(
+          "border-black/20",
+          "w-full justify-start text-left font-normal",
+          !date && "text-muted-foreground"
+        )}
+      >
+        <CalendarIcon className="mr-2 h-4 w-4" />
+        {date ? format(date, "PPP p") : <span>Pick a date</span>}
+      </Button>
+      <Popover className="w-auto p-0">
         <div className="p-3 relative" style={{ minWidth: "350px", minHeight: "400px" }}>
           <div 
             className={cn(
@@ -145,17 +136,23 @@ export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
             style={{ viewTransitionName: "date-content" }}
           >
             <div style={{ viewTransitionName: "calendar" }}>
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={handleCalendarChange}
-                autoFocus
-              />
+              <I18nProvider locale="de-DE">
+                <Calendar
+                  value={
+                    new CalendarDate(
+                      date.getFullYear(),
+                      date.getMonth() + 1,
+                      date.getDate()
+                    )
+                  }
+                  onChange={handleCalendarChange}
+                />
+              </I18nProvider>
             </div>
             <div className="border-t border-border pt-3">
               <Button
                 variant="ghost"
-                onClick={switchToTimeMode}
+                onPress={switchToTimeMode}
                 className="w-full justify-start text-left font-normal transition-opacity hover:opacity-80"
               >
                 <span style={{ viewTransitionName: "time-display" }}>{currentTime}</span>
@@ -171,7 +168,7 @@ export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
           >
             <Button
               variant="ghost"
-              onClick={switchToDateMode}
+              onPress={switchToDateMode}
               className="w-full justify-start text-left font-normal text-sm transition-opacity hover:opacity-80"
               style={{ viewTransitionName: "date-button" }}
             >
@@ -230,7 +227,7 @@ export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => setClockView("hours")}
+                          onPress={() => setClockView("hours")}
                           className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground mt-3 transition-opacity"
                         >
                           <ChevronLeft className="mr-1 h-3 w-3" />
@@ -254,7 +251,7 @@ export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
             </div>
           </div>
         </div>
-      </PopoverContent>
-    </Popover>
+      </Popover>
+    </PopoverTrigger>
   );
 };

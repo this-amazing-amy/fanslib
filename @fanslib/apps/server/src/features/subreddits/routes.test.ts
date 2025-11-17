@@ -50,12 +50,12 @@ describe("Subreddits Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
+      const data = await parseResponse<Subreddit[]>(response);
       expect(Array.isArray(data)).toBe(true);
-      expect(data.length).toBeGreaterThanOrEqual(SUBREDDIT_FIXTURES.length);
-      
+      expect(data?.length).toBeGreaterThanOrEqual(SUBREDDIT_FIXTURES.length);
+
       SUBREDDIT_FIXTURES.forEach((fixture) => {
-        const subreddit = data.find((s: Subreddit) => s.id === fixture.id);
+        const subreddit = data?.find((s: Subreddit) => s.id === fixture.id);
         expect(subreddit).toBeDefined();
         expect(subreddit?.name).toBe(fixture.name);
       });
@@ -74,9 +74,9 @@ describe("Subreddits Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.id).toBe(fixtureSubreddit.id);
-      expect(data.name).toBe(fixtureSubreddit.name);
+      const data = await parseResponse<Subreddit>(response);
+      expect(data?.id).toBe(fixtureSubreddit.id);
+      expect(data?.name).toBe(fixtureSubreddit.name);
     });
 
     test("returns error for non-existent subreddit", async () => {
@@ -84,9 +84,9 @@ describe("Subreddits Routes", () => {
         new Request("http://localhost/api/subreddits/by-id/non-existent-id")
       );
 
-      const data = await parseResponse(response);
+      const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
-      expect(data.error).toBe("Subreddit not found");
+      expect(data?.error).toBe("Subreddit not found");
     });
   });
 
@@ -105,8 +105,8 @@ describe("Subreddits Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.name).toBe("newsubreddit");
+      const data = await parseResponse<Subreddit>(response);
+      expect(data?.name).toBe("newsubreddit");
     });
   });
 
@@ -131,10 +131,10 @@ describe("Subreddits Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.name).toBe("updated");
-      expect(data.notes).toBe("Updated notes");
-      expect(data.id).toBe(fixtureSubreddit.id);
+      const data = await parseResponse<Subreddit>(response);
+      expect(data?.name).toBe("updated");
+      expect(data?.notes).toBe("Updated notes");
+      expect(data?.id).toBe(fixtureSubreddit.id);
     });
   });
 
@@ -152,8 +152,8 @@ describe("Subreddits Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.success).toBe(true);
+      const data = await parseResponse<{ success: boolean }>(response);
+      expect(data?.success).toBe(true);
 
       const dataSource = getTestDataSource();
       const repository = dataSource.getRepository(Subreddit);
@@ -171,8 +171,8 @@ describe("Subreddits Routes", () => {
       );
       expect(response.status).toBe(404);
 
-      const data = await parseResponse(response);
-      expect(data.error).toBe("Subreddit not found");
+      const data = await parseResponse<{ error: string }>(response);
+      expect(data?.error).toBe("Subreddit not found");
     });
   });
 
@@ -195,7 +195,7 @@ describe("Subreddits Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
+      const data = await parseResponse<Record<string, Date | null>>(response);
       expect(typeof data).toBe("object");
       expect(data).not.toBeNull();
     });
@@ -210,9 +210,9 @@ describe("Subreddits Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
+      const data = await parseResponse<Record<string, Date | null>>(response);
       expect(typeof data).toBe("object");
-      expect(Object.keys(data)).toHaveLength(0);
+      expect(data && Object.keys(data)).toHaveLength(0);
     });
   });
 });

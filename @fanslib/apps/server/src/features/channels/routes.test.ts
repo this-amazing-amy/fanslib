@@ -33,13 +33,13 @@ describe("Channels Routes", () => {
     test("returns all channels", async () => {
       const response = await app.handle(new Request("http://localhost/api/channels/all"));
       expect(response.status).toBe(200);
-      
-      const data = await parseResponse(response);
+
+      const data = await parseResponse<Channel[]>(response);
       expect(Array.isArray(data)).toBe(true);
-      expect(data.length).toBeGreaterThanOrEqual(CHANNEL_FIXTURES.length);
+      expect(data?.length).toBeGreaterThanOrEqual(CHANNEL_FIXTURES.length);
       
       CHANNEL_FIXTURES.forEach((fixture) => {
-        const channel = data.find((c: Channel) => c.id === fixture.id);
+        const channel = data?.find((c: Channel) => c.id === fixture.id);
         expect(channel).toBeDefined();
         expect(channel?.name).toBe(fixture.name);
         expect(channel?.typeId).toBe(fixture.typeId);
@@ -51,14 +51,14 @@ describe("Channels Routes", () => {
     test("returns channel types", async () => {
       const response = await app.handle(new Request("http://localhost/api/channels/types"));
       expect(response.status).toBe(200);
-      
-      const data = await parseResponse(response);
+
+      const data = await parseResponse<ChannelType[]>(response);
       expect(Array.isArray(data)).toBe(true);
-      expect(data.length).toBeGreaterThan(0);
-      
+      expect(data?.length).toBeGreaterThan(0);
+
       expect(fixtures.channels.channelTypes.length).toBeGreaterThan(0);
       fixtures.channels.channelTypes.forEach((type) => {
-        const found = data.find((t: ChannelType) => t.id === type.id);
+        const found = data?.find((t: ChannelType) => t.id === type.id);
         expect(found).toBeDefined();
         expect(found?.name).toBe(type.name);
       });
@@ -77,10 +77,10 @@ describe("Channels Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.id).toBe(fixtureChannel.id);
-      expect(data.name).toBe(fixtureChannel.name);
-      expect(data.typeId).toBe(fixtureChannel.typeId);
+      const data = await parseResponse<Channel>(response);
+      expect(data?.id).toBe(fixtureChannel.id);
+      expect(data?.name).toBe(fixtureChannel.name);
+      expect(data?.typeId).toBe(fixtureChannel.typeId);
     });
 
     test("returns error for non-existent channel", async () => {
@@ -88,9 +88,9 @@ describe("Channels Routes", () => {
         new Request("http://localhost/api/channels/by-id/non-existent-id")
       );
 
-      const data = await parseResponse(response);
+      const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
-      expect(data.error).toBe("Channel not found");
+      expect(data?.error).toBe("Channel not found");
     });
   });
 
@@ -111,11 +111,11 @@ describe("Channels Routes", () => {
 
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.name).toBe("New Channel");
-      expect(data.typeId).toBe("fansly");
-      expect(data.type).toBeDefined();
-      expect(data.type.id).toBe("fansly");
+      const data = await parseResponse<Channel>(response);
+      expect(data?.name).toBe("New Channel");
+      expect(data?.typeId).toBe("fansly");
+      expect(data?.type).toBeDefined();
+      expect(data?.type?.id).toBe("fansly");
     });
   });
 
@@ -139,9 +139,9 @@ describe("Channels Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.name).toBe("Updated Name");
-      expect(data.id).toBe(fixtureChannel.id);
+      const data = await parseResponse<Channel>(response);
+      expect(data?.name).toBe("Updated Name");
+      expect(data?.id).toBe(fixtureChannel.id);
     });
 
     test("returns error for non-existent channel", async () => {
@@ -153,7 +153,7 @@ describe("Channels Routes", () => {
         })
       );
 
-      const data = await parseResponse(response);
+      const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
     });
   });
@@ -172,8 +172,8 @@ describe("Channels Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.success).toBe(true);
+      const data = await parseResponse<{ success: boolean }>(response);
+      expect(data?.success).toBe(true);
 
       const dataSource = getTestDataSource();
       const repository = dataSource.getRepository(Channel);
@@ -189,8 +189,8 @@ describe("Channels Routes", () => {
       );
       expect(response.status).toBe(404);
 
-      const data = await parseResponse(response);
-      expect(data.error).toBe("Channel not found");
+      const data = await parseResponse<{ error: string }>(response);
+      expect(data?.error).toBe("Channel not found");
     });
   });
 });

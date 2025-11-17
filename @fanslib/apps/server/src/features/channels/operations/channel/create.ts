@@ -1,7 +1,6 @@
 import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { HashtagSchema } from "../../../hashtags/entity";
-import { Channel, ChannelSchema, ChannelTypeSchema } from "../../entity";
+import { Channel, ChannelSchema } from "../../entity";
 
 export const CreateChannelRequestBodySchema = t.Object({
   name: t.String(),
@@ -10,13 +9,7 @@ export const CreateChannelRequestBodySchema = t.Object({
   eligibleMediaFilter: t.Optional(t.Any()),
 });
 
-export const CreateChannelResponseSchema = t.Composite([
-  ChannelSchema,
-  t.Object({
-    type: ChannelTypeSchema,
-    defaultHashtags: t.Array(HashtagSchema),
-  }),
-]);
+export const CreateChannelResponseSchema = ChannelSchema;
 
 export const createChannel = async ({
   name,

@@ -15,12 +15,19 @@ import {
 import type {
   CreateTagDefinitionRequestBodySchema,
   CreateTagDimensionRequestBodySchema,
+  TagDefinitionSchema,
+  TagDimensionSchema,
+  UpdateTagDefinitionRequestBodySchema,
   UpdateTagDimensionRequestBodySchema,
 } from "@fanslib/server/schemas";
 import { DimensionCard } from "./DimensionCard";
 import { DimensionDialog, type EditingDimension } from "./DimensionDialog";
 import { DeleteTagDialog } from "./DeleteTagDialog";
 import { TagDialog, type EditingTag } from "./TagDialog";
+
+type TagDimensionWithTags = typeof TagDimensionSchema.static & {
+  tags?: typeof TagDefinitionSchema.static[];
+};
 
 export const TagDimensionsTab = () => {
   const [editingDimension, setEditingDimension] = useState<EditingDimension | null>(null);
@@ -43,7 +50,7 @@ export const TagDimensionsTab = () => {
       | { id: number; updates: typeof UpdateTagDimensionRequestBodySchema.static }
   ) => {
     if ("id" in data) {
-      updateDimensionMutation.mutate(data, {
+      updateDimensionMutation.mutate({ id: data.id.toString(), updates: data.updates }, {
         onSuccess: () => setEditingDimension(null),
       });
     } else {
@@ -53,9 +60,9 @@ export const TagDimensionsTab = () => {
     }
   };
 
-  const handleTagSubmit = (data: typeof CreateTagDefinitionRequestBodySchema.static | { id: number; updates: any }) => {
+  const handleTagSubmit = (data: typeof CreateTagDefinitionRequestBodySchema.static | { id: number; updates: typeof UpdateTagDefinitionRequestBodySchema.static }) => {
     if ("id" in data) {
-      updateTagMutation.mutate(data, {
+      updateTagMutation.mutate({ id: data.id.toString(), updates: data.updates }, {
         onSuccess: () => setEditingTag(null),
       });
     } else {
@@ -73,14 +80,14 @@ export const TagDimensionsTab = () => {
     });
   };
 
-  const handleEditTag = (tag: any) => {
+  const handleEditTag = (tag: typeof TagDefinitionSchema.static) => {
     setEditingTag({
       tag,
       mode: "edit",
     });
   };
 
-  const handleEditDimension = (dimension: any) => {
+  const handleEditDimension = (dimension: TagDimensionWithTags) => {
     setEditingDimension({
       dimension,
       mode: "edit",
@@ -88,11 +95,13 @@ export const TagDimensionsTab = () => {
   };
 
   const handleUpdateParent = (tagId: number, newParentId: number | null) => {
-    const tag = dimensions?.flatMap((d) => d.tags || []).find((t) => t.id === tagId);
+    const tag = (dimensions as TagDimensionWithTags[] | undefined)
+      ?.flatMap((d) => d.tags || [])
+      .find((t) => t.id === tagId);
 
     if (tag) {
       updateTagMutation.mutate({
-        id: tagId,
+        id: tagId.toString(),
         updates: {
           parentTagId: newParentId,
         },
@@ -106,7 +115,7 @@ export const TagDimensionsTab = () => {
 
   const confirmDeleteTag = () => {
     if (deletingTagId) {
-      deleteTagMutation.mutate({ id: deletingTagId });
+      deleteTagMutation.mutate({ id: deletingTagId.toString() });
       if (selectedTagId === deletingTagId) {
         setSelectedTagId(null);
       }
@@ -129,9 +138,9 @@ export const TagDimensionsTab = () => {
 
   const editingDimensionTags =
     editingTag && "dimensionId" in editingTag
-      ? dimensions?.find((d) => d.id === editingTag.dimensionId)?.tags || []
+      ? (dimensions as TagDimensionWithTags[] | undefined)?.find((d) => d.id === editingTag.dimensionId)?.tags || []
       : editingTag && "tag" in editingTag
-        ? dimensions?.find((d) => d.id === editingTag.tag.dimensionId)?.tags || []
+        ? (dimensions as TagDimensionWithTags[] | undefined)?.find((d) => d.id === editingTag.tag.dimensionId)?.tags || []
         : [];
 
   return (
@@ -142,7 +151,7 @@ export const TagDimensionsTab = () => {
           <div className="flex items-center gap-2">
             <div className="flex items-center border border-base-300 rounded-lg">
               <Button
-                variant={viewMode === "tree" ? "default" : "ghost"}
+                variant={viewMode === "tree" ? "primary" : "ghost"}
                 size="sm"
                 onPress={() => setViewMode("tree")}
                 className="rounded-r-none"
@@ -150,7 +159,7 @@ export const TagDimensionsTab = () => {
                 <TreePine className="w-4 h-4" />
               </Button>
               <Button
-                variant={viewMode === "list" ? "default" : "ghost"}
+                variant={viewMode === "list" ? "primary" : "ghost"}
                 size="sm"
                 onPress={() => setViewMode("list")}
                 className="rounded-l-none"
@@ -178,7 +187,7 @@ export const TagDimensionsTab = () => {
               key={dimension.id}
               dimension={dimension}
               viewMode={viewMode}
-              onDeleteDimension={(dimensionId) => deleteDimensionMutation.mutate({ id: dimensionId })}
+              onDeleteDimension={(dimensionId) => deleteDimensionMutation.mutate({ id: dimensionId.toString() })}
               onEditDimension={handleEditDimension}
               onUpdateParent={handleUpdateParent}
               onDeleteTag={handleDeleteTag}

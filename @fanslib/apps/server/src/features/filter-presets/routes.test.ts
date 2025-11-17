@@ -35,13 +35,13 @@ describe("Filter Presets Routes", () => {
     test("returns all filter presets", async () => {
       const response = await app.handle(new Request("http://localhost/api/filter-presets/all"));
       expect(response.status).toBe(200);
-      
-      const data = await parseResponse(response);
+
+      const data = await parseResponse<FilterPreset[]>(response);
       expect(Array.isArray(data)).toBe(true);
-      expect(data.length).toBeGreaterThanOrEqual(FILTER_PRESET_FIXTURES.length);
-      
+      expect(data?.length).toBeGreaterThanOrEqual(FILTER_PRESET_FIXTURES.length);
+
       FILTER_PRESET_FIXTURES.forEach((fixture) => {
-        const preset = data.find((p: FilterPreset) => p.id === fixture.id);
+        const preset = data?.find((p: FilterPreset) => p.id === fixture.id);
         expect(preset).toBeDefined();
         expect(preset?.name).toBe(fixture.name);
       });
@@ -61,9 +61,9 @@ describe("Filter Presets Routes", () => {
 
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.id).toBe(fixturePreset.id);
-      expect(data.name).toBe(fixturePreset.name);
+      const data = await parseResponse<FilterPreset>(response);
+      expect(data?.id).toBe(fixturePreset.id);
+      expect(data?.name).toBe(fixturePreset.name);
     });
 
     test("returns error for non-existent preset", async () => {
@@ -71,9 +71,9 @@ describe("Filter Presets Routes", () => {
         new Request("http://localhost/api/filter-presets/by-id/non-existent-id")
       );
 
-      const data = await parseResponse(response);
+      const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
-      expect(data.error).toBe("Filter preset not found");
+      expect(data?.error).toBe("Filter preset not found");
     });
   });
 
@@ -102,10 +102,10 @@ describe("Filter Presets Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
+      const data = await parseResponse<Omit<FilterPreset, 'filtersJson'> & { filters: unknown }>(response);
 
-      expect(data.name).toBe("New Preset");
-      expect(data.filters).toBeDefined();
+      expect(data?.name).toBe("New Preset");
+      expect(data?.filters).toBeDefined();
     });
   });
 
@@ -139,9 +139,9 @@ describe("Filter Presets Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.name).toBe("Updated Preset");
-      expect(data.id).toBe(fixturePreset.id);
+      const data = await parseResponse<FilterPreset>(response);
+      expect(data?.name).toBe("Updated Preset");
+      expect(data?.id).toBe(fixturePreset.id);
     });
 
     test("returns error for non-existent preset", async () => {
@@ -153,7 +153,7 @@ describe("Filter Presets Routes", () => {
         })
       );
 
-      const data = await parseResponse(response);
+      const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
     });
   });
@@ -172,8 +172,8 @@ describe("Filter Presets Routes", () => {
       );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse(response);
-      expect(data.success).toBe(true);
+      const data = await parseResponse<{ success: boolean }>(response);
+      expect(data?.success).toBe(true);
 
       const dataSource = getTestDataSource();
       const repository = dataSource.getRepository(FilterPreset);
@@ -189,8 +189,8 @@ describe("Filter Presets Routes", () => {
       );
       expect(response.status).toBe(404);
 
-      const data = await parseResponse(response);
-      expect(data.error).toBe("Filter preset not found");
+      const data = await parseResponse<{ error: string }>(response);
+      expect(data?.error).toBe("Filter preset not found");
     });
   });
 });

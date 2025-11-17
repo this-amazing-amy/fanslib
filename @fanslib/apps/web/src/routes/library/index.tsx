@@ -1,12 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { NavigationPageHeader } from '~/components/ui/NavigationPageHeader';
-import { PostPreferencesProvider } from '~/contexts/PostPreferencesContext';
 import { AnalyticsProvider } from '~/contexts/AnalyticsContext';
 import { FilterPresetProvider } from '~/contexts/FilterPresetContext';
 import { LibraryPreferencesProvider, useLibraryPreferences } from '~/contexts/LibraryPreferencesContext';
 import { MediaDragProvider } from '~/contexts/MediaDragContext';
 import { MediaSelectionProvider } from '~/contexts/MediaSelectionContext';
 import { PostDragProvider } from '~/contexts/PostDragContext';
+import { PostPreferencesProvider } from '~/contexts/PostPreferencesContext';
 import { RedditPostProvider } from '~/contexts/RedditPostContext';
 import { ShootProvider } from '~/contexts/ShootContext';
 import { ShootPreferencesProvider } from '~/contexts/ShootPreferencesContext';

@@ -1,16 +1,18 @@
+import type { MediaSchema } from "@fanslib/server/schemas";
 import { Sticker } from "~/components/ui/Sticker";
-import type { Media } from "@fanslib/types";
 import { useMediaTagsQuery } from "~/lib/queries/tags";
+
+type Media = typeof MediaSchema.static;
 
 type MediaTileTagStickersProps = {
   media: Media;
 };
 
 export const MediaTileTagStickers = ({ media }: MediaTileTagStickersProps) => {
-  const { data: mediaTags = [] } = useMediaTagsQuery(media.id);
+  const { data: mediaTags = [] } = useMediaTagsQuery({ mediaId: media.id });
 
   // Filter tags that have sticker display enabled (not 'none')
-  const stickerTags = mediaTags.filter(
+  const stickerTags = (mediaTags ?? []).filter(
     (tag) => tag.stickerDisplay && tag.stickerDisplay !== "none"
   );
 

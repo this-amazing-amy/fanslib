@@ -6,7 +6,7 @@ export type LabelProps = LabelHTMLAttributes<HTMLLabelElement> & {
 };
 
 export const Label = ({ className, required, children, ...props }: LabelProps) => (
-  <label className={cn('label', className)} {...props}>
+  <label className={cn('label text-xs mb-1', className)} {...props}>
     <span className="label-text">
       {children}
       {required && <span className="text-error ml-1">*</span>}

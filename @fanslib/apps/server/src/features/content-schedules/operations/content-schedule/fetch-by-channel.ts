@@ -3,12 +3,14 @@ import { ChannelSchema } from "~/schemas";
 import { db } from "../../../../lib/db";
 import { ContentSchedule, ContentScheduleSchema } from "../../entity";
 
-export const FetchContentSchedulesByChannelResponseSchema = t.Array(t.Composite([
+export const ContentScheduleWithChannelSchema = t.Composite([
   ContentScheduleSchema,
   t.Object({
     channel: ChannelSchema,
   }),
-]));
+]);
+
+export const FetchContentSchedulesByChannelResponseSchema = t.Array(ContentScheduleWithChannelSchema);
 
 export const fetchContentSchedulesByChannel = async (
   channelId: string
@@ -19,7 +21,7 @@ export const fetchContentSchedulesByChannel = async (
   return repository.find({
     where: { channelId },
     relations: {
-      channel: true,
+      channel: { type: true, defaultHashtags: true },
     },
     order: {
       createdAt: "DESC",

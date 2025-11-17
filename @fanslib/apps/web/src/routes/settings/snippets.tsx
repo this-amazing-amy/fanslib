@@ -1,13 +1,13 @@
+import type { FetchAllSnippetsResponseSchema } from "@fanslib/server/schemas";
 import { createFileRoute } from "@tanstack/react-router";
-import type { CaptionSnippet } from "@fanslib/types";
 import { Edit, FileText, Globe, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { Button } from "~/components/ui/Button";
 import {
   Dialog,
-  DialogContent,
   DialogHeader,
+  DialogModal,
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/Dialog";
@@ -29,13 +29,13 @@ import {
   useUpdateSnippetMutation,
 } from "~/lib/queries/snippets";
 
+type CaptionSnippet = typeof FetchAllSnippetsResponseSchema.static[number];
+
 type SnippetFormData = {
   name: string;
   content: string;
   channelId?: string;
 };
-
-const toast = () => {};
 
 type Channel = {
   id: string;
@@ -54,9 +54,9 @@ const SnippetForm = ({
   channels: Channel[];
 }) => {
   const [formData, setFormData] = useState<SnippetFormData>({
-    name: initialData?.name || "",
-    content: initialData?.content || "",
-    channelId: initialData?.channel?.id || undefined,
+    name: initialData?.name ?? "",
+    content: initialData?.content ?? "",
+    channelId: initialData?.channel?.id ?? undefined,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -90,7 +90,7 @@ const SnippetForm = ({
       <div>
         <label className="text-sm font-medium">Channel (optional)</label>
         <Select
-          value={formData.channelId || "global"}
+          value={formData.channelId ?? "global"}
           onValueChange={(value) =>
             setFormData((prev) => ({
               ...prev,
@@ -148,15 +148,13 @@ const SnippetSettings = () => {
   const updateMutation = useUpdateSnippetMutation();
   const deleteMutation = useDeleteSnippetMutation();
 
-  const globalSnippets = snippets.filter((s) => !s.channel);
-  const channelSnippets = snippets.filter((s) => s.channel);
+  const globalSnippets = (snippets ?? []).filter((s) => !s.channel);
+  const channelSnippets = (snippets ?? []).filter((s) => s.channel);
   const groupedChannelSnippets = channelSnippets.reduce(
     (acc, snippet) => {
       const channelId = snippet.channel?.id;
       if (!channelId) return acc;
-      if (!acc[channelId]) {
-        acc[channelId] = [];
-      }
+      acc[channelId] ??= [];
       acc[channelId].push(snippet);
       return acc;
     },
@@ -165,12 +163,7 @@ const SnippetSettings = () => {
 
   const handleDeleteSnippet = async (snippet: CaptionSnippet) => {
     if (confirm(`Are you sure you want to delete "${snippet.name}"?`)) {
-      try {
         await deleteMutation.mutateAsync({ id: snippet.id });
-        toast();
-      } catch (error) {
-        toast();
-      }
     }
   };
 
@@ -187,27 +180,31 @@ const SnippetSettings = () => {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-medium">Your Snippets</h3>
-          <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                New Snippet
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Snippet</DialogTitle>
-              </DialogHeader>
-              <SnippetForm
-                channels={channels}
-                onSubmit={async (data) => {
-                  await createMutation.mutateAsync(data);
-                  toast();
-                }}
-                onCancel={() => setShowCreateDialog(false)}
-              />
-            </DialogContent>
-          </Dialog>
+          <DialogTrigger isOpen={showCreateDialog} onOpenChange={setShowCreateDialog}>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              New Snippet
+            </Button>
+            <DialogModal>
+              <Dialog>
+                {({ close }) => (
+                  <>
+                    <DialogHeader>
+                      <DialogTitle>Create New Snippet</DialogTitle>
+                    </DialogHeader>
+                    <SnippetForm
+                      channels={channels ?? []}
+                      onSubmit={async (data) => {
+                        await createMutation.mutateAsync(data);
+                        close();
+                      }}
+                      onCancel={close}
+                    />
+                  </>
+                )}
+              </Dialog>
+            </DialogModal>
+          </DialogTrigger>
         </div>
 
         <ScrollArea className="h-[500px] p-4">
@@ -259,7 +256,7 @@ const SnippetSettings = () => {
 
             {/* Channel-Specific Snippets */}
             {Object.entries(groupedChannelSnippets).map(([channelId, channelSnippets]) => {
-              const channel = channels.find((c) => c.id === channelId);
+              const channel = (channels ?? []).find((c) => c.id === channelId);
               return (
                 <div key={channelId}>
                   <div className="mb-3">
@@ -308,7 +305,7 @@ const SnippetSettings = () => {
               );
             })}
 
-            {snippets.length === 0 && (
+            {(!snippets || snippets.length === 0) && (
               <div className="text-center py-8 text-base-content/60">
                 <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No snippets created yet.</p>
@@ -319,24 +316,30 @@ const SnippetSettings = () => {
         </ScrollArea>
 
         {/* Edit Dialog */}
-        <Dialog open={!!editingSnippet} onOpenChange={() => setEditingSnippet(null)}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Edit Snippet</DialogTitle>
-            </DialogHeader>
-            {editingSnippet && (
-              <SnippetForm
-                initialData={editingSnippet}
-                channels={channels}
-                onSubmit={async (data) => {
-                  await updateMutation.mutateAsync({ id: editingSnippet.id, updates: data });
-                  toast();
-                }}
-                onCancel={() => setEditingSnippet(null)}
-              />
-            )}
-          </DialogContent>
-        </Dialog>
+        <DialogTrigger isOpen={!!editingSnippet} onOpenChange={(open) => !open && setEditingSnippet(null)}>
+          <DialogModal>
+            <Dialog>
+              {({ close }) => (
+                <>
+                  <DialogHeader>
+                    <DialogTitle>Edit Snippet</DialogTitle>
+                  </DialogHeader>
+                  {editingSnippet && (
+                    <SnippetForm
+                      initialData={editingSnippet}
+                      channels={channels ?? []}
+                      onSubmit={async (data) => {
+                        await updateMutation.mutateAsync({ id: editingSnippet.id, updates: data });
+                        close();
+                      }}
+                      onCancel={close}
+                    />
+                  )}
+                </>
+              )}
+            </Dialog>
+          </DialogModal>
+        </DialogTrigger>
       </div>
     </div>
   );

@@ -1,20 +1,20 @@
-import type { ShootSummary } from "@fanslib/types";
+import type { ShootSummarySchema } from "@fanslib/server/schemas";
 import { Trash2 } from "lucide-react";
 import { type FC } from "react";
-import { useLibraryPreferences } from "~/contexts/LibraryPreferencesContext";
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogModal,
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "~/components/ui/AlertDialog";
 import { Button } from "~/components/ui/Button";
+import { useLibraryPreferences } from "~/contexts/LibraryPreferencesContext";
 import { useDeleteShootMutation } from "~/lib/queries/shoots";
+
+type ShootSummary = typeof ShootSummarySchema.static;
 
 type ShootDetailDeleteButtonProps = {
   shoot: ShootSummary;
@@ -26,7 +26,7 @@ export const ShootDetailDeleteButton: FC<ShootDetailDeleteButtonProps> = ({ shoo
   const deleteMutation = useDeleteShootMutation();
 
   const handleDelete = async () => {
-    await deleteMutation.mutateAsync(shoot.id);
+    await deleteMutation.mutateAsync({ id: shoot.id });
 
     // Remove any filter groups that include this shoot
     const updatedFilters = preferences.filter
@@ -51,30 +51,39 @@ export const ShootDetailDeleteButton: FC<ShootDetailDeleteButtonProps> = ({ shoo
   };
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger>
-        <Button variant="outline" className="text-destructive">
-          <Trash2 /> Delete
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Delete shoot?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This will permanently delete the shoot &quot;{shoot.name}&quot;. This action cannot be
-            undone.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={handleDelete}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-          >
-            Delete
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <AlertDialogTrigger>
+      <Button variant="outline" className="text-destructive">
+        <Trash2 /> Delete
+      </Button>
+      <AlertDialogModal isDismissable={false}>
+        <AlertDialog>
+          {({ close }) => (
+            <>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete shoot?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete the shoot &quot;{shoot.name}&quot;. This action cannot be
+                  undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <Button variant="ghost" onPress={close}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="error"
+                  onPress={async () => {
+                    await handleDelete();
+                    close();
+                  }}
+                >
+                  Delete
+                </Button>
+              </AlertDialogFooter>
+            </>
+          )}
+        </AlertDialog>
+      </AlertDialogModal>
+    </AlertDialogTrigger>
   );
 };

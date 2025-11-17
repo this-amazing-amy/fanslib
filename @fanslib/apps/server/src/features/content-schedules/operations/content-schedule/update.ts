@@ -38,7 +38,7 @@ export const updateContentSchedule = async (
   const schedule = await repository.findOne({
     where: { id },
     relations: {
-      channel: true,
+      channel: { type: true, defaultHashtags: true },
     },
   });
 
@@ -64,7 +64,7 @@ export const updateContentSchedule = async (
   return repository.findOne({
     where: { id },
     relations: {
-      channel: true,
+      channel: { type: true, defaultHashtags: true },
     },
   });
 };

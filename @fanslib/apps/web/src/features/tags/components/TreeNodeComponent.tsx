@@ -1,9 +1,12 @@
+import type { TagDefinitionSchema } from "@fanslib/server/schemas";
 import { ChevronDown, ChevronRight, Edit, GripVertical, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
 import { useTagDrag } from "~/contexts/TagDragContext";
 import { useTagDropZone } from "~/hooks/useTagDropZone";
 import { cn } from "~/lib/cn";
+
+type TagDefinition = typeof TagDefinitionSchema.static;
 
 export type TreeNode = {
   id: number;
@@ -21,10 +24,10 @@ type TreeNodeComponentProps = {
   onUpdateParent: (tagId: number, newParentId: number | null) => void;
   onDeleteTag: (tagId: number) => void;
   onCreateTag: (parentTagId?: number) => void;
-  onEditTag: (tag: any) => void;
+  onEditTag: (tag: TreeNode) => void;
   selectedTagId?: number;
   onSelectTag?: (tagId: number) => void;
-  allTags: any[];
+  allTags: TagDefinition[];
 };
 
 export const TreeNodeComponent = ({
@@ -39,8 +42,27 @@ export const TreeNodeComponent = ({
 }: TreeNodeComponentProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const { startTagDrag } = useTagDrag();
+  
+  // Convert TreeNode to TagDefinition format for useTagDropZone and drag
+  const convertToTagDefinition = (treeNode: TreeNode): TagDefinition => ({
+    id: treeNode.id,
+    dimensionId: treeNode.dimensionId,
+    value: treeNode.value,
+    displayName: treeNode.displayName,
+    description: treeNode.description ?? null,
+    metadata: null,
+    color: null,
+    shortRepresentation: null,
+    sortOrder: 0,
+    parentTagId: treeNode.parentTagId ?? null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+  
+  const targetTag = convertToTagDefinition(node);
+  
   const { isOver, dragHandlers } = useTagDropZone({
-    targetTag: node,
+    targetTag,
     allTags,
     onUpdateParent,
   });
@@ -63,7 +85,7 @@ export const TreeNodeComponent = ({
         <div
           className="cursor-move"
           draggable
-          onDragStart={(e) => startTagDrag(e, node)}
+          onDragStart={(e) => startTagDrag(e, convertToTagDefinition(node))}
           onClick={(e) => e.stopPropagation()}
         >
           <GripVertical className="w-3 h-3 text-base-content/40 opacity-0 group-hover:opacity-100" />
@@ -74,8 +96,7 @@ export const TreeNodeComponent = ({
             variant="ghost"
             size="sm"
             className="h-4 w-4 p-0"
-            onPress={(e) => {
-              e.stopPropagation();
+            onPress={() => {
               setIsExpanded(!isExpanded);
             }}
             aria-label={isExpanded ? "Collapse" : "Expand"}
@@ -93,8 +114,7 @@ export const TreeNodeComponent = ({
             variant="ghost"
             size="sm"
             className="h-6 w-6 p-0"
-            onPress={(e) => {
-              e.stopPropagation();
+            onPress={() => {
               onCreateTag(node.id);
             }}
             aria-label={`Add child tag to ${node.displayName}`}
@@ -106,8 +126,7 @@ export const TreeNodeComponent = ({
             variant="ghost"
             size="sm"
             className="h-6 w-6 p-0"
-            onPress={(e) => {
-              e.stopPropagation();
+            onPress={() => {
               onEditTag(node);
             }}
             aria-label={`Edit ${node.displayName}`}
@@ -119,8 +138,7 @@ export const TreeNodeComponent = ({
             variant="ghost"
             size="sm"
             className="h-6 w-6 p-0 text-error hover:text-error"
-            onPress={(e) => {
-              e.stopPropagation();
+            onPress={() => {
               onDeleteTag(node.id);
             }}
             aria-label={`Delete ${node.displayName}`}

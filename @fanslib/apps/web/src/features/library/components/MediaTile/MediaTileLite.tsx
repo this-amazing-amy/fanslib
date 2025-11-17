@@ -1,10 +1,12 @@
-import type { Media } from "@fanslib/types";
+import type { MediaSchema } from "@fanslib/server/schemas";
 import { Image as ImageIcon, Video } from "lucide-react";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
-import { getMediaFileUrl, getMediaThumbnailUrl } from "~/lib/media-urls";
 import { cn } from "~/lib/cn";
+import { getMediaFileUrl, getMediaThumbnailUrl } from "~/lib/media-urls";
 import { useMediaTagsQuery } from "~/lib/queries/tags";
 import { formatDuration } from "~/lib/video";
+
+type Media = typeof MediaSchema.static;
 
 export type MediaTileLiteProps = {
   media: Media;
@@ -27,8 +29,8 @@ export const MediaTileLite = memo(
     const videoRef = useRef<HTMLVideoElement>(null);
     const previewIntervalRef = useRef<number | null>(null);
 
-    const { data: mediaTags = [] } = useMediaTagsQuery(media.id);
-    const stickerTags = mediaTags.filter((mt) => mt.stickerDisplay === "color");
+    const { data: mediaTags = [] } = useMediaTagsQuery({ mediaId: media.id });
+    const stickerTags = (mediaTags ?? []).filter((mt) => mt.stickerDisplay === "color");
 
     const handleImageError = useCallback(() => {
       setLocalImageError(true);

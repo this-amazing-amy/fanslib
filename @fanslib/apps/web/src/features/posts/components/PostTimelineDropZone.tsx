@@ -1,7 +1,9 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import type { Media } from "@fanslib/types";
+import { MediaSchema } from "@fanslib/server/schemas";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
+
+type Media = typeof MediaSchema.static;
 import { useDragOver } from "~/hooks/useDragOver";
 import { cn } from "~/lib/cn";
 import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";

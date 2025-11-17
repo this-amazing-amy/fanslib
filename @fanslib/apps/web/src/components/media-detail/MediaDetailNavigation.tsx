@@ -83,9 +83,9 @@ export const MediaDetailNavigation = () => {
       <Button
         variant="outline"
         size="sm"
-        onClick={navigateToPrevious}
-        disabled={!hasPrevious}
-        title={hasPrevious ? `Previous media (Ctrl+←)` : undefined}
+        onPress={navigateToPrevious}
+        isDisabled={!hasPrevious}
+        aria-label={hasPrevious ? `Previous media (Ctrl+←)` : undefined}
       >
         <ChevronLeft className="h-4 w-4 mr-2" />
         Previous
@@ -93,9 +93,9 @@ export const MediaDetailNavigation = () => {
       <Button
         variant="outline"
         size="sm"
-        onClick={navigateToNext}
-        disabled={!hasNext}
-        title={hasNext ? `Next media (Ctrl+→)` : undefined}
+        onPress={navigateToNext}
+        isDisabled={!hasNext}
+        aria-label={hasNext ? `Next media (Ctrl+→)` : undefined}
       >
         Next
         <ChevronRight className="h-4 w-4 ml-2" />

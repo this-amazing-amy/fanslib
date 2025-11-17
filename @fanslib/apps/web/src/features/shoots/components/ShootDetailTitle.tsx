@@ -1,6 +1,9 @@
-import type { ShootSummary, UpdateShootRequest } from "@fanslib/types";
+import { ShootSummarySchema, UpdateShootRequestBodySchema } from "@fanslib/server/schemas";
 import { type FC, useState } from "react";
 import { Input } from "~/components/ui/Input";
+
+type ShootSummary = typeof ShootSummarySchema.static;
+type UpdateShootRequest = typeof UpdateShootRequestBodySchema.static;
 
 type ShootDetailTitleProps = {
   shoot: ShootSummary;

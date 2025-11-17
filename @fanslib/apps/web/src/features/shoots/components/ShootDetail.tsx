@@ -1,6 +1,9 @@
-import type { Media, ShootSummary, UpdateShootRequest } from "@fanslib/types";
+import { ShootSummarySchema, MediaSchema, UpdateShootRequestBodySchema } from "@fanslib/server/schemas";
 import { useState, type FC } from "react";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "~/components/ui/Accordion";
+
+type Media = typeof MediaSchema.static;
+type ShootSummary = typeof ShootSummarySchema.static;
+type UpdateShootRequest = typeof UpdateShootRequestBodySchema.static;
 import { Button } from "~/components/ui/Button";
 import { useLibraryPreferences } from "~/contexts/LibraryPreferencesContext";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
@@ -73,32 +76,27 @@ const ShootDetailContent = ({ shoot, groupedMedia, onUpdate }: ShootDetailConten
   };
 
   return (
-    <Accordion
-      type="single"
-      value={isOpen ? "item-1" : ""}
-      onValueChange={(value) => setIsOpen(!!value)}
-      className="w-full"
-    >
-      <AccordionItem value="item-1" className="border rounded-md">
-        <AccordionTrigger
-          className={cn(
-            "hover:no-underline cursor-pointer hover:bg-muted/50 px-4 py-2",
-            !isOpen && "hover:bg-muted/50"
-          )}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (isEditing) return;
-            setIsOpen(!isOpen);
-          }}
-        >
-          <ShootHeader
-            shoot={shoot}
-            isEditing={isEditing}
-            onUpdate={handleUpdate}
-            onCancel={handleCancel}
-          />
-        </AccordionTrigger>
-        <AccordionContent className="px-4 flex-col flex">
+    <div className="w-full border rounded-md">
+      <div
+        className={cn(
+          "cursor-pointer hover:bg-muted/50 px-4 py-2",
+          !isOpen && "hover:bg-muted/50"
+        )}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (isEditing) return;
+          setIsOpen(!isOpen);
+        }}
+      >
+        <ShootHeader
+          shoot={shoot}
+          isEditing={isEditing}
+          onUpdate={handleUpdate}
+          onCancel={handleCancel}
+        />
+      </div>
+      {isOpen && (
+        <div className="px-4 flex-col flex">
           <div className="flex flex-col gap-4 pb-4" onClick={(e) => e.stopPropagation()}>
             {shoot.media && (
               <div className="flex flex-col gap-6">
@@ -127,9 +125,9 @@ const ShootDetailContent = ({ shoot, groupedMedia, onUpdate }: ShootDetailConten
               <ShootDetailDeleteButton shoot={shoot} onUpdate={onUpdate} />
             </div>
           </div>
-        </AccordionContent>
-      </AccordionItem>
-    </Accordion>
+        </div>
+      )}
+    </div>
   );
 };
 
