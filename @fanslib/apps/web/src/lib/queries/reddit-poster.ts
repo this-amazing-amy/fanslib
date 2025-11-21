@@ -1,21 +1,27 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { SubredditSchema } from '@fanslib/server/schemas';
-import { redditPosterApi } from '../api/reddit-poster';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { eden } from '../api/eden';
 
 type Subreddit = typeof SubredditSchema.static;
 
 export const useGenerateRandomPost = () => useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       subreddits,
       channelId,
     }: {
       subreddits: Subreddit[];
       channelId: string;
-    }) => redditPosterApi.generateRandomPost({ subreddits, channelId }),
+    }) => {
+      const response = await eden.api['reddit-automation']['generate-random-post'].post({
+        subreddits,
+        channelId,
+      });
+      return response.data;
+    },
   });
 
 export const useGeneratePosts = () => useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       count,
       subreddits,
       channelId,
@@ -23,50 +29,55 @@ export const useGeneratePosts = () => useMutation({
       count: number;
       subreddits: Subreddit[];
       channelId: string;
-    }) => redditPosterApi.generatePosts({ count, subreddits, channelId }),
+    }) => {
+      const response = await eden.api['reddit-automation']['generate-posts'].post({
+        count,
+        subreddits,
+        channelId,
+      });
+      return response.data;
+    },
   });
 
 export const useRegenerateMedia = () => useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       subredditId,
       channelId,
     }: {
       subredditId: string;
       channelId: string;
-    }) => redditPosterApi.regenerateMedia({ subredditId, channelId }),
+    }) => {
+      const response = await eden.api['reddit-automation']['regenerate-media'].post({
+        subredditId,
+        channelId,
+      });
+      return response.data;
+    },
   });
 
 export const useSchedulePosts = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (posts: Array<unknown>) => redditPosterApi.schedulePosts({ posts }),
+    mutationFn: async (posts: Array<unknown>) => {
+      const response = await eden.api['reddit-automation']['schedule-posts'].post({
+        posts,
+      });
+      return response.data;
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reddit-poster', 'scheduled-posts'] });
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: ['reddit-automation', 'scheduled-posts'] });
+      queryClient.invalidateQueries({ queryKey: ['subreddits'] });
     },
   });
 };
 
 export const useScheduledPosts = () => useQuery({
-    queryKey: ['reddit-poster', 'scheduled-posts'],
-    queryFn: () => redditPosterApi.getScheduledPosts(),
-  });
-
-export const useLoginToReddit = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (userId?: string) => redditPosterApi.login({ userId }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reddit-poster', 'login-status'] });
+    queryKey: ['reddit-automation', 'scheduled-posts'],
+    queryFn: async () => {
+      const response = await eden.api['reddit-automation']['scheduled-posts'].get();
+      return response.data;
     },
-  });
-};
-
-export const useCheckRedditLogin = (userId?: string) => useQuery({
-    queryKey: ['reddit-poster', 'login-status', userId],
-    queryFn: () => redditPosterApi.checkLogin({ userId }),
   });
 
 

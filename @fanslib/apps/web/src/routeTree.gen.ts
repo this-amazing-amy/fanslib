@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SubredditsRouteImport } from './routes/subreddits'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as OrchestrateRouteImport } from './routes/orchestrate'
 import { Route as HashtagsRouteImport } from './routes/hashtags'
@@ -33,6 +34,11 @@ import { Route as ContentLibraryMediaRouteImport } from './routes/content/librar
 import { Route as ContentLibraryMediaIndexRouteImport } from './routes/content/library/media/index'
 import { Route as ContentLibraryMediaMediaIdRouteImport } from './routes/content/library/media/$mediaId'
 
+const SubredditsRoute = SubredditsRouteImport.update({
+  id: '/subreddits',
+  path: '/subreddits',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -158,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/hashtags': typeof HashtagsRoute
   '/orchestrate': typeof OrchestrateRoute
   '/settings': typeof SettingsRouteWithChildren
+  '/subreddits': typeof SubredditsRoute
   '/content/channels': typeof ContentChannelsRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
   '/library/$mediaId': typeof LibraryMediaIdRoute
@@ -182,6 +189,7 @@ export interface FileRoutesByTo {
   '/content': typeof ContentRouteWithChildren
   '/hashtags': typeof HashtagsRoute
   '/orchestrate': typeof OrchestrateRoute
+  '/subreddits': typeof SubredditsRoute
   '/content/channels': typeof ContentChannelsRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
   '/library/$mediaId': typeof LibraryMediaIdRoute
@@ -207,6 +215,7 @@ export interface FileRoutesById {
   '/hashtags': typeof HashtagsRoute
   '/orchestrate': typeof OrchestrateRoute
   '/settings': typeof SettingsRouteWithChildren
+  '/subreddits': typeof SubredditsRoute
   '/content/channels': typeof ContentChannelsRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
   '/library/$mediaId': typeof LibraryMediaIdRoute
@@ -234,6 +243,7 @@ export interface FileRouteTypes {
     | '/hashtags'
     | '/orchestrate'
     | '/settings'
+    | '/subreddits'
     | '/content/channels'
     | '/content/library'
     | '/library/$mediaId'
@@ -258,6 +268,7 @@ export interface FileRouteTypes {
     | '/content'
     | '/hashtags'
     | '/orchestrate'
+    | '/subreddits'
     | '/content/channels'
     | '/content/library'
     | '/library/$mediaId'
@@ -282,6 +293,7 @@ export interface FileRouteTypes {
     | '/hashtags'
     | '/orchestrate'
     | '/settings'
+    | '/subreddits'
     | '/content/channels'
     | '/content/library'
     | '/library/$mediaId'
@@ -308,6 +320,7 @@ export interface RootRouteChildren {
   HashtagsRoute: typeof HashtagsRoute
   OrchestrateRoute: typeof OrchestrateRoute
   SettingsRoute: typeof SettingsRouteWithChildren
+  SubredditsRoute: typeof SubredditsRoute
   LibraryMediaIdRoute: typeof LibraryMediaIdRoute
   LibraryIndexRoute: typeof LibraryIndexRoute
   PlanIndexRoute: typeof PlanIndexRoute
@@ -316,6 +329,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/subreddits': {
+      id: '/subreddits'
+      path: '/subreddits'
+      fullPath: '/subreddits'
+      preLoaderRoute: typeof SubredditsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -551,6 +571,7 @@ const rootRouteChildren: RootRouteChildren = {
   HashtagsRoute: HashtagsRoute,
   OrchestrateRoute: OrchestrateRoute,
   SettingsRoute: SettingsRouteWithChildren,
+  SubredditsRoute: SubredditsRoute,
   LibraryMediaIdRoute: LibraryMediaIdRoute,
   LibraryIndexRoute: LibraryIndexRoute,
   PlanIndexRoute: PlanIndexRoute,

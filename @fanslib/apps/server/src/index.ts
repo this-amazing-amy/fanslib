@@ -10,6 +10,7 @@ import { filterPresetsRoutes } from "./features/filter-presets/routes";
 import { hashtagsRoutes } from "./features/hashtags/routes";
 import { libraryRoutes } from "./features/library/routes";
 import { postsRoutes } from "./features/posts/routes";
+import { redditAutomationRoutes } from "./features/reddit-automation/routes";
 import { settingsRoutes } from "./features/settings/routes";
 import { shootsRoutes } from "./features/shoots/routes";
 import { snippetsRoutes } from "./features/snippets/routes";
@@ -48,7 +49,7 @@ const app = new Elysia()
   .use(settingsRoutes)
   .use(postponeRoutes)
   .use(analyticsRoutes)
-  // .use(redditAutomationRoutes)
+  .use(redditAutomationRoutes)
   .listen(env().port);
 
 db()

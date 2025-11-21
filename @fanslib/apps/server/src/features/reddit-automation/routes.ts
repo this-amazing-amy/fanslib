@@ -1,5 +1,7 @@
 import { Elysia, t } from "elysia";
 import { db } from "~/lib/db";
+import { browserDataPath } from "~/lib/env";
+import { createFileSessionStorage } from "~/lib/reddit-poster/session-storage";
 import { isRedditAutomationRunning } from "./operations/automation/check-status";
 import { postToReddit } from "./operations/automation/post-to-reddit";
 import { generateRandomPost } from "./operations/generation/generate-random-post";
@@ -158,6 +160,60 @@ export const redditAutomationRoutes = new Elysia({ prefix: "/api/reddit-automati
       }),
       detail: {
         summary: "Check Reddit login status",
+        tags: ["Reddit Poster"],
+      },
+    }
+  )
+  .post(
+    "/session/status",
+    async ({ body }) => {
+      const sessionStorage = createFileSessionStorage(browserDataPath(), body.userId);
+      const hasSession = await sessionStorage.exists();
+      
+      if (!hasSession) {
+        return {
+          hasSession: false,
+          isValid: false,
+        };
+      }
+
+      // For now, we'll just check if the session file exists
+      // In the future, we could validate the session by checking expiry, etc.
+      return {
+        hasSession: true,
+        isValid: true,
+      };
+    },
+    {
+      body: t.Object({
+        userId: t.Optional(t.String()),
+      }),
+      response: t.Object({
+        hasSession: t.Boolean(),
+        isValid: t.Boolean(),
+      }),
+      detail: {
+        summary: "Get Reddit session status",
+        tags: ["Reddit Poster"],
+      },
+    }
+  )
+  .delete(
+    "/session",
+    async ({ body }) => {
+      const sessionStorage = createFileSessionStorage(browserDataPath(), body.userId);
+      await sessionStorage.clear();
+      return { success: true };
+    },
+    {
+      body: t.Object({
+        userId: t.Optional(t.String()),
+      }),
+      response: t.Object({
+        success: t.Boolean(),
+      }),
+      detail: {
+        summary: "Clear Reddit session",
         tags: ["Reddit Poster"],
       },
     }
