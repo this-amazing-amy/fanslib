@@ -60,7 +60,7 @@ const LibraryPageContent = () => {
                                 />
                               </div>
                               <div className="flex-1 min-h-0 overflow-hidden">
-                                <Library showHeader={false} />
+                                <Library />
                               </div>
                             </div>
                           </MediaFiltersProvider>
