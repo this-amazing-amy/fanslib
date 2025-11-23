@@ -1,6 +1,7 @@
 import type { PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { useNavigate } from '@tanstack/react-router';
 import { Trash2 } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import { DeleteConfirmDialog } from '~/components/ui/DeleteConfirmDialog';
 import { useDeletePostMutation } from '~/lib/queries/posts';
@@ -14,6 +15,7 @@ type PostDetailDeleteButtonProps = {
 export const PostDetailDeleteButton = ({ post }: PostDetailDeleteButtonProps) => {
   const navigate = useNavigate();
   const deletePostMutation = useDeletePostMutation();
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleDelete = async () => {
     try {
@@ -26,6 +28,8 @@ export const PostDetailDeleteButton = ({ post }: PostDetailDeleteButtonProps) =>
 
   return (
     <DeleteConfirmDialog
+      open={isOpen}
+      onOpenChange={setIsOpen}
       title="Delete Post"
       description="Are you sure you want to delete this post? This action cannot be undone. This will permanently delete the post and remove it from all associated media."
       onConfirm={handleDelete}

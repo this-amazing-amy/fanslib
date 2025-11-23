@@ -30,11 +30,11 @@ export const SubredditsPage = () => {
       </div>
 
       <Tabs>
-        <TabItem id="bulk-posting" title="Post to Reddit">
-          <RedditBulkPostGenerator subreddits={subreddits} />
+        <TabItem key="bulk-posting" title="Post to Reddit">
+          <RedditBulkPostGenerator subreddits={subreddits ?? []} />
         </TabItem>
         
-        <TabItem id="subreddits" title="Manage Subreddits">
+        <TabItem key="subreddits" title="Manage Subreddits">
           <div className="space-y-4">
             <div className="flex items-center justify-end">
               <Button onPress={() => setIsCreateDialogOpen(true)}>
@@ -44,7 +44,7 @@ export const SubredditsPage = () => {
             </div>
 
             <SubredditTable
-              subreddits={subreddits}
+              subreddits={subreddits ?? []}
               onSubredditUpdated={handleSubredditUpdated}
             />
           </div>

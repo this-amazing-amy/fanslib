@@ -86,7 +86,7 @@ export const PostDetailFanslyStatistics = ({ post }: PostDetailFanslyStatisticsP
             id="fansly-statistics-id"
             placeholder="Enter ID or fansly.com/statistics/... URL"
             value={localStatisticsId}
-            onChange={(e) => updateStatisticsId(e.target.value)}
+            onChange={updateStatisticsId}
             isDisabled={isSaving}
           />
           {isSaving && (

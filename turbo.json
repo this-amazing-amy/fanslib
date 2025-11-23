@@ -40,5 +40,12 @@
     }
   },
   "globalDependencies": ["**/.env.*local"],
-  "globalEnv": ["NODE_ENV"]
+  "globalEnv": [
+    "NODE_ENV",
+    "PORT",
+    "APPDATA_PATH",
+    "LIBRARY_PATH",
+    "VITE_API_URL",
+    "FFPROBE_PATH"
+  ]
 }

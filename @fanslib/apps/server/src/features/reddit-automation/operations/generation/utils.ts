@@ -1,6 +1,6 @@
-import { buildFilterGroupQuery } from "~/features/library/filter-helpers";
 import { db } from "~/lib/db";
 import { Media } from "../../../library/entity";
+import { buildFilterGroupQuery } from "../../../library/filter-helpers";
 import type { MediaFilterSchema } from "../../../library/schemas/media-filter";
 import { PostMedia } from "../../../posts/entity";
 import { fetchPostsByMediaId } from "../../../posts/operations/post/fetch-by-media-id";

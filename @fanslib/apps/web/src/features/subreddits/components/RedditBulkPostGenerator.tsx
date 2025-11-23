@@ -13,7 +13,10 @@ type Subreddit = typeof SubredditSchema.static;
 
 type GeneratedPost = {
   id: string;
-  subreddit: Subreddit;
+  subreddit: {
+    id: string;
+    name: string;
+  };
   media: any;
   caption: string;
   date: Date;
@@ -45,7 +48,7 @@ export const RedditBulkPostGenerator = ({ subreddits }: RedditBulkPostGeneratorP
   const generatePostsMutation = useGeneratePosts();
   const schedulePostsMutation = useSchedulePosts();
   const regenerateMediaMutation = useRegenerateMedia();
-  const { data: scheduledPosts = [] } = useScheduledPosts();
+  const { data: scheduledPosts } = useScheduledPosts();
 
   const handleRefreshAuth = async () => {
     await Promise.all([loginStatusQuery.refetch(), sessionStatusQuery.refetch()]);
@@ -208,7 +211,7 @@ export const RedditBulkPostGenerator = ({ subreddits }: RedditBulkPostGeneratorP
 
         <div className="flex-1 flex flex-col bg-base-100 rounded-lg overflow-hidden border border-base-300">
           <div className="flex-1 overflow-y-auto">
-            <ScheduledPostsList posts={scheduledPosts} />
+            <ScheduledPostsList posts={scheduledPosts ?? []} />
           </div>
         </div>
       </div>

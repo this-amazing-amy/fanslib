@@ -13,9 +13,13 @@ type PostDetailNavigationProps = {
 
 export const PostDetailNavigation = ({ post }: PostDetailNavigationProps) => {
   const navigate = useNavigate();
-  const { data: allPosts = [] } = usePostsQuery();
+  const { data: allPosts } = usePostsQuery();
 
   const adjacentPosts = useMemo(() => {
+    if (!allPosts) {
+      return { previous: null, next: null };
+    }
+
     const channelPosts = allPosts
       .filter((p) => p.channelId === post.channelId)
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());

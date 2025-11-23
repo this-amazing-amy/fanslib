@@ -49,7 +49,7 @@ export const PostDetailUrlInput = ({ post }: PostDetailUrlInputProps) => {
           type="url"
           placeholder="Enter post URL"
           value={localUrl}
-          onChange={(e) => updateUrl(e.target.value)}
+          onChange={updateUrl}
           isDisabled={isSaving}
         />
         {isSaving && (

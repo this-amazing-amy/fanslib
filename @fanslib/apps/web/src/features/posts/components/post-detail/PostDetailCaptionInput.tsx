@@ -78,7 +78,7 @@ export const PostDetailCaptionInput = ({ post }: PostDetailCaptionInputProps) =>
           id="post-caption"
           placeholder="Add a caption..."
           value={localCaption}
-          onChange={(e) => updateCaption(e.target.value)}
+          onChange={updateCaption}
           rows={10}
           className="pr-10"
         />

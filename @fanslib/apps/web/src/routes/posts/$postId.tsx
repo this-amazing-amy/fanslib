@@ -1,3 +1,4 @@
+import type { PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
 import { ChannelBadge } from '~/components/ChannelBadge';
@@ -12,6 +13,8 @@ import { PostDetailPostponeButton } from '~/features/posts/components/post-detai
 import { PostDetailStatusButtons } from '~/features/posts/components/post-detail/PostDetailStatusButtons';
 import { PostDetailUrlInput } from '~/features/posts/components/post-detail/PostDetailUrlInput';
 import { usePostQuery } from '~/lib/queries/posts';
+
+type Post = typeof PostWithRelationsSchema.static;
 
 const PostDetailRoute = () => {
   const { postId } = Route.useParams();
@@ -35,6 +38,11 @@ const PostDetailRoute = () => {
     );
   }
 
+  const normalizedPost: Post = {
+    ...post,
+    subreddit: post.subreddit ?? null,
+  } as Post;
+
   return (
     <div className="overflow-y-auto">
       <div className="max-w-[1280px] px-8 mx-auto pt-8 pb-12">
@@ -44,13 +52,13 @@ const PostDetailRoute = () => {
             Back
           </Button>
           <div className="flex-1" />
-          <PostDetailNavigation post={post} />
+          <PostDetailNavigation post={normalizedPost} />
         </div>
 
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-semibold tracking-tight">Post</h1>
           <div className="flex items-center gap-2">
-            <PostDetailDeleteButton post={post} />
+            <PostDetailDeleteButton post={normalizedPost} />
           </div>
         </div>
 
@@ -58,20 +66,20 @@ const PostDetailRoute = () => {
           <div className="flex flex-col gap-4">
             <div className="self-start">
               <ChannelBadge
-                name={post.subreddit ? `r/${post.subreddit.name}` : post.channel.name}
-                typeId={post.subreddit ? 'reddit' : post.channel.typeId}
+                name={normalizedPost.subreddit ? `r/${normalizedPost.subreddit.name}` : normalizedPost.channel.name}
+                typeId={normalizedPost.subreddit ? 'reddit' : normalizedPost.channel.typeId}
                 size="lg"
               />
             </div>
-            <PostDetailMedia post={post} />
-            <PostDetailPostponeButton post={post} />
+            <PostDetailMedia post={normalizedPost} />
+            <PostDetailPostponeButton post={normalizedPost} />
           </div>
           <div className="flex flex-col gap-4">
-            <PostDetailStatusButtons post={post} />
-            <PostDetailDateTimeInputs post={post} />
-            <PostDetailUrlInput post={post} />
-            {post.channel.typeId === 'fansly' && <PostDetailFanslyStatistics post={post} />}
-            <PostDetailCaptionInput post={post} />
+            <PostDetailStatusButtons post={normalizedPost} />
+            <PostDetailDateTimeInputs post={normalizedPost} />
+            <PostDetailUrlInput post={normalizedPost} />
+            {normalizedPost.channel.typeId === 'fansly' && <PostDetailFanslyStatistics post={normalizedPost} />}
+            <PostDetailCaptionInput post={normalizedPost} />
           </div>
         </div>
       </div>
