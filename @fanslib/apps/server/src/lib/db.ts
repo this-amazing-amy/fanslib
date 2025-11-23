@@ -23,8 +23,9 @@ import { sqliteDbPath } from "./env";
 const dbPath = sqliteDbPath();
 
 export const AppDataSource = new DataSource({
-  type: "sqlite",
-  database: dbPath,
+  type: "sqljs",
+  location: dbPath,
+  autoSave: true,
   entities: [
     Media,
     Post,

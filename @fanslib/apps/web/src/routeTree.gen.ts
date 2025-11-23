@@ -26,6 +26,7 @@ import { Route as SettingsFilterPresetsRouteImport } from './routes/settings/fil
 import { Route as SettingsContentTagsRouteImport } from './routes/settings/content-tags'
 import { Route as SettingsContentSafetyRouteImport } from './routes/settings/content-safety'
 import { Route as SettingsAppearanceRouteImport } from './routes/settings/appearance'
+import { Route as PostsPostIdRouteImport } from './routes/posts/$postId'
 import { Route as LibraryMediaIdRouteImport } from './routes/library/$mediaId'
 import { Route as ContentLibraryRouteImport } from './routes/content/library'
 import { Route as ContentChannelsRouteImport } from './routes/content/channels'
@@ -119,6 +120,11 @@ const SettingsAppearanceRoute = SettingsAppearanceRouteImport.update({
   path: '/appearance',
   getParentRoute: () => SettingsRoute,
 } as any)
+const PostsPostIdRoute = PostsPostIdRouteImport.update({
+  id: '/posts/$postId',
+  path: '/posts/$postId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LibraryMediaIdRoute = LibraryMediaIdRouteImport.update({
   id: '/library/$mediaId',
   path: '/library/$mediaId',
@@ -168,6 +174,7 @@ export interface FileRoutesByFullPath {
   '/content/channels': typeof ContentChannelsRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
   '/library/$mediaId': typeof LibraryMediaIdRoute
+  '/posts/$postId': typeof PostsPostIdRoute
   '/settings/appearance': typeof SettingsAppearanceRoute
   '/settings/content-safety': typeof SettingsContentSafetyRoute
   '/settings/content-tags': typeof SettingsContentTagsRoute
@@ -193,6 +200,7 @@ export interface FileRoutesByTo {
   '/content/channels': typeof ContentChannelsRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
   '/library/$mediaId': typeof LibraryMediaIdRoute
+  '/posts/$postId': typeof PostsPostIdRoute
   '/settings/appearance': typeof SettingsAppearanceRoute
   '/settings/content-safety': typeof SettingsContentSafetyRoute
   '/settings/content-tags': typeof SettingsContentTagsRoute
@@ -219,6 +227,7 @@ export interface FileRoutesById {
   '/content/channels': typeof ContentChannelsRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
   '/library/$mediaId': typeof LibraryMediaIdRoute
+  '/posts/$postId': typeof PostsPostIdRoute
   '/settings/appearance': typeof SettingsAppearanceRoute
   '/settings/content-safety': typeof SettingsContentSafetyRoute
   '/settings/content-tags': typeof SettingsContentTagsRoute
@@ -247,6 +256,7 @@ export interface FileRouteTypes {
     | '/content/channels'
     | '/content/library'
     | '/library/$mediaId'
+    | '/posts/$postId'
     | '/settings/appearance'
     | '/settings/content-safety'
     | '/settings/content-tags'
@@ -272,6 +282,7 @@ export interface FileRouteTypes {
     | '/content/channels'
     | '/content/library'
     | '/library/$mediaId'
+    | '/posts/$postId'
     | '/settings/appearance'
     | '/settings/content-safety'
     | '/settings/content-tags'
@@ -297,6 +308,7 @@ export interface FileRouteTypes {
     | '/content/channels'
     | '/content/library'
     | '/library/$mediaId'
+    | '/posts/$postId'
     | '/settings/appearance'
     | '/settings/content-safety'
     | '/settings/content-tags'
@@ -322,6 +334,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRouteWithChildren
   SubredditsRoute: typeof SubredditsRoute
   LibraryMediaIdRoute: typeof LibraryMediaIdRoute
+  PostsPostIdRoute: typeof PostsPostIdRoute
   LibraryIndexRoute: typeof LibraryIndexRoute
   PlanIndexRoute: typeof PlanIndexRoute
   ShootsIndexRoute: typeof ShootsIndexRoute
@@ -448,6 +461,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsAppearanceRouteImport
       parentRoute: typeof SettingsRoute
     }
+    '/posts/$postId': {
+      id: '/posts/$postId'
+      path: '/posts/$postId'
+      fullPath: '/posts/$postId'
+      preLoaderRoute: typeof PostsPostIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/library/$mediaId': {
       id: '/library/$mediaId'
       path: '/library/$mediaId'
@@ -573,6 +593,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRouteWithChildren,
   SubredditsRoute: SubredditsRoute,
   LibraryMediaIdRoute: LibraryMediaIdRoute,
+  PostsPostIdRoute: PostsPostIdRoute,
   LibraryIndexRoute: LibraryIndexRoute,
   PlanIndexRoute: PlanIndexRoute,
   ShootsIndexRoute: ShootsIndexRoute,
