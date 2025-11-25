@@ -7,22 +7,22 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
-@Entity("FilterPreset")
+@Entity("filter_preset")
 // eslint-disable-next-line functional/no-classes
 export class FilterPreset {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @Column("varchar")
+  @Column({ type: "varchar", name: "name" })
   name!: string;
 
-  @Column("text")
+  @Column({ type: "text", name: "filtersJson" })
   filtersJson!: string;
 
-  @CreateDateColumn({ type: "datetime" })
+  @CreateDateColumn({ type: "datetime", name: "createdAt" })
   createdAt!: Date;
 
-  @UpdateDateColumn({ type: "datetime" })
+  @UpdateDateColumn({ type: "datetime", name: "updatedAt" })
   updatedAt!: Date;
 }
 

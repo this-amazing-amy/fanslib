@@ -10,29 +10,29 @@ import {
 } from "typeorm";
 import type { Channel } from "../channels/entity";
 
-@Entity("CaptionSnippet")
+@Entity("caption_snippet")
 // eslint-disable-next-line functional/no-classes
 export class CaptionSnippet {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @Column("varchar")
+  @Column({ type: "varchar", name: "name" })
   name!: string;
 
-  @Column("text")
+  @Column({ type: "text", name: "content" })
   content!: string;
 
-  @Column("uuid", { nullable: true })
+  @Column({ type: "uuid", nullable: true, name: "channelId" })
   channelId?: string;
 
   @ManyToOne("Channel", { nullable: true })
   @JoinColumn({ name: "channelId" })
   channel: Channel | null = null;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: "createdAt" })
   createdAt!: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: "updatedAt" })
   updatedAt!: Date;
 }
 

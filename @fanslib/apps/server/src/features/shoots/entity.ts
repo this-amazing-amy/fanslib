@@ -10,25 +10,25 @@ import {
 } from "typeorm";
 import type { Media } from "../library/entity";
 
-@Entity("Shoot")
+@Entity("shoot")
 // eslint-disable-next-line functional/no-classes
 export class Shoot {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @Column("varchar")
+  @Column({ type: "varchar", name: "name" })
   name!: string;
 
-  @Column("text", { nullable: true })
+  @Column({ type: "text", nullable: true, name: "description" })
   description: string | null = null;
 
-  @Column("datetime")
+  @Column({ type: "datetime", name: "shootDate" })
   shootDate!: Date;
 
-  @CreateDateColumn({ type: "datetime" })
+  @CreateDateColumn({ type: "datetime", name: "createdAt" })
   createdAt!: Date;
 
-  @UpdateDateColumn({ type: "datetime" })
+  @UpdateDateColumn({ type: "datetime", name: "updatedAt" })
   updatedAt!: Date;
 
   @ManyToMany("Media", { cascade: true })

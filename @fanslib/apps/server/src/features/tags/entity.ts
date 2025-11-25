@@ -14,44 +14,44 @@ import {
 export const STICKER_DISPLAY_MODES = ["none", "color", "short"] as const;
 export type StickerDisplayMode = (typeof STICKER_DISPLAY_MODES)[number];
 
-@Entity("TagDimension")
+@Entity("tag_dimension")
 // eslint-disable-next-line functional/no-classes
 export class TagDimension {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column("varchar", { unique: true })
+  @Column({ type: "varchar", unique: true, name: "name" })
   name!: string;
 
-  @Column("text", { nullable: true })
+  @Column({ type: "text", nullable: true, name: "description" })
   description: string | null = null;
 
-  @Column("varchar")
+  @Column({ type: "varchar", name: "dataType" })
   dataType!: "categorical" | "numerical" | "boolean";
 
-  @Column("text", { nullable: true })
+  @Column({ type: "text", nullable: true, name: "validationSchema" })
   validationSchema: string | null = null;
 
-  @Column("int", { default: 0 })
+  @Column({ type: "int", default: 0, name: "sortOrder" })
   sortOrder!: number;
 
-  @Column("varchar", { default: "none" })
+  @Column({ type: "varchar", default: "none", name: "stickerDisplay" })
   stickerDisplay!: StickerDisplayMode;
 
-  @Column("boolean", { default: false })
+  @Column({ type: "boolean", default: false, name: "isExclusive" })
   isExclusive!: boolean;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: "createdAt" })
   createdAt!: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: "updatedAt" })
   updatedAt!: Date;
 
   @OneToMany(() => TagDefinition, (tag) => tag.dimension)
   tags!: TagDefinition[];
 }
 
-@Entity("TagDefinition")
+@Entity("tag_definition")
 // eslint-disable-next-line functional/no-classes
 export class TagDefinition {
   @PrimaryGeneratedColumn()
@@ -61,31 +61,31 @@ export class TagDefinition {
   @JoinColumn({ name: "dimensionId" })
   dimension!: TagDimension;
 
-  @Column("int")
+  @Column({ type: "int", name: "dimensionId" })
   dimensionId!: number;
 
-  @Column("text")
+  @Column({ type: "text", name: "value" })
   value!: string;
 
-  @Column("varchar")
+  @Column({ type: "varchar", name: "displayName" })
   displayName!: string;
 
-  @Column("text", { nullable: true })
+  @Column({ type: "text", nullable: true, name: "description" })
   description: string | null = null;
 
-  @Column("text", { nullable: true })
+  @Column({ type: "text", nullable: true, name: "metadata" })
   metadata: string | null = null;
 
-  @Column("varchar", { nullable: true })
+  @Column({ type: "varchar", nullable: true, name: "color" })
   color: string | null = null;
 
-  @Column("varchar", { nullable: true })
+  @Column({ type: "varchar", nullable: true, name: "shortRepresentation" })
   shortRepresentation: string | null = null;
 
-  @Column("int", { default: 0 })
+  @Column({ type: "int", default: 0, name: "sortOrder" })
   sortOrder!: number;
 
-  @Column("int", { nullable: true })
+  @Column({ type: "int", nullable: true, name: "parentTagId" })
   parentTagId: number | null = null;
 
   @ManyToOne(() => TagDefinition, { nullable: true })
@@ -95,17 +95,17 @@ export class TagDefinition {
   @OneToMany(() => TagDefinition, (tag) => tag.parent)
   children!: TagDefinition[];
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: "createdAt" })
   createdAt!: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: "updatedAt" })
   updatedAt!: Date;
 
   @OneToMany(() => MediaTag, (mediaTag) => mediaTag.tag)
   mediaTags!: MediaTag[];
 }
 
-@Entity("MediaTag")
+@Entity("media_tag")
 @Index(["dimensionName", "tagValue"])
 @Index(["mediaId", "dimensionName"])
 @Index(["dimensionName", "numericValue"])
@@ -114,57 +114,57 @@ export class MediaTag {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column("varchar")
+  @Column({ type: "varchar", name: "mediaId" })
   mediaId!: string;
 
   @ManyToOne("Media", { onDelete: "CASCADE" })
   @JoinColumn({ name: "mediaId" })
   media: unknown;
 
-  @Column("int")
+  @Column({ type: "int", name: "tagDefinitionId" })
   tagDefinitionId!: number;
 
   @ManyToOne(() => TagDefinition, (tag) => tag.mediaTags, { onDelete: "CASCADE" })
   @JoinColumn({ name: "tagDefinitionId" })
   tag!: TagDefinition;
 
-  @Column("int")
+  @Column({ type: "int", name: "dimensionId" })
   dimensionId!: number;
 
-  @Column("varchar")
+  @Column({ type: "varchar", name: "dimensionName" })
   dimensionName!: string;
 
-  @Column("varchar")
+  @Column({ type: "varchar", name: "dataType" })
   dataType!: "categorical" | "numerical" | "boolean";
 
-  @Column("text")
+  @Column({ type: "text", name: "tagValue" })
   tagValue!: string;
 
-  @Column("varchar")
+  @Column({ type: "varchar", name: "tagDisplayName" })
   tagDisplayName!: string;
 
-  @Column("varchar", { nullable: true })
+  @Column({ type: "varchar", nullable: true, name: "color" })
   color: string | null = null;
 
-  @Column("varchar", { default: "none" })
+  @Column({ type: "varchar", default: "none", name: "stickerDisplay" })
   stickerDisplay!: StickerDisplayMode;
 
-  @Column("varchar", { nullable: true })
+  @Column({ type: "varchar", nullable: true, name: "shortRepresentation" })
   shortRepresentation: string | null = null;
 
-  @Column("real", { nullable: true })
+  @Column({ type: "real", nullable: true, name: "numericValue" })
   numericValue: number | null = null;
 
-  @Column("boolean", { nullable: true })
+  @Column({ type: "boolean", nullable: true, name: "booleanValue" })
   booleanValue: boolean | null = null;
 
-  @Column("real", { nullable: true })
+  @Column({ type: "real", nullable: true, name: "confidence" })
   confidence: number | null = null;
 
-  @Column("varchar")
+  @Column({ type: "varchar", name: "source" })
   source!: "manual" | "automated" | "imported";
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: "assignedAt" })
   assignedAt!: Date;
 }
 

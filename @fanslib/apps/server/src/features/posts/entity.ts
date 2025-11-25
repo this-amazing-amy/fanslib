@@ -19,56 +19,57 @@ import { Subreddit } from "../subreddits/entity";
 
 export type PostStatus = "draft" | "scheduled" | "posted";
 
-@Entity("Post")
+@Entity("post")
 // eslint-disable-next-line functional/no-classes
 export class Post {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @Column("varchar")
+  @Column({ type: "varchar", name: "createdAt" })
   createdAt!: string;
 
-  @Column("varchar")
+  @Column({ type: "varchar", name: "updatedAt" })
   updatedAt!: string;
 
-  @Column("varchar", { nullable: true })
+  @Column({ type: "varchar", nullable: true, name: "scheduleId" })
   scheduleId: string | null = null;
 
   @ManyToOne("ContentSchedule")
   @JoinColumn({ name: "scheduleId" })
   schedule?: ContentSchedule;
 
-  @Column("varchar", { nullable: true })
+  @Column({ type: "varchar", nullable: true, name: "caption" })
   caption: string | null = null;
 
-  @Column("varchar")
+  @Column({ type: "varchar", name: "date" })
   date!: string;
 
-  @Column("varchar", { nullable: true })
+  @Column({ type: "varchar", nullable: true, name: "url" })
   url: string | null = null;
 
-  @Column("varchar", { nullable: true })
+  @Column({ type: "varchar", nullable: true, name: "fanslyStatisticsId" })
   fanslyStatisticsId: string | null = null;
 
-  @Column("datetime", { nullable: true })
+  @Column({ type: "datetime", nullable: true, name: "fypRemovedAt" })
   fypRemovedAt!: Date | null;
 
   @Column({
     type: "varchar",
     enum: ["draft", "scheduled", "posted"],
+    name: "status",
   })
   status!: PostStatus;
 
   @ManyToOne("Channel")
   @JoinColumn({ name: "channelId" })
   channel!: Channel;
-  @Column("varchar")
+  @Column({ type: "varchar", name: "channelId" })
   channelId!: string;
 
   @ManyToOne(() => Subreddit)
   @JoinColumn({ name: "subredditId" })
   subreddit?: Subreddit;
-  @Column("varchar", { nullable: true })
+  @Column({ type: "varchar", nullable: true, name: "subredditId" })
   subredditId: string | null = null;
 
   @OneToMany(() => PostMedia, (mediaOrder) => mediaOrder.post)
@@ -89,32 +90,32 @@ export class Post {
   fanslyAnalyticsAggregate?: FanslyAnalyticsAggregate;
 }
 
-@Entity("PostMedia")
+@Entity("post_media")
 // eslint-disable-next-line functional/no-classes
 export class PostMedia {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @Column("int")
+  @Column({ type: "int", name: "order" })
   order!: number;
 
-  @Column("boolean", { default: false })
+  @Column({ type: "boolean", default: false, name: "isFreePreview" })
   isFreePreview!: boolean;
 
   @ManyToOne(() => Post, (post) => post.postMedia, { onDelete: "CASCADE" })
-  @JoinColumn()
+  @JoinColumn({ name: "postId" })
   post!: Post;
 
-  @ManyToOne("Media", 
+  @ManyToOne("Media",
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (media: any) => media.postMedia, { onDelete: "CASCADE" })
-  @JoinColumn()
+  @JoinColumn({ name: "mediaId" })
   media!: Media;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: "createdAt" })
   createdAt!: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: "updatedAt" })
   updatedAt!: Date;
 }
 

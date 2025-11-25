@@ -2,46 +2,47 @@ import { t } from "elysia";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
 import type { Channel } from "../channels/entity";
 
-@Entity("ContentSchedule")
+@Entity("content_schedule")
 // eslint-disable-next-line functional/no-classes
 export class ContentSchedule {
   @PrimaryColumn("varchar")
   id!: string;
 
-  @Column("varchar")
+  @Column({ type: "varchar", name: "channelId" })
   channelId!: string;
 
-  @Column("varchar", { default: "Untitled Schedule" })
+  @Column({ type: "varchar", default: "Untitled Schedule", name: "name" })
   name!: string;
 
-  @Column("varchar", { nullable: true })
+  @Column({ type: "varchar", nullable: true, name: "emoji" })
   emoji: string | null = null;
 
-  @Column("varchar", { nullable: true, default: "#6366f1" })
+  @Column({ type: "varchar", nullable: true, default: "#6366f1", name: "color" })
   color: string | null = "#6366f1";
 
   @Column({
     type: "varchar",
     enum: ["daily", "weekly", "monthly"],
+    name: "type",
   })
   type!: "daily" | "weekly" | "monthly";
 
-  @Column("int", { nullable: true })
+  @Column({ type: "int", nullable: true, name: "postsPerTimeframe" })
   postsPerTimeframe: number | null = null;
 
-  @Column("simple-array", { nullable: true })
+  @Column({ type: "simple-array", nullable: true, name: "preferredDays" })
   preferredDays: string[] | null = null;
 
-  @Column("simple-array", { nullable: true })
+  @Column({ type: "simple-array", nullable: true, name: "preferredTimes" })
   preferredTimes: string[] | null = null;
 
-  @Column("varchar")
+  @Column({ type: "varchar", name: "updatedAt" })
   updatedAt!: string;
 
-  @Column("varchar")
+  @Column({ type: "varchar", name: "createdAt" })
   createdAt!: string;
 
-  @Column("text", { nullable: true })
+  @Column({ type: "text", nullable: true, name: "mediaFilters" })
   mediaFilters: string | null = null;
 
   @ManyToOne("Channel", { onDelete: "CASCADE" })

@@ -13,7 +13,7 @@ import type { Hashtag } from "../hashtags/entity";
 import { HashtagSchema } from "../hashtags/entity";
 import type { MediaFilterSchema } from "../library/schemas/media-filter";
 
-@Entity("ChannelType")
+@Entity("channel_type")
 // eslint-disable-next-line functional/no-classes
 export class ChannelType {
   @PrimaryColumn("varchar")
@@ -26,7 +26,7 @@ export class ChannelType {
   color: string | null = null;
 }
 
-@Entity("Channel")
+@Entity("channel")
 // eslint-disable-next-line functional/no-classes
 export class Channel {
   @PrimaryGeneratedColumn("uuid")
@@ -38,10 +38,10 @@ export class Channel {
   @Column("varchar", { nullable: true })
   description: string | null = null;
 
-  @Column("varchar")
+  @Column({ type: "varchar", name: "typeId" })
   typeId!: string;
 
-  @Column("simple-json", { nullable: true })
+  @Column({ type: "simple-json", nullable: true, name: "eligibleMediaFilter" })
   eligibleMediaFilter: typeof MediaFilterSchema.static | null = null;
 
   @ManyToOne(() => ChannelType)

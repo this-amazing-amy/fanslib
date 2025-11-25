@@ -16,41 +16,41 @@ import type { MediaTag } from "../tags/entity";
 
 export type MediaType = "image" | "video";
 
-@Entity("Media")
+@Entity("media")
 // eslint-disable-next-line functional/no-classes
 export class Media {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
   @Index(["relativePath"])
-  @Column({ type: "varchar", unique: true })
+  @Column({ type: "varchar", unique: true, name: "relativePath" })
   relativePath!: string;
 
-  @Column("varchar")
+  @Column({ type: "varchar", name: "type" })
   type!: MediaType;
 
-  @Column("varchar")
+  @Column({ type: "varchar", name: "name" })
   name!: string;
 
-  @Column("bigint")
+  @Column({ type: "bigint", name: "size" })
   size!: number;
 
-  @Column({ type: "float", nullable: true })
+  @Column({ type: "float", nullable: true, name: "duration" })
   duration: number | null = null;
 
-  @Column({ type: "varchar", nullable: true })
+  @Column({ type: "varchar", nullable: true, name: "redgifsUrl" })
   redgifsUrl: string | null = null;
 
-  @CreateDateColumn({ type: "datetime" })
+  @CreateDateColumn({ type: "datetime", name: "createdAt" })
   createdAt!: Date;
 
-  @UpdateDateColumn({ type: "datetime" })
+  @UpdateDateColumn({ type: "datetime", name: "updatedAt" })
   updatedAt!: Date;
 
-  @Column("datetime")
+  @Column({ type: "datetime", name: "fileCreationDate" })
   fileCreationDate!: Date;
 
-  @Column("datetime")
+  @Column({ type: "datetime", name: "fileModificationDate" })
   fileModificationDate!: Date;
 
   @OneToMany("PostMedia", (postMedia: { media: Media }) => postMedia.media)

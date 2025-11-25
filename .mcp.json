@@ -7,6 +7,14 @@
         "@modelcontextprotocol/server-sqlite",
         "/Users/ameliaheydorn/dev/private/fanslib-web/.dev-data/appdata/fanslib.sqlite"
       ]
+    },
+    "sqlite-server-prod": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sqlite",
+        "/Users/ameliaheydorn/dev/private/fanslib-web/fanslib-prod.sqlite"
+      ]
     }
   }
 }

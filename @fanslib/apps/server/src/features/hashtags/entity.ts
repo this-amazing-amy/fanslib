@@ -12,26 +12,26 @@ import {
 } from "typeorm";
 import type { Channel } from "../channels/entity";
 
-@Entity("Hashtag")
+@Entity("hashtag")
 // eslint-disable-next-line functional/no-classes
 export class Hashtag {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column("varchar", { unique: true })
+  @Column({ type: "varchar", unique: true, name: "name" })
   name!: string;
 
-  @CreateDateColumn({ type: "datetime" })
+  @CreateDateColumn({ type: "datetime", name: "createdAt" })
   createdAt!: Date;
 
-  @UpdateDateColumn({ type: "datetime" })
+  @UpdateDateColumn({ type: "datetime", name: "updatedAt" })
   updatedAt!: Date;
 
   @OneToMany(() => HashtagChannelStats, (stats) => stats.hashtag)
   channelStats!: HashtagChannelStats[];
 }
 
-@Entity("HashtagChannelStats")
+@Entity("hashtag_channel_stats")
 @Unique(["hashtag", "channel"])
 // eslint-disable-next-line functional/no-classes
 export class HashtagChannelStats {
@@ -42,23 +42,23 @@ export class HashtagChannelStats {
   @JoinColumn({ name: "hashtagId" })
   hashtag!: Hashtag;
 
-  @Column("int")
+  @Column({ type: "int", name: "hashtagId" })
   hashtagId!: number;
 
   @ManyToOne("Channel", { onDelete: "CASCADE" })
   @JoinColumn({ name: "channelId" })
   channel!: Channel;
 
-  @Column("varchar")
+  @Column({ type: "varchar", name: "channelId" })
   channelId!: string;
 
-  @Column("int", { default: 0 })
+  @Column({ type: "int", default: 0, name: "views" })
   views!: number;
 
-  @CreateDateColumn({ type: "datetime" })
+  @CreateDateColumn({ type: "datetime", name: "createdAt" })
   createdAt!: Date;
 
-  @UpdateDateColumn({ type: "datetime" })
+  @UpdateDateColumn({ type: "datetime", name: "updatedAt" })
   updatedAt!: Date;
 }
 

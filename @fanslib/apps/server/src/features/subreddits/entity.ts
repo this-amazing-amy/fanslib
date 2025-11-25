@@ -15,37 +15,37 @@ export const VERIFICATION_STATUS = {
 
 export const VerificatoinStatusSchema = t.Union([t.Literal(VERIFICATION_STATUS.UNKNOWN), t.Literal(VERIFICATION_STATUS.NOT_NEEDED), t.Literal(VERIFICATION_STATUS.NEEDED), t.Literal(VERIFICATION_STATUS.APPLIED), t.Literal(VERIFICATION_STATUS.REJECTED), t.Literal(VERIFICATION_STATUS.VERIFIED)]);
 
-@Entity("Subreddit")
+@Entity("subreddit")
 // eslint-disable-next-line functional/no-classes
 export class Subreddit {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @Column("varchar")
+  @Column({ type: "varchar", name: "name" })
   name!: string;
 
-  @Column("int", { nullable: true })
+  @Column({ type: "int", nullable: true, name: "maxPostFrequencyHours" })
   maxPostFrequencyHours: number | null = null;
 
-  @Column("text", { nullable: true })
+  @Column({ type: "text", nullable: true, name: "notes" })
   notes: string | null = null;
 
-  @Column("int", { nullable: true })
+  @Column({ type: "int", nullable: true, name: "memberCount" })
   memberCount: number | null = null;
 
-  @Column("simple-json", { nullable: true })
+  @Column({ type: "simple-json", nullable: true, name: "eligibleMediaFilter" })
   eligibleMediaFilter: MediaFilters | null = null;
 
-  @Column("varchar", { default: VERIFICATION_STATUS.UNKNOWN })
+  @Column({ type: "varchar", default: VERIFICATION_STATUS.UNKNOWN, name: "verificationStatus" })
   verificationStatus!: typeof VerificatoinStatusSchema.static;
 
-  @Column("varchar", { nullable: true })
+  @Column({ type: "varchar", nullable: true, name: "defaultFlair" })
   defaultFlair: string | null = null;
 
-  @Column("varchar", { nullable: true })
+  @Column({ type: "varchar", nullable: true, name: "captionPrefix" })
   captionPrefix: string | null = null;
 
-  @Column("simple-json", { nullable: true })
+  @Column({ type: "simple-json", nullable: true, name: "postingTimesData" })
   postingTimesData: Array<{
     day: number;
     hour: number;
@@ -53,10 +53,10 @@ export class Subreddit {
     score: number;
   }> | null = null;
 
-  @Column("datetime", { nullable: true })
+  @Column({ type: "datetime", nullable: true, name: "postingTimesLastFetched" })
   postingTimesLastFetched: Date | null = null;
 
-  @Column("varchar", { nullable: true })
+  @Column({ type: "varchar", nullable: true, name: "postingTimesTimezone" })
   postingTimesTimezone: string | null = null;
 }
 

@@ -1,7 +1,7 @@
 /* eslint-disable functional/no-classes */
 import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity("FanslyAnalyticsDatapoint")
+@Entity("fansly_analytics_datapoint")
 export class FanslyAnalyticsDatapoint {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
@@ -23,7 +23,7 @@ export class FanslyAnalyticsDatapoint {
   postId!: string;
 }
 
-@Entity("FanslyAnalyticsAggregate")
+@Entity("fansly_analytics_aggregate")
 export class FanslyAnalyticsAggregate {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
@@ -59,7 +59,7 @@ export class FanslyAnalyticsAggregate {
   postId!: string;
 }
 
-@Entity("AnalyticsFetchHistory")
+@Entity("analytics_fetch_history")
 export class AnalyticsFetchHistory {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
