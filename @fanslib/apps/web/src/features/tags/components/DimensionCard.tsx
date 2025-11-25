@@ -1,27 +1,33 @@
-import { MoreHorizontal, PenLine, Plus, Trash2 } from "lucide-react";
+import type { TagDefinitionSchema, TagDimensionSchema } from "@fanslib/server/schemas";
+import { MoreVertical, PenLine, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
 import { Card, CardBody, CardTitle } from "~/components/ui/Card";
 import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuPopover,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuItem,
+    DropdownMenuPopover,
+    DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
 import { cn } from "~/lib/cn";
+import { getTagTypeStyles } from "~/lib/colors";
 import { DeleteDimensionDialog } from "./DeleteDimensionDialog";
 import { TagListView } from "./TagListView";
 import { TagTreeView } from "./TagTreeView";
 
+type TagDefinition = typeof TagDefinitionSchema.static;
+type TagDimension = typeof TagDimensionSchema.static;
+type TagDimensionWithTags = TagDimension & { tags?: TagDefinition[] };
+
 type DimensionCardProps = {
-  dimension: any;
+  dimension: TagDimensionWithTags;
   viewMode: "list" | "tree";
   selectedTagId?: number;
   onCreateTag: (dimensionId: number, parentTagId?: number) => void;
-  onEditTag: (tag: any) => void;
+  onEditTag: (tag: TagDefinition) => void;
   onDeleteTag: (tagId: number) => void;
   onDeleteDimension: (dimensionId: number) => void;
-  onEditDimension?: (dimension: any) => void;
+  onEditDimension?: (dimension: TagDimensionWithTags) => void;
   onUpdateParent: (tagId: number, newParentId: number | null) => void;
   onSelectTag?: (tagId: number) => void;
   isDeletingDimension?: boolean;
@@ -37,19 +43,6 @@ const getDataTypeLabel = (dataType: string) => {
       return "Boolean";
     default:
       return dataType;
-  }
-};
-
-const getDataTypeColor = (dataType: string) => {
-  switch (dataType) {
-    case "categorical":
-      return "badge-info";
-    case "numerical":
-      return "badge-success";
-    case "boolean":
-      return "badge-secondary";
-    default:
-      return "badge-ghost";
   }
 };
 
@@ -104,7 +97,10 @@ export const DimensionCard = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <span className={cn("badge badge-sm", getDataTypeColor(dimension.dataType))}>
+            <span 
+              className={cn("badge badge-sm border")}
+              style={getTagTypeStyles(dimension.dataType as 'categorical' | 'numerical' | 'boolean')}
+            >
               {getDataTypeLabel(dimension.dataType)}
             </span>
 
@@ -115,7 +111,7 @@ export const DimensionCard = ({
 
             <DropdownMenuTrigger>
               <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <MoreHorizontal className="w-4 h-4" />
+                <MoreVertical className="w-4 h-4" />
               </Button>
               <DropdownMenuPopover placement="bottom end">
                 <DropdownMenu
@@ -124,12 +120,12 @@ export const DimensionCard = ({
                     if (key === "delete") handleDeleteDimension();
                   }}
                 >
-                  <DropdownMenuItem id="edit">
-                    <PenLine className="w-4 h-4 mr-2" />
+                  <DropdownMenuItem id="edit" className="flex items-center whitespace-nowrap">
+                    <PenLine className="w-4 h-4 mr-2 shrink-0" />
                     Edit Dimension
                   </DropdownMenuItem>
-                  <DropdownMenuItem id="delete" className="text-error">
-                    <Trash2 className="w-4 h-4 mr-2" />
+                  <DropdownMenuItem id="delete" className="text-error flex items-center whitespace-nowrap">
+                    <Trash2 className="w-4 h-4 mr-2 shrink-0" />
                     Delete Dimension
                   </DropdownMenuItem>
                 </DropdownMenu>

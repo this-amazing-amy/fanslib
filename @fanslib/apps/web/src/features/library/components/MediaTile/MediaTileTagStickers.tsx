@@ -1,6 +1,7 @@
 import type { MediaSchema } from "@fanslib/server/schemas";
 import { Sticker } from "~/components/ui/Sticker";
 import { useMediaTagsQuery } from "~/lib/queries/tags";
+import { getColorDefinitionFromString } from "~/lib/colors";
 
 type Media = typeof MediaSchema.static;
 
@@ -24,18 +25,21 @@ export const MediaTileTagStickers = ({ media }: MediaTileTagStickersProps) => {
 
   return (
     <>
-      {/* Render color bubble stickers */}
-      {colorTags.length > 0 && (
-        <Sticker>
-          {colorTags.map((tag) => (
-            <div
-              key={tag.id}
-              className="w-2 h-2 rounded-full"
-              style={{ backgroundColor: tag.color ?? "#666" }}
-            />
-          ))}
-        </Sticker>
-      )}
+      {/* Render color stickers */}
+      {colorTags.map((tag) => {
+        const colors = getColorDefinitionFromString(tag.color, tag.id);
+
+        return (
+          <div
+            key={tag.id}
+            className="rounded-full flex items-center justify-center min-w-5 h-5 p-1 border"
+            style={{
+              backgroundColor: colors.background,
+              borderColor: colors.foreground,
+            }}
+          />
+        );
+      })}
 
       {/* Render short text stickers */}
       {shortTags.map((tag) => {

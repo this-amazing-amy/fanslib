@@ -37,7 +37,7 @@ export const FormDialog = ({
   <DialogTrigger isOpen={open} onOpenChange={onOpenChange}>
     <DialogModal isDismissable={isDismissable}>
       <Dialog maxWidth={maxWidth} className={contentClassName}>
-        {({ close }) => (
+        {({ close: _close }) => (
           <>
             <DialogHeader>
               <DialogTitle>{title}</DialogTitle>

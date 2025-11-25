@@ -1,16 +1,12 @@
 import type { ReactNode } from 'react';
 import {
-  DialogTrigger,
   Modal,
   Dialog as AriaDialog,
   Heading,
-  type DialogTriggerProps,
   type ModalOverlayProps,
   type DialogProps as AriaDialogProps,
 } from 'react-aria-components';
 import { cn } from '~/lib/cn';
-import type { ButtonProps } from '../Button';
-import { Button } from '../Button';
 
 // Re-export DialogTrigger as AlertDialogTrigger
 export { DialogTrigger as AlertDialogTrigger } from 'react-aria-components';
@@ -21,9 +17,7 @@ type AlertDialogModalProps = Omit<ModalOverlayProps, 'children'> & {
   className?: string;
 }
 
-export const AlertDialogModal = ({ children, className, isDismissable = false, ...props }: AlertDialogModalProps) => {
-  return (
-    <Modal
+export const AlertDialogModal = ({ children, className, isDismissable = false, ...props }: AlertDialogModalProps) => <Modal
       isDismissable={isDismissable}
       className={cn(
         'fixed inset-0 z-50 bg-black/50',
@@ -34,9 +28,7 @@ export const AlertDialogModal = ({ children, className, isDismissable = false, .
       {...props}
     >
       {children}
-    </Modal>
-  );
-};
+    </Modal>;
 
 // AlertDialog component wrapper with content styling
 type AlertDialogProps = Omit<AriaDialogProps, 'children'> & {
@@ -54,9 +46,7 @@ const maxWidthClasses = {
   '3xl': 'max-w-3xl',
 };
 
-export const AlertDialog = ({ children, className, maxWidth = 'lg', ...props }: AlertDialogProps) => {
-  return (
-    <AriaDialog
+export const AlertDialog = ({ children, className, maxWidth = 'lg', ...props }: AlertDialogProps) => <AriaDialog
       role="alertdialog"
       className={cn(
         'fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border-2 border-base-content bg-base-100 p-6 shadow-xl rounded-lg outline-none',
@@ -70,9 +60,7 @@ export const AlertDialog = ({ children, className, maxWidth = 'lg', ...props }: 
       {...props}
     >
       {children}
-    </AriaDialog>
-  );
-};
+    </AriaDialog>;
 
 // Helper components for AlertDialog structure
 export type AlertDialogHeaderProps = {

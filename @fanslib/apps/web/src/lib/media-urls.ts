@@ -1,4 +1,4 @@
-const backendBaseUrl = `http://localhost:8001`;
+const backendBaseUrl = `http://localhost:6970`;
 
 export const getMediaFileUrl = (id: string) => `${backendBaseUrl}/api/media/${id}/file`;
 

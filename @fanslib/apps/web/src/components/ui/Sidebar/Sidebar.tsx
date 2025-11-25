@@ -1,5 +1,5 @@
 import { ArrowLeftSquare, ArrowRightSquare } from 'lucide-react';
-import { type ReactNode, createContext, useContext, useState, useEffect } from 'react';
+import { type ReactNode, createContext, useCallback, useContext, useState, useEffect } from 'react';
 import { Button } from '../Button';
 import { Logo } from '../Logo';
 
@@ -39,12 +39,12 @@ export const Sidebar = ({
 
   const open = controlledOpen ?? internalOpen;
 
-  const setOpen = (newOpen: boolean) => {
+  const setOpen = useCallback((newOpen: boolean) => {
     onOpenChange?.(newOpen);
     if (controlledOpen === undefined) {
       setInternalOpen(newOpen);
     }
-  };
+  }, [onOpenChange, controlledOpen]);
 
   const toggleSidebar = () => setOpen(!open);
 

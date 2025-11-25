@@ -1,5 +1,6 @@
 import { t } from "elysia";
 import { ChannelSchema } from "~/features/channels/entity";
+import { ContentScheduleSchema } from "~/features/content-schedules/entity";
 import { MediaSchema } from "~/features/library/entity";
 import { SubredditSchema } from "~/features/subreddits/entity";
 import { db } from "../../../../lib/db";
@@ -20,6 +21,7 @@ export const FetchPostByIdResponseSchema = t.Composite([
     ])),
     channel: ChannelSchema,
     subreddit: t.Optional(t.Partial(SubredditSchema)),
+    schedule: t.Nullable(ContentScheduleSchema),
   }),
 ]);
 
@@ -27,7 +29,7 @@ export const fetchPostById = async (id: string): Promise<typeof FetchPostByIdRes
   const dataSource = await db();
   const repository = dataSource.getRepository(Post);
 
-  return repository.findOne({
+  const post = await repository.findOne({
     where: { id },
     relations: {
       postMedia: {
@@ -38,6 +40,7 @@ export const fetchPostById = async (id: string): Promise<typeof FetchPostByIdRes
         defaultHashtags: true,
       },
       subreddit: true,
+      schedule: true,
     },
     order: {
       postMedia: {
@@ -45,5 +48,7 @@ export const fetchPostById = async (id: string): Promise<typeof FetchPostByIdRes
       },
     },
   });
+
+  return post ? { ...post, schedule: post.schedule ?? null } : null;
 };
 

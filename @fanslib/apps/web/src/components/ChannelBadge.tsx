@@ -1,12 +1,12 @@
 import { cn } from "~/lib/cn";
 import { CHANNEL_TYPES, type ChannelTypeId } from "~/lib/channel-types";
-import { Badge } from "./ui/Badge";
+import { darkenColor } from "~/lib/color-utils";
 import { ChannelTypeIcon } from "./ChannelTypeIcon";
 
 type ChannelBadgeProps = {
   name?: string;
   typeId: string;
-  size?: "default" | "sm" | "lg";
+  size?: "sm" | "md" | "lg";
   selected?: boolean;
   selectable?: boolean;
   disabled?: boolean;
@@ -18,8 +18,8 @@ type ChannelBadgeProps = {
 export const ChannelBadge = ({
   name = "",
   typeId,
-  size = "default",
-  selected = false,
+  size = "sm",
+  selected: _selected = false,
   selectable = false,
   disabled = false,
   onClick,
@@ -27,39 +27,37 @@ export const ChannelBadge = ({
   noName = false,
 }: ChannelBadgeProps) => {
   const channelType = CHANNEL_TYPES[typeId as ChannelTypeId];
-  const badgeSize = size === "default" ? "md" : size;
+  const bgColor = channelType?.color ?? "#6b7280";
+  const borderColor = darkenColor(bgColor, 0.12);
+
+  const isClickable = onClick ?? selectable;
 
   return (
-    <Badge
-      variant={selected ? "primary" : "neutral"}
-      outline={!selected}
-      size={badgeSize}
+    <div
       className={cn(
-        "flex items-center cursor-pointer",
+        "rounded-full font-medium flex items-center border",
         {
-          "gap-2": size === "default",
-          "gap-1": size === "sm",
-          "gap-3": size === "lg",
+          "px-1.5 py-0.5 text-[10px] gap-1 leading-tight": size === "sm",
+          "px-2 py-0.5 text-xs gap-1.5": size === "md",
+          "px-2.5 py-1 text-sm gap-1.5": size === "lg",
         },
-        onClick || (selectable && "transition-colors cursor-pointer"),
+        isClickable && "cursor-pointer transition-colors",
         disabled && "opacity-30 cursor-not-allowed",
         className
       )}
       style={{
-        backgroundColor:
-          (selectable && selected) || !selectable ? channelType.color : "transparent",
-        borderColor: channelType.color,
-        color: (selectable && selected) || !selectable ? "white" : channelType.color,
+        backgroundColor: bgColor,
+        borderColor: borderColor,
+        color: "#fff",
       }}
       onClick={!disabled ? onClick : undefined}
     >
       <ChannelTypeIcon
         typeId={typeId as ChannelTypeId}
-        color={(selectable && selected) || !selectable ? "white" : channelType.color}
-        className={cn("w-4 h-4", size === "sm" && "w-3 h-3")}
+        color="white"
+        className={cn(size === "sm" ? "w-3 h-3" : size === "md" ? "w-3.5 h-3.5" : "w-4 h-4")}
       />
       {!noName && name}
-    </Badge>
+    </div>
   );
 };
-

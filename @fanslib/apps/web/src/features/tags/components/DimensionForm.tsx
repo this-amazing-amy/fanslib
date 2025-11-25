@@ -13,11 +13,14 @@ import {
 } from "~/lib/tags/tagValidation";
 import type {
   CreateTagDimensionRequestBodySchema,
+  TagDimensionSchema,
   UpdateTagDimensionRequestBodySchema,
 } from "@fanslib/server/schemas";
 
+type TagDimension = typeof TagDimensionSchema.static;
+
 type DimensionFormProps = {
-  initialData?: any;
+  initialData?: TagDimension;
   onSubmit: (
     data:
       | typeof CreateTagDimensionRequestBodySchema.static
@@ -27,17 +30,27 @@ type DimensionFormProps = {
   isSubmitting?: boolean;
 };
 
+type DimensionFormData = {
+  name: string;
+  description: string;
+  dataType: "categorical" | "numerical" | "boolean";
+  validationSchema: string;
+  sortOrder: number;
+  stickerDisplay: "none" | "color" | "short";
+  isExclusive: boolean;
+};
+
 export const DimensionForm = ({ initialData, onSubmit, onCancel, isSubmitting = false }: DimensionFormProps) => {
   const isEditing = !!initialData;
 
-  const [formData, setFormData] = useState<any>({
-    name: initialData?.name || "",
-    description: initialData?.description || "",
-    dataType: initialData?.dataType || "categorical",
-    validationSchema: initialData?.validationSchema || "",
-    sortOrder: initialData?.sortOrder || 0,
-    stickerDisplay: initialData?.stickerDisplay || "none",
-    isExclusive: initialData?.isExclusive || false,
+  const [formData, setFormData] = useState<DimensionFormData>({
+    name: initialData?.name ?? "",
+    description: initialData?.description ?? "",
+    dataType: initialData?.dataType ?? "categorical",
+    validationSchema: initialData?.validationSchema ?? "",
+    sortOrder: initialData?.sortOrder ?? 0,
+    stickerDisplay: initialData?.stickerDisplay ?? "none",
+    isExclusive: initialData?.isExclusive ?? false,
   });
 
   const [booleanSchema, setBooleanSchema] = useState<BooleanSchema>(() =>
@@ -47,18 +60,16 @@ export const DimensionForm = ({ initialData, onSubmit, onCancel, isSubmitting = 
     parseNumericSchema(formData.validationSchema)
   );
 
-  const updateFormData = (updates: any) => {
-    setFormData((prev: any) => ({ ...prev, ...updates }));
+  const updateFormData = (updates: Partial<DimensionFormData>) => {
+    setFormData((prev) => ({ ...prev, ...updates }));
   };
 
   const handleDataTypeChange = (dataType: "categorical" | "numerical" | "boolean") => {
-    let validationSchema = "";
-
-    if (dataType === "boolean") {
-      validationSchema = JSON.stringify(booleanSchema);
-    } else if (dataType === "numerical") {
-      validationSchema = JSON.stringify(numericSchema);
-    }
+    const validationSchema = dataType === "boolean"
+      ? JSON.stringify(booleanSchema)
+      : dataType === "numerical"
+        ? JSON.stringify(numericSchema)
+        : "";
 
     updateFormData({ dataType, validationSchema });
   };
@@ -86,17 +97,17 @@ export const DimensionForm = ({ initialData, onSubmit, onCancel, isSubmitting = 
 
     const submitData = {
       name: formData.name.trim(),
-      description: formData.description?.trim() || undefined,
+      description: formData.description?.trim() ?? undefined,
       ...(isEditing
         ? {
-            validationSchema: formData.validationSchema || undefined,
+            validationSchema: formData.validationSchema ?? undefined,
             sortOrder: formData.sortOrder,
             stickerDisplay: formData.stickerDisplay,
             isExclusive: formData.isExclusive,
           }
         : {
             dataType: formData.dataType,
-            validationSchema: formData.validationSchema || undefined,
+            validationSchema: formData.validationSchema ?? undefined,
             sortOrder: formData.sortOrder,
             stickerDisplay: formData.stickerDisplay,
             isExclusive: formData.isExclusive,
@@ -141,7 +152,7 @@ export const DimensionForm = ({ initialData, onSubmit, onCancel, isSubmitting = 
       <div className="space-y-2">
         <Label htmlFor="stickerDisplay">Sticker Display Mode</Label>
         <Select
-          value={formData.stickerDisplay || "none"}
+          value={formData.stickerDisplay ?? "none"}
           onValueChange={(value) => updateFormData({ stickerDisplay: value as "none" | "color" | "short" })}
         >
           <SelectTrigger>
@@ -161,7 +172,7 @@ export const DimensionForm = ({ initialData, onSubmit, onCancel, isSubmitting = 
           <div className="flex items-center space-x-3">
             <Switch
               id="isExclusive"
-              isSelected={formData.isExclusive || false}
+              isSelected={formData.isExclusive ?? false}
               onChange={(checked) => updateFormData({ isExclusive: checked })}
               isDisabled={formData.dataType !== "categorical"}
             />
@@ -176,7 +187,7 @@ export const DimensionForm = ({ initialData, onSubmit, onCancel, isSubmitting = 
         <Label htmlFor="description">Description</Label>
         <Textarea
           id="description"
-          value={formData.description || ""}
+          value={formData.description ?? ""}
           onChange={(value) => updateFormData({ description: value })}
           placeholder="Optional description of what this dimension represents"
           rows={3}
@@ -191,7 +202,7 @@ export const DimensionForm = ({ initialData, onSubmit, onCancel, isSubmitting = 
               <Label htmlFor="trueLabel">True Value Display Name</Label>
               <Input
                 id="trueLabel"
-                value={booleanSchema.trueLabel || "Yes"}
+                value={booleanSchema.trueLabel ?? "Yes"}
                 onChange={(value) => handleBooleanSchemaChange({ ...booleanSchema, trueLabel: value })}
                 placeholder="e.g., Yes, Enabled, Featured"
               />
@@ -200,7 +211,7 @@ export const DimensionForm = ({ initialData, onSubmit, onCancel, isSubmitting = 
               <Label htmlFor="falseLabel">False Value Display Name</Label>
               <Input
                 id="falseLabel"
-                value={booleanSchema.falseLabel || "No"}
+                value={booleanSchema.falseLabel ?? "No"}
                 onChange={(value) => handleBooleanSchemaChange({ ...booleanSchema, falseLabel: value })}
                 placeholder="e.g., No, Disabled, Not Featured"
               />
@@ -209,8 +220,8 @@ export const DimensionForm = ({ initialData, onSubmit, onCancel, isSubmitting = 
             <div className="mt-4 p-3 bg-base-100 rounded-lg border border-base-300 col-span-2">
               <p className="text-sm font-medium mb-2">Tag Preview:</p>
               <div className="flex gap-2">
-                <span className="badge badge-success">{booleanSchema.trueLabel || "Yes"}</span>
-                <span className="badge badge-error">{booleanSchema.falseLabel || "No"}</span>
+                <span className="badge badge-success">{booleanSchema.trueLabel ?? "Yes"}</span>
+                <span className="badge badge-error">{booleanSchema.falseLabel ?? "No"}</span>
               </div>
             </div>
           </div>
@@ -271,7 +282,7 @@ export const DimensionForm = ({ initialData, onSubmit, onCancel, isSubmitting = 
             <Label htmlFor="unit">Unit (Optional)</Label>
             <Input
               id="unit"
-              value={numericSchema.unit || ""}
+              value={numericSchema.unit ?? ""}
               onChange={(value) => handleNumericSchemaChange({ ...numericSchema, unit: value })}
               placeholder="e.g., %, seconds, MB, points"
             />

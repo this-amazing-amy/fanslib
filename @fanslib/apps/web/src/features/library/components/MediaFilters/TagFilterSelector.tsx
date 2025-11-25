@@ -39,7 +39,7 @@ export const TagFilterSelector = ({ value, onChange }: TagFilterSelectorProps) =
     if (!searchValue.trim()) {
       return categoricalDimensions.map((dimension) => ({
         dimension,
-        tags: dimension.tags || [],
+        tags: dimension.tags ?? [],
         hasMatches: true,
       }));
     }
@@ -48,7 +48,7 @@ export const TagFilterSelector = ({ value, onChange }: TagFilterSelectorProps) =
     return categoricalDimensions
       .map((dimension) => {
         const dimensionMatches = dimension.name.toLowerCase().includes(lowerSearch);
-        const matchingTags = (dimension.tags || []).filter(
+        const matchingTags = (dimension.tags ?? []).filter(
           (tag: TagDefinition) =>
             tag.displayName.toLowerCase().includes(lowerSearch) ||
             dimension.name.toLowerCase().includes(lowerSearch)
@@ -56,7 +56,7 @@ export const TagFilterSelector = ({ value, onChange }: TagFilterSelectorProps) =
 
         return {
           dimension,
-          tags: dimensionMatches ? dimension.tags || [] : matchingTags,
+          tags: dimensionMatches ? dimension.tags ?? [] : matchingTags,
           hasMatches: dimensionMatches || matchingTags.length > 0,
         };
       })

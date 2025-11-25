@@ -2,7 +2,6 @@ import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PageHeader } from "~/components/ui/PageHeader";
 import { SectionHeader } from "~/components/ui/SectionHeader";
-import { ViewNavigationToggle } from "~/components/ViewNavigationToggle";
 import { MediaDragProvider } from "~/contexts/MediaDragContext";
 import { PostDragProvider } from "~/contexts/PostDragContext";
 import { usePostPreferences } from "~/contexts/PostPreferencesContext";
@@ -112,11 +111,7 @@ const PlanPageContent = () => {
             )}
           </div>
         </div>
-        <ViewNavigationToggle
-          position="left"
-          to="/orchestrate"
-          label="Go to orchestrate view"
-        />
+
       </PostDragProvider>
     </MediaDragProvider>
   );

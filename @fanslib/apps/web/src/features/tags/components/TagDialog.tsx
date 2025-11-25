@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/Button";
 import {
   Dialog,
@@ -18,14 +18,22 @@ import {
   parseBooleanSchema,
   parseNumericSchema,
 } from "~/lib/tags/tagValidation";
-import type { CreateTagDefinitionRequestBodySchema } from "@fanslib/server/schemas";
+import type {
+  CreateTagDefinitionRequestBodySchema,
+  TagDefinitionSchema,
+  TagDimensionSchema,
+  UpdateTagDefinitionRequestBodySchema,
+} from "@fanslib/server/schemas";
 import { BooleanValueInput } from "./BooleanValueInput";
 import { CategoricalValueInput } from "./CategoricalValueInput";
 import { NumericValueInput } from "./NumericValueInput";
 
+type TagDefinition = typeof TagDefinitionSchema.static;
+type TagDimension = typeof TagDimensionSchema.static;
+
 export type EditingTag =
   | {
-      tag: any;
+      tag: TagDefinition;
       mode: "edit";
     }
   | {
@@ -36,29 +44,40 @@ export type EditingTag =
 
 type TagDialogProps = {
   editingTag: EditingTag | null;
-  dimension?: any;
-  availableTags: any[];
+  dimension?: TagDimension;
+  availableTags: TagDefinition[];
   onClose: () => void;
-  onSubmit: (data: typeof CreateTagDefinitionRequestBodySchema.static | { id: number; updates: any }) => void;
+  onSubmit: (data: typeof CreateTagDefinitionRequestBodySchema.static | { id: number; updates: typeof UpdateTagDefinitionRequestBodySchema.static }) => void;
   isSubmitting: boolean;
 };
 
 export const TagDialog = ({ editingTag, dimension, availableTags, onClose, onSubmit, isSubmitting }: TagDialogProps) => {
-  if (!dimension) return null;
-
-  const isNumeric = dimension.dataType === "numerical";
-  const isBoolean = dimension.dataType === "boolean";
-  const isCategorical = dimension.dataType === "categorical";
+  const isNumeric = dimension?.dataType === "numerical";
+  const isBoolean = dimension?.dataType === "boolean";
+  const isCategorical = dimension?.dataType === "categorical";
 
   const getInitialFormData = () => {
+    if (!dimension) {
+      return {
+        displayName: "",
+        value: "",
+        description: "",
+        parentTagId: null,
+        shortRepresentation: "",
+        color: null as string | null,
+        typedValue: "",
+      };
+    }
+
     if (editingTag?.mode === "edit") {
       const tag = editingTag.tag;
       return {
         displayName: tag.displayName,
         value: tag.value,
-        description: tag.description || "",
-        parentTagId: tag.parentTagId || null,
-        shortRepresentation: tag.shortRepresentation || "",
+        description: tag.description ?? "",
+        parentTagId: tag.parentTagId ?? null,
+        shortRepresentation: tag.shortRepresentation ?? "",
+        color: tag.color ?? null,
         typedValue: convertFromTagValue(tag.value, dimension.dataType),
       };
     }
@@ -68,8 +87,9 @@ export const TagDialog = ({ editingTag, dimension, availableTags, onClose, onSub
       displayName: "",
       value: "",
       description: "",
-      parentTagId: editingTag?.parentTagId || null,
+      parentTagId: editingTag?.parentTagId ?? null,
       shortRepresentation: "",
+      color: null as string | null,
       typedValue: defaultValue,
     };
   };
@@ -77,26 +97,33 @@ export const TagDialog = ({ editingTag, dimension, availableTags, onClose, onSub
   const [formData, setFormData] = useState(getInitialFormData);
   const [validationError, setValidationError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const initialData = getInitialFormData();
+    setFormData(initialData);
+    setValidationError(null);
+  }, [editingTag, dimension]);
+
+  if (!dimension) return null;
+
   const handleSubmit = () => {
     if (validationError || !formData.displayName.trim()) {
       return;
     }
 
-    let finalValue = formData.value;
-
-    if (isNumeric || isBoolean) {
-      finalValue = convertToTagValue(formData.typedValue, dimension.dataType);
-    } else if (isCategorical && !finalValue) {
-      finalValue = formData.displayName.toLowerCase().replace(/\s+/g, "-");
-    }
+    const finalValue = (isNumeric || isBoolean)
+      ? convertToTagValue(formData.typedValue, dimension.dataType)
+      : (isCategorical && !formData.value)
+        ? formData.displayName.toLowerCase().replace(/\s+/g, "-")
+        : formData.value;
 
     const baseData = {
       value: finalValue,
       displayName: formData.displayName.trim(),
-      description: formData.description.trim() || undefined,
+      description: formData.description.trim() ?? undefined,
       ...(isCategorical && {
         parentTagId: formData.parentTagId,
-        shortRepresentation: formData.shortRepresentation.trim() || undefined,
+        shortRepresentation: formData.shortRepresentation.trim() ?? undefined,
+        color: formData.color ?? undefined,
       }),
     };
 
@@ -152,19 +179,19 @@ export const TagDialog = ({ editingTag, dimension, availableTags, onClose, onSub
       return (
         <CategoricalValueInput
           displayName={formData.displayName}
-          value={formData.value}
           description={formData.description}
           parentTagId={formData.parentTagId}
           shortRepresentation={formData.shortRepresentation}
+          color={formData.color}
           availableTags={availableTags}
           currentTagId={editingTag?.mode === "edit" ? editingTag.tag.id : undefined}
           onDisplayNameChange={(value) => setFormData((prev) => ({ ...prev, displayName: value }))}
-          onValueChange={(value) => setFormData((prev) => ({ ...prev, value }))}
           onDescriptionChange={(value) => setFormData((prev) => ({ ...prev, description: value }))}
           onParentTagChange={(parentId) => setFormData((prev) => ({ ...prev, parentTagId: parentId }))}
           onShortRepresentationChange={(value) => {
             setFormData((prev) => ({ ...prev, shortRepresentation: value }));
           }}
+          onColorChange={(value) => setFormData((prev) => ({ ...prev, color: value }))}
         />
       );
     }

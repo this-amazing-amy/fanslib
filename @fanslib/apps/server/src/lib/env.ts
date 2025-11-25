@@ -1,7 +1,6 @@
 import { join } from "path";
 
 type EnvConfig = {
-  port: number;
   appdataPath: string;
   libraryPath: string;
   ffprobePath: string | undefined;
@@ -16,20 +15,10 @@ const requireEnv = (name: string): string => {
 };
 
 export const env = (): EnvConfig => {
-  const port = process.env.PORT;
-  if (!port) {
-    throw new Error("Required environment variable PORT is not set");
-  }
-  const portNum = parseInt(port, 10);
-  if (isNaN(portNum)) {
-    throw new Error(`Invalid PORT value: ${port} (must be a number)`);
-  }
-
   const appdataPath = requireEnv("APPDATA_PATH");
   const libraryPath = requireEnv("LIBRARY_PATH");
 
   return {
-    port: portNum,
     appdataPath,
     libraryPath,
     ffprobePath: process.env.FFPROBE_PATH

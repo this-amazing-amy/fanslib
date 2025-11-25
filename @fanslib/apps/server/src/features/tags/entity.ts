@@ -1,14 +1,14 @@
 import { t } from "elysia";
 import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
+    Column,
+    CreateDateColumn,
+    Entity,
+    Index,
+    JoinColumn,
+    ManyToOne,
+    OneToMany,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
 } from "typeorm";
 
 export const STICKER_DISPLAY_MODES = ["none", "color", "short"] as const;
@@ -57,7 +57,7 @@ export class TagDefinition {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @ManyToOne(() => TagDimension, (dimension) => dimension.tags)
+  @ManyToOne(() => TagDimension, (dimension) => dimension.tags, { onDelete: "CASCADE" })
   @JoinColumn({ name: "dimensionId" })
   dimension!: TagDimension;
 
@@ -105,7 +105,7 @@ export class TagDefinition {
   mediaTags!: MediaTag[];
 }
 
-@Entity()
+@Entity("MediaTag")
 @Index(["dimensionName", "tagValue"])
 @Index(["mediaId", "dimensionName"])
 @Index(["dimensionName", "numericValue"])
@@ -117,14 +117,14 @@ export class MediaTag {
   @Column("varchar")
   mediaId!: string;
 
-  @ManyToOne("Media")
+  @ManyToOne("Media", { onDelete: "CASCADE" })
   @JoinColumn({ name: "mediaId" })
   media: unknown;
 
   @Column("int")
   tagDefinitionId!: number;
 
-  @ManyToOne(() => TagDefinition, (tag) => tag.mediaTags)
+  @ManyToOne(() => TagDefinition, (tag) => tag.mediaTags, { onDelete: "CASCADE" })
   @JoinColumn({ name: "tagDefinitionId" })
   tag!: TagDefinition;
 
@@ -187,19 +187,6 @@ export const TagSourceSchema = t.Union([
   t.Literal("imported"),
 ]);
 
-export const TagDimensionSchema = t.Object({
-  id: t.Number(),
-  name: t.String(),
-  description: t.Nullable(t.String()),
-  dataType: DataTypeSchema,
-  validationSchema: t.Nullable(t.String()),
-  sortOrder: t.Number(),
-  stickerDisplay: StickerDisplayModeSchema,
-  isExclusive: t.Boolean(),
-  createdAt: t.Date(),
-  updatedAt: t.Date(),
-});
-
 export const TagDefinitionSchema = t.Object({
   id: t.Number(),
   dimensionId: t.Number(),
@@ -213,6 +200,20 @@ export const TagDefinitionSchema = t.Object({
   parentTagId: t.Nullable(t.Number()),
   createdAt: t.Date(),
   updatedAt: t.Date(),
+});
+
+export const TagDimensionSchema = t.Object({
+  id: t.Number(),
+  name: t.String(),
+  description: t.Nullable(t.String()),
+  dataType: DataTypeSchema,
+  validationSchema: t.Nullable(t.String()),
+  sortOrder: t.Number(),
+  stickerDisplay: StickerDisplayModeSchema,
+  isExclusive: t.Boolean(),
+  createdAt: t.Date(),
+  updatedAt: t.Date(),
+  tags: t.Optional(t.Array(TagDefinitionSchema)),
 });
 
 export const MediaTagSchema = t.Object({

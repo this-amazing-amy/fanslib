@@ -32,42 +32,44 @@ export const Channels = () => {
     );
   }
 
+  const hasChannels = channels && channels.length > 0;
+
   return (
     <PageContainer>
-      <PageHeader
-        title="Channels"
-        description="Manage your content distribution channels and schedules"
-        actions={
-          <DialogTrigger isOpen={showCreateDialog} onOpenChange={setShowCreateDialog}>
+      <DialogTrigger isOpen={showCreateDialog} onOpenChange={setShowCreateDialog}>
+        <PageHeader
+          title="Channels"
+          description="Manage your content distribution channels and schedules"
+          actions={
             <Button variant="primary">
               <PlusCircle className="w-5 h-5" />
               New Channel
             </Button>
-            <DialogModal>
-              <Dialog>
-                {({ close }) => (
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-lg font-semibold">Create New Channel</h3>
-                      <p className="text-sm text-base-content/70 mt-1">
-                        Select a channel type to get started
-                      </p>
-                    </div>
-                    <CreateChannelForm
-                      onSuccess={() => {
-                        handleCreateSuccess();
-                        close();
-                      }}
-                    />
-                  </div>
-                )}
-              </Dialog>
-            </DialogModal>
-          </DialogTrigger>
-        }
-      />
+          }
+        />
+        <DialogModal>
+          <Dialog>
+            {({ close }) => (
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold">Create New Channel</h3>
+                  <p className="text-sm text-base-content/70 mt-1">
+                    Select a channel type to get started
+                  </p>
+                </div>
+                <CreateChannelForm
+                  onSuccess={() => {
+                    handleCreateSuccess();
+                    close();
+                  }}
+                />
+              </div>
+            )}
+          </Dialog>
+        </DialogModal>
+      </DialogTrigger>
 
-      {channels && channels.length > 0 ? (
+      {hasChannels ? (
         <div className="space-y-6">
           {channels.map((channel) => (
             <ChannelView key={channel.id} channel={channel} />
@@ -80,32 +82,10 @@ export const Channels = () => {
             <p className="text-base-content/70">
               Get started by creating your first content distribution channel
             </p>
-            <DialogTrigger isOpen={showCreateDialog} onOpenChange={setShowCreateDialog}>
-              <Button variant="primary" size="lg">
-                <PlusCircle className="w-5 h-5" />
-                Create Your First Channel
-              </Button>
-              <DialogModal>
-                <Dialog>
-                  {({ close }) => (
-                    <div className="space-y-4">
-                      <div>
-                        <h3 className="text-lg font-semibold">Create New Channel</h3>
-                        <p className="text-sm text-base-content/70 mt-1">
-                          Select a channel type to get started
-                        </p>
-                      </div>
-                      <CreateChannelForm
-                        onSuccess={() => {
-                          handleCreateSuccess();
-                          close();
-                        }}
-                      />
-                    </div>
-                  )}
-                </Dialog>
-              </DialogModal>
-            </DialogTrigger>
+            <Button variant="primary" size="lg" onPress={() => setShowCreateDialog(true)}>
+              <PlusCircle className="w-5 h-5" />
+              Create Your First Channel
+            </Button>
           </div>
         </div>
       )}

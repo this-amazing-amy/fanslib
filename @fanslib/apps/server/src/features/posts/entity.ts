@@ -12,13 +12,14 @@ import {
 } from "typeorm";
 import type { FanslyAnalyticsAggregate, FanslyAnalyticsDatapoint } from "../analytics/entity";
 import type { Channel } from "../channels/entity";
+import type { ContentSchedule } from "../content-schedules/entity";
 import type { Media } from "../library/entity";
 import { MediaSchema } from "../library/entity";
 import { Subreddit } from "../subreddits/entity";
 
 export type PostStatus = "draft" | "scheduled" | "posted";
 
-@Entity()
+@Entity("Post")
 // eslint-disable-next-line functional/no-classes
 export class Post {
   @PrimaryGeneratedColumn("uuid")
@@ -32,6 +33,10 @@ export class Post {
 
   @Column("varchar", { nullable: true })
   scheduleId: string | null = null;
+
+  @ManyToOne("ContentSchedule")
+  @JoinColumn({ name: "scheduleId" })
+  schedule?: ContentSchedule;
 
   @Column("varchar", { nullable: true })
   caption: string | null = null;
@@ -84,7 +89,7 @@ export class Post {
   fanslyAnalyticsAggregate?: FanslyAnalyticsAggregate;
 }
 
-@Entity()
+@Entity("PostMedia")
 // eslint-disable-next-line functional/no-classes
 export class PostMedia {
   @PrimaryGeneratedColumn("uuid")

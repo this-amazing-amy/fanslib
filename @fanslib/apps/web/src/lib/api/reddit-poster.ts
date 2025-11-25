@@ -1,5 +1,5 @@
 import type { MediaSchema, SubredditSchema } from '@fanslib/server/schemas';
-import { apiRequest } from './client';
+import { eden } from './eden';
 
 type Subreddit = typeof SubredditSchema.static;
 type Media = typeof MediaSchema.static;
@@ -78,42 +78,23 @@ export type CheckRedditPosterLoginResponse = {
 
 export const redditPosterApi = {
   generateRandomPost: (request: GenerateRandomPostRequest) =>
-    apiRequest<GenerateRandomPostResponse>('/api/reddit-poster/generate-random-post', {
-      method: 'POST',
-      body: JSON.stringify(request),
-    }),
+    eden.api['reddit-automation']['generate-random-post'].post(request),
 
   generatePosts: (request: GeneratePostsRequest) =>
-    apiRequest<GeneratePostsResponse>('/api/reddit-poster/generate-posts', {
-      method: 'POST',
-      body: JSON.stringify(request),
-    }),
+    eden.api['reddit-automation']['generate-posts'].post(request),
 
   regenerateMedia: (request: RegenerateMediaRequest) =>
-    apiRequest<RegenerateMediaResponse>('/api/reddit-poster/regenerate-media', {
-      method: 'POST',
-      body: JSON.stringify(request),
-    }),
+    eden.api['reddit-automation']['regenerate-media'].post(request),
 
   schedulePosts: (request: SchedulePostsRequest) =>
-    apiRequest<SchedulePostsResponse>('/api/reddit-poster/schedule-posts', {
-      method: 'POST',
-      body: JSON.stringify(request),
-    }),
+    eden.api['reddit-automation']['schedule-posts'].post(request),
 
   getScheduledPosts: () =>
-    apiRequest<GetScheduledPostsResponse>('/api/reddit-poster/scheduled-posts'),
+    eden.api['reddit-automation']['scheduled-posts'].get(),
 
   login: (request: RedditPosterLoginRequest) =>
-    apiRequest<RedditPosterLoginResponse>('/api/reddit-poster/login', {
-      method: 'POST',
-      body: JSON.stringify(request),
-    }),
+    eden.api['reddit-automation'].login.post(request),
 
   checkLogin: (request: CheckRedditPosterLoginRequest) =>
-    apiRequest<CheckRedditPosterLoginResponse>('/api/reddit-poster/check-login', {
-      method: 'POST',
-      body: JSON.stringify(request),
-    }),
+    eden.api['reddit-automation']['check-login'].post(request),
 };
-

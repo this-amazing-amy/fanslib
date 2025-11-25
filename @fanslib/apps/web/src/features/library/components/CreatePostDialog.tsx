@@ -29,7 +29,6 @@ import { MediaTile } from "~/features/library/components/MediaTile";
 import { cn } from "~/lib/cn";
 import { useChannelsQuery } from "~/lib/queries/channels";
 import { useCreatePostMutation } from "~/lib/queries/posts";
-import { useSubredditQuery } from "~/lib/queries/subreddits";
 
 type Media = typeof MediaSchema.static;
 type PostStatus = typeof PostStatusSchema.static;
@@ -41,6 +40,7 @@ type CreatePostDialogProps = {
   initialDate?: Date;
   initialChannelId?: string;
   initialCaption?: string;
+  scheduleId?: string;
 };
 
 const toast = () => {};
@@ -62,6 +62,7 @@ export const CreatePostDialog = ({
   initialDate,
   initialChannelId,
   initialCaption,
+  scheduleId,
 }: CreatePostDialogProps) => {
   const navigate = useNavigate();
   const { data: channels = [] } = useChannelsQuery();
@@ -87,16 +88,8 @@ export const CreatePostDialog = ({
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { data: subreddit } = useSubredditQuery({ 
-    id: selectedSubreddits[0] ?? "" 
-  });
-
-  const otherCaptions = useMemo<Array<{ caption?: string | null; channel?: { name?: string; typeId?: string } | null }>>(() => {
-    const captions = selectedMedia.flatMap((mediaItem) => {
-      // Media items don't have postMedia property - this is only on Post entities
-      // Return empty array as media items don't have associated posts
-      return [];
-    });
+  const otherCaptions = useMemo<Array<{ caption?: string | null; channel?: { id?: string; name?: string; typeId?: string } | null }>>(() => {
+    const captions = selectedMedia.flatMap(() => []);
     return [...new Set(captions)];
   }, [selectedMedia]);
 
@@ -173,6 +166,7 @@ export const CreatePostDialog = ({
         caption: caption || null,
         subredditId: isRedditChannel ? selectedSubreddits[0] : undefined,
         mediaIds: selectedMedia.map((m) => m.id),
+        scheduleId,
       });
 
       toast();
@@ -181,7 +175,7 @@ export const CreatePostDialog = ({
       if (shouldRedirect && newPost?.id) {
         navigate({ to: `/orchestrate` });
       }
-    } catch (error) {
+    } catch {
       toast();
     }
   }, [
@@ -196,6 +190,7 @@ export const CreatePostDialog = ({
     isRedditChannel,
     selectedSubreddits,
     createPost,
+    scheduleId,
   ]);
 
   return (
@@ -341,10 +336,10 @@ export const CreatePostDialog = ({
                     {isOtherCaptionsOpen && (
                       <ScrollArea className="h-[200px] rounded-md border p-2">
                         <div className="space-y-2">
-                          {otherCaptions.map((otherCaption, index) =>
+                          {otherCaptions.map((otherCaption) =>
                             !otherCaption?.caption ? null : (
                               <div
-                                key={index}
+                                key={otherCaption.channel?.id ?? otherCaption.caption}
                                 className="group relative min-h-8 flex flex-col rounded-md border p-2"
                               >
                                 <ChannelBadge

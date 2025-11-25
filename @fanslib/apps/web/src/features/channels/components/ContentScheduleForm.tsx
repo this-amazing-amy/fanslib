@@ -1,15 +1,19 @@
 import type {
   CreateContentScheduleRequestBodySchema,
-  ContentScheduleWithChannelSchema, FetchContentSchedulesByChannelResponseSchema,
+  ContentScheduleWithChannelSchema,
 } from "@fanslib/server/schemas";
-import { MediaFilterSchema } from "@fanslib/server/schemas";
+import type { MediaFilterSchema } from "@fanslib/server/schemas";
 
 type MediaFilters = typeof MediaFilterSchema.static;
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Plus, X } from "lucide-react";
+import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
 import { Button } from "~/components/ui/Button/Button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/Select/Select";
+import { ColorPicker } from "~/components/ui/ColorPicker";
+import { EmojiPicker } from "~/components/ui/EmojiPicker";
 import { Input } from "~/components/ui/Input/Input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/Select/Select";
+import { FilterPresetProvider } from "~/contexts/FilterPresetContext";
 import { MediaFilters as MediaFiltersComponent } from "~/features/library/components/MediaFilters/MediaFilters";
 import { MediaFiltersProvider } from "~/features/library/components/MediaFilters/MediaFiltersContext";
 import { cn } from "~/lib/cn";
@@ -27,18 +31,15 @@ type ContentScheduleFormProps = {
 
 const DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
-const getLocaleTime = () => {
-  const locale = new Intl.Locale(navigator.language);
-  const timeFormat = new Intl.DateTimeFormat(locale.baseName, { hour: "numeric" }).resolvedOptions();
-  return timeFormat.hour12 ?? false;
-};
-
 export const ContentScheduleForm = ({
   channelId,
   schedule,
   onSubmit,
   onCancel,
 }: ContentScheduleFormProps) => {
+  const [name, setName] = useState(schedule?.name ?? "");
+  const [emoji, setEmoji] = useState(schedule?.emoji ?? "");
+  const [color, setColor] = useState<string | null>(schedule?.color ?? null);
   const [type, setType] = useState<ScheduleType>(schedule?.type ?? "daily");
   const [postsPerTimeframe, setPostsPerTimeframe] = useState(schedule?.postsPerTimeframe ?? 1);
   const [preferredDays, setPreferredDays] = useState<string[]>(schedule?.preferredDays ?? []);
@@ -47,8 +48,6 @@ export const ContentScheduleForm = ({
   const [mediaFilters, setMediaFilters] = useState<MediaFilters>(
     schedule?.mediaFilters ? parseMediaFilters(schedule.mediaFilters) ?? [] : []
   );
-
-  const is12Hour = useMemo(() => getLocaleTime(), []);
 
   const handleDayToggle = (day: string) => {
     setPreferredDays((prev) =>
@@ -71,6 +70,9 @@ export const ContentScheduleForm = ({
 
     const data: typeof CreateContentScheduleRequestBodySchema.static = {
       channelId,
+      name: name.trim() || "Untitled Schedule",
+      emoji: emoji.trim() || undefined,
+      color: color || undefined,
       type,
       postsPerTimeframe: postsPerTimeframe > 0 ? postsPerTimeframe : undefined,
       preferredDays: preferredDays.length > 0 ? preferredDays : undefined,
@@ -83,6 +85,41 @@ export const ContentScheduleForm = ({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Schedule Name & Identity */}
+      <div className="space-y-4">
+        <div>
+          <label className="label">
+            <span className="label-text font-medium">Name</span>
+          </label>
+          <div className="flex gap-2">
+            <EmojiPicker
+              value={emoji}
+              onChange={setEmoji}
+              placeholder="📅"
+            />
+            <Input
+              value={name}
+              onChange={setName}
+              placeholder="Schedule name"
+              className="flex-1"
+            />
+          </div>
+        </div>
+        <div>
+          <label className="label">
+            <span className="label-text font-medium">Color & Preview</span>
+          </label>
+          <div className="flex items-center gap-3">
+            <ColorPicker value={color} onChange={setColor} />
+            <ContentScheduleBadge
+              name={name || "Preview"}
+              emoji={emoji || null}
+              color={color}
+            />
+          </div>
+        </div>
+      </div>
+
       {/* Schedule Type */}
       <div>
         <label className="label">
@@ -189,9 +226,11 @@ export const ContentScheduleForm = ({
             Optional: Define which media is eligible for this schedule
           </span>
         </label>
-        <MediaFiltersProvider value={mediaFilters} onChange={setMediaFilters}>
-          <MediaFiltersComponent />
-        </MediaFiltersProvider>
+        <FilterPresetProvider onFiltersChange={setMediaFilters}>
+          <MediaFiltersProvider value={mediaFilters} onChange={setMediaFilters}>
+            <MediaFiltersComponent />
+          </MediaFiltersProvider>
+        </FilterPresetProvider>
       </div>
 
       {/* Form Actions */}

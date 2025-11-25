@@ -104,6 +104,7 @@ describe("Content Schedules Routes", () => {
 
       const scheduleData = {
         channelId: channel.id,
+        name: "Test Schedule",
         type: "daily",
         postsPerTimeframe: 2,
         preferredTimes: ["14:30"],

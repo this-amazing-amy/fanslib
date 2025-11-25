@@ -39,10 +39,9 @@ export const Library = () => {
     <FilterPresetProvider onFiltersChange={updateFilters}>
       <MediaFiltersProvider value={preferences.filter} onChange={updateFilters}>
         <PageContainer className="flex h-full w-full flex-col overflow-hidden px-0 py-0">
-          <div className="flex-1 min-h-0 p-6 flex flex-col">
+          <div className="flex-1 min-h-0 px-6 pb-6 flex flex-col">
             <div className="mb-4">
               <div className="flex items-center justify-end gap-2 mb-4">
-                <GalleryViewSettings />
                 <LibrarySortOptions
                   value={preferences.sort}
                   onChange={(sort) => {
@@ -52,6 +51,7 @@ export const Library = () => {
                     });
                   }}
                 />
+                <GalleryViewSettings />
                 <ScanButton isScanning={isScanning} onScan={handleScan} />
               </div>
               <div className="mb-4">

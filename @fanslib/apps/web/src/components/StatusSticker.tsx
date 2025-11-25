@@ -1,33 +1,56 @@
 import { Check, Clock, Edit2Icon } from "lucide-react";
 import { cn } from "~/lib/cn";
-import { Sticker } from "./ui/Sticker";
+import { POST_STATUS_COLORS } from "~/lib/colors";
 
 type StatusStickerProps = {
-  variant?: "inverted" | "default";
   status: "posted" | "scheduled" | "draft";
+  size?: "sm" | "md" | "lg";
   className?: string;
 };
 
-export const StatusSticker = ({ status, className, variant = "default" }: StatusStickerProps) => {
+const STATUS_CONFIG = {
+  posted: {
+    label: "Posted",
+    background: POST_STATUS_COLORS.posted.background,
+    foreground: POST_STATUS_COLORS.posted.foreground,
+    Icon: Check,
+  },
+  scheduled: {
+    label: "Scheduled",
+    background: POST_STATUS_COLORS.scheduled.background,
+    foreground: POST_STATUS_COLORS.scheduled.foreground,
+    Icon: Clock,
+  },
+  draft: {
+    label: "Draft",
+    background: POST_STATUS_COLORS.draft.background,
+    foreground: POST_STATUS_COLORS.draft.foreground,
+    Icon: Edit2Icon,
+  },
+} as const;
+
+export const StatusSticker = ({ status, size = "sm", className }: StatusStickerProps) => {
+  const config = STATUS_CONFIG[status];
+
   return (
-    <Sticker
+    <div
       className={cn(
+        "rounded-full font-medium flex items-center border",
         {
-          "text-green-400 border-green-400": status === "posted" && variant === "default",
-          "text-blue-400 border-blue-400": status === "scheduled" && variant === "default",
-          "text-gray-400 border-gray-400": status === "draft" && variant === "default",
-          "text-white bg-green-400 border-green-400": status === "posted" && variant === "inverted",
-          "text-white bg-blue-400 border-blue-400":
-            status === "scheduled" && variant === "inverted",
-          "text-white bg-gray-400 border-gray-400": status === "draft" && variant === "inverted",
+          "px-1.5 py-0.5 text-[10px] gap-1 leading-tight": size === "sm",
+          "px-2 py-0.5 text-xs gap-1.5": size === "md",
+          "px-2.5 py-1 text-sm gap-1.5": size === "lg",
         },
         className
       )}
+      style={{
+        backgroundColor: config.background,
+        borderColor: config.foreground,
+        color: config.foreground,
+      }}
     >
-      {status === "posted" && <Check className="h-2.5 w-2.5" />}
-      {status === "scheduled" && <Clock className="h-2.5 w-2.5" />}
-      {status === "draft" && <Edit2Icon className="h-2.5 w-2.5" />}
-    </Sticker>
+      <config.Icon className={cn(size === "sm" ? "h-2.5 w-2.5" : size === "md" ? "h-3 w-3" : "h-3.5 w-3.5")} />
+      <span>{config.label}</span>
+    </div>
   );
 };
-

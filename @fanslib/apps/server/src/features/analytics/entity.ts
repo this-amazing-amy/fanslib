@@ -1,7 +1,7 @@
 /* eslint-disable functional/no-classes */
 import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity()
+@Entity("FanslyAnalyticsDatapoint")
 export class FanslyAnalyticsDatapoint {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
@@ -15,7 +15,7 @@ export class FanslyAnalyticsDatapoint {
   @Column("int")
   interactionTime!: number;
 
-  @ManyToOne("Post")
+  @ManyToOne("Post", { onDelete: "CASCADE" })
   @JoinColumn({ name: "postId" })
   post!: unknown;
 
@@ -23,7 +23,7 @@ export class FanslyAnalyticsDatapoint {
   postId!: string;
 }
 
-@Entity()
+@Entity("FanslyAnalyticsAggregate")
 export class FanslyAnalyticsAggregate {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
@@ -51,7 +51,7 @@ export class FanslyAnalyticsAggregate {
   @Column("datetime", { nullable: true })
   fypPlateauDetectedAt?: Date | undefined;
 
-  @OneToOne("Post")
+  @OneToOne("Post", { onDelete: "CASCADE" })
   @JoinColumn({ name: "postId" })
   post!: unknown;
 
@@ -59,7 +59,7 @@ export class FanslyAnalyticsAggregate {
   postId!: string;
 }
 
-@Entity()
+@Entity("AnalyticsFetchHistory")
 export class AnalyticsFetchHistory {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
@@ -79,7 +79,7 @@ export class AnalyticsFetchHistory {
   @Column("varchar")
   timeframeType!: "rolling" | "fixed";
 
-  @ManyToOne("Post")
+  @ManyToOne("Post", { onDelete: "CASCADE" })
   @JoinColumn({ name: "postId" })
   post!: unknown;
 }

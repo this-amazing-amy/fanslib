@@ -13,11 +13,15 @@ export default defineConfig({
     tailwindcss(),
     tanstackStart(),
     viteReact(),
-    nodePolyfills(),
+    nodePolyfills({
+      // Don't polyfill stream since TanStack Router needs stream/web
+      // which isn't available in stream-browserify
+      exclude: ['stream'],
+    }),
   ],
   server: {
     host: '0.0.0.0',
-    port: 5173,
+    port: 6969,
     strictPort: true,
   },
 });

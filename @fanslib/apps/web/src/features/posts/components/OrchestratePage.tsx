@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo } from "react";
 import { SplitViewLayout } from "~/components/SplitViewLayout";
 import { TabNavigation } from "~/components/TabNavigation";
 import { PageHeader } from "~/components/ui/PageHeader";
-import { ViewNavigationToggle } from "~/components/ViewNavigationToggle";
 import { MediaDragProvider } from "~/contexts/MediaDragContext";
 import { PostDragProvider } from "~/contexts/PostDragContext";
 import { usePostPreferences } from "~/contexts/PostPreferencesContext";
@@ -132,14 +131,14 @@ const OrchestratePageContent = () => {
                 />
               </div>
               <div className="px-6 py-6 mb-6">
-                <div className="flex items-center gap-2">
-                  <PlanViewSettings />
+                <div className="flex items-center justify-between">
                   <PostFilters
                     value={preferences.filter}
                     onFilterChange={(filter) => {
                       updatePreferences({ filter });
                     }}
                   />
+                  <PlanViewSettings />
                 </div>
               </div>
               <div className="flex-1 overflow-hidden px-6">
@@ -154,16 +153,7 @@ const OrchestratePageContent = () => {
             </div>
           }
         />
-        <ViewNavigationToggle
-          position="left"
-          to={activeTabId === "library" ? "/content/library/media" : "/content/library/shoots"}
-          label="Go to library view"
-        />
-        <ViewNavigationToggle
-          position="right"
-          to="/plan"
-          label="Go to plan view"
-        />
+
       </PostDragProvider>
     </MediaDragProvider>
   );

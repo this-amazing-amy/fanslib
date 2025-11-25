@@ -10,9 +10,7 @@ import {
 } from './AlertDialog';
 import { Button } from '../Button';
 
-const AlertDialogWrapper = () => {
-  return (
-    <AlertDialogTrigger>
+const AlertDialogWrapper = () => <AlertDialogTrigger>
       <Button>Open Alert Dialog</Button>
       <AlertDialogModal isDismissable={false}>
         <AlertDialog>
@@ -42,9 +40,7 @@ const AlertDialogWrapper = () => {
           )}
         </AlertDialog>
       </AlertDialogModal>
-    </AlertDialogTrigger>
-  );
-};
+    </AlertDialogTrigger>;
 
 const meta: Meta<typeof AlertDialogWrapper> = {
   title: 'Overlays/AlertDialog',

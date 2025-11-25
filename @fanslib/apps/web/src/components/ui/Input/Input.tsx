@@ -8,7 +8,7 @@ export type InputProps = Omit<AriaTextFieldProps, 'min' | 'max' | 'step'> & {
   variant?: 'default' | 'ghost';
   className?: string;
   type?: InputHTMLAttributes<HTMLInputElement>['type'];
-} & Pick<InputHTMLAttributes<HTMLInputElement>, 'min' | 'max' | 'step'>;
+} & Pick<InputHTMLAttributes<HTMLInputElement>, 'min' | 'max' | 'step' | 'onKeyDown'>;
 
 export const Input = ({
   variant = 'default',
@@ -17,6 +17,7 @@ export const Input = ({
   min,
   max,
   step,
+  onKeyDown,
   ...props
 }: InputProps) => {
   const ref = useRef<HTMLInputElement>(null);
@@ -33,6 +34,7 @@ export const Input = ({
   return (
     <input
       {...inputProps}
+      onKeyDown={onKeyDown}
       ref={ref}
       type={type}
       min={min}

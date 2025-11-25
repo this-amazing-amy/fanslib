@@ -81,7 +81,7 @@ const ResizablePanel = ({
   defaultSize = 30,
   groupRef,
   panelIndex,
-  collapseIcon = <PanelRightClose className="h-4 w-4 transition-transform duration-300" />,
+  collapseIcon: _collapseIcon = <PanelRightClose className="h-4 w-4 transition-transform duration-300" />,
   expandIcon = <PanelRightOpen className="h-4 w-4 transition-transform duration-300" />,
   ...props
 }: ResizablePanelProps) => {

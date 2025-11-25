@@ -1,4 +1,4 @@
-import { ShootSummarySchema } from "@fanslib/server/schemas";
+import type { ShootSummarySchema } from "@fanslib/server/schemas";
 import { Plus } from "lucide-react";
 import { type FC } from "react";
 import { useMediaDrag } from "~/contexts/MediaDragContext";

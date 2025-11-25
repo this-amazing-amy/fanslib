@@ -26,7 +26,7 @@ export class ChannelType {
   color: string | null = null;
 }
 
-@Entity()
+@Entity("Channel")
 // eslint-disable-next-line functional/no-classes
 export class Channel {
   @PrimaryGeneratedColumn("uuid")

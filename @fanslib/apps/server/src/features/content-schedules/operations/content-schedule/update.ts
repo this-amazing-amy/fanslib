@@ -10,6 +10,9 @@ export const UpdateContentScheduleRequestParamsSchema = t.Object({
 
 export const UpdateContentScheduleRequestBodySchema = t.Object({
   channelId: t.Optional(t.String()),
+  name: t.Optional(t.String()),
+  emoji: t.Optional(t.Union([t.String(), t.Null()])),
+  color: t.Optional(t.Union([t.String(), t.Null()])),
   type: t.Optional(ContentScheduleTypeSchema),
   postsPerTimeframe: t.Optional(t.Number()),
   preferredDays: t.Optional(t.Array(t.String())),
@@ -44,19 +47,17 @@ export const updateContentSchedule = async (
 
   if (!schedule) return null;
 
-  const mediaFiltersString =
-    "mediaFilters" in updates
-      ? updates.mediaFilters === null
-        ? undefined
-        : updates.mediaFilters
-          ? stringifyMediaFilters(updates.mediaFilters)
-          : undefined
-      : undefined;
+  const hasMediaFiltersUpdate = "mediaFilters" in updates;
+  const mediaFiltersValue = hasMediaFiltersUpdate
+    ? updates.mediaFilters === null || (Array.isArray(updates.mediaFilters) && updates.mediaFilters.length === 0)
+      ? null
+      : stringifyMediaFilters(updates.mediaFilters)
+    : undefined;
 
   Object.assign(schedule, {
     ...updates,
     updatedAt: new Date().toISOString(),
-    ...(mediaFiltersString !== undefined && { mediaFilters: mediaFiltersString }),
+    ...(hasMediaFiltersUpdate && { mediaFilters: mediaFiltersValue }),
   });
 
   await repository.save(schedule);

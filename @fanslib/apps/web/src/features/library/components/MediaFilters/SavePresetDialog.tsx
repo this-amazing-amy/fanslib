@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MediaFilterSchema } from "@fanslib/server/schemas";
+import type { MediaFilterSchema } from "@fanslib/server/schemas";
 
 type MediaFilters = typeof MediaFilterSchema.static;
 import { Button } from "~/components/ui/Button";

@@ -1,7 +1,7 @@
 import type {
   ChannelSchema,
   CreateContentScheduleRequestBodySchema,
-  ContentScheduleWithChannelSchema, FetchContentSchedulesByChannelResponseSchema,
+  ContentScheduleWithChannelSchema,
   MediaFilterSchema,
 } from "@fanslib/server/schemas";
 
@@ -26,7 +26,6 @@ import {
   useCreateContentScheduleMutation,
   useUpdateContentScheduleMutation,
 } from "~/lib/queries/content-schedules";
-import { cn } from "~/lib/cn";
 import { ChannelTypeIcon } from "./ChannelTypeIcon";
 import { ContentScheduleList } from "./ContentScheduleList";
 import { ContentScheduleForm } from "./ContentScheduleForm";
@@ -111,6 +110,7 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
         id: editingSchedule.id,
         updates: data,
       });
+      setShowScheduleForm(false);
       setEditingSchedule(null);
     } catch (error) {
       console.error("Failed to update schedule:", error);

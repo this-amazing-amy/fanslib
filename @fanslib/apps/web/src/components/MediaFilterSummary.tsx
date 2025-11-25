@@ -1,9 +1,11 @@
-import { MediaFilterSchema } from "@fanslib/server/schemas";
-
-type MediaFilters = typeof MediaFilterSchema.static;
+import type { MediaFilterSchema } from "@fanslib/server/schemas";
 import { Calendar, Camera, FileText, Filter, Hash, MapPin, Minus, Plus } from "lucide-react";
 import { cn } from "~/lib/cn";
 import { Tooltip, TooltipTrigger } from "./ui/Tooltip";
+
+type MediaFilters = typeof MediaFilterSchema.static;
+type FilterGroup = MediaFilters[number];
+type FilterItem = FilterGroup["items"][number];
 
 type FilterSummaryItem = {
   type: "content" | "location" | "media" | "date" | "tags";
@@ -39,6 +41,79 @@ const getFilterIcon = (type: FilterSummaryItem["type"], size = "h-3 w-3") => {
 };
 
 const getIncludeIcon = (include: boolean) => include ? <Plus className="h-2.5 w-2.5" /> : <Minus className="h-2.5 w-2.5" />;
+
+type FilterItemDetails = {
+  type: FilterSummaryItem["type"];
+  label: string;
+  tooltip: string;
+};
+
+const getFilterItemDetails = (item: FilterItem, group: FilterGroup): FilterItemDetails | null => {
+  if (item.type === "channel") {
+    return {
+      type: "location",
+      label: group.include ? "Channels" : "Excluded channels",
+      tooltip: `${group.include ? "Include" : "Exclude"} channel: ${item.id}`,
+    };
+  }
+  if (item.type === "subreddit") {
+    return {
+      type: "location",
+      label: group.include ? "Subreddits" : "Excluded subreddits",
+      tooltip: `${group.include ? "Include" : "Exclude"} subreddit: ${item.id}`,
+    };
+  }
+  if (item.type === "shoot") {
+    return {
+      type: "content",
+      label: group.include ? "Shoots" : "Excluded shoots",
+      tooltip: `${group.include ? "Include" : "Exclude"} shoot: ${item.id}`,
+    };
+  }
+  if (item.type === "tag") {
+    return {
+      type: "tags",
+      label: group.include ? "Tags" : "Excluded tags",
+      tooltip: `${group.include ? "Include" : "Exclude"} tag: ${item.id}`,
+    };
+  }
+  if (item.type === "filename") {
+    return {
+      type: "content",
+      label: group.include ? "Filename" : "Excluded filename",
+      tooltip: `${group.include ? "Include" : "Exclude"} files matching: "${item.value}"`,
+    };
+  }
+  if (item.type === "caption") {
+    return {
+      type: "content",
+      label: group.include ? "Caption" : "Excluded caption",
+      tooltip: `${group.include ? "Include" : "Exclude"} posts with caption: "${item.value}"`,
+    };
+  }
+  if (item.type === "posted") {
+    return {
+      type: "content",
+      label: item.value ? "Posted" : "Unposted",
+      tooltip: `Only ${item.value ? "posted" : "unposted"} content`,
+    };
+  }
+  if (item.type === "mediaType") {
+    return {
+      type: "media",
+      label: item.value === "image" ? "Images" : "Videos",
+      tooltip: `Only ${item.value === "image" ? "image" : "video"} files`,
+    };
+  }
+  if (item.type === "createdDateStart" || item.type === "createdDateEnd") {
+    return {
+      type: "date",
+      label: "Date range",
+      tooltip: `Created ${item.type === "createdDateStart" ? "after" : "before"} ${item.value instanceof Date ? item.value.toLocaleDateString() : ""}`,
+    };
+  }
+  return null;
+};
 
 const FilterBadge = ({ item, compact }: { item: FilterSummaryItem; compact?: boolean }) => {
   const displayLabel = compact
@@ -95,8 +170,8 @@ const FilterSummary = ({ items, compact }: { items: FilterSummaryItem[]; compact
 
   return (
     <div className="flex items-center gap-1 flex-wrap">
-      {visibleItems.map((item, index) => (
-        <FilterBadge key={`${item.type}-${item.label}-${index}`} item={item} compact={compact} />
+      {visibleItems.map((item) => (
+        <FilterBadge key={`${item.type}-${item.label}-${item.tooltip}`} item={item} compact={compact} />
       ))}
 
       {remainingCount > 0 && (
@@ -128,63 +203,16 @@ export const MediaFilterSummary = ({
     return null;
   }
 
-  const filterItems: FilterSummaryItem[] = [];
-
-  mediaFilters.forEach((group) => {
-    group.items.forEach((item) => {
-      let type: FilterSummaryItem["type"] = "content";
-      let label = "";
-      let tooltip = "";
-
-      if (item.type === "channel") {
-        type = "location";
-        label = group.include ? "Channels" : "Excluded channels";
-        tooltip = `${group.include ? "Include" : "Exclude"} channel: ${item.id}`;
-      } else if (item.type === "subreddit") {
-        type = "location";
-        label = group.include ? "Subreddits" : "Excluded subreddits";
-        tooltip = `${group.include ? "Include" : "Exclude"} subreddit: ${item.id}`;
-      } else if (item.type === "shoot") {
-        type = "content";
-        label = group.include ? "Shoots" : "Excluded shoots";
-        tooltip = `${group.include ? "Include" : "Exclude"} shoot: ${item.id}`;
-      } else if (item.type === "tag") {
-        type = "tags";
-        label = group.include ? "Tags" : "Excluded tags";
-        tooltip = `${group.include ? "Include" : "Exclude"} tag: ${item.id}`;
-      } else if (item.type === "filename") {
-        type = "content";
-        label = group.include ? "Filename" : "Excluded filename";
-        tooltip = `${group.include ? "Include" : "Exclude"} files matching: "${item.value}"`;
-      } else if (item.type === "caption") {
-        type = "content";
-        label = group.include ? "Caption" : "Excluded caption";
-        tooltip = `${group.include ? "Include" : "Exclude"} posts with caption: "${item.value}"`;
-      } else if (item.type === "posted") {
-        type = "content";
-        label = item.value ? "Posted" : "Unposted";
-        tooltip = `Only ${item.value ? "posted" : "unposted"} content`;
-      } else if (item.type === "mediaType") {
-        type = "media";
-        label = item.value === "image" ? "Images" : "Videos";
-        tooltip = `Only ${item.value === "image" ? "image" : "video"} files`;
-      } else if (item.type === "createdDateStart" || item.type === "createdDateEnd") {
-        type = "date";
-        label = "Date range";
-        tooltip = `Created ${item.type === "createdDateStart" ? "after" : "before"} ${item.value instanceof Date ? item.value.toLocaleDateString() : ""}`;
-      }
-
-      if (label) {
-        filterItems.push({
-          type,
-          label,
-          count: 1,
-          include: group.include,
-          tooltip,
-        });
-      }
-    });
-  });
+  const filterItems: FilterSummaryItem[] = mediaFilters.flatMap((group) =>
+    group.items
+      .map((item) => getFilterItemDetails(item, group))
+      .filter((details): details is FilterItemDetails => details !== null)
+      .map((details) => ({
+        ...details,
+        count: 1,
+        include: group.include,
+      }))
+  );
 
   if (filterItems.length === 0) {
     return null;

@@ -21,7 +21,7 @@ export const RedditSettings = () => {
   // Load cached status from localStorage
   const [lastChecked, setLastChecked] = useState<string | null>(() => {
     const cached = loadCachedStatus();
-    return cached?.lastChecked || null;
+    return cached?.lastChecked ?? null;
   });
 
   // Queries
@@ -41,8 +41,8 @@ export const RedditSettings = () => {
     }
   }, [loginStatusQuery.data, sessionStatusQuery.data]);
 
-  const sessionStatus: SessionStatus | null = sessionStatusQuery.data || null;
-  const loginStatus: LoginStatus | null = loginStatusQuery.data || null;
+  const sessionStatus: SessionStatus | null = sessionStatusQuery.data ?? null;
+  const loginStatus: LoginStatus | null = loginStatusQuery.data ?? null;
 
   const isLoading = sessionStatusQuery.isLoading || sessionStatusQuery.isFetching;
   const isCheckingLogin = loginStatusQuery.isLoading || loginStatusQuery.isFetching;

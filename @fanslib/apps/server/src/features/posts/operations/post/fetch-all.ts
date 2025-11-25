@@ -1,5 +1,6 @@
 import { t } from "elysia";
 import { ChannelSchema } from "~/features/channels/entity";
+import { ContentScheduleSchema } from "~/features/content-schedules/entity";
 import { SubredditSchema } from "~/features/subreddits/entity";
 import { db } from "../../../../lib/db";
 import { Post, PostMediaWithMediaSchema, PostSchema } from "../../entity";
@@ -17,6 +18,7 @@ export const PostWithRelationsSchema = t.Composite([
     postMedia: t.Array(PostMediaWithMediaSchema),
     channel: ChannelWithTypeSchema,
     subreddit: t.Nullable(SubredditSchema),
+    schedule: t.Nullable(ContentScheduleSchema),
   }),
 ]);
 
@@ -32,7 +34,8 @@ export const fetchAllPosts = async (filters?: typeof PostFiltersSchema.static): 
     .leftJoinAndSelect("post.channel", "channel")
     .leftJoinAndSelect("channel.type", "type")
     .leftJoinAndSelect("channel.defaultHashtags", "defaultHashtags")
-    .leftJoinAndSelect("post.subreddit", "subreddit");
+    .leftJoinAndSelect("post.subreddit", "subreddit")
+    .leftJoinAndSelect("post.schedule", "schedule");
 
   if (filters?.search) {
     queryBuilder.andWhere(
@@ -69,6 +72,7 @@ export const fetchAllPosts = async (filters?: typeof PostFiltersSchema.static): 
   return posts.map((post) => ({
     ...post,
     subreddit: post.subreddit ?? null,
+    schedule: post.schedule ?? null,
   }));
 };
 

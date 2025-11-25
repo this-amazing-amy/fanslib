@@ -10,7 +10,7 @@ import {
 } from "typeorm";
 import type { Media } from "../library/entity";
 
-@Entity()
+@Entity("Shoot")
 // eslint-disable-next-line functional/no-classes
 export class Shoot {
   @PrimaryGeneratedColumn("uuid")

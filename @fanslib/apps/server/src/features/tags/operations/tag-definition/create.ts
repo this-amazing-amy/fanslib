@@ -1,5 +1,5 @@
 import { t } from "elysia";
-import { normalizeHexColor, validateHexColor } from "../../../../lib/color";
+import { validateColorFormat } from "../../../../lib/color";
 import { db } from "../../../../lib/db";
 import { TagDefinition, TagDefinitionSchema, TagDimension } from "../../entity";
 import { assignColorForCategoricalTag } from "../helpers";
@@ -37,11 +37,10 @@ export const createTagDefinition = async (dto: typeof CreateTagDefinitionRequest
   }
 
   if (dto.color) {
-    const colorError = validateHexColor(dto.color);
+    const colorError = validateColorFormat(dto.color);
     if (colorError) {
       throw new Error(`Invalid color format: ${colorError}`);
     }
-    dto.color = normalizeHexColor(dto.color);
   }
 
   const assignedColor = await assignColorForCategoricalTag(dto.dimensionId, dto.color ?? undefined);

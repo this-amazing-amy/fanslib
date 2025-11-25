@@ -10,6 +10,22 @@ type NumericValueInputProps = {
   onValidationChange?: (error: string | null) => void;
 };
 
+const getValidationError = (numericValue: number, schema: NumericSchema): string | null => {
+  if (schema.min !== undefined && numericValue < schema.min) {
+    return `Value must be at least ${schema.min}`;
+  }
+  if (schema.max !== undefined && numericValue > schema.max) {
+    return `Value must be at most ${schema.max}`;
+  }
+  if (schema.step !== undefined && schema.min !== undefined) {
+    const remainder = (numericValue - schema.min) % schema.step;
+    if (Math.abs(remainder) > 0.0001) {
+      return `Value must be in steps of ${schema.step}`;
+    }
+  }
+  return null;
+};
+
 export const NumericValueInput = ({ value, onChange, schema, onValidationChange }: NumericValueInputProps) => {
   const [inputValue, setInputValue] = useState(value.toString());
   const [error, setError] = useState<string | null>(null);
@@ -28,18 +44,7 @@ export const NumericValueInput = ({ value, onChange, schema, onValidationChange 
       return;
     }
 
-    let validationError: string | null = null;
-
-    if (schema.min !== undefined && numericValue < schema.min) {
-      validationError = `Value must be at least ${schema.min}`;
-    } else if (schema.max !== undefined && numericValue > schema.max) {
-      validationError = `Value must be at most ${schema.max}`;
-    } else if (schema.step !== undefined && schema.min !== undefined) {
-      const remainder = (numericValue - schema.min) % schema.step;
-      if (Math.abs(remainder) > 0.0001) {
-        validationError = `Value must be in steps of ${schema.step}`;
-      }
-    }
+    const validationError = getValidationError(numericValue, schema);
 
     setError(validationError);
     onValidationChange?.(validationError);

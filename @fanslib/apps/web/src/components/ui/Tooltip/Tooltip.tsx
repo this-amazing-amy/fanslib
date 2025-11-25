@@ -1,9 +1,6 @@
 import type { ReactNode } from 'react';
 import {
-  TooltipTrigger as AriaTooltipTrigger,
   Tooltip as AriaTooltip,
-  Button,
-  type TooltipTriggerComponentProps,
   type TooltipProps as AriaTooltipProps,
 } from 'react-aria-components';
 import { cn } from '~/lib/cn';
@@ -17,9 +14,7 @@ type TooltipProps = Omit<AriaTooltipProps, 'children'> & {
   className?: string;
 }
 
-export const Tooltip = ({ children, className, offset = 4, ...props }: TooltipProps) => {
-  return (
-    <AriaTooltip
+export const Tooltip = ({ children, className, offset = 4, ...props }: TooltipProps) => <AriaTooltip
       offset={offset}
       className={cn(
         'z-50 px-3 py-1.5 text-xs rounded-md bg-base-100 border border-base-content shadow-lg',
@@ -34,6 +29,4 @@ export const Tooltip = ({ children, className, offset = 4, ...props }: TooltipPr
       {...props}
     >
       {children}
-    </AriaTooltip>
-  );
-};
+    </AriaTooltip>;

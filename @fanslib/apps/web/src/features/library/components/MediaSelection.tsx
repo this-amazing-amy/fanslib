@@ -12,7 +12,7 @@ import { MediaFiltersProvider } from "./MediaFilters/MediaFiltersContext";
 import { MediaTileLite } from "./MediaTile/MediaTileLite";
 
 type Media = typeof MediaSchema.static;
-type MediaFilters = typeof MediaFilterSchema.static;
+type MediaFilterType = typeof MediaFilterSchema.static;
 
 type MediaSelectionProps = {
   selectedMedia: Media[];
@@ -31,7 +31,7 @@ export const MediaSelection = ({
 }: MediaSelectionProps) => {
   const [activePreviewId, setActivePreviewId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [filters, setFilters] = useState<MediaFilters>([]);
+  const [filters, setFilters] = useState<MediaFilterType>([]);
 
   const { data: mediaResponse } = useMediaListQuery({
     limit: pageLimit,
@@ -49,7 +49,7 @@ export const MediaSelection = ({
   const handleNextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   const handlePrevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
-  const handleFilterChange = (newFilters: MediaFilters) => {
+  const handleFilterChange = (newFilters: MediaFilterType) => {
     setFilters(newFilters);
     setCurrentPage(1);
   };

@@ -1,25 +1,28 @@
+import type { TagDefinitionSchema } from "@fanslib/server/schemas";
 import { useMemo } from "react";
 import type { TreeNode } from "./TreeNodeComponent";
 import { TreeNodeComponent } from "./TreeNodeComponent";
 
+type TagDefinition = typeof TagDefinitionSchema.static;
+
 type TagTreeViewProps = {
-  tags: any[];
+  tags: TagDefinition[];
   selectedTagId?: number;
   onSelectTag?: (tagId: number) => void;
-  onEditTag: (tag: any) => void;
+  onEditTag: (tag: TagDefinition) => void;
   onDeleteTag: (tagId: number) => void;
   onCreateTag: (parentTagId?: number) => void;
   onUpdateParent: (tagId: number, newParentId: number | null) => void;
 };
 
-const buildTagTree = (tags: any[]): TreeNode[] => {
-  const tagMap = new Map<number, any>();
+const buildTagTree = (tags: TagDefinition[]): TreeNode[] => {
+  const tagMap = new Map<number, TagDefinition>();
   tags.forEach((tag) => tagMap.set(tag.id, tag));
 
   const rootTags: TreeNode[] = [];
   const processedTags = new Set<number>();
 
-  const buildNode = (tag: any, level: number = 0): TreeNode => {
+  const buildNode = (tag: TagDefinition, level: number = 0): TreeNode => {
     const children = tags
       .filter((t) => t.parentTagId === tag.id)
       .map((child) => buildNode(child, level + 1));

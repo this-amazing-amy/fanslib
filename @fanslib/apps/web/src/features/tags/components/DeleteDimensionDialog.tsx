@@ -32,7 +32,7 @@ export const DeleteDimensionDialog = ({
             <AlertDialogHeader>
               <AlertDialogTitle>Delete Dimension</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to delete the "{dimensionName}" dimension? This will also delete all
+                Are you sure you want to delete the &ldquo;{dimensionName}&rdquo; dimension? This will also delete all
                 tags in this dimension. This action cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>

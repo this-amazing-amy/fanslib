@@ -1,3 +1,4 @@
+import type { HashtagChannelStatsSchema, HashtagSchema } from "@fanslib/server/schemas";
 import { Plus, Trash2 } from "lucide-react";
 import type { CSSProperties } from "react";
 import { useState } from "react";
@@ -24,6 +25,9 @@ import {
   useHashtagsQuery,
   useUpdateHashtagStatsMutation,
 } from "~/lib/queries/hashtags";
+
+type Hashtag = typeof HashtagSchema.static;
+type HashtagChannelStats = typeof HashtagChannelStatsSchema.static;
 
 type HashtagViewInputProps = {
   initialValue: number;
@@ -176,8 +180,8 @@ export const HashtagsTab = () => {
     await updateHashtagStatsMutation.mutateAsync({ id: hashtagId.toString(), updates: { channelId, views: viewCount } });
   };
 
-  const getViewCount = (hashtag: any, channelId: string) => {
-    const stat = hashtag.channelStats?.find((s: any) => s.channelId === channelId);
+  const getViewCount = (hashtag: Hashtag, channelId: string) => {
+    const stat = hashtag.channelStats?.find((s: HashtagChannelStats) => s.channelId === channelId);
     return stat?.views ?? 0;
   };
 

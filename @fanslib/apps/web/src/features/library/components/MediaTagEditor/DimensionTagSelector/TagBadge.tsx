@@ -1,9 +1,10 @@
-import { TagDefinitionSchema } from "@fanslib/server/schemas";
+import type { TagDefinitionSchema } from "@fanslib/server/schemas";
 
 type TagDefinition = typeof TagDefinitionSchema.static;
-import { Check, Circle, Minus } from "lucide-react";
+import { Check, Minus } from "lucide-react";
 import { Badge } from "~/components/ui/Badge";
 import type { BadgeVariant } from "~/components/ui/Badge/Badge";
+import { getColorDefinitionFromString } from "~/lib/colors";
 import { cn } from "~/lib/cn";
 import type { SelectionState } from "~/lib/tags/selection-state";
 
@@ -25,13 +26,8 @@ export const TagBadge = ({
   selectionMode = "checkbox",
 }: TagBadgeProps) => {
   const getIcon = () => {
-    if (selectionMode === "radio") {
-      return selectionState === "checked" ? (
-        <Check className="w-3 h-3" />
-      ) : (
-        <Circle className="w-3 h-3" />
-      );
-    }
+    // Radio mode: no icons, selection indicated by fill vs outline
+    if (selectionMode === "radio") return null;
 
     // Checkbox mode (default)
     if (selectionState === "checked") return <Check className="w-3 h-3" />;
@@ -40,6 +36,7 @@ export const TagBadge = ({
   };
 
   const badgeVariant = selectionState === "unchecked" ? variant : "neutral";
+  const colorDef = getColorDefinitionFromString(tag.color, tag.id);
 
   return (
     <Badge
@@ -52,9 +49,11 @@ export const TagBadge = ({
       )}
       size="lg"
       style={{
-        backgroundColor: selectionState !== "unchecked" ? (tag.color ?? undefined) : "transparent",
-        borderColor: tag.color ?? "hsl(var(--border))",
-        color: selectionState !== "unchecked" ? "white" : (tag.color ?? "hsl(var(--foreground))"),
+        backgroundColor: selectionState !== "unchecked"
+          ? colorDef.background
+          : `color-mix(in oklch, ${colorDef.background} 12%, transparent)`,
+        borderColor: colorDef.foreground,
+        color: colorDef.foreground,
       }}
       onClick={onClick}
     >

@@ -12,6 +12,7 @@ type Post = {
     id: string;
     thumbnailUrl?: string;
     fileUrl?: string;
+    [key: string]: unknown;
   };
   caption: string;
   date: Date;
@@ -33,15 +34,13 @@ export const PostGenerationGrid = ({
   onScheduleIndividualPost,
   onDiscardPost,
   isSchedulingPost,
-}: PostGenerationGridProps) => {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto">
+}: PostGenerationGridProps) => <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto">
       {posts.map((post, index) => (
         <Card key={post.id} className="p-4 space-y-3">
           <div className="aspect-square bg-base-200 rounded-lg overflow-hidden">
-            {post.media.thumbnailUrl || post.media.fileUrl ? (
+            {post.media.thumbnailUrl ?? post.media.fileUrl ? (
               <img
-                src={post.media.thumbnailUrl || post.media.fileUrl}
+                src={post.media.thumbnailUrl ?? post.media.fileUrl}
                 alt="Post media"
                 className="w-full h-full object-cover"
               />
@@ -101,6 +100,4 @@ export const PostGenerationGrid = ({
           </div>
         </Card>
       ))}
-    </div>
-  );
-};
+    </div>;

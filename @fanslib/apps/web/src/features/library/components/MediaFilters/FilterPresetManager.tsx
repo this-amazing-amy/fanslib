@@ -75,7 +75,7 @@ export const FilterPresetManager = ({ open, onOpenChange }: FilterPresetManagerP
     <DialogTrigger isOpen={open} onOpenChange={onOpenChange}>
       <DialogModal>
         <Dialog maxWidth="md">
-          {({ close }) => (
+          {({ close: _close }) => (
             <>
               <DialogHeader>
                 <DialogTitle>Manage Filter Presets</DialogTitle>
@@ -83,8 +83,8 @@ export const FilterPresetManager = ({ open, onOpenChange }: FilterPresetManagerP
                   Manage your saved filter presets. You can rename or delete existing presets.
                 </DialogDescription>
               </DialogHeader>
-        <div className="py-4">
-          {isLoading ? (
+        <div className="py-4">{
+          isLoading ? (
             <div className="text-center py-8 text-muted-foreground">Loading presets...</div>
           ) : presets.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">

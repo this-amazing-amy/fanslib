@@ -1,6 +1,6 @@
 import { Sticker } from "~/components/ui/Sticker";
 import { ImageIcon, Video } from "lucide-react";
-import { MediaSchema } from "@fanslib/server/schemas";
+import type { MediaSchema } from "@fanslib/server/schemas";
 
 type Media = typeof MediaSchema.static;
 

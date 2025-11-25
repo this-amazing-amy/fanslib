@@ -1,11 +1,9 @@
 import { X } from 'lucide-react';
 import type { ReactNode } from 'react';
 import {
-  DialogTrigger as AriaDialogTrigger,
   Modal,
   Dialog as AriaDialog,
   Heading,
-  type DialogTriggerProps,
   type ModalOverlayProps,
   type DialogProps as AriaDialogProps,
 } from 'react-aria-components';
@@ -30,9 +28,7 @@ type ModalProps = Omit<ModalOverlayProps, 'children'> & {
   className?: string;
 }
 
-export const DialogModal = ({ children, className, isDismissable = true, ...props }: ModalProps) => {
-  return (
-    <Modal
+export const DialogModal = ({ children, className, isDismissable = true, ...props }: ModalProps) => <Modal
       isDismissable={isDismissable}
       className={cn(
         'fixed inset-0 z-[70] bg-black/50',
@@ -43,9 +39,7 @@ export const DialogModal = ({ children, className, isDismissable = true, ...prop
       {...props}
     >
       {children}
-    </Modal>
-  );
-};
+    </Modal>;
 
 // Dialog component wrapper with content styling
 type DialogProps = Omit<AriaDialogProps, 'children'> & {
@@ -55,11 +49,9 @@ type DialogProps = Omit<AriaDialogProps, 'children'> & {
   showCloseButton?: boolean;
 }
 
-export const Dialog = ({ children, className, maxWidth = 'lg', showCloseButton = true, ...props }: DialogProps) => {
-  return (
-    <AriaDialog
+export const Dialog = ({ children, className, maxWidth = 'lg', showCloseButton = true, ...props }: DialogProps) => <AriaDialog
       className={cn(
-        'fixed left-[50%] top-[50%] z-[70] grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border-2 border-base-content bg-base-100 p-6 shadow-xl rounded-lg outline-none',
+        'fixed left-[50%] top-[50%] z-[71] grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border-2 border-base-content bg-base-100 p-6 shadow-xl rounded-lg outline-none',
         maxWidthClasses[maxWidth],
         'entering:animate-in entering:fade-in entering:zoom-in-95',
         'entering:slide-in-from-left-1/2 entering:slide-in-from-top-[48%]',
@@ -85,9 +77,7 @@ export const Dialog = ({ children, className, maxWidth = 'lg', showCloseButton =
           {typeof children === 'function' ? children({ close }) : children}
         </>
       )}
-    </AriaDialog>
-  );
-};
+    </AriaDialog>;
 
 // Helper components for Dialog structure
 export type DialogHeaderProps = {

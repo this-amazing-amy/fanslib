@@ -58,7 +58,8 @@ export const ListSkeleton: Story = {
   render: () => (
     <div className="space-y-4">
       {[...Array(3)].map((_, i) => (
-        <div key={i} className="flex items-center gap-4">
+        // eslint-disable-next-line react/no-array-index-key
+        <div key={`skeleton-${i}`} className="flex items-center gap-4">
           <Skeleton variant="circular" width={40} height={40} />
           <div className="flex-1 space-y-2">
             <Skeleton variant="text" />

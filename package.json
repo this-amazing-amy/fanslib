@@ -13,8 +13,8 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
-    "test": "turbo run test --filter=!@fanslib/e2e",
-    "test:e2e": "turbo run test --filter=@fanslib/e2e",
+    "start": "turbo run start --parallel",
+    "test": "turbo run test",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "storybook": "turbo run storybook",

@@ -11,6 +11,15 @@ export class ContentSchedule {
   @Column("varchar")
   channelId!: string;
 
+  @Column("varchar", { default: "Untitled Schedule" })
+  name!: string;
+
+  @Column("varchar", { nullable: true })
+  emoji: string | null = null;
+
+  @Column("varchar", { nullable: true, default: "#6366f1" })
+  color: string | null = "#6366f1";
+
   @Column({
     type: "varchar",
     enum: ["daily", "weekly", "monthly"],
@@ -35,7 +44,7 @@ export class ContentSchedule {
   @Column("text", { nullable: true })
   mediaFilters: string | null = null;
 
-  @ManyToOne("Channel")
+  @ManyToOne("Channel", { onDelete: "CASCADE" })
   @JoinColumn({ name: "channelId" })
   channel!: Channel;
 }
@@ -49,6 +58,9 @@ export const ContentScheduleTypeSchema = t.Union([
 export const ContentScheduleSchema = t.Object({
   id: t.String(),
   channelId: t.String(),
+  name: t.String(),
+  emoji: t.Nullable(t.String()),
+  color: t.Nullable(t.String()),
   type: ContentScheduleTypeSchema,
   postsPerTimeframe: t.Nullable(t.Number()),
   preferredDays: t.Nullable(t.Array(t.String())),

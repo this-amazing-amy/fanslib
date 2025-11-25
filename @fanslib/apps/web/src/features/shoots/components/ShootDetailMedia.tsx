@@ -1,4 +1,4 @@
-import { ShootSummarySchema } from "@fanslib/server/schemas";
+import type { ShootSummarySchema } from "@fanslib/server/schemas";
 import { Trash2Icon } from "lucide-react";
 import { type FC, useState } from "react";
 import { Button } from "~/components/ui/Button";

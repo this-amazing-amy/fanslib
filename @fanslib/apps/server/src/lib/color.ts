@@ -26,5 +26,29 @@ export const normalizeHexColor = (color: string): string => {
   return color.toUpperCase();
 };
 
+export const validateColorFormat = (color: string): string | null => {
+  if (!color) {
+    return null;
+  }
+
+  // Accept preset format: preset:pink
+  if (color.startsWith('preset:')) {
+    const presetId = color.substring(7);
+    const validPresets = ['pink', 'peach', 'yellow', 'lime', 'aqua', 'periwinkle', 'lilac', 'rose'];
+    if (!validPresets.includes(presetId)) {
+      return `Invalid preset ID. Must be one of: ${validPresets.join(', ')}`;
+    }
+    return null;
+  }
+
+  // Accept custom format: custom:oklch(...)|oklch(...)
+  if (color.startsWith('custom:')) {
+    return null;
+  }
+
+  // For backwards compatibility, still accept hex
+  return validateHexColor(color);
+};
+
 
 

@@ -10,7 +10,6 @@ import { Input } from "~/components/ui/Input";
 import { Popover, PopoverTrigger } from "~/components/ui/Popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/Select";
 import { Switch } from "~/components/ui/Switch";
-import { Tooltip, TooltipTrigger } from "~/components/ui/Tooltip";
 import { cn } from "~/lib/cn";
 import { ChannelFilterSelector } from "./ChannelFilterSelector";
 import { DimensionFilterSelector } from "./DimensionFilterSelector";
@@ -37,83 +36,113 @@ export const FilterItemRenderer = ({
 }: FilterItemRendererProps) => {
   const [calendarOpen, setCalendarOpen] = useState(false);
 
-  const renderInput = () => {
-    switch (type) {
-      case "channel":
-        return (
+  const RemoveButton = () => (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="h-8 w-8 flex-shrink-0"
+      onPress={onRemove}
+    >
+      <X className="h-4 w-4" />
+    </Button>
+  );
+
+  switch (type) {
+    case "channel":
+      return (
+        <div className="flex items-center gap-1">
           <ChannelFilterSelector
             value={value && "id" in value ? value.id : undefined}
             onChange={(channelId) => onChange({ type: "channel", id: channelId })}
           />
-        );
+          <RemoveButton />
+        </div>
+      );
 
-      case "subreddit":
-        return (
+    case "subreddit":
+      return (
+        <div className="flex items-center gap-1">
           <SubredditFilterSelector
             value={value && "id" in value ? value.id : undefined}
             onChange={(subredditId) => onChange({ type: "subreddit", id: subredditId })}
           />
-        );
+          <RemoveButton />
+        </div>
+      );
 
-      case "tag":
-        return (
+    case "tag":
+      return (
+        <div className="flex items-center gap-1">
           <TagFilterSelector
             value={value && "id" in value ? value.id : undefined}
             onChange={(tagId) => onChange({ type: "tag", id: tagId })}
           />
-        );
+          <RemoveButton />
+        </div>
+      );
 
-      case "shoot":
-        return (
+    case "shoot":
+      return (
+        <div className="flex items-center gap-1">
           <ShootFilterSelector
             value={value && "id" in value ? value.id : undefined}
             onChange={(shootId) => onChange({ type: "shoot", id: shootId })}
           />
-        );
+          <RemoveButton />
+        </div>
+      );
 
-      case "dimensionEmpty":
-        return (
+    case "dimensionEmpty":
+      return (
+        <div className="flex items-center gap-1">
           <DimensionFilterSelector
             value={value && "dimensionId" in value ? value.dimensionId : undefined}
             onChange={(dimensionId) => onChange({ type: "dimensionEmpty", dimensionId })}
           />
-        );
+          <RemoveButton />
+        </div>
+      );
 
-      case "filename":
-      case "caption":
-        return (
+    case "filename":
+    case "caption":
+      return (
+        <div className="flex items-center gap-1">
           <Input
             value={value && "value" in value && typeof value.value === "string" ? value.value : ""}
-            onChange={(value) => onChange({ type, value })}
+            onChange={(newValue) => onChange({ type, value: newValue })}
             placeholder={`Enter ${type} text`}
           />
-        );
+          <RemoveButton />
+        </div>
+      );
 
-      case "posted":
-        return (
-          <div className="flex items-center space-x-2">
-            <Switch
-              isSelected={
-                value && "value" in value && typeof value.value === "boolean" ? value.value : false
-              }
-              onChange={(isSelected) => onChange({ type: "posted", value: isSelected })}
-            />
-            <span className="text-sm">
-              {value && "value" in value && typeof value.value === "boolean" && value.value
-                ? "Posted"
-                : "Unposted"}
-            </span>
-          </div>
-        );
+    case "posted":
+      return (
+        <div className="flex items-center gap-2">
+          <Switch
+            isSelected={
+              value && "value" in value && typeof value.value === "boolean" ? value.value : false
+            }
+            onChange={(isSelected) => onChange({ type: "posted", value: isSelected })}
+          />
+          <span className="text-sm">
+            {value && "value" in value && typeof value.value === "boolean" && value.value
+              ? "Posted"
+              : "Unposted"}
+          </span>
+          <RemoveButton />
+        </div>
+      );
 
-      case "mediaType":
-        return (
+    case "mediaType":
+      return (
+        <div className="flex items-center gap-1">
           <Select
             value={
               value && "value" in value && typeof value.value === "string" ? value.value : "image"
             }
-            onValueChange={(value) =>
-              onChange({ type: "mediaType", value: value as "image" | "video" })
+            onValueChange={(newValue) =>
+              onChange({ type: "mediaType", value: newValue as "image" | "video" })
             }
           >
             <SelectTrigger className="w-full">
@@ -134,20 +163,23 @@ export const FilterItemRenderer = ({
               </SelectItem>
             </SelectContent>
           </Select>
-        );
+          <RemoveButton />
+        </div>
+      );
 
-      case "createdDateStart":
-      case "createdDateEnd": {
-        const dateValue =
-          value && "value" in value && value.value instanceof Date ? value.value : undefined;
-        const calendarValue = dateValue
-          ? new CalendarDate(
-              dateValue.getFullYear(),
-              dateValue.getMonth() + 1,
-              dateValue.getDate()
-            )
-          : undefined;
-        return (
+    case "createdDateStart":
+    case "createdDateEnd": {
+      const dateValue =
+        value && "value" in value && value.value instanceof Date ? value.value : undefined;
+      const calendarValue = dateValue
+        ? new CalendarDate(
+            dateValue.getFullYear(),
+            dateValue.getMonth() + 1,
+            dateValue.getDate()
+          )
+        : undefined;
+      return (
+        <div className="flex items-center gap-1">
           <PopoverTrigger isOpen={calendarOpen} onOpenChange={setCalendarOpen}>
             <Button
               variant="outline"
@@ -174,29 +206,12 @@ export const FilterItemRenderer = ({
               </I18nProvider>
             </Popover>
           </PopoverTrigger>
-        );
-      }
-
-      default:
-        return null;
+          <RemoveButton />
+        </div>
+      );
     }
-  };
 
-  return (
-    <TooltipTrigger>
-      <div className="cursor-pointer">{renderInput()}</div>
-      <Tooltip className="flex gap-1 px-1.5 py-1">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-6 w-6 hover:text-destructive"
-          onPress={() => {
-            onRemove();
-          }}
-        >
-          <X size={14} />
-        </Button>
-      </Tooltip>
-    </TooltipTrigger>
-  );
+    default:
+      return null;
+  }
 };

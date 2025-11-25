@@ -2,9 +2,7 @@ type LogoProps = {
   isCollapsed: boolean;
 };
 
-export const Logo = ({ isCollapsed }: LogoProps) => {
-  return (
-    <>
+export const Logo = ({ isCollapsed }: LogoProps) => <>
       <div className="flex items-center gap-2 lg:hidden">
         <div className="px-3 py-1.5 bg-primary rounded-lg flex items-center justify-center">
           <span className="text-primary-content font-bold text-lg">Fans</span>
@@ -26,7 +24,5 @@ export const Logo = ({ isCollapsed }: LogoProps) => {
           <span className="text-2xl font-bold">Lib</span>
         </div>
       )}
-    </>
-  );
-};
+    </>;
 

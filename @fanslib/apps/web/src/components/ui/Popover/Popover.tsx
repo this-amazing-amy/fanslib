@@ -1,9 +1,7 @@
 import type { ReactNode } from 'react';
 import {
-  DialogTrigger,
   Popover as AriaPopover,
   Dialog,
-  type DialogTriggerProps,
   type PopoverProps as AriaPopoverProps,
 } from 'react-aria-components';
 import { cn } from '~/lib/cn';
@@ -17,9 +15,7 @@ type PopoverProps = Omit<AriaPopoverProps, 'children'> & {
   className?: string;
 }
 
-export const Popover = ({ children, className, offset = 4, ...props }: PopoverProps) => {
-  return (
-    <AriaPopover
+export const Popover = ({ children, className, offset = 4, ...props }: PopoverProps) => <AriaPopover
       offset={offset}
       className={cn(
         'z-[80] overflow-hidden rounded-xl bg-base-100 border-2 border-base-content shadow-lg p-4 outline-none',
@@ -34,6 +30,4 @@ export const Popover = ({ children, className, offset = 4, ...props }: PopoverPr
       {...props}
     >
       <Dialog className="outline-none">{children}</Dialog>
-    </AriaPopover>
-  );
-};
+    </AriaPopover>;

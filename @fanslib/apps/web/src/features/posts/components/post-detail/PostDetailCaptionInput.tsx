@@ -16,7 +16,7 @@ type PostDetailCaptionInputProps = {
 };
 
 export const PostDetailCaptionInput = ({ post }: PostDetailCaptionInputProps) => {
-  const [localCaption, setLocalCaption] = useState(post.caption || '');
+  const [localCaption, setLocalCaption] = useState(post.caption ?? '');
   const [isSaving, setIsSaving] = useState(false);
   const { isCopied, copy } = useCopyToClipboard();
   const updatePostMutation = useUpdatePostMutation();

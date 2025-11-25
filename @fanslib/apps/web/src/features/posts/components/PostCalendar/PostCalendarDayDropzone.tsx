@@ -1,6 +1,6 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { MediaSchema } from "@fanslib/server/schemas";
+import type { MediaSchema } from "@fanslib/server/schemas";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
 
 type Media = typeof MediaSchema.static;
@@ -13,7 +13,7 @@ type PostCalendarDayDropzoneProps = {
   onUpdate: () => Promise<void>;
 };
 
-export const PostCalendarDayDropzone = ({ date, onUpdate }: PostCalendarDayDropzoneProps) => {
+export const PostCalendarDayDropzone = ({ date: _date, onUpdate }: PostCalendarDayDropzoneProps) => {
   const { isDragging, draggedMedias, endMediaDrag } = useMediaDrag();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [droppedMedias, setDroppedMedias] = useState<Media[]>([]);

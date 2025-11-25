@@ -41,8 +41,8 @@ export const ToggleGroup = ({
       )}
       <div
         className={cn(
-          'btn-group gap-2',
-          orientation === 'vertical' && 'btn-group-vertical'
+          'flex items-center gap-1 p-1 border border-base-300 !rounded-full',
+          orientation === 'vertical' && 'flex-col'
         )}
       >
         {options.map((option) => (
@@ -105,7 +105,7 @@ const ToggleGroupItem = ({
   return (
     <label
       className={cn(
-        'btn',
+        'btn rounded-full',
         variantClasses[variant],
         sizeClasses[size],
         option.disabled && 'btn-disabled',

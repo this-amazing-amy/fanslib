@@ -123,10 +123,10 @@ export const FanslySettings = () => {
     credentials.fanslyClientCheck &&
     credentials.fanslyClientId;
   const hasAnyCredentials =
-    credentials.fanslyAuth ||
-    credentials.fanslySessionId ||
-    credentials.fanslyClientCheck ||
-    credentials.fanslyClientId;
+    !!credentials.fanslyAuth ||
+    !!credentials.fanslySessionId ||
+    !!credentials.fanslyClientCheck ||
+    !!credentials.fanslyClientId;
   const isLoading = saveMutation.isPending || clearMutation.isPending;
 
   return (

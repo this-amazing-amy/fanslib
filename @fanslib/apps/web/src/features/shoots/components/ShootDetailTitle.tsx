@@ -1,4 +1,4 @@
-import { ShootSummarySchema, UpdateShootRequestBodySchema } from "@fanslib/server/schemas";
+import type { ShootSummarySchema, UpdateShootRequestBodySchema } from "@fanslib/server/schemas";
 import { type FC, useState } from "react";
 import { Input } from "~/components/ui/Input";
 

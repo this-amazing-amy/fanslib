@@ -1,16 +1,25 @@
+import type { TagDefinitionSchema } from "@fanslib/server/schemas";
 import { useMemo } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/Select";
 
+type TagDefinition = typeof TagDefinitionSchema.static;
+
 type ParentTagSelectorProps = {
-  tags: any[];
+  tags: TagDefinition[];
   selectedParentId?: number | null;
   currentTagId?: number;
   onSelectParent: (parentId: number | null) => void;
   placeholder?: string;
 };
 
-const buildHierarchicalList = (tags: any[], excludeTagId?: number) => {
-  const tagMap = new Map<number, any>();
+type HierarchicalTag = {
+  tag: TagDefinition;
+  level: number;
+  path: string[];
+};
+
+const buildHierarchicalList = (tags: TagDefinition[], excludeTagId?: number): HierarchicalTag[] => {
+  const tagMap = new Map<number, TagDefinition>();
   tags.forEach((tag) => tagMap.set(tag.id, tag));
 
   const getPath = (tagId: number): string[] => {
@@ -25,7 +34,7 @@ const buildHierarchicalList = (tags: any[], excludeTagId?: number) => {
 
   const getLevel = (tagId: number): number => {
     const tag = tagMap.get(tagId);
-    if (!tag || !tag.parentTagId) return 0;
+    if (!tag?.parentTagId) return 0;
     return getLevel(tag.parentTagId) + 1;
   };
 
@@ -65,7 +74,7 @@ export const ParentTagSelector = ({
 }: ParentTagSelectorProps) => {
   const hierarchicalTags = useMemo(() => buildHierarchicalList(tags, currentTagId), [tags, currentTagId]);
 
-  const getDisplayValue = (item: any) => {
+  const getDisplayValue = (item: HierarchicalTag) => {
     if (item.path.length > 1) {
       return item.path.join(" > ");
     }

@@ -1,8 +1,8 @@
 import type { PostWithRelationsSchema } from '@fanslib/server/schemas';
-import { CalendarDays, Check, Info, Undo2 } from 'lucide-react';
+import { CalendarDays, Check, Undo2 } from 'lucide-react';
 import { StatusSticker } from '~/components/StatusSticker';
 import { Button } from '~/components/ui/Button';
-import { Tooltip, TooltipTrigger } from '~/components/ui/Tooltip';
+import { getPostStatusStyles } from '~/lib/colors';
 import { useUpdatePostMutation } from '~/lib/queries/posts';
 
 type Post = typeof PostWithRelationsSchema.static;
@@ -10,21 +10,6 @@ type Post = typeof PostWithRelationsSchema.static;
 type PostDetailStatusButtonsProps = {
   post: Post;
 };
-
-const InfoTooltip = () => (
-  <TooltipTrigger>
-    <Button variant="ghost" size="icon">
-      <Info className="size-4" />
-    </Button>
-    <Tooltip className="max-w-[300px]">
-      <p>
-        FansLib helps you organize your posts but cannot automatically post them. You&apos;ll need
-        to manually post/schedule content on each platform as they don&apos;t support external
-        posting. After doing so, you can mark your post as scheduled or posted here.
-      </p>
-    </Tooltip>
-  </TooltipTrigger>
-);
 
 export const PostDetailStatusButtons = ({ post }: PostDetailStatusButtonsProps) => {
   const updatePostMutation = useUpdatePostMutation();
@@ -48,25 +33,27 @@ export const PostDetailStatusButtons = ({ post }: PostDetailStatusButtonsProps) 
     if (post.status === 'draft') {
       return (
         <>
-          <StatusSticker status={post.status} className="justify-self-start" />
+          <StatusSticker status={post.status} size="md" className="justify-self-start" />
           <Button
             variant="outline"
+            size="sm"
             onClick={() => handleUpdateStatus('scheduled')}
             isDisabled={isUpdating}
-            className="btn-info"
+            style={getPostStatusStyles('scheduled')}
           >
             <CalendarDays className="size-4 mr-2" />
             Mark scheduled
           </Button>
           <Button
-            variant="success"
+            variant="outline"
+            size="sm"
             onClick={() => handleUpdateStatus('posted')}
             isDisabled={isUpdating}
+            style={getPostStatusStyles('posted')}
           >
             <Check className="size-4 mr-2" />
             Mark posted
           </Button>
-          <InfoTooltip />
         </>
       );
     }
@@ -74,9 +61,10 @@ export const PostDetailStatusButtons = ({ post }: PostDetailStatusButtonsProps) 
     if (post.status === 'scheduled') {
       return (
         <>
-          <StatusSticker status={post.status} className="justify-self-start" />
+          <StatusSticker status={post.status} size="md" className="justify-self-start" />
           <Button
             variant="outline"
+            size="sm"
             onClick={() => handleUpdateStatus('draft')}
             isDisabled={isUpdating}
           >
@@ -84,14 +72,15 @@ export const PostDetailStatusButtons = ({ post }: PostDetailStatusButtonsProps) 
             Back to Draft
           </Button>
           <Button
-            variant="success"
+            variant="outline"
+            size="sm"
             onClick={() => handleUpdateStatus('posted')}
             isDisabled={isUpdating}
+            style={getPostStatusStyles('posted')}
           >
             <Check className="size-4 mr-2" />
             Mark posted
           </Button>
-          <InfoTooltip />
         </>
       );
     }
@@ -99,16 +88,16 @@ export const PostDetailStatusButtons = ({ post }: PostDetailStatusButtonsProps) 
     if (post.status === 'posted') {
       return (
         <>
-          <StatusSticker status={post.status} className="justify-self-start" />
+          <StatusSticker status={post.status} size="md" className="justify-self-start" />
           <Button
             variant="outline"
+            size="sm"
             onClick={() => handleUpdateStatus('draft')}
             isDisabled={isUpdating}
           >
             <Undo2 className="size-4 mr-2" />
             Back to Draft
           </Button>
-          <InfoTooltip />
         </>
       );
     }
@@ -117,7 +106,7 @@ export const PostDetailStatusButtons = ({ post }: PostDetailStatusButtonsProps) 
   };
 
   return (
-    <div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-2">
+    <div className="grid grid-cols-[1fr_auto_auto] items-center gap-2">
       {renderButtons()}
     </div>
   );

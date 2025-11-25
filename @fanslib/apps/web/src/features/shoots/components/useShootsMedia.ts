@@ -1,4 +1,4 @@
-import { ShootSummarySchema, MediaSchema } from "@fanslib/server/schemas";
+import type { ShootSummarySchema, MediaSchema } from "@fanslib/server/schemas";
 import { useMemo } from "react";
 
 type Media = typeof MediaSchema.static;

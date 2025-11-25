@@ -5,7 +5,6 @@ import { ChannelBadge } from '~/components/ChannelBadge';
 import { Button } from '~/components/ui/Button';
 import { PostDetailCaptionInput } from '~/features/posts/components/post-detail/PostDetailCaptionInput';
 import { PostDetailDateTimeInputs } from '~/features/posts/components/post-detail/PostDetailDateTimeInputs';
-import { PostDetailDeleteButton } from '~/features/posts/components/post-detail/PostDetailDeleteButton';
 import { PostDetailFanslyStatistics } from '~/features/posts/components/post-detail/PostDetailFanslyStatistics';
 import { PostDetailMedia } from '~/features/posts/components/post-detail/PostDetailMedia';
 import { PostDetailNavigation } from '~/features/posts/components/post-detail/PostDetailNavigation';
@@ -55,20 +54,15 @@ const PostDetailRoute = () => {
           <PostDetailNavigation post={normalizedPost} />
         </div>
 
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-semibold tracking-tight">Post</h1>
-          <div className="flex items-center gap-2">
-            <PostDetailDeleteButton post={normalizedPost} />
-          </div>
-        </div>
+        <h1 className="text-3xl font-semibold tracking-tight">Post</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 py-6">
           <div className="flex flex-col gap-4">
             <div className="self-start">
               <ChannelBadge
-                name={normalizedPost.subreddit ? `r/${normalizedPost.subreddit.name}` : normalizedPost.channel.name}
-                typeId={normalizedPost.subreddit ? 'reddit' : normalizedPost.channel.typeId}
-                size="lg"
+                name={normalizedPost.channel.typeId === 'reddit' && normalizedPost.subreddit?.name ? `r/${normalizedPost.subreddit.name}` : normalizedPost.channel.name}
+                typeId={normalizedPost.channel.typeId}
+                size="md"
               />
             </div>
             <PostDetailMedia post={normalizedPost} />

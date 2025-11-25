@@ -8,13 +8,16 @@ import {
 } from "~/components/ui/Dialog";
 import type {
   CreateTagDimensionRequestBodySchema,
+  TagDimensionSchema,
   UpdateTagDimensionRequestBodySchema,
 } from "@fanslib/server/schemas";
 import { DimensionForm } from "./DimensionForm";
 
+type TagDimension = typeof TagDimensionSchema.static;
+
 export type EditingDimension =
   | {
-      dimension: any;
+      dimension: TagDimension;
       mode: "edit";
     }
   | {

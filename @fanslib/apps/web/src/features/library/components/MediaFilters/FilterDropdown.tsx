@@ -18,12 +18,14 @@ import {
   DropdownMenuPopover,
   DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
+import { cn } from "~/lib/cn";
 import { useMediaFilters } from "./MediaFiltersContext";
 
 type FilterDropdownProps = {
   disabled?: boolean;
   groupIndex?: number;
   variant?: "default" | "compact";
+  className?: string;
 };
 
 const FILTER_TYPE_OPTIONS = [
@@ -44,6 +46,7 @@ export const FilterDropdown = ({
   disabled = false,
   groupIndex,
   variant = "default",
+  className,
 }: FilterDropdownProps) => {
   const { filters, addGroupWithFilterType, addFilterWithTypeToGroup } = useMediaFilters();
 
@@ -62,7 +65,7 @@ export const FilterDropdown = ({
           isDisabled={disabled}
           variant="ghost"
           size="icon"
-          className="h-9 w-9"
+          className={cn("h-9 w-9", className)}
         >
           <Plus className="h-4 w-4" />
         </Button>
@@ -89,6 +92,7 @@ export const FilterDropdown = ({
           variant="outline"
           size="md"
           isDisabled={disabled}
+          className={className}
       >
         <Filter className="h-4 w-4" />
         Filter

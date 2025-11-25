@@ -1,7 +1,6 @@
 import { addHours, format, startOfHour } from "date-fns";
 import { ChevronLeft } from "lucide-react";
 import { useState } from "react";
-import { useOverlayTriggerState } from "react-stately";
 import { Button } from "~/components/ui/Button";
 import {
   Dialog,
@@ -9,7 +8,6 @@ import {
   DialogHeader,
   DialogModal,
   DialogTitle,
-  DialogTrigger,
 } from "~/components/ui/Dialog";
 import { cn } from "~/lib/cn";
 
@@ -23,18 +21,18 @@ type TimePickerProps = {
 type ClockView = "hours" | "minutes";
 
 export const TimePicker = ({ date, setDate, className, preferredTimes = [] }: TimePickerProps) => {
-  const dialogState = useOverlayTriggerState({});
+  const [isOpen, setIsOpen] = useState(false);
   const [tempDate, setTempDate] = useState<Date | null>(null);
   const [view, setView] = useState<ClockView>("hours");
 
   const openModal = () => {
     setTempDate(date);
     setView("hours");
-    dialogState.open();
+    setIsOpen(true);
   };
 
   const closeModal = () => {
-    dialogState.close();
+    setIsOpen(false);
     setTempDate(null);
     setView("hours");
   };
@@ -93,120 +91,122 @@ export const TimePicker = ({ date, setDate, className, preferredTimes = [] }: Ti
   };
 
   return (
-    <div className={cn(className)}>
-      <Button variant="ghost" onPress={openModal} className="w-full">
+    <>
+      <Button variant="ghost" onPress={openModal} className={cn("w-full", className)}>
         {currentTime}
       </Button>
 
-      <DialogTrigger isOpen={dialogState.isOpen} onOpenChange={(open) => (open ? dialogState.open() : dialogState.close())}>
-        <DialogModal>
-          <Dialog>
-            {({ close }) => (
-              <>
-                <DialogHeader>
-                  <DialogTitle>Select Time</DialogTitle>
-                </DialogHeader>
+      {isOpen && (
+        <DialogModal isOpen onOpenChange={setIsOpen}>
+          <Dialog showCloseButton={false}>
+          {({ close }) => (
+            <>
+              <DialogHeader>
+                <DialogTitle>Select Time</DialogTitle>
+              </DialogHeader>
 
-                <span className="text-5xl font-bold text-muted-foreground/50 text-center">
-                  <button
-                    onClick={() => setView("hours")}
-                    className="hover:bg-muted hover:text-foreground rounded-sm p-1 transition-all cursor-pointer"
-                  >
-                    {tempDate ? format(tempDate, "HH") : "--"}
-                  </button>
-                  :
-                  <button
-                    onClick={() => setView("minutes")}
-                    className="hover:bg-muted hover:text-foreground rounded-sm p-1 transition-all cursor-pointer"
-                  >
-                    {tempDate ? format(tempDate, "mm") : "--"}
-                  </button>
-                </span>
+              <span className="text-5xl font-bold text-muted-foreground/50 text-center">
+                <button
+                  onClick={() => setView("hours")}
+                  className="hover:bg-muted hover:text-foreground rounded-sm p-1 transition-all cursor-pointer"
+                >
+                  {tempDate ? format(tempDate, "HH") : "--"}
+                </button>
+                :
+                <button
+                  onClick={() => setView("minutes")}
+                  className="hover:bg-muted hover:text-foreground rounded-sm p-1 transition-all cursor-pointer"
+                >
+                  {tempDate ? format(tempDate, "mm") : "--"}
+                </button>
+              </span>
 
-                <div className="flex items-center justify-center">
-                  <div className={cn("flex flex-col items-center", view === "hours" && "pb-8 w-full max-w-md")}>
-                    {view === "hours" && (
-                      <div className="grid grid-cols-6 gap-2 w-full">
-                        {hours.map((hour) => (
-                          <Button
-                            key={hour}
-                            size="sm"
-                            variant={tempDate?.getHours() === hour ? "primary" : "ghost"}
-                            onPress={() => selectHour(hour)}
-                          >
-                            {hour.toString().padStart(2, "0")}
-                          </Button>
-                        ))}
-                      </div>
-                    )}
-                    {view === "minutes" && (
-                      <>
-                        <div className="grid grid-cols-10 gap-2 w-full max-w-md">
-                          {minutes.map((minute) => (
-                            <Button
-                              key={minute}
-                              size="sm"
-                              variant={tempDate?.getMinutes() === minute ? "primary" : "ghost"}
-                              onPress={() => selectMinute(minute)}
-                            >
-                              {minute.toString().padStart(2, "0")}
-                            </Button>
-                          ))}
-                        </div>
+              <div className="flex items-center justify-center">
+                <div className={cn("flex flex-col items-center", view === "hours" && "pb-8 w-full max-w-md")}>
+                  {view === "hours" && (
+                    <div className="grid grid-cols-6 gap-2 w-full">
+                      {hours.map((hour) => (
                         <Button
-                          variant="ghost"
+                          key={hour}
                           size="sm"
-                          onClick={() => setView("hours")}
-                          className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground mt-3"
+                          variant={tempDate?.getHours() === hour ? "primary" : "ghost"}
+                          onPress={() => selectHour(hour)}
                         >
-                          <ChevronLeft className="mr-1 h-3 w-3" />
-                          Hours
+                          {hour.toString().padStart(2, "0")}
                         </Button>
-                      </>
-                    )}
-                  </div>
-                  {preferredTimes.length > 0 && (
-                    <div className="flex flex-col items-end gap-3 w-full">
-                      <span className="text-sm text-muted-foreground text-right">Quick select</span>
-                      <div className="flex flex-wrap gap-2 justify-end">
-                        <Button size="sm" variant="ghost" onPress={setToNow}>
-                          Now
-                        </Button>
-                        <Button size="sm" variant="ghost" onPress={setToNextHour}>
-                          Next hour
-                        </Button>
-                        <div className="w-full border-t my-2" />
-                        {preferredTimes.map((time) => (
-                          <Button
-                            key={time}
-                            size="sm"
-                            variant={time === currentTime ? "primary" : "ghost"}
-                            onPress={() => setTimeFromString(time)}
-                          >
-                            {time}
-                          </Button>
-                        ))}
-                      </div>
+                      ))}
                     </div>
                   )}
+                  {view === "minutes" && (
+                    <>
+                      <div className="grid grid-cols-10 gap-2 w-full max-w-md">
+                        {minutes.map((minute) => (
+                          <Button
+                            key={minute}
+                            size="sm"
+                            variant={tempDate?.getMinutes() === minute ? "primary" : "ghost"}
+                            onPress={() => selectMinute(minute)}
+                          >
+                            {minute.toString().padStart(2, "0")}
+                          </Button>
+                        ))}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onPress={() => setView("hours")}
+                        className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground mt-3"
+                      >
+                        <ChevronLeft className="mr-1 h-3 w-3" />
+                        Hours
+                      </Button>
+                    </>
+                  )}
                 </div>
+                {preferredTimes.length > 0 && (
+                  <div className="flex flex-col items-end gap-3 w-full">
+                    <span className="text-sm text-muted-foreground text-right">Quick select</span>
+                    <div className="flex flex-wrap gap-2 justify-end">
+                      <Button size="sm" variant="ghost" onPress={setToNow}>
+                        Now
+                      </Button>
+                      <Button size="sm" variant="ghost" onPress={setToNextHour}>
+                        Next hour
+                      </Button>
+                      <div className="w-full border-t my-2" />
+                      {preferredTimes.map((time) => (
+                        <Button
+                          key={time}
+                          size="sm"
+                          variant={time === currentTime ? "primary" : "ghost"}
+                          onPress={() => setTimeFromString(time)}
+                        >
+                          {time}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
 
-                <DialogFooter>
-                  <Button
-                    onPress={() => {
-                      confirmTime();
-                      close();
-                    }}
-                    isDisabled={!tempDate}
-                  >
-                    Confirm
-                  </Button>
-                </DialogFooter>
-              </>
-            )}
+              <DialogFooter>
+                <Button variant="ghost" onPress={closeModal}>
+                  Cancel
+                </Button>
+                <Button
+                  onPress={() => {
+                    confirmTime();
+                  }}
+                  isDisabled={!tempDate}
+                >
+                  Confirm
+                </Button>
+              </DialogFooter>
+            </>
+          )}
           </Dialog>
         </DialogModal>
-      </DialogTrigger>
-    </div>
+      )}
+    </>
   );
 };

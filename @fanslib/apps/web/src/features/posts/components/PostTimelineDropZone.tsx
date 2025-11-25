@@ -1,6 +1,6 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { MediaSchema } from "@fanslib/server/schemas";
+import type { MediaSchema } from "@fanslib/server/schemas";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
 
 type Media = typeof MediaSchema.static;

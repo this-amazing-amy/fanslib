@@ -1,7 +1,9 @@
 import { parseDate } from '@internationalized/date';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
+import { ContentScheduleBadge } from '~/components/ContentScheduleBadge';
 import { DateTimePicker } from '~/components/DateTimePicker';
+import { StatusSticker } from '~/components/StatusSticker';
 import { Alert } from '~/components/ui/Alert';
 import {
   AlertDialog,
@@ -58,6 +60,7 @@ import { Textarea } from '~/components/ui/Textarea';
 import { Toggle } from '~/components/ui/Toggle';
 import { ToggleGroup } from '~/components/ui/ToggleGroup';
 import { Tooltip, TooltipTrigger } from '~/components/ui/Tooltip';
+import { CHANNEL_COLORS, POST_STATUS_COLORS, TAG_TYPE_COLORS, USER_COLOR_PRESETS } from '~/lib/colors';
 
 const ComponentShowcase = () => {
   const [checkboxChecked, setCheckboxChecked] = useState(false);
@@ -146,6 +149,225 @@ const ComponentShowcase = () => {
               <Badge variant="secondary" outline>Secondary</Badge>
               <Badge variant="success" outline>Success</Badge>
               <Badge variant="error" outline>Error</Badge>
+            </div>
+          </div>
+        </section>
+
+        <Separator />
+
+        {/* Color Swatches Section */}
+        <section className="space-y-6">
+          <h2 className="text-2xl font-bold">Color Swatches</h2>
+          <p className="text-base-content/70">
+            Overview of all color systems used in the application for easy reference and finetuning.
+          </p>
+
+          {/* System Colors - Tag Types */}
+          <div>
+            <h3 className="text-lg font-semibold mb-3">System Colors - Tag Types</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {Object.entries(TAG_TYPE_COLORS).map(([type, colors]) => (
+                <div key={type} className="p-3 border rounded-lg">
+                  <h4 className="font-medium capitalize mb-2">{colors.name}</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded border" style={{ backgroundColor: colors.background }} />
+                      <span className="text-xs font-mono">Bg: {colors.background}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded border" style={{ backgroundColor: colors.foreground }} />
+                      <span className="text-xs font-mono">Text: {colors.foreground}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded border" style={{ backgroundColor: colors.foreground }} />
+                      <span className="text-xs font-mono">Border: {colors.foreground}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* System Colors - Post Status */}
+          <div>
+            <h3 className="text-lg font-semibold mb-3">System Colors - Post Status</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {Object.entries(POST_STATUS_COLORS).map(([status, colors]) => (
+                <div key={status} className="p-3 border rounded-lg">
+                  <h4 className="font-medium capitalize mb-2">{colors.name}</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded border" style={{ backgroundColor: colors.background }} />
+                      <span className="text-xs font-mono">Bg: {colors.background}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded border" style={{ backgroundColor: colors.foreground }} />
+                      <span className="text-xs font-mono">Text: {colors.foreground}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded border" style={{ backgroundColor: colors.foreground }} />
+                      <span className="text-xs font-mono">Border: {colors.foreground}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* User Color Presets */}
+          <div>
+            <h3 className="text-lg font-semibold mb-3">User Color Presets (Content Schedules)</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+              {USER_COLOR_PRESETS.map((preset) => (
+                <div key={preset.background} className="text-center">
+                  <div
+                    className="w-full aspect-square rounded-lg border-2 mb-2 flex items-center justify-center"
+                    style={{ backgroundColor: preset.background, color: preset.foreground }}
+                  >
+                    <span className="font-bold text-lg">Aa</span>
+                  </div>
+                  <p className="text-xs font-medium">{preset.name}</p>
+                  <p className="text-[10px] font-mono text-base-content/60">{preset.background}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Channel Brand Colors */}
+          <div>
+            <h3 className="text-lg font-semibold mb-3">Channel Brand Colors</h3>
+            <p className="text-sm text-base-content/60 mb-3">
+              Official brand colors for different platforms
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+              {Object.entries(CHANNEL_COLORS).map(([channel, color]) => (
+                <div key={channel} className="text-center">
+                  <div
+                    className="w-full aspect-square rounded-lg border-2 mb-2 flex items-center justify-center"
+                    style={{ backgroundColor: color.background }}
+                  >
+                    <span className="text-white font-bold text-xs drop-shadow-md">
+                      {color.name}
+                    </span>
+                  </div>
+                  <p className="text-xs font-medium capitalize">{color.name}</p>
+                  <p className="text-[10px] font-mono text-base-content/60">{color.background}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* DaisyUI Theme Colors */}
+          <div>
+            <h3 className="text-lg font-semibold mb-3">DaisyUI Theme Colors</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[
+                { name: 'Primary', class: 'bg-primary', textClass: 'text-primary-content' },
+                { name: 'Secondary', class: 'bg-secondary', textClass: 'text-secondary-content' },
+                { name: 'Accent', class: 'bg-accent', textClass: 'text-accent-content' },
+                { name: 'Neutral', class: 'bg-neutral', textClass: 'text-neutral-content' },
+                { name: 'Base 100', class: 'bg-base-100', textClass: 'text-base-content' },
+                { name: 'Base 200', class: 'bg-base-200', textClass: 'text-base-content' },
+                { name: 'Base 300', class: 'bg-base-300', textClass: 'text-base-content' },
+                { name: 'Info', class: 'bg-info', textClass: 'text-info-content' },
+                { name: 'Success', class: 'bg-success', textClass: 'text-success-content' },
+                { name: 'Warning', class: 'bg-warning', textClass: 'text-warning-content' },
+                { name: 'Error', class: 'bg-error', textClass: 'text-error-content' },
+              ].map((color) => (
+                <div key={color.name} className="space-y-2">
+                  <div className={`${color.class} ${color.textClass} p-4 rounded-lg border`}>
+                    <p className="font-semibold">{color.name}</p>
+                    <p className="text-xs opacity-80">Sample text</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className={`${color.class} opacity-100 w-full h-8 rounded border`} title="100%" />
+                    <div className={`${color.class} opacity-75 w-full h-8 rounded border`} title="75%" />
+                    <div className={`${color.class} opacity-50 w-full h-8 rounded border`} title="50%" />
+                    <div className={`${color.class} opacity-25 w-full h-8 rounded border`} title="25%" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <Separator />
+
+        {/* Custom Badges Section */}
+        <section className="space-y-6">
+          <h2 className="text-2xl font-bold">Custom Badges</h2>
+          <p className="text-base-content/70">
+            Application-specific badges using the unified color system
+          </p>
+
+          {/* Status Stickers */}
+          <div>
+            <h3 className="text-lg font-semibold mb-3">Status Stickers (Post Status)</h3>
+            <div className="flex flex-wrap gap-3">
+              <StatusSticker status="posted" size="sm" />
+              <StatusSticker status="scheduled" size="sm" />
+              <StatusSticker status="draft" size="sm" />
+            </div>
+            <div className="flex flex-wrap gap-3 mt-3">
+              <StatusSticker status="posted" size="md" />
+              <StatusSticker status="scheduled" size="md" />
+              <StatusSticker status="draft" size="md" />
+            </div>
+          </div>
+
+          {/* Tag Type Badges */}
+          <div>
+            <h3 className="text-lg font-semibold mb-3">Tag Type Badges</h3>
+            <div className="flex flex-wrap gap-3">
+              {Object.entries(TAG_TYPE_COLORS).map(([type, colors]) => (
+                <span
+                  key={type}
+                  className="badge badge-sm border"
+                  style={{
+                    backgroundColor: colors.background,
+                    color: colors.foreground,
+                    borderColor: colors.foreground,
+                  }}
+                >
+                  {colors.name}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Content Schedule Badges */}
+          <div>
+            <h3 className="text-lg font-semibold mb-3">Content Schedule Badges</h3>
+            <p className="text-sm text-base-content/60 mb-3">
+              User-customizable badges for content schedules
+            </p>
+            <div className="space-y-3">
+              <div>
+                <p className="text-xs font-medium mb-2">Small Size (All Presets)</p>
+                <div className="flex flex-wrap gap-2">
+                  {USER_COLOR_PRESETS.map((preset) => (
+                    <ContentScheduleBadge
+                      key={preset.background}
+                      name={preset.name}
+                      color={preset.background}
+                      size="sm"
+                    />
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-medium mb-2">Medium Size with Emojis</p>
+                <div className="flex flex-wrap gap-2">
+                  <ContentScheduleBadge name="Daily Posts" emoji="📅" color={USER_COLOR_PRESETS[0].background} size="md" />
+                  <ContentScheduleBadge name="Premium" emoji="⭐" color={USER_COLOR_PRESETS[1].background} size="md" />
+                  <ContentScheduleBadge name="Exclusive" emoji="🔒" color={USER_COLOR_PRESETS[2].background} size="md" />
+                  <ContentScheduleBadge name="Promo" emoji="🎉" color={USER_COLOR_PRESETS[3].background} size="md" />
+                  <ContentScheduleBadge name="Updates" emoji="📢" color={USER_COLOR_PRESETS[4].background} size="md" />
+                  <ContentScheduleBadge name="Polls" emoji="📊" color={USER_COLOR_PRESETS[5].background} size="md" />
+                  <ContentScheduleBadge name="Q&A" emoji="❓" color={USER_COLOR_PRESETS[6].background} size="md" />
+                  <ContentScheduleBadge name="Live" emoji="🔴" color={USER_COLOR_PRESETS[7].background} size="md" />
+                </div>
+              </div>
             </div>
           </div>
         </section>

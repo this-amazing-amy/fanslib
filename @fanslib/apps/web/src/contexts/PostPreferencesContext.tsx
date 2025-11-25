@@ -22,6 +22,7 @@ export type PostPreferences = {
   view: {
     viewType: PostViewType;
     showCaptions: boolean;
+    openDialogOnDrop: boolean;
   };
   filter: PostFilterPreferences;
 };
@@ -30,6 +31,7 @@ export const defaultPreferences: PostPreferences = {
   view: {
     viewType: "timeline",
     showCaptions: false,
+    openDialogOnDrop: true,
   },
   filter: {
     search: undefined,

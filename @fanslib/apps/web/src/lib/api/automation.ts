@@ -1,4 +1,4 @@
-import { apiRequest } from './client';
+import { eden } from './eden';
 
 export type PostToRedditRequest = {
   subredditId: string;
@@ -18,12 +18,8 @@ export type IsAutomationRunningResponse = {
 
 export const automationApi = {
   postToReddit: (request: PostToRedditRequest) =>
-    apiRequest<PostToRedditResponse>('/api/automation/post-to-reddit', {
-      method: 'POST',
-      body: JSON.stringify(request),
-    }),
+    eden.api['reddit-automation']['post-to-reddit'].post(request),
 
   isRunning: () =>
-    apiRequest<IsAutomationRunningResponse>('/api/automation/is-running'),
+    eden.api['reddit-automation']['is-running'].get(),
 };
-

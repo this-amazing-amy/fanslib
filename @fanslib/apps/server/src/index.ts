@@ -17,8 +17,8 @@ import { snippetsRoutes } from "./features/snippets/routes";
 import { subredditsRoutes } from "./features/subreddits/routes";
 import { tagsRoutes } from "./features/tags/routes";
 import { db } from "./lib/db";
-import { env } from "./lib/env";
 import { seedDatabase } from "./lib/seed";
+import { migrateColorsToPresets } from "./lib/migrate-colors-to-presets";
 
 
 const app = new Elysia()
@@ -36,6 +36,14 @@ const app = new Elysia()
     },
   }))
   .get("/health", () => ({ status: "ok", timestamp: new Date().toISOString() }))
+  .post("/migrate-colors", async () => {
+    try {
+      const result = await migrateColorsToPresets();
+      return { success: true, ...result };
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+    }
+  })
   .use(libraryRoutes)
   .use(postsRoutes)
   .use(channelsRoutes)
@@ -50,7 +58,7 @@ const app = new Elysia()
   .use(postponeRoutes)
   .use(analyticsRoutes)
   .use(redditAutomationRoutes)
-  .listen(env().port);
+  .listen(6970);
 
 db()
   .then(async () => {

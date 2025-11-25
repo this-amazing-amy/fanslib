@@ -4,7 +4,8 @@ import "reflect-metadata";
 import { getTestDataSource, resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
 import { mapResponse } from "../../lib/serialization";
 import { logError, parseResponse } from "../../test-utils/setup";
-import { MediaTag, TagDefinition, TagDimension } from "./entity";
+import type { MediaTag} from "./entity";
+import { TagDefinition, TagDimension } from "./entity";
 import { TAG_DIMENSION_FIXTURES } from "./fixtures";
 import { tagsRoutes } from "./routes";
 

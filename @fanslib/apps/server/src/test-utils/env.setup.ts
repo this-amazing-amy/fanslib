@@ -10,7 +10,6 @@ const ensureDir = async (dirPath: string) => {
 };
 
 const cwd = process.cwd();
-process.env.PORT = process.env.PORT ?? "8001";
 process.env.APPDATA_PATH = process.env.APPDATA_PATH ?? `${cwd}/.test-data/appdata`;
 process.env.LIBRARY_PATH = process.env.LIBRARY_PATH ?? `${cwd}/.test-data/library`;
 

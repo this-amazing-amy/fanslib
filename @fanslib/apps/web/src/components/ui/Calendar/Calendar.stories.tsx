@@ -1,4 +1,4 @@
-import { getLocalTimeZone, isWeekend, parseDate, today } from "@internationalized/date";
+import { type DateValue, getLocalTimeZone, isWeekend, parseDate, today } from "@internationalized/date";
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { Calendar } from "./index";
@@ -48,9 +48,7 @@ export const ReadOnly: Story = {
 };
 
 const UnavailableDatesComponent = () => {
-  const isDateUnavailable = (date: any) => {
-    return isWeekend(date, "en-US");
-  };
+  const isDateUnavailable = (date: DateValue) => isWeekend(date, "en-US");
 
   return (
     <div className="space-y-4">

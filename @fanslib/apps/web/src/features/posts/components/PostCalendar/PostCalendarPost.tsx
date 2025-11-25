@@ -1,11 +1,13 @@
 import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
+import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { ChannelBadge } from "~/components/ChannelBadge";
-import { MediaFilterSummary } from "~/components/MediaFilterSummary";
-import { PostTagStickers } from "~/components/PostTagStickers";
+import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
+import { StatusIcon } from "~/components/StatusIcon";
 import { usePostDrag } from "~/contexts/PostDragContext";
 import { usePostPreferences } from "~/contexts/PostPreferencesContext";
 import { cn } from "~/lib/cn";
+import { getPostStatusBorderColor } from "~/lib/colors";
 import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
 import { PostCalendarDropzone } from "./PostCalendarDropzone";
 import { PostCalendarPostMedia } from "./PostCalendarPostMedia";
@@ -19,7 +21,7 @@ type PostCalendarPostProps = {
 
 export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
   const { startPostDrag, endPostDrag } = usePostDrag();
-  const time = format(new Date(post.date), "h:mm a");
+  const time = format(new Date(post.date), "HH:mm");
   const { preferences } = usePostPreferences();
 
   const dragProps = !isVirtualPost(post)
@@ -30,58 +32,76 @@ export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
       }
     : {};
 
+  const status = post.status ?? 'draft';
+  const borderColor = getPostStatusBorderColor(status as 'posted' | 'scheduled' | 'draft');
+
   const content = (
     <div
       {...dragProps}
       className={cn(
-        "grid align-start [grid-template-areas:'stickers_time''media_media''captions_captions'] grid-cols-[auto_1fr] transition-colors",
-        "gap-x-2 gap-y-2",
-        "p-3 rounded-md border border-base-300 border-b-3 shadow-sm hover:shadow-lg transition-all hover:scale-[1.01]",
+        "group flex flex-col transition-all duration-200",
+        "p-2.5 rounded-xl bg-base-100 border-2 shadow-sm hover:shadow-md",
         {
-          "border-b-success": post.status === "posted",
-          "border-b-info": post.status === "scheduled",
-          "border-b-base-content/30": post.status === "draft",
           "cursor-grab active:cursor-grabbing": !isVirtualPost(post),
-        },
-        {
-          "min-h-24 grid-rows-[auto_1fr]": !preferences.view.showCaptions,
-          "min-h-48 grid-rows-[auto_1.5fr_1fr]": preferences.view.showCaptions,
         }
       )}
+      style={{
+        borderColor,
+      }}
     >
-      <div className="[grid-area:stickers] flex gap-1">
-        <ChannelBadge
-          noName
-          name=""
-          typeId={post.channel.type?.id ?? post.channel.typeId}
+      {/* Schedule Badge */}
+      {(isVirtualPost(post) || post.schedule) && (
+        <ContentScheduleBadge
+          name={isVirtualPost(post) ? post.schedule.name : post.schedule?.name ?? ""}
+          emoji={isVirtualPost(post) ? post.schedule.emoji : post.schedule?.emoji}
+          color={isVirtualPost(post) ? post.schedule.color : post.schedule?.color}
           size="sm"
+          className="w-full justify-center mb-1 opacity-40 group-hover:opacity-100 transition-opacity"
         />
-        {isVirtualPost(post) ? (
-          <MediaFilterSummary mediaFilters={post.mediaFilters} layout="stacked" />
-        ) : (
-          <PostTagStickers postMedia={post.postMedia ?? []} />
-        )}
+      )}
+
+      {/* Channel Badge */}
+      <ChannelBadge
+        name={post.channel.name ?? ""}
+        typeId={post.channel.type?.id ?? post.channel.typeId}
+        size="sm"
+        className="w-full justify-center mb-2 opacity-40 group-hover:opacity-100 transition-opacity"
+      />
+
+      {/* Metadata Row: Status + Time */}
+      <div className="flex items-center justify-between mb-2">
+        <StatusIcon status={status as 'posted' | 'scheduled' | 'draft'} />
+        <div className="text-xs font-medium text-base-content/60">{time}</div>
       </div>
-      <div className="[grid-area:time] text-xs text-base-content/60">{time}</div>
-      <div className="[grid-area:media] relative">
+
+      {/* Media Section */}
+      <div className="mb-1.5">
         <PostCalendarPostMedia
           postMedia={isVirtualPost(post) ? [] : post.postMedia}
           isVirtual={isVirtualPost(post)}
         />
       </div>
-      {preferences.view.showCaptions && (
-        <div className="[grid-area:captions] text-xs text-base-content/60">
-          {post.caption?.slice(0, 50)}
-          {post.caption && post.caption.length > 50 && "..."}
+
+      {/* Caption (optional, hidden on mobile) */}
+      {preferences.view.showCaptions && post.caption && (
+        <div className="text-[10px] leading-snug text-base-content/50 pt-1 line-clamp-2 hidden sm:block">
+          {post.caption}
         </div>
       )}
     </div>
   );
 
+  const wrappedContent = isVirtualPost(post) ? (
+    content
+  ) : (
+    <Link to="/posts/$postId" params={{ postId: post.id }} className="block">
+      {content}
+    </Link>
+  );
+
   return (
     <PostCalendarDropzone post={post} onUpdate={onUpdate}>
-      {content}
+      {wrappedContent}
     </PostCalendarDropzone>
   );
 };
-

@@ -67,13 +67,9 @@ export const useUpdateContentScheduleMutation = () => {
       return result.data;
     },
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['content-schedules', 'list'] });
+      // Invalidate all content-schedules queries to ensure fresh data
+      queryClient.invalidateQueries({ queryKey: ['content-schedules'] });
       queryClient.setQueryData(['content-schedules', variables.id], data);
-      if (data && 'channelId' in data) {
-        queryClient.invalidateQueries({
-          queryKey: ['content-schedules', 'by-channel', data.channelId],
-        });
-      }
     },
   });
 };

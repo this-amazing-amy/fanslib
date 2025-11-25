@@ -1,9 +1,10 @@
-import type { ContentScheduleWithChannelSchema, FetchContentSchedulesByChannelResponseSchema } from "@fanslib/server/schemas";
+import type { ContentScheduleWithChannelSchema } from "@fanslib/server/schemas";
 import { Edit, Trash2 } from "lucide-react";
+import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
+import { MediaFilterSummary } from "~/components/MediaFilterSummary";
 import { Button } from "~/components/ui/Button/Button";
 import { useDeleteContentScheduleMutation } from "~/lib/queries/content-schedules";
 import { parseMediaFilters } from "../content-schedule-helpers";
-import { MediaFilterSummary } from "~/components/MediaFilterSummary";
 
 type ContentSchedule = typeof ContentScheduleWithChannelSchema.static;
 
@@ -47,8 +48,13 @@ export const ContentScheduleList = ({ schedules, onEdit }: ContentScheduleListPr
             className="card bg-base-200 p-4 flex flex-row items-start justify-between gap-4"
           >
             <div className="flex-1 space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="badge badge-primary">
+              <div className="flex items-center gap-3">
+                <ContentScheduleBadge
+                  name={schedule.name}
+                  emoji={schedule.emoji}
+                  color={schedule.color}
+                />
+                <span className="badge badge-ghost">
                   {formatScheduleType(schedule.type)}
                 </span>
                 {schedule.postsPerTimeframe && (

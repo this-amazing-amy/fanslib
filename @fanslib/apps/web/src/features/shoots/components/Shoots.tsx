@@ -46,7 +46,7 @@ const ShootsContent: FC<ShootsProps> = ({ className }) => {
       media={new Map(Array.from(allMedia.entries()).map(([key, value]) => [key.viewIndex, value]))}
     >
       <div className={cn(className, "flex h-full flex-col")}>
-        <div className="flex items-center gap-2 mb-6 px-6 pt-6">
+        <div className="flex items-center gap-2 mb-6 px-6">
           <ShootsFilter />
           <ShootViewSettings />
         </div>

@@ -16,9 +16,7 @@ type DialogWrapperProps = {
   isDismissable?: boolean;
 };
 
-const DialogWrapper = ({ maxWidth = 'lg', isDismissable = true }: DialogWrapperProps) => {
-  return (
-    <DialogTrigger>
+const DialogWrapper = ({ maxWidth = 'lg', isDismissable = true }: DialogWrapperProps) => <DialogTrigger>
       <Button>Open Dialog</Button>
       <DialogModal isDismissable={isDismissable}>
         <Dialog maxWidth={maxWidth}>
@@ -43,9 +41,7 @@ const DialogWrapper = ({ maxWidth = 'lg', isDismissable = true }: DialogWrapperP
           )}
         </Dialog>
       </DialogModal>
-    </DialogTrigger>
-  );
-};
+    </DialogTrigger>;
 
 const meta: Meta<typeof DialogWrapper> = {
   title: 'Overlays/Dialog',

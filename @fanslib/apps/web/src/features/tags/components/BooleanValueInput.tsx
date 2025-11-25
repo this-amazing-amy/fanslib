@@ -9,8 +9,8 @@ type BooleanValueInputProps = {
 };
 
 export const BooleanValueInput = ({ value, onChange, schema }: BooleanValueInputProps) => {
-  const trueLabel = schema.trueLabel || "Yes";
-  const falseLabel = schema.falseLabel || "No";
+  const trueLabel = schema.trueLabel ?? "Yes";
+  const falseLabel = schema.falseLabel ?? "No";
 
   return (
     <div className="space-y-2">

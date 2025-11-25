@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router';
+import { createFileRoute, useParams, useRouter } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
 import { MediaView } from '~/components/MediaView';
 import { MediaDetailDeleteButton } from '~/components/media-detail/MediaDetailDeleteButton';
@@ -12,7 +12,7 @@ import { useMediaQuery } from '~/lib/queries/library';
 
 const MediaRoute = () => {
   const { mediaId } = useParams({ from: '/content/library/media/$mediaId' });
-  const navigate = useNavigate();
+  const router = useRouter();
   const { data: media, isLoading, error } = useMediaQuery({ id: mediaId });
 
   if (isLoading) {
@@ -27,7 +27,7 @@ const MediaRoute = () => {
     return (
       <div className="flex flex-col items-center justify-center h-full">
         <h1 className="text-2xl font-semibold mb-4">Media not found</h1>
-        <Button onClick={() => navigate({ to: "/content/library/media" })}>Back to Library</Button>
+        <Button onClick={() => router.history.back()}>Back to Library</Button>
       </div>
     );
   }
@@ -37,7 +37,7 @@ const MediaRoute = () => {
       <div className="overflow-y-auto">
         <div className="max-w-[1280px] px-8 mx-auto pt-8 pb-12">
           <div className="flex items-center gap-2 mb-2">
-            <Button variant="outline" size="sm" onClick={() => navigate({ to: "/content/library/media" })}>
+            <Button variant="outline" size="sm" onClick={() => router.history.back()}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back
             </Button>
@@ -52,11 +52,13 @@ const MediaRoute = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-8 py-6">
-            <div className="rounded-2xl bg-base-300 aspect-square overflow-hidden">
+            <div
+              className="rounded-2xl bg-base-300 aspect-square overflow-hidden"
+              style={{ viewTransitionName: `media-${media.id}` }}
+            >
               <MediaView media={media} controls />
             </div>
             <div className="flex flex-col gap-6">
-              <MediaDetailMetadata media={media} />
               <MediaTagEditor media={[media]} />
             </div>
           </div>
@@ -64,6 +66,10 @@ const MediaRoute = () => {
           <h3 className="text-lg font-medium mb-4">Posts</h3>
           <div className="flex flex-col gap-4">
             <MediaPosts mediaId={media.id} />
+          </div>
+
+          <div className="mt-8">
+            <MediaDetailMetadata media={media} />
           </div>
         </div>
       </div>

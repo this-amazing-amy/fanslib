@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Button as AriaButton } from "react-aria-components";
 import { CHANNEL_TYPES } from "@fanslib/server/constants";
 import { useCreateChannelMutation } from "~/lib/queries/channels";
 import { Badge } from "~/components/ui/Badge/Badge";
@@ -33,21 +34,20 @@ export const CreateChannelForm = ({ onSuccess }: CreateChannelFormProps) => {
   return (
     <div className="grid grid-cols-2 gap-4">
       {Object.entries(CHANNEL_TYPES).map(([typeId, channelType]) => (
-        <button
+        <AriaButton
           key={typeId}
-          type="button"
-          onClick={() => handleChannelTypeClick(typeId)}
-          disabled={createChannel.isPending}
+          onPress={() => handleChannelTypeClick(typeId)}
+          isDisabled={createChannel.isPending}
           className={cn(
             "card bg-base-200 p-4 transition-all hover:bg-base-300 hover:scale-105",
-            "flex flex-col items-center gap-3 cursor-pointer",
+            "flex flex-col items-center gap-3 cursor-pointer outline-none",
             selectedTypeId === typeId && "ring-2 ring-primary",
             createChannel.isPending && "opacity-50 cursor-not-allowed"
           )}
         >
           <ChannelTypeIcon typeId={typeId} className="w-12 h-12" />
           <Badge variant="neutral">{channelType.name}</Badge>
-        </button>
+        </AriaButton>
       ))}
     </div>
   );

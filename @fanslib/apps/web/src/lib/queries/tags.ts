@@ -130,6 +130,22 @@ export const useCreateTagDefinitionMutation = () => {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['tags', 'definitions'] });
+
+      // Optimistically add the new tag to the dimensions cache
+      queryClient.setQueryData(['tags', 'dimensions'], (oldData: unknown) => {
+        if (!oldData || !Array.isArray(oldData) || !data) return oldData;
+
+        return oldData.map(dimension => {
+          if (dimension.id !== data.dimensionId) return dimension;
+
+          return {
+            ...dimension,
+            tags: [...(dimension.tags || []), data],
+          };
+        });
+      });
+
+      queryClient.invalidateQueries({ queryKey: ['tags', 'dimensions'] });
       queryClient.invalidateQueries({
         queryKey: ['tags', 'definitions', 'by-dimension', data?.dimensionId],
       });
@@ -151,6 +167,24 @@ export const useUpdateTagDefinitionMutation = () => {
     },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['tags', 'definitions'] });
+
+      // Optimistically update the dimensions cache with the updated tag
+      queryClient.setQueryData(['tags', 'dimensions'], (oldData: unknown) => {
+        if (!oldData || !Array.isArray(oldData)) return oldData;
+
+        return oldData.map(dimension => {
+          if (!dimension.tags) return dimension;
+
+          return {
+            ...dimension,
+            tags: dimension.tags.map((tag: { id: number }) =>
+              tag.id === Number(variables.id) ? data : tag
+            ),
+          };
+        });
+      });
+
+      queryClient.invalidateQueries({ queryKey: ['tags', 'dimensions'] });
       queryClient.setQueryData(['tags', 'definitions', variables.id], data);
       queryClient.invalidateQueries({
         queryKey: ['tags', 'definitions', 'by-dimension', data?.dimensionId],
@@ -169,6 +203,7 @@ export const useDeleteTagDefinitionMutation = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tags', 'definitions'] });
+      queryClient.invalidateQueries({ queryKey: ['tags', 'dimensions'] });
       queryClient.invalidateQueries({ queryKey: ['tags', 'media'] });
     },
   });
@@ -250,6 +285,7 @@ export const useBulkAssignTagsMutation = () => {
         queryClient.invalidateQueries({ queryKey: ['tags', 'media', assignment.mediaId] });
         queryClient.invalidateQueries({ queryKey: ['media', assignment.mediaId] });
       });
+      queryClient.invalidateQueries({ queryKey: ['tags', 'media', 'bulk'] });
       queryClient.invalidateQueries({ queryKey: ['media', 'list'] });
     },
   });
@@ -268,6 +304,7 @@ export const useRemoveTagsFromMediaMutation = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['tags', 'media', variables.mediaId] });
       queryClient.invalidateQueries({ queryKey: ['media', variables.mediaId] });
+      queryClient.invalidateQueries({ queryKey: ['tags', 'media', 'bulk'] });
     },
   });
 };

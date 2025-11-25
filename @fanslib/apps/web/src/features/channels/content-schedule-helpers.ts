@@ -1,4 +1,4 @@
-import { MediaFilterSchema } from "@fanslib/server/schemas";
+import type { MediaFilterSchema } from "@fanslib/server/schemas";
 
 type MediaFilters = typeof MediaFilterSchema.static;
 

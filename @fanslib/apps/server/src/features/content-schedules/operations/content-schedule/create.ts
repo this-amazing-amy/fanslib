@@ -6,6 +6,9 @@ import { ContentSchedule, ContentScheduleSchema, ContentScheduleTypeSchema } fro
 
 export const CreateContentScheduleRequestBodySchema = t.Object({
   channelId: t.String(),
+  name: t.String(),
+  emoji: t.Optional(t.String()),
+  color: t.Optional(t.String()),
   type: ContentScheduleTypeSchema,
   postsPerTimeframe: t.Optional(t.Number()),
   preferredDays: t.Optional(t.Array(t.String())),

@@ -1,12 +1,12 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { Logo } from '~/components/Logo';
 import { NavigationMenu } from '~/components/NavigationMenu';
 import { BurgerIcon } from '~/components/ui/BurgerIcon';
 import { ThemeProvider } from '~/contexts/ThemeContext';
-import { useSfwMode } from '~/hooks/useSfwMode';
 import { cn } from '~/lib/cn';
+import { useToggleSfwModeMutation } from '~/lib/queries/settings';
 import { mobileNavigationDrawerOpenAtom, sidebarCollapsedAtom, toggleSidebarAtom } from '~/state/sidebar';
 
 export interface AppLayoutProps {
@@ -14,13 +14,10 @@ export interface AppLayoutProps {
 }
 
 const MainContent = ({ children }: { children: ReactNode }) => {
-  const { sfwMode, getBlurClassName } = useSfwMode();
-
   return (
     <main 
       className={cn(
-        'flex-1 p-4 sm:p-6 lg:p-8 content-area overflow-x-auto',
-        sfwMode && getBlurClassName()
+        'flex-1 p-4 sm:p-6 lg:p-8 content-area overflow-x-auto'
       )}
       style={{ viewTransitionName: 'main-content' }}
     >
@@ -33,6 +30,20 @@ const LayoutContent = ({ children }: AppLayoutProps) => {
   const [sidebarOpen] = useAtom(mobileNavigationDrawerOpenAtom);
   const [, toggleSidebar] = useAtom(toggleSidebarAtom);
   const [isCollapsed] = useAtom(sidebarCollapsedAtom);
+  const toggleSfwMode = useToggleSfwModeMutation();
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        toggleSfwMode.mutate();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [toggleSfwMode]);
+
 
   return (
     <ThemeProvider>

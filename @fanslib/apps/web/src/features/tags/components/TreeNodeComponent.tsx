@@ -11,6 +11,7 @@ type TagDefinition = typeof TagDefinitionSchema.static;
 export type TreeNode = {
   id: number;
   displayName: string;
+  color: string | null;
   description?: string | null;
   value: string;
   parentTagId?: number | null;
@@ -24,7 +25,7 @@ type TreeNodeComponentProps = {
   onUpdateParent: (tagId: number, newParentId: number | null) => void;
   onDeleteTag: (tagId: number) => void;
   onCreateTag: (parentTagId?: number) => void;
-  onEditTag: (tag: TreeNode) => void;
+  onEditTag: (tag: TagDefinition) => void;
   selectedTagId?: number;
   onSelectTag?: (tagId: number) => void;
   allTags: TagDefinition[];
@@ -51,7 +52,7 @@ export const TreeNodeComponent = ({
     displayName: treeNode.displayName,
     description: treeNode.description ?? null,
     metadata: null,
-    color: null,
+    color: treeNode.color ?? null,
     shortRepresentation: null,
     sortOrder: 0,
     parentTagId: treeNode.parentTagId ?? null,
@@ -127,7 +128,7 @@ export const TreeNodeComponent = ({
             size="sm"
             className="h-6 w-6 p-0"
             onPress={() => {
-              onEditTag(node);
+              onEditTag(convertToTagDefinition(node));
             }}
             aria-label={`Edit ${node.displayName}`}
           >

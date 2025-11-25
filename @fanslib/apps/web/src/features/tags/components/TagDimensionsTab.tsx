@@ -1,3 +1,11 @@
+import type {
+  CreateTagDefinitionRequestBodySchema,
+  CreateTagDimensionRequestBodySchema,
+  TagDefinitionSchema,
+  TagDimensionSchema,
+  UpdateTagDefinitionRequestBodySchema,
+  UpdateTagDimensionRequestBodySchema,
+} from "@fanslib/server/schemas";
 import { List, Plus, TreePine } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
@@ -12,17 +20,9 @@ import {
   useUpdateTagDefinitionMutation,
   useUpdateTagDimensionMutation,
 } from "~/lib/queries/tags";
-import type {
-  CreateTagDefinitionRequestBodySchema,
-  CreateTagDimensionRequestBodySchema,
-  TagDefinitionSchema,
-  TagDimensionSchema,
-  UpdateTagDefinitionRequestBodySchema,
-  UpdateTagDimensionRequestBodySchema,
-} from "@fanslib/server/schemas";
+import { DeleteTagDialog } from "./DeleteTagDialog";
 import { DimensionCard } from "./DimensionCard";
 import { DimensionDialog, type EditingDimension } from "./DimensionDialog";
-import { DeleteTagDialog } from "./DeleteTagDialog";
 import { TagDialog, type EditingTag } from "./TagDialog";
 
 type TagDimensionWithTags = typeof TagDimensionSchema.static & {
@@ -96,7 +96,7 @@ export const TagDimensionsTab = () => {
 
   const handleUpdateParent = (tagId: number, newParentId: number | null) => {
     const tag = (dimensions as TagDimensionWithTags[] | undefined)
-      ?.flatMap((d) => d.tags || [])
+      ?.flatMap((d) => d.tags ?? [])
       .find((t) => t.id === tagId);
 
     if (tag) {
@@ -138,9 +138,9 @@ export const TagDimensionsTab = () => {
 
   const editingDimensionTags =
     editingTag && "dimensionId" in editingTag
-      ? (dimensions as TagDimensionWithTags[] | undefined)?.find((d) => d.id === editingTag.dimensionId)?.tags || []
+      ? (dimensions as TagDimensionWithTags[] | undefined)?.find((d) => d.id === editingTag.dimensionId)?.tags ?? []
       : editingTag && "tag" in editingTag
-        ? (dimensions as TagDimensionWithTags[] | undefined)?.find((d) => d.id === editingTag.tag.dimensionId)?.tags || []
+        ? (dimensions as TagDimensionWithTags[] | undefined)?.find((d) => d.id === editingTag.tag.dimensionId)?.tags ?? []
         : [];
 
   return (
@@ -149,7 +149,7 @@ export const TagDimensionsTab = () => {
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">Tag Dimensions</h2>
           <div className="flex items-center gap-2">
-            <div className="flex items-center border border-base-300 rounded-lg">
+            <div className="flex items-center border border-base-300 rounded-full">
               <Button
                 variant={viewMode === "tree" ? "primary" : "ghost"}
                 size="sm"

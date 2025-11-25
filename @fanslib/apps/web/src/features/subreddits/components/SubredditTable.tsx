@@ -47,7 +47,7 @@ export const SubredditTable = ({ subreddits, onSubredditUpdated }: SubredditTabl
           {subreddits.map((subreddit) => (
             <tr key={subreddit.id}>
               <td className="font-medium">r/{subreddit.name}</td>
-              <td className="text-base-content/60">{subreddit.notes || "—"}</td>
+              <td className="text-base-content/60">{subreddit.notes ?? "—"}</td>
               <td>
                 <Button
                   variant="ghost"

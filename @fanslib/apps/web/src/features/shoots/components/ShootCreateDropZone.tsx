@@ -1,4 +1,4 @@
-import { MediaSchema } from "@fanslib/server/schemas";
+import type { MediaSchema } from "@fanslib/server/schemas";
 import { useDragOver } from "~/hooks/useDragOver";
 import { cn } from "~/lib/cn";
 import { Plus } from "lucide-react";

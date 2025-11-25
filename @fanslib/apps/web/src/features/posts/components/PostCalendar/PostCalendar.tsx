@@ -1,16 +1,16 @@
 import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
 import {
-  add,
-  eachDayOfInterval,
-  endOfMonth,
-  endOfWeek,
-  format,
-  getDay,
-  isSameDay,
-  isToday,
-  parse,
-  startOfMonth,
-  startOfWeek,
+    add,
+    eachDayOfInterval,
+    endOfMonth,
+    endOfWeek,
+    format,
+    getDay,
+    isSameDay,
+    isToday,
+    parse,
+    startOfMonth,
+    startOfWeek,
 } from "date-fns";
 import { de } from "date-fns/locale";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -95,9 +95,9 @@ export const PostCalendar = ({ className, posts, onUpdate }: PostCalendarProps) 
 
   return (
     <div className={cn("w-full h-full flex flex-col", className)}>
-      <div className="flex items-center justify-between flex-none">
-          <h2 className="font-semibold">{format(firstDayCurrentMonth, "MMMM yyyy")}</h2>
-          <div className="space-x-2">
+      <div className="flex items-center justify-between flex-none mb-6">
+          <h2 className="text-2xl font-bold text-base-content">{format(firstDayCurrentMonth, "MMMM yyyy")}</h2>
+          <div className="flex gap-2">
             <Button variant="outline" size="icon" onPress={previousMonth}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -107,13 +107,13 @@ export const PostCalendar = ({ className, posts, onUpdate }: PostCalendarProps) 
           </div>
         </div>
 
-        <div className="grid grid-cols-7 mt-6 text-xs leading-6 text-center text-base-content/60 flex-none">
-          {weekDays.map((day, i) => (
-            <div key={i}>{day}</div>
+        <div className="grid grid-cols-7 mb-4 text-xs font-semibold uppercase tracking-wider text-center text-base-content/50 flex-none">
+          {weekDays.map((day) => (
+            <div key={day} className="pb-3">{day}</div>
           ))}
         </div>
         <div
-          className="grid grid-cols-7 mt-2 text-sm flex-1 min-h-0 overflow-auto gap-y-8 gap-x-2"
+          className="grid grid-cols-7 text-sm flex-1 min-h-0 overflow-auto gap-4"
         >
           {days.map((day, dayIdx) => {
             const dayPosts = posts.filter((post) => isSameDay(new Date(post.date), day));
@@ -123,23 +123,25 @@ export const PostCalendar = ({ className, posts, onUpdate }: PostCalendarProps) 
                 key={day.toString()}
                 className={cn(
                   dayIdx === 0 && colStartClasses[getDayOffset(day)],
-                  "py-2 px-1 flex flex-col"
+                  "flex flex-col min-h-[120px]"
                 )}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between mb-3 px-1">
                   <button
                     type="button"
                     className={cn(
-                      "flex h-12 w-12 items-center justify-center rounded-full flex-none text-xl font-bold",
-                      isToday(day) && "text-base-100 bg-primary"
+                      "flex h-8 w-8 items-center justify-center rounded-lg flex-none text-sm font-semibold transition-all",
+                      isToday(day) 
+                        ? "text-base-100 bg-primary shadow-md" 
+                        : "text-base-content/70 hover:bg-base-200"
                     )}
                   >
                     <time dateTime={format(day, "yyyy-MM-dd")}>{format(day, "d")}</time>
                   </button>
-                  <span className="text-xs text-base-content/60">{format(day, "EEEE")}</span>
+                  <span className="text-[10px] font-medium text-base-content/40 uppercase tracking-wide">{format(day, "EEE")}</span>
                 </div>
                 {dayPosts.length > 0 && (
-                  <div className="flex-1 mt-1 min-h-0 flex flex-col gap-2">
+                  <div className="flex-1 min-h-0 flex flex-col gap-2">
                     {dayPosts.map((post) => <PostCalendarPost
                           key={isVirtualPost(post) ? post.virtualId : post.id}
                           onUpdate={onUpdate}

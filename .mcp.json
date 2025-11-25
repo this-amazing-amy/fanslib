@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "sqlite-server": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sqlite",
+        "/Users/ameliaheydorn/dev/private/fanslib-web/.dev-data/appdata/fanslib.sqlite"
+      ]
+    }
+  }
+}

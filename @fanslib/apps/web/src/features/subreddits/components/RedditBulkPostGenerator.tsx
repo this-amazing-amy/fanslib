@@ -17,7 +17,12 @@ type GeneratedPost = {
     id: string;
     name: string;
   };
-  media: any;
+  media: {
+    id: string;
+    thumbnailUrl?: string;
+    fileUrl?: string;
+    [key: string]: unknown;
+  };
   caption: string;
   date: Date;
 };
@@ -33,12 +38,12 @@ export const RedditBulkPostGenerator = ({ subreddits }: RedditBulkPostGeneratorP
   // Auth status
   const [lastChecked, setLastChecked] = useState<string | null>(() => {
     const cached = loadCachedStatus();
-    return cached?.lastChecked || null;
+    return cached?.lastChecked ?? null;
   });
   const loginStatusQuery = useRedditLoginStatusQuery();
   const sessionStatusQuery = useRedditSessionStatusQuery();
-  const sessionStatus = sessionStatusQuery.data || null;
-  const loginStatus = loginStatusQuery.data || null;
+  const sessionStatus = sessionStatusQuery.data ?? null;
+  const loginStatus = loginStatusQuery.data ?? null;
   const isLoadingAuth = sessionStatusQuery.isLoading || sessionStatusQuery.isFetching;
   const isCheckingLogin = loginStatusQuery.isLoading || loginStatusQuery.isFetching;
   const isStale = lastChecked ? isStatusStale(lastChecked) : true;

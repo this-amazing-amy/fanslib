@@ -19,7 +19,7 @@
     }
   },
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target bun",
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun --external playwright --external playwright-core --external ffprobe-static --external fluent-ffmpeg",
     "dev": "bun run --watch src/index.ts",
     "start": "bun run dist/index.js",
     "test": "bun test",

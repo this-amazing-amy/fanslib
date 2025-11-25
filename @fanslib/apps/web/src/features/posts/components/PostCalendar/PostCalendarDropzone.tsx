@@ -1,16 +1,17 @@
+import type { CreatePostRequestBodySchema, MediaSchema, PostWithRelationsSchema } from "@fanslib/server/schemas";
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { MediaSchema, PostWithRelationsSchema } from "@fanslib/server/schemas";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
+import { usePostDrag } from "~/contexts/PostDragContext";
+import { usePostPreferences } from "~/contexts/PostPreferencesContext";
+import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
+import { useDragOver } from "~/hooks/useDragOver";
+import { cn } from "~/lib/cn";
+import { useAddMediaToPostMutation, useCreatePostMutation } from "~/lib/queries/posts";
+import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
 
 type Media = typeof MediaSchema.static;
 type Post = typeof PostWithRelationsSchema.static;
-import { usePostDrag } from "~/contexts/PostDragContext";
-import { useAddMediaToPostMutation } from "~/lib/queries/posts";
-import { useDragOver } from "~/hooks/useDragOver";
-import { cn } from "~/lib/cn";
-import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
-import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
 
 type PostCalendarDropzoneProps = {
   post: Post | VirtualPost;
@@ -21,13 +22,32 @@ type PostCalendarDropzoneProps = {
 export const PostCalendarDropzone = ({ post, children, onUpdate }: PostCalendarDropzoneProps) => {
   const { isDragging: isMediaDragging, draggedMedias, endMediaDrag } = useMediaDrag();
   const { isDragging: isPostDragging, draggedPost, endPostDrag } = usePostDrag();
+  const { preferences } = usePostPreferences();
   const [createPostData, setCreatePostData] = useState<{
     media: Media[];
     caption?: string;
+    scheduleId?: string;
+    initialDate?: Date;
   } | null>(null);
   const addMediaMutation = useAddMediaToPostMutation();
+  const createPostMutation = useCreatePostMutation();
 
   const isDragging = isMediaDragging || isPostDragging;
+
+  const createPostDirectly = async (mediaIds: string[], scheduleId?: string, caption?: string) => {
+    if (!isVirtualPost(post)) return;
+
+    const createData: typeof CreatePostRequestBodySchema.static = {
+      date: post.date,
+      channelId: post.channelId,
+      status: "draft",
+      caption: caption ?? "",
+      mediaIds,
+      scheduleId,
+    };
+    await createPostMutation.mutateAsync(createData);
+    await onUpdate?.();
+  };
 
   const { isOver, dragHandlers } = useDragOver({
     onDrop: async () => {
@@ -48,13 +68,38 @@ export const PostCalendarDropzone = ({ post, children, onUpdate }: PostCalendarD
       }
 
       if (isMediaDragging && draggedMedias.length > 0) {
-        setCreatePostData({ media: draggedMedias });
+        if (preferences.view.openDialogOnDrop) {
+          setCreatePostData({
+            media: draggedMedias,
+            scheduleId: post.scheduleId,
+            initialDate: new Date(post.date),
+          });
+        } else {
+          await createPostDirectly(
+            draggedMedias.map((m) => m.id),
+            post.scheduleId
+          );
+        }
         endMediaDrag();
       } else if (isPostDragging && draggedPost && isVirtualPost(post)) {
-        setCreatePostData({
-          media: !isVirtualPost(draggedPost) && draggedPost.postMedia ? draggedPost.postMedia.map((pm) => pm.media) : [],
-          caption: draggedPost.caption ?? undefined,
-        });
+        const media = !isVirtualPost(draggedPost) && draggedPost.postMedia
+          ? draggedPost.postMedia.map((pm) => pm.media)
+          : [];
+
+        if (preferences.view.openDialogOnDrop) {
+          setCreatePostData({
+            media,
+            caption: draggedPost.caption ?? undefined,
+            scheduleId: post.scheduleId,
+            initialDate: new Date(post.date),
+          });
+        } else {
+          await createPostDirectly(
+            media.map((m) => m.id),
+            post.scheduleId,
+            draggedPost.caption ?? undefined
+          );
+        }
         endPostDrag();
       }
     },
@@ -90,6 +135,8 @@ export const PostCalendarDropzone = ({ post, children, onUpdate }: PostCalendarD
         open={createPostData !== null}
         onOpenChange={closeCreatePostDialog}
         media={createPostData?.media ?? []}
+        scheduleId={createPostData?.scheduleId}
+        initialDate={createPostData?.initialDate}
       />
     </>
   );

@@ -8,14 +8,12 @@ type TabNavigationProps<T extends string> = {
   className?: string;
 };
 
-export const TabNavigation = <T extends string>({
+export const TabNavigation = <T extends string,>({
   tabs,
   activeTabId,
   onTabChange,
   className = "",
-}: TabNavigationProps<T>) => {
-  return (
-    <div className={cn("flex items-center gap-4", className)}>
+}: TabNavigationProps<T>) => <div className={cn("flex items-center gap-4", className)}>
       {tabs.map((tab) => (
         <button
           key={tab.id}
@@ -30,7 +28,5 @@ export const TabNavigation = <T extends string>({
           {tab.label}
         </button>
       ))}
-    </div>
-  );
-};
+    </div>;
 

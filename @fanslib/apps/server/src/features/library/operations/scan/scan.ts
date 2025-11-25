@@ -297,11 +297,11 @@ export const scanLibrary = async (): Promise<typeof LibraryScanResultSchema.stat
 
 export const getScanStatus = (): typeof ScanStatusResponseSchema.static => {
   const scanner = LibraryScanner.getInstance();
-  return {
-    isScanning: scanner.isCurrentlyScanning(),
-    progress: currentScanProgress,
-    result: currentScanResult,
-  };
+  const isScanning = scanner.isCurrentlyScanning();
+
+  return isScanning
+    ? { isScanning: true, progress: currentScanProgress }
+    : { isScanning: false, result: currentScanResult };
 };
 
 export { LibraryScanner };

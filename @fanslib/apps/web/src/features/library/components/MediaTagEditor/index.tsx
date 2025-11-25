@@ -1,4 +1,4 @@
-import { MediaSchema } from "@fanslib/server/schemas";
+import type { MediaSchema } from "@fanslib/server/schemas";
 
 type Media = typeof MediaSchema.static;
 import { useTagStates } from "~/hooks/useTagStates";
@@ -69,13 +69,15 @@ export const MediaTagEditor = ({ media, className }: MediaTagEditorProps) => {
             <div className="flex gap-2">
               { }
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-6 bg-gray-200 rounded-full w-16"></div>
+                // eslint-disable-next-line react/no-array-index-key
+                <div key={`tag-skeleton-${i}`} className="h-6 bg-gray-200 rounded-full w-16"></div>
               ))}
             </div>
           </div>
           { }
           {Array.from({ length: 2 }).map((_, i) => (
-            <div key={i} className="animate-pulse">
+            // eslint-disable-next-line react/no-array-index-key
+            <div key={`section-skeleton-${i}`} className="animate-pulse">
               <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
               <div className="h-8 bg-gray-200 rounded"></div>
             </div>
@@ -97,13 +99,6 @@ export const MediaTagEditor = ({ media, className }: MediaTagEditorProps) => {
           />
         </div>
       ))}
-
-      {(assignMutation.isPending || removeMutation.isPending) && (
-        <div className="text-sm text-gray-500 mt-4 flex items-center gap-2">
-          <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
-          Saving tags...
-        </div>
-      )}
     </div>
   );
 };

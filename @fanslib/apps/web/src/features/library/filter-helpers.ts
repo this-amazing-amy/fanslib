@@ -1,4 +1,4 @@
-import { FilterPresetSchema, MediaFilterSchema } from "@fanslib/server/schemas";
+import type { FilterPresetSchema, MediaFilterSchema } from "@fanslib/server/schemas";
 
 type MediaFilters = typeof MediaFilterSchema.static;
 type FilterGroup = MediaFilters[number];

@@ -73,6 +73,7 @@ export const MediaTile = (props: MediaTileProps) => {
         isSelected && "ring-2 ring-primary/50",
         props.className
       )}
+      style={withNavigation ? { viewTransitionName: `media-${media.id}` } : undefined}
       onMouseEnter={activatePreview}
       onMouseLeave={deactivatePreview}
       onClick={selectOrNavigate}

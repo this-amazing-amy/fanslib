@@ -1,24 +1,10 @@
 @import 'tailwindcss';
 
 @plugin 'daisyui' {
-  themes:
-    pastel --default,
-    dark --prefersdark;
+  themes: pastel --default
 }
 
 @theme {
-  --color-content-draft: #64748b;
-  --color-content-scheduled: #f59e0b;
-  --color-content-published: #10b981;
-  --color-content-archived: #6b7280;
-
-  --color-channel-reddit: #ff4500;
-  --color-channel-fansly: #ff6b6b;
-  --color-channel-manyvids: #e83e8c;
-  --color-channel-bluesky: #0085ff;
-  --color-channel-redgifs: #ff0066;
-  --color-channel-clips4sale: #6f42c1;
-
   --spacing-content-gap: 1.5rem;
   --spacing-sidebar-width: 16rem;
   --spacing-header-height: 4rem;
@@ -39,6 +25,14 @@
   --animate-slide-up: slideUp 0.3s ease-out;
   --animate-pulse-slow: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+
+
+/* Override DaisyUI accent color */
+:root {
+  --a: 85% 0.12 35; /* Soft coral/peach accent */
+  --ac: 25% 0.15 35; /* Dark coral for accent content */
+}
+
 
 @keyframes fadeIn {
   0% {
@@ -171,77 +165,18 @@
 }
 
 @layer components {
-  /* Override secondary button color to soft pastel teal */
-  .btn.btn-secondary,
-  button.btn-secondary {
-    --tw-bg-opacity: 1 !important;
-    background-color: oklch(85% 0.08 200 / var(--tw-bg-opacity)) !important;
-    --tw-text-opacity: 1 !important;
-    color: oklch(45% 0.12 200 / var(--tw-text-opacity)) !important;
-    border-color: oklch(85% 0.08 200 / var(--tw-bg-opacity)) !important;
+  .sfw-blur-transition {
+    transition: filter 0.3s ease-in-out;
   }
 
-  .btn.btn-secondary:hover,
-  button.btn-secondary:hover {
-    background-color: oklch(80% 0.10 200) !important;
-    border-color: oklch(80% 0.10 200) !important;
-  }
-
-  .btn.btn-secondary:active,
-  button.btn-secondary:active {
-    background-color: oklch(75% 0.12 200) !important;
-    border-color: oklch(75% 0.12 200) !important;
-  }
-
-  /* Content status indicators */
-  .status-draft {
-    background-color: var(--color-content-draft);
-    @apply text-white px-2 py-1 rounded-full text-xs font-medium;
-  }
-
-  .status-scheduled {
-    background-color: var(--color-content-scheduled);
-    @apply text-white px-2 py-1 rounded-full text-xs font-medium;
-  }
-
-  .status-published {
-    background-color: var(--color-content-published);
-    @apply text-white px-2 py-1 rounded-full text-xs font-medium;
-  }
-
-  .status-archived {
-    background-color: var(--color-content-archived);
-    @apply text-white px-2 py-1 rounded-full text-xs font-medium;
-  }
-
-  /* Channel type indicators */
-  .channel-reddit {
-    background-color: var(--color-channel-reddit);
-    @apply text-white;
-  }
-
-  .channel-fansly {
-    background-color: var(--color-channel-fansly);
-    @apply text-white;
-  }
-
-  .channel-manyvids {
-    background-color: var(--color-channel-manyvids);
-    @apply text-white;
-  }
-
-  .channel-bluesky {
-    background-color: var(--color-channel-bluesky);
-    @apply text-white;
-  }
-
-  .channel-redgifs {
-    background-color: var(--color-channel-redgifs);
-    @apply text-white;
-  }
-
-  .channel-clips4sale {
-    background-color: var(--color-channel-clips4sale);
-    @apply text-white;
-  }
+  .sfw-blur-1 { filter: blur(2px); }
+  .sfw-blur-2 { filter: blur(4px); }
+  .sfw-blur-3 { filter: blur(6px); }
+  .sfw-blur-4 { filter: blur(8px); }
+  .sfw-blur-5 { filter: blur(10px); }
+  .sfw-blur-6 { filter: blur(12px); }
+  .sfw-blur-7 { filter: blur(14px); }
+  .sfw-blur-8 { filter: blur(16px); }
+  .sfw-blur-9 { filter: blur(18px); }
+  .sfw-blur-10 { filter: blur(20px); }
 }

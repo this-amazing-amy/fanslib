@@ -3,15 +3,16 @@ import { Plus, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
 import { Input } from "~/components/ui/Input";
-import { RadioGroup, RadioGroupItem } from "~/components/ui/RadioGroup";
+import { getRandomPresetId } from "~/lib/colors";
 import {
   useCreateTagDefinitionMutation,
   useTagDefinitionsByDimensionQuery,
 } from "~/lib/queries/tags";
 import type { SelectionState } from "~/lib/tags/selection-state";
 import { BooleanTagSelector } from "./BooleanTagSelector";
+import { FlatTagSelector } from "./FlatTagSelector";
+import { HierarchicalTagSelector } from "./HierarchicalTagSelector";
 import { NumericalTagSelector } from "./NumericalTagSelector";
-import { TagBadge } from "./TagBadge";
 
 type TagDimension = typeof TagDimensionSchema.static;
 
@@ -75,6 +76,7 @@ export const DimensionTagSelector = ({
         value: newTagValue.trim(),
         displayName: newTagValue.trim(),
         description: `${dimension.name}: ${newTagValue.trim()}`,
+        color: getRandomPresetId(),
       });
 
       await refetch();
@@ -94,8 +96,10 @@ export const DimensionTagSelector = ({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
+      e.preventDefault();
       handleCreateTag();
     } else if (e.key === "Escape") {
+      e.preventDefault();
       cancelCreating();
     }
   };
@@ -114,49 +118,23 @@ export const DimensionTagSelector = ({
 
   return (
     <div>
-      <div className="flex flex-wrap gap-2 items-center">
+      <div className="flex flex-col gap-2">
         {isExclusive ? (
-          <RadioGroup
-            value={
-              availableTags?.find((tag) => tagStates[tag.id] === "checked")?.id?.toString() ?? ""
-            }
-            onChange={(value) => {
-              if (value) {
-                const newTagId = parseInt(value);
-                handleTagToggle(newTagId);
-              }
-            }}
-            className="flex flex-wrap gap-2"
-          >
-            {availableTags?.map((tag) => (
-              <div key={tag.id} className="flex items-center space-x-2">
-                <RadioGroupItem value={tag.id.toString()} className="sr-only">
-                  {tag.displayName}
-                </RadioGroupItem>
-                <TagBadge
-                  tag={tag}
-                  selectionState={tagStates[tag.id] ?? "unchecked"}
-                  onClick={() => handleTagToggle(tag.id)}
-                  selectionMode={isExclusive ? "radio" : "checkbox"}
-                />
-              </div>
-            ))}
-          </RadioGroup>
+          <FlatTagSelector
+            tags={availableTags ?? []}
+            tagStates={tagStates}
+            onTagToggle={handleTagToggle}
+          />
         ) : (
-          // Checkbox behavior for non-exclusive dimensions
-          availableTags?.map((tag) => (
-            <TagBadge
-              key={tag.id}
-              tag={tag}
-              selectionState={tagStates[tag.id] ?? "unchecked"}
-              onClick={() => handleTagToggle(tag.id)}
-              selectionMode="checkbox"
-            />
-          ))
+          <HierarchicalTagSelector
+            tags={availableTags ?? []}
+            tagStates={tagStates}
+            onTagToggle={handleTagToggle}
+          />
         )}
 
         {dimension.dataType === "categorical" && (
-          <>
+          <div className="flex items-center gap-2">
             {isCreating ? (
               <>
                 <Input
@@ -170,14 +148,10 @@ export const DimensionTagSelector = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-8 w-8 p-0"
-                  onPress={handleCreateTag}
-                  isDisabled={!newTagValue.trim() || createTagMutation.isPending}
+                  className="h-7 w-7 p-0"
+                  onPress={cancelCreating}
                 >
-                  <Plus className="w-3.5 h-3.5" />
-                </Button>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onPress={cancelCreating}>
-                  <X className="w-3.5 h-3.5" />
+                  <X className="w-3 h-3" />
                 </Button>
               </>
             ) : (
@@ -190,7 +164,7 @@ export const DimensionTagSelector = ({
                 <Plus className="w-3 h-3" />
               </Button>
             )}
-          </>
+          </div>
         )}
       </div>
 

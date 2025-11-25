@@ -22,6 +22,23 @@ type MediaFilters = typeof MediaFilterSchema.static;
 
 const SCHEDULE_HORIZON_MONTHS = 3;
 
+const DAY_NAME_TO_OFFSET: Record<string, number> = {
+  Monday: 1,
+  Tuesday: 2,
+  Wednesday: 3,
+  Thursday: 4,
+  Friday: 5,
+  Saturday: 6,
+  Sunday: 0,
+};
+
+export type VirtualPostSchedule = {
+  id: string;
+  name: string;
+  emoji: string | null;
+  color: string | null;
+};
+
 export type VirtualPost = Omit<Post, "id" | "createdAt" | "updatedAt" | "postMedia"> & {
   isVirtual: true;
   scheduleId: string;
@@ -33,7 +50,8 @@ export type VirtualPost = Omit<Post, "id" | "createdAt" | "updatedAt" | "postMed
   subreddit: string | null;
   subredditId: string | null;
   mediaFilters: MediaFilters | null;
-  
+  schedule: VirtualPostSchedule;
+
   fanslyAnalyticsAggregate: undefined;
   channel: ContentSchedule["channel"];
 };
@@ -74,10 +92,9 @@ const generateScheduleDates = (schedule: ContentSchedule & { channel: any }, sta
       const postsPerWeek = schedule.postsPerTimeframe ?? 1;
 
       const dates = weeks.flatMap((week) => Array.from({ length: postsPerWeek }).map((_, i) => {
-          const date = addDays(
-            startOfWeek(week),
-            parseInt(schedule.preferredDays?.at(i % (schedule.preferredDays?.length ?? 1)) ?? "0")
-          );
+          const dayName = schedule.preferredDays?.at(i % (schedule.preferredDays?.length ?? 1)) ?? "Monday";
+          const dayOffset = DAY_NAME_TO_OFFSET[dayName] ?? 1;
+          const date = addDays(startOfWeek(week), dayOffset);
           const time = schedule.preferredTimes?.at(i % (schedule.preferredTimes?.length ?? 1));
           date.setHours(Number(time?.split(":")[0]) || 12);
           date.setMinutes(Number(time?.split(":")[1]) || 0);
@@ -125,6 +142,12 @@ export const generateVirtualPosts = (schedules: (ContentSchedule & { channel: an
       isVirtual: true as const,
       virtualId: `${schedule.id}-${index}`,
       scheduleId: schedule.id,
+      schedule: {
+        id: schedule.id,
+        name: schedule.name,
+        emoji: schedule.emoji,
+        color: schedule.color,
+      },
       channel: schedule.channel,
       channelId: schedule.channelId,
       caption: "",

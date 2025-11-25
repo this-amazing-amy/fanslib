@@ -1,5 +1,5 @@
 import { t } from "elysia";
-import { normalizeHexColor, validateHexColor } from "../../../../lib/color";
+import { validateColorFormat } from "../../../../lib/color";
 import { db } from "../../../../lib/db";
 import { TagDefinition, TagDefinitionSchema } from "../../entity";
 import { syncDenormalizedFieldsForTag } from "../helpers";
@@ -51,11 +51,10 @@ export const updateTagDefinition = async (
   }
 
   if (payload.color) {
-    const colorError = validateHexColor(payload.color);
+    const colorError = validateColorFormat(payload.color);
     if (colorError) {
       throw new Error(`Invalid color format: ${colorError}`);
     }
-    payload.color = normalizeHexColor(payload.color);
   }
 
   const updatePayload = Object.fromEntries(

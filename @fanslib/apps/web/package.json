@@ -5,16 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "start": "node .output/server/index.mjs",
-    "build": "vite build && tsc --noEmit",
-    "test": "vitest run",
-    "test:ui": "vitest --ui",
+    "start": "PORT=6969 bun dist/server/server.js",
+    "build": "vite build",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write . --config .prettierrc.cjs",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "clean": "rm -rf .output"
+    "clean": "rm -rf dist .output"
   },
   "dependencies": {
     "@elysiajs/eden": "^1.4.4",

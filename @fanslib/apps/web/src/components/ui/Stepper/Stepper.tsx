@@ -49,7 +49,7 @@ export const Stepper = ({
 
         return (
           <li
-            key={index}
+            key={step.label}
             data-content={step.icon ?? (isComplete ? '✓' : index + 1)}
             className={cn(
               'step',

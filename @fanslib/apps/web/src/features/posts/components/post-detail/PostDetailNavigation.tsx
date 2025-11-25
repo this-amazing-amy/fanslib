@@ -1,9 +1,16 @@
 import type { PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { useNavigate } from '@tanstack/react-router';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useCallback, useEffect, useMemo } from 'react';
+import { ChevronLeft, ChevronRight, MoreVertical, Trash2 } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from '~/components/ui/Button';
-import { usePostsQuery } from '~/lib/queries/posts';
+import { DeleteConfirmDialog } from '~/components/ui/DeleteConfirmDialog';
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuPopover,
+  DropdownMenuTrigger,
+} from '~/components/ui/DropdownMenu';
+import { useDeletePostMutation, usePostsQuery } from '~/lib/queries/posts';
 
 type Post = typeof PostWithRelationsSchema.static;
 
@@ -14,6 +21,8 @@ type PostDetailNavigationProps = {
 export const PostDetailNavigation = ({ post }: PostDetailNavigationProps) => {
   const navigate = useNavigate();
   const { data: allPosts } = usePostsQuery();
+  const deletePostMutation = useDeletePostMutation();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const adjacentPosts = useMemo(() => {
     if (!allPosts) {
@@ -77,26 +86,57 @@ export const PostDetailNavigation = ({ post }: PostDetailNavigationProps) => {
   const hasPrevious = !!adjacentPosts.previous;
   const hasNext = !!adjacentPosts.next;
 
-  if (!hasPrevious && !hasNext) {
-    return null;
-  }
+  const handleDelete = async () => {
+    await deletePostMutation.mutateAsync({ id: post.id });
+    navigate({ to: '/plan' });
+  };
 
   return (
-    <div className="flex items-center gap-2">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={navigateToPrevious}
-        isDisabled={!hasPrevious}
-      >
-        <ChevronLeft className="h-4 w-4 mr-2" />
-        Previous
-      </Button>
-      <Button variant="outline" size="sm" onClick={navigateToNext} isDisabled={!hasNext}>
-        Next
-        <ChevronRight className="h-4 w-4 ml-2" />
-      </Button>
-    </div>
+    <>
+      <div className="flex items-center gap-2">
+        {(hasPrevious || hasNext) && (
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={navigateToPrevious}
+              isDisabled={!hasPrevious}
+            >
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Previous
+            </Button>
+            <Button variant="outline" size="sm" onClick={navigateToNext} isDisabled={!hasNext}>
+              Next
+              <ChevronRight className="h-4 w-4 ml-2" />
+            </Button>
+          </>
+        )}
+        <DropdownMenuTrigger>
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <MoreVertical className="h-4 w-4" />
+          </Button>
+          <DropdownMenuPopover placement="bottom end">
+            <DropdownMenu>
+              <DropdownMenuItem
+                onAction={() => setIsDeleteDialogOpen(true)}
+                className="text-error flex items-center whitespace-nowrap"
+              >
+                <Trash2 className="h-4 w-4 mr-2 shrink-0" />
+                Delete post
+              </DropdownMenuItem>
+            </DropdownMenu>
+          </DropdownMenuPopover>
+        </DropdownMenuTrigger>
+      </div>
+      <DeleteConfirmDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        title="Delete Post"
+        description="Are you sure you want to delete this post? This action cannot be undone."
+        onConfirm={handleDelete}
+        isLoading={deletePostMutation.isPending}
+      />
+    </>
   );
 };
 

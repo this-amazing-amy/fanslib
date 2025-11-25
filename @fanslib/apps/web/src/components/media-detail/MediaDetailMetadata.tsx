@@ -1,4 +1,4 @@
-import { MediaSchema } from "@fanslib/server/schemas";
+import type { MediaSchema } from "@fanslib/server/schemas";
 
 type Media = typeof MediaSchema.static;
 import { format, formatDistanceToNow } from "date-fns";
@@ -8,9 +8,7 @@ type MediaDetailMetadataProps = {
   media: Media;
 };
 
-export const MediaDetailMetadata = ({ media }: MediaDetailMetadataProps) => {
-  return (
-    <div className="grid grid-cols-[1fr_3fr] gap-x-4 gap-y-2 text-sm">
+export const MediaDetailMetadata = ({ media }: MediaDetailMetadataProps) => <div className="grid grid-cols-[1fr_3fr] gap-x-4 gap-y-2 text-sm">
       <h3 className="text-lg font-medium col-span-2">Metadata</h3>
       <span className="text-muted-foreground">Type</span>
       <span className="capitalize">{media.type}</span>
@@ -44,7 +42,5 @@ export const MediaDetailMetadata = ({ media }: MediaDetailMetadataProps) => {
       <span title={format(media.createdAt, "PPpp")}>
         {formatDistanceToNow(media.createdAt, { addSuffix: true })}
       </span>
-    </div>
-  );
-};
+    </div>;
 

@@ -3,13 +3,13 @@ import { db } from "../../../lib/db";
 import { MediaTag, TagDefinition, TagDimension } from "../entity";
 
 export const TAG_COLORS = [
-  "#7F00FF",
-  "#FCD023",
-  "#FF8811",
-  "#FFC2E2",
-  "#EF476F",
-  "#00A8E8",
-  "#4CAF50",
+  "preset:pink",
+  "preset:peach",
+  "preset:yellow",
+  "preset:lime",
+  "preset:aqua",
+  "preset:periwinkle",
+  "preset:lilac",
 ];
 
 export const populateDenormalizedFields = (

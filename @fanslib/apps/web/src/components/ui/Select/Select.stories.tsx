@@ -144,24 +144,26 @@ export const WithGroups: Story = {
   ),
 };
 
+const ControlledExample = () => {
+  const [value, setValue] = useState<string>('option2');
+  return (
+    <div className="space-y-4">
+      <Select value={value} onValueChange={setValue}>
+        <SelectTrigger>
+          <SelectValue placeholder="Select an option..." />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="option1">Option 1</SelectItem>
+          <SelectItem value="option2">Option 2</SelectItem>
+          <SelectItem value="option3">Option 3</SelectItem>
+        </SelectContent>
+      </Select>
+      <div className="text-sm">Selected value: {value}</div>
+    </div>
+  );
+};
+
 export const Controlled: Story = {
-  render: () => {
-    const [value, setValue] = useState<string>('option2');
-    return (
-      <div className="space-y-4">
-        <Select value={value} onValueChange={setValue}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select an option..." />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="option1">Option 1</SelectItem>
-            <SelectItem value="option2">Option 2</SelectItem>
-            <SelectItem value="option3">Option 3</SelectItem>
-          </SelectContent>
-        </Select>
-        <div className="text-sm">Selected value: {value}</div>
-      </div>
-    );
-  },
+  render: () => <ControlledExample />,
 };
 

@@ -22,8 +22,7 @@ export const useRedditLoginMutation = () => {
 };
 
 // Check login status
-export const useRedditLoginStatusQuery = (userId?: string) => {
-  return useQuery({
+export const useRedditLoginStatusQuery = (userId?: string) => useQuery({
     queryKey: ["reddit", "login-status", userId],
     queryFn: async (): Promise<LoginStatus> => {
       const response = await eden.api["reddit-automation"]["check-login"].post({
@@ -33,11 +32,9 @@ export const useRedditLoginStatusQuery = (userId?: string) => {
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
-};
 
 // Check session status on server
-export const useRedditSessionStatusQuery = (userId?: string) => {
-  return useQuery({
+export const useRedditSessionStatusQuery = (userId?: string) => useQuery({
     queryKey: ["reddit", "session-status", userId],
     queryFn: async (): Promise<SessionStatus> => {
       const response = await eden.api["reddit-automation"].session.status.post({
@@ -47,7 +44,6 @@ export const useRedditSessionStatusQuery = (userId?: string) => {
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
-};
 
 // Clear session from server
 export const useClearRedditSessionMutation = () => {

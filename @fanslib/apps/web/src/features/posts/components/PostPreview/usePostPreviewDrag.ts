@@ -1,18 +1,27 @@
-import type { CreatePostRequestBodySchema, PostWithRelationsSchema } from "@fanslib/server/schemas";
+import type { CreatePostRequestBodySchema, MediaSchema, PostWithRelationsSchema } from "@fanslib/server/schemas";
 import { useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
+import { usePostPreferences } from "~/contexts/PostPreferencesContext";
 import { useMediaListQuery } from "~/lib/queries/library";
 import { useAddMediaToPostMutation, useCreatePostMutation } from "~/lib/queries/posts";
 import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
 
 type Post = typeof PostWithRelationsSchema.static;
+type Media = typeof MediaSchema.static;
+
+type CreatePostDialogData = {
+  media: Media[];
+  initialDate: Date;
+  scheduleId?: string;
+};
 
 type UsePostPreviewDragProps = {
   post: Post | VirtualPost;
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   onUpdate: () => Promise<void>;
+  onOpenCreateDialog?: (data: CreatePostDialogData) => void;
 };
 
 export const usePostPreviewDrag = ({
@@ -20,9 +29,11 @@ export const usePostPreviewDrag = ({
   isOpen,
   onOpenChange,
   onUpdate,
+  onOpenCreateDialog,
 }: UsePostPreviewDragProps) => {
   const { refetch } = useMediaListQuery();
   const navigate = useNavigate();
+  const { preferences } = usePostPreferences();
   const { draggedMedias, endMediaDrag, isDragging } = useMediaDrag();
   const wasClosedRef = useRef(false);
   const dragEnterCountRef = useRef(0);
@@ -77,21 +88,30 @@ export const usePostPreviewDrag = ({
 
     try {
       if (isVirtualPost(post)) {
-        const createPostData: typeof CreatePostRequestBodySchema.static = {
-          date: post.date,
-          channelId: post.channelId,
-          status: "draft",
-          caption: "",
-          mediaIds: draggedMedias.map((media) => media.id),
-        };
-        const newPost = await createPostMutation.mutateAsync(createPostData);
-        await onUpdate();
-        endMediaDrag();
-        refetch();
+        const shouldOpenDialog = preferences.view.openDialogOnDrop && onOpenCreateDialog;
 
-        if (newPost) {
-          // Navigate to orchestrate page after creating post
-          navigate({ to: "/orchestrate" });
+        if (shouldOpenDialog) {
+          // Open create post dialog
+          onOpenCreateDialog({
+            media: draggedMedias,
+            initialDate: new Date(post.date),
+            scheduleId: post.scheduleId,
+          });
+          endMediaDrag();
+        } else {
+          // Create post directly
+          const createPostData: typeof CreatePostRequestBodySchema.static = {
+            date: post.date,
+            channelId: post.channelId,
+            status: "draft",
+            caption: "",
+            mediaIds: draggedMedias.map((media) => media.id),
+            scheduleId: post.scheduleId,
+          };
+          await createPostMutation.mutateAsync(createPostData);
+          await onUpdate();
+          endMediaDrag();
+          refetch();
         }
         return;
       }

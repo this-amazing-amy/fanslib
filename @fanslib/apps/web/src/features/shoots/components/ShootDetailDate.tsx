@@ -1,4 +1,4 @@
-import { ShootSummarySchema, UpdateShootRequestBodySchema } from "@fanslib/server/schemas";
+import type { ShootSummarySchema, UpdateShootRequestBodySchema } from "@fanslib/server/schemas";
 import { format } from "date-fns";
 import { type FC } from "react";
 import { DateTimePicker } from "~/components/DateTimePicker";
