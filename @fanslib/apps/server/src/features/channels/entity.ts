@@ -13,7 +13,7 @@ import type { Hashtag } from "../hashtags/entity";
 import { HashtagSchema } from "../hashtags/entity";
 import type { MediaFilterSchema } from "../library/schemas/media-filter";
 
-@Entity()
+@Entity("ChannelType")
 // eslint-disable-next-line functional/no-classes
 export class ChannelType {
   @PrimaryColumn("varchar")

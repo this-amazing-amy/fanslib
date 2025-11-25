@@ -31,7 +31,7 @@ export class Hashtag {
   channelStats!: HashtagChannelStats[];
 }
 
-@Entity()
+@Entity("HashtagChannelStats")
 @Unique(["hashtag", "channel"])
 // eslint-disable-next-line functional/no-classes
 export class HashtagChannelStats {

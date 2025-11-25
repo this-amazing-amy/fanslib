@@ -2,7 +2,7 @@ import { t } from "elysia";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
 import type { Channel } from "../channels/entity";
 
-@Entity()
+@Entity("ContentSchedule")
 // eslint-disable-next-line functional/no-classes
 export class ContentSchedule {
   @PrimaryColumn("varchar")

@@ -15,7 +15,7 @@ export const VERIFICATION_STATUS = {
 
 export const VerificatoinStatusSchema = t.Union([t.Literal(VERIFICATION_STATUS.UNKNOWN), t.Literal(VERIFICATION_STATUS.NOT_NEEDED), t.Literal(VERIFICATION_STATUS.NEEDED), t.Literal(VERIFICATION_STATUS.APPLIED), t.Literal(VERIFICATION_STATUS.REJECTED), t.Literal(VERIFICATION_STATUS.VERIFIED)]);
 
-@Entity()
+@Entity("Subreddit")
 // eslint-disable-next-line functional/no-classes
 export class Subreddit {
   @PrimaryGeneratedColumn("uuid")

@@ -1,20 +1,20 @@
 import { t } from "elysia";
 import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    Index,
-    JoinColumn,
-    ManyToOne,
-    OneToMany,
-    PrimaryGeneratedColumn,
-    UpdateDateColumn,
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from "typeorm";
 
 export const STICKER_DISPLAY_MODES = ["none", "color", "short"] as const;
 export type StickerDisplayMode = (typeof STICKER_DISPLAY_MODES)[number];
 
-@Entity()
+@Entity("TagDimension")
 // eslint-disable-next-line functional/no-classes
 export class TagDimension {
   @PrimaryGeneratedColumn()
@@ -51,7 +51,7 @@ export class TagDimension {
   tags!: TagDefinition[];
 }
 
-@Entity()
+@Entity("TagDefinition")
 // eslint-disable-next-line functional/no-classes
 export class TagDefinition {
   @PrimaryGeneratedColumn()

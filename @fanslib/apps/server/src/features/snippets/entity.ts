@@ -10,7 +10,7 @@ import {
 } from "typeorm";
 import type { Channel } from "../channels/entity";
 
-@Entity()
+@Entity("CaptionSnippet")
 // eslint-disable-next-line functional/no-classes
 export class CaptionSnippet {
   @PrimaryGeneratedColumn("uuid")

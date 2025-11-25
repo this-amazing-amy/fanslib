@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
-@Entity()
+@Entity("FilterPreset")
 // eslint-disable-next-line functional/no-classes
 export class FilterPreset {
   @PrimaryGeneratedColumn("uuid")
