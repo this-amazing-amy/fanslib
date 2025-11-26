@@ -1,14 +1,9 @@
 import type { PostStatusSchema } from "@fanslib/server/schemas";
 import { cn } from "~/lib/cn";
+import { POST_STATUS_COLORS } from "~/lib/colors";
 import { Badge } from "./ui/Badge";
 
 type PostStatus = typeof PostStatusSchema.static;
-
-const STATUS_COLORS = {
-  draft: "#94a3b8",
-  scheduled: "#3b82f6",
-  posted: "#22c55e",
-} as const;
 
 const STATUS_LABELS: Record<PostStatus, string> = {
   draft: "Draft",
@@ -16,11 +11,12 @@ const STATUS_LABELS: Record<PostStatus, string> = {
   posted: "Posted",
 } as const;
 
-const STATUS_OPTIONS = [
-  { id: "draft" as const, label: STATUS_LABELS.draft, color: STATUS_COLORS.draft },
-  { id: "scheduled" as const, label: STATUS_LABELS.scheduled, color: STATUS_COLORS.scheduled },
-  { id: "posted" as const, label: STATUS_LABELS.posted, color: STATUS_COLORS.posted },
-] as const;
+const STATUS_OPTIONS = (["draft", "scheduled", "posted"] as PostStatus[]).map((status) => ({
+  id: status,
+  label: STATUS_LABELS[status],
+  background: POST_STATUS_COLORS[status].background,
+  foreground: POST_STATUS_COLORS[status].foreground,
+}));
 
 type StatusSelectProps = {
   value?: PostStatus[];
@@ -64,9 +60,11 @@ export const StatusSelect = ({
               !multiple && values.length > 0 && !isSelected && "opacity-50"
             )}
             style={{
-              backgroundColor: isSelected ? status.color : "transparent",
-              borderColor: status.color,
-              color: isSelected ? "white" : status.color,
+              backgroundColor: isSelected
+                ? status.background
+                : `color-mix(in oklch, ${status.background} 12%, transparent)`,
+              borderColor: status.foreground,
+              color: status.foreground,
             }}
             onClick={() => toggleStatus(status.id)}
           >
