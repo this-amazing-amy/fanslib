@@ -193,12 +193,25 @@ class LibraryScanner {
     try {
       // First pass: collect all files
       const filesToProcess: string[] = [];
-      for await (const filePath of walkDirectory(env().libraryPath)) {
+      const libraryPath = env().libraryPath;
+
+      console.log("Library scan starting", {
+        libraryPath,
+      });
+
+       
+      for await (const filePath of walkDirectory(libraryPath)) {
         const { isSupported } = isMediaFile(filePath);
         if (isSupported) {
           filesToProcess.push(filePath);
         }
       }
+
+      console.log("Library scan files discovered", {
+        libraryPath,
+        totalFiles: filesToProcess.length,
+        files: filesToProcess,
+      });
 
       // Get existing media for cleanup
       const database = await db();
@@ -247,7 +260,6 @@ class LibraryScanner {
       }
 
       // Cleanup: remove files that no longer exist and weren't processed
-      const libraryPath = env().libraryPath;
       for (const media of existingMedia) {
         // Skip if we've already processed this media (it was moved)
         if (processedMediaIds.has(media.id)) {

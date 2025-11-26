@@ -17,9 +17,37 @@ import { snippetsRoutes } from "./features/snippets/routes";
 import { subredditsRoutes } from "./features/subreddits/routes";
 import { tagsRoutes } from "./features/tags/routes";
 import { db } from "./lib/db";
-import { seedDatabase } from "./lib/seed";
+import { env } from "./lib/env";
 import { migrateColorsToPresets } from "./lib/migrate-colors-to-presets";
+import { seedDatabase } from "./lib/seed";
+import { walkDirectory } from "./lib/walkDirectory";
 
+
+const logStartupEnvironment = async (): Promise<void> => {
+  const { appdataPath, libraryPath, ffprobePath } = env();
+
+  console.log("Environment configuration", {
+    APPDATA_PATH: appdataPath,
+    LIBRARY_PATH: libraryPath,
+    FFPROBE_PATH: ffprobePath ?? null,
+  });
+
+  try {
+    const files: string[] = [];
+    // eslint-disable-next-line functional/no-loop-statements
+    for await (const filePath of walkDirectory(libraryPath)) {
+      if (!filePath) continue;
+      files.push(filePath);
+    }
+
+    console.log("Library contents at startup", {
+      libraryPath,
+      totalFiles: files.length,
+    });
+  } catch (error) {
+    console.error("Failed to inspect library contents at startup", error);
+  }
+};
 
 const app = new Elysia()
 .use(cors({
@@ -63,6 +91,7 @@ const app = new Elysia()
 db()
   .then(async () => {
     await seedDatabase();
+    await logStartupEnvironment();
     console.log(`🚀 Server running at http://localhost:${app.server?.port}`);
     console.log(`📊 Database initialized`);
   })
