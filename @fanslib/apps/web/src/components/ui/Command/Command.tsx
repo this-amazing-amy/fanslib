@@ -55,6 +55,7 @@ export const CommandInput = ({
         onChange={handleChange}
         className="flex-1 bg-transparent px-3 py-3 text-sm outline-none placeholder:text-base-content/50"
         placeholder={placeholder}
+        aria-label={placeholder}
         autoFocus={autoFocus}
       />
       <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border border-base-300 bg-base-200 px-1.5 font-mono text-xs font-medium opacity-100 sm:flex">

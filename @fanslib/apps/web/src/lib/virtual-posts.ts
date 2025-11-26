@@ -20,7 +20,7 @@ type Post = typeof PostSchema.static;
 type ContentSchedule = typeof ContentScheduleWithChannelSchema.static;
 type MediaFilters = typeof MediaFilterSchema.static;
 
-const SCHEDULE_HORIZON_MONTHS = 3;
+const SCHEDULE_HORIZON_MONTHS = 1;
 
 const DAY_NAME_TO_OFFSET: Record<string, number> = {
   Monday: 1,

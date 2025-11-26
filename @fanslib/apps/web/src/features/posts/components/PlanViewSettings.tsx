@@ -21,6 +21,7 @@ export const PlanViewSettings = () => {
             <div className="text-sm font-medium">View Type</div>
             <ToggleGroup
               value={preferences.view.viewType}
+              aria-label="Plan view type"
               onChange={(value) => {
                 if (!value) return;
                 updatePreferences({ view: { viewType: value as PostViewType } });

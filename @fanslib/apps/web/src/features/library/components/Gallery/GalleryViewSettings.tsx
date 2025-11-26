@@ -22,6 +22,7 @@ export const GalleryViewSettings = () => {
             <ToggleGroup
               options={[{ value: "small", label: "Small" }, { value: "large", label: "Large" }]}
               value={preferences.view.gridSize}
+              aria-label="Grid size"
               onChange={(value) => {
                 if (!value) return;
                 updatePreferences({ view: { gridSize: value as GridSize } });

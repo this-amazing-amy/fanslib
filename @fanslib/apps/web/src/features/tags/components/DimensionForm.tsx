@@ -136,6 +136,7 @@ export const DimensionForm = ({ initialData, onSubmit, onCancel, isSubmitting = 
           <Select
             value={formData.dataType}
             onValueChange={(value) => handleDataTypeChange(value as "categorical" | "numerical" | "boolean")}
+            aria-label="Data type"
           >
             <SelectTrigger>
               <SelectValue placeholder="Select data type" />
@@ -154,6 +155,7 @@ export const DimensionForm = ({ initialData, onSubmit, onCancel, isSubmitting = 
         <Select
           value={formData.stickerDisplay ?? "none"}
           onValueChange={(value) => updateFormData({ stickerDisplay: value as "none" | "color" | "short" })}
+          aria-label="Sticker display mode"
         >
           <SelectTrigger>
             <SelectValue placeholder="Select sticker display mode" />

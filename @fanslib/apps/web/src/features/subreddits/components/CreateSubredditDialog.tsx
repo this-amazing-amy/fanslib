@@ -63,6 +63,7 @@ export const CreateSubredditDialog = ({
                     <Input
                       value={name}
                       onChange={(value) => setName(value as string)}
+                      aria-label="Subreddit name"
                       placeholder="subredditname"
                       className="flex-1"
                       autoFocus
@@ -77,6 +78,7 @@ export const CreateSubredditDialog = ({
                   <Input
                     value={notes}
                     onChange={(value) => setNotes(value as string)}
+                    aria-label="Subreddit notes"
                     placeholder="Brief notes about the subreddit"
                   />
                 </div>

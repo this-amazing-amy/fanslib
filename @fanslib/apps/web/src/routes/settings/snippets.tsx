@@ -82,6 +82,7 @@ const SnippetForm = ({
         <Input
           value={formData.name}
           onChange={(value) => setFormData((prev) => ({ ...prev, name: value }))}
+          aria-label="Snippet name"
           placeholder="Snippet name..."
           isRequired
         />
@@ -97,6 +98,7 @@ const SnippetForm = ({
               channelId: value === "global" ? undefined : value,
             }))
           }
+          aria-label="Snippet channel"
         >
           <SelectTrigger>
             <SelectValue placeholder="Select a channel..." />

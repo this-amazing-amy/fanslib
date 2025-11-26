@@ -150,6 +150,7 @@ export const CreateShootDialog = ({
                   <Input
                     value={shootName}
                     onChange={(value) => setShootName(value)}
+                  aria-label="Shoot name"
                     placeholder="Enter shoot name"
                   />
                 </div>

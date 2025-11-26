@@ -285,7 +285,11 @@ export const FilterItemEditor = ({
 
       <div className="space-y-2">
         <Label htmlFor="type-select">Filter Type</Label>
-        <Select value={type} onValueChange={(value) => handleTypeChange(value as FilterItemType)}>
+        <Select
+          value={type}
+          onValueChange={(value) => handleTypeChange(value as FilterItemType)}
+          aria-label="Filter type"
+        >
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>

@@ -110,6 +110,7 @@ export const FilterItemRenderer = ({
           <Input
             value={value && "value" in value && typeof value.value === "string" ? value.value : ""}
             onChange={(newValue) => onChange({ type, value: newValue })}
+            aria-label={type === "filename" ? "Filename filter" : "Caption filter"}
             placeholder={`Enter ${type} text`}
           />
           <RemoveButton />
@@ -144,6 +145,7 @@ export const FilterItemRenderer = ({
             onValueChange={(newValue) =>
               onChange({ type: "mediaType", value: newValue as "image" | "video" })
             }
+            aria-label="Media type"
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select media type" />

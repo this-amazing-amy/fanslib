@@ -105,6 +105,7 @@ export const FilterPresetManager = ({ open, onOpenChange }: FilterPresetManagerP
                           onChange={(value) =>
                             setEditingPreset({ ...editingPreset, name: value })
                           }
+                          aria-label="Filter preset name"
                           onKeyDown={handleKeyDown}
                           onBlur={handleSaveEdit}
                           autoFocus

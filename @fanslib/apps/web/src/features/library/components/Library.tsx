@@ -6,6 +6,7 @@ import { useScan } from "~/hooks/useScan";
 import { useMediaListQuery } from "~/lib/queries/library";
 import { Gallery } from "./Gallery/Gallery";
 import { GalleryPagination } from "./Gallery/GalleryPagination";
+import { GallerySkeleton } from "./Gallery/GallerySkeleton";
 import { GalleryViewSettings } from "./Gallery/GalleryViewSettings";
 import { LibrarySortOptions } from "./Gallery/LibrarySortOptions";
 import { FilterActions } from "./MediaFilters/FilterActions";
@@ -19,7 +20,12 @@ type Media = typeof MediaSchema.static;
 
 export const Library = () => {
   const { preferences, updatePreferences } = useLibraryPreferences();
-  const { data: mediaList, error } = useMediaListQuery({
+  const {
+    data: mediaList,
+    error,
+    isLoading,
+    isFetching,
+  } = useMediaListQuery({
     page: preferences.pagination.page,
     limit: preferences.pagination.limit,
     sort: preferences.sort,
@@ -63,11 +69,15 @@ export const Library = () => {
             <ScanProgress scanProgress={scanProgress} scanResult={scanResult} />
 
             <div className="flex-1 min-h-0 overflow-auto">
+            {isLoading || (isFetching && !mediaList) ? (
+              <GallerySkeleton />
+            ) : (
               <Gallery
                 medias={(mediaList?.items as Media[] | undefined) ?? []}
                 error={error ? (error instanceof Error ? error.message : "Unknown error") : undefined}
                 onScan={handleScan}
               />
+            )}
             </div>
             <GalleryPagination totalPages={mediaList?.totalPages ?? 0} totalItems={mediaList?.total ?? 0} />
           </div>

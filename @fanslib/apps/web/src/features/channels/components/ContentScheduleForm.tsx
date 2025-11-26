@@ -125,7 +125,11 @@ export const ContentScheduleForm = ({
         <label className="label">
           <span className="label-text font-medium">Schedule Type</span>
         </label>
-        <Select value={type} onValueChange={(value) => setType(value as ScheduleType)}>
+        <Select
+          value={type}
+          onValueChange={(value) => setType(value as ScheduleType)}
+          aria-label="Schedule type"
+        >
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>

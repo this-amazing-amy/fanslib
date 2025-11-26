@@ -53,6 +53,7 @@ const LayoutContent = ({ children }: AppLayoutProps) => {
           type='checkbox'
           className='drawer-toggle'
           checked={sidebarOpen}
+          aria-label='Toggle navigation menu'
           onChange={() => toggleSidebar()}
         />
 

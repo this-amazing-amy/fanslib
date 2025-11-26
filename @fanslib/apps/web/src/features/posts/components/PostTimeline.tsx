@@ -8,9 +8,12 @@ import { useDragOver } from "~/hooks/useDragOver";
 import { cn } from "~/lib/cn";
 import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
 import { PostPreview } from "./PostPreview/PostPreview";
+import { usePostTimelineVirtualizer } from "./usePostTimelineVirtualizer";
 
 type Media = typeof MediaSchema.static;
 type Post = typeof PostWithRelationsSchema.static;
+type TimelineVirtualizer = ReturnType<typeof usePostTimelineVirtualizer>["virtualizer"];
+type TimelineVirtualItem = ReturnType<TimelineVirtualizer["getVirtualItems"]>[number];
 
 type PostTimelineProps = {
   posts: (Post | VirtualPost)[];
@@ -41,6 +44,10 @@ export const PostTimeline = ({ posts, className, onUpdate }: PostTimelineProps) 
   const sortedPosts = [...posts].sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
+
+  const { scrollElementRef, virtualizer } = usePostTimelineVirtualizer({
+    posts: sortedPosts,
+  });
 
   if (sortedPosts.length === 0) {
     return (
@@ -77,14 +84,33 @@ export const PostTimeline = ({ posts, className, onUpdate }: PostTimelineProps) 
   }
 
   return (
-    <ScrollArea className={cn("h-full pr-4", className)}>
-      <div className="space-y-4">
-        {sortedPosts.map((post, index) => {
+    <ScrollArea className={cn("h-full pr-4", className)} ref={scrollElementRef}>
+      <div
+        style={{
+          height: virtualizer.getTotalSize(),
+          position: "relative",
+        }}
+      >
+        {virtualizer.getVirtualItems().map((virtualRow: TimelineVirtualItem) => {
+          const post = sortedPosts[virtualRow.index];
           const id = isVirtualPost(post) ? post.virtualId : post.id;
-          const previousPost = index > 0 ? sortedPosts[index - 1] : undefined;
+          const previousPost =
+            virtualRow.index > 0 ? sortedPosts[virtualRow.index - 1] : undefined;
 
           return (
-            <div key={id} className="space-y-4">
+            <div
+              key={id}
+              ref={virtualizer.measureElement}
+              data-index={virtualRow.index}
+              className="pb-4"
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                transform: `translateY(${virtualRow.start}px)`,
+              }}
+            >
               <PostPreview
                 post={post}
                 onUpdate={onUpdate}

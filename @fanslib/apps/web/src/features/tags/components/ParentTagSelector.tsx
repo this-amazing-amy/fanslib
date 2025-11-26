@@ -85,6 +85,7 @@ export const ParentTagSelector = ({
     <Select
       value={selectedParentId ? String(selectedParentId) : "none"}
       onValueChange={(value) => onSelectParent(value === "none" ? null : Number(value))}
+      aria-label="Parent tag"
     >
       <SelectTrigger>
         <SelectValue placeholder={placeholder} />

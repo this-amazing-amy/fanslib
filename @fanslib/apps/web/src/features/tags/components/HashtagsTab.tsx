@@ -66,6 +66,7 @@ const HashtagViewInput = ({
       value={value}
       variant="ghost"
       isDisabled={disabled}
+      aria-label="Hashtag views"
       onFocus={startEditing}
       onChange={(value) => setValue(value)}
       onBlur={commitEdit}
@@ -151,6 +152,7 @@ const NewHashtagRow = () => {
       <Input
         value={newHashtagName}
         onChange={(value) => setNewHashtagName(value)}
+        aria-label="New hashtag name"
         onKeyDown={keyDown}
         placeholder="Add new hashtag..."
         variant="ghost"

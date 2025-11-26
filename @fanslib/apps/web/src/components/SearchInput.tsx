@@ -80,6 +80,7 @@ export const SearchInput = ({
           <Input
             type="text"
             placeholder={placeholder}
+            aria-label={placeholder}
             value={localValue}
             onChange={(value) => setLocalValue(value)}
             onBlur={handleBlur}

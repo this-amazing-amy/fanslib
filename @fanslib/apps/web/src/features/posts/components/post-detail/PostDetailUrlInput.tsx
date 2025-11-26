@@ -48,6 +48,7 @@ export const PostDetailUrlInput = ({ post }: PostDetailUrlInputProps) => {
           id="post-url"
           type="url"
           placeholder="Enter post URL"
+          aria-label="Post URL"
           value={localUrl}
           onChange={updateUrl}
           isDisabled={isSaving}

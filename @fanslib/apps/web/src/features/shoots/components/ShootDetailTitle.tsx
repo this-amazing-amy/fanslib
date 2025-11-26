@@ -35,6 +35,7 @@ export const ShootDetailTitle: FC<ShootDetailTitleProps> = ({
         <Input
           value={newName}
           onChange={setNewName}
+          aria-label="Shoot name"
           onKeyDown={handleKeyDown}
           onBlur={() => {
             if (newName.trim() === "") return;

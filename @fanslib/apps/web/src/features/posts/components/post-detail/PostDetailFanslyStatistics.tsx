@@ -85,6 +85,7 @@ export const PostDetailFanslyStatistics = ({ post }: PostDetailFanslyStatisticsP
           <Input
             id="fansly-statistics-id"
             placeholder="Enter ID or fansly.com/statistics/... URL"
+            aria-label="Fansly statistics ID"
             value={localStatisticsId}
             onChange={updateStatisticsId}
             isDisabled={isSaving}
