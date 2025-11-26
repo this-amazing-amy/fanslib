@@ -102,45 +102,6 @@
   animation-timing-function: ease-in-out;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  ::view-transition-old(root).slide-forward {
-    animation-name: slide-out-left;
-  }
-  
-  ::view-transition-new(root).slide-forward {
-    animation-name: slide-in-right;
-  }
-  
-  ::view-transition-old(root).slide-back {
-    animation-name: slide-out-right;
-  }
-  
-  ::view-transition-new(root).slide-back {
-    animation-name: slide-in-left;
-  }
-
-  ::view-transition-old(main-content).slide-forward {
-    animation-name: slide-out-left;
-  }
-  
-  ::view-transition-new(main-content).slide-forward {
-    animation-name: slide-in-right;
-  }
-  
-  ::view-transition-old(main-content).slide-back {
-    animation-name: slide-out-right;
-  }
-  
-  ::view-transition-new(main-content).slide-back {
-    animation-name: slide-in-left;
-  }
-
-  ::view-transition-old(main-content).initial,
-  ::view-transition-new(main-content).initial {
-    animation-name: slide-in-right;
-  }
-}
-
 @layer base {
   html {
     font-family: var(--font-family-sans);

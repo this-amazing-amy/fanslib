@@ -1,6 +1,7 @@
 import { t } from "elysia";
+import type { Relation } from "typeorm";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
-import type { Channel } from "../channels/entity";
+import { Channel } from "../channels/entity";
 
 @Entity("content_schedule")
 // eslint-disable-next-line functional/no-classes
@@ -45,9 +46,9 @@ export class ContentSchedule {
   @Column({ type: "text", nullable: true, name: "mediaFilters" })
   mediaFilters: string | null = null;
 
-  @ManyToOne("Channel", { onDelete: "CASCADE" })
+  @ManyToOne(() => Channel, { onDelete: "CASCADE" })
   @JoinColumn({ name: "channelId" })
-  channel!: Channel;
+  channel!: Relation<Channel>;
 }
 
 export const ContentScheduleTypeSchema = t.Union([

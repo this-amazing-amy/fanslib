@@ -1,16 +1,17 @@
 import { t } from "elysia";
+import type { Relation } from "typeorm";
 import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    JoinColumn,
-    ManyToOne,
-    OneToMany,
-    PrimaryGeneratedColumn,
-    Unique,
-    UpdateDateColumn,
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Unique,
+  UpdateDateColumn,
 } from "typeorm";
-import type { Channel } from "../channels/entity";
+import { Channel } from "../channels/entity";
 
 @Entity("hashtag")
 // eslint-disable-next-line functional/no-classes
@@ -40,14 +41,14 @@ export class HashtagChannelStats {
 
   @ManyToOne(() => Hashtag, (hashtag) => hashtag.channelStats, { onDelete: "CASCADE" })
   @JoinColumn({ name: "hashtagId" })
-  hashtag!: Hashtag;
+  hashtag!: Relation<Hashtag>;
 
   @Column({ type: "int", name: "hashtagId" })
   hashtagId!: number;
 
-  @ManyToOne("Channel", { onDelete: "CASCADE" })
+  @ManyToOne(() => Channel, { onDelete: "CASCADE" })
   @JoinColumn({ name: "channelId" })
-  channel!: Channel;
+  channel!: Relation<Channel>;
 
   @Column({ type: "varchar", name: "channelId" })
   channelId!: string;

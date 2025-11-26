@@ -1,4 +1,5 @@
 import { t } from "elysia";
+import type { Relation } from "typeorm";
 import {
   Column,
   CreateDateColumn,
@@ -10,9 +11,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import type { PostMedia } from "../posts/entity";
-import type { Shoot } from "../shoots/entity";
-import type { MediaTag } from "../tags/entity";
+import { PostMedia } from "../posts/entity";
+import { Shoot } from "../shoots/entity";
+import { MediaTag } from "../tags/entity";
 
 export type MediaType = "image" | "video";
 
@@ -53,20 +54,19 @@ export class Media {
   @Column({ type: "datetime", name: "fileModificationDate" })
   fileModificationDate!: Date;
 
-  @OneToMany("PostMedia", (postMedia: { media: Media }) => postMedia.media)
-  postMedia!: PostMedia[];
+  @OneToMany(() => PostMedia, (postMedia: PostMedia) => postMedia.media)
+  postMedia!: Relation<PostMedia>[];
 
-  @ManyToMany("Shoot")
+  @ManyToMany(() => Shoot)
   @JoinTable({
     name: "shoot_media",
     joinColumn: { name: "media_id", referencedColumnName: "id" },
     inverseJoinColumn: { name: "shoot_id", referencedColumnName: "id" },
   })
-  shoots!: Shoot[];
+  shoots!: Relation<Shoot>[];
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @OneToMany("MediaTag", (mediaTag: any) => mediaTag.media)
-  mediaTags!: MediaTag[];
+  @OneToMany(() => MediaTag, (mediaTag: MediaTag) => mediaTag.media)
+  mediaTags!: Relation<MediaTag>[];
 }
 
 export const MediaTypeSchema = t.Union([t.Literal('image'), t.Literal('video')]);

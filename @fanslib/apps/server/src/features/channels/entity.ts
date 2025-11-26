@@ -9,8 +9,7 @@ import {
   PrimaryColumn,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import type { Hashtag } from "../hashtags/entity";
-import { HashtagSchema } from "../hashtags/entity";
+import { Hashtag, HashtagSchema } from "../hashtags/entity";
 import type { MediaFilterSchema } from "../library/schemas/media-filter";
 
 @Entity("channel_type")
@@ -48,7 +47,7 @@ export class Channel {
   @JoinColumn({ name: "typeId" })
   type!: ChannelType;
 
-  @ManyToMany("Hashtag")
+  @ManyToMany(() => Hashtag)
   @JoinTable({
     name: "channel_default_hashtags",
     joinColumn: { name: "channelId", referencedColumnName: "id" },

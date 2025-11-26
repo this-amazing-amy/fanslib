@@ -1,4 +1,5 @@
 import { t } from "elysia";
+import type { Relation } from "typeorm";
 import {
   Column,
   CreateDateColumn,
@@ -10,6 +11,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { Media } from "../library/entity";
 
 export const STICKER_DISPLAY_MODES = ["none", "color", "short"] as const;
 export type StickerDisplayMode = (typeof STICKER_DISPLAY_MODES)[number];
@@ -117,9 +119,9 @@ export class MediaTag {
   @Column({ type: "varchar", name: "mediaId" })
   mediaId!: string;
 
-  @ManyToOne("Media", { onDelete: "CASCADE" })
+  @ManyToOne(() => Media, { onDelete: "CASCADE" })
   @JoinColumn({ name: "mediaId" })
-  media: unknown;
+  media!: Relation<Media>;
 
   @Column({ type: "int", name: "tagDefinitionId" })
   tagDefinitionId!: number;

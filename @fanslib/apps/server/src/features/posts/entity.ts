@@ -1,4 +1,5 @@
 import { t } from "elysia";
+import type { Relation } from "typeorm";
 import {
   Column,
   CreateDateColumn,
@@ -11,10 +12,9 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import type { FanslyAnalyticsAggregate, FanslyAnalyticsDatapoint } from "../analytics/entity";
-import type { Channel } from "../channels/entity";
-import type { ContentSchedule } from "../content-schedules/entity";
-import type { Media } from "../library/entity";
-import { MediaSchema } from "../library/entity";
+import { Channel } from "../channels/entity";
+import { ContentSchedule } from "../content-schedules/entity";
+import { Media, MediaSchema } from "../library/entity";
 import { Subreddit } from "../subreddits/entity";
 
 export type PostStatus = "draft" | "scheduled" | "posted";
@@ -34,9 +34,9 @@ export class Post {
   @Column({ type: "varchar", nullable: true, name: "scheduleId" })
   scheduleId: string | null = null;
 
-  @ManyToOne("ContentSchedule")
+  @ManyToOne(() => ContentSchedule)
   @JoinColumn({ name: "scheduleId" })
-  schedule?: ContentSchedule;
+  schedule?: Relation<ContentSchedule>;
 
   @Column({ type: "varchar", nullable: true, name: "caption" })
   caption: string | null = null;
@@ -60,9 +60,9 @@ export class Post {
   })
   status!: PostStatus;
 
-  @ManyToOne("Channel")
+  @ManyToOne(() => Channel)
   @JoinColumn({ name: "channelId" })
-  channel!: Channel;
+  channel!: Relation<Channel>;
   @Column({ type: "varchar", name: "channelId" })
   channelId!: string;
 
@@ -73,21 +73,21 @@ export class Post {
   subredditId: string | null = null;
 
   @OneToMany(() => PostMedia, (mediaOrder) => mediaOrder.post)
-  postMedia!: PostMedia[];
+  postMedia!: Relation<PostMedia>[];
 
   @OneToMany(
     "FanslyAnalyticsDatapoint",
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (fanslyAnalyticsDatapoint: any) => fanslyAnalyticsDatapoint.post
   )
-  fanslyAnalyticsDatapoints!: FanslyAnalyticsDatapoint[];
+  fanslyAnalyticsDatapoints!: Relation<FanslyAnalyticsDatapoint>[];
 
   @OneToOne(
     "FanslyAnalyticsAggregate",
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (fanslyAnalyticsAggregate: any) => fanslyAnalyticsAggregate.post
   )
-  fanslyAnalyticsAggregate?: FanslyAnalyticsAggregate;
+  fanslyAnalyticsAggregate?: Relation<FanslyAnalyticsAggregate>;
 }
 
 @Entity("post_media")
@@ -106,11 +106,11 @@ export class PostMedia {
   @JoinColumn({ name: "postId" })
   post!: Post;
 
-  @ManyToOne("Media",
+  @ManyToOne(() => Media,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (media: any) => media.postMedia, { onDelete: "CASCADE" })
   @JoinColumn({ name: "mediaId" })
-  media!: Media;
+  media!: Relation<Media>;
 
   @CreateDateColumn({ name: "createdAt" })
   createdAt!: Date;

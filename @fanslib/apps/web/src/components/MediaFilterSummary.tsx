@@ -199,11 +199,13 @@ export const MediaFilterSummary = ({
   compact = false,
   layout = "inline",
 }: MediaFilterSummaryProps) => {
-  if (!mediaFilters || mediaFilters.length === 0) {
+  const filterGroups = Array.isArray(mediaFilters) ? mediaFilters : [];
+
+  if (filterGroups.length === 0) {
     return null;
   }
 
-  const filterItems: FilterSummaryItem[] = mediaFilters.flatMap((group) =>
+  const filterItems: FilterSummaryItem[] = filterGroups.flatMap((group) =>
     group.items
       .map((item) => getFilterItemDetails(item, group))
       .filter((details): details is FilterItemDetails => details !== null)

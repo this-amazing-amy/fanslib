@@ -1,4 +1,5 @@
 import { t } from "elysia";
+import type { Relation } from "typeorm";
 import {
   Column,
   CreateDateColumn,
@@ -8,7 +9,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import type { Channel } from "../channels/entity";
+import { Channel } from "../channels/entity";
 
 @Entity("caption_snippet")
 // eslint-disable-next-line functional/no-classes
@@ -25,9 +26,9 @@ export class CaptionSnippet {
   @Column({ type: "uuid", nullable: true, name: "channelId" })
   channelId?: string;
 
-  @ManyToOne("Channel", { nullable: true })
+  @ManyToOne(() => Channel, { nullable: true })
   @JoinColumn({ name: "channelId" })
-  channel: Channel | null = null;
+  channel: Relation<Channel> | null = null;
 
   @CreateDateColumn({ name: "createdAt" })
   createdAt!: Date;

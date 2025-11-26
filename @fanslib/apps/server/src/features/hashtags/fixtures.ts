@@ -1,6 +1,6 @@
 import { getTestDataSource } from "../../lib/db.test";
 import type { Channel } from "../channels/entity";
-import { HashtagChannelStats as HashtagChannelStatsEntity, Hashtag as HashtagEntity } from "./entity";
+import { Hashtag as HashtagEntity, HashtagChannelStats as HashtagChannelStatsEntity } from "./entity";
 import { normalizeHashtagName } from "./operations/hashtag/helpers";
 
 type Hashtag = HashtagEntity;
