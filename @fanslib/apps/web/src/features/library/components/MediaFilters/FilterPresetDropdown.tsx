@@ -21,7 +21,7 @@ type FilterPresetDropdownProps = {
 export const FilterPresetDropdown = ({ disabled = false }: FilterPresetDropdownProps) => {
   const { presets, isLoading, applyPreset } = useFilterPresetContext();
   const [showSaveDialog, setShowSaveDialog] = useState(false);
-  const { filters, hasActiveFilters } = useMediaFilters();
+  const { filters, hasActiveFilters, isHydrated } = useMediaFilters();
 
   const handleApplyPreset = (presetId: string) => {
     const preset = presets.find((p) => p.id === presetId);
@@ -49,15 +49,15 @@ export const FilterPresetDropdown = ({ disabled = false }: FilterPresetDropdownP
             <DropdownMenuLabel>Filter Presets</DropdownMenuLabel>
             <DropdownMenuSeparator />
 
-            {hasActiveFilters && (
-              <>
-                <DropdownMenuItem id="save" className="cursor-pointer">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Save Current Filters
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-              </>
-            )}
+            <DropdownMenuItem
+              id="save"
+              className="cursor-pointer"
+              isDisabled={!hasActiveFilters || !isHydrated}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Save Current Filters
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
 
             {presets.length === 0 ? (
               <DropdownMenuItem id="empty" isDisabled>

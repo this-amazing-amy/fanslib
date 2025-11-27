@@ -1,6 +1,7 @@
 import type { MediaFilterSchema, MediaSortSchema } from "@fanslib/server/schemas";
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext } from "react";
 import { mergeDeep } from "remeda";
+import { useLocalStorage } from "~/hooks/useLocalStorage";
 import type { DeepPartial } from "~/lib/deep-partial";
 
 type MediaFilters = typeof MediaFilterSchema.static;
@@ -44,6 +45,7 @@ const defaultPreferences: LibraryPreferences = {
 type LibraryPreferencesContextValue = {
   preferences: LibraryPreferences;
   updatePreferences: (updates: DeepPartial<LibraryPreferences>) => void;
+  isHydrated: boolean;
 };
 
 const LibraryPreferencesContext = createContext<LibraryPreferencesContextValue | undefined>(
@@ -53,29 +55,22 @@ const LibraryPreferencesContext = createContext<LibraryPreferencesContextValue |
 const STORAGE_KEY = "libraryPreferences";
 
 export const LibraryPreferencesProvider = ({ children }: { children: React.ReactNode }) => {
-  const [preferences, setPreferences] = useState<LibraryPreferences>(() => {
-    if (typeof window === "undefined") return defaultPreferences;
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      return mergeDeep(defaultPreferences, JSON.parse(stored));
-    }
-    return defaultPreferences;
-  });
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
-  }, [preferences]);
+  const { value: preferences, setValue: setPreferences, isHydrated } = useLocalStorage(
+    STORAGE_KEY,
+    defaultPreferences,
+    (defaults, stored) => mergeDeep(defaults, stored)
+  );
 
   const updatePreferences = useCallback((updates: DeepPartial<LibraryPreferences>) => {
     setPreferences((prev) => mergeDeep(prev, updates) as LibraryPreferences);
-  }, []);
+  }, [setPreferences]);
 
   return (
     <LibraryPreferencesContext.Provider
       value={{
         preferences,
         updatePreferences,
+        isHydrated,
       }}
     >
       {children}

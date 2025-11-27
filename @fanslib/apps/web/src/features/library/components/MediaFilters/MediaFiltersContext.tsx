@@ -30,6 +30,7 @@ type MediaFiltersContextValue = {
 
   // Computed
   hasActiveFilters: boolean;
+  isHydrated: boolean;
 };
 
 const MediaFiltersContext = createContext<MediaFiltersContextValue | null>(null);
@@ -37,6 +38,7 @@ const MediaFiltersContext = createContext<MediaFiltersContextValue | null>(null)
 type MediaFiltersProviderProps = {
   value: MediaFilters;
   onChange: (filters: MediaFilters) => void;
+  isHydrated: boolean;
   children: ReactNode;
 };
 
@@ -46,7 +48,7 @@ const normalizeFilters = (value: unknown): MediaFilters => {
   return value.filter((group): group is FilterGroup => group && typeof group === "object");
 };
 
-export const MediaFiltersProvider = ({ value, onChange, children }: MediaFiltersProviderProps) => {
+export const MediaFiltersProvider = ({ value, onChange, isHydrated, children }: MediaFiltersProviderProps) => {
   const filters = normalizeFilters(value);
 
   const hasActiveFilters = filters.length > 0 && filters.some((group) => group.items.length > 0);
@@ -84,6 +86,7 @@ export const MediaFiltersProvider = ({ value, onChange, children }: MediaFilters
     }
 
     console.log("defaultItem", defaultItem);
+
     onChange([
       ...filters,
       {
@@ -196,6 +199,7 @@ export const MediaFiltersProvider = ({ value, onChange, children }: MediaFilters
 
     // Computed
     hasActiveFilters,
+    isHydrated,
   };
 
   return (

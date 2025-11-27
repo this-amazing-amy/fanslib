@@ -1,7 +1,7 @@
 import { cn } from "~/lib/cn";
 import { FilterDropdown } from "./FilterDropdown";
+import { FilterActions } from "./FilterActions";
 import { FilterGroupEditor } from "./FilterGroupEditor";
-import { FilterPresetDropdown } from "./FilterPresetDropdown";
 import { useMediaFilters } from "./MediaFiltersContext";
 
 type MediaFiltersProps = {
@@ -9,20 +9,27 @@ type MediaFiltersProps = {
 };
 
 export const MediaFilters = ({ className = "" }: MediaFiltersProps) => {
-  const { filters } = useMediaFilters();
+  const { filters, isHydrated } = useMediaFilters();
 
-  if (filters.length === 0) {
-    return (
-      <div className={cn("flex items-center gap-2", className)}>
-        <FilterDropdown />
-        <FilterPresetDropdown />
-      </div>
-    );
-  }
+  // Force empty state until hydration completes
+  const displayFilters = isHydrated ? filters : [];
 
   return (
-    <div className="flex items-start gap-2 w-full">
-      <FilterGroupEditor className="flex-grow" />
+    <div className={cn("flex gap-2 w-full", displayFilters.length === 0 ? "items-center" : "items-start", className)}>
+      {displayFilters.length === 0 ? (
+        /* No filters: Show "Filter" button centered */
+        <div className="pt-2">
+          <FilterDropdown />
+        </div>
+      ) : (
+        /* With filters: Show filter groups + actions (preset, clear, add group) */
+        <>
+          <div className="flex-grow">
+            <FilterGroupEditor />
+          </div>
+          <FilterActions />
+        </>
+      )}
     </div>
   );
 };

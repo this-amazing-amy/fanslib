@@ -9,7 +9,6 @@ import { GalleryPagination } from "./Gallery/GalleryPagination";
 import { GallerySkeleton } from "./Gallery/GallerySkeleton";
 import { GalleryViewSettings } from "./Gallery/GalleryViewSettings";
 import { LibrarySortOptions } from "./Gallery/LibrarySortOptions";
-import { FilterActions } from "./MediaFilters/FilterActions";
 import { MediaFilters as MediaFiltersComponent } from "./MediaFilters/MediaFilters";
 import { MediaFiltersProvider } from "./MediaFilters/MediaFiltersContext";
 import { ScanButton } from "./ScanButton";
@@ -19,7 +18,7 @@ type MediaFilters = typeof MediaFilterSchema.static;
 type Media = typeof MediaSchema.static;
 
 export const Library = () => {
-  const { preferences, updatePreferences } = useLibraryPreferences();
+  const { preferences, updatePreferences, isHydrated } = useLibraryPreferences();
   const {
     data: mediaList,
     error,
@@ -43,7 +42,7 @@ export const Library = () => {
 
   return (
     <FilterPresetProvider onFiltersChange={updateFilters}>
-      <MediaFiltersProvider value={preferences.filter} onChange={updateFilters}>
+      <MediaFiltersProvider value={preferences.filter} onChange={updateFilters} isHydrated={isHydrated}>
         <PageContainer className="flex h-full w-full flex-col overflow-hidden px-0 py-0">
           <div className="flex-1 min-h-0 px-6 pb-6 flex flex-col">
             <div className="mb-4">
@@ -61,9 +60,8 @@ export const Library = () => {
                 <ScanButton isScanning={isScanning} onScan={handleScan} />
               </div>
               <div className="mb-4">
-                <FilterActions />
+                <MediaFiltersComponent />
               </div>
-              <MediaFiltersComponent />
             </div>
 
             <ScanProgress scanProgress={scanProgress} scanResult={scanResult} />

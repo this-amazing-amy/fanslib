@@ -11,10 +11,8 @@ type FilterActionsProps = {
 export const FilterActions = ({ className = "" }: FilterActionsProps) => {
   const { addEmptyGroup, clearFilters, hasActiveFilters } = useMediaFilters();
 
-  const hiddenClass = !hasActiveFilters ? "hidden" : "";
-
   return (
-    <div className={`flex items-center gap-1 ${className} ${hiddenClass}`}>
+    <div className={`flex items-center gap-1 ${className}`}>
       <TooltipTrigger>
         <FilterPresetDropdown disabled={!hasActiveFilters} />
         <Tooltip>
