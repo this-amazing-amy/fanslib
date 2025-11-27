@@ -28,14 +28,13 @@ export const ChannelBadge = ({
 }: ChannelBadgeProps) => {
   const channelType = CHANNEL_TYPES[typeId as ChannelTypeId];
   const bgColor = channelType?.color ?? "#6b7280";
-  const borderColor = darkenColor(bgColor, 0.12);
 
   const isClickable = onClick ?? selectable;
 
   return (
     <div
       className={cn(
-        "rounded-full font-medium flex items-center border",
+        "rounded-full font-medium flex items-center",
         {
           "px-1.5 py-0.5 text-[10px] gap-1 leading-tight": size === "sm",
           "px-2 py-0.5 text-xs gap-1.5": size === "md",
@@ -47,7 +46,6 @@ export const ChannelBadge = ({
       )}
       style={{
         backgroundColor: bgColor,
-        borderColor: borderColor,
         color: "#fff",
       }}
       onClick={!disabled ? onClick : undefined}
