@@ -171,17 +171,16 @@ const SnippetSettings = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="flex items-center gap-2 text-2xl font-semibold">
-          <FileText /> Caption Snippets
-        </h1>
-        <p className="text-base-content/60">
-          Create and manage reusable caption snippets for faster post creation
-        </p>
-      </div>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h3 className="text-lg font-medium">Your Snippets</h3>
+          <div>
+            <h1 className="flex items-center gap-2 text-2xl font-semibold">
+              <FileText /> Caption Snippets
+            </h1>
+            <p className="text-base-content/60">
+              Create and manage reusable caption snippets for faster post creation
+            </p>
+          </div>
           <DialogTrigger isOpen={showCreateDialog} onOpenChange={setShowCreateDialog}>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
@@ -263,7 +262,12 @@ const SnippetSettings = () => {
                 <div key={channelId}>
                   <div className="mb-3">
                     {channel ? (
-                      <ChannelBadge name={channel.name} typeId={channel.type.id} />
+                      <ChannelBadge
+                        name={channel.name}
+                        typeId={channel.type.id}
+                        size="md"
+                        className="inline-flex"
+                      />
                     ) : (
                       <span className="font-medium">Unknown Channel</span>
                     )}
