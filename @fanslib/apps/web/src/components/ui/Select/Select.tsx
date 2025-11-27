@@ -49,6 +49,10 @@ export const SelectTrigger = ({ children, className }: SelectTriggerProps) => <B
       variant="outline"
       className={cn(
         'input w-full flex items-center justify-between',
+        'cursor-pointer',
+        'border border-base-content',
+        'transition-all duration-200',
+        'hover:bg-primary/20 hover:ring-2 hover:ring-primary hover:border-primary',
         'focus:outline-none focus-visible:outline-none',
         'data-[focused]:ring-2 data-[focused]:ring-primary data-[focused]:ring-offset-2',
         'data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed',

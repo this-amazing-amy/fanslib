@@ -5,6 +5,7 @@ import {
 } from "../../../../features/library/api-type";
 import {
   addFilterItemToGroup,
+  isFilterGroupEmpty,
   removeFilterItemFromGroup,
   updateFilterItemInGroup,
 } from "../../../../features/library/filter-helpers";
@@ -156,10 +157,14 @@ export const MediaFiltersProvider = ({ value, onChange, children }: MediaFilters
   };
 
   const removeFilterFromGroup = (groupIndex: number, itemIndex: number) => {
-    const newFilters = [...filters];
     const updatedGroup = removeFilterItemFromGroup(filters[groupIndex], itemIndex);
-    newFilters[groupIndex] = updatedGroup;
-    onChange(newFilters);
+    if (isFilterGroupEmpty(updatedGroup)) {
+      onChange(filters.filter((_, index) => index !== groupIndex));
+      return;
+    }
+    onChange(
+      filters.map((group, index) => (index === groupIndex ? updatedGroup : group))
+    );
   };
 
   const clearFilters = () => {

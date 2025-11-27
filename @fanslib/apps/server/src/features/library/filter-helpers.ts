@@ -44,8 +44,8 @@ export const buildFilterItemQuery = (
       queryBuilder.andWhere(
         `${operator}EXISTS (
           SELECT 1 FROM media_tag mt
-          WHERE mt.media_id = media.id
-          AND mt.tag_definition_id = :tagId${paramIndex}
+          WHERE mt.mediaId = media.id
+          AND mt.tagDefinitionId = :tagId${paramIndex}
         )`,
         { [`tagId${paramIndex}`]: item.id }
       );
@@ -142,7 +142,7 @@ export const buildFilterItemQuery = (
       queryBuilder.andWhere(
         `${operator}EXISTS (
           SELECT 1 FROM media_tag mt
-          WHERE mt.media_id = media.id
+          WHERE mt.mediaId = media.id
           AND mt.dimensionId = :dimensionId${paramIndex}
         )`,
         { [`dimensionId${paramIndex}`]: item.dimensionId }

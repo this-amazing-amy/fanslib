@@ -28,7 +28,6 @@ const GalleryContent = ({ medias, error, onScan }: GalleryProps) => {
       updatePreferences({
         pagination: {
           limit: pageSize,
-          page: 1,
         },
       });
     }

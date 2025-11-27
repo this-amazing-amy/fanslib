@@ -274,6 +274,9 @@ prisma/migrations/
 # Docker
 .dockerignore
 
+# Deployment scripts
+deploy.sh
+
 # Terraform
 *.tfstate
 *.tfstate.*

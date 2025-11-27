@@ -65,7 +65,7 @@ export const LibrarySortOptions = ({ value, onChange }: LibrarySortOptionsProps)
       onValueChange={handleValueChange}
       aria-label="Sort media"
     >
-      <SelectTrigger>
+      <SelectTrigger className="h-9 gap-2 rounded-full border border-base-content px-4">
           <ArrowUpDown className="h-4 w-4" />
           <span>{selectedOption?.label ?? "Sort by..."}</span>
       </SelectTrigger>

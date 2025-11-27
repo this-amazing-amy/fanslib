@@ -2,11 +2,10 @@ import { Link } from "@tanstack/react-router";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
 import { useMediaSelection } from "~/contexts/MediaSelectionContext";
 import { cn } from "~/lib/cn";
-import { MediaFileFilenameTooltip } from "./MediaTileFilenameTooltip";
 import { MediaTileImage } from "./MediaTileImage";
 import { MediaTilePostsPopover } from "./MediaTilePostsPopover";
 import { MediaTileSelectionCircle } from "./MediaTileSelectionCircle";
-import { MediaTileTagStickers } from "./MediaTileTagStickers";
+import { MediaTileTagBadges } from "./MediaTileTagBadges";
 import { MediaTileTypeSticker } from "./MediaTileTypeSticker";
 import { MediaTileVideo } from "./MediaTileVideo";
 import type { MediaTileProps } from "./types";
@@ -25,7 +24,6 @@ export const MediaTile = (props: MediaTileProps) => {
   const withDuration = props.withDuration ?? false;
   const withTypeIcon = props.withTypeIcon ?? false;
   const withNavigation = props.withNavigation ?? false;
-  const withFileName = props.withFileName ?? false;
   const cover = props.cover ?? false;
   const withTags = props.withTags ?? false;
 
@@ -91,23 +89,17 @@ export const MediaTile = (props: MediaTileProps) => {
       {withSelection && <MediaTileSelectionCircle mediaId={media.id} />}
       <div className="absolute bottom-1 left-1 flex gap-1 z-10">
         {withPostsPopover && <MediaTilePostsPopover media={media} />}
-        {withTags && <MediaTileTagStickers media={media} />}
+        {withTags && <MediaTileTagBadges media={media} />}
         {withTypeIcon && <MediaTileTypeSticker media={media} />}
       </div>
     </div>
   );
 
-  const wrappedContent = withNavigation ? (
+  if (!withNavigation) return content;
+
+  return (
     <Link to="/content/library/media/$mediaId" params={{ mediaId: media.id }}>
       {content}
     </Link>
-  ) : (
-    content
-  );
-
-  return withFileName ? (
-    <MediaFileFilenameTooltip media={media}>{wrappedContent}</MediaFileFilenameTooltip>
-  ) : (
-    wrappedContent
   );
 };

@@ -1,20 +1,27 @@
-import type { TagDefinitionSchema } from "@fanslib/server/schemas";
-
-type TagDefinition = typeof TagDefinitionSchema.static;
 import { Check, Minus } from "lucide-react";
+import type { CSSProperties } from "react";
 import { Badge } from "~/components/ui/Badge";
-import type { BadgeVariant } from "~/components/ui/Badge/Badge";
-import { getColorDefinitionFromString } from "~/lib/colors";
+import type { BadgeProps, BadgeVariant } from "~/components/ui/Badge/Badge";
 import { cn } from "~/lib/cn";
+import { getColorDefinitionFromString } from "~/lib/colors";
 import type { SelectionState } from "~/lib/tags/selection-state";
 
+type TagLike = {
+  id: number;
+  color: string | null;
+  displayName: string;
+};
+
+type BadgeSize = BadgeProps["size"];
+
 type TagBadgeProps = {
-  tag: TagDefinition;
+  tag: TagLike;
   selectionState?: SelectionState;
   onClick?: () => void;
-  variant?: BadgeVariant
+  variant?: BadgeVariant;
   className?: string;
   selectionMode?: "checkbox" | "radio";
+  size?: BadgeSize;
 };
 
 export const TagBadge = ({
@@ -24,12 +31,10 @@ export const TagBadge = ({
   variant = "secondary",
   className,
   selectionMode = "checkbox",
+  size = "lg",
 }: TagBadgeProps) => {
   const getIcon = () => {
-    // Radio mode: no icons, selection indicated by fill vs outline
     if (selectionMode === "radio") return null;
-
-    // Checkbox mode (default)
     if (selectionState === "checked") return <Check className="w-3 h-3" />;
     if (selectionState === "indeterminate") return <Minus className="w-3 h-3" />;
     return null;
@@ -37,24 +42,23 @@ export const TagBadge = ({
 
   const badgeVariant = selectionState === "unchecked" ? variant : "neutral";
   const colorDef = getColorDefinitionFromString(tag.color, tag.id);
+  const style = {
+    "--tag-bg-full": colorDef.background,
+    "--tag-bg-muted": `color-mix(in oklch, ${colorDef.background} 40%, transparent)`,
+    borderColor: "transparent",
+    color: colorDef.foreground,
+  } as CSSProperties;
 
   return (
     <Badge
       variant={badgeVariant}
       className={cn(
-        "cursor-pointer transition-colors flex items-center gap-1",
+        "cursor-pointer flex items-center gap-1 transition-colors bg-[color:var(--tag-bg-muted)] hover:bg-[color:var(--tag-bg-full)] border-none",
         onClick && "select-none",
-        selectionMode === "radio" && "border",
         className
       )}
-      size="lg"
-      style={{
-        backgroundColor: selectionState !== "unchecked"
-          ? colorDef.background
-          : `color-mix(in oklch, ${colorDef.background} 12%, transparent)`,
-        borderColor: colorDef.foreground,
-        color: colorDef.foreground,
-      }}
+      size={size}
+      style={style}
       onClick={onClick}
     >
       {getIcon()}

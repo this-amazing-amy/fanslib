@@ -1,6 +1,7 @@
 import type { TagDefinitionSchema, TagDimensionSchema } from "@fanslib/server/schemas";
-import { Check, ChevronRight, ChevronsUpDown } from "lucide-react";
+import { ChevronRight, ChevronsUpDown } from "lucide-react";
 import { useMemo, useState } from "react";
+import { TagBadge } from "../MediaTagEditor/DimensionTagSelector/TagBadge";
 import { Button } from "~/components/ui/Button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "~/components/ui/Command";
 import { Popover, PopoverTrigger } from "~/components/ui/Popover";
@@ -115,7 +116,7 @@ export const TagFilterSelector = ({ value, onChange }: TagFilterSelectorProps) =
         <span className="truncate">{getDisplayValue()}</span>
         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </Button>
-      <Popover className="w-full p-0" placement="bottom start">
+      <Popover className="p-0 w-[min(480px,100vw-32px)]" placement="bottom start">
         <Command>
           <CommandInput
             placeholder="Search tags and dimensions..."
@@ -123,7 +124,7 @@ export const TagFilterSelector = ({ value, onChange }: TagFilterSelectorProps) =
             onValueChange={setSearchValue}
           />
           {searchValue.trim() && <CommandEmpty>No tags found.</CommandEmpty>}
-          <div className="max-h-80 overflow-y-auto">
+          <div className="max-h-80 overflow-y-auto pb-2">
             {filteredDimensionsWithTags.map(({ dimension, tags, hasMatches }) => {
               if (!hasMatches) return null;
 
@@ -131,9 +132,9 @@ export const TagFilterSelector = ({ value, onChange }: TagFilterSelectorProps) =
               const hasSelectedTag = tags.some((tag: TagDefinition) => tag.id.toString() === value);
 
               return (
-                <div key={dimension.id}>
+                <div key={dimension.id} className="mt-0.5 first:mt-0">
                   <div
-                    className="flex items-center justify-between w-full px-2 py-1.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground cursor-pointer border-b"
+                    className="flex items-center justify-between w-full px-2 py-1.5 text-sm font-medium cursor-pointer rounded-lg border-2 border-transparent hover:border-accent hover:bg-accent/10 transition-colors"
                     onClick={() => toggleDimension(dimension.id)}
                   >
                     <div className="flex items-center gap-2">
@@ -149,28 +150,30 @@ export const TagFilterSelector = ({ value, onChange }: TagFilterSelectorProps) =
                   </div>
                   {isExpanded && (
                     <CommandGroup>
-                      {tags
-                        .sort((a: TagDefinition, b: TagDefinition) => a.displayName.localeCompare(b.displayName))
-                        .map((tag: TagDefinition) => (
-                          <CommandItem
-                            key={tag.id}
-                            value={`${dimension.name} ${tag.displayName}`}
-                            onSelect={() => handleSelectTag(tag.id.toString())}
-                            className="pl-6"
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                value === tag.id.toString() ? "opacity-100" : "opacity-0"
-                              )}
-                            />
-                            <div
-                              className="w-3 h-3 rounded-full mr-2 flex-shrink-0"
-                              style={{ backgroundColor: tag.color ?? undefined }}
-                            />
-                            <span className="flex-1 truncate">{tag.displayName}</span>
-                          </CommandItem>
-                        ))}
+                      <ul className="flex flex-wrap gap-1 px-2 py-1">
+                        {tags
+                          .sort((a: TagDefinition, b: TagDefinition) => a.displayName.localeCompare(b.displayName))
+                          .map((tag: TagDefinition) => (
+                            <CommandItem
+                              key={tag.id}
+                              value={`${dimension.name} ${tag.displayName}`}
+                              onSelect={() => handleSelectTag(tag.id.toString())}
+                              className="hover:bg-transparent hover:ring-0 focus:bg-transparent focus:ring-0 px-0 py-0"
+                            >
+                              <TagBadge
+                                tag={{
+                                  id: tag.id,
+                                  color: tag.color ?? null,
+                                  displayName: tag.displayName,
+                                }}
+                                selectionMode="radio"
+                                selectionState={value === tag.id.toString() ? "checked" : "unchecked"}
+                                size="md"
+                                className="justify-start"
+                              />
+                            </CommandItem>
+                          ))}
+                      </ul>
                     </CommandGroup>
                   )}
                 </div>

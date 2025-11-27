@@ -47,19 +47,20 @@ export const CommandInput = ({
   };
 
   return (
-    <div className="flex items-center border-b border-base-300 px-3">
-      <Search className="h-5 w-5 text-base-content/50" />
+    <div className="flex items-center border-b border-base-content px-3 py-2 gap-2 bg-base-100">
+      <Search className="h-4 w-4 text-base-content/60" />
       <input
         ref={inputRef}
         value={value}
         onChange={handleChange}
-        className="flex-1 bg-transparent px-3 py-3 text-sm outline-none placeholder:text-base-content/50"
+        className="flex-1 bg-transparent px-2 py-2 text-sm outline-none placeholder:text-base-content/50"
         placeholder={placeholder}
         aria-label={placeholder}
         autoFocus={autoFocus}
       />
-      <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border border-base-300 bg-base-200 px-1.5 font-mono text-xs font-medium opacity-100 sm:flex">
-        <CommandIcon className="h-3 w-3" />K
+      <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border border-base-content/40 bg-base-200 px-1.5 font-mono text-xs font-medium opacity-100 sm:flex">
+        <CommandIcon className="h-3 w-3" />
+        K
       </kbd>
     </div>
   );
@@ -86,12 +87,20 @@ export const CommandItem = ({ value, onSelect, children, className }: { value: s
   if (!isVisible) return null;
   return (
     <li
-      onClick={select}
       className={cn(
-        'relative flex cursor-pointer select-none items-center rounded-md px-2 py-2 text-sm outline-none',
-        'hover:bg-base-200',
+        'relative mx-0.5 flex cursor-pointer select-none items-center rounded-md pl-0 pr-2 py-1.5 text-sm outline-none transition-colors',
+        'hover:bg-primary/20 hover:ring-2 hover:ring-primary',
+        'focus:bg-primary/20 focus:ring-2 focus:ring-primary',
         className
       )}
+      onClick={select}
+      tabIndex={0}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          select();
+        }
+      }}
     >
       {children}
     </li>
