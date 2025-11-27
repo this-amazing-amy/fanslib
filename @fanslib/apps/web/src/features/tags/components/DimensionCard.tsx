@@ -4,15 +4,12 @@ import { useState } from "react";
 import { Button } from "~/components/ui/Button";
 import { Card, CardBody, CardTitle } from "~/components/ui/Card";
 import {
-    DropdownMenu,
-    DropdownMenuItem,
-    DropdownMenuPopover,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuPopover,
+  DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
-import { cn } from "~/lib/cn";
-import { getTagTypeStyles } from "~/lib/colors";
 import { DeleteDimensionDialog } from "./DeleteDimensionDialog";
-import { TagListView } from "./TagListView";
 import { TagTreeView } from "./TagTreeView";
 
 type TagDefinition = typeof TagDefinitionSchema.static;
@@ -21,7 +18,7 @@ type TagDimensionWithTags = TagDimension & { tags?: TagDefinition[] };
 
 type DimensionCardProps = {
   dimension: TagDimensionWithTags;
-  viewMode: "list" | "tree";
+  viewMode: "tree";
   selectedTagId?: number;
   onCreateTag: (dimensionId: number, parentTagId?: number) => void;
   onEditTag: (tag: TagDefinition) => void;
@@ -31,19 +28,6 @@ type DimensionCardProps = {
   onUpdateParent: (tagId: number, newParentId: number | null) => void;
   onSelectTag?: (tagId: number) => void;
   isDeletingDimension?: boolean;
-};
-
-const getDataTypeLabel = (dataType: string) => {
-  switch (dataType) {
-    case "categorical":
-      return "Categorical";
-    case "numerical":
-      return "Numeric";
-    case "boolean":
-      return "Boolean";
-    default:
-      return dataType;
-  }
 };
 
 export const DimensionCard = ({
@@ -59,7 +43,6 @@ export const DimensionCard = ({
   onSelectTag,
   isDeletingDimension = false,
 }: DimensionCardProps) => {
-  const [isExpanded, setIsExpanded] = useState(true);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const handleDeleteDimension = () => {
@@ -80,14 +63,6 @@ export const DimensionCard = ({
       <CardBody className="pb-3">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onPress={() => setIsExpanded(!isExpanded)}
-              className="h-6 w-6 p-0"
-            >
-              {isExpanded ? "−" : "+"}
-            </Button>
             <div>
               <CardTitle className="text-lg">{dimension.name}</CardTitle>
               {dimension.description && (
@@ -97,13 +72,6 @@ export const DimensionCard = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <span 
-              className={cn("badge badge-sm border")}
-              style={getTagTypeStyles(dimension.dataType as 'categorical' | 'numerical' | 'boolean')}
-            >
-              {getDataTypeLabel(dimension.dataType)}
-            </span>
-
             <Button variant="outline" size="sm" onPress={() => onCreateTag(dimension.id)} className="h-8">
               <Plus className="w-4 h-4 mr-1" />
               Add Tag
@@ -134,39 +102,27 @@ export const DimensionCard = ({
           </div>
         </div>
 
-        {isExpanded && (
-          <div className="pt-0">
-            {dimension.tags && dimension.tags.length > 0 ? (
-              viewMode === "tree" ? (
-                <TagTreeView
-                  tags={dimension.tags}
-                  selectedTagId={selectedTagId}
-                  onSelectTag={onSelectTag}
-                  onEditTag={onEditTag}
-                  onDeleteTag={onDeleteTag}
-                  onCreateTag={(parentTagId) => onCreateTag(dimension.id, parentTagId)}
-                  onUpdateParent={onUpdateParent}
-                />
-              ) : (
-                <TagListView
-                  tags={dimension.tags}
-                  selectedTagId={selectedTagId}
-                  onSelectTag={onSelectTag}
-                  onEditTag={onEditTag}
-                  onDeleteTag={onDeleteTag}
-                />
-              )
-            ) : (
-              <div className="text-center py-8 text-base-content/60">
-                <p>No tags in this dimension yet.</p>
-                <Button variant="outline" size="sm" onPress={() => onCreateTag(dimension.id)} className="mt-2">
-                  <Plus className="w-4 h-4 mr-1" />
-                  Create First Tag
-                </Button>
-              </div>
-            )}
-          </div>
-        )}
+        <div className="pt-0">
+          {dimension.tags && dimension.tags.length > 0 ? (
+            <TagTreeView
+              tags={dimension.tags}
+              selectedTagId={selectedTagId}
+              onSelectTag={onSelectTag}
+              onEditTag={onEditTag}
+              onDeleteTag={onDeleteTag}
+              onCreateTag={(parentTagId) => onCreateTag(dimension.id, parentTagId)}
+              onUpdateParent={onUpdateParent}
+            />
+          ) : (
+            <div className="text-center py-8 text-base-content/60">
+              <p>No tags in this dimension yet.</p>
+              <Button variant="outline" size="sm" onPress={() => onCreateTag(dimension.id)} className="mt-2">
+                <Plus className="w-4 h-4 mr-1" />
+                Create First Tag
+              </Button>
+            </div>
+          )}
+        </div>
       </CardBody>
 
       <DeleteDimensionDialog

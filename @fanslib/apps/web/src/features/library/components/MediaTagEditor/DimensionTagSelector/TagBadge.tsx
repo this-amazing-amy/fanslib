@@ -33,27 +33,28 @@ export const TagBadge = ({
   selectionMode = "checkbox",
   size = "lg",
 }: TagBadgeProps) => {
-  const getIcon = () => {
-    if (selectionMode === "radio") return null;
-    if (selectionState === "checked") return <Check className="w-3 h-3" />;
-    if (selectionState === "indeterminate") return <Minus className="w-3 h-3" />;
-    return null;
-  };
-
   const badgeVariant = selectionState === "unchecked" ? variant : "neutral";
   const colorDef = getColorDefinitionFromString(tag.color, tag.id);
   const style = {
     "--tag-bg-full": colorDef.background,
-    "--tag-bg-muted": `color-mix(in oklch, ${colorDef.background} 40%, transparent)`,
-    borderColor: "transparent",
+    "--tag-bg-muted": `color-mix(in oklch, ${colorDef.background} 15%, transparent)`,
+    "--tag-bg-selected": `color-mix(in oklch, ${colorDef.background} 80%, transparent)`,
+    "--tag-border": `color-mix(in oklch, ${colorDef.background} 30%, transparent)`,
+    borderColor: "var(--tag-border)",
     color: colorDef.foreground,
   } as CSSProperties;
+
+  const isSelected = selectionState === "checked" || selectionState === "indeterminate";
+  const backgroundClass = isSelected
+    ? "bg-[color:var(--tag-bg-selected)] hover:bg-[color:var(--tag-bg-full)]"
+    : "bg-[color:var(--tag-bg-muted)] hover:bg-[color:var(--tag-bg-full)]";
 
   return (
     <Badge
       variant={badgeVariant}
       className={cn(
-        "cursor-pointer flex items-center gap-1 transition-colors bg-[color:var(--tag-bg-muted)] hover:bg-[color:var(--tag-bg-full)] border-none",
+        "cursor-pointer flex items-center gap-1 border",
+        backgroundClass,
         onClick && "select-none",
         className
       )}
@@ -61,7 +62,6 @@ export const TagBadge = ({
       style={style}
       onClick={onClick}
     >
-      {getIcon()}
       {tag.displayName}
     </Badge>
   );

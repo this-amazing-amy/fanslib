@@ -47,6 +47,9 @@ export const TAG_DEFINITION_FIXTURES: TagDefinitionFixture[] = [
   { dimensionName: "Rating", value: "4", displayName: "4 Stars", color: "#FFA500", sortOrder: 1 },
   { dimensionName: "Category", value: "portrait", displayName: "Portrait", color: "#FF6B6B", sortOrder: 0 },
   { dimensionName: "Category", value: "landscape", displayName: "Landscape", color: "#4ECDC4", sortOrder: 1 },
+  { dimensionName: "Category", value: "studio", displayName: "Studio", color: "#6C5CE7", sortOrder: 2 },
+  { dimensionName: "Category", value: "outdoor", displayName: "Outdoor", color: "#00B894", sortOrder: 3 },
+  { dimensionName: "Category", value: "macro", displayName: "Macro", color: "#E84393", sortOrder: 4 },
 ];
 
 export type MediaTagFixture = Pick<MediaTag, "mediaId" | "dimensionName" | "tagValue" | "source">;

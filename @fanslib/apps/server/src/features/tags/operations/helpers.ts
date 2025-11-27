@@ -151,3 +151,53 @@ export const syncDenormalizedFieldsForDimension = async (dimensionId: number): P
   }
 };
 
+type TagDefinitionHierarchyNode = Pick<TagDefinition, "id" | "parentTagId">;
+
+export const buildTagHierarchyIndex = (tagDefinitions: TagDefinitionHierarchyNode[]): Map<number | null, number[]> => tagDefinitions.reduce<Map<number | null, number[]>>((index, tag) => {
+    const parentId = tag.parentTagId ?? null;
+    const existingChildren = index.get(parentId) ?? [];
+
+    index.set(parentId, [...existingChildren, tag.id]);
+
+    return index;
+  }, new Map());
+
+export const getDescendantTagIds = (
+  rootTagIds: number[],
+  tagDefinitions: TagDefinitionHierarchyNode[]
+): number[] => {
+  if (rootTagIds.length === 0 || tagDefinitions.length === 0) {
+    return [];
+  }
+
+  const hierarchyIndex = buildTagHierarchyIndex(tagDefinitions);
+  const visited = new Set<number>();
+
+  const collectDescendants = (tagId: number): void => {
+    const children = hierarchyIndex.get(tagId) ?? [];
+
+    children
+      .filter((childId) => !visited.has(childId))
+      .forEach((childId) => {
+        visited.add(childId);
+        collectDescendants(childId);
+      });
+  };
+
+  rootTagIds.forEach((rootId) => collectDescendants(rootId));
+
+  return Array.from(visited);
+};
+
+export const fetchAllTagDefinitionsForHierarchy = async (): Promise<TagDefinitionHierarchyNode[]> => {
+  const dataSource = await db();
+  const repository = dataSource.getRepository(TagDefinition);
+
+  const tagDefinitions = await repository.find({
+    select: ["id", "parentTagId"],
+  });
+
+  return tagDefinitions;
+};
+
+

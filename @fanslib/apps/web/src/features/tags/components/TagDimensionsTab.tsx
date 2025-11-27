@@ -6,7 +6,7 @@ import type {
   UpdateTagDefinitionRequestBodySchema,
   UpdateTagDimensionRequestBodySchema,
 } from "@fanslib/server/schemas";
-import { List, Plus, TreePine } from "lucide-react";
+import { Plus, Tags } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
 import { Skeleton } from "~/components/ui/Skeleton";
@@ -33,7 +33,6 @@ export const TagDimensionsTab = () => {
   const [editingDimension, setEditingDimension] = useState<EditingDimension | null>(null);
   const [editingTag, setEditingTag] = useState<EditingTag | null>(null);
   const [selectedTagId, setSelectedTagId] = useState<number | null>(null);
-  const [viewMode, setViewMode] = useState<"list" | "tree">("tree");
   const [deletingTagId, setDeletingTagId] = useState<number | null>(null);
 
   const { data: dimensions, isPending: isLoading } = useTagDimensionsQuery();
@@ -147,31 +146,18 @@ export const TagDimensionsTab = () => {
     <TagDragProvider>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Tag Dimensions</h2>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center border border-base-300 rounded-full">
-              <Button
-                variant={viewMode === "tree" ? "primary" : "ghost"}
-                size="sm"
-                onPress={() => setViewMode("tree")}
-                className="rounded-r-none"
-              >
-                <TreePine className="w-4 h-4" />
-              </Button>
-              <Button
-                variant={viewMode === "list" ? "primary" : "ghost"}
-                size="sm"
-                onPress={() => setViewMode("list")}
-                className="rounded-l-none"
-              >
-                <List className="w-4 h-4" />
-              </Button>
-            </div>
-            <Button onPress={() => setEditingDimension({ mode: "create" })} isDisabled={!!editingDimension}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Dimension
-            </Button>
+          <div>
+            <h1 className="flex items-center gap-2 text-2xl font-semibold">
+              <Tags /> Content Tags
+            </h1>
+            <p className="text-base-content/60">
+              Manage tag dimensions for your content organization
+            </p>
           </div>
+          <Button onPress={() => setEditingDimension({ mode: "create" })} isDisabled={!!editingDimension}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Dimension
+          </Button>
         </div>
 
         <DimensionDialog
@@ -186,7 +172,7 @@ export const TagDimensionsTab = () => {
             <DimensionCard
               key={dimension.id}
               dimension={dimension}
-              viewMode={viewMode}
+                viewMode="tree"
               onDeleteDimension={(dimensionId) => deleteDimensionMutation.mutate({ id: dimensionId.toString() })}
               onEditDimension={handleEditDimension}
               onUpdateParent={handleUpdateParent}

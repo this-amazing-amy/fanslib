@@ -55,21 +55,27 @@ export const HierarchicalTagSelector = ({
 }: HierarchicalTagSelectorProps) => {
   const tree = buildTagTree(tags);
 
-  const renderNode = (node: TagNode): ReactNode => {
+  const unselectedNodes = tree.filter((node) => !isTagOrDescendantSelected(node, tagStates));
+  const selectedNodes = tree.filter((node) => isTagOrDescendantSelected(node, tagStates));
+
+  const renderNode = (node: TagNode, depth: number = 0): ReactNode => {
     const hasSelectedDescendant = isTagOrDescendantSelected(node, tagStates);
     const showChildren = hasSelectedDescendant && node.children.length > 0;
+    const size = depth === 0 ? "lg" : "sm";
 
     return (
       <Fragment key={node.id}>
+        {showChildren && <div className="w-full" />}
         <TagBadge
           tag={node}
           selectionState={tagStates[node.id] ?? "unchecked"}
           onClick={() => onTagToggle(node.id)}
           selectionMode="checkbox"
+          size={size}
         />
         {showChildren && (
-          <div className="ml-4 flex flex-wrap gap-1.5">
-            {node.children.map((child) => renderNode(child))}
+          <div className="w-full flex flex-wrap gap-1.5 ml-4">
+            {node.children.map((child) => renderNode(child, depth + 1))}
           </div>
         )}
       </Fragment>
@@ -77,8 +83,15 @@ export const HierarchicalTagSelector = ({
   };
 
   return (
-    <div className="flex flex-col gap-1.5">
-      {tree.map((node) => renderNode(node))}
+    <div className="flex flex-col gap-4">
+      {selectedNodes.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {selectedNodes.map((node) => renderNode(node))}
+        </div>
+      )}
+      <div className="flex flex-wrap gap-1.5">
+        {unselectedNodes.map((node) => renderNode(node))}
+      </div>
     </div>
   );
 };

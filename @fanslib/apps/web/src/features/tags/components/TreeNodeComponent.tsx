@@ -5,6 +5,7 @@ import { Button } from "~/components/ui/Button";
 import { useTagDrag } from "~/contexts/TagDragContext";
 import { useTagDropZone } from "~/hooks/useTagDropZone";
 import { cn } from "~/lib/cn";
+import { TagBadge } from "~/features/library/components/MediaTagEditor/DimensionTagSelector/TagBadge";
 
 type TagDefinition = typeof TagDefinitionSchema.static;
 
@@ -75,8 +76,8 @@ export const TreeNodeComponent = ({
     <div className="select-none">
       <div
         className={cn(
-          "flex items-center gap-2 py-1 px-2 rounded group hover:bg-base-200/50 transition-colors",
-          isSelected && "bg-primary/10 border border-primary/30",
+          "flex items-center gap-2 py-1 px-2 rounded group transition-colors",
+          isSelected && "ring-2 ring-primary/60",
           isOver && "bg-secondary/20 border-2 border-secondary border-dashed"
         )}
         style={{ marginLeft: `${node.level * 20}px` }}
@@ -108,7 +109,15 @@ export const TreeNodeComponent = ({
           <div className="w-4" />
         )}
 
-        <span className="flex-1 text-sm font-medium">{node.displayName}</span>
+        <div className="flex-1">
+          <TagBadge
+            tag={{ id: node.id, color: node.color, displayName: node.displayName }}
+            selectionState={isSelected ? "checked" : "unchecked"}
+            onClick={() => onSelectTag?.(node.id)}
+            size="sm"
+            className="w-fit"
+          />
+        </div>
 
         <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1">
           <Button

@@ -4,8 +4,7 @@ import "reflect-metadata";
 import { getTestDataSource, resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
 import { mapResponse } from "../../lib/serialization";
 import { logError, parseResponse } from "../../test-utils/setup";
-import type { MediaTag} from "./entity";
-import { TagDefinition, TagDimension } from "./entity";
+import { MediaTag, TagDefinition, TagDimension } from "./entity";
 import { TAG_DIMENSION_FIXTURES } from "./fixtures";
 import { tagsRoutes } from "./routes";
 
@@ -387,7 +386,7 @@ describe("Tags Routes", () => {
     });
 
     describe("DELETE /api/tags/media/by-media-id/:mediaId", () => {
-      test("removes tags from media", async () => {
+      test("removes specified tags from media", async () => {
         const fixtureMedia = fixtures.media[0];
         const fixtureTag = fixtures.tags.tagDefinitions[0];
         if (!fixtureMedia || !fixtureTag) {
@@ -405,6 +404,118 @@ describe("Tags Routes", () => {
 
         const data = await parseResponse<{ success: boolean }>(response);
         expect(data?.success).toBe(true);
+      });
+
+      test("removes descendant tags when removing a parent tag", async () => {
+        const fixtureMedia = fixtures.media[0];
+        const parentTag = fixtures.tags.tagDefinitions[0];
+        const childTag = fixtures.tags.tagDefinitions[1];
+        const grandChildTag = fixtures.tags.tagDefinitions[2];
+
+        if (!fixtureMedia || !parentTag || !childTag || !grandChildTag) {
+          throw new Error("Insufficient media or tag definition fixtures available");
+        }
+
+        const dataSource = getTestDataSource();
+        const tagRepository = dataSource.getRepository(TagDefinition);
+
+        childTag.parentTagId = parentTag.id;
+        grandChildTag.parentTagId = childTag.id;
+
+        await tagRepository.save([childTag, grandChildTag]);
+
+        const assignRequest = new Request("http://localhost/api/tags/media/assign-bulk", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify([
+            {
+              mediaId: fixtureMedia.id,
+              tagDefinitionIds: [parentTag.id, childTag.id, grandChildTag.id],
+              source: "manual" as const,
+            },
+          ]),
+        });
+
+        const assignResponse = await app.handle(assignRequest);
+        expect(assignResponse.status).toBe(200);
+
+        const deleteResponse = await app.handle(
+          new Request(`http://localhost/api/tags/media/by-media-id/${fixtureMedia.id}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tagIds: [parentTag.id] }),
+          })
+        );
+
+        expect(deleteResponse.status).toBe(200);
+
+        const mediaTagRepository = dataSource.getRepository(MediaTag);
+        const remainingMediaTags = await mediaTagRepository.find({
+          where: { mediaId: fixtureMedia.id },
+        });
+
+        const remainingTagIds = remainingMediaTags.map((mt) => mt.tagDefinitionId);
+
+        expect(remainingTagIds).not.toContain(parentTag.id);
+        expect(remainingTagIds).not.toContain(childTag.id);
+        expect(remainingTagIds).not.toContain(grandChildTag.id);
+      });
+
+      test("removes multiple parent tags and their descendants", async () => {
+        const media = fixtures.media[1];
+        const parentA = fixtures.tags.tagDefinitions[3];
+        const childA = fixtures.tags.tagDefinitions[4];
+        const parentB = fixtures.tags.tagDefinitions[5];
+        const childB = fixtures.tags.tagDefinitions[6];
+
+        if (!media || !parentA || !childA || !parentB || !childB) {
+          throw new Error("Insufficient media or tag definition fixtures available for multi-parent test");
+        }
+
+        const dataSource = getTestDataSource();
+        const tagRepository = dataSource.getRepository(TagDefinition);
+
+        childA.parentTagId = parentA.id;
+        childB.parentTagId = parentB.id;
+
+        await tagRepository.save([childA, childB]);
+
+        const assignRequest = new Request("http://localhost/api/tags/media/assign-bulk", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify([
+            {
+              mediaId: media.id,
+              tagDefinitionIds: [parentA.id, childA.id, parentB.id, childB.id],
+              source: "manual" as const,
+            },
+          ]),
+        });
+
+        const assignResponse = await app.handle(assignRequest);
+        expect(assignResponse.status).toBe(200);
+
+        const deleteResponse = await app.handle(
+          new Request(`http://localhost/api/tags/media/by-media-id/${media.id}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tagIds: [parentA.id, parentB.id] }),
+          })
+        );
+
+        expect(deleteResponse.status).toBe(200);
+
+        const mediaTagRepository = dataSource.getRepository(MediaTag);
+        const remainingMediaTags = await mediaTagRepository.find({
+          where: { mediaId: media.id },
+        });
+
+        const remainingTagIds = remainingMediaTags.map((mt) => mt.tagDefinitionId);
+
+        expect(remainingTagIds).not.toContain(parentA.id);
+        expect(remainingTagIds).not.toContain(childA.id);
+        expect(remainingTagIds).not.toContain(parentB.id);
+        expect(remainingTagIds).not.toContain(childB.id);
       });
     });
   });
