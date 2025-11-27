@@ -51,18 +51,19 @@ export const ShootsFilter: FC<ShootsFilterProps> = ({ className }) => {
 
   return (
     <div className={`flex items-center gap-2 ${className ?? ""}`}>
-      <div className="relative">
+      <div className="relative flex-1">
         <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           value={filter.name ?? ""}
           onChange={(value) => updateFilter({ name: value })}
-          className="pl-8"
+          className="pl-8 border-base-content"
           placeholder="Filter by name"
         />
       </div>
       <DateRangePicker
         value={dateRangeValue}
         onChange={handleDateRangeChange}
+        className="w-auto"
       />
       {hasFilters && (
         <Button variant="ghost" size="sm" onPress={clearFilter} className="h-9 w-9">

@@ -14,7 +14,6 @@ import { cn } from "~/lib/cn";
 import { useMediaListQuery } from "~/lib/queries/library";
 import { useShootsMedia } from "./useShootsMedia";
 import { ShootsFilter } from "~/components/ShootsFilter";
-import { ShootViewSettings } from "./ShootViewSettings";
 
 type ShootsProps = {
   className?: string;
@@ -46,9 +45,8 @@ const ShootsContent: FC<ShootsProps> = ({ className }) => {
       media={new Map(Array.from(allMedia.entries()).map(([key, value]) => [key.viewIndex, value]))}
     >
       <div className={cn(className, "flex h-full flex-col")}>
-        <div className="flex items-center gap-2 mb-6 px-6">
+        <div className="mb-6 px-6">
           <ShootsFilter />
-          <ShootViewSettings />
         </div>
         <div className="flex-1 min-h-0">
           <ScrollArea className="h-full" ref={scrollRef}>

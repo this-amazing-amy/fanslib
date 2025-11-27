@@ -43,7 +43,7 @@ export const DateRangePicker = <T extends DateValue>({
         </Label>
       )}
       <Group className="flex gap-2">
-        <div className="input border flex gap-0 items-center flex-1 px-3">
+        <div className="input border border-base-content flex gap-0 items-center flex-1 px-3">
           <DateInput slot="start" className="flex gap-0">
             {(segment) => (
               <DateSegment

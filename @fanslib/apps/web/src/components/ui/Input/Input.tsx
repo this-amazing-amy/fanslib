@@ -40,7 +40,7 @@ export const Input = ({
       min={min}
       max={max}
       step={step}
-      className={cn('input border w-full focus:outline-none', variantClasses[variant], className)}
+      className={cn('input border border-base-content w-full focus:outline-none', variantClasses[variant], className)}
     />
   );
 };

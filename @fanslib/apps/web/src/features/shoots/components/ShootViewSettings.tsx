@@ -10,7 +10,7 @@ import {
 
 export const ShootViewSettings = () => (
   <DropdownMenuTrigger>
-    <Button variant="outline" size="icon">
+    <Button variant="ghost" size="icon" className="h-9 w-9">
       <Settings2 className="h-4 w-4" />
     </Button>
     <DropdownMenuPopover placement="bottom end" className="w-56">

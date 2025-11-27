@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { ShootsFilter } from '~/components/ShootsFilter';
 import { NavigationPageHeader } from '~/components/ui/NavigationPageHeader';
 import { PostPreferencesProvider } from '~/contexts/PostPreferencesContext';
 import { AnalyticsProvider } from '~/contexts/AnalyticsContext';
@@ -12,7 +11,6 @@ import { ShootProvider } from '~/contexts/ShootContext';
 import { ShootPreferencesProvider } from '~/contexts/ShootPreferencesContext';
 import { TagDragProvider } from '~/contexts/TagDragContext';
 import { Shoots } from '~/features/shoots/components/Shoots';
-import { ShootViewSettings } from '~/features/shoots/components/ShootViewSettings';
 
 const ShootsPageContent = () => <MediaSelectionProvider media={[]}>
       <MediaDragProvider>
@@ -29,12 +27,6 @@ const ShootsPageContent = () => <MediaSelectionProvider media={[]}>
                             { label: 'Library', to: '/library' },
                             { label: 'Shoots', to: '/shoots' },
                           ]}
-                          actions={
-                            <div className="flex items-center gap-2">
-                              <ShootsFilter />
-                              <ShootViewSettings />
-                            </div>
-                          }
                         />
                       </div>
                       <div className="flex-1 min-h-0 overflow-hidden">
