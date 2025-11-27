@@ -7,13 +7,16 @@ type GalleryEmptyProps = {
 };
 
 export const GalleryEmpty = ({ onScan }: GalleryEmptyProps) => {
-  const { hasActiveFilters, clearFilters } = useMediaFilters();
+  const { hasActiveFilters, clearFilters, isHydrated } = useMediaFilters();
 
-  const description = hasActiveFilters
+  // Only show "has filters" state if hydrated
+  const displayHasActiveFilters = isHydrated && hasActiveFilters;
+
+  const description = displayHasActiveFilters
     ? "No media files found for the current filters."
     : "No media files found in the library matching the selected filters.";
 
-  const action = hasActiveFilters
+  const action = displayHasActiveFilters
     ? {
         label: "Clear filters",
         onClick: clearFilters,
