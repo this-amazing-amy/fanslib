@@ -1,4 +1,4 @@
-const backendBaseUrl = `http://localhost:6970`;
+import { backendBaseUrl } from './config';
 
 export const getMediaFileUrl = (id: string) => `${backendBaseUrl}/api/media/${id}/file`;
 
