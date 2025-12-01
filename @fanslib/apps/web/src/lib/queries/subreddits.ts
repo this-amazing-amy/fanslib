@@ -8,6 +8,7 @@ import type {
 } from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { eden } from '../api/eden';
+import { useFindSubredditPostingTimesMutation } from './postpone';
 
 export const useSubredditsQuery = () =>
   useQuery({
@@ -78,6 +79,44 @@ export const useDeleteSubredditMutation = () => {
     mutationFn: async (params: typeof DeleteSubredditParamsSchema.static) => {
       const result = await eden.api.subreddits['by-id']({ id: params.id }).delete();
       return result.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subreddits', 'list'] });
+    },
+  });
+};
+
+type AnalyzePostingTimesParams = {
+  subredditId: string;
+  subredditName: string;
+  timezone?: string;
+};
+
+export const useAnalyzePostingTimesMutation = () => {
+  const queryClient = useQueryClient();
+  const updateSubredditMutation = useUpdateSubredditMutation();
+  const findPostingTimesMutation = useFindSubredditPostingTimesMutation();
+
+  return useMutation({
+    mutationFn: async ({ subredditId, subredditName, timezone }: AnalyzePostingTimesParams) => {
+      const result = await findPostingTimesMutation.mutateAsync({
+        subreddit: subredditName,
+        timezone,
+      });
+
+      if (!result?.postingTimes) {
+        throw new Error('No posting times data received');
+      }
+
+      await updateSubredditMutation.mutateAsync({
+        id: subredditId,
+        updates: {
+          postingTimesData: result.postingTimes,
+          postingTimesTimezone: result.timezone ?? undefined,
+        },
+      });
+
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subreddits', 'list'] });

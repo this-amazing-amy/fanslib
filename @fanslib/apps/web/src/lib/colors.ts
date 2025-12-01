@@ -8,39 +8,133 @@ export type ColorPreset = ColorDefinition & {
   id: string;
 };
 
+export const baseColors = {
+  softCoral: {
+    background: 'oklch(85% 0.12 25)',
+    foreground: 'oklch(35% 0.15 25)',
+  },
+  softMint: {
+    background: 'oklch(85% 0.10 160)',
+    foreground: 'oklch(35% 0.12 160)',
+  },
+  softLavender: {
+    background: 'oklch(85% 0.08 280)',
+    foreground: 'oklch(35% 0.10 280)',
+  },
+  postedTeal: {
+    background: 'oklch(85% 0.10 165)',
+    foreground: 'oklch(40% 0.12 165)',
+  },
+  scheduledSky: {
+    background: 'oklch(85% 0.10 230)',
+    foreground: 'oklch(40% 0.12 230)',
+  },
+  draftSlate: {
+    background: 'oklch(85% 0.02 240)',
+    foreground: 'oklch(40% 0.03 240)',
+  },
+  softPink: {
+    background: 'oklch(82% 0.12 340)',
+    foreground: 'oklch(40% 0.15 340)',
+  },
+  softPeach: {
+    background: 'oklch(88% 0.10 60)',
+    foreground: 'oklch(40% 0.12 60)',
+  },
+  softYellow: {
+    background: 'oklch(95% 0.12 95)',
+    foreground: 'oklch(45% 0.12 95)',
+  },
+  softLime: {
+    background: 'oklch(92% 0.12 130)',
+    foreground: 'oklch(40% 0.12 130)',
+  },
+  softAqua: {
+    background: 'oklch(90% 0.10 180)',
+    foreground: 'oklch(40% 0.10 180)',
+  },
+  softPeriwinkle: {
+    background: 'oklch(84% 0.10 250)',
+    foreground: 'oklch(35% 0.12 250)',
+  },
+  softLilac: {
+    background: 'oklch(84% 0.12 300)',
+    foreground: 'oklch(35% 0.15 300)',
+  },
+  softRose: {
+    background: 'oklch(84% 0.10 15)',
+    foreground: 'oklch(35% 0.15 15)',
+  },
+} as const;
+
+export type BaseColorName = keyof typeof baseColors;
+
 export const TAG_TYPE_COLORS: Record<string, ColorDefinition> = {
   categorical: {
     name: 'Categorical',
-    background: 'oklch(85% 0.12 25)', // Soft coral/pink
-    foreground: 'oklch(35% 0.15 25)', // Darker coral for text/border
+    background: baseColors.softCoral.background,
+    foreground: baseColors.softCoral.foreground,
   },
   numerical: {
     name: 'Numerical',
-    background: 'oklch(85% 0.10 160)', // Soft mint
-    foreground: 'oklch(35% 0.12 160)', // Darker mint for text/border
+    background: baseColors.softMint.background,
+    foreground: baseColors.softMint.foreground,
   },
   boolean: {
     name: 'Boolean',
-    background: 'oklch(85% 0.08 280)', // Soft lavender
-    foreground: 'oklch(35% 0.10 280)', // Darker lavender for text/border
+    background: baseColors.softLavender.background,
+    foreground: baseColors.softLavender.foreground,
   },
 } as const;
 
 export const POST_STATUS_COLORS: Record<string, ColorDefinition> = {
   posted: {
     name: 'Posted',
-    background: 'oklch(85% 0.10 165)', // Soft teal/turquoise green
-    foreground: 'oklch(40% 0.12 165)', // Darker teal for text/border
+    background: baseColors.postedTeal.background,
+    foreground: baseColors.postedTeal.foreground,
   },
   scheduled: {
     name: 'Scheduled',
-    background: 'oklch(85% 0.10 230)', // Soft sky blue
-    foreground: 'oklch(40% 0.12 230)', // Darker sky blue for text/border
+    background: baseColors.scheduledSky.background,
+    foreground: baseColors.scheduledSky.foreground,
   },
   draft: {
     name: 'Draft',
-    background: 'oklch(85% 0.02 240)', // Very soft gray-blue
-    foreground: 'oklch(40% 0.03 240)', // Medium gray for text/border
+    background: baseColors.draftSlate.background,
+    foreground: baseColors.draftSlate.foreground,
+  },
+} as const;
+
+export const VERIFICATION_STATUS_COLORS: Record<string, ColorDefinition> = {
+  UNKNOWN: {
+    name: 'Unknown',
+    background: baseColors.softPeriwinkle.background,
+    foreground: baseColors.softPeriwinkle.foreground,
+  },
+  NOT_NEEDED: {
+    name: 'Not Needed',
+    background: baseColors.softAqua.background,
+    foreground: baseColors.softAqua.foreground,
+  },
+  NEEDED: {
+    name: 'Needed',
+    background: baseColors.softYellow.background,
+    foreground: baseColors.softYellow.foreground,
+  },
+  APPLIED: {
+    name: 'Applied',
+    background: baseColors.softPeach.background,
+    foreground: baseColors.softPeach.foreground,
+  },
+  REJECTED: {
+    name: 'Rejected',
+    background: baseColors.softRose.background,
+    foreground: baseColors.softRose.foreground,
+  },
+  VERIFIED: {
+    name: 'Verified',
+    background: baseColors.softLime.background,
+    foreground: baseColors.softLime.foreground,
   },
 } as const;
 
@@ -48,50 +142,50 @@ export const USER_COLOR_PRESETS: ColorPreset[] = [
   {
     id: 'pink',
     name: 'Soft Pink',
-    background: 'oklch(82% 0.12 340)',
-    foreground: 'oklch(40% 0.15 340)', // Dark pink
+    background: baseColors.softPink.background,
+    foreground: baseColors.softPink.foreground,
   },
   {
     id: 'peach',
     name: 'Soft Peach',
-    background: 'oklch(88% 0.10 60)',
-    foreground: 'oklch(40% 0.12 60)', // Dark orange-brown
+    background: baseColors.softPeach.background,
+    foreground: baseColors.softPeach.foreground,
   },
   {
     id: 'yellow',
     name: 'Soft Yellow',
-    background: 'oklch(95% 0.12 95)',
-    foreground: 'oklch(45% 0.12 95)', // Dark yellow-brown
+    background: baseColors.softYellow.background,
+    foreground: baseColors.softYellow.foreground,
   },
   {
     id: 'lime',
     name: 'Soft Lime',
-    background: 'oklch(92% 0.12 130)',
-    foreground: 'oklch(40% 0.12 130)', // Dark green
+    background: baseColors.softLime.background,
+    foreground: baseColors.softLime.foreground,
   },
   {
     id: 'aqua',
     name: 'Soft Aqua',
-    background: 'oklch(90% 0.10 180)',
-    foreground: 'oklch(40% 0.10 180)', // Dark teal
+    background: baseColors.softAqua.background,
+    foreground: baseColors.softAqua.foreground,
   },
   {
     id: 'periwinkle',
     name: 'Soft Periwinkle',
-    background: 'oklch(84% 0.10 250)',
-    foreground: 'oklch(35% 0.12 250)', // Dark blue
+    background: baseColors.softPeriwinkle.background,
+    foreground: baseColors.softPeriwinkle.foreground,
   },
   {
     id: 'lilac',
     name: 'Soft Lilac',
-    background: 'oklch(84% 0.12 300)',
-    foreground: 'oklch(35% 0.15 300)', // Dark purple
+    background: baseColors.softLilac.background,
+    foreground: baseColors.softLilac.foreground,
   },
   {
     id: 'rose',
     name: 'Soft Rose',
-    background: 'oklch(84% 0.10 15)',
-    foreground: 'oklch(35% 0.15 15)', // Dark red
+    background: baseColors.softRose.background,
+    foreground: baseColors.softRose.foreground,
   },
 ];
 
@@ -130,27 +224,26 @@ export const CHANNEL_COLORS: Record<string, ColorDefinition> = {
   },
 } as const;
 
-export function getTagTypeStyles(dataType: 'categorical' | 'numerical' | 'boolean') {
+export const getTagTypeStyles = (dataType: "categorical" | "numerical" | "boolean") => {
   const colors = TAG_TYPE_COLORS[dataType];
   return {
     backgroundColor: colors.background,
     color: colors.foreground,
     borderColor: colors.foreground,
   };
-}
+};
 
-export function getPostStatusStyles(status: 'posted' | 'scheduled' | 'draft') {
+export const getPostStatusStyles = (status: "posted" | "scheduled" | "draft") => {
   const colors = POST_STATUS_COLORS[status];
   return {
     backgroundColor: colors.background,
     color: colors.foreground,
     borderColor: colors.foreground,
   };
-}
+};
 
-export function getPostStatusBorderColor(status: 'posted' | 'scheduled' | 'draft'): string {
-  return POST_STATUS_COLORS[status].background;
-}
+export const getPostStatusBorderColor = (status: "posted" | "scheduled" | "draft"): string =>
+  POST_STATUS_COLORS[status].background;
 
 export const getRandomPresetId = (): string => {
   const randomIndex = Math.floor(Math.random() * USER_COLOR_PRESETS.length);

@@ -1,8 +1,17 @@
-import { useState } from "react";
-import { Button } from "~/components/ui/Button";
-import { Dialog, DialogBody, DialogFooter, DialogHeader, DialogModal, DialogTitle } from "~/components/ui/Dialog";
-import { Input } from "~/components/ui/Input";
-import { useCreateSubredditMutation } from "~/lib/queries/subreddits";
+import { useState } from 'react';
+import { Button } from '~/components/ui/Button';
+import {
+  Dialog,
+  DialogBody,
+  DialogFooter,
+  DialogHeader,
+  DialogModal,
+  DialogTitle,
+} from '~/components/ui/Dialog';
+import { Input } from '~/components/ui/Input';
+import { VERIFICATION_STATUS, type VerificationStatusType } from '~/components/VerificationStatus';
+import { parseViewCount } from '~/lib/format-views';
+import { useCreateSubredditMutation, useAnalyzePostingTimesMutation } from '~/lib/queries/subreddits';
 
 type CreateSubredditDialogProps = {
   isOpen: boolean;
@@ -15,31 +24,63 @@ export const CreateSubredditDialog = ({
   onOpenChange,
   onSubredditCreated,
 }: CreateSubredditDialogProps) => {
-  const [name, setName] = useState("");
-  const [notes, setNotes] = useState("");
+  const [name, setName] = useState('');
+  const [notes, setNotes] = useState('');
+  const [memberCount, setMemberCount] = useState('');
+  const [postFrequencyHours, setPostFrequencyHours] = useState('24');
+  const [verificationStatus, setVerificationStatus] = useState<VerificationStatusType>(
+    VERIFICATION_STATUS.UNKNOWN
+  );
+  const [defaultFlair, setDefaultFlair] = useState('');
+  const [captionPrefix, setCaptionPrefix] = useState('');
+
   const createSubredditMutation = useCreateSubredditMutation();
+  const analyzePostingTimesMutation = useAnalyzePostingTimesMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!name.trim()) {
-      console.error("Subreddit name is required");
+      console.error('Subreddit name is required');
       return;
     }
 
     try {
-      await createSubredditMutation.mutateAsync({
+      const parsedMemberCount = memberCount ? parseViewCount(memberCount.replaceAll(',', '.')) : null;
+      const parsedFrequency = postFrequencyHours ? parseInt(postFrequencyHours) : null;
+
+      const result = await createSubredditMutation.mutateAsync({
         name: name.trim(),
         notes: notes.trim() || null,
+        memberCount: parsedMemberCount,
+        maxPostFrequencyHours: parsedFrequency,
+        verificationStatus,
+        defaultFlair: defaultFlair.trim() || null,
+        captionPrefix: captionPrefix.trim() || null,
       });
 
       console.log(`Subreddit r/${name} created successfully`);
 
-      setName("");
-      setNotes("");
+      // Auto-analyze posting times in the background (non-blocking)
+      if (result) {
+        analyzePostingTimesMutation.mutate({
+          subredditId: result.id,
+          subredditName: result.name,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        });
+      }
+
+      // Reset form
+      setName('');
+      setNotes('');
+      setMemberCount('');
+      setPostFrequencyHours('24');
+      setVerificationStatus(VERIFICATION_STATUS.UNKNOWN);
+      setDefaultFlair('');
+      setCaptionPrefix('');
       onSubredditCreated();
     } catch (error) {
-      console.error("Failed to create subreddit:", error);
+      console.error('Failed to create subreddit:', error);
     }
   };
 
@@ -56,7 +97,7 @@ export const CreateSubredditDialog = ({
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    Subreddit Name
+                    Subreddit Name<span className="text-error">*</span>
                   </label>
                   <div className="flex items-center gap-2">
                     <span className="text-base-content/60">r/</span>
@@ -72,9 +113,65 @@ export const CreateSubredditDialog = ({
                 </div>
 
                 <div>
+                  <label className="block text-sm font-medium mb-2">Member Count</label>
+                  <Input
+                    value={memberCount}
+                    onChange={(value) => setMemberCount(value as string)}
+                    aria-label="Member count"
+                    placeholder="e.g., 120K"
+                  />
+                </div>
+
+                <div>
                   <label className="block text-sm font-medium mb-2">
-                    Notes (optional)
+                    Post Frequency (hours)
                   </label>
+                  <Input
+                    type="number"
+                    value={postFrequencyHours}
+                    onChange={(value) => setPostFrequencyHours(value as string)}
+                    aria-label="Post frequency"
+                    placeholder="24"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Verification Status</label>
+                  <select
+                    value={verificationStatus}
+                    onChange={(e) => setVerificationStatus(e.target.value as VerificationStatusType)}
+                    className="select select-bordered w-full"
+                  >
+                    {Object.values(VERIFICATION_STATUS).map((status) => (
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Default Flair</label>
+                  <Input
+                    value={defaultFlair}
+                    onChange={(value) => setDefaultFlair(value as string)}
+                    aria-label="Default flair"
+                    placeholder="Post flair text"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Caption Prefix</label>
+                  <Input
+                    value={captionPrefix}
+                    onChange={(value) => setCaptionPrefix(value as string)}
+                    aria-label="Caption prefix"
+                    placeholder="Text prepended to captions"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Notes</label>
                   <Input
                     value={notes}
                     onChange={(value) => setNotes(value as string)}
@@ -89,11 +186,8 @@ export const CreateSubredditDialog = ({
               <Button variant="outline" onPress={close} type="button">
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                isDisabled={createSubredditMutation.isPending}
-              >
-                {createSubredditMutation.isPending ? "Creating..." : "Create"}
+              <Button type="submit" isDisabled={createSubredditMutation.isPending}>
+                {createSubredditMutation.isPending ? 'Creating...' : 'Create'}
               </Button>
             </DialogFooter>
           </form>
