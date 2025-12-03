@@ -20,8 +20,8 @@ export const FetchPostByIdResponseSchema = t.Composite([
       }),
     ])),
     channel: ChannelSchema,
-    subreddit: t.Optional(t.Partial(SubredditSchema)),
-    schedule: t.Nullable(ContentScheduleSchema),
+    subreddit: t.Union([SubredditSchema, t.Null()]),
+    schedule: t.Union([ContentScheduleSchema, t.Null()]),
   }),
 ]);
 
@@ -49,6 +49,6 @@ export const fetchPostById = async (id: string): Promise<typeof FetchPostByIdRes
     },
   });
 
-  return post ? { ...post, schedule: post.schedule ?? null } : null;
+  return post ? { ...post, schedule: post.schedule ?? null, subreddit: post.subreddit ?? null } : null;
 };
 

@@ -8,10 +8,10 @@ import { Post, PostMedia, PostSchema } from "../../entity";
 import { fetchPostById, FetchPostByIdResponseSchema } from "./fetch-by-id";
 
 export const CreatePostRequestBodySchema = t.Intersect([
-  t.Required(t.Pick(t.Omit(PostSchema, ["id", "createdAt", "updatedAt"]), ["date", "channelId", "status"])),
-  t.Partial(t.Omit(PostSchema, ["id", "createdAt", "updatedAt", "date", "channelId", "status"])),
+  t.Required(t.Pick(PostSchema, ["date", "channelId", "status"])),
+  t.Partial(t.Pick(PostSchema, ["scheduleId", "caption", "url", "fanslyStatisticsId", "fypRemovedAt", "subredditId"])),
   t.Object({
-  mediaIds: t.Optional(t.Array(t.String())),
+    mediaIds: t.Optional(t.Array(t.String())),
   }),
 ]);
 

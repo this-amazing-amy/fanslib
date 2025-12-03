@@ -67,9 +67,9 @@ export const ChannelTypeSchema = t.Object({
 export const ChannelSchema = t.Object({
   id: t.String(),
   name: t.String(),
-  description: t.Union([t.String(), t.Null()]),
+  description: t.Nullable(t.String()),
   typeId: t.String(),
   eligibleMediaFilter: t.Nullable(t.Any()), // MediaFilters - complex type, using Any for now
-  defaultHashtags: t.Array(HashtagSchema),
+  defaultHashtags: t.Any(), // TODO: Fix HashtagSchema validation issue with Elysia
   type: ChannelTypeSchema,
 });

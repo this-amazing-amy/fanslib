@@ -1,6 +1,7 @@
 import type { MediaSchema, PostStatusSchema } from "@fanslib/server/schemas";
-import { parseDate } from "@internationalized/date";
+import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
 import { useNavigate } from "@tanstack/react-router";
+import { isSameDay } from "date-fns";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChannelBadge } from "~/components/ChannelBadge";
@@ -70,14 +71,11 @@ export const CreatePostDialog = ({
 
   const [selectedChannel, setSelectedChannel] = useState<string[]>([]);
   const [selectedSubreddits, setSelectedSubreddits] = useState<string[]>([]);
-  const [selectedDate, setSelectedDate] = useState<Date>(() => {
+  const [selectedDate, setSelectedDate] = useState<Date | null>(() => {
     if (initialDate) {
       return new Date(initialDate);
     }
-    const now = new Date();
-    now.setHours(12);
-    now.setMinutes(0);
-    return now;
+    return null;
   });
   const [status, setStatus] = useState<PostStatus>("draft");
   const [selectedMedia, setSelectedMedia] = useState<Media[]>(media);
@@ -97,7 +95,16 @@ export const CreatePostDialog = ({
   const isRedditChannel = selectedChannelData?.type.id === "reddit";
   const channelCaptionMaxLength = getCaptionMaxLength(selectedChannelData?.type.id);
 
-  const disabled = channelCaptionMaxLength !== Infinity && caption?.length >= channelCaptionMaxLength;
+  const minTime = useMemo(() => {
+    if (!selectedDate) return null;
+    const now = new Date();
+    return isSameDay(selectedDate, now) ? now : null;
+  }, [selectedDate]);
+
+  const disabled = 
+    selectedChannel.length === 0 || 
+    selectedDate === null || 
+    (channelCaptionMaxLength !== Infinity && caption?.length >= channelCaptionMaxLength);
 
   useEffect(() => {
     if (!open) return;
@@ -121,10 +128,13 @@ export const CreatePostDialog = ({
   }, [channels, initialChannelId, open]);
 
   useEffect(() => {
+    if (!open) return;
     if (initialDate) {
-      setSelectedDate(initialDate);
+      setSelectedDate(new Date(initialDate));
+    } else {
+      setSelectedDate(null);
     }
-  }, [initialDate]);
+  }, [open, initialDate]);
 
   useEffect(() => {
     if (!isRedditChannel) {
@@ -145,6 +155,11 @@ export const CreatePostDialog = ({
 
   const handleCreatePost = useCallback(async () => {
     if (selectedChannel.length === 0) {
+      toast();
+      return;
+    }
+
+    if (!selectedDate) {
       toast();
       return;
     }
@@ -173,7 +188,7 @@ export const CreatePostDialog = ({
       onOpenChange(false);
 
       if (shouldRedirect && newPost?.id) {
-        navigate({ to: `/orchestrate` });
+        navigate({ to: `/posts/${newPost.id}` });
       }
     } catch {
       toast();
@@ -238,12 +253,18 @@ export const CreatePostDialog = ({
                   <div className="flex flex-col gap-2">
                     <label className="text-sm font-medium">Date</label>
                     <DatePicker
-                      value={parseDate(selectedDate.toISOString().split('T')[0] ?? '')}
+                      value={selectedDate ? parseDate(selectedDate.toISOString().split('T')[0] ?? '') : null}
+                      minValue={today(getLocalTimeZone())}
                       onChange={(dateValue) => {
                         if (dateValue) {
                           const { year, month, day } = dateValue as { year: number; month: number; day: number };
-                          const newDate = new Date(selectedDate);
+                          const baseDate = selectedDate ?? new Date();
+                          const newDate = new Date(baseDate);
                           newDate.setFullYear(year, month - 1, day);
+                          if (!selectedDate) {
+                            newDate.setHours(12);
+                            newDate.setMinutes(0);
+                          }
                           setSelectedDate(newDate);
                         }
                       }}
@@ -253,8 +274,10 @@ export const CreatePostDialog = ({
                     <label className="text-sm font-medium">Time</label>
                     <TimePicker
                       date={selectedDate}
+                      minTime={minTime}
                       setDate={(hours, minutes) => {
-                        const newDate = new Date(selectedDate);
+                        const baseDate = selectedDate ?? new Date();
+                        const newDate = new Date(baseDate);
                         newDate.setHours(hours);
                         newDate.setMinutes(minutes);
                         setSelectedDate(newDate);

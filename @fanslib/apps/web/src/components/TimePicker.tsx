@@ -1,6 +1,6 @@
-import { addHours, format, startOfHour } from "date-fns";
+import { addHours, format, isSameDay, startOfHour } from "date-fns";
 import { ChevronLeft } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "~/components/ui/Button";
 import {
   Dialog,
@@ -12,21 +12,47 @@ import {
 import { cn } from "~/lib/cn";
 
 type TimePickerProps = {
-  date: Date;
+  date: Date | null;
   setDate: (hours: number, minutes: number) => void;
   className?: string;
   preferredTimes?: string[];
+  minTime?: Date | null;
 };
 
 type ClockView = "hours" | "minutes";
 
-export const TimePicker = ({ date, setDate, className, preferredTimes = [] }: TimePickerProps) => {
+export const TimePicker = ({ date, setDate, className, preferredTimes = [], minTime }: TimePickerProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [tempDate, setTempDate] = useState<Date | null>(null);
   const [view, setView] = useState<ClockView>("hours");
 
+  const isHourDisabled = useMemo(() => {
+    if (!date || !minTime || !isSameDay(date, minTime)) return () => false;
+    const minHour = minTime.getHours();
+    return (hour: number) => hour < minHour;
+  }, [date, minTime]);
+
+  const isMinuteDisabled = useMemo(() => {
+    if (!date || !minTime || !isSameDay(date, minTime)) return () => false;
+    const minHour = minTime.getHours();
+    const minMinute = minTime.getMinutes();
+    return (minute: number) => {
+      const currentDate = tempDate ?? date;
+      const selectedHour = currentDate.getHours();
+      if (selectedHour < minHour) return true;
+      if (selectedHour === minHour) return minute < minMinute;
+      return false;
+    };
+  }, [date, minTime, tempDate]);
+
   const openModal = () => {
-    setTempDate(date);
+    if (!date) return;
+    const initialDate = new Date(date);
+    if (minTime && isSameDay(date, minTime) && initialDate < minTime) {
+      setTempDate(new Date(minTime));
+    } else {
+      setTempDate(initialDate);
+    }
     setView("hours");
     setIsOpen(true);
   };
@@ -39,13 +65,17 @@ export const TimePicker = ({ date, setDate, className, preferredTimes = [] }: Ti
 
   const confirmTime = () => {
     if (!tempDate) return;
+    if (minTime && date && isSameDay(date, minTime)) {
+      if (tempDate < minTime) return;
+    }
     setDate(tempDate.getHours(), tempDate.getMinutes());
     closeModal();
   };
 
   const setTimeFromString = (timeString: string) => {
     const [hours, minutes] = timeString.split(":").map(Number);
-    if (hours === undefined || minutes === undefined) return;
+    if (hours === undefined || minutes === undefined || !date) return;
+    if (isHourDisabled(hours) || isMinuteDisabled(minutes)) return;
     const newDate = new Date(date);
     newDate.setHours(hours);
     newDate.setMinutes(minutes);
@@ -54,6 +84,7 @@ export const TimePicker = ({ date, setDate, className, preferredTimes = [] }: Ti
   };
 
   const setToNow = () => {
+    if (!date) return;
     const now = new Date();
     const newDate = new Date(date);
     newDate.setHours(now.getHours());
@@ -62,6 +93,7 @@ export const TimePicker = ({ date, setDate, className, preferredTimes = [] }: Ti
   };
 
   const setToNextHour = () => {
+    if (!date) return;
     const now = new Date();
     const nextHour = addHours(startOfHour(now), 1);
     const newDate = new Date(date);
@@ -70,12 +102,13 @@ export const TimePicker = ({ date, setDate, className, preferredTimes = [] }: Ti
     setTempDate(newDate);
   };
 
-  const currentTime = format(date, "HH:mm");
+  const currentTime = date ? format(date, "HH:mm") : "--:--";
 
   const hours = Array.from({ length: 24 }, (_, index) => index);
   const minutes = Array.from({ length: 60 }, (_, index) => index);
 
   const selectHour = (hour: number) => {
+    if (!date || isHourDisabled(hour)) return;
     const base = tempDate ?? new Date(date);
     const updated = new Date(base);
     updated.setHours(hour);
@@ -84,6 +117,7 @@ export const TimePicker = ({ date, setDate, className, preferredTimes = [] }: Ti
   };
 
   const selectMinute = (minute: number) => {
+    if (!date || isMinuteDisabled(minute)) return;
     const base = tempDate ?? new Date(date);
     const updated = new Date(base);
     updated.setMinutes(minute);
@@ -92,14 +126,14 @@ export const TimePicker = ({ date, setDate, className, preferredTimes = [] }: Ti
 
   return (
     <>
-      <Button variant="ghost" onPress={openModal} className={cn("w-full", className)}>
+      <Button variant="ghost" onPress={openModal} className={cn("w-full", className)} isDisabled={!date}>
         {currentTime}
       </Button>
 
       {isOpen && (
         <DialogModal isOpen onOpenChange={setIsOpen}>
           <Dialog showCloseButton={false}>
-          {({ close }) => (
+          {() => (
             <>
               <DialogHeader>
                 <DialogTitle>Select Time</DialogTitle>
@@ -131,6 +165,7 @@ export const TimePicker = ({ date, setDate, className, preferredTimes = [] }: Ti
                           size="sm"
                           variant={tempDate?.getHours() === hour ? "primary" : "ghost"}
                           onPress={() => selectHour(hour)}
+                          isDisabled={isHourDisabled(hour)}
                         >
                           {hour.toString().padStart(2, "0")}
                         </Button>
@@ -146,6 +181,7 @@ export const TimePicker = ({ date, setDate, className, preferredTimes = [] }: Ti
                             size="sm"
                             variant={tempDate?.getMinutes() === minute ? "primary" : "ghost"}
                             onPress={() => selectMinute(minute)}
+                            isDisabled={isMinuteDisabled(minute)}
                           >
                             {minute.toString().padStart(2, "0")}
                           </Button>
@@ -178,7 +214,7 @@ export const TimePicker = ({ date, setDate, className, preferredTimes = [] }: Ti
                         <Button
                           key={time}
                           size="sm"
-                          variant={time === currentTime ? "primary" : "ghost"}
+                          variant={date && time === currentTime ? "primary" : "ghost"}
                           onPress={() => setTimeFromString(time)}
                         >
                           {time}
