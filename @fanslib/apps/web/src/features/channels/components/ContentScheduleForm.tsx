@@ -161,7 +161,14 @@ export const ContentScheduleForm = ({
       {(type === "weekly" || type === "monthly") && (
         <div>
           <label className="label">
-            <span className="label-text font-medium">Preferred Days</span>
+            <span className="label-text font-medium">
+              {type === "weekly" ? "Preferred Days of Week" : "Preferred Weekdays"}
+            </span>
+            {type === "monthly" && (
+              <span className="label-text-alt text-base-content/60">
+                Posts will be scheduled on the first N occurrences of selected weekdays
+              </span>
+            )}
           </label>
           <div className="flex flex-wrap gap-2">
             {DAYS_OF_WEEK.map((day) => (

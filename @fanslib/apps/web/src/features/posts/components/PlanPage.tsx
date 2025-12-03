@@ -60,14 +60,13 @@ const PlanPageContent = () => {
     const shouldShowDraftPosts =
       !preferences.filter.statuses || preferences.filter.statuses.includes("draft");
 
+    const filteredSchedules = (schedules ?? []).filter(
+      (s) =>
+        !preferences.filter.channels || preferences.filter.channels?.includes((s.channel as { id: string })?.id)
+    );
+
     const virtualPosts = shouldShowDraftPosts
-      ? generateVirtualPosts(
-          (schedules ?? []).filter(
-            (s) =>
-              !preferences.filter.channels || preferences.filter.channels?.includes((s.channel as { id: string })?.id)
-          ),
-          allPosts ?? []
-        )
+      ? generateVirtualPosts(filteredSchedules, allPosts ?? [])
       : [];
 
     const allPostsCombined = [...(filteredPosts ?? []), ...virtualPosts].sort(

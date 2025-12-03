@@ -106,20 +106,45 @@ const generateScheduleDates = (schedule: ContentSchedule & { channel: any }, sta
 
     case "monthly": {
       const months = eachMonthOfInterval({ start: startDate, end: endDate });
-      const preferredDays = schedule.preferredDays?.length ? schedule.preferredDays : ["1"];
+      const preferredDays = schedule.preferredDays?.length ? schedule.preferredDays : ["Sunday"];
       const dates: Date[] = [];
 
       months.forEach((month) => {
-        preferredDays.forEach((day: string) => {
-          const date = addDays(startOfMonth(month), parseInt(day) - 1);
-          if (date <= endOfMonth(month) && date <= endDate) {
-            dates.push(date);
+        const monthDates: Date[] = [];
+
+        preferredDays.forEach((weekdayName: string) => {
+          const dayOffset = DAY_NAME_TO_OFFSET[weekdayName];
+          if (dayOffset === undefined) {
+            return;
           }
+
+          // Find all occurrences of this weekday in the month
+          const monthStart = startOfMonth(month);
+          const monthEnd = endOfMonth(month);
+          const weeks = eachWeekOfInterval({ start: monthStart, end: monthEnd });
+
+          weeks.forEach((week) => {
+            const date = addDays(startOfWeek(week), dayOffset);
+            if (date >= monthStart && date <= monthEnd && date <= endDate) {
+              monthDates.push(date);
+            }
+          });
+        });
+
+        // Sort and take postsPerMonth from this month
+        monthDates.sort((a, b) => a.getTime() - b.getTime());
+        const postsPerMonth = schedule.postsPerTimeframe ?? 1;
+        const selectedDates = monthDates.slice(0, postsPerMonth);
+
+        selectedDates.forEach((date) => {
+          const time = schedule.preferredTimes?.at(0);
+          date.setHours(Number(time?.split(":")[0]) || 12);
+          date.setMinutes(Number(time?.split(":")[1]) || 0);
+          dates.push(date);
         });
       });
 
-      const postsPerMonth = schedule.postsPerTimeframe ?? preferredDays.length;
-      return dates.slice(0, postsPerMonth * months.length);
+      return dates;
     }
 
     default:
