@@ -122,7 +122,7 @@ export const PostPreview = ({
                 />
               )}
               {isVirtualPost(post) && (
-                <MediaFilterSummary mediaFilters={post.mediaFilters} compact={true} />
+                <MediaFilterSummary mediaFilters={post.mediaFilters} />
               )}
             </div>
           </div>

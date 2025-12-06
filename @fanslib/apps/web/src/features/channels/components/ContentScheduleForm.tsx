@@ -238,7 +238,7 @@ export const ContentScheduleForm = ({
           </span>
         </label>
         <FilterPresetProvider onFiltersChange={setMediaFilters}>
-          <MediaFiltersProvider value={mediaFilters} onChange={setMediaFilters}>
+          <MediaFiltersProvider value={mediaFilters} onChange={setMediaFilters} isHydrated={true}>
             <MediaFiltersComponent />
           </MediaFiltersProvider>
         </FilterPresetProvider>
