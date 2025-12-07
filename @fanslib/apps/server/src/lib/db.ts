@@ -9,7 +9,7 @@ import {
   FanslyAnalyticsDatapoint,
 } from "../features/analytics/entity";
 import { Channel, ChannelType } from "../features/channels/entity";
-import { ContentSchedule } from "../features/content-schedules/entity";
+import { ContentSchedule, SkippedScheduleSlot } from "../features/content-schedules/entity";
 import { FilterPreset } from "../features/filter-presets/entity";
 import { Hashtag, HashtagChannelStats } from "../features/hashtags/entity";
 import { Media } from "../features/library/entity";
@@ -40,6 +40,7 @@ export const AppDataSource = new DataSource({
     HashtagChannelStats,
     Shoot,
     ContentSchedule,
+    SkippedScheduleSlot,
     FilterPreset,
     CaptionSnippet,
     FanslyAnalyticsDatapoint,

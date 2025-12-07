@@ -2,6 +2,7 @@ import type {
   ContentScheduleWithChannelSchema,
   MediaFilterSchema,
   PostSchema,
+  SkippedScheduleSlotSchema,
 } from "@fanslib/server/schemas";
 import {
   addDays,
@@ -19,6 +20,7 @@ import {
 type Post = typeof PostSchema.static;
 type ContentSchedule = typeof ContentScheduleWithChannelSchema.static;
 type MediaFilters = typeof MediaFilterSchema.static;
+type SkippedScheduleSlot = typeof SkippedScheduleSlotSchema.static;
 
 const SCHEDULE_HORIZON_MONTHS = 1;
 
@@ -153,12 +155,22 @@ const generateScheduleDates = (schedule: ContentSchedule & { channel: any }, sta
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const generateVirtualPosts = (schedules: (ContentSchedule & { channel: any })[], existingPosts: Post[] = [], currentTime: Date = new Date()): VirtualPost[] => schedules.flatMap((schedule) => {
+export const generateVirtualPosts = (
+  schedules: (ContentSchedule & { channel: any; skippedSlots?: SkippedScheduleSlot[] })[],
+  existingPosts: Post[] = [],
+  currentTime: Date = new Date()
+): VirtualPost[] => schedules.flatMap((schedule) => {
     const dates = generateScheduleDates(schedule, currentTime);
 
-    const filteredDates = dates.filter((date) => !existingPosts.some((post) => {
+    const filteredDates = dates
+      .filter((date) => !existingPosts.some((post) => {
         const postDate = new Date(post.date);
-        return isSameMinute(postDate, date) && schedule.channelId === post.channelId;
+        // Only hide virtual post if a real post exists with the same scheduleId
+        return isSameMinute(postDate, date) && post.scheduleId === schedule.id;
+      }))
+      .filter((date) => !(schedule.skippedSlots ?? []).some((slot) => {
+        // Hide virtual post if the slot is explicitly skipped
+        return isSameMinute(new Date(slot.date), date);
       }));
 
     const mediaFilters = parseMediaFilters(schedule.mediaFilters);

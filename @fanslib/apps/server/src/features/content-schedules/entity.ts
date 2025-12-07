@@ -1,6 +1,14 @@
 import { t } from "elysia";
 import type { Relation } from "typeorm";
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Channel } from "../channels/entity";
 
 @Entity("content_schedule")
@@ -49,6 +57,26 @@ export class ContentSchedule {
   @ManyToOne(() => Channel, { onDelete: "CASCADE" })
   @JoinColumn({ name: "channelId" })
   channel!: Relation<Channel>;
+
+  @OneToMany(() => SkippedScheduleSlot, (slot) => slot.schedule)
+  skippedSlots!: Relation<SkippedScheduleSlot>[];
+}
+
+@Entity("skipped_schedule_slot")
+// eslint-disable-next-line functional/no-classes
+export class SkippedScheduleSlot {
+  @PrimaryGeneratedColumn("uuid")
+  id!: string;
+
+  @Column({ type: "varchar", name: "scheduleId" })
+  scheduleId!: string;
+
+  @Column({ type: "varchar", name: "date" })
+  date!: string;
+
+  @ManyToOne(() => ContentSchedule, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "scheduleId" })
+  schedule!: Relation<ContentSchedule>;
 }
 
 export const ContentScheduleTypeSchema = t.Union([
@@ -71,6 +99,19 @@ export const ContentScheduleSchema = t.Object({
   createdAt: t.String(),
   mediaFilters: t.Nullable(t.String()),
 });
+
+export const SkippedScheduleSlotSchema = t.Object({
+  id: t.String(),
+  scheduleId: t.String(),
+  date: t.String(),
+});
+
+export const ContentScheduleWithSkippedSlotsSchema = t.Intersect([
+  ContentScheduleSchema,
+  t.Object({
+    skippedSlots: t.Array(SkippedScheduleSlotSchema),
+  }),
+]);
 
 
 

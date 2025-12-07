@@ -676,7 +676,7 @@ const isPaid = payment.method === "card"
 
 FansLib is a **Turborepo monorepo** for managing adult content creator libraries and social media posting. The system has three main components:
 
-1. **`@fanslib/server`** - Elysia backend API (Bun runtime, TypeORM + SQLite)
+1. **`@fanslib/server`** - Elysia backend API (Bun runtime, TypeORM + SQLite)       
 2. **`@fanslib/web`** - TanStack Start web client (React 19, TanStack Router/Query)
 3. **Shared configs** - `@fanslib/eslint`, `@fanslib/prettier`, `@fanslib/typescript`
 

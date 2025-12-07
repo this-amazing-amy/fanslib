@@ -1,12 +1,13 @@
 import { t } from "elysia";
 import { ChannelSchema } from "~/schemas";
 import { db } from "../../../../lib/db";
-import { ContentSchedule, ContentScheduleSchema } from "../../entity";
+import { ContentSchedule, ContentScheduleSchema, SkippedScheduleSlotSchema } from "../../entity";
 
 export const FetchAllContentSchedulesResponseSchema = t.Array(t.Composite([
   ContentScheduleSchema,
   t.Object({
     channel: ChannelSchema,
+    skippedSlots: t.Array(SkippedScheduleSlotSchema),
   }),
 ]));
 
@@ -20,6 +21,7 @@ export const fetchAllContentSchedules = async (): Promise<typeof FetchAllContent
         type: true,
         defaultHashtags: true,
       },
+      skippedSlots: true,
     },
     order: {
       createdAt: "DESC",

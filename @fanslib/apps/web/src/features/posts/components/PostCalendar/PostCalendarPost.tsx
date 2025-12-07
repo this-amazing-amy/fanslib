@@ -1,6 +1,7 @@
 import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
 import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
+import { X } from "lucide-react";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
 import { StatusIcon } from "~/components/StatusIcon";
@@ -8,6 +9,7 @@ import { usePostDrag } from "~/contexts/PostDragContext";
 import { usePostPreferences } from "~/contexts/PostPreferencesContext";
 import { cn } from "~/lib/cn";
 import { getPostStatusBorderColor } from "~/lib/colors";
+import { useSkipScheduleSlotMutation } from "~/lib/queries/content-schedules";
 import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
 import { PostCalendarDropzone } from "./PostCalendarDropzone";
 import { PostCalendarPostMedia } from "./PostCalendarPostMedia";
@@ -23,6 +25,7 @@ export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
   const { startPostDrag, endPostDrag } = usePostDrag();
   const time = format(new Date(post.date), "HH:mm");
   const { preferences } = usePostPreferences();
+  const skipSlotMutation = useSkipScheduleSlotMutation();
 
   const dragProps = !isVirtualPost(post)
     ? {
@@ -35,11 +38,27 @@ export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
   const status = post.status ?? 'draft';
   const borderColor = getPostStatusBorderColor(status as 'posted' | 'scheduled' | 'draft');
 
+  const handleSkip = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!isVirtualPost(post)) return;
+    
+    await skipSlotMutation.mutateAsync({
+      scheduleId: post.scheduleId,
+      date: post.date,
+    });
+    
+    if (onUpdate) {
+      await onUpdate();
+    }
+  };
+
   const content = (
     <div
       {...dragProps}
       className={cn(
-        "group flex flex-col transition-all duration-200",
+        "group flex flex-col transition-all duration-200 relative",
         "p-2.5 rounded-xl bg-base-100 border-2 shadow-sm hover:shadow-md",
         {
           "cursor-grab active:cursor-grabbing": !isVirtualPost(post),
@@ -49,6 +68,22 @@ export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
         borderColor,
       }}
     >
+      {/* Skip Button (only for virtual posts) */}
+      {isVirtualPost(post) && (
+        <button
+          onClick={handleSkip}
+          className={cn(
+            "absolute top-1 right-1 p-1 rounded-md",
+            "bg-base-200/80 hover:bg-base-300 text-base-content/60 hover:text-base-content",
+            "opacity-0 group-hover:opacity-100 transition-opacity",
+            "z-10"
+          )}
+          title="Skip this slot"
+        >
+          <X size={14} />
+        </button>
+      )}
+
       {/* Schedule Badge */}
       {(isVirtualPost(post) || post.schedule) && (
         <ContentScheduleBadge

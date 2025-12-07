@@ -331,7 +331,12 @@ export {
 } from './features/content-schedules/operations/content-schedule/delete';
 
 // Content Schedules entities
-export { ContentScheduleSchema, ContentScheduleTypeSchema } from './features/content-schedules/entity';
+export {
+  ContentScheduleSchema,
+  ContentScheduleTypeSchema,
+  ContentScheduleWithSkippedSlotsSchema,
+  SkippedScheduleSlotSchema
+} from './features/content-schedules/entity';
 
 // Filter Presets schemas
 export {

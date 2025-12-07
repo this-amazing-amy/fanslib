@@ -88,5 +88,36 @@ export const useDeleteContentScheduleMutation = () => {
   });
 };
 
+export const useSkipScheduleSlotMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ scheduleId, date }: { scheduleId: string; date: string }) => {
+      const result = await eden.api['content-schedules']['skipped-slots'].post({
+        scheduleId,
+        date,
+      });
+      return result.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['content-schedules'] });
+    },
+  });
+};
+
+export const useUnskipScheduleSlotMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const result = await eden.api['content-schedules']['skipped-slots']({ id }).delete();
+      return result.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['content-schedules'] });
+    },
+  });
+};
+
 
 
