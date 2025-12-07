@@ -42,7 +42,10 @@ type CreatePostDialogProps = {
   initialDate?: Date;
   initialChannelId?: string;
   initialCaption?: string;
+  initialStatus?: PostStatus;
+  initialSubredditId?: string;
   scheduleId?: string;
+  title?: string;
 };
 
 const toast = () => {};
@@ -64,14 +67,17 @@ export const CreatePostDialog = ({
   initialDate,
   initialChannelId,
   initialCaption,
+  initialStatus,
+  initialSubredditId,
   scheduleId,
+  title = "Create Post",
 }: CreatePostDialogProps) => {
   const navigate = useNavigate();
   const { data: channels = [] } = useChannelsQuery();
   const { mutateAsync: createPost } = useCreatePostMutation();
 
   const [selectedChannel, setSelectedChannel] = useState<string[]>([]);
-  const [selectedSubreddits, setSelectedSubreddits] = useState<string[]>([]);
+  const [selectedSubreddits, setSelectedSubreddits] = useState<string[]>(initialSubredditId ? [initialSubredditId] : []);
   const [contentScheduleId, setContentScheduleId] = useState<string | null>(scheduleId ?? null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(() => {
     if (initialDate) {
@@ -79,7 +85,7 @@ export const CreatePostDialog = ({
     }
     return null;
   });
-  const [status, setStatus] = useState<PostStatus>("draft");
+  const [status, setStatus] = useState<PostStatus>(initialStatus ?? "draft");
   const [selectedMedia, setSelectedMedia] = useState<Media[]>(media);
   const [caption, setCaption] = useState(initialCaption ?? "");
   const [isMediaSelectionOpen, setIsMediaSelectionOpen] = useState(false);
@@ -142,6 +148,16 @@ export const CreatePostDialog = ({
     if (!open) return;
     setContentScheduleId(scheduleId ?? null);
   }, [open, scheduleId]);
+
+  useEffect(() => {
+    if (!open) return;
+    setSelectedSubreddits(initialSubredditId ? [initialSubredditId] : []);
+  }, [open, initialSubredditId]);
+
+  useEffect(() => {
+    if (!open) return;
+    setStatus(initialStatus ?? "draft");
+  }, [open, initialStatus]);
 
   useEffect(() => {
     if (!isRedditChannel) {
@@ -223,7 +239,7 @@ export const CreatePostDialog = ({
             {({ close }) => (
               <>
                 <DialogHeader>
-                  <DialogTitle>Create Post</DialogTitle>
+                  <DialogTitle>{title}</DialogTitle>
                 </DialogHeader>
 
           <div className="flex flex-col overflow-y-auto flex-1">

@@ -1,6 +1,6 @@
 import type { PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { useNavigate } from '@tanstack/react-router';
-import { ChevronLeft, ChevronRight, MoreVertical, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Copy, MoreVertical, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import { DeleteConfirmDialog } from '~/components/ui/DeleteConfirmDialog';
@@ -10,6 +10,7 @@ import {
   DropdownMenuPopover,
   DropdownMenuTrigger,
 } from '~/components/ui/DropdownMenu';
+import { CreatePostDialog } from '~/features/library/components/CreatePostDialog';
 import { useDeletePostMutation, usePostsQuery } from '~/lib/queries/posts';
 
 type Post = typeof PostWithRelationsSchema.static;
@@ -23,6 +24,7 @@ export const PostDetailNavigation = ({ post }: PostDetailNavigationProps) => {
   const { data: allPosts } = usePostsQuery();
   const deletePostMutation = useDeletePostMutation();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDuplicateDialogOpen, setIsDuplicateDialogOpen] = useState(false);
 
   const adjacentPosts = useMemo(() => {
     if (!allPosts) {
@@ -118,6 +120,13 @@ export const PostDetailNavigation = ({ post }: PostDetailNavigationProps) => {
           <DropdownMenuPopover placement="bottom end">
             <DropdownMenu>
               <DropdownMenuItem
+                onAction={() => setIsDuplicateDialogOpen(true)}
+                className="flex items-center whitespace-nowrap"
+              >
+                <Copy className="h-4 w-4 mr-2 shrink-0" />
+                Duplicate post
+              </DropdownMenuItem>
+              <DropdownMenuItem
                 onAction={() => setIsDeleteDialogOpen(true)}
                 className="text-error flex items-center whitespace-nowrap"
               >
@@ -135,6 +144,18 @@ export const PostDetailNavigation = ({ post }: PostDetailNavigationProps) => {
         description="Are you sure you want to delete this post? This action cannot be undone."
         onConfirm={handleDelete}
         isLoading={deletePostMutation.isPending}
+      />
+      <CreatePostDialog
+        open={isDuplicateDialogOpen}
+        onOpenChange={setIsDuplicateDialogOpen}
+        media={post.postMedia.map((pm) => pm.media)}
+        initialDate={new Date()}
+        initialChannelId={post.channelId}
+        initialCaption={post.caption ?? undefined}
+        initialStatus={post.status}
+        initialSubredditId={post.subredditId ?? undefined}
+        scheduleId={post.scheduleId ?? undefined}
+        title="Duplicate Post"
       />
     </>
   );

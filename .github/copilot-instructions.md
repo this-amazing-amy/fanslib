@@ -704,8 +704,12 @@ bun test                 # Run all tests
 
 # Individual apps
 cd @fanslib/apps/server && bun dev     # Server only (port 6970)
-cd @fanslib/apps/web && bun dev        # Web only (with dev server)
+cd @fanslib/apps/web && bun dev        # Web only (port 6969)
 ```
+
+**Development URLs:**
+- Web client: http://localhost:6969
+- API server: http://localhost:6970
 
 ### Environment Variables
 

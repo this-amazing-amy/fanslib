@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { ChannelBadge } from '~/components/ChannelBadge';
 import { ContentScheduleBadge } from '~/components/ContentScheduleBadge';
 import { Button } from '~/components/ui/Button';
+import { MediaDragProvider } from '~/contexts/MediaDragContext';
 import { PostDetailCaptionInput } from '~/features/posts/components/post-detail/PostDetailCaptionInput';
 import { PostDetailDateTimeInputs } from '~/features/posts/components/post-detail/PostDetailDateTimeInputs';
 import { PostDetailFanslyStatistics } from '~/features/posts/components/post-detail/PostDetailFanslyStatistics';
@@ -44,49 +45,51 @@ const PostDetailRoute = () => {
   } as Post;
 
   return (
-    <div className="overflow-y-auto">
-      <div className="max-w-[1280px] px-8 mx-auto pt-8 pb-12">
-        <div className="flex items-center gap-2 mb-2">
-          <Button variant="outline" size="sm" onClick={() => navigate({ to: '/plan' })}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
-          <div className="flex-1" />
-          <PostDetailNavigation post={normalizedPost} />
-        </div>
+    <MediaDragProvider>
+      <div className="overflow-y-auto">
+        <div className="max-w-[1280px] px-8 mx-auto pt-8 pb-12">
+          <div className="flex items-center gap-2 mb-2">
+            <Button variant="outline" size="sm" onClick={() => navigate({ to: '/plan' })}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back
+            </Button>
+            <div className="flex-1" />
+            <PostDetailNavigation post={normalizedPost} />
+          </div>
 
-        <h1 className="text-3xl font-semibold tracking-tight">Post</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">Post</h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 py-6">
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2 self-start">
-              <ChannelBadge
-                name={normalizedPost.channel.typeId === 'reddit' && normalizedPost.subreddit?.name ? `r/${normalizedPost.subreddit.name}` : normalizedPost.channel.name}
-                typeId={normalizedPost.channel.typeId}
-                size="md"
-              />
-              {normalizedPost.schedule && (
-                <ContentScheduleBadge
-                  name={normalizedPost.schedule.name}
-                  emoji={normalizedPost.schedule.emoji}
-                  color={normalizedPost.schedule.color}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 py-6">
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-2 self-start">
+                <ChannelBadge
+                  name={normalizedPost.channel.typeId === 'reddit' && normalizedPost.subreddit?.name ? `r/${normalizedPost.subreddit.name}` : normalizedPost.channel.name}
+                  typeId={normalizedPost.channel.typeId}
                   size="md"
                 />
-              )}
+                {normalizedPost.schedule && (
+                  <ContentScheduleBadge
+                    name={normalizedPost.schedule.name}
+                    emoji={normalizedPost.schedule.emoji}
+                    color={normalizedPost.schedule.color}
+                    size="md"
+                  />
+                )}
+              </div>
+              <PostDetailMedia post={normalizedPost} />
+              <PostDetailPostponeButton post={normalizedPost} />
             </div>
-            <PostDetailMedia post={normalizedPost} />
-            <PostDetailPostponeButton post={normalizedPost} />
-          </div>
-          <div className="flex flex-col gap-4">
-            <PostDetailStatusButtons post={normalizedPost} />
-            <PostDetailDateTimeInputs post={normalizedPost} />
-            <PostDetailUrlInput post={normalizedPost} />
-            {normalizedPost.channel.typeId === 'fansly' && <PostDetailFanslyStatistics post={normalizedPost} />}
-            <PostDetailCaptionInput post={normalizedPost} />
+            <div className="flex flex-col gap-4">
+              <PostDetailStatusButtons post={normalizedPost} />
+              <PostDetailDateTimeInputs post={normalizedPost} />
+              <PostDetailUrlInput post={normalizedPost} />
+              {normalizedPost.channel.typeId === 'fansly' && <PostDetailFanslyStatistics post={normalizedPost} />}
+              <PostDetailCaptionInput post={normalizedPost} />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </MediaDragProvider>
   );
 };
 
