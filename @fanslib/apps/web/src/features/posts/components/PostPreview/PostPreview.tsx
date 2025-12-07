@@ -37,6 +37,7 @@ export const PostPreview = ({
   const [createPostData, setCreatePostData] = useState<{
     media: Media[];
     initialDate?: Date;
+    initialChannelId?: string;
     scheduleId?: string;
   } | null>(null);
 
@@ -172,6 +173,7 @@ export const PostPreview = ({
         onOpenChange={closeCreatePostDialog}
         media={createPostData?.media ?? []}
         initialDate={createPostData?.initialDate}
+        initialChannelId={createPostData?.initialChannelId}
         scheduleId={createPostData?.scheduleId}
       />
     </>

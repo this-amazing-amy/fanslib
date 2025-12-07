@@ -6,6 +6,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { ChannelSelect } from "~/components/ChannelSelect";
+import { ContentScheduleSelect } from "~/components/ContentScheduleSelect";
 import { HashtagButton } from "~/components/HashtagButton";
 import { SnippetSelector } from "~/components/SnippetSelector";
 import { StatusSelect } from "~/components/StatusSelect";
@@ -71,6 +72,7 @@ export const CreatePostDialog = ({
 
   const [selectedChannel, setSelectedChannel] = useState<string[]>([]);
   const [selectedSubreddits, setSelectedSubreddits] = useState<string[]>([]);
+  const [contentScheduleId, setContentScheduleId] = useState<string | null>(scheduleId ?? null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(() => {
     if (initialDate) {
       return new Date(initialDate);
@@ -137,6 +139,11 @@ export const CreatePostDialog = ({
   }, [open, initialDate]);
 
   useEffect(() => {
+    if (!open) return;
+    setContentScheduleId(scheduleId ?? null);
+  }, [open, scheduleId]);
+
+  useEffect(() => {
     if (!isRedditChannel) {
       setSelectedSubreddits([]);
     }
@@ -181,7 +188,7 @@ export const CreatePostDialog = ({
         caption: caption || null,
         subredditId: isRedditChannel ? selectedSubreddits[0] : undefined,
         mediaIds: selectedMedia.map((m) => m.id),
-        scheduleId,
+        scheduleId: contentScheduleId ?? undefined,
       });
 
       toast();
@@ -205,7 +212,7 @@ export const CreatePostDialog = ({
     isRedditChannel,
     selectedSubreddits,
     createPost,
-    scheduleId,
+    contentScheduleId,
   ]);
 
   return (
@@ -240,6 +247,14 @@ export const CreatePostDialog = ({
                     />
                   </div>
                 )}
+                <div className="flex flex-col space-y-2">
+                  <label className="text-sm font-medium">Content Schedule</label>
+                  <ContentScheduleSelect
+                    value={contentScheduleId}
+                    onChange={setContentScheduleId}
+                    channelId={selectedChannel[0]}
+                  />
+                </div>
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium">Status</label>
                   <StatusSelect

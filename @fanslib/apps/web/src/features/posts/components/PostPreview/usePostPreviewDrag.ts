@@ -13,6 +13,7 @@ type Media = typeof MediaSchema.static;
 type CreatePostDialogData = {
   media: Media[];
   initialDate: Date;
+  initialChannelId?: string;
   scheduleId?: string;
 };
 
@@ -95,6 +96,7 @@ export const usePostPreviewDrag = ({
           onOpenCreateDialog({
             media: draggedMedias,
             initialDate: new Date(post.date),
+            initialChannelId: post.channelId,
             scheduleId: post.scheduleId,
           });
           endMediaDrag();
