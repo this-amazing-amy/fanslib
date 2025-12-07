@@ -29,6 +29,28 @@ const getMimeType = (filePath: string): string => {
   return mimeTypes[ext] ?? 'application/octet-stream';
 };
 
+type ParsedRange = {
+  start: number;
+  end: number;
+};
+
+const parseRangeHeader = (rangeHeader: string | null, fileSize: number): ParsedRange | null => {
+  if (!rangeHeader) return null;
+
+  const match = rangeHeader.match(/bytes=(\d*)-(\d*)/);
+  if (!match) return null;
+
+  const start = match[1] ? parseInt(match[1], 10) : 0;
+  const end = match[2] ? parseInt(match[2], 10) : fileSize - 1;
+
+  // Validate range
+  if (start >= fileSize || start > end || end >= fileSize) {
+    return null;
+  }
+
+  return { start, end };
+};
+
 export const libraryRoutes = new Elysia({ prefix: '/api/media' })
   .post('/all', async ({ body }) => fetchAllMedia({
       page: body.page,
@@ -120,7 +142,7 @@ export const libraryRoutes = new Elysia({ prefix: '/api/media' })
   .get('/scan/status', async () => getScanStatus(), {
     response: ScanStatusResponseSchema,
   })
-  .get('/:id/file', async ({ params: { id }, set }) => {
+  .get('/:id/file', async ({ params: { id }, set, request }) => {
     const media = await fetchMediaById(id);
     if (!media) {
       set.status = 404;
@@ -138,14 +160,36 @@ export const libraryRoutes = new Elysia({ prefix: '/api/media' })
 
     const file = Bun.file(filePath);
     const mimeType = getMimeType(filePath);
+    const fileSize = file.size;
     
+    // Check for Range header
+    const rangeHeader = request.headers.get('Range');
+    const range = parseRangeHeader(rangeHeader, fileSize);
+
+    // Set common headers
     set.headers['Content-Type'] = mimeType;
-    
-    return file;
+    set.headers['Accept-Ranges'] = 'bytes';
+
+    // If no range or invalid range, serve the full file
+    if (!range) {
+      set.headers['Content-Length'] = fileSize.toString();
+      return file;
+    }
+
+    // Serve partial content
+    const { start, end } = range;
+    const chunkSize = end - start + 1;
+
+    set.status = 206; // Partial Content
+    set.headers['Content-Range'] = `bytes ${start}-${end}/${fileSize}`;
+    set.headers['Content-Length'] = chunkSize.toString();
+
+    return file.slice(start, end + 1);
   }, {
     params: FetchMediaByIdRequestParamsSchema,
     response: {
       200: t.Any(),
+      206: t.Any(),
       404: t.Object({ error: t.String() }),
     },
   })
