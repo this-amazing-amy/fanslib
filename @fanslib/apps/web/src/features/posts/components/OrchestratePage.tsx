@@ -13,7 +13,7 @@ import { useChannelsQuery } from "~/lib/queries/channels";
 import { useContentSchedulesQuery } from "~/lib/queries/content-schedules";
 import { useMediaListQuery } from "~/lib/queries/library";
 import { usePostsQuery } from "~/lib/queries/posts";
-import { generateVirtualPosts, type VirtualPost } from "~/lib/virtual-posts";
+import { filterPostsByType, generateVirtualPosts, type VirtualPost } from "~/lib/virtual-posts";
 import { PlanEmptyState } from "./PlanEmptyState";
 import { PlanViewSettings } from "./PlanViewSettings";
 import { PostCalendar } from "./PostCalendar/PostCalendar";
@@ -26,6 +26,7 @@ const OrchestratePageContent = () => {
   const { data: channels = [] } = useChannelsQuery();
   const { preferences, updatePreferences } = usePostPreferences();
   const { refetch: refetchLibrary } = useMediaListQuery();
+  const postTypeFilter = preferences.view.postTypeFilter;
 
   const tabs = [
     {
@@ -100,10 +101,12 @@ const OrchestratePageContent = () => {
         )
       : [];
 
-    return [...((filteredPosts ?? []) as Post[]), ...virtualPosts].sort(
+    const sortedPosts = [...((filteredPosts ?? []) as Post[]), ...virtualPosts].sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     ) as (Post | VirtualPost)[];
-  }, [filteredPosts, allPosts, schedules, filterStatuses, filterChannels]);
+
+    return filterPostsByType(sortedPosts, postTypeFilter);
+  }, [filteredPosts, allPosts, schedules, filterStatuses, filterChannels, postTypeFilter]);
 
   const refetchPostsAndLibrary = useCallback(async () => {
     await Promise.all([refetchLibrary(), fetchPosts()]);

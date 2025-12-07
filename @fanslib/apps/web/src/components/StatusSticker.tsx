@@ -35,7 +35,7 @@ export const StatusSticker = ({ status, size = "sm", className }: StatusStickerP
   return (
     <div
       className={cn(
-        "rounded-full font-medium flex items-center border",
+        "rounded-full font-medium flex items-center border-2",
         {
           "px-1.5 py-0.5 text-[10px] gap-1 leading-tight": size === "sm",
           "px-2 py-0.5 text-xs gap-1.5": size === "md",

@@ -22,6 +22,8 @@ type ContentSchedule = typeof ContentScheduleWithChannelSchema.static;
 type MediaFilters = typeof MediaFilterSchema.static;
 type SkippedScheduleSlot = typeof SkippedScheduleSlotSchema.static;
 
+export type PostTypeFilter = "both" | "virtual" | "actual";
+
 const SCHEDULE_HORIZON_MONTHS = 1;
 
 const DAY_NAME_TO_OFFSET: Record<string, number> = {
@@ -59,6 +61,12 @@ export type VirtualPost = Omit<Post, "id" | "createdAt" | "updatedAt" | "postMed
 };
 
 export const isVirtualPost = (post: Post | VirtualPost): post is VirtualPost => "isVirtual" in post && post.isVirtual === true;
+
+export const filterPostsByType = <T extends Post | VirtualPost>(posts: T[], filter: PostTypeFilter): T[] => {
+  if (filter === "virtual") return posts.filter(isVirtualPost) as T[];
+  if (filter === "actual") return posts.filter((post) => !isVirtualPost(post)) as T[];
+  return posts;
+};
 
 const parseMediaFilters = (mediaFilters?: string | null): MediaFilters | null => {
   if (!mediaFilters) return null;

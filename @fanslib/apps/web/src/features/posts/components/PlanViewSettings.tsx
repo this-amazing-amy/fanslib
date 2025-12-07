@@ -1,9 +1,10 @@
-import { CalendarDays, LayoutList, Settings2 } from "lucide-react";
+import { CalendarDays, Image, Layers, LayoutList, Settings2, Sparkles } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { Popover, PopoverTrigger } from "~/components/ui/Popover";
 import { Switch } from "~/components/ui/Switch";
 import { ToggleGroup } from "~/components/ui/ToggleGroup";
 import { usePostPreferences, type PostViewType } from "~/contexts/PostPreferencesContext";
+import type { PostTypeFilter } from "~/lib/virtual-posts";
 
 export const PlanViewSettings = () => {
   const { preferences, updatePreferences } = usePostPreferences();
@@ -29,16 +30,47 @@ export const PlanViewSettings = () => {
               options={[
                 {
                   value: "timeline",
-                  label: "Timeline",
                   icon: <LayoutList className="h-4 w-4" />,
+                  ariaLabel: "Timeline",
                 },
                 {
                   value: "calendar",
-                  label: "Calendar",
                   icon: <CalendarDays className="h-4 w-4" />,
+                  ariaLabel: "Calendar",
                 },
               ]}
-              className="grid grid-cols-2 gap-2"
+              optionsClassName="grid grid-cols-2 gap-2"
+              itemClassName="w-full justify-center"
+            />
+          </div>
+          <div className="space-y-2">
+            <div className="text-sm font-medium">Post Type</div>
+            <ToggleGroup
+              value={preferences.view.postTypeFilter}
+              aria-label="Plan post type filter"
+              onChange={(value) => {
+                if (!value) return;
+                updatePreferences({ view: { postTypeFilter: value as PostTypeFilter } });
+              }}
+              options={[
+                {
+                  value: "both",
+                  icon: <Layers className="h-4 w-4" />,
+                  ariaLabel: "Both",
+                },
+                {
+                  value: "actual",
+                  icon: <Image className="h-4 w-4" />,
+                  ariaLabel: "Actual",
+                },
+                {
+                  value: "virtual",
+                  icon: <Sparkles className="h-4 w-4" />,
+                  ariaLabel: "Virtual",
+                },
+              ]}
+              optionsClassName="grid grid-cols-3 gap-2"
+              itemClassName="w-full justify-center"
             />
           </div>
           <div className="space-y-2">

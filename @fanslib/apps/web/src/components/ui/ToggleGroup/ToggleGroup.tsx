@@ -8,9 +8,10 @@ import { cn } from '~/lib/cn';
 
 export type ToggleGroupOption = {
   value: string;
-  label: ReactNode;
+  label?: ReactNode;
   icon?: ReactNode;
   disabled?: boolean;
+  ariaLabel?: string;
 };
 
 export type ToggleGroupProps = Omit<AriaRadioGroupProps, 'children'> & {
@@ -19,6 +20,8 @@ export type ToggleGroupProps = Omit<AriaRadioGroupProps, 'children'> & {
   size?: 'sm' | 'md' | 'lg';
   orientation?: 'horizontal' | 'vertical';
   className?: string;
+  optionsClassName?: string;
+  itemClassName?: string;
 };
 
 export const ToggleGroup = ({
@@ -27,6 +30,8 @@ export const ToggleGroup = ({
   size = 'md',
   orientation = 'horizontal',
   className,
+  optionsClassName,
+  itemClassName,
   ...props
 }: ToggleGroupProps) => {
   const state = useRadioGroupState(props);
@@ -42,7 +47,8 @@ export const ToggleGroup = ({
       <div
         className={cn(
           'flex items-center gap-1 p-1 border border-base-300 !rounded-full',
-          orientation === 'vertical' && 'flex-col'
+          orientation === 'vertical' && 'flex-col',
+          optionsClassName
         )}
       >
         {options.map((option) => (
@@ -52,6 +58,7 @@ export const ToggleGroup = ({
             state={state}
             variant={variant}
             size={size}
+            className={itemClassName}
           />
         ))}
       </div>
@@ -64,6 +71,7 @@ type ToggleGroupItemProps = {
   state: RadioGroupState;
   variant: 'primary' | 'outline';
   size: 'sm' | 'md' | 'lg';
+  className?: string;
 };
 
 const ToggleGroupItem = ({
@@ -71,6 +79,7 @@ const ToggleGroupItem = ({
   state,
   variant,
   size,
+  className,
 }: ToggleGroupItemProps) => {
   const ref = useRef<HTMLInputElement>(null);
   const { inputProps } = useRadio(
@@ -109,15 +118,19 @@ const ToggleGroupItem = ({
         variantClasses[variant],
         sizeClasses[size],
         option.disabled && 'btn-disabled',
-        isFocusVisible && 'ring-2 ring-primary ring-offset-2'
+        isFocusVisible && 'ring-2 ring-primary ring-offset-2',
+        className
       )}
+      aria-label={option.ariaLabel}
     >
       <input
         {...mergeProps(inputProps, focusProps)}
         ref={ref}
         className="sr-only"
       />
-      {option.icon && <span className="mr-2">{option.icon}</span>}
+      {option.icon && (
+        <span className={cn(option.label ? 'mr-2' : undefined)}>{option.icon}</span>
+      )}
       {option.label}
     </label>
   );

@@ -3,6 +3,7 @@ import { addMonths, startOfMonth } from "date-fns";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { mergeDeep } from "remeda";
 import type { DeepPartial } from "~/lib/deep-partial";
+import type { PostTypeFilter } from "~/lib/virtual-posts";
 
 type PostStatus = typeof PostStatusSchema.static;
 
@@ -23,6 +24,7 @@ export type PostPreferences = {
     viewType: PostViewType;
     showCaptions: boolean;
     openDialogOnDrop: boolean;
+    postTypeFilter: PostTypeFilter;
   };
   filter: PostFilterPreferences;
 };
@@ -32,6 +34,7 @@ export const defaultPreferences: PostPreferences = {
     viewType: "timeline",
     showCaptions: false,
     openDialogOnDrop: true,
+    postTypeFilter: "both",
   },
   filter: {
     search: undefined,

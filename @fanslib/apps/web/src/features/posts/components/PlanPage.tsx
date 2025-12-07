@@ -8,7 +8,7 @@ import { usePostPreferences } from "~/contexts/PostPreferencesContext";
 import { useChannelsQuery } from "~/lib/queries/channels";
 import { useContentSchedulesQuery } from "~/lib/queries/content-schedules";
 import { usePostsQuery } from "~/lib/queries/posts";
-import { generateVirtualPosts, type VirtualPost } from "~/lib/virtual-posts";
+import { filterPostsByType, generateVirtualPosts, type VirtualPost } from "~/lib/virtual-posts";
 import { PlanEmptyState } from "./PlanEmptyState";
 import { PlanViewSettings } from "./PlanViewSettings";
 import { PostCalendar } from "./PostCalendar/PostCalendar";
@@ -73,8 +73,10 @@ const PlanPageContent = () => {
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 
-    setPosts(allPostsCombined);
-  }, [filteredPosts, allPosts, schedules, preferences.filter]);
+    const filteredByType = filterPostsByType(allPostsCombined, preferences.view.postTypeFilter);
+
+    setPosts(filteredByType);
+  }, [filteredPosts, allPosts, schedules, preferences.filter, preferences.view.postTypeFilter]);
 
   const refetchPosts = useCallback(async () => {
     await fetchPosts();
