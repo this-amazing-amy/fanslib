@@ -1,7 +1,8 @@
 import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
 import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
-import { X } from "lucide-react";
+import { Trash2, X } from "lucide-react";
+import { useState } from "react";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
 import { StatusIcon } from "~/components/StatusIcon";
@@ -26,6 +27,7 @@ export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
   const time = format(new Date(post.date), "HH:mm");
   const { preferences } = usePostPreferences();
   const skipSlotMutation = useSkipScheduleSlotMutation();
+  const [confirmSkip, setConfirmSkip] = useState(false);
 
   const dragProps = !isVirtualPost(post)
     ? {
@@ -38,11 +40,16 @@ export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
   const status = post.status ?? 'draft';
   const borderColor = getPostStatusBorderColor(status as 'posted' | 'scheduled' | 'draft');
 
-  const handleSkip = async (e: React.MouseEvent) => {
+  const handleSkipClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
     if (!isVirtualPost(post)) return;
+    
+    if (!confirmSkip) {
+      setConfirmSkip(true);
+      return;
+    }
     
     await skipSlotMutation.mutateAsync({
       scheduleId: post.scheduleId,
@@ -52,6 +59,8 @@ export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
     if (onUpdate) {
       await onUpdate();
     }
+    
+    setConfirmSkip(false);
   };
 
   const content = (
@@ -67,20 +76,23 @@ export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
       style={{
         borderColor,
       }}
+      onMouseLeave={() => setConfirmSkip(false)}
     >
       {/* Skip Button (only for virtual posts) */}
       {isVirtualPost(post) && (
         <button
-          onClick={handleSkip}
+          onClick={handleSkipClick}
           className={cn(
-            "absolute top-1 right-1 p-1 rounded-md",
-            "bg-base-200/80 hover:bg-base-300 text-base-content/60 hover:text-base-content",
-            "opacity-0 group-hover:opacity-100 transition-opacity",
-            "z-10"
+            "absolute top-1 right-1 p-1 rounded-md transition-all",
+            "opacity-0 group-hover:opacity-100",
+            "z-10",
+            confirmSkip
+              ? "bg-error/80 hover:bg-error text-error-content"
+              : "bg-base-200/80 hover:bg-base-300 text-base-content/60 hover:text-base-content"
           )}
-          title="Skip this slot"
+          title={confirmSkip ? "Click again to confirm skip" : "Skip this slot"}
         >
-          <X size={14} />
+          {confirmSkip ? <Trash2 size={14} /> : <X size={14} />}
         </button>
       )}
 
