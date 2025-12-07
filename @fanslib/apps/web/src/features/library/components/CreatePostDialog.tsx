@@ -46,6 +46,7 @@ type CreatePostDialogProps = {
   initialSubredditId?: string;
   scheduleId?: string;
   title?: string;
+  initialMediaSelectionExpanded?: boolean;
 };
 
 const toast = () => {};
@@ -71,6 +72,7 @@ export const CreatePostDialog = ({
   initialSubredditId,
   scheduleId,
   title = "Create Post",
+  initialMediaSelectionExpanded,
 }: CreatePostDialogProps) => {
   const navigate = useNavigate();
   const { data: channels = [] } = useChannelsQuery();
@@ -88,7 +90,9 @@ export const CreatePostDialog = ({
   const [status, setStatus] = useState<PostStatus>(initialStatus ?? "draft");
   const [selectedMedia, setSelectedMedia] = useState<Media[]>(media);
   const [caption, setCaption] = useState(initialCaption ?? "");
-  const [isMediaSelectionOpen, setIsMediaSelectionOpen] = useState(false);
+  const [isMediaSelectionOpen, setIsMediaSelectionOpen] = useState(
+    initialMediaSelectionExpanded ?? (media.length === 0)
+  );
   const [isOtherCaptionsOpen, setIsOtherCaptionsOpen] = useState(false);
   const [shouldRedirect, setShouldRedirect] = useState(true);
 
@@ -242,206 +246,222 @@ export const CreatePostDialog = ({
                   <DialogTitle>{title}</DialogTitle>
                 </DialogHeader>
 
-          <div className="flex flex-col overflow-y-auto flex-1">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-4 pl-1">
-                <div className="flex flex-col space-y-2">
-                  <label className="text-sm font-medium">Channel</label>
-                  <ChannelSelect
-                    value={selectedChannel}
-                    onChange={setSelectedChannel}
-                    multiple={false}
-                  />
-                </div>
-                {isRedditChannel && (
+          <div className="flex overflow-hidden flex-1">
+            <div className="grid grid-cols-2 gap-6 flex-1 overflow-hidden">
+              {/* Left Column: Post Details */}
+              <ScrollArea className="h-full">
+                <div className="flex flex-col gap-4 pr-2">
                   <div className="flex flex-col space-y-2">
-                    <label className="text-sm font-medium">Subreddit</label>
-                    <SubredditSelect
-                      value={selectedSubreddits}
-                      onChange={setSelectedSubreddits}
+                    <label className="text-sm font-medium">Channel</label>
+                    <ChannelSelect
+                      value={selectedChannel}
+                      onChange={setSelectedChannel}
                       multiple={false}
                     />
                   </div>
-                )}
-                <div className="flex flex-col space-y-2">
-                  <label className="text-sm font-medium">Content Schedule</label>
-                  <ContentScheduleSelect
-                    value={contentScheduleId}
-                    onChange={setContentScheduleId}
-                    channelId={selectedChannel[0]}
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium">Status</label>
-                  <StatusSelect
-                    value={[status]}
-                    onChange={(statuses) => {
-                      setStatus(statuses[0] as PostStatus);
-                    }}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
+                  {isRedditChannel && (
+                    <div className="flex flex-col space-y-2">
+                      <label className="text-sm font-medium">Subreddit</label>
+                      <SubredditSelect
+                        value={selectedSubreddits}
+                        onChange={setSelectedSubreddits}
+                        multiple={false}
+                      />
+                    </div>
+                  )}
+                  <div className="flex flex-col space-y-2">
+                    <label className="text-sm font-medium">Content Schedule</label>
+                    <ContentScheduleSelect
+                      value={contentScheduleId}
+                      onChange={setContentScheduleId}
+                      channelId={selectedChannel[0]}
+                    />
+                  </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium">Date</label>
-                    <DatePicker
-                      value={selectedDate ? parseDate(selectedDate.toISOString().split('T')[0] ?? '') : null}
-                      minValue={today(getLocalTimeZone())}
-                      onChange={(dateValue) => {
-                        if (dateValue) {
-                          const { year, month, day } = dateValue as { year: number; month: number; day: number };
+                    <label className="text-sm font-medium">Status</label>
+                    <StatusSelect
+                      value={[status]}
+                      onChange={(statuses) => {
+                        setStatus(statuses[0] as PostStatus);
+                      }}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-medium">Date</label>
+                      <DatePicker
+                        value={selectedDate ? parseDate(selectedDate.toISOString().split('T')[0] ?? '') : null}
+                        minValue={today(getLocalTimeZone())}
+                        onChange={(dateValue) => {
+                          if (dateValue) {
+                            const { year, month, day } = dateValue as { year: number; month: number; day: number };
+                            const baseDate = selectedDate ?? new Date();
+                            const newDate = new Date(baseDate);
+                            newDate.setFullYear(year, month - 1, day);
+                            if (!selectedDate) {
+                              newDate.setHours(12);
+                              newDate.setMinutes(0);
+                            }
+                            setSelectedDate(newDate);
+                          }
+                        }}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-medium">Time</label>
+                      <TimePicker
+                        date={selectedDate}
+                        minTime={minTime}
+                        setDate={(hours, minutes) => {
                           const baseDate = selectedDate ?? new Date();
                           const newDate = new Date(baseDate);
-                          newDate.setFullYear(year, month - 1, day);
-                          if (!selectedDate) {
-                            newDate.setHours(12);
-                            newDate.setMinutes(0);
-                          }
+                          newDate.setHours(hours);
+                          newDate.setMinutes(minutes);
                           setSelectedDate(newDate);
-                        }
-                      }}
-                    />
+                        }}
+                      />
+                    </div>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium">Time</label>
-                    <TimePicker
-                      date={selectedDate}
-                      minTime={minTime}
-                      setDate={(hours, minutes) => {
-                        const baseDate = selectedDate ?? new Date();
-                        const newDate = new Date(baseDate);
-                        newDate.setHours(hours);
-                        newDate.setMinutes(minutes);
-                        setSelectedDate(newDate);
-                      }}
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium">Caption</label>
-                  <div className="relative">
-                    <Textarea
-                      maxLength={channelCaptionMaxLength !== Infinity ? channelCaptionMaxLength : undefined}
-                      value={caption ?? ""}
-                      onChange={(value) => setCaption(value)}
-                      placeholder="Write your post caption..."
-                      className="min-h-[150px] pr-10"
-                    />
-                    {channelCaptionMaxLength !== Infinity && (
-                      <p
-                        className={cn(
-                          "text-xs text-base-content/60 absolute right-2 bottom-2",
-                          caption?.length >= channelCaptionMaxLength && "text-error"
-                        )}
-                      >
-                        {caption?.length} / {channelCaptionMaxLength}
-                      </p>
-                    )}
-                    <div className="absolute right-2 top-2 flex gap-1">
-                      <SnippetSelector
-                        channelId={selectedChannelData?.id}
-                        caption={caption}
-                        onCaptionChange={setCaption}
-                        textareaRef={textareaRef as React.RefObject<HTMLTextAreaElement>}
-                        className="text-base-content/60 hover:text-base-content"
+                    <label className="text-sm font-medium">Caption</label>
+                    <div className="relative">
+                      <Textarea
+                        maxLength={channelCaptionMaxLength !== Infinity ? channelCaptionMaxLength : undefined}
+                        value={caption ?? ""}
+                        onChange={(value) => setCaption(value)}
+                        placeholder="Write your post caption..."
+                        className="min-h-[150px] pr-10"
                       />
-                      {selectedChannelData && (
-                        <HashtagButton
-                          channel={selectedChannelData}
+                      {channelCaptionMaxLength !== Infinity && (
+                        <p
+                          className={cn(
+                            "text-xs text-base-content/60 absolute right-2 bottom-2",
+                            caption?.length >= channelCaptionMaxLength && "text-error"
+                          )}
+                        >
+                          {caption?.length} / {channelCaptionMaxLength}
+                        </p>
+                      )}
+                      <div className="absolute right-2 top-2 flex gap-1">
+                        <SnippetSelector
+                          channelId={selectedChannelData?.id}
                           caption={caption}
                           onCaptionChange={setCaption}
+                          textareaRef={textareaRef as React.RefObject<HTMLTextAreaElement>}
                           className="text-base-content/60 hover:text-base-content"
                         />
-                      )}
+                        {selectedChannelData && (
+                          <HashtagButton
+                            channel={selectedChannelData}
+                            caption={caption}
+                            onCaptionChange={setCaption}
+                            className="text-base-content/60 hover:text-base-content"
+                          />
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium">
-                    Selected Media ({selectedMedia.length})
-                  </label>
-                  <ScrollArea className="h-[200px] border rounded-md p-2">
-                    <div className="grid grid-cols-3 gap-2">
-                      {selectedMedia.map((item, index) => (
-                        <div key={item.id} className="relative aspect-square">
-                          <MediaTile media={item} allMedias={selectedMedia} index={index} />
-                        </div>
-                      ))}
+                  {otherCaptions.length > 0 && (
+                    <div className="flex flex-col gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex w-full items-center justify-between p-2 text-sm font-medium"
+                        onPress={() => setIsOtherCaptionsOpen(!isOtherCaptionsOpen)}
+                      >
+                        Captions from other posts using this media
+                        {isOtherCaptionsOpen ? (
+                          <ChevronUp className="h-4 w-4" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4" />
+                        )}
+                      </Button>
+                      {isOtherCaptionsOpen && (
+                        <ScrollArea className="h-[200px] rounded-md border p-2">
+                          <div className="space-y-2">
+                            {otherCaptions.map((otherCaption) =>
+                              !otherCaption?.caption ? null : (
+                                <div
+                                  key={otherCaption.channel?.id ?? otherCaption.caption}
+                                  className="group relative min-h-8 flex flex-col rounded-md border p-2"
+                                >
+                                  <ChannelBadge
+                                    className="self-start"
+                                    name={otherCaption.channel?.name ?? ""}
+                                    typeId={otherCaption.channel?.typeId ?? ""}
+                                  />
+                                  <p className="text-sm pt-2">{otherCaption.caption}</p>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="absolute right-2 top-1 opacity-0 group-hover:opacity-100"
+                                    onPress={() => setCaption(otherCaption.caption ?? "")}
+                                  >
+                                    Use
+                                  </Button>
+                                </div>
+                              )
+                            )}
+                          </div>
+                        </ScrollArea>
+                      )}
                     </div>
-                  </ScrollArea>
+                  )}
                 </div>
-                {otherCaptions.length > 0 && (
-                  <div className="mt-2">
+              </ScrollArea>
+
+              {/* Right Column: Media Selection */}
+              <div className="flex flex-col gap-3 overflow-hidden border-l pl-6">
+                {/* Selected Media Section */}
+                <div className="flex flex-col gap-2 flex-shrink-0">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium">
+                      Selected Media ({selectedMedia.length})
+                    </label>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="flex w-full items-center justify-between p-2 text-sm font-medium"
-                      onPress={() => setIsOtherCaptionsOpen(!isOtherCaptionsOpen)}
+                      onPress={() => setIsMediaSelectionOpen(!isMediaSelectionOpen)}
+                      className="text-xs"
                     >
-                      Captions from other posts using this media
-                      {isOtherCaptionsOpen ? (
-                        <ChevronUp className="h-4 w-4" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4" />
-                      )}
+                      {isMediaSelectionOpen ? "Hide Library" : "+ Add Media"}
                     </Button>
-                    {isOtherCaptionsOpen && (
-                      <ScrollArea className="h-[200px] rounded-md border p-2">
-                        <div className="space-y-2">
-                          {otherCaptions.map((otherCaption) =>
-                            !otherCaption?.caption ? null : (
-                              <div
-                                key={otherCaption.channel?.id ?? otherCaption.caption}
-                                className="group relative min-h-8 flex flex-col rounded-md border p-2"
-                              >
-                                <ChannelBadge
-                                  className="self-start"
-                                  name={otherCaption.channel?.name ?? ""}
-                                  typeId={otherCaption.channel?.typeId ?? ""}
-                                />
-                                <p className="text-sm pt-2">{otherCaption.caption}</p>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="absolute right-2 top-1 opacity-0 group-hover:opacity-100"
-                                  onPress={() => setCaption(otherCaption.caption ?? "")}
-                                >
-                                  Use
-                                </Button>
-                              </div>
-                            )
-                          )}
+                  </div>
+                  {selectedMedia.length > 0 ? (
+                    <div className="grid grid-cols-3 gap-2 p-2 border rounded-md bg-base-200/30">
+                      {selectedMedia.map((item, index) => (
+                        <div
+                          key={item.id}
+                          className="relative aspect-square group cursor-pointer"
+                          onClick={() => handleMediaSelect(item)}
+                        >
+                          <MediaTile media={item} allMedias={selectedMedia} index={index} />
+                          <div className="absolute inset-0 bg-error/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-md">
+                            <span className="text-error-content text-xs font-semibold">Remove</span>
+                          </div>
                         </div>
-                      </ScrollArea>
-                    )}
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-8 border-2 border-dashed rounded-md bg-base-200/30 text-center text-sm text-base-content/60">
+                      No media selected. {!isMediaSelectionOpen && "Click '+ Add Media' to browse your library."}
+                    </div>
+                  )}
+                </div>
+
+                {/* Media Library Browser */}
+                {isMediaSelectionOpen && (
+                  <div className="flex-1 min-h-0 flex flex-col">
+                    <label className="text-sm font-medium mb-2">Library</label>
+                    <MediaSelection
+                      selectedMedia={selectedMedia}
+                      onMediaSelect={handleMediaSelect}
+                      excludeMediaIds={media.map((m) => m.id)}
+                      className="flex-1"
+                    />
                   </div>
                 )}
               </div>
-            </div>
-
-            <div className="flex flex-col flex-1 min-h-0">
-              <Button
-                variant="ghost"
-                className="flex items-center gap-2 self-start my-2"
-                onPress={() => setIsMediaSelectionOpen(!isMediaSelectionOpen)}
-              >
-                {isMediaSelectionOpen ? (
-                  <ChevronUp className="h-4 w-4" />
-                ) : (
-                  <ChevronDown className="h-4 w-4" />
-                )}
-                {isMediaSelectionOpen ? "Hide Media Selection" : "Add more media"}
-              </Button>
-
-              {isMediaSelectionOpen && (
-                <MediaSelection
-                  selectedMedia={selectedMedia}
-                  onMediaSelect={handleMediaSelect}
-                  excludeMediaIds={media.map((m) => m.id)}
-                />
-              )}
             </div>
           </div>
 

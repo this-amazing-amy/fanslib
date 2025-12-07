@@ -1,4 +1,4 @@
-import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
+import type { MediaSchema, PostWithRelationsSchema } from "@fanslib/server/schemas";
 import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Trash2, X } from "lucide-react";
@@ -6,16 +6,20 @@ import { useState } from "react";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
 import { StatusIcon } from "~/components/StatusIcon";
+import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
 import { usePostDrag } from "~/contexts/PostDragContext";
 import { usePostPreferences } from "~/contexts/PostPreferencesContext";
 import { cn } from "~/lib/cn";
 import { getPostStatusBorderColor } from "~/lib/colors";
 import { useSkipScheduleSlotMutation } from "~/lib/queries/content-schedules";
 import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
+import { useVirtualPostClick } from "../../hooks/useVirtualPostClick";
+import { VirtualPostOverlay } from "../VirtualPostOverlay";
 import { PostCalendarDropzone } from "./PostCalendarDropzone";
 import { PostCalendarPostMedia } from "./PostCalendarPostMedia";
 
 type Post = typeof PostWithRelationsSchema.static;
+type Media = typeof MediaSchema.static;
 
 type PostCalendarPostProps = {
   post: Post | VirtualPost;
@@ -28,6 +32,26 @@ export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
   const { preferences } = usePostPreferences();
   const skipSlotMutation = useSkipScheduleSlotMutation();
   const [confirmSkip, setConfirmSkip] = useState(false);
+  
+  const [createPostData, setCreatePostData] = useState<{
+    media: Media[];
+    initialDate?: Date;
+    initialChannelId?: string;
+    scheduleId?: string;
+    initialMediaSelectionExpanded?: boolean;
+  } | null>(null);
+  
+  const virtualPostClick = useVirtualPostClick({
+    post: isVirtualPost(post) ? post : ({} as VirtualPost),
+    onOpenCreateDialog: (data) => setCreatePostData(data),
+  });
+  
+  const closeCreatePostDialog = () => {
+    setCreatePostData(null);
+    if (onUpdate) {
+      onUpdate();
+    }
+  };
 
   const dragProps = !isVirtualPost(post)
     ? {
@@ -78,6 +102,11 @@ export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
       }}
       onMouseLeave={() => setConfirmSkip(false)}
     >
+      {/* Virtual post overlay */}
+      {isVirtualPost(post) && (
+        <VirtualPostOverlay onClick={virtualPostClick.handleClick} />
+      )}
+      
       {/* Skip Button (only for virtual posts) */}
       {isVirtualPost(post) && (
         <button
@@ -147,8 +176,19 @@ export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
   );
 
   return (
-    <PostCalendarDropzone post={post} onUpdate={onUpdate}>
-      {wrappedContent}
-    </PostCalendarDropzone>
+    <>
+      <PostCalendarDropzone post={post} onUpdate={onUpdate}>
+        {wrappedContent}
+      </PostCalendarDropzone>
+      <CreatePostDialog
+        open={createPostData !== null}
+        onOpenChange={closeCreatePostDialog}
+        media={createPostData?.media ?? []}
+        initialDate={createPostData?.initialDate}
+        initialChannelId={createPostData?.initialChannelId}
+        scheduleId={createPostData?.scheduleId}
+        initialMediaSelectionExpanded={createPostData?.initialMediaSelectionExpanded}
+      />
+    </>
   );
 };

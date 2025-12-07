@@ -14,6 +14,8 @@ import { cn } from "~/lib/cn";
 import { getPostStatusBorderColor } from "~/lib/colors";
 import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
 import { PostTimelineDropZone } from "../PostTimelineDropZone";
+import { VirtualPostOverlay } from "../VirtualPostOverlay";
+import { useVirtualPostClick } from "../../hooks/useVirtualPostClick";
 import { usePostPreviewDrag } from "./usePostPreviewDrag";
 
 type Post = typeof PostWithRelationsSchema.static;
@@ -39,7 +41,13 @@ export const PostPreview = ({
     initialDate?: Date;
     initialChannelId?: string;
     scheduleId?: string;
+    initialMediaSelectionExpanded?: boolean;
   } | null>(null);
+
+  const virtualPostClick = useVirtualPostClick({
+    post: isVirtualPost(post) ? post : ({} as VirtualPost),
+    onOpenCreateDialog: (data) => setCreatePostData(data),
+  });
 
   const {
     isDragging,
@@ -53,7 +61,7 @@ export const PostPreview = ({
     isOpen,
     onOpenChange,
     onUpdate,
-    onOpenCreateDialog: (data) => setCreatePostData(data),
+    onOpenCreateDialog: (data) => setCreatePostData({ ...data, initialMediaSelectionExpanded: true }),
   });
 
   const closeCreatePostDialog = () => {
@@ -92,6 +100,11 @@ export const PostPreview = ({
           borderColor: isDragging && isDraggedOver ? undefined : borderColor,
         }}
       >
+        {/* Virtual post overlay */}
+        {isVirtualPost(post) && !isDragging && (
+          <VirtualPostOverlay onClick={virtualPostClick.handleClick} />
+        )}
+        
         <div className="flex items-start justify-between p-4 gap-4">
           <div className="flex flex-col gap-2 flex-1">
             <div className="flex items-start justify-between">
@@ -175,6 +188,7 @@ export const PostPreview = ({
         initialDate={createPostData?.initialDate}
         initialChannelId={createPostData?.initialChannelId}
         scheduleId={createPostData?.scheduleId}
+        initialMediaSelectionExpanded={createPostData?.initialMediaSelectionExpanded}
       />
     </>
   );
