@@ -25,8 +25,8 @@
     "db:migrate": "turbo run db:migrate"
   },
   "workspaces": [
-    "@fanslib/apps/*",
-    "!@fanslib/apps/electron-legacy",
+    "@fanslib/apps/web",
+    "@fanslib/apps/server",
     "@fanslib/libraries/*",
     "@fanslib/configs/*"
   ],
