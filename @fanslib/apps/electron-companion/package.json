@@ -1,8 +1,8 @@
 {
-  "name": "@fanslib/electron-bridge",
-  "productName": "FansLib Bridge",
+  "name": "@fanslib/electron-companion",
+  "productName": "FansLib Companion",
   "version": "1.0.0",
-  "description": "Bridge application for Chrome extension drag operations",
+  "description": "Companion application for Chrome extension",
   "main": "./out/main/index.js",
   "author": "Galatea Polymorph",
   "scripts": {
@@ -24,8 +24,8 @@
     "vite": "^5.3.1"
   },
   "build": {
-    "appId": "com.fanslib.bridge",
-    "productName": "FansLib Bridge",
+    "appId": "com.fanslib.companion",
+    "productName": "FansLib Companion",
     "directories": {
       "buildResources": "assets"
     },
@@ -39,7 +39,7 @@
       "!{tsconfig.json,tsconfig.node.json}"
     ],
     "win": {
-      "executableName": "fanslib-bridge",
+      "executableName": "fanslib-companion",
       "icon": "assets/icons/icon.png",
       "target": [
         {
@@ -51,7 +51,7 @@
       ]
     },
     "nsis": {
-      "artifactName": "${name}-${version}-setup.${ext}",
+      "artifactName": "fanslib-companion-${version}-setup.${ext}",
       "shortcutName": "${productName}",
       "uninstallDisplayName": "${productName}",
       "createDesktopShortcut": false,
@@ -59,6 +59,7 @@
       "allowToChangeInstallationDirectory": false
     },
     "mac": {
+      "identity": null,
       "icon": "assets/icons/icon.icns",
       "target": [
         {
@@ -73,7 +74,7 @@
       "notarize": false
     },
     "dmg": {
-      "artifactName": "${name}-${version}.${ext}"
+      "artifactName": "fanslib-companion-${version}-${arch}.${ext}"
     },
     "compression": "maximum"
   }

@@ -3,7 +3,7 @@ import fs from 'fs';
 import { createServer } from './server';
 
 if (process.platform === 'darwin') {
-  app.name = 'FansLib Bridge';
+  app.name = 'FansLib Companion';
 }
 
 let tray: Tray | null = null;
@@ -57,7 +57,7 @@ app.whenReady().then(async () => {
   const icon = createHeartIcon();
 
   tray = new Tray(icon);
-  tray.setToolTip('FansLib Bridge');
+  tray.setToolTip('FansLib Companion');
 
   const handleCopyToClipboard = (filePaths: string[]) => {
     const validFiles = filePaths.filter((filePath) => fs.existsSync(filePath));

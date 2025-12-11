@@ -30,7 +30,7 @@
     "@fanslib/apps/web",
     "@fanslib/apps/server",
     "@fanslib/apps/chrome-extension",
-    "@fanslib/apps/electron-bridge",
+    "@fanslib/apps/electron-companion",
     "@fanslib/libraries/*",
     "@fanslib/configs/*"
   ],
