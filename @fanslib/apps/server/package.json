@@ -50,7 +50,6 @@
   "devDependencies": {
     "@eslint/js": "^9.37.0",
     "@fanslib/eslint": "workspace:*",
-    "@fanslib/prettier": "workspace:*",
     "@fanslib/typescript": "workspace:*",
     "@types/ffprobe-static": "^2.0.3",
     "@typescript-eslint/eslint-plugin": "^8.46.1",

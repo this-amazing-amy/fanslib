@@ -15,6 +15,7 @@ export const CONTENT_SCHEDULE_FIXTURES: ContentScheduleFixture[] = [
     type: "daily",
     postsPerTimeframe: 2,
     preferredDays: null,
+    skippedSlots: [],
     preferredTimes: ["09:00", "18:00"],
   },
   {
@@ -27,6 +28,7 @@ export const CONTENT_SCHEDULE_FIXTURES: ContentScheduleFixture[] = [
     postsPerTimeframe: 5,
     preferredDays: ["Monday", "Wednesday", "Friday"],
     preferredTimes: ["10:00", "15:00"],
+    skippedSlots: [],
   },
 ];
 

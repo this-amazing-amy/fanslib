@@ -1,8 +1,8 @@
 import { t } from "elysia";
-import { ChannelSchema } from "~/features/channels/entity";
-import { PostMediaSchema, PostSchema } from "~/features/posts/entity";
-import { SubredditSchema } from "~/features/subreddits/entity";
 import { db } from "../../../../lib/db";
+import { ChannelSchema } from "../../../channels/entity";
+import { PostMediaSchema, PostSchema } from "../../../posts/entity";
+import { SubredditSchema } from "../../../subreddits/entity";
 import { Media, MediaSchema, MediaTypeSchema } from "../../entity";
 
 export const UpdateMediaRequestParamsSchema = t.Object({
@@ -59,7 +59,7 @@ export const updateMedia = async (id: string, updates: typeof UpdateMediaRequest
   Object.assign(media, updates);
   await repository.save(media);
 
-  return repository.findOne({
+  const updatedMedia = await repository.findOne({
     where: { id },
     relations: {
       postMedia: {
@@ -70,5 +70,12 @@ export const updateMedia = async (id: string, updates: typeof UpdateMediaRequest
       },
     },
   });
+
+  if (!updatedMedia) return null;
+
+  return {
+    ...updatedMedia,
+    postMedia: updatedMedia.postMedia.filter((pm) => pm.post !== null && pm.post !== undefined),
+  };
 };
 

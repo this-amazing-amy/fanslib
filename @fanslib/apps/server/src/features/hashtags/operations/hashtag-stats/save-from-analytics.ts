@@ -1,5 +1,5 @@
-import type { FanslyAnalyticsResponse } from "~/lib/fansly-analytics/fansly-analytics-response";
 import { db } from "../../../../lib/db";
+import type { FanslyAnalyticsResponse } from "../../../../lib/fansly-analytics/fansly-analytics-response";
 import { Hashtag, HashtagChannelStats } from "../../entity";
 
 type TagData = {

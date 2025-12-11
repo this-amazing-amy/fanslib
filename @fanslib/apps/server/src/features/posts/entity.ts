@@ -17,7 +17,7 @@ import { ContentSchedule } from "../content-schedules/entity";
 import { Media, MediaSchema } from "../library/entity";
 import { Subreddit } from "../subreddits/entity";
 
-export type PostStatus = "draft" | "scheduled" | "posted";
+export type PostStatus = "draft" | "ready" | "scheduled" | "posted";
 
 @Entity("post")
 // eslint-disable-next-line functional/no-classes
@@ -55,7 +55,7 @@ export class Post {
 
   @Column({
     type: "varchar",
-    enum: ["draft", "scheduled", "posted"],
+    enum: ["draft", "ready", "scheduled", "posted"],
     name: "status",
   })
   status!: PostStatus;
@@ -123,6 +123,7 @@ export type PostWithoutRelations = Omit<Post, "channel" | "media" | "subreddit">
 
 export const PostStatusSchema = t.Union([
   t.Literal('draft'),
+  t.Literal('ready'),
   t.Literal('scheduled'),
   t.Literal('posted'),
 ]);

@@ -1,3 +1,5 @@
+import type { PostStatus } from "@fanslib/server/schemas";
+
 export type ColorDefinition = {
   name: string;
   background: string; // oklch value
@@ -32,6 +34,10 @@ export const baseColors = {
   draftSlate: {
     background: 'oklch(85% 0.02 240)',
     foreground: 'oklch(40% 0.03 240)',
+  },
+  readyAmber: {
+    background: 'oklch(92% 0.06 85)',
+    foreground: 'oklch(40% 0.10 85)',
   },
   softPink: {
     background: 'oklch(82% 0.12 340)',
@@ -97,6 +103,11 @@ export const POST_STATUS_COLORS: Record<string, ColorDefinition> = {
     name: 'Scheduled',
     background: baseColors.scheduledSky.background,
     foreground: baseColors.scheduledSky.foreground,
+  },
+  ready: {
+    name: 'Ready',
+    background: baseColors.readyAmber.background,
+    foreground: baseColors.readyAmber.foreground,
   },
   draft: {
     name: 'Draft',
@@ -233,7 +244,7 @@ export const getTagTypeStyles = (dataType: "categorical" | "numerical" | "boolea
   };
 };
 
-export const getPostStatusStyles = (status: "posted" | "scheduled" | "draft") => {
+export const getPostStatusStyles = (status: PostStatus) => {
   const colors = POST_STATUS_COLORS[status];
   return {
     backgroundColor: colors.background,
@@ -242,7 +253,7 @@ export const getPostStatusStyles = (status: "posted" | "scheduled" | "draft") =>
   };
 };
 
-export const getPostStatusBorderColor = (status: "posted" | "scheduled" | "draft"): string =>
+export const getPostStatusBorderColor = (status: PostStatus): string =>
   POST_STATUS_COLORS[status].background;
 
 export const getRandomPresetId = (): string => {

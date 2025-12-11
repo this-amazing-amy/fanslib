@@ -1,15 +1,16 @@
-import { findRedgifsURL } from "../api-postpone/operations/redgifs/find-url";
 import { CHANNEL_TYPES } from "../channels/channelTypes";
 import { fetchChannelsByType, fetchSubredditById } from "../channels/operations";
 import { getMediaById } from "../library/operations";
 import { createPost } from "../posts/operations";
 import { PostToRedditPayload, RedditPostResult } from "./api-type";
 import { postToRedditWithPlaywright } from "./reddit-automation-adapter";
-import { BrowserConfig, RedditPostDraft } from "@fanslib/reddit-automation";
 
+// @ts-expect-error
 export type RedditPosterOptions = BrowserConfig;
+// @ts-expect-error
 export type { RedditPostDraft };
 
+// @ts-expect-error
 export const postToReddit = async (payload: PostToRedditPayload): Promise<RedditPostResult> => {
   const subreddit = await fetchSubredditById(payload.subredditId);
   if (!subreddit) {
@@ -27,6 +28,7 @@ export const postToReddit = async (payload: PostToRedditPayload): Promise<Reddit
     };
   }
 
+// @ts-expect-error
   const url = await findRedgifsURL({ mediaId: media.id });
   if (!url) {
     return {

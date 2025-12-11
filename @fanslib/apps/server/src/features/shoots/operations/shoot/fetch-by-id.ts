@@ -1,6 +1,6 @@
 import { t } from "elysia";
-import { MediaSchema } from "~/features/library/entity";
 import { db } from "../../../../lib/db";
+import { MediaSchema } from "../../../library/entity";
 import { Shoot, ShootSchema } from "../../entity";
 
 export const FetchShootByIdRequestParamsSchema = t.Object({

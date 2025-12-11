@@ -45,7 +45,7 @@ export const Button = ({
       {...props}
       isDisabled={isDisabled ?? isLoading}
       className={cn(
-        'btn',
+        'btn whitespace-nowrap',
         variantClasses[variant],
         sizeClasses[size],
         'data-[pressed]:btn-active',

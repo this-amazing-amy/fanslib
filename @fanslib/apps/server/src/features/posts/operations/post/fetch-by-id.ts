@@ -1,9 +1,9 @@
 import { t } from "elysia";
-import { ChannelSchema } from "~/features/channels/entity";
-import { ContentScheduleSchema } from "~/features/content-schedules/entity";
-import { MediaSchema } from "~/features/library/entity";
-import { SubredditSchema } from "~/features/subreddits/entity";
 import { db } from "../../../../lib/db";
+import { ChannelSchema } from "../../../channels/entity";
+import { ContentScheduleSchema } from "../../../content-schedules/entity";
+import { MediaSchema } from "../../../library/entity";
+import { SubredditSchema } from "../../../subreddits/entity";
 import { Post, PostMediaSchema, PostSchema } from "../../entity";
 
 export const FetchPostByIdRequestParamsSchema = t.Object({

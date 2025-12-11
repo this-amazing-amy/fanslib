@@ -1,8 +1,8 @@
 import { t } from "elysia";
-import { ChannelSchema } from "~/features/channels/entity";
-import { ContentScheduleSchema } from "~/features/content-schedules/entity";
-import { SubredditSchema } from "~/features/subreddits/entity";
 import { db } from "../../../../lib/db";
+import { ChannelSchema } from "../../../channels/entity";
+import { ContentScheduleSchema } from "../../../content-schedules/entity";
+import { SubredditSchema } from "../../../subreddits/entity";
 import { Post, PostMediaWithMediaSchema, PostSchema } from "../../entity";
 import type { PostFiltersSchema } from "../../schemas/post-filters";
 
@@ -47,6 +47,12 @@ export const fetchAllPosts = async (filters?: typeof PostFiltersSchema.static): 
   if (filters?.channels && filters.channels.length > 0) {
     queryBuilder.andWhere("post.channelId IN (:...channels)", {
       channels: filters.channels,
+    });
+  }
+
+  if (filters?.channelTypes && filters.channelTypes.length > 0) {
+    queryBuilder.andWhere("type.id IN (:...channelTypes)", {
+      channelTypes: filters.channelTypes,
     });
   }
 

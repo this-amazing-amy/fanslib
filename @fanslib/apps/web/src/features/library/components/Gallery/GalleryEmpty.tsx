@@ -1,5 +1,6 @@
 import { Search } from "lucide-react";
 import { EmptyState } from "~/components/ui/EmptyState/EmptyState";
+import { useHydrated } from "~/hooks/useHydrated";
 import { useMediaFilters } from "../MediaFilters/MediaFiltersContext";
 
 type GalleryEmptyProps = {
@@ -7,7 +8,8 @@ type GalleryEmptyProps = {
 };
 
 export const GalleryEmpty = ({ onScan }: GalleryEmptyProps) => {
-  const { hasActiveFilters, clearFilters, isHydrated } = useMediaFilters();
+  const { hasActiveFilters, clearFilters, } = useMediaFilters();
+  const isHydrated = useHydrated();
 
   // Only show "has filters" state if hydrated
   const displayHasActiveFilters = isHydrated && hasActiveFilters;

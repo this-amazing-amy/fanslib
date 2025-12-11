@@ -92,6 +92,9 @@ export const createTestPost = async (
     status: "draft",
     channelId: channel.id,
     channel,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    date: new Date().toISOString(),
     ...overrides,
   });
 

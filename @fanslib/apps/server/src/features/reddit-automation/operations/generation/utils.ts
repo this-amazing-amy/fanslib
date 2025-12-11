@@ -1,4 +1,4 @@
-import { db } from "~/lib/db";
+import { db } from "../../../../lib/db";
 import { Media } from "../../../library/entity";
 import { buildFilterGroupQuery } from "../../../library/filter-helpers";
 import type { MediaFilterSchema } from "../../../library/schemas/media-filter";

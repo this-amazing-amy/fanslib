@@ -70,12 +70,7 @@ const LayoutContent = ({ children }: AppLayoutProps) => {
             </div>
             <div className='flex-1'>
               <div className='flex items-center space-x-2 ml-2'>
-                <div className='w-8 h-8 bg-primary rounded-lg flex items-center justify-center'>
-                  <span className='text-primary-content font-bold text-lg'>
-                    F
-                  </span>
-                </div>
-                <span className='text-lg sm:text-xl font-bold'>FansLib</span>
+                <Logo isCollapsed={false} className="h-8" />
               </div>
             </div>
           </header>

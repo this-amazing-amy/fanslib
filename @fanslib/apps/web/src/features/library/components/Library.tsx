@@ -18,7 +18,7 @@ type MediaFilters = typeof MediaFilterSchema.static;
 type Media = typeof MediaSchema.static;
 
 export const Library = () => {
-  const { preferences, updatePreferences, isHydrated } = useLibraryPreferences();
+  const { preferences, updatePreferences } = useLibraryPreferences();
   const {
     data: mediaList,
     error,
@@ -42,7 +42,7 @@ export const Library = () => {
 
   return (
     <FilterPresetProvider onFiltersChange={updateFilters}>
-      <MediaFiltersProvider value={preferences.filter} onChange={updateFilters} isHydrated={isHydrated}>
+      <MediaFiltersProvider value={preferences.filter} onChange={updateFilters}>
         <PageContainer className="flex h-full w-full flex-col overflow-hidden px-0 py-0">
           <div className="flex-1 min-h-0 px-6 pb-6 flex flex-col">
             <div className="mb-4">

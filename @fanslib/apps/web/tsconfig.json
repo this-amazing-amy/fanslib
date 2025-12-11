@@ -18,7 +18,7 @@
     "emitDecoratorMetadata": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./src/*", "../server/src/*"]
+      "~/*": ["./src/*"]
     },
     "noEmit": true
   }

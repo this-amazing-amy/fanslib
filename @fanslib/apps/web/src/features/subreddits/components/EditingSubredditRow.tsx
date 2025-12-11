@@ -191,7 +191,6 @@ export const EditingSubredditRow = ({ subreddit, onUpdate }: EditingSubredditRow
               onChange={(filter) =>
                 setEditingSubreddit({ ...editingSubreddit, eligibleMediaFilter: filter })
               }
-              isHydrated={true}
             >
               <FilterPresetProvider
                 onFiltersChange={(filter) => {

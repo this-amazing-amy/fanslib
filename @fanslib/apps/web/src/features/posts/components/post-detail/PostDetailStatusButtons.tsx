@@ -1,5 +1,5 @@
 import type { PostWithRelationsSchema } from '@fanslib/server/schemas';
-import { CalendarDays, Check, Undo2 } from 'lucide-react';
+import { CalendarDays, Check, Undo2, Zap } from 'lucide-react';
 import { StatusSticker } from '~/components/StatusSticker';
 import { Button } from '~/components/ui/Button';
 import { getPostStatusStyles } from '~/lib/colors';
@@ -14,7 +14,7 @@ type PostDetailStatusButtonsProps = {
 export const PostDetailStatusButtons = ({ post }: PostDetailStatusButtonsProps) => {
   const updatePostMutation = useUpdatePostMutation();
 
-  const handleUpdateStatus = async (status: 'draft' | 'scheduled' | 'posted') => {
+  const handleUpdateStatus = async (status: 'draft' | 'ready' | 'scheduled' | 'posted') => {
     try {
       await updatePostMutation.mutateAsync({
         id: post.id,
@@ -37,12 +37,24 @@ export const PostDetailStatusButtons = ({ post }: PostDetailStatusButtonsProps) 
           <Button
             variant="outline"
             size="sm"
+            onClick={() => handleUpdateStatus('ready')}
+            isDisabled={isUpdating}
+            style={getPostStatusStyles('ready')}
+            className="text-xs"
+          >
+            <Zap className="size-4 mr-2" />
+            Mark Ready
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => handleUpdateStatus('scheduled')}
             isDisabled={isUpdating}
             style={getPostStatusStyles('scheduled')}
+            className="text-xs"
           >
             <CalendarDays className="size-4 mr-2" />
-            Mark scheduled
+            Mark Scheduled
           </Button>
           <Button
             variant="outline"
@@ -50,9 +62,50 @@ export const PostDetailStatusButtons = ({ post }: PostDetailStatusButtonsProps) 
             onClick={() => handleUpdateStatus('posted')}
             isDisabled={isUpdating}
             style={getPostStatusStyles('posted')}
+            className="text-xs"
           >
             <Check className="size-4 mr-2" />
-            Mark posted
+            Mark Posted
+          </Button>
+        </>
+      );
+    }
+
+    if (post.status === 'ready') {
+      return (
+        <>
+          <StatusSticker status={post.status} size="md" className="justify-self-start" />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleUpdateStatus('draft')}
+            isDisabled={isUpdating}
+            className="text-xs"
+          >
+            <Undo2 className="size-4 mr-2" />
+            Back to Draft
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleUpdateStatus('scheduled')}
+            isDisabled={isUpdating}
+            style={getPostStatusStyles('scheduled')}
+            className="text-xs"
+          >
+            <CalendarDays className="size-4 mr-2" />
+            Mark Scheduled
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleUpdateStatus('posted')}
+            isDisabled={isUpdating}
+            style={getPostStatusStyles('posted')}
+            className="text-xs"
+          >
+            <Check className="size-4 mr-2" />
+            Mark Posted
           </Button>
         </>
       );
@@ -67,6 +120,7 @@ export const PostDetailStatusButtons = ({ post }: PostDetailStatusButtonsProps) 
             size="sm"
             onClick={() => handleUpdateStatus('draft')}
             isDisabled={isUpdating}
+            className="text-xs"
           >
             <Undo2 className="size-4 mr-2" />
             Back to Draft
@@ -77,9 +131,10 @@ export const PostDetailStatusButtons = ({ post }: PostDetailStatusButtonsProps) 
             onClick={() => handleUpdateStatus('posted')}
             isDisabled={isUpdating}
             style={getPostStatusStyles('posted')}
+            className="text-xs"
           >
             <Check className="size-4 mr-2" />
-            Mark posted
+            Mark Posted
           </Button>
         </>
       );
@@ -94,6 +149,7 @@ export const PostDetailStatusButtons = ({ post }: PostDetailStatusButtonsProps) 
             size="sm"
             onClick={() => handleUpdateStatus('draft')}
             isDisabled={isUpdating}
+            className="text-xs"
           >
             <Undo2 className="size-4 mr-2" />
             Back to Draft
@@ -106,7 +162,7 @@ export const PostDetailStatusButtons = ({ post }: PostDetailStatusButtonsProps) 
   };
 
   return (
-    <div className="grid grid-cols-[1fr_auto_auto] items-center gap-2">
+    <div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-2">
       {renderButtons()}
     </div>
   );

@@ -1,0 +1,39 @@
+@import 'tailwindcss';
+
+@plugin 'daisyui' {
+  themes: pastel --default;
+}
+
+@theme {
+  --spacing-content-gap: 1.5rem;
+
+  --font-family-sans:
+    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/* Override DaisyUI accent color */
+:root {
+  --a: 85% 0.12 35; /* Soft coral/peach accent */
+  --ac: 25% 0.15 35; /* Dark coral for accent content */
+}
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    font-family: var(--font-family-sans);
+  }
+
+  body {
+    font-family: var(--font-family-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    @apply bg-base-100 text-base-content;
+  }
+}

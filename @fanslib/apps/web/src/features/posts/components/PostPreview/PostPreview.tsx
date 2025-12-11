@@ -13,9 +13,9 @@ import { MediaTile } from "~/features/library/components/MediaTile";
 import { cn } from "~/lib/cn";
 import { getPostStatusBorderColor } from "~/lib/colors";
 import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
+import { useVirtualPostClick } from "../../hooks/useVirtualPostClick";
 import { PostTimelineDropZone } from "../PostTimelineDropZone";
 import { VirtualPostOverlay } from "../VirtualPostOverlay";
-import { useVirtualPostClick } from "../../hooks/useVirtualPostClick";
 import { usePostPreviewDrag } from "./usePostPreviewDrag";
 
 type Post = typeof PostWithRelationsSchema.static;

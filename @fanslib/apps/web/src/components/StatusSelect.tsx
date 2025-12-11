@@ -7,11 +7,12 @@ type PostStatus = typeof PostStatusSchema.static;
 
 const STATUS_LABELS: Record<PostStatus, string> = {
   draft: "Draft",
+  ready: "Ready",
   scheduled: "Scheduled",
   posted: "Posted",
 } as const;
 
-const STATUS_OPTIONS = (["draft", "scheduled", "posted"] as PostStatus[]).map((status) => ({
+const STATUS_OPTIONS = (["draft", "ready", "scheduled", "posted"] as PostStatus[]).map((status) => ({
   id: status,
   label: STATUS_LABELS[status],
   background: POST_STATUS_COLORS[status].background,

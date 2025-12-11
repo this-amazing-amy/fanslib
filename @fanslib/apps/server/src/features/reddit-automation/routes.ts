@@ -1,7 +1,7 @@
 import { Elysia, t } from "elysia";
-import { db } from "~/lib/db";
-import { browserDataPath } from "~/lib/env";
-import { createFileSessionStorage } from "~/lib/reddit-poster/session-storage";
+import { db } from "../../lib/db";
+import { browserDataPath } from "../../lib/env";
+import { createFileSessionStorage } from "../../lib/reddit-poster/session-storage";
 import { isRedditAutomationRunning } from "./operations/automation/check-status";
 import { postToReddit } from "./operations/automation/post-to-reddit";
 import { generateRandomPost } from "./operations/generation/generate-random-post";

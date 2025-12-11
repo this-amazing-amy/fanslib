@@ -1,6 +1,6 @@
 import { t } from "elysia";
-import { ChannelSchema } from "~/features/channels/entity";
 import { db } from "../../../../lib/db";
+import { ChannelSchema } from "../../../channels/entity";
 import { HashtagChannelStats, HashtagChannelStatsSchema } from "../../entity";
 
 export const FetchHashtagStatsRequestParamsSchema = t.Object({

@@ -1,0 +1,38 @@
+{
+  "name": "@fanslib/chrome-extension",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite build --watch --mode development",
+    "build": "vite build",
+    "pack": "bun run scripts/pack-crx.ts",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "@elysiajs/eden": "^1.4.4",
+    "@fanslib/server": "workspace:*",
+    "devalue": "^5.5.0",
+    "lucide-react": "^0.544.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@fanslib/eslint": "workspace:*",
+    "@fanslib/typescript": "workspace:*",
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/chrome": "^0.0.286",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "bun-types": "latest",
+    "daisyui": "^5.1.14",
+    "postcss-logical": "^6.1.0",
+    "crx": "^5.0.1",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.2",
+    "vite": "^7.0.0"
+  }
+}

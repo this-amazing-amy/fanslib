@@ -2,7 +2,6 @@ import tailwindcss from '@tailwindcss/vite';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
-import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import tsConfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
@@ -13,11 +12,11 @@ export default defineConfig({
     tailwindcss(),
     tanstackStart(),
     viteReact(),
-    nodePolyfills({
-      // Don't polyfill stream since TanStack Router needs stream/web
-      // which isn't available in stream-browserify
-      exclude: ['stream'],
-    }),
+    // nodePolyfills({
+    //   // Don't polyfill stream since TanStack Router needs stream/web
+    //   // which isn't available in stream-browserify
+    //   exclude: ['stream'],
+    // }),
   ],
   server: {
     host: '0.0.0.0',

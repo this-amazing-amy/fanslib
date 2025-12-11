@@ -45,7 +45,6 @@ const defaultPreferences: LibraryPreferences = {
 type LibraryPreferencesContextValue = {
   preferences: LibraryPreferences;
   updatePreferences: (updates: DeepPartial<LibraryPreferences>) => void;
-  isHydrated: boolean;
 };
 
 const LibraryPreferencesContext = createContext<LibraryPreferencesContextValue | undefined>(
@@ -55,22 +54,22 @@ const LibraryPreferencesContext = createContext<LibraryPreferencesContextValue |
 const STORAGE_KEY = "libraryPreferences";
 
 export const LibraryPreferencesProvider = ({ children }: { children: React.ReactNode }) => {
-  const { value: preferences, setValue: setPreferences, isHydrated } = useLocalStorage(
+  const { value: preferences, setValue: setPreferences } = useLocalStorage(
     STORAGE_KEY,
     defaultPreferences,
     (defaults, stored) => mergeDeep(defaults, stored)
   );
 
   const updatePreferences = useCallback((updates: DeepPartial<LibraryPreferences>) => {
-    setPreferences((prev) => mergeDeep(prev, updates) as LibraryPreferences);
-  }, [setPreferences]);
+    const newPreferences = mergeDeep(preferences, updates) as LibraryPreferences
+    setPreferences(newPreferences);
+  }, [setPreferences, preferences]);
 
   return (
     <LibraryPreferencesContext.Provider
       value={{
         preferences,
         updatePreferences,
-        isHydrated,
       }}
     >
       {children}

@@ -5,7 +5,7 @@ import {
   FanslyAnalyticsDatapoint,
 } from "../features/analytics/entity";
 import { Channel, ChannelType } from "../features/channels/entity";
-import { ContentSchedule } from "../features/content-schedules/entity";
+import { ContentSchedule, SkippedScheduleSlot } from "../features/content-schedules/entity";
 import { FilterPreset } from "../features/filter-presets/entity";
 import { Hashtag, HashtagChannelStats } from "../features/hashtags/entity";
 import { Media } from "../features/library/entity";
@@ -36,6 +36,7 @@ export const createTestDataSource = () => new DataSource({
       HashtagChannelStats,
       Shoot,
       ContentSchedule,
+      SkippedScheduleSlot,
       FilterPreset,
       CaptionSnippet,
       FanslyAnalyticsDatapoint,
@@ -76,6 +77,7 @@ export const getTestDataSource = () => {
 export const clearAllTables = async () => {
   const dataSource = getTestDataSource();
   
+  await dataSource.getRepository("FanslyQueueItem").clear();
   await dataSource.getRepository("PostMedia").clear();
   await dataSource.getRepository("Post").clear();
   await dataSource.getRepository("HashtagChannelStats").clear();

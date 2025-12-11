@@ -1,6 +1,6 @@
 import { t } from "elysia";
-import { ChannelSchema } from "~/schemas";
 import { db } from "../../../../lib/db";
+import { ChannelSchema } from "../../../channels/entity";
 import { ContentSchedule, ContentScheduleSchema } from "../../entity";
 
 export const ContentScheduleWithChannelSchema = t.Composite([

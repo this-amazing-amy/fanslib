@@ -1,6 +1,7 @@
 import { Bookmark, Plus } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
+import { useHydrated } from "~/hooks/useHydrated";
 import {
   DropdownMenu,
   DropdownMenuItem,
@@ -21,7 +22,8 @@ type FilterPresetDropdownProps = {
 export const FilterPresetDropdown = ({ disabled = false }: FilterPresetDropdownProps) => {
   const { presets, isLoading, applyPreset } = useFilterPresetContext();
   const [showSaveDialog, setShowSaveDialog] = useState(false);
-  const { filters, hasActiveFilters, isHydrated } = useMediaFilters();
+  const { filters, hasActiveFilters } = useMediaFilters();
+  const isHydrated = useHydrated();
 
   const handleApplyPreset = (presetId: string) => {
     const preset = presets.find((p) => p.id === presetId);

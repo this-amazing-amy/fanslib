@@ -1,9 +1,9 @@
-import { Check, Clock, Edit2Icon } from "lucide-react";
+import { Check, Clock, Edit2Icon, Zap } from "lucide-react";
 import { cn } from "~/lib/cn";
 import { POST_STATUS_COLORS } from "~/lib/colors";
 
 type StatusStickerProps = {
-  status: "posted" | "scheduled" | "draft";
+  status: "posted" | "scheduled" | "ready" | "draft";
   size?: "sm" | "md" | "lg";
   className?: string;
 };
@@ -20,6 +20,12 @@ const STATUS_CONFIG = {
     background: POST_STATUS_COLORS.scheduled.background,
     foreground: POST_STATUS_COLORS.scheduled.foreground,
     Icon: Clock,
+  },
+  ready: {
+    label: "Ready",
+    background: POST_STATUS_COLORS.ready.background,
+    foreground: POST_STATUS_COLORS.ready.foreground,
+    Icon: Zap,
   },
   draft: {
     label: "Draft",

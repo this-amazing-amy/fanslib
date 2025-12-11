@@ -1,7 +1,7 @@
 import { t } from "elysia";
 import { IsNull } from "typeorm";
-import { Channel, ChannelSchema } from "~/features/channels/entity";
 import { db } from "../../../../lib/db";
+import { Channel, ChannelSchema } from "../../../channels/entity";
 import { CaptionSnippet, CaptionSnippetSchema } from "../../entity";
 
 export const CreateSnippetRequestBodySchema = t.Object({

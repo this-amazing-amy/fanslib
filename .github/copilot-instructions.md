@@ -2,7 +2,7 @@
 
 ### Core Principles
 
-**Prioritize clarity and readability above all else.** Code is read far more often than it's written. Every line should communicate intent clearly. If code needs comments to explain *what* it does, the code needs improvement.
+**Prioritize clarity and readability above all else.** Code is read far more often than it's written. Every line should communicate intent clearly. If code needs comments to explain _what_ it does, the code needs improvement.
 
 **Favor functional programming over imperative programming.** Think in terms of data transformations rather than procedures. Pure functions that take inputs and return outputs are easier to understand, test, and compose than code with side effects and mutable state.
 
@@ -53,12 +53,14 @@ const formatPrice = (price: number) => `$${price.toFixed(2)}`;
 
 ```typescript
 // ❌ DON'T
-const formatPrice = (price: number, currency: string) => `${currency}${price.toFixed(2)}`;
-prices.map(price => formatPrice(price, "€"));
+const formatPrice = (price: number, currency: string) =>
+  `${currency}${price.toFixed(2)}`;
+prices.map((price) => formatPrice(price, '€'));
 
 // ✅ DO
-const formatPrice = (currency: string) => (price: number) => `${currency}${price.toFixed(2)}`;
-prices.map(formatPrice("€"));
+const formatPrice = (currency: string) => (price: number) =>
+  `${currency}${price.toFixed(2)}`;
+prices.map(formatPrice('€'));
 ```
 
 **Organize files by feature or domain, not by technical role.** Group related components, types, and utilities together rather than separating by file type.
@@ -70,8 +72,12 @@ prices.map(formatPrice("€"));
 ```typescript
 // ❌ DON'T
 class MathUtils {
-  static add(a: number, b: number) { return a + b; }
-  static multiply(a: number, b: number) { return a * b; }
+  static add(a: number, b: number) {
+    return a + b;
+  }
+  static multiply(a: number, b: number) {
+    return a * b;
+  }
 }
 
 // ✅ DO
@@ -97,7 +103,7 @@ const processUser = (user: User | null) => {
 const processUser = (user: User | null) => {
   if (!user) return null;
   if (!user.isActive) return null;
-  
+
   // main logic at top level
 };
 ```
@@ -107,10 +113,10 @@ const processUser = (user: User | null) => {
 ```typescript
 // ✅ DO
 const userStatus = user.isBanned
-  ? "banned"
+  ? 'banned'
   : user.isVerified
-  ? "active"
-  : "pending";
+    ? 'active'
+    : 'pending';
 ```
 
 ---
@@ -137,7 +143,7 @@ const total = items.reduce((sum, item) => sum + item.price, 0);
 ```typescript
 // ❌ DON'T
 const activeUsers = [];
-users.forEach(user => {
+users.forEach((user) => {
   if (user.isActive) activeUsers.push(user);
 });
 
@@ -145,10 +151,10 @@ updatedUser.lastLogin = new Date();
 cart.splice(itemIndex, 1);
 
 // ✅ DO
-const activeUsers = users.filter(user => user.isActive);
+const activeUsers = users.filter((user) => user.isActive);
 
 const updatedUser = { ...user, lastLogin: new Date() };
-const updatedCart = cart.filter(item => item.id !== productId);
+const updatedCart = cart.filter((item) => item.id !== productId);
 ```
 
 **Prefer expressions over statements.** Use ternaries instead of if/else, array methods instead of loops, and values that can be assigned to `const` rather than imperatively building results.
@@ -171,22 +177,22 @@ const discount = user.isPremium ? 0.2 : 0.1;
 ```typescript
 // ❌ DON'T
 let statusColor;
-if (status === "success") {
-  statusColor = "green";
-} else if (status === "warning") {
-  statusColor = "yellow";
+if (status === 'success') {
+  statusColor = 'green';
+} else if (status === 'warning') {
+  statusColor = 'yellow';
 } else {
-  statusColor = "gray";
+  statusColor = 'gray';
 }
 
 // ✅ DO
 const statusColorMap = {
-  success: "green",
-  warning: "yellow",
-  error: "red",
+  success: 'green',
+  warning: 'yellow',
+  error: 'red',
 } as const;
 
-const statusColor = statusColorMap[status] ?? "gray";
+const statusColor = statusColorMap[status] ?? 'gray';
 ```
 
 **Never use traditional loops.** Use array methods (`.map()`, `.filter()`, `.reduce()`, `.some()`, `.every()`, `.find()`) instead of `for`, `while`, `do/while`, or `for...in`. The only exception is `for await...of` with `AsyncIterable` types.
@@ -198,7 +204,7 @@ for (let i = 0; i < users.length; i++) {
 }
 
 // ✅ DO
-users.map(user => user.name).forEach(console.log);
+users.map((user) => user.name).forEach(console.log);
 ```
 
 **For async operations, use `.map()` with `Promise.all()` instead of loops with `await`.** Loops cause sequential execution; `Promise.all()` runs operations in parallel.
@@ -231,7 +237,7 @@ const processOrder = async (orderId: string) => {
 };
 
 // ✅ DO separate pure logic from side effects
-const calculateDiscount = (isPremium: boolean) => isPremium ? 0.2 : 0;
+const calculateDiscount = (isPremium: boolean) => (isPremium ? 0.2 : 0);
 const calculateTax = (total: number) => total * 0.1;
 const calculateFinalPrice = (total: number, discount: number, tax: number) =>
   total * (1 - discount) + tax;
@@ -251,19 +257,16 @@ const processOrder = async (orderId: string) => {
 ```typescript
 // ❌ DON'T
 const adultNames = users
-  .filter(user => user.age >= 18)
-  .map(user => user.name)
-  .map(name => name.toUpperCase());
+  .filter((user) => user.age >= 18)
+  .map((user) => user.name)
+  .map((name) => name.toUpperCase());
 
 // ✅ DO
 const isAdult = (user: User) => user.age >= 18;
 const userName = (user: User) => user.name;
 const toUpperCase = (str: string) => str.toUpperCase();
 
-const adultNames = users
-  .filter(isAdult)
-  .map(userName)
-  .map(toUpperCase);
+const adultNames = users.filter(isAdult).map(userName).map(toUpperCase);
 ```
 
 **Prefer `.then()` over `async/await` for promise composition.** Use `async/await` only when you need complex imperative control flow with multiple branches or when one async result is needed by multiple subsequent operations.
@@ -287,11 +290,11 @@ const processOrder = (orderId: string) =>
 // ✅ DO use async/await when one result feeds multiple operations
 const createSummary = async (orderId: string) => {
   const order = await fetchOrder(orderId);
-  
+
   const customer = await fetchCustomer(order.customerId);
   const shipping = await calculateShipping(order);
   const discount = await calculateDiscount(order, customer);
-  
+
   return {
     total: order.total - discount + shipping,
     customerName: customer.name,
@@ -310,30 +313,40 @@ type PricedCart = { items: CartItem[]; total: number };
 type DiscountedCart = PricedCart & { discount: number; finalTotal: number };
 type Order = { userId: string; items: CartItem[]; total: number };
 
-const calculateTotal = (cart: Cart): PricedCart => ({ /* ... */ });
-const applyDiscount = (isPremium: boolean) => (cart: PricedCart): DiscountedCart => ({ /* ... */ });
-const toOrder = (userId: string) => (cart: DiscountedCart): Order => ({ /* ... */ });
+const calculateTotal = (cart: Cart): PricedCart => ({
+  /* ... */
+});
+const applyDiscount =
+  (isPremium: boolean) =>
+  (cart: PricedCart): DiscountedCart => ({
+    /* ... */
+  });
+const toOrder =
+  (userId: string) =>
+  (cart: DiscountedCart): Order => ({
+    /* ... */
+  });
 ```
 
 **Use result types instead of throwing exceptions.** Libraries like `neverthrow` provide `Result<T, E>` types that make errors explicit in function signatures.
 
 ```typescript
-import { Result, ok, err } from "neverthrow";
+import { Result, ok, err } from 'neverthrow';
 
 // ❌ DON'T throw exceptions
 const parseUser = (data: unknown): User => {
-  if (!isValid(data)) throw new Error("Invalid data");
+  if (!isValid(data)) throw new Error('Invalid data');
   return data as User;
 };
 
 // ✅ DO return Result types
-type ParseError = 
-  | { type: "invalid_data" }
-  | { type: "invalid_email"; email: unknown };
+type ParseError =
+  | { type: 'invalid_data' }
+  | { type: 'invalid_email'; email: unknown };
 
 const parseUser = (data: unknown): Result<User, ParseError> => {
-  if (!data || typeof data !== "object") {
-    return err({ type: "invalid_data" });
+  if (!data || typeof data !== 'object') {
+    return err({ type: 'invalid_data' });
   }
   // ... validate and return ok(user)
 };
@@ -342,7 +355,7 @@ const parseUser = (data: unknown): Result<User, ParseError> => {
 const processUser = (data: unknown) =>
   parseUser(data)
     .asyncAndThen(saveUser)
-    .mapErr(error => {
+    .mapErr((error) => {
       console.error(error);
       return error;
     });
@@ -351,23 +364,23 @@ const processUser = (data: unknown) =>
 **Validate data at boundaries using schemas.** Use libraries like ArkType or Zod to define schemas at API endpoints, database queries, and external service calls. Once validated, trust the types throughout your codebase.
 
 ```typescript
-import { type } from "arktype";
+import { type } from 'arktype';
 
 const CreateUserRequest = type({
-  email: "string.email",
-  "age>=": 18,
-  name: "string",
+  email: 'string.email',
+  'age>=': 18,
+  name: 'string',
 });
 
 type CreateUserRequest = typeof CreateUserRequest.infer;
 
 const createUser = async (req: Request, res: Response) => {
   const data = CreateUserRequest(req.body);
-  
+
   if (data instanceof type.errors) {
     return res.status(400).json({ error: data.summary });
   }
-  
+
   // data is now typed as CreateUserRequest
   const user = await db.users.create(data);
   return res.json(user);
@@ -385,14 +398,17 @@ const [loading, setLoading] = useState(true);
 const [error, setError] = useState<Error | null>(null);
 
 useEffect(() => {
-  fetchUser(userId).then(setUser).catch(setError).finally(() => setLoading(false));
+  fetchUser(userId)
+    .then(setUser)
+    .catch(setError)
+    .finally(() => setLoading(false));
 }, [userId]);
 
 // ✅ DO use TanStack Query
 const useUser = (userId: string) =>
   useQuery({
-    queryKey: ["user", userId],
-    queryFn: () => fetch(`/api/users/${userId}`).then(res => res.json()),
+    queryKey: ['user', userId],
+    queryFn: () => fetch(`/api/users/${userId}`).then((res) => res.json()),
   });
 
 const { data: user, isLoading, error } = useUser(userId);
@@ -443,7 +459,9 @@ Or in CSS:
 
 ```css
 @media (prefers-reduced-motion: reduce) {
-  .card { transition: none; }
+  .card {
+    transition: none;
+  }
 }
 ```
 
@@ -459,13 +477,13 @@ Or in CSS:
 // ❌ DON'T use classes
 class UserService {
   private baseUrl: string;
-  
+
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
   }
-  
+
   async fetchUser(id: string) {
-    return fetch(`${this.baseUrl}/users/${id}`).then(r => r.json());
+    return fetch(`${this.baseUrl}/users/${id}`).then((r) => r.json());
   }
 }
 
@@ -475,10 +493,10 @@ type ApiConfig = { baseUrl: string; timeout: number };
 const fetchUser = (config: ApiConfig) => (id: string) =>
   fetch(`${config.baseUrl}/users/${id}`, {
     signal: AbortSignal.timeout(config.timeout),
-  }).then(r => r.json());
+  }).then((r) => r.json());
 
-const config: ApiConfig = { baseUrl: "https://api.example.com", timeout: 5000 };
-const userPromise = fetchUser(config)("123");
+const config: ApiConfig = { baseUrl: 'https://api.example.com', timeout: 5000 };
+const userPromise = fetchUser(config)('123');
 ```
 
 **Why this is problematic:** Classes hide dependencies in `this`, make testing harder, and encourage inheritance over composition. Methods can't be used without instantiating the class even when they don't need instance state.
@@ -488,20 +506,24 @@ const userPromise = fetchUser(config)("123");
 ```typescript
 // ❌ DON'T use inheritance
 class Animal {
-  makeSound(): string { return "Some sound"; }
+  makeSound(): string {
+    return 'Some sound';
+  }
 }
 class Dog extends Animal {
-  makeSound(): string { return "Woof!"; }
+  makeSound(): string {
+    return 'Woof!';
+  }
 }
 
 // ✅ DO use union types with functions
-type Dog = { type: "dog"; name: string; breed: string };
-type Cat = { type: "cat"; name: string; indoor: boolean };
+type Dog = { type: 'dog'; name: string; breed: string };
+type Cat = { type: 'cat'; name: string; indoor: boolean };
 type Animal = Dog | Cat;
 
 const makeSound = (animal: Animal) => {
-  if (animal.type === "dog") return "Woof!";
-  if (animal.type === "cat") return "Meow!";
+  if (animal.type === 'dog') return 'Woof!';
+  if (animal.type === 'cat') return 'Meow!';
 };
 ```
 
@@ -512,7 +534,7 @@ const makeSound = (animal: Animal) => {
 ```typescript
 // ❌ DON'T throw exceptions
 const parseUser = (data: unknown): User => {
-  if (!isValid(data)) throw new Error("Invalid data");
+  if (!isValid(data)) throw new Error('Invalid data');
   return data as User;
 };
 
@@ -525,13 +547,13 @@ try {
 
 // ✅ DO use Result types
 const parseUser = (data: unknown): Result<User, ParseError> => {
-  if (!isValid(data)) return err({ type: "invalid_data" });
+  if (!isValid(data)) return err({ type: 'invalid_data' });
   return ok(data as User);
 };
 
 parseUser(data)
   .andThen(saveUser)
-  .mapErr(error => console.error(error));
+  .mapErr((error) => console.error(error));
 ```
 
 **Why this is problematic:** Functions that throw don't communicate this in their signature. You must read documentation or implementation to know what can fail. Result types make errors explicit and force you to handle both cases.
@@ -568,12 +590,12 @@ parseUser(data)
 
 ```typescript
 // ❌ DON'T test that types work
-it("should return a number", () => {
-  expect(typeof add(1, 2)).toBe("number");
+it('should return a number', () => {
+  expect(typeof add(1, 2)).toBe('number');
 });
 
 // ✅ DO test business requirements
-it("should apply correct final total for premium user with $100 order", () => {
+it('should apply correct final total for premium user with $100 order', () => {
   expect(calculateOrderTotal({ isPremium: true }, { total: 100 })).toBe(80);
 });
 ```
@@ -599,7 +621,7 @@ it("should apply correct final total for premium user with $100 order", () => {
 ```typescript
 // ❌ DON'T comment what code does
 // Loop through users and filter by active status
-const activeUsers = users.filter(user => user.isActive);
+const activeUsers = users.filter((user) => user.isActive);
 
 // ✅ DO comment why decisions were made
 // Legal requirement: users must be 18+ to view premium content
@@ -616,9 +638,10 @@ useEffect(() => {
 // ✅ DO document non-obvious business rules
 // Stripe charges process immediately, but bank transfers take 3 business days
 // to clear. We can't show paid status until the transfer completes.
-const isPaid = payment.method === "card"
-  ? payment.status === "succeeded"
-  : payment.status === "succeeded" && payment.clearedAt !== null;
+const isPaid =
+  payment.method === 'card'
+    ? payment.status === 'succeeded'
+    : payment.status === 'succeeded' && payment.clearedAt !== null;
 ```
 
 **Why this matters:** Code changes but comments don't. Comments that describe what code does become outdated immediately. WHY comments have lasting value because they explain context that code can't express: business rules, technical constraints, workarounds for external systems.
@@ -676,9 +699,9 @@ const isPaid = payment.method === "card"
 
 FansLib is a **Turborepo monorepo** for managing adult content creator libraries and social media posting. The system has three main components:
 
-1. **`@fanslib/server`** - Elysia backend API (Bun runtime, TypeORM + SQLite)       
+1. **`@fanslib/server`** - Elysia backend API (Bun runtime, TypeORM + SQLite)
 2. **`@fanslib/web`** - TanStack Start web client (React 19, TanStack Router/Query)
-3. **Shared configs** - `@fanslib/eslint`, `@fanslib/prettier`, `@fanslib/typescript`
+3. **Shared configs** - `@fanslib/eslint`, `@fanslib/typescript` (Prettier config is in root `.prettierrc.cjs`)
 
 There is also a @fanslib/electron-legacy app for desktop library management, but it is deprecated in favor of the web client.
 
@@ -708,17 +731,20 @@ cd @fanslib/apps/web && bun dev        # Web only (port 6969)
 ```
 
 **Development URLs:**
+
 - Web client: http://localhost:6969
 - API server: http://localhost:6970
 
 ### Environment Variables
 
 **Server** (`@fanslib/apps/server`):
+
 - `APPDATA_PATH` - SQLite database location
 - `LIBRARY_PATH` - Media library root directory
 - `FFPROBE_PATH` - Optional ffprobe binary path
 
 **Web** (`@fanslib/apps/web`):
+
 - `VITE_API_URL` - Required full API URL (e.g., `http://localhost:6970`)
 
 ### Adding New Features
@@ -737,6 +763,7 @@ features/example-feature/
 ```
 
 **Steps to add a feature:**
+
 1. Create feature directory under `src/features/`
 2. Define TypeORM entities in `entity.ts`
 3. Create Elysia routes in `routes.ts` with prefix `/api/{feature-name}`
@@ -782,14 +809,17 @@ features/example-feature/
 
 ```typescript
 // In @fanslib/apps/server/src/features/example/routes.ts
-export const exampleRoutes = new Elysia({ prefix: '/api/example' })
-  .post('/create', async ({ body }) => {
+export const exampleRoutes = new Elysia({ prefix: '/api/example' }).post(
+  '/create',
+  async ({ body }) => {
     // Implementation
     return result;
-  }, {
+  },
+  {
     body: CreateExampleRequestSchema,
     response: CreateExampleResponseSchema,
-  });
+  }
+);
 ```
 
 ### Query Data in Web Client
@@ -832,6 +862,7 @@ export const useExampleQuery = (params: ExampleParams) =>
 **CRITICAL**: Playwright-based Reddit automation exists in `features/reddit-automation/`. This involves browser automation and posting to live Reddit accounts.
 
 **NEVER automatically run, execute, or trigger Reddit automation scripts without explicit user confirmation.** These operations:
+
 - Post to real Reddit accounts
 - Can result in account bans if misused
 - Require careful review of content and timing
@@ -843,7 +874,7 @@ Always ask for explicit permission before running any automation that interacts 
 ```bash
 bun lint        # ESLint (shared config from @fanslib/eslint)
 bun typecheck   # TypeScript checking across workspace
-bun format      # Prettier (shared config from @fanslib/prettier)
+bun format      # Prettier (config in root `.prettierrc.cjs`)
 ```
 
 ## Important Notes

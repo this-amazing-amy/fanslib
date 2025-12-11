@@ -1,1 +1,1 @@
-module.exports = require('@fanslib/prettier');
+module.exports = require('../../../.prettierrc.cjs');

@@ -1,0 +1,80 @@
+{
+  "name": "@fanslib/electron-bridge",
+  "productName": "FansLib Bridge",
+  "version": "1.0.0",
+  "description": "Bridge application for Chrome extension drag operations",
+  "main": "./out/main/index.js",
+  "author": "Galatea Polymorph",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "dist": "electron-builder",
+    "dist:mac": "electron-builder --mac",
+    "dist:win": "electron-builder --win",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "electron": "^31.0.2",
+    "@electron-toolkit/tsconfig": "^1.0.1",
+    "@types/node": "^20.14.8",
+    "electron-builder": "^24.13.3",
+    "electron-vite": "^2.3.0",
+    "typescript": "^5.5.2",
+    "vite": "^5.3.1"
+  },
+  "build": {
+    "appId": "com.fanslib.bridge",
+    "productName": "FansLib Bridge",
+    "directories": {
+      "buildResources": "assets"
+    },
+    "files": [
+      "out/**/*",
+      "!**/.vscode/*",
+      "!src/*",
+      "!electron.vite.config.{js,ts,mjs,cjs}",
+      "!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}",
+      "!{.env,.env.*,.npmrc,pnpm-lock.yaml}",
+      "!{tsconfig.json,tsconfig.node.json}"
+    ],
+    "win": {
+      "executableName": "fanslib-bridge",
+      "icon": "assets/icons/icon.png",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "artifactName": "${name}-${version}-setup.${ext}",
+      "shortcutName": "${productName}",
+      "uninstallDisplayName": "${productName}",
+      "createDesktopShortcut": false,
+      "oneClick": true,
+      "allowToChangeInstallationDirectory": false
+    },
+    "mac": {
+      "icon": "assets/icons/icon.icns",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "extendInfo": {},
+      "notarize": false
+    },
+    "dmg": {
+      "artifactName": "${name}-${version}.${ext}"
+    },
+    "compression": "maximum"
+  }
+}

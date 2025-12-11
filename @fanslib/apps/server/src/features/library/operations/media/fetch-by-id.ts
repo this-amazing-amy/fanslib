@@ -1,8 +1,8 @@
 import { t } from "elysia";
-import { ChannelSchema } from "~/features/channels/entity";
-import { PostMediaSchema, PostSchema } from "~/features/posts/entity";
-import { SubredditSchema } from "~/features/subreddits/entity";
 import { db } from "../../../../lib/db";
+import { ChannelSchema } from "../../../channels/entity";
+import { PostMediaSchema, PostSchema } from "../../../posts/entity";
+import { SubredditSchema } from "../../../subreddits/entity";
 import { Media, MediaSchema } from "../../entity";
 
 export const FetchMediaByIdRequestParamsSchema = t.Object({
@@ -42,6 +42,13 @@ export const fetchMediaById = async (id: string): Promise<typeof FetchMediaByIdR
     }
   })
   
-    return media
+  if (!media) {
+    return null;
+  }
+
+  return {
+    ...media,
+    postMedia: media.postMedia.filter((pm) => pm.post !== null && pm.post !== undefined),
+  };
 };
 

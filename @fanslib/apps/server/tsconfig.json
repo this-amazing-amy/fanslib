@@ -13,9 +13,6 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "paths": {
-      "~/*": ["./src/*"]
-    },
     "noEmit": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,

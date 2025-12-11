@@ -31,7 +31,22 @@ export {
 export { MediaSchema, MediaTypeSchema } from './features/library/entity';
 
 // Media filters
-export { MediaFilterSchema } from './features/library/schemas/media-filter';
+export {
+  FilterItemSchema,
+  FilterItemChannelSchema,
+  FilterItemSubredditSchema,
+  FilterItemTagSchema,
+  FilterItemShootSchema,
+  FilterItemFilenameSchema,
+  FilterItemCaptionSchema,
+  FilterItemPostedSchema,
+  FilterItemCreatedDateStartSchema,
+  FilterItemCreatedDateEndSchema,
+  FilterItemMediaTypeSchema,
+  FilterItemDimensionEmptySchema,
+  FilterGroupSchema,
+  MediaFilterSchema
+} from './features/library/schemas/media-filter';
 
 // Media sort
 export { MediaSortSchema, SortDirectionSchema, SortFieldSchema } from './features/library/schemas/media-sort';
@@ -67,6 +82,8 @@ export {
 export {
   UpdatePostRequestBodySchema, UpdatePostRequestParamsSchema, UpdatePostResponseSchema
 } from './features/posts/operations/post/update';
+
+export { type PostStatus } from './features/posts/entity';
 
 export {
   DeletePostRequestParamsSchema,
@@ -481,4 +498,3 @@ export {
 export {
   ActionableInsightSchema, ActionableInsightTypeSchema, ContentThemeInsightSchema, HashtagInsightSchema, PostTimingInsightSchema, VideoLengthInsightSchema
 } from './features/analytics/schemas/insights';
-

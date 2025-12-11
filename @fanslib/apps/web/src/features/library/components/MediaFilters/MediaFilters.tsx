@@ -1,4 +1,5 @@
 import { cn } from "~/lib/cn";
+import { useHydrated } from "~/hooks/useHydrated";
 import { FilterDropdown } from "./FilterDropdown";
 import { FilterActions } from "./FilterActions";
 import { FilterGroupEditor } from "./FilterGroupEditor";
@@ -9,7 +10,8 @@ type MediaFiltersProps = {
 };
 
 export const MediaFilters = ({ className = "" }: MediaFiltersProps) => {
-  const { filters, isHydrated } = useMediaFilters();
+  const { filters } = useMediaFilters();
+  const isHydrated = useHydrated();
 
   // Force empty state until hydration completes
   const displayFilters = isHydrated ? filters : [];
