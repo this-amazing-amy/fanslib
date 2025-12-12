@@ -1,7 +1,7 @@
 import type { MediaFilterSchema } from "@fanslib/server/schemas";
 import { Copy } from "lucide-react";
 import { Button } from "~/components/ui/Button";
-import { Tooltip, TooltipTrigger } from "~/components/ui/Tooltip";
+import { Tooltip } from "~/components/ui/Tooltip";
 import { useChannelsQuery } from "~/lib/queries/channels";
 
 type MediaFilters = typeof MediaFilterSchema.static;
@@ -30,7 +30,10 @@ export const RedditChannelFilterPreset = ({
   };
 
   return (
-    <TooltipTrigger>
+    <Tooltip
+      content={<p>Copy the eligible media filter from the Reddit channel as a starting point</p>}
+      openDelayMs={0}
+    >
       <Button
         variant="ghost"
         size="sm"
@@ -40,9 +43,6 @@ export const RedditChannelFilterPreset = ({
       >
         <Copy className="h-4 w-4" />
       </Button>
-      <Tooltip>
-        <p>Copy the eligible media filter from the Reddit channel as a starting point</p>
-      </Tooltip>
-    </TooltipTrigger>
+    </Tooltip>
   );
 };

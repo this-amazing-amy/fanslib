@@ -28,7 +28,8 @@ export const ChannelFilterSelector = ({ value, onChange }: ChannelFilterSelector
   };
 
   return (
-    <PopoverTrigger isOpen={open} onOpenChange={setOpen}>
+
+      <PopoverTrigger>
       <Button
         variant="outline"
         aria-expanded={open}
@@ -65,6 +66,6 @@ export const ChannelFilterSelector = ({ value, onChange }: ChannelFilterSelector
           </CommandGroup>
         </Command>
       </Popover>
-    </PopoverTrigger>
+      </PopoverTrigger>
   );
 };

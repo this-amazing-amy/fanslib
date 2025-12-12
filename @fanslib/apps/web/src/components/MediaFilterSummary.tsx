@@ -3,7 +3,7 @@ import { Calendar, Camera, FileText, Hash, Minus, Tag } from "lucide-react";
 import { useTagFilterNames } from "~/hooks/useTagFilterNames";
 import { cn } from "~/lib/cn";
 import { Badge } from "./ui/Badge/Badge";
-import { Tooltip, TooltipTrigger } from "./ui/Tooltip";
+import { Tooltip } from "./ui/Tooltip";
 
 type MediaFilters = typeof MediaFilterSchema.static;
 type FilterGroup = MediaFilters[number];
@@ -14,13 +14,8 @@ type MediaFilterSummaryProps = {
   className?: string;
 };
 
-const IncludeIcon = ({ isInclude }: { isInclude: boolean }) => {
-  return isInclude ? (
-    null
-  ) : (
-    <Minus className="h-3 w-3" />
-  );
-};
+const IncludeIcon = ({ isInclude }: { isInclude: boolean }) =>
+  isInclude ? null : <Minus className="h-3 w-3" />;
 
 const FilterItemBadge = ({
   item,
@@ -36,7 +31,7 @@ const FilterItemBadge = ({
   // Channel filter
   if (item.type === "channel") {
     return (
-      <TooltipTrigger>
+      <Tooltip content={`${isInclude ? "Include" : "Exclude"} channel: ${item.id}`} openDelayMs={0}>
         <Badge
           variant={isInclude ? "primary" : "error"}
           className="text-xs"
@@ -46,15 +41,14 @@ const FilterItemBadge = ({
             <span>Channel {item.id}</span>
           </span>
         </Badge>
-        <Tooltip>{isInclude ? "Include" : "Exclude"} channel: {item.id}</Tooltip>
-      </TooltipTrigger>
+      </Tooltip>
     );
   }
 
   // Subreddit filter
   if (item.type === "subreddit") {
     return (
-      <TooltipTrigger>
+      <Tooltip content={`${isInclude ? "Include" : "Exclude"} subreddit: ${item.id}`} openDelayMs={0}>
         <Badge
           variant={isInclude ? "primary" : "error"}
           className="text-xs"
@@ -64,16 +58,15 @@ const FilterItemBadge = ({
             <span>r/{item.id}</span>
           </span>
         </Badge>
-        <Tooltip>{isInclude ? "Include" : "Exclude"} subreddit: {item.id}</Tooltip>
-      </TooltipTrigger>
+      </Tooltip>
     );
   }
 
   // Tag filter
   if (item.type === "tag") {
-    const displayName = tagName || `Tag ${item.id}`;
+    const displayName = tagName ?? `Tag ${item.id}`;
     return (
-      <TooltipTrigger>
+      <Tooltip content={`${isInclude ? "Include" : "Exclude"} tag: ${displayName}`} openDelayMs={0}>
         <Badge
           variant={isInclude ? "primary" : "error"}
           className="text-xs"
@@ -84,15 +77,14 @@ const FilterItemBadge = ({
             <span>{displayName}</span>
           </span>
         </Badge>
-        <Tooltip>{isInclude ? "Include" : "Exclude"} tag: {displayName}</Tooltip>
-      </TooltipTrigger>
+      </Tooltip>
     );
   }
 
   // Shoot filter
   if (item.type === "shoot") {
     return (
-      <TooltipTrigger>
+      <Tooltip content={`${isInclude ? "Include" : "Exclude"} shoot: ${item.id}`} openDelayMs={0}>
         <Badge
           variant={isInclude ? "primary" : "error"}
           className="text-xs"
@@ -102,15 +94,17 @@ const FilterItemBadge = ({
             <span>Shoot {item.id}</span>
           </span>
         </Badge>
-        <Tooltip>{isInclude ? "Include" : "Exclude"} shoot: {item.id}</Tooltip>
-      </TooltipTrigger>
+      </Tooltip>
     );
   }
 
   // Filename filter
   if (item.type === "filename") {
     return (
-      <TooltipTrigger>
+      <Tooltip
+        content={`${isInclude ? "Include" : "Exclude"} files matching: "${item.value}"`}
+        openDelayMs={0}
+      >
         <Badge
           variant={isInclude ? "secondary" : "error"}
           className="text-xs"
@@ -118,40 +112,37 @@ const FilterItemBadge = ({
           <span className="flex items-center gap-1">
             <IncludeIcon isInclude={isInclude} />
             <FileText className="h-3 w-3" />
-            <span>Filename: "{item.value}"</span>
+            <span>{`Filename: "${item.value}"`}</span>
           </span>
         </Badge>
-        <Tooltip>
-          {isInclude ? "Include" : "Exclude"} files matching: "{item.value}"
-        </Tooltip>
-      </TooltipTrigger>
+      </Tooltip>
     );
   }
 
   // Caption filter
   if (item.type === "caption") {
     return (
-      <TooltipTrigger>
+      <Tooltip
+        content={`${isInclude ? "Include" : "Exclude"} posts with caption: "${item.value}"`}
+        openDelayMs={0}
+      >
         <Badge
           variant={isInclude ? "secondary" : "error"}
           className="text-xs"
         >
           <span className="flex items-center gap-1">
             <IncludeIcon isInclude={isInclude} />
-            <span>Caption: "{item.value}"</span>
+            <span>{`Caption: "${item.value}"`}</span>
           </span>
         </Badge>
-        <Tooltip>
-          {isInclude ? "Include" : "Exclude"} posts with caption: "{item.value}"
-        </Tooltip>
-      </TooltipTrigger>
+      </Tooltip>
     );
   }
 
   // Posted filter
   if (item.type === "posted") {
     return (
-      <TooltipTrigger>
+      <Tooltip content={`Only ${item.value ? "posted" : "unposted"} content`} openDelayMs={0}>
         <Badge
           variant={isInclude ? "secondary" : "error"}
           className="text-xs"
@@ -161,15 +152,17 @@ const FilterItemBadge = ({
             <span>{item.value ? "Posted" : "Unposted"}</span>
           </span>
         </Badge>
-        <Tooltip>Only {item.value ? "posted" : "unposted"} content</Tooltip>
-      </TooltipTrigger>
+      </Tooltip>
     );
   }
 
   // Media type filter
   if (item.type === "mediaType") {
     return (
-      <TooltipTrigger>
+      <Tooltip
+        content={`Only ${item.value === "image" ? "image" : "video"} files`}
+        openDelayMs={0}
+      >
         <Badge
           variant={isInclude ? "secondary" : "error"}
           className="text-xs"
@@ -180,10 +173,7 @@ const FilterItemBadge = ({
             <span>{item.value === "image" ? "Images" : "Videos"}</span>
           </span>
         </Badge>
-        <Tooltip>
-          Only {item.value === "image" ? "image" : "video"} files
-        </Tooltip>
-      </TooltipTrigger>
+      </Tooltip>
     );
   }
 
@@ -194,7 +184,10 @@ const FilterItemBadge = ({
         ? item.value.toLocaleDateString()
         : String(item.value);
     return (
-      <TooltipTrigger>
+      <Tooltip
+        content={`Created ${item.type === "createdDateStart" ? "after" : "before"} ${dateStr}`}
+        openDelayMs={0}
+      >
         <Badge
           variant={isInclude ? "secondary" : "error"}
           className="text-xs"
@@ -207,18 +200,14 @@ const FilterItemBadge = ({
             </span>
           </span>
         </Badge>
-        <Tooltip>
-          Created{" "}
-          {item.type === "createdDateStart" ? "after" : "before"} {dateStr}
-        </Tooltip>
-      </TooltipTrigger>
+      </Tooltip>
     );
   }
 
   // Tag dimension (fallback)
   if (item.type === "dimensionEmpty") {
     return (
-      <TooltipTrigger>
+      <Tooltip content={`Tag dimension ${item.dimensionId} is empty`} openDelayMs={0}>
         <Badge
           variant={isInclude ? "secondary" : "error"}
           className="text-xs"
@@ -229,8 +218,7 @@ const FilterItemBadge = ({
             <span>Dimension {item.dimensionId} empty</span>
           </span>
         </Badge>
-        <Tooltip>Tag dimension {item.dimensionId} is empty</Tooltip>
-      </TooltipTrigger>
+      </Tooltip>
     );
   }
 

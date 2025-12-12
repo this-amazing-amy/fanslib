@@ -1,7 +1,7 @@
 import { AlertTriangle, CheckCircle, Clock, RefreshCcw } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { Status } from "~/components/ui/Status";
-import { Tooltip, TooltipTrigger } from "~/components/ui/Tooltip";
+import { Tooltip } from "~/components/ui/Tooltip";
 import type { AuthStatus } from "~/lib/reddit/auth-status-utils";
 import { formatLastChecked } from "~/lib/reddit/date-formatting";
 
@@ -62,7 +62,7 @@ export const AuthenticationStatus = ({
             </span>
           )}
         </div>
-        <TooltipTrigger>
+        <Tooltip content="Recheck status" openDelayMs={0}>
           <Button
             variant="ghost"
             size="sm"
@@ -73,8 +73,7 @@ export const AuthenticationStatus = ({
               className={`h-3 w-3 ${isLoading || isCheckingLogin ? "animate-spin" : ""}`}
             />
           </Button>
-          <Tooltip>Recheck status</Tooltip>
-        </TooltipTrigger>
+        </Tooltip>
       </div>
     );
   }
@@ -100,7 +99,7 @@ export const AuthenticationStatus = ({
           </div>
         )}
       </div>
-      <TooltipTrigger>
+      <Tooltip content="Recheck authentication status" openDelayMs={0}>
         <Button
           variant="ghost"
           size="sm"
@@ -111,8 +110,7 @@ export const AuthenticationStatus = ({
             className={`h-4 w-4 ${isLoading || isCheckingLogin ? "animate-spin" : ""}`}
           />
         </Button>
-        <Tooltip>Recheck authentication status</Tooltip>
-      </TooltipTrigger>
+      </Tooltip>
     </div>
   );
 };

@@ -1,12 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Button } from '../Button';
-import { Tooltip, TooltipTrigger } from './Tooltip';
+import { Tooltip } from './Tooltip';
 
 const TooltipWrapper = () => (
-  <TooltipTrigger>
+  <Tooltip content="This is a tooltip" openDelayMs={0}>
     <Button>Hover me</Button>
-    <Tooltip>This is a tooltip</Tooltip>
-  </TooltipTrigger>
+  </Tooltip>
 );
 
 const meta: Meta<typeof TooltipWrapper> = {

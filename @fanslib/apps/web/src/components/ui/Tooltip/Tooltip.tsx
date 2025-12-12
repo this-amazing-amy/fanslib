@@ -1,32 +1,101 @@
-import type { ReactNode } from 'react';
 import {
-  Tooltip as AriaTooltip,
-  type TooltipProps as AriaTooltipProps,
-} from 'react-aria-components';
+  FloatingPortal,
+  autoUpdate,
+  flip,
+  offset as floatingOffset,
+  safePolygon,
+  shift,
+  useDismiss,
+  useFloating,
+  useFocus,
+  useHover,
+  useInteractions,
+  useMergeRefs,
+  useRole,
+  type Placement,
+} from '@floating-ui/react';
+import type { ReactElement, ReactNode, Ref } from 'react';
+import { cloneElement, useId, useMemo, useState } from 'react';
 import { cn } from '~/lib/cn';
 
-// Re-export TooltipTrigger directly from React Aria
-export { TooltipTrigger } from 'react-aria-components';
-
-// Styled Tooltip wrapper with default styling
-type TooltipProps = Omit<AriaTooltipProps, 'children'> & {
-  children: ReactNode;
+type TooltipProps = {
+  children: ReactElement;
+  content: ReactNode;
+  placement?: Placement;
+  offset?: number;
+  openDelayMs?: number;
   className?: string;
-}
+};
 
-export const Tooltip = ({ children, className, offset = 4, ...props }: TooltipProps) => <AriaTooltip
-      offset={offset}
-      className={cn(
-        'z-50 px-3 py-1.5 text-xs rounded-md bg-base-100 border border-base-content shadow-lg',
-        'entering:animate-in entering:fade-in entering:zoom-in-95',
-        'exiting:animate-out exiting:fade-out exiting:zoom-out-95',
-        'placement-bottom:slide-in-from-top-2',
-        'placement-top:slide-in-from-bottom-2',
-        'placement-left:slide-in-from-right-2',
-        'placement-right:slide-in-from-left-2',
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </AriaTooltip>;
+export const Tooltip = ({
+  children,
+  content,
+  placement = 'top',
+  offset = 4,
+  openDelayMs = 0,
+  className,
+}: TooltipProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const tooltipId = useId();
+
+  const { refs, floatingStyles, context } = useFloating({
+    open: isOpen,
+    onOpenChange: setIsOpen,
+    placement,
+    middleware: [floatingOffset(offset), flip(), shift({ padding: 8 })],
+    whileElementsMounted: autoUpdate,
+  });
+
+  const hover = useHover(context, {
+    move: false,
+    delay: { open: openDelayMs, close: 0 },
+    handleClose: safePolygon(),
+  });
+  const focus = useFocus(context);
+  const dismiss = useDismiss(context);
+  const role = useRole(context, { role: 'tooltip' });
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([hover, focus, dismiss, role]);
+
+  const childProps = children.props as Record<string, unknown>;
+  const existingRef = (children as ReactElement & { ref?: Ref<unknown> }).ref;
+  const referenceRef = useMergeRefs([refs.setReference, existingRef]);
+
+  const referenceProps = useMemo(
+    () =>
+      getReferenceProps({
+        'aria-describedby': isOpen ? tooltipId : undefined,
+        ...childProps,
+      }),
+    [childProps, getReferenceProps, isOpen, tooltipId]
+  );
+
+  const floatingProps = useMemo(
+    () =>
+      getFloatingProps({
+        id: tooltipId,
+      }),
+    [getFloatingProps, tooltipId]
+  );
+
+  return (
+    <>
+      {cloneElement(children, { ...referenceProps, ref: referenceRef } as Record<string, unknown>)}
+      {isOpen ? (
+        <FloatingPortal>
+          <div
+            ref={refs.setFloating}
+            style={floatingStyles}
+            className={cn(
+              'z-50 px-3 py-1.5 text-xs rounded-md bg-base-100 border border-base-content shadow-lg',
+              className
+            )}
+            {...floatingProps}
+          >
+            {content}
+          </div>
+        </FloatingPortal>
+      ) : null}
+    </>
+  );
+};
