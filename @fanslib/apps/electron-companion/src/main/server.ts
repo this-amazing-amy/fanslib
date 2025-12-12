@@ -5,6 +5,7 @@ import {
   ServerResponse,
 } from 'http';
 import { URL } from 'url';
+import { normalizeFilePath } from './paths';
 
 type CopyHandler = (filePaths: string[]) => void;
 type RevealHandler = (filePath: string) => void;
@@ -40,8 +41,9 @@ export const createServer = (onCopy: CopyHandler, onReveal: RevealHandler) => {
           if (typeof filePath !== 'string') {
             throw new Error('filePath must be a string');
           }
-          const exists = fs.existsSync(filePath);
-          const stats = exists ? fs.statSync(filePath) : null;
+          const normalizedPath = normalizeFilePath(filePath);
+          const exists = fs.existsSync(normalizedPath);
+          const stats = exists ? fs.statSync(normalizedPath) : null;
 
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(
@@ -103,7 +105,7 @@ export const createServer = (onCopy: CopyHandler, onReveal: RevealHandler) => {
             throw new Error('filePath must be a string');
           }
 
-          onReveal(filePath);
+          onReveal(normalizeFilePath(filePath));
 
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ success: true }));

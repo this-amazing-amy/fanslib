@@ -1,6 +1,8 @@
 import { app, clipboard, nativeImage, shell, Tray } from 'electron';
 import fs from 'fs';
+import { normalizeFilePath } from './paths';
 import { createServer } from './server';
+import { createWindowsHdropBuffer } from './windows-clipboard';
 
 if (process.platform === 'darwin') {
   app.name = 'FansLib Companion';
@@ -60,7 +62,10 @@ app.whenReady().then(async () => {
   tray.setToolTip('FansLib Companion');
 
   const handleCopyToClipboard = (filePaths: string[]) => {
-    const validFiles = filePaths.filter((filePath) => fs.existsSync(filePath));
+    const normalizedPaths = filePaths.map(normalizeFilePath);
+    const validFiles = normalizedPaths.filter((filePath) =>
+      fs.existsSync(filePath)
+    );
 
     if (validFiles.length === 0) {
       throw new Error('No valid files to copy');
@@ -76,16 +81,20 @@ ${validFiles.map((f) => `  <string>${f}</string>`).join('\n')}
 </plist>`;
 
       clipboard.writeBuffer('NSFilenamesPboardType', Buffer.from(plistContent));
+    } else if (process.platform === 'win32') {
+      clipboard.writeBuffer('CF_HDROP', createWindowsHdropBuffer(validFiles));
     } else {
       clipboard.writeText(validFiles.join('\n'));
     }
   };
 
   const handleRevealInFinder = (filePath: string) => {
-    if (!fs.existsSync(filePath)) {
+    const normalizedPath = normalizeFilePath(filePath);
+
+    if (!fs.existsSync(normalizedPath)) {
       throw new Error('File does not exist');
     }
-    shell.showItemInFolder(filePath);
+    shell.showItemInFolder(normalizedPath);
   };
 
   const server = createServer(handleCopyToClipboard, handleRevealInFinder);
