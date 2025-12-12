@@ -15,7 +15,7 @@ COPY . .
 
 RUN bun install
 
-RUN bun run build
+RUN bun run build --filter=@fanslib/web
 
 RUN mkdir -p /app/data /app/library
 
