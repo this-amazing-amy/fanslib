@@ -301,7 +301,7 @@ export const SplitViewLayout = ({
                 {mainContentHeader}
               </div>
             )}
-            {mainContent}
+            <div className="flex-1 min-h-0 overflow-y-auto">{mainContent}</div>
           </div>
         </ResizablePanel>
         <ResizableHandle withHandle className="mx-2" />
@@ -320,7 +320,7 @@ export const SplitViewLayout = ({
                 {sideContentHeader}
               </div>
             )}
-            {sideContent}
+            <div className="flex-1 min-h-0 overflow-hidden">{sideContent}</div>
           </div>
         </ResizablePanel>
       </ResizablePanelGroup>
