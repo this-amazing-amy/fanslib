@@ -1,7 +1,7 @@
 import type { MediaFilterSchema } from "@fanslib/server/schemas";
 import { Filter, FilterX, X } from "lucide-react";
 import { Button } from "~/components/ui/Button";
-import { Tooltip, TooltipTrigger } from "~/components/ui/Tooltip";
+import { Tooltip } from "~/components/ui/Tooltip";
 import { FilterDropdown } from "./FilterDropdown";
 import { FilterItemRenderer } from "./FilterItemRenderer";
 import { useMediaFilters } from "./MediaFiltersContext";
@@ -31,7 +31,10 @@ export const FilterGroupEditor = ({ className = "" }: FilterGroupEditorProps) =>
           <div className="px-3 py-2">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <TooltipTrigger>
+                <Tooltip
+                  content={<p>{group.include ? "Include filters" : "Exclude filters"}</p>}
+                  openDelayMs={0}
+                >
                   <Button
                     variant="ghost"
                     size="icon"
@@ -44,10 +47,7 @@ export const FilterGroupEditor = ({ className = "" }: FilterGroupEditorProps) =>
                       <FilterX className="h-4 w-4 text-red-700" />
                     )}
                   </Button>
-                  <Tooltip>
-                    <p>{group.include ? "Include filters" : "Exclude filters"}</p>
-                  </Tooltip>
-                </TooltipTrigger>
+                </Tooltip>
 
                 {group.items.map((item, itemIndex) => (
                   <div key={getFilterItemKey(item, itemIndex)} className="flex-shrink-0">
@@ -63,7 +63,7 @@ export const FilterGroupEditor = ({ className = "" }: FilterGroupEditorProps) =>
                 <FilterDropdown groupIndex={groupIndex} variant="compact" className="ml-4" />
               </div>
 
-              <TooltipTrigger>
+              <Tooltip content={<p>Remove group</p>} openDelayMs={0}>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -72,10 +72,7 @@ export const FilterGroupEditor = ({ className = "" }: FilterGroupEditorProps) =>
                 >
                   <X className="h-4 w-4" />
                 </Button>
-                <Tooltip>
-                  <p>Remove group</p>
-                </Tooltip>
-              </TooltipTrigger>
+              </Tooltip>
             </div>
           </div>
         </div>

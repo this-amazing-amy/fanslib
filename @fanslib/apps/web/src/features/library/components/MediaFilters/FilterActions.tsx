@@ -1,6 +1,6 @@
 import { Layers, ListX } from "lucide-react";
 import { Button } from "~/components/ui/Button";
-import { Tooltip, TooltipTrigger } from "~/components/ui/Tooltip";
+import { Tooltip } from "~/components/ui/Tooltip";
 import { FilterPresetDropdown } from "./FilterPresetDropdown";
 import { useMediaFilters } from "./MediaFiltersContext";
 
@@ -9,32 +9,21 @@ type FilterActionsProps = {
 };
 
 export const FilterActions = ({ className = "" }: FilterActionsProps) => {
-  const { addEmptyGroup, clearFilters, hasActiveFilters } = useMediaFilters();
+  const { addEmptyGroup, clearFilters } = useMediaFilters();
 
   return (
     <div className={`flex items-center gap-1 ${className}`}>
-      <TooltipTrigger>
-        <FilterPresetDropdown disabled={!hasActiveFilters} />
-        <Tooltip>
-          <p>Filter presets</p>
-        </Tooltip>
-      </TooltipTrigger>
-      <TooltipTrigger>
+      <FilterPresetDropdown />
+      <Tooltip content={<p>Add filter group</p>} openDelayMs={0}>
         <Button variant="ghost" size="icon" onPress={addEmptyGroup} className="h-9 w-9">
           <Layers className="h-4 w-4" />
         </Button>
-        <Tooltip>
-          <p>Add filter group</p>
-        </Tooltip>
-      </TooltipTrigger>
-      <TooltipTrigger>
+      </Tooltip>
+      <Tooltip content={<p>Clear all filters</p>} openDelayMs={0}>
         <Button variant="ghost" size="icon" onPress={clearFilters} className="h-9 w-9">
           <ListX className="h-4 w-4" />
         </Button>
-        <Tooltip>
-          <p>Clear all filters</p>
-        </Tooltip>
-      </TooltipTrigger>
+      </Tooltip>
     </div>
   );
 };

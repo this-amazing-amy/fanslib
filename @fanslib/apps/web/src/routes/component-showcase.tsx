@@ -59,7 +59,7 @@ import { TabItem, Tabs } from '~/components/ui/Tabs';
 import { Textarea } from '~/components/ui/Textarea';
 import { Toggle } from '~/components/ui/Toggle';
 import { ToggleGroup } from '~/components/ui/ToggleGroup';
-import { Tooltip, TooltipTrigger } from '~/components/ui/Tooltip';
+import { Tooltip } from '~/components/ui/Tooltip';
 import { CHANNEL_COLORS, POST_STATUS_COLORS, TAG_TYPE_COLORS, USER_COLOR_PRESETS } from '~/lib/colors';
 
 const ComponentShowcase = () => {
@@ -719,12 +719,9 @@ const ComponentShowcase = () => {
               </DropdownMenuPopover>
             </DropdownMenuTrigger>
 
-            <TooltipTrigger>
+            <Tooltip content={<p>This is a tooltip!</p>} openDelayMs={0}>
               <Button>Hover for Tooltip</Button>
-              <Tooltip>
-                <p>This is a tooltip!</p>
-              </Tooltip>
-            </TooltipTrigger>
+            </Tooltip>
           </div>
         </section>
 

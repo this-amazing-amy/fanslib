@@ -10,7 +10,7 @@ import { Input } from "~/components/ui/Input";
 import { Popover, PopoverTrigger } from "~/components/ui/Popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/Select";
 import { Switch } from "~/components/ui/Switch";
-import { Tooltip, TooltipTrigger } from "~/components/ui/Tooltip";
+import { Tooltip } from "~/components/ui/Tooltip";
 import { cn } from "~/lib/cn";
 import { ChannelFilterSelector } from "./ChannelFilterSelector";
 import { DimensionFilterSelector } from "./DimensionFilterSelector";
@@ -52,83 +52,68 @@ export const FilterItemRenderer = ({
   switch (type) {
     case "channel":
       return (
-        <TooltipTrigger delay={0}>
+        <Tooltip content={<RemoveButton />} placement="top" openDelayMs={0}>
           <div className="flex items-center gap-1">
             <ChannelFilterSelector
               value={value && "id" in value ? value.id : undefined}
               onChange={(channelId) => onChange({ type: "channel", id: channelId })}
             />
           </div>
-          <Tooltip>
-            <RemoveButton />
-          </Tooltip>
-        </TooltipTrigger>
+        </Tooltip>
       );
 
     case "subreddit":
       return (
-        <TooltipTrigger delay={0}>
+        <Tooltip content={<RemoveButton />} placement="top" openDelayMs={0}>
           <div className="flex items-center gap-1">
             <SubredditFilterSelector
               value={value && "id" in value ? value.id : undefined}
               onChange={(subredditId) => onChange({ type: "subreddit", id: subredditId })}
             />
           </div>
-          <Tooltip>
-            <RemoveButton />
-          </Tooltip>
-        </TooltipTrigger>
+        </Tooltip>
       );
 
     case "tag":
       return (
-        <TooltipTrigger delay={0}>
+        <Tooltip content={<RemoveButton />} placement="top" openDelayMs={0}>
           <div className="flex items-center gap-1">
             <TagFilterSelector
               value={value && "id" in value ? value.id : undefined}
               onChange={(tagId) => onChange({ type: "tag", id: tagId })}
             />
           </div>
-          <Tooltip>
-            <RemoveButton />
-          </Tooltip>
-        </TooltipTrigger>
+        </Tooltip>
       );
 
     case "shoot":
       return (
-        <TooltipTrigger delay={0}>
+        <Tooltip content={<RemoveButton />} placement="top" openDelayMs={0}>
           <div className="flex items-center gap-1">
             <ShootFilterSelector
               value={value && "id" in value ? value.id : undefined}
               onChange={(shootId) => onChange({ type: "shoot", id: shootId })}
             />
           </div>
-          <Tooltip>
-            <RemoveButton />
-          </Tooltip>
-        </TooltipTrigger>
+        </Tooltip>
       );
 
     case "dimensionEmpty":
       return (
-        <TooltipTrigger delay={0}>
+        <Tooltip content={<RemoveButton />} placement="top" openDelayMs={0}>
           <div className="flex items-center gap-1">
             <DimensionFilterSelector
               value={value && "dimensionId" in value ? value.dimensionId : undefined}
               onChange={(dimensionId) => onChange({ type: "dimensionEmpty", dimensionId })}
             />
           </div>
-          <Tooltip>
-            <RemoveButton />
-          </Tooltip>
-        </TooltipTrigger>
+        </Tooltip>
       );
 
     case "filename":
     case "caption":
       return (
-        <TooltipTrigger delay={0}>
+        <Tooltip content={<RemoveButton />} placement="top" openDelayMs={0}>
           <div className="flex items-center gap-1">
             <Input
               value={value && "value" in value && typeof value.value === "string" ? value.value : ""}
@@ -137,15 +122,12 @@ export const FilterItemRenderer = ({
               placeholder={`Enter ${type} text`}
             />
           </div>
-          <Tooltip>
-            <RemoveButton />
-          </Tooltip>
-        </TooltipTrigger>
+        </Tooltip>
       );
 
     case "posted":
       return (
-        <TooltipTrigger delay={0}>
+        <Tooltip content={<RemoveButton />} placement="top" openDelayMs={0}>
           <div className="flex items-center gap-2">
             <Switch
               isSelected={
@@ -159,15 +141,12 @@ export const FilterItemRenderer = ({
                 : "Unposted"}
             </span>
           </div>
-          <Tooltip>
-            <RemoveButton />
-          </Tooltip>
-        </TooltipTrigger>
+        </Tooltip>
       );
 
     case "mediaType":
       return (
-        <TooltipTrigger delay={0}>
+        <Tooltip content={<RemoveButton />} placement="top" openDelayMs={0}>
           <div className="flex items-center gap-1">
             <Select
               value={
@@ -197,10 +176,7 @@ export const FilterItemRenderer = ({
               </SelectContent>
             </Select>
           </div>
-          <Tooltip>
-            <RemoveButton />
-          </Tooltip>
-        </TooltipTrigger>
+        </Tooltip>
       );
 
     case "createdDateStart":
@@ -215,7 +191,7 @@ export const FilterItemRenderer = ({
           )
         : undefined;
       return (
-        <TooltipTrigger delay={0}>
+        <Tooltip content={<RemoveButton />} placement="top" openDelayMs={0}>
           <div className="flex items-center gap-1">
             <PopoverTrigger isOpen={calendarOpen} onOpenChange={setCalendarOpen}>
               <Button
@@ -244,10 +220,7 @@ export const FilterItemRenderer = ({
               </Popover>
             </PopoverTrigger>
           </div>
-          <Tooltip>
-            <RemoveButton />
-          </Tooltip>
-        </TooltipTrigger>
+        </Tooltip>
       );
     }
 

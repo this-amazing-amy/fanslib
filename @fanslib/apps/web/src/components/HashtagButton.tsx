@@ -1,7 +1,7 @@
 import type { ChannelSchema } from "@fanslib/server/schemas";
 import { Hash } from "lucide-react";
 import { Button } from "~/components/ui/Button";
-import { Tooltip, TooltipTrigger } from "~/components/ui/Tooltip";
+import { Tooltip } from "~/components/ui/Tooltip";
 
 type Channel = typeof ChannelSchema.static;
 
@@ -64,11 +64,10 @@ export const HashtagButton = ({
   if (collectHashtags().length === 0) return null;
 
   return (
-    <TooltipTrigger>
+    <Tooltip content="Adds all channel default hashtags to the caption" placement="top" openDelayMs={0}>
       <Button variant="ghost" size="icon" className={className} onPress={addHashtags}>
         <Hash className="h-4 w-4" />
       </Button>
-      <Tooltip placement="top">Adds all channel default hashtags to the caption</Tooltip>
-    </TooltipTrigger>
+    </Tooltip>
   );
 };
