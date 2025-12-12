@@ -20,7 +20,9 @@ const OrchestrateRoute = () => (
               <PostPreferencesProvider>
                 <AnalyticsProvider>
                   <RedditPostProvider>
-                    <OrchestratePage />
+                    <div className="h-full overflow-hidden">
+                      <OrchestratePage />
+                    </div>
                   </RedditPostProvider>
                 </AnalyticsProvider>
               </PostPreferencesProvider>

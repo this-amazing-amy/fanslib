@@ -2,6 +2,7 @@ import { GripVertical, PanelRightClose, PanelRightOpen } from "lucide-react";
 import React, { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import type { ImperativePanelGroupHandle } from "react-resizable-panels";
 import * as ResizablePrimitive from "react-resizable-panels";
+import { ScrollArea } from "~/components/ui/ScrollArea";
 import { cn } from "~/lib/cn";
 
 type ResizableContextType = {
@@ -301,7 +302,7 @@ export const SplitViewLayout = ({
                 {mainContentHeader}
               </div>
             )}
-            <div className="flex-1 min-h-0 overflow-y-auto">{mainContent}</div>
+            <ScrollArea className="flex-1 min-h-0">{mainContent}</ScrollArea>
           </div>
         </ResizablePanel>
         <ResizableHandle withHandle className="mx-2" />
@@ -320,7 +321,7 @@ export const SplitViewLayout = ({
                 {sideContentHeader}
               </div>
             )}
-            <div className="flex-1 min-h-0 overflow-hidden">{sideContent}</div>
+            <ScrollArea className="flex-1 min-h-0">{sideContent}</ScrollArea>
           </div>
         </ResizablePanel>
       </ResizablePanelGroup>

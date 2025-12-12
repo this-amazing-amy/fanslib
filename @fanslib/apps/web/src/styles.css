@@ -113,7 +113,7 @@
 
   /* Content management specific base styles */
   .content-area {
-    @apply min-h-screen;
+    @apply min-h-0;
   }
 
   .sidebar {

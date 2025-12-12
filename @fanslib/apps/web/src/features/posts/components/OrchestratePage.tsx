@@ -125,34 +125,25 @@ const OrchestratePageContent = () => {
           mainContentHeader={
             <TabNavigation tabs={tabs} activeTabId={activeTabId} onTabChange={updateActiveTab} />
           }
+          sideContentHeader={<PageHeader title="Orchestrate" className="mb-0" />}
           sideContent={
-            <div className="h-full w-full overflow-hidden flex flex-col">
-              <div className="flex-none px-6 pt-6">
-                <PageHeader
-                  title="Orchestrate"
-                  className="mb-0"
+            <div className="flex w-full flex-col px-6 pb-6">
+              <div className="mb-6 flex items-center justify-between">
+                <PostFilters
+                  value={preferences.filter}
+                  onFilterChange={(filter) => {
+                    updatePreferences({ filter });
+                  }}
                 />
+                <PlanViewSettings />
               </div>
-              <div className="px-6 py-6 mb-6">
-                <div className="flex items-center justify-between">
-                  <PostFilters
-                    value={preferences.filter}
-                    onFilterChange={(filter) => {
-                      updatePreferences({ filter });
-                    }}
-                  />
-                  <PlanViewSettings />
-                </div>
-              </div>
-              <div className="flex-1 min-h-0 overflow-y-auto px-6">
-                {!(channels?.length) && <PlanEmptyState />}
-                {(channels?.length ?? 0) > 0 && preferences.view.viewType === "timeline" && (
-                  <PostTimeline posts={posts} onUpdate={refetchPostsAndLibrary} />
-                )}
-                {(channels?.length ?? 0) > 0 && preferences.view.viewType === "calendar" && (
-                  <PostCalendar posts={posts} onUpdate={refetchPostsAndLibrary} />
-                )}
-              </div>
+              {!(channels?.length) && <PlanEmptyState />}
+              {(channels?.length ?? 0) > 0 && preferences.view.viewType === "timeline" && (
+                <PostTimeline posts={posts} onUpdate={refetchPostsAndLibrary} />
+              )}
+              {(channels?.length ?? 0) > 0 && preferences.view.viewType === "calendar" && (
+                <PostCalendar posts={posts} onUpdate={refetchPostsAndLibrary} />
+              )}
             </div>
           }
         />

@@ -25,6 +25,7 @@ type TooltipProps = {
   offset?: number;
   openDelayMs?: number;
   className?: string;
+  variant?: 'default' | 'naked';
 };
 
 export const Tooltip = ({
@@ -34,6 +35,7 @@ export const Tooltip = ({
   offset = 4,
   openDelayMs = 0,
   className,
+  variant = 'default',
 }: TooltipProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const tooltipId = useId();
@@ -87,7 +89,8 @@ export const Tooltip = ({
             ref={refs.setFloating}
             style={floatingStyles}
             className={cn(
-              'z-50 px-3 py-1.5 text-xs rounded-md bg-base-100 border border-base-content shadow-lg',
+              variant === 'default' ? 'z-50 px-3 py-1.5 text-xs rounded-md bg-base-100 border border-base-content shadow-lg' : '',
+              variant === 'naked' ? 'z-50 rounded-full bg-base-100 border border-base-content shadow-lg' : '',
               className
             )}
             {...floatingProps}

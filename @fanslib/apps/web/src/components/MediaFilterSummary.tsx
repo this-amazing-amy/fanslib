@@ -231,6 +231,12 @@ export const MediaFilterSummary = ({
 }: MediaFilterSummaryProps) => {
   const filterGroups = Array.isArray(mediaFilters) ? mediaFilters : [];
   const tagNameMap = useTagFilterNames(filterGroups);
+  const getTagName = (tagId: unknown) => {
+    const tagIdStr = String(tagId).trim();
+    const numericId = Number(tagIdStr);
+    const normalizedId = Number.isFinite(numericId) ? String(numericId) : tagIdStr;
+    return tagNameMap.get(normalizedId) ?? tagNameMap.get(tagIdStr);
+  };
 
   if (filterGroups.length === 0) {
     return null;
@@ -244,7 +250,7 @@ export const MediaFilterSummary = ({
             key={`${groupIdx}-${itemIdx}`}
             item={item}
             group={group}
-            tagName={item.type === "tag" ? tagNameMap.get(item.id) : undefined}
+            tagName={item.type === "tag" ? getTagName(item.id) : undefined}
           />
         ))
       )}

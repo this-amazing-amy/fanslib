@@ -52,7 +52,7 @@ export const FilterItemRenderer = ({
   switch (type) {
     case "channel":
       return (
-        <Tooltip content={<RemoveButton />} placement="top" openDelayMs={0}>
+        <Tooltip content={<RemoveButton />} placement="top-end" openDelayMs={0} variant="naked">
           <div className="flex items-center gap-1">
             <ChannelFilterSelector
               value={value && "id" in value ? value.id : undefined}
@@ -64,7 +64,7 @@ export const FilterItemRenderer = ({
 
     case "subreddit":
       return (
-        <Tooltip content={<RemoveButton />} placement="top" openDelayMs={0}>
+        <Tooltip content={<RemoveButton />} placement="top-end" openDelayMs={0} variant="naked">
           <div className="flex items-center gap-1">
             <SubredditFilterSelector
               value={value && "id" in value ? value.id : undefined}
@@ -76,7 +76,7 @@ export const FilterItemRenderer = ({
 
     case "tag":
       return (
-        <Tooltip content={<RemoveButton />} placement="top" openDelayMs={0}>
+        <Tooltip content={<RemoveButton />} placement="top-end" openDelayMs={0} variant="naked">
           <div className="flex items-center gap-1">
             <TagFilterSelector
               value={value && "id" in value ? value.id : undefined}
@@ -88,7 +88,7 @@ export const FilterItemRenderer = ({
 
     case "shoot":
       return (
-        <Tooltip content={<RemoveButton />} placement="top" openDelayMs={0}>
+        <Tooltip content={<RemoveButton />} placement="top-end" openDelayMs={0} variant="naked">
           <div className="flex items-center gap-1">
             <ShootFilterSelector
               value={value && "id" in value ? value.id : undefined}
@@ -100,7 +100,7 @@ export const FilterItemRenderer = ({
 
     case "dimensionEmpty":
       return (
-        <Tooltip content={<RemoveButton />} placement="top" openDelayMs={0}>
+        <Tooltip content={<RemoveButton />} placement="top-end" openDelayMs={0} variant="naked">
           <div className="flex items-center gap-1">
             <DimensionFilterSelector
               value={value && "dimensionId" in value ? value.dimensionId : undefined}
@@ -113,7 +113,7 @@ export const FilterItemRenderer = ({
     case "filename":
     case "caption":
       return (
-        <Tooltip content={<RemoveButton />} placement="top" openDelayMs={0}>
+        <Tooltip content={<RemoveButton />} placement="top-end" openDelayMs={0} variant="naked">
           <div className="flex items-center gap-1">
             <Input
               value={value && "value" in value && typeof value.value === "string" ? value.value : ""}
@@ -127,7 +127,7 @@ export const FilterItemRenderer = ({
 
     case "posted":
       return (
-        <Tooltip content={<RemoveButton />} placement="top" openDelayMs={0}>
+        <Tooltip content={<RemoveButton />} placement="top-end" openDelayMs={0} variant="naked">
           <div className="flex items-center gap-2">
             <Switch
               isSelected={
@@ -146,7 +146,7 @@ export const FilterItemRenderer = ({
 
     case "mediaType":
       return (
-        <Tooltip content={<RemoveButton />} placement="top" openDelayMs={0}>
+        <Tooltip content={<RemoveButton />} placement="top-end" openDelayMs={0} variant="naked">
           <div className="flex items-center gap-1">
             <Select
               value={
@@ -161,13 +161,13 @@ export const FilterItemRenderer = ({
                 <SelectValue placeholder="Select media type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="image">
+                <SelectItem value="image" textValue="Image">
                   <div className="flex items-center gap-2">
                     <ImageIcon className="h-4 w-4" />
                     Image
                   </div>
                 </SelectItem>
-                <SelectItem value="video">
+                <SelectItem value="video" textValue="Video">
                   <div className="flex items-center gap-2">
                     <VideoIcon className="h-4 w-4" />
                     Video
@@ -191,7 +191,7 @@ export const FilterItemRenderer = ({
           )
         : undefined;
       return (
-        <Tooltip content={<RemoveButton />} placement="top" openDelayMs={0}>
+        <Tooltip content={<RemoveButton />} placement="top-end" openDelayMs={0} variant="naked">
           <div className="flex items-center gap-1">
             <PopoverTrigger isOpen={calendarOpen} onOpenChange={setCalendarOpen}>
               <Button
