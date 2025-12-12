@@ -408,9 +408,14 @@ describe("Tags Routes", () => {
 
       test("removes descendant tags when removing a parent tag", async () => {
         const fixtureMedia = fixtures.media[0];
-        const parentTag = fixtures.tags.tagDefinitions[0];
-        const childTag = fixtures.tags.tagDefinitions[1];
-        const grandChildTag = fixtures.tags.tagDefinitions[2];
+        const getCategoryTag = (value: string) =>
+          fixtures.tags.tagDefinitions.find(
+            (tag) => tag.value === value && tag.dimension?.name === "Category"
+          );
+
+        const parentTag = getCategoryTag("portrait");
+        const childTag = getCategoryTag("landscape");
+        const grandChildTag = getCategoryTag("studio");
 
         if (!fixtureMedia || !parentTag || !childTag || !grandChildTag) {
           throw new Error("Insufficient media or tag definition fixtures available");
@@ -463,10 +468,15 @@ describe("Tags Routes", () => {
 
       test("removes multiple parent tags and their descendants", async () => {
         const media = fixtures.media[1];
-        const parentA = fixtures.tags.tagDefinitions[3];
-        const childA = fixtures.tags.tagDefinitions[4];
-        const parentB = fixtures.tags.tagDefinitions[5];
-        const childB = fixtures.tags.tagDefinitions[6];
+        const getCategoryTag = (value: string) =>
+          fixtures.tags.tagDefinitions.find(
+            (tag) => tag.value === value && tag.dimension?.name === "Category"
+          );
+
+        const parentA = getCategoryTag("landscape");
+        const childA = getCategoryTag("studio");
+        const parentB = getCategoryTag("outdoor");
+        const childB = getCategoryTag("macro");
 
         if (!media || !parentA || !childA || !parentB || !childB) {
           throw new Error("Insufficient media or tag definition fixtures available for multi-parent test");

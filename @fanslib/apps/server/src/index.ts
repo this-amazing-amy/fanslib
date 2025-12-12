@@ -1,4 +1,5 @@
 import { cors } from "@elysiajs/cors";
+import { cron } from "@elysiajs/cron";
 import { swagger } from "@elysiajs/swagger";
 import { Elysia } from "elysia";
 import "reflect-metadata";
@@ -10,6 +11,7 @@ import { filterPresetsRoutes } from "./features/filter-presets/routes";
 import { hashtagsRoutes } from "./features/hashtags/routes";
 import { libraryRoutes } from "./features/library/routes";
 import { postsRoutes } from "./features/posts/routes";
+import { runScheduledPostsCronTick } from "./features/posts/scheduled-posts-cron";
 import { redditAutomationRoutes } from "./features/reddit-automation/routes";
 import { settingsRoutes } from "./features/settings/routes";
 import { shootsRoutes } from "./features/shoots/routes";
@@ -49,12 +51,25 @@ const logStartupEnvironment = async (): Promise<void> => {
   }
 };
 
+const isCronDisabled = process.env.DISABLE_CRON === "true";
+const isTestEnvironment = process.env.NODE_ENV === "test";
+const isScheduledPostsCronEnabled = !isCronDisabled && !isTestEnvironment;
+
 const app = new Elysia()
 .use(cors({
 
 
   exposeHeaders: ["X-Serialization", "Content-Type", "Content-Length"],
 }))
+  .use(
+    isScheduledPostsCronEnabled
+      ? cron({
+        name: "scheduled-posts-cron",
+        pattern: "* * * * *",
+        run: () => runScheduledPostsCronTick(),
+      })
+      : new Elysia()
+  )
   .use(swagger({
     documentation: {
       info: {
@@ -92,6 +107,9 @@ db()
   .then(async () => {
     await seedDatabase();
     await logStartupEnvironment();
+    if (isScheduledPostsCronEnabled) {
+      await runScheduledPostsCronTick();
+    }
     console.log(`🚀 Server running at http://localhost:${app.server?.port}`);
     console.log(`📊 Database initialized`);
   })

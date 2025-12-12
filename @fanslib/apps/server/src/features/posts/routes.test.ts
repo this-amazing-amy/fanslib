@@ -117,7 +117,9 @@ describe("Posts Routes", () => {
 
   describe("POST /api/posts", () => {
     test("creates a new post", async () => {
-      const channel = fixtures.channels.channels[0];
+      const channel = fixtures.channels.channels.find(
+        (fixtureChannel) => fixtureChannel.typeId !== CHANNEL_TYPES.reddit.id
+      );
       if (!channel) {
         throw new Error("No channel fixtures available");
       }

@@ -1,8 +1,8 @@
 import { DataSource } from "typeorm";
 import {
-  AnalyticsFetchHistory,
-  FanslyAnalyticsAggregate,
-  FanslyAnalyticsDatapoint,
+    AnalyticsFetchHistory,
+    FanslyAnalyticsAggregate,
+    FanslyAnalyticsDatapoint,
 } from "../features/analytics/entity";
 import { Channel, ChannelType } from "../features/channels/entity";
 import { ContentSchedule, SkippedScheduleSlot } from "../features/content-schedules/entity";
@@ -76,26 +76,41 @@ export const getTestDataSource = () => {
 
 export const clearAllTables = async () => {
   const dataSource = getTestDataSource();
-  
-  await dataSource.getRepository("FanslyQueueItem").clear();
-  await dataSource.getRepository("PostMedia").clear();
-  await dataSource.getRepository("Post").clear();
-  await dataSource.getRepository("HashtagChannelStats").clear();
-  await dataSource.getRepository("MediaTag").clear();
-  await dataSource.getRepository("ContentSchedule").clear();
-  await dataSource.getRepository("CaptionSnippet").clear();
-  await dataSource.getRepository("Channel").clear();
-  await dataSource.getRepository("Shoot").clear();
-  await dataSource.getRepository("Subreddit").clear();
-  await dataSource.getRepository("TagDefinition").clear();
-  await dataSource.getRepository("TagDimension").clear();
-  await dataSource.getRepository("Media").clear();
-  await dataSource.getRepository("Hashtag").clear();
-  await dataSource.getRepository("ChannelType").clear();
-  await dataSource.getRepository("FilterPreset").clear();
-  await dataSource.getRepository("FanslyAnalyticsDatapoint").clear();
-  await dataSource.getRepository("FanslyAnalyticsAggregate").clear();
-  await dataSource.getRepository("AnalyticsFetchHistory").clear();
+
+  const clearIfEntityExists = async (entityName: string) => {
+    const hasEntity = dataSource.entityMetadatas.some(
+      (metadata) => metadata.name === entityName || metadata.tableName === entityName
+    );
+    if (!hasEntity) return;
+    await dataSource.getRepository(entityName).clear();
+  };
+
+  const entityClearOrder = [
+    "FanslyQueueItem",
+    "PostMedia",
+    "Post",
+    "HashtagChannelStats",
+    "MediaTag",
+    "ContentSchedule",
+    "CaptionSnippet",
+    "Channel",
+    "Shoot",
+    "Subreddit",
+    "TagDefinition",
+    "TagDimension",
+    "Media",
+    "Hashtag",
+    "ChannelType",
+    "FilterPreset",
+    "FanslyAnalyticsDatapoint",
+    "FanslyAnalyticsAggregate",
+    "AnalyticsFetchHistory",
+  ];
+
+  await entityClearOrder.reduce(
+    (promise, entityName) => promise.then(() => clearIfEntityExists(entityName)),
+    Promise.resolve()
+  );
 };
 
 export const resetAllFixtures = async () => {
