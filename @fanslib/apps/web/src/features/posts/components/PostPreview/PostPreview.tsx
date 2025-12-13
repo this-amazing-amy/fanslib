@@ -215,6 +215,8 @@ export const PostPreview = ({
                     allMedias={post.postMedia.map((pm) => pm.media)}
                     index={post.postMedia.indexOf(pm)}
                     className="size-24"
+                    withPreview
+                    withDuration
                   />
                 ))}
               </MediaSelectionProvider>
