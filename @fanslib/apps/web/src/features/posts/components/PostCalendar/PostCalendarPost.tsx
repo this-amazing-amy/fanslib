@@ -14,6 +14,7 @@ import { getPostStatusBorderColor } from "~/lib/colors";
 import { useSkipScheduleSlotMutation } from "~/lib/queries/content-schedules";
 import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
 import { useVirtualPostClick } from "../../hooks/useVirtualPostClick";
+import { getCaptionPreview } from "../../lib/captions";
 import { VirtualPostOverlay } from "../VirtualPostOverlay";
 import { PostCalendarDropzone } from "./PostCalendarDropzone";
 import { PostCalendarPostMedia } from "./PostCalendarPostMedia";
@@ -32,6 +33,7 @@ export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
   const { preferences } = usePostPreferences();
   const skipSlotMutation = useSkipScheduleSlotMutation();
   const [confirmSkip, setConfirmSkip] = useState(false);
+  const captionPreview = post.caption ? getCaptionPreview(post.caption) : "";
   
   const [createPostData, setCreatePostData] = useState<{
     media: Media[];
@@ -159,9 +161,9 @@ export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
       </div>
 
       {/* Caption (optional, hidden on mobile) */}
-      {preferences.view.showCaptions && post.caption && (
-        <div className="text-[10px] leading-snug text-base-content/50 pt-1 line-clamp-2 hidden sm:block">
-          {post.caption}
+      {preferences.view.showCaptions && captionPreview && (
+        <div className="pt-1 text-[10px] leading-snug text-base-content line-clamp-2 hidden sm:block">
+          {captionPreview}
         </div>
       )}
     </div>

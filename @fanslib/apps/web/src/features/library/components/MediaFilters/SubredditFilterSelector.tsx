@@ -37,27 +37,29 @@ export const SubredditFilterSelector = ({ value, onChange }: SubredditFilterSele
         {isLoading ? "Loading..." : displayValue}
         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </Button>
-      <Popover className="w-full p-0">
+      <Popover className="p-0 w-[min(480px,100vw-32px)]" placement="bottom start">
         <Command>
           <CommandInput placeholder="Search subreddits..." />
           <CommandEmpty>No subreddit found.</CommandEmpty>
-          <CommandGroup>
-            {(subreddits ?? []).map((subreddit) => (
-              <CommandItem
-                key={subreddit.id}
-                value={subreddit.name}
-                onSelect={() => selectSubreddit(subreddit.id)}
-              >
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    value === subreddit.id ? "opacity-100" : "opacity-0"
-                  )}
-                />
-                {subreddit.name}
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          <div className="max-h-80 overflow-y-auto">
+            <CommandGroup>
+              {(subreddits ?? []).map((subreddit) => (
+                <CommandItem
+                  key={subreddit.id}
+                  value={subreddit.name}
+                  onSelect={() => selectSubreddit(subreddit.id)}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      value === subreddit.id ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {subreddit.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </div>
         </Command>
       </Popover>
     </PopoverTrigger>

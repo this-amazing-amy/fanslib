@@ -30,37 +30,39 @@ export const FilterGroupEditor = ({ className = "" }: FilterGroupEditorProps) =>
         <div key={`group-${groupIndex}-${group.include ? "include" : "exclude"}`} className="border rounded-lg">
           <div className="px-3 py-2">
             <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <Tooltip
-                  content={<p>{group.include ? "Include filters" : "Exclude filters"}</p>}
-                  openDelayMs={0}
-                >
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onPress={() => updateGroupInclude(groupIndex, !group.include)}
+              <div className="min-w-0 flex-1 overflow-x-auto overflow-y-visible py-1">
+                <div className="flex items-center gap-2 w-max">
+                  <Tooltip
+                    content={<p>{group.include ? "Include filters" : "Exclude filters"}</p>}
+                    openDelayMs={0}
                   >
-                    {group.include ? (
-                      <Filter className="h-4 w-4 text-green-700" />
-                    ) : (
-                      <FilterX className="h-4 w-4 text-red-700" />
-                    )}
-                  </Button>
-                </Tooltip>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onPress={() => updateGroupInclude(groupIndex, !group.include)}
+                    >
+                      {group.include ? (
+                        <Filter className="h-4 w-4 text-green-700" />
+                      ) : (
+                        <FilterX className="h-4 w-4 text-red-700" />
+                      )}
+                    </Button>
+                  </Tooltip>
 
-                {group.items.map((item, itemIndex) => (
-                  <div key={getFilterItemKey(item, itemIndex)} className="flex-shrink-0">
-                    <FilterItemRenderer
-                      type={item.type}
-                      value={item}
-                      onChange={(newItem) => updateFilterInGroup(groupIndex, itemIndex, newItem)}
-                      onRemove={() => removeFilterFromGroup(groupIndex, itemIndex)}
-                    />
-                  </div>
-                ))}
+                  {group.items.map((item, itemIndex) => (
+                    <div key={getFilterItemKey(item, itemIndex)} className="flex-shrink-0">
+                      <FilterItemRenderer
+                        type={item.type}
+                        value={item}
+                        onChange={(newItem) => updateFilterInGroup(groupIndex, itemIndex, newItem)}
+                        onRemove={() => removeFilterFromGroup(groupIndex, itemIndex)}
+                      />
+                    </div>
+                  ))}
 
-                <FilterDropdown groupIndex={groupIndex} variant="compact" className="ml-4" />
+                  <FilterDropdown groupIndex={groupIndex} variant="compact" className="ml-4" />
+                </div>
               </div>
 
               <Tooltip content={<p>Remove group</p>} openDelayMs={0}>

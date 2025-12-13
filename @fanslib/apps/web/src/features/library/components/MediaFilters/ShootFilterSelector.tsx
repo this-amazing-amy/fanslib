@@ -40,24 +40,29 @@ export const ShootFilterSelector = ({ value, onChange }: ShootFilterSelectorProp
         {isLoading ? "Loading..." : displayValue}
         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </Button>
-      <Popover className="w-full p-0">
+      <Popover className="p-0 w-[min(480px,100vw-32px)]" placement="bottom start">
         <Command>
           <CommandInput placeholder="Search shoots..." />
           <CommandEmpty>No shoot found.</CommandEmpty>
-          <CommandGroup>
-            {(shoots?.items as Shoot[] | undefined)?.map((shoot: Shoot) => (
-              <CommandItem
-                key={shoot.id}
-                value={shoot.name}
-                onSelect={() => selectShoot(shoot.id)}
-              >
-                <Check
-                  className={cn("mr-2 h-4 w-4", value === shoot.id ? "opacity-100" : "opacity-0")}
-                />
-                {shoot.name}
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          <div className="max-h-80 overflow-y-auto">
+            <CommandGroup>
+              {(shoots?.items as Shoot[] | undefined)?.map((shoot: Shoot) => (
+                <CommandItem
+                  key={shoot.id}
+                  value={shoot.name}
+                  onSelect={() => selectShoot(shoot.id)}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      value === shoot.id ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {shoot.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </div>
         </Command>
       </Popover>
     </PopoverTrigger>

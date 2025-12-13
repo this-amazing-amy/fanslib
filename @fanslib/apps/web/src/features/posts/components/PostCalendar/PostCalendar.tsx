@@ -1,16 +1,16 @@
 import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
 import {
-    add,
-    eachDayOfInterval,
-    endOfMonth,
-    endOfWeek,
-    format,
-    getDay,
-    isSameDay,
-    isToday,
-    parse,
-    startOfMonth,
-    startOfWeek,
+  add,
+  eachDayOfInterval,
+  endOfMonth,
+  endOfWeek,
+  format,
+  getDay,
+  isSameDay,
+  isToday,
+  parse,
+  startOfMonth,
+  startOfWeek,
 } from "date-fns";
 import { de } from "date-fns/locale";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -94,7 +94,7 @@ export const PostCalendar = ({ className, posts, onUpdate }: PostCalendarProps) 
   };
 
   return (
-    <div className={cn("w-full h-full flex flex-col", className)}>
+    <div className={cn("w-full flex flex-col", className)}>
       <div className="flex items-center justify-between flex-none mb-6">
           <h2 className="text-2xl font-bold text-base-content">{format(firstDayCurrentMonth, "MMMM yyyy")}</h2>
           <div className="flex gap-2">
@@ -113,7 +113,7 @@ export const PostCalendar = ({ className, posts, onUpdate }: PostCalendarProps) 
           ))}
         </div>
         <div
-          className="grid grid-cols-7 text-sm flex-1 min-h-0 overflow-auto gap-4"
+          className="grid grid-cols-7 text-sm gap-4"
         >
           {days.map((day, dayIdx) => {
             const dayPosts = posts.filter((post) => isSameDay(new Date(post.date), day));

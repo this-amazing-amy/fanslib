@@ -89,13 +89,12 @@ export const FilterDropdown = ({
   return (
     <DropdownMenuTrigger>
         <Button
-          variant="outline"
-          size="md"
+          variant="ghost"
+          size="icon"
           isDisabled={disabled}
           className={className}
       >
         <Filter className="h-4 w-4" />
-        Filter
       </Button>
       <DropdownMenuPopover placement="bottom start">
         <DropdownMenu onAction={handleAction}>

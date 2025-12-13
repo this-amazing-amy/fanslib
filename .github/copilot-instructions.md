@@ -1,3 +1,15 @@
+## AI assistant scope (Cursor + GitHub Copilot Chat + Claude)
+
+This is the **canonical** AI coding guide for this repo.
+
+- Cursor entrypoint: `.cursorrules`
+- GitHub Copilot Chat entrypoint: `.github/copilot-instructions.md` (this file)
+- Claude entrypoint: `CLAUDE.md`
+
+If you update guidance here, keep those entrypoints consistent.
+
+---
+
 ## Coding Philosophy
 
 ### Core Principles

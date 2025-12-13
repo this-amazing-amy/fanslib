@@ -1,7 +1,7 @@
 import { Layers, ListX } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { Tooltip } from "~/components/ui/Tooltip";
-import { FilterPresetDropdown } from "./FilterPresetDropdown";
+import { FilterPresetDialog } from "./FilterPresetDialog";
 import { useMediaFilters } from "./MediaFiltersContext";
 
 type FilterActionsProps = {
@@ -13,7 +13,7 @@ export const FilterActions = ({ className = "" }: FilterActionsProps) => {
 
   return (
     <div className={`flex items-center gap-1 ${className}`}>
-      <FilterPresetDropdown />
+      <FilterPresetDialog />
       <Tooltip content={<p>Add filter group</p>} openDelayMs={0}>
         <Button variant="ghost" size="icon" onPress={addEmptyGroup} className="h-9 w-9">
           <Layers className="h-4 w-4" />

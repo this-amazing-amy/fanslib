@@ -73,6 +73,7 @@ src/
 - Built with DaisyUI or Shadcn/ui patterns using Radix UI primitives
 - Include TypeScript types and Storybook stories
 - Follow consistent naming: `ComponentName.tsx`, `component-name.stories.tsx`
+- Prefer large, graphic icon-only buttons (no text) for high-frequency inline actions in dense UIs; always provide an `aria-label` (and a tooltip when helpful)
 
 ### Styling
 
@@ -98,7 +99,7 @@ const ComponentName = ({ prop1, prop2 }: ComponentProps) => {
   const [localState, setLocalState] = useState();
 
   // 2. Event handlers
-  const handleAction = useCallback(() => {
+  const runAction = useCallback(() => {
     // Implementation
   }, [dependencies]);
 
@@ -107,7 +108,7 @@ const ComponentName = ({ prop1, prop2 }: ComponentProps) => {
   if (!data) return <EmptyState />;
 
   // 4. Main render
-  return <div className="container mx-auto p-4">{/* Component content */}</div>;
+  return <div className='container mx-auto p-4'>{/* Component content */}</div>;
 };
 ```
 

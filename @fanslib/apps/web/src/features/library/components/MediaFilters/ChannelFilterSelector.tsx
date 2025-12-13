@@ -28,8 +28,7 @@ export const ChannelFilterSelector = ({ value, onChange }: ChannelFilterSelector
   };
 
   return (
-
-      <PopoverTrigger>
+    <PopoverTrigger isOpen={open} onOpenChange={setOpen}>
       <Button
         variant="outline"
         aria-expanded={open}
@@ -40,32 +39,34 @@ export const ChannelFilterSelector = ({ value, onChange }: ChannelFilterSelector
         </div>
         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </Button>
-      <Popover className="w-full p-0">
+      <Popover className="p-0 w-[min(480px,100vw-32px)]" placement="bottom start">
         <Command>
           <CommandInput placeholder="Search channels..." />
           <CommandEmpty>No channel found.</CommandEmpty>
-          <CommandGroup>
-            {(channels ?? []).map((channel) => (
-              <CommandItem
-                key={channel.id}
-                value={channel.name}
-                onSelect={() => selectChannel(channel.id)}
-                className="flex items-center justify-between"
-              >
-                <div className="flex items-center gap-2">
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === channel.id ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {channel.name}
-                </div>
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          <div className="max-h-80 overflow-y-auto">
+            <CommandGroup>
+              {(channels ?? []).map((channel) => (
+                <CommandItem
+                  key={channel.id}
+                  value={channel.name}
+                  onSelect={() => selectChannel(channel.id)}
+                  className="flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-2">
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        value === channel.id ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {channel.name}
+                  </div>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </div>
         </Command>
       </Popover>
-      </PopoverTrigger>
+    </PopoverTrigger>
   );
 };

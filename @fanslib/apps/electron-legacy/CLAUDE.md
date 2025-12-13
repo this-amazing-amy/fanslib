@@ -2,6 +2,8 @@
 
 This file provides guidance for working with the FansLib Electron application.
 
+For repo-wide AI coding rules (Cursor/Copilot/Claude), also follow the monorepo guide in `CLAUDE.md` at the repo root.
+
 ## Overview
 
 The main FansLib desktop application built with Electron, React, and TypeScript for managing adult content creator libraries and post scheduling. This is part of the FansLib monorepo and uses shared libraries for common functionality.
