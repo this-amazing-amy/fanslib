@@ -3,6 +3,7 @@ import { CalendarDays } from "lucide-react";
 import { useState } from "react";
 import { ScrollArea } from "~/components/ui/ScrollArea";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
+import { usePostDrag } from "~/contexts/PostDragContext";
 import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
 import { useDragOver } from "~/hooks/useDragOver";
 import { cn } from "~/lib/cn";
@@ -23,21 +24,37 @@ type PostTimelineProps = {
 
 export const PostTimeline = ({ posts, className, onUpdate }: PostTimelineProps) => {
   const [openPostId, setOpenPostId] = useState<string | null>(null);
-  const { isDragging, draggedMedias, endMediaDrag } = useMediaDrag();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [droppedMedias, setDroppedMedias] = useState<Media[]>([]);
+  const { isDragging: isMediaDragging, draggedMedias, endMediaDrag } = useMediaDrag();
+  const { isDragging: isPostDragging, draggedPost, endPostDrag } = usePostDrag();
+  const [createPostData, setCreatePostData] = useState<{
+    media: Media[];
+    initialChannelId?: string;
+    initialCaption?: string;
+  } | null>(null);
+
+  const isDragging = isMediaDragging || isPostDragging;
 
   const { isOver, dragHandlers } = useDragOver({
     onDrop: async () => {
-      if (draggedMedias.length === 0) return;
-      setDroppedMedias(draggedMedias);
-      setIsDialogOpen(true);
-      endMediaDrag();
+      if (isMediaDragging && draggedMedias.length > 0) {
+        setCreatePostData({ media: draggedMedias });
+        endMediaDrag();
+        return;
+      }
+
+      if (isPostDragging && draggedPost) {
+        setCreatePostData({
+          media: draggedPost.postMedia.map((pm) => pm.media),
+          initialCaption: draggedPost.caption ?? undefined,
+          initialChannelId: draggedPost.channel?.id ?? undefined,
+        });
+        endPostDrag();
+      }
     },
   });
 
   const handleClose = () => {
-    setIsDialogOpen(false);
+    setCreatePostData(null);
     onUpdate();
   };
 
@@ -75,9 +92,11 @@ export const PostTimeline = ({ posts, className, onUpdate }: PostTimelineProps) 
         </div>
 
         <CreatePostDialog
-          open={isDialogOpen}
+          open={createPostData !== null}
           onOpenChange={handleClose}
-          media={droppedMedias}
+          media={createPostData?.media ?? []}
+          initialChannelId={createPostData?.initialChannelId}
+          initialCaption={createPostData?.initialCaption}
         />
       </>
     );
@@ -96,6 +115,10 @@ export const PostTimeline = ({ posts, className, onUpdate }: PostTimelineProps) 
           const id = isVirtualPost(post) ? post.virtualId : post.id;
           const previousPost =
             virtualRow.index > 0 ? sortedPosts[virtualRow.index - 1] : undefined;
+          const nextPost =
+            virtualRow.index < sortedPosts.length - 1
+              ? sortedPosts[virtualRow.index + 1]
+              : undefined;
 
           return (
             <div
@@ -117,6 +140,7 @@ export const PostTimeline = ({ posts, className, onUpdate }: PostTimelineProps) 
                 isOpen={openPostId === id}
                 onOpenChange={(isOpen) => setOpenPostId(isOpen ? id : null)}
                 previousPostInList={previousPost}
+                nextPostInList={nextPost}
               />
             </div>
           );

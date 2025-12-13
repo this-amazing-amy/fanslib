@@ -26,6 +26,7 @@ export const PostCalendarDropzone = ({ post, children, onUpdate }: PostCalendarD
   const [createPostData, setCreatePostData] = useState<{
     media: Media[];
     caption?: string;
+    initialChannelId?: string;
     scheduleId?: string;
     initialDate?: Date;
   } | null>(null);
@@ -71,6 +72,7 @@ export const PostCalendarDropzone = ({ post, children, onUpdate }: PostCalendarD
         if (preferences.view.openDialogOnDrop) {
           setCreatePostData({
             media: draggedMedias,
+            initialChannelId: post.channelId,
             scheduleId: post.scheduleId,
             initialDate: new Date(post.date),
           });
@@ -90,6 +92,7 @@ export const PostCalendarDropzone = ({ post, children, onUpdate }: PostCalendarD
           setCreatePostData({
             media,
             caption: draggedPost.caption ?? undefined,
+            initialChannelId: post.channelId,
             scheduleId: post.scheduleId,
             initialDate: new Date(post.date),
           });
@@ -135,6 +138,8 @@ export const PostCalendarDropzone = ({ post, children, onUpdate }: PostCalendarD
         open={createPostData !== null}
         onOpenChange={closeCreatePostDialog}
         media={createPostData?.media ?? []}
+        initialCaption={createPostData?.caption}
+        initialChannelId={createPostData?.initialChannelId}
         scheduleId={createPostData?.scheduleId}
         initialDate={createPostData?.initialDate}
       />

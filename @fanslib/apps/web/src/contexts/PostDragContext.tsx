@@ -19,7 +19,9 @@ type PostDragProviderProps = {
 export const PostDragProvider: FC<PostDragProviderProps> = ({ children }) => {
   const [draggedPost, setDraggedPost] = useState<Post | null>(null);
 
-  const startPostDrag = (_: React.DragEvent<HTMLDivElement>, post: Post) => {
+  const startPostDrag = (e: React.DragEvent<HTMLDivElement>, post: Post) => {
+    e.dataTransfer.effectAllowed = "copy";
+    e.dataTransfer.setData("text/plain", post.id);
     setDraggedPost(post);
   };
 
