@@ -53,6 +53,9 @@ export class Post {
   @Column({ type: "datetime", nullable: true, name: "fypRemovedAt" })
   fypRemovedAt!: Date | null;
 
+  @Column({ type: "datetime", nullable: true, name: "postponeBlueskyDraftedAt" })
+  postponeBlueskyDraftedAt!: Date | null;
+
   @Column({
     type: "varchar",
     enum: ["draft", "ready", "scheduled", "posted"],
@@ -153,6 +156,7 @@ export const PostSchema = t.Object({
   url: t.Nullable(t.String()),
   fanslyStatisticsId: t.Nullable(t.String()),
   fypRemovedAt: t.Nullable(t.Date()),
+  postponeBlueskyDraftedAt: t.Nullable(t.Date()),
   status: PostStatusSchema,
   channelId: t.String(),
   subredditId: t.Nullable(t.String()),

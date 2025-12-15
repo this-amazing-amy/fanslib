@@ -16,6 +16,7 @@ import { cn } from "~/lib/cn";
 import { getPostStatusBorderColor } from "~/lib/colors";
 import { useSkipScheduleSlotMutation } from "~/lib/queries/content-schedules";
 import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
+import { useCreatePostFromVirtualSlot } from "../../hooks/useCreatePostFromVirtualSlot";
 import { useVirtualPostClick } from "../../hooks/useVirtualPostClick";
 import { getCaptionPreview } from "../../lib/captions";
 import { PostTimelineDropZone } from "../PostTimelineDropZone";
@@ -44,6 +45,7 @@ export const PostPreview = ({
 }: PostPreviewProps) => {
   const isVirtual = isVirtualPost(post);
   const { preferences } = usePostPreferences();
+  const { createPostFromVirtualSlot } = useCreatePostFromVirtualSlot();
   const { startPostDrag, endPostDrag: stopPostDrag, isDragging: isPostDragging, draggedPost } = usePostDrag();
   const [createPostData, setCreatePostData] = useState<{
     media: Media[];
@@ -97,19 +99,36 @@ export const PostPreview = ({
   };
 
   const onDropOnVirtualPost = (e: React.DragEvent<HTMLDivElement>) => {
-    if (!isPostDragging || !draggedPost || !isVirtual) return false;
+    if (!isPostDragging || !draggedPost || !isVirtualPost(post)) return false;
     e.preventDefault();
     e.stopPropagation();
 
     setIsPostDraggedOver(false);
-    setCreatePostData({
-      media: draggedPost.postMedia.map((pm) => pm.media),
-      initialCaption: draggedPost.caption ?? undefined,
-      initialDate: new Date(post.date),
-      initialChannelId: post.channelId,
-      scheduleId: post.scheduleId,
-    });
+    const media = draggedPost.postMedia.map((pm) => pm.media);
+    const caption = draggedPost.caption ?? undefined;
+    const initialDate = new Date(post.date);
+    const initialChannelId = post.channelId;
+    const scheduleId = post.scheduleId;
+
+    if (preferences.view.openDialogOnDrop) {
+      setCreatePostData({
+        media,
+        initialCaption: caption,
+        initialDate,
+        initialChannelId,
+        scheduleId,
+      });
+      stopPostDrag();
+      return true;
+    }
+
     stopPostDrag();
+    void createPostFromVirtualSlot({
+      virtualPost: post,
+      mediaIds: media.map((m) => m.id),
+      caption,
+      onUpdate,
+    });
     return true;
   };
 

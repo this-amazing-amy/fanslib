@@ -206,6 +206,7 @@ export const generateVirtualPosts = (
       fanslyAnalyticsAggregate: undefined,
       fanslyAnalyticsDatapoints: [],
       fypRemovedAt: null,
+      postponeBlueskyDraftedAt: null,
     }));
   });
 

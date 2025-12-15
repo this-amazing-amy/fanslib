@@ -95,6 +95,18 @@ export const PlanViewSettings = () => {
               {preferences.view.openDialogOnDrop ? "On" : "Off"}
             </Switch>
           </div>
+          <div className="space-y-2">
+            <div className="text-sm font-medium">Auto-draft Bluesky on drop</div>
+            <Switch
+              isSelected={preferences.view.autoDraftBlueskyOnDrop}
+              isDisabled={preferences.view.openDialogOnDrop}
+              onChange={(checked) => {
+                updatePreferences({ view: { autoDraftBlueskyOnDrop: checked } });
+              }}
+            >
+              {preferences.view.autoDraftBlueskyOnDrop ? "On" : "Off"}
+            </Switch>
+          </div>
         </div>
       </Popover>
     </PopoverTrigger>

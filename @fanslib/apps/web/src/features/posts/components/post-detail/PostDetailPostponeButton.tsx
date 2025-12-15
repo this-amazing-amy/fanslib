@@ -18,12 +18,19 @@ export const PostDetailPostponeButton = ({ post }: PostDetailPostponeButtonProps
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (
-    post.channel.typeId !== 'bluesky' ||
-    !settings?.postponeToken ||
-    !settings?.blueskyUsername ||
-    post.status !== 'draft'
-  ) {
+  if (post.channel.typeId !== 'bluesky') {
+    return null;
+  }
+
+  if (post.postponeBlueskyDraftedAt) {
+    return (
+      <Alert variant="success" title="Postpone draft created">
+        This post has already been drafted in Postpone.
+      </Alert>
+    );
+  }
+
+  if (!settings?.postponeToken || !settings?.blueskyUsername || post.status !== 'draft') {
     return null;
   }
 

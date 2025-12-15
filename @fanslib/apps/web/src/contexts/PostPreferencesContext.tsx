@@ -24,6 +24,7 @@ export type PostPreferences = {
     viewType: PostViewType;
     showCaptions: boolean;
     openDialogOnDrop: boolean;
+    autoDraftBlueskyOnDrop: boolean;
     postTypeFilter: PostTypeFilter;
   };
   filter: PostFilterPreferences;
@@ -34,6 +35,7 @@ export const defaultPreferences: PostPreferences = {
     viewType: "timeline",
     showCaptions: false,
     openDialogOnDrop: true,
+    autoDraftBlueskyOnDrop: true,
     postTypeFilter: "both",
   },
   filter: {

@@ -1,4 +1,4 @@
-import type { CreatePostRequestBodySchema, MediaSchema, PostWithRelationsSchema } from "@fanslib/server/schemas";
+import type { MediaSchema, PostWithRelationsSchema } from "@fanslib/server/schemas";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
@@ -7,8 +7,9 @@ import { usePostPreferences } from "~/contexts/PostPreferencesContext";
 import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
 import { useDragOver } from "~/hooks/useDragOver";
 import { cn } from "~/lib/cn";
-import { useAddMediaToPostMutation, useCreatePostMutation } from "~/lib/queries/posts";
+import { useAddMediaToPostMutation } from "~/lib/queries/posts";
 import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
+import { useCreatePostFromVirtualSlot } from "../../hooks/useCreatePostFromVirtualSlot";
 
 type Media = typeof MediaSchema.static;
 type Post = typeof PostWithRelationsSchema.static;
@@ -23,6 +24,7 @@ export const PostCalendarDropzone = ({ post, children, onUpdate }: PostCalendarD
   const { isDragging: isMediaDragging, draggedMedias, endMediaDrag } = useMediaDrag();
   const { isDragging: isPostDragging, draggedPost, endPostDrag } = usePostDrag();
   const { preferences } = usePostPreferences();
+  const { createPostFromVirtualSlot } = useCreatePostFromVirtualSlot();
   const [createPostData, setCreatePostData] = useState<{
     media: Media[];
     caption?: string;
@@ -31,24 +33,8 @@ export const PostCalendarDropzone = ({ post, children, onUpdate }: PostCalendarD
     initialDate?: Date;
   } | null>(null);
   const addMediaMutation = useAddMediaToPostMutation();
-  const createPostMutation = useCreatePostMutation();
 
   const isDragging = isMediaDragging || isPostDragging;
-
-  const createPostDirectly = async (mediaIds: string[], scheduleId?: string, caption?: string) => {
-    if (!isVirtualPost(post)) return;
-
-    const createData: typeof CreatePostRequestBodySchema.static = {
-      date: post.date,
-      channelId: post.channelId,
-      status: "draft",
-      caption: caption ?? "",
-      mediaIds,
-      scheduleId,
-    };
-    await createPostMutation.mutateAsync(createData);
-    await onUpdate?.();
-  };
 
   const { isOver, dragHandlers } = useDragOver({
     onDrop: async () => {
@@ -77,10 +63,11 @@ export const PostCalendarDropzone = ({ post, children, onUpdate }: PostCalendarD
             initialDate: new Date(post.date),
           });
         } else {
-          await createPostDirectly(
-            draggedMedias.map((m) => m.id),
-            post.scheduleId
-          );
+          await createPostFromVirtualSlot({
+            virtualPost: post,
+            mediaIds: draggedMedias.map((m) => m.id),
+            onUpdate,
+          });
         }
         endMediaDrag();
       } else if (isPostDragging && draggedPost && isVirtualPost(post)) {
@@ -97,11 +84,12 @@ export const PostCalendarDropzone = ({ post, children, onUpdate }: PostCalendarD
             initialDate: new Date(post.date),
           });
         } else {
-          await createPostDirectly(
-            media.map((m) => m.id),
-            post.scheduleId,
-            draggedPost.caption ?? undefined
-          );
+          await createPostFromVirtualSlot({
+            virtualPost: post,
+            mediaIds: media.map((m) => m.id),
+            caption: draggedPost.caption ?? undefined,
+            onUpdate,
+          });
         }
         endPostDrag();
       }

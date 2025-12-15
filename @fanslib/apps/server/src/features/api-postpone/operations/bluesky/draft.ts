@@ -65,6 +65,10 @@ export const draftBlueskyPost = async (data: typeof DraftBlueskyPostRequestBodyS
     throw new Error("Post is not for Bluesky channel");
   }
 
+  if (post.postponeBlueskyDraftedAt) {
+    return { success: true };
+  }
+
   const media = post.postMedia[0];
 
   const threadSubmission = {
@@ -95,6 +99,13 @@ export const draftBlueskyPost = async (data: typeof DraftBlueskyPostRequestBodyS
       ],
     },
   });
+
+  if (result.scheduleBlueskyPost.success) {
+    await postRepository.update(post.id, {
+      postponeBlueskyDraftedAt: new Date(),
+      updatedAt: new Date().toISOString(),
+    });
+  }
 
   return { success: result.scheduleBlueskyPost.success };
 };
