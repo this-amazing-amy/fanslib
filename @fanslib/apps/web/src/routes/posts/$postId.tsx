@@ -13,6 +13,7 @@ import { PostDetailMedia } from '~/features/posts/components/post-detail/PostDet
 import { PostDetailNavigation } from '~/features/posts/components/post-detail/PostDetailNavigation';
 import { PostDetailPostponeButton } from '~/features/posts/components/post-detail/PostDetailPostponeButton';
 import { PostDetailStatusButtons } from '~/features/posts/components/post-detail/PostDetailStatusButtons';
+import { PostDetailScheduleSelect } from '~/features/posts/components/post-detail/PostDetailScheduleSelect';
 import { PostDetailUrlInput } from '~/features/posts/components/post-detail/PostDetailUrlInput';
 import { usePostQuery } from '~/lib/queries/posts';
 
@@ -96,6 +97,7 @@ const PostDetailRoute = () => {
             </div>
             <div className="flex flex-col gap-4">
               <PostDetailStatusButtons post={normalizedPost} />
+              <PostDetailScheduleSelect post={normalizedPost} />
               <PostDetailDateTimeInputs post={normalizedPost} />
               <PostDetailUrlInput post={normalizedPost} />
               {normalizedPost.channel.typeId === 'fansly' && <PostDetailFanslyStatistics post={normalizedPost} />}
