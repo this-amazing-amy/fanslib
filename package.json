@@ -24,7 +24,8 @@
     "format": "turbo run format",
     "db:push": "turbo run db:push",
     "db:generate": "turbo run db:generate",
-    "db:migrate": "turbo run db:migrate"
+    "db:migrate": "turbo run db:migrate",
+    "sync-to-drive": "bun run @fanslib/apps/scripts/sync-to-drive.ts"
   },
   "workspaces": [
     "@fanslib/apps/web",
