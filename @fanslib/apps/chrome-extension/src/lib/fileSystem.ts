@@ -4,6 +4,36 @@ export type VerificationResult = {
   fileSize: number;
 };
 
+type DirectoryPicker = (options?: {
+  id?: string;
+  mode?: 'read' | 'readwrite';
+  startIn?:
+    | FileSystemHandle
+    | FileSystemDirectoryHandle
+    | FileSystemFileHandle
+    | 'desktop'
+    | 'documents'
+    | 'downloads'
+    | 'music'
+    | 'pictures'
+    | 'videos';
+}) => Promise<FileSystemDirectoryHandle>;
+
+type FileSystemWindow = Window &
+  Partial<{
+    showDirectoryPicker: DirectoryPicker;
+  }>;
+
+const selectRootDirectory = (): Promise<FileSystemDirectoryHandle> => {
+  const picker = (window as FileSystemWindow).showDirectoryPicker;
+
+  if (!picker) {
+    throw new Error('File System Access API is unavailable');
+  }
+
+  return picker({ startIn: 'documents' });
+};
+
 export const parseRelativePath = (relativePath: string): string[] =>
   relativePath
     .replace(/\\/g, '/')
@@ -21,13 +51,17 @@ const navigateToDirectory = async (
     return rootHandle;
   }
 
-  let currentHandle = rootHandle;
+  const traverse = async (
+    directoryPromise: Promise<FileSystemDirectoryHandle>,
+    part: string,
+    index: number
+  ): Promise<FileSystemDirectoryHandle> => {
+    const currentHandle = await directoryPromise;
 
-  for (const part of directoryParts) {
     try {
-      currentHandle = await currentHandle.getDirectoryHandle(part);
+      return await currentHandle.getDirectoryHandle(part);
     } catch (err) {
-      const traversedPath = directoryParts.join('/');
+      const traversedPath = directoryParts.slice(0, index + 1).join('/');
       if (err instanceof Error && err.name === 'NotFoundError') {
         throw new Error(
           `Directory "${part}" not found.\nPath so far: "${traversedPath}"\nFull path: "${pathParts.join('/')}"`
@@ -35,9 +69,12 @@ const navigateToDirectory = async (
       }
       throw err;
     }
-  }
+  };
 
-  return currentHandle;
+  return directoryParts.reduce(
+    (directoryPromise, part, index) => traverse(directoryPromise, part, index),
+    Promise.resolve(rootHandle)
+  );
 };
 
 const verifyFileExists = async (
@@ -69,9 +106,7 @@ export const verifyDirectoryAccess = async (
 
   const fileName = pathParts[pathParts.length - 1];
 
-  const rootHandle = await window.showDirectoryPicker({
-    startIn: 'documents',
-  });
+  const rootHandle = await selectRootDirectory();
 
   const targetDirectory = await navigateToDirectory(rootHandle, pathParts);
   const { size } = await verifyFileExists(targetDirectory, fileName);
@@ -84,4 +119,4 @@ export const verifyDirectoryAccess = async (
 };
 
 export const isFileSystemAccessSupported = (): boolean =>
-  'showDirectoryPicker' in window;
+  Boolean((window as FileSystemWindow).showDirectoryPicker);
