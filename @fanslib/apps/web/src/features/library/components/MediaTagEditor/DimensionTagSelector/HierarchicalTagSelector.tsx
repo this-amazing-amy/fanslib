@@ -69,9 +69,9 @@ export const HierarchicalTagSelector = ({
         <TagBadge
           tag={node}
           selectionState={tagStates[node.id] ?? "unchecked"}
-          onClick={() => onTagToggle(node.id)}
           selectionMode="checkbox"
           size={size}
+          onSelectionChange={() => onTagToggle(node.id)}
         />
         {showChildren && (
           <div className="w-full flex flex-wrap gap-1.5 ml-4">

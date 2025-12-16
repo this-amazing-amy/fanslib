@@ -113,9 +113,9 @@ export const TreeNodeComponent = ({
           <TagBadge
             tag={{ id: node.id, color: node.color, displayName: node.displayName }}
             selectionState={isSelected ? "checked" : "unchecked"}
-            onClick={() => onSelectTag?.(node.id)}
             size="sm"
             className="w-fit"
+            onSelectionChange={() => onSelectTag?.(node.id)}
           />
         </div>
 

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 import { cn } from '~/lib/cn';
 
 export type BadgeVariant = 'primary' | 'secondary' | 'accent' | 'ghost' | 'info' | 'success' | 'warning' | 'error' | 'neutral';
@@ -10,7 +10,9 @@ export type BadgeProps = {
   children: ReactNode;
   className?: string;
   style?: React.CSSProperties;
-  onClick?: () => void;
+  onClick?: (event: MouseEvent<HTMLSpanElement>) => void;
+  onMouseEnter?: (event: MouseEvent<HTMLSpanElement>) => void;
+  onMouseLeave?: (event: MouseEvent<HTMLSpanElement>) => void;
 };
 
 export const Badge = ({
@@ -21,6 +23,8 @@ export const Badge = ({
   className,
   style,
   onClick,
+  onMouseEnter,
+  onMouseLeave,
 }: BadgeProps) => {
   const variantClasses = {
     primary: 'badge-primary',
@@ -52,6 +56,8 @@ export const Badge = ({
       )}
       style={style}
       onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       {children}
     </span>

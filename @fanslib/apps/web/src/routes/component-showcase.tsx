@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { ContentScheduleBadge } from '~/components/ContentScheduleBadge';
 import { DateTimePicker } from '~/components/DateTimePicker';
-import { StatusSticker } from '~/components/StatusSticker';
+import { StatusBadge } from '~/components/StatusBadge';
 import { Alert } from '~/components/ui/Alert';
 import {
   AlertDialog,
@@ -300,18 +300,18 @@ const ComponentShowcase = () => {
             Application-specific badges using the unified color system
           </p>
 
-          {/* Status Stickers */}
+          {/* Status Badges */}
           <div>
-            <h3 className="text-lg font-semibold mb-3">Status Stickers (Post Status)</h3>
+            <h3 className="text-lg font-semibold mb-3">Status Badges (Post Status)</h3>
             <div className="flex flex-wrap gap-3">
-              <StatusSticker status="posted" size="sm" />
-              <StatusSticker status="scheduled" size="sm" />
-              <StatusSticker status="draft" size="sm" />
+              <StatusBadge status="posted" size="sm" />
+              <StatusBadge status="scheduled" size="sm" />
+              <StatusBadge status="draft" size="sm" />
             </div>
             <div className="flex flex-wrap gap-3 mt-3">
-              <StatusSticker status="posted" size="md" />
-              <StatusSticker status="scheduled" size="md" />
-              <StatusSticker status="draft" size="md" />
+              <StatusBadge status="posted" size="md" />
+              <StatusBadge status="scheduled" size="md" />
+              <StatusBadge status="draft" size="md" />
             </div>
           </div>
 

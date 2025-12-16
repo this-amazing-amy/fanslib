@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { MediaTile } from "~/features/library/components/MediaTile";
 import { ChannelBadge } from "./ChannelBadge";
 import { PostTagStickers } from "./PostTagStickers";
-import { StatusSticker } from "./StatusSticker";
+import { StatusBadge } from "./StatusBadge";
 
 type Post = typeof PostWithRelationsSchema.static;
 
@@ -17,7 +17,7 @@ export const PostCard = ({ post }: PostCardProps) => <div className="flex flex-c
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <ChannelBadge name={post.channel.name} typeId={post.channel.typeId} />
-              <StatusSticker status={post.status} />
+              <StatusBadge status={post.status} size="md" />
               <PostTagStickers postMedia={post.postMedia} />
             </div>
             <span className="text-sm text-muted-foreground block">

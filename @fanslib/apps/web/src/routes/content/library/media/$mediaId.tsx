@@ -1,10 +1,12 @@
 import { createFileRoute, useParams, useRouter } from '@tanstack/react-router';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Plus } from 'lucide-react';
+import { useState } from 'react';
 import { MediaView } from '~/components/MediaView';
 import { MediaDetailDeleteButton } from '~/components/media-detail/MediaDetailDeleteButton';
 import { MediaDetailMetadata } from '~/components/media-detail/MediaDetailMetadata';
 import { MediaDetailNavigation } from '~/components/media-detail/MediaDetailNavigation';
 import { MediaPosts } from '~/components/media-detail/MediaPosts';
+import { CreatePostDialog } from '~/features/library/components/CreatePostDialog';
 import { Button } from '~/components/ui/Button';
 import { MediaSelectionProvider } from '~/contexts/MediaSelectionContext';
 import { MediaTagEditor } from '~/features/library/components/MediaTagEditor';
@@ -14,6 +16,7 @@ const MediaRoute = () => {
   const { mediaId } = useParams({ from: '/content/library/media/$mediaId' });
   const router = useRouter();
   const { data: media, isLoading, error } = useMediaQuery({ id: mediaId });
+  const [createPostDialogOpen, setCreatePostDialogOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -63,7 +66,16 @@ const MediaRoute = () => {
             </div>
           </div>
 
-          <h3 className="text-lg font-medium mb-4">Posts</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-medium">Posts</h3>
+            <Button
+              variant="primary"
+              size="icon"
+              onPress={() => setCreatePostDialogOpen(true)}
+            >
+              <Plus className="h-5 w-5" />
+            </Button>
+          </div>
           <div className="flex flex-col gap-4">
             <MediaPosts mediaId={media.id} />
           </div>
@@ -71,6 +83,11 @@ const MediaRoute = () => {
           <div className="mt-8">
             <MediaDetailMetadata media={media} />
           </div>
+          <CreatePostDialog
+            open={createPostDialogOpen}
+            onOpenChange={setCreatePostDialogOpen}
+            media={[media]}
+          />
         </div>
       </div>
     </MediaSelectionProvider>

@@ -1,6 +1,6 @@
 import type { PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { CalendarDays, Check, Undo2, Zap } from 'lucide-react';
-import { StatusSticker } from '~/components/StatusSticker';
+import { StatusBadge } from '~/components/StatusBadge';
 import { Button } from '~/components/ui/Button';
 import { getPostStatusStyles } from '~/lib/colors';
 import { useUpdatePostMutation } from '~/lib/queries/posts';
@@ -33,7 +33,7 @@ export const PostDetailStatusButtons = ({ post }: PostDetailStatusButtonsProps) 
     if (post.status === 'draft') {
       return (
         <>
-          <StatusSticker status={post.status} size="md" className="justify-self-start" />
+          <StatusBadge status={post.status} size="md" className="justify-self-start" />
           <Button
             variant="outline"
             size="sm"
@@ -74,7 +74,7 @@ export const PostDetailStatusButtons = ({ post }: PostDetailStatusButtonsProps) 
     if (post.status === 'ready') {
       return (
         <>
-          <StatusSticker status={post.status} size="md" className="justify-self-start" />
+          <StatusBadge status={post.status} size="md" className="justify-self-start" />
           <Button
             variant="outline"
             size="sm"
@@ -114,7 +114,7 @@ export const PostDetailStatusButtons = ({ post }: PostDetailStatusButtonsProps) 
     if (post.status === 'scheduled') {
       return (
         <>
-          <StatusSticker status={post.status} size="md" className="justify-self-start" />
+          <StatusBadge status={post.status} size="md" className="justify-self-start" />
           <Button
             variant="outline"
             size="sm"
@@ -143,7 +143,7 @@ export const PostDetailStatusButtons = ({ post }: PostDetailStatusButtonsProps) 
     if (post.status === 'posted') {
       return (
         <>
-          <StatusSticker status={post.status} size="md" className="justify-self-start" />
+          <StatusBadge status={post.status} size="md" className="justify-self-start" />
           <Button
             variant="outline"
             size="sm"

@@ -170,6 +170,7 @@ export const TagFilterSelector = ({ value, onChange }: TagFilterSelectorProps) =
                                 selectionState={value === tag.id.toString() ? "checked" : "unchecked"}
                                 size="md"
                                 className="justify-start"
+                                onSelectionChange={() => handleSelectTag(tag.id.toString())}
                               />
                             </CommandItem>
                           ))}

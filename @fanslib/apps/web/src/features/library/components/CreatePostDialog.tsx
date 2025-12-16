@@ -269,14 +269,16 @@ export const CreatePostDialog = ({
                       />
                     </div>
                   )}
-                  <div className="flex flex-col space-y-2">
-                    <label className="text-sm font-medium">Content Schedule</label>
-                    <ContentScheduleSelect
-                      value={contentScheduleId}
-                      onChange={setContentScheduleId}
-                      channelId={selectedChannel[0]}
-                    />
-                  </div>
+                  {selectedChannel[0] && (
+                    <div className="flex flex-col space-y-2">
+                      <label className="text-sm font-medium">Content Schedule</label>
+                      <ContentScheduleSelect
+                        value={contentScheduleId}
+                        onChange={setContentScheduleId}
+                        channelId={selectedChannel[0]}
+                      />
+                    </div>
+                  )}
                   <div className="flex flex-col gap-2">
                     <label className="text-sm font-medium">Status</label>
                     <StatusSelect

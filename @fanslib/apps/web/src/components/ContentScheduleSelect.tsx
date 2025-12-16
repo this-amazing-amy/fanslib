@@ -46,21 +46,16 @@ export const ContentScheduleSelect = ({
         const isSelected = value === schedule.id;
 
         return (
-          <button
+          <ContentScheduleBadge
             key={schedule.id}
-            type="button"
-            onClick={() => handleToggleSchedule(schedule.id)}
-            className={cn(
-              "transition-all",
-              isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-base-100"
-            )}
-          >
-            <ContentScheduleBadge
-              name={schedule.name}
-              emoji={schedule.emoji}
-              color={schedule.color}
-            />
-          </button>
+            name={schedule.name}
+            emoji={schedule.emoji}
+            color={schedule.color}
+            selected={isSelected}
+            selectable
+            onSelectionChange={() => handleToggleSchedule(schedule.id)}
+            className={cn("transition-all")}
+          />
         );
       })}
     </div>

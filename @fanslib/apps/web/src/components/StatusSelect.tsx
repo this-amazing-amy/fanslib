@@ -1,7 +1,7 @@
 import type { PostStatusSchema } from "@fanslib/server/schemas";
 import { cn } from "~/lib/cn";
 import { POST_STATUS_COLORS } from "~/lib/colors";
-import { Badge } from "./ui/Badge";
+import { StatusBadge } from "./StatusBadge";
 
 type PostStatus = typeof PostStatusSchema.static;
 
@@ -52,43 +52,32 @@ export const StatusSelect = ({
         const isSelected = values.includes(status.id);
 
         return (
-          <Badge
+          <StatusBadge
             key={status.id}
-            variant={isSelected ? "primary" : "neutral"}
-            outline={!isSelected}
+            size="md"
+            status={status.id}
+            selected={isSelected}
+            selectable
             className={cn(
-              "transition-colors cursor-pointer",
+              "rounded-full font-medium flex items-center gap-1.5 transition-colors cursor-pointer",
               !multiple && values.length > 0 && !isSelected && "opacity-50"
             )}
-            style={{
-              backgroundColor: isSelected
-                ? status.background
-                : `color-mix(in oklch, ${status.background} 12%, transparent)`,
-              borderColor: status.foreground,
-              color: status.foreground,
-            }}
-            onClick={() => toggleStatus(status.id)}
+            onSelectionChange={() => toggleStatus(status.id)}
           >
-            {status.label}
-          </Badge>
+          </StatusBadge>
         );
       })}
       {includeNoneOption && (
-        <Badge
-          variant={values.length === 0 ? "neutral" : "neutral"}
-          outline={values.length > 0}
+        <button
+          type="button"
           className={cn(
-            "transition-colors cursor-pointer text-base-content/60",
-            !multiple && values.length > 0 && "opacity-50"
+            "px-3 py-1 text-xs rounded-full border transition-colors cursor-pointer text-base-content/60",
+            values.length > 0 && "opacity-50"
           )}
-          onClick={() => onChange(multiple ? [] : [])}
-          style={{
-            backgroundColor: values.length === 0 ? "hsl(var(--base-300))" : "transparent",
-            borderColor: "hsl(var(--base-300))",
-          }}
+          onClick={() => onChange([])}
         >
           None
-        </Badge>
+        </button>
       )}
     </div>
   );

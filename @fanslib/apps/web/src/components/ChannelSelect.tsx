@@ -62,7 +62,7 @@ export const ChannelSelect = ({
               selectable={selectable}
               selected={isSelected}
               disabled={isDisabled}
-              onClick={() => handleToggleChannel(channel.id)}
+              onSelectionChange={() => handleToggleChannel(channel.id)}
             />
           </div>
         );

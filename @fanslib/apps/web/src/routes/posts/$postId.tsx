@@ -3,7 +3,6 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
 import { useCallback } from 'react';
 import { ChannelBadge } from '~/components/ChannelBadge';
-import { ContentScheduleBadge } from '~/components/ContentScheduleBadge';
 import { Button } from '~/components/ui/Button';
 import { MediaDragProvider } from '~/contexts/MediaDragContext';
 import { PostDetailCaptionInput } from '~/features/posts/components/post-detail/PostDetailCaptionInput';
@@ -77,21 +76,11 @@ const PostDetailRoute = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 py-6">
             <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-2 self-start">
                 <ChannelBadge
                   name={normalizedPost.channel.typeId === 'reddit' && normalizedPost.subreddit?.name ? `r/${normalizedPost.subreddit.name}` : normalizedPost.channel.name}
                   typeId={normalizedPost.channel.typeId}
-                  size="md"
-                />
-                {normalizedPost.schedule && (
-                  <ContentScheduleBadge
-                    name={normalizedPost.schedule.name}
-                    emoji={normalizedPost.schedule.emoji}
-                    color={normalizedPost.schedule.color}
-                    size="md"
-                  />
-                )}
-              </div>
+                size="md"
+              />
               <PostDetailMedia post={normalizedPost} />
               <PostDetailPostponeButton post={normalizedPost} />
             </div>

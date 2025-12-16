@@ -28,23 +28,14 @@ export const PostDetailScheduleSelect = ({ post }: PostDetailScheduleSelectProps
     }
   };
 
-  const isSaving = updatePostMutation.isPending;
-
   return (
     <div className="flex flex-col gap-2">
       <label className="text-sm font-medium">Content schedule</label>
-      <div className="relative">
         <ContentScheduleSelect
           value={localScheduleId}
           onChange={updateSchedule}
-          channelId={post.channelId}
-        />
-        {isSaving && (
-          <div className="absolute right-0 -top-5 text-xs">
-            Updating...
-          </div>
-        )}
-      </div>
+        channelId={post.channelId}
+      />
     </div>
   );
 };
