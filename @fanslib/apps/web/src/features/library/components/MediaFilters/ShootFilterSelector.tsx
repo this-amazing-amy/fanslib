@@ -30,6 +30,9 @@ export const ShootFilterSelector = ({ value, onChange }: ShootFilterSelectorProp
     setOpen(false);
   };
 
+  const shootItems = (shoots?.items as Shoot[] | undefined) ?? [];
+  const hasShoots = shootItems.length > 0;
+
   return (
     <PopoverTrigger isOpen={open} onOpenChange={setOpen}>
       <Button
@@ -43,10 +46,10 @@ export const ShootFilterSelector = ({ value, onChange }: ShootFilterSelectorProp
       <Popover className="p-0 w-[min(480px,100vw-32px)]" placement="bottom start">
         <Command>
           <CommandInput placeholder="Search shoots..." />
-          <CommandEmpty>No shoot found.</CommandEmpty>
+          {!isLoading && !hasShoots ? <CommandEmpty>No shoot found.</CommandEmpty> : null}
           <div className="max-h-80 overflow-y-auto">
             <CommandGroup>
-              {(shoots?.items as Shoot[] | undefined)?.map((shoot: Shoot) => (
+              {shootItems.map((shoot: Shoot) => (
                 <CommandItem
                   key={shoot.id}
                   value={shoot.name}
