@@ -72,7 +72,7 @@
     "eslint-plugin-functional": "^9.0.2",
     "eslint-plugin-prefer-arrow-functions": "^3.9.1",
     "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^7.0.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-storybook": "^9.1.7",
     "jsdom": "^27.0.0",
     "oxlint": "^1.23.0",
