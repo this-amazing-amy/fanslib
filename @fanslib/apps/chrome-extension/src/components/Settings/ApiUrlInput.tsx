@@ -38,7 +38,7 @@ export const ApiUrlInput = ({ apiUrl, onChange }: ApiUrlInputProps) => {
         throw new Error(`Server returned error`);
       }
 
-      const data = response.data || [];
+      const data = response.data ?? [];
       setTestStatus('success');
       setTestMessage(`Connected! ${data.length} post(s) ready.`);
       setTimeout(() => {

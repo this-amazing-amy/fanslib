@@ -40,7 +40,7 @@ export const PostCard = ({
   webUrl,
   onMarkPosted,
 }: PostCardProps) => {
-  const media = post.postMedia || [];
+  const media = post.postMedia ?? [];
   const hasLibraryPath = !!libraryPath;
   const [imageErrors, setImageErrors] = useState<Set<number>>(new Set());
   const [imageLoadStates, setImageLoadStates] = useState<

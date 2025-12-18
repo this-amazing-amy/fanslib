@@ -45,7 +45,7 @@ export const Popup = () => {
       }
 
       // Sort by date ascending (oldest first)
-      const sortedPosts = (response.data || []).sort(
+      const sortedPosts = (response.data ?? []).sort(
         (a: Post, b: Post) =>
           new Date(a.date).getTime() - new Date(b.date).getTime()
       );
