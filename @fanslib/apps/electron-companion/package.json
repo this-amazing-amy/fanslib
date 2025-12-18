@@ -77,5 +77,8 @@
       "artifactName": "fanslib-companion-${version}-${arch}.${ext}"
     },
     "compression": "maximum"
+  },
+  "dependencies": {
+    "clip-filepaths": "^0.3.0"
   }
 }

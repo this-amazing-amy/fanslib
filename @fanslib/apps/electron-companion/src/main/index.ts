@@ -1,8 +1,8 @@
-import { app, clipboard, nativeImage, shell, Tray } from 'electron';
+import { app, nativeImage, shell, Tray } from 'electron';
 import fs from 'fs';
+import { writeClipboardFilePaths } from 'clip-filepaths';
 import { normalizeFilePath } from './paths';
 import { createServer } from './server';
-import { createWindowsHdropBuffer } from './windows-clipboard';
 
 if (process.platform === 'darwin') {
   app.name = 'FansLib Companion';
@@ -71,21 +71,8 @@ app.whenReady().then(async () => {
       throw new Error('No valid files to copy');
     }
 
-    if (process.platform === 'darwin') {
-      const plistContent = `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<array>
-${validFiles.map((f) => `  <string>${f}</string>`).join('\n')}
-</array>
-</plist>`;
-
-      clipboard.writeBuffer('NSFilenamesPboardType', Buffer.from(plistContent));
-    } else if (process.platform === 'win32') {
-      clipboard.writeBuffer('CF_HDROP', createWindowsHdropBuffer(validFiles));
-    } else {
-      clipboard.writeText(validFiles.join('\n'));
-    }
+    // Use clip-filepaths for cross-platform clipboard handling
+    writeClipboardFilePaths(validFiles);
   };
 
   const handleRevealInFinder = (filePath: string) => {
