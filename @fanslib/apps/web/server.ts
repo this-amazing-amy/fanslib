@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 // Import the built server handler
+//@ts-ignore
 import server from './dist/server/server.js';
 
 const PORT = 6969;
@@ -13,7 +14,7 @@ console.log('Port:', PORT);
 
 Bun.serve({
   port: PORT,
-  async fetch(request) {
+  fetch: async (request) => {
     const url = new URL(request.url);
     const pathname = url.pathname;
 
@@ -30,7 +31,7 @@ Bun.serve({
     // Otherwise, use the TanStack Start server handler
     return server.fetch(request);
   },
-  error(error) {
+  error: (error) => {
     console.error('Server error:', error);
     return new Response('Internal Server Error', { status: 500 });
   },
