@@ -2,12 +2,12 @@ import type { ShootSummarySchema } from "@fanslib/server/schemas";
 import { Plus } from "lucide-react";
 import { type FC } from "react";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
-
-type ShootSummary = typeof ShootSummarySchema.static;
 import { useDragOver } from "~/hooks/useDragOver";
 import { cn } from "~/lib/cn";
 import { useMediaListQuery } from "~/lib/queries/library";
 import { useUpdateShootMutation } from "~/lib/queries/shoots";
+
+type ShootSummary = typeof ShootSummarySchema.static;
 
 type ShootDetailDropZoneProps = {
   shoot: ShootSummary;
@@ -45,7 +45,7 @@ export const ShootDetailDropZone: FC<ShootDetailDropZoneProps> = ({ shoot, onUpd
         await updateMutation.mutateAsync({
           id: shoot.id,
           updates: {
-            mediaIds: [...(shoot.media?.map((m) => m.id) || []), ...newMediaIds],
+            mediaIds: [...(shoot.media?.map((m) => m.id) ?? []), ...newMediaIds],
           },
         });
         onUpdate();

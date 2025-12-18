@@ -29,7 +29,7 @@ export const ShootDetailMedia: FC<ShootDetailMediaProps> = ({
 
   const removeMediaFromShoot = async () => {
     try {
-      const updatedMediaIds = allMedias?.filter((m) => m.id !== media.id).map((m) => m.id) || [];
+      const updatedMediaIds = allMedias?.filter((m) => m.id !== media.id).map((m) => m.id) ?? [];
 
       await updateMutation.mutateAsync({
         id: shootId,

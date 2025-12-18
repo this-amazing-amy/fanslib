@@ -3,13 +3,13 @@ import { X } from "lucide-react";
 import { useState } from "react";
 import { Switch } from "~/components/ui/Switch";
 import {
-  useCreateTagDefinitionMutation,
-  useTagDefinitionsByDimensionQuery,
+    useCreateTagDefinitionMutation,
+    useTagDefinitionsByDimensionQuery,
 } from "~/lib/queries/tags";
 import {
-  formatBooleanValue,
-  parseBooleanSchema,
-  validateBooleanValue,
+    formatBooleanValue,
+    parseBooleanSchema,
+    validateBooleanValue,
 } from "~/lib/tags/tagValidation";
 
 type MediaTag = typeof MediaTagSchema.static;
@@ -93,7 +93,7 @@ export const BooleanTagSelector = ({
       {selectedTag ? (
         <div className="flex items-center gap-2 mb-2">
           <div className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm flex items-center gap-2">
-            {selectedTag.tagDisplayName || formatBooleanValue(getCurrentValue(), schema)}
+            {selectedTag.tagDisplayName ?? formatBooleanValue(getCurrentValue(), schema)}
             <button
               onClick={handleRemoveTag}
               className="hover:bg-purple-200 rounded-full p-0.5"

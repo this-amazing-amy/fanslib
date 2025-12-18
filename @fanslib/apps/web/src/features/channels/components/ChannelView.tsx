@@ -1,34 +1,34 @@
 import type {
-  ChannelSchema,
-  CreateContentScheduleRequestBodySchema,
-  ContentScheduleWithChannelSchema,
-  MediaFilterSchema,
+    ChannelSchema,
+    ContentScheduleWithChannelSchema,
+    CreateContentScheduleRequestBodySchema,
+    MediaFilterSchema,
 } from "@fanslib/server/schemas";
+import { Edit2, Plus, Save, Trash2, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Button } from "~/components/ui/Button/Button";
+import {
+    Dialog,
+    DialogModal,
+    DialogTrigger,
+} from "~/components/ui/Dialog";
+import { Input } from "~/components/ui/Input/Input";
+import { Textarea } from "~/components/ui/Textarea";
+import { FilterPresetProvider } from "~/contexts/FilterPresetContext";
+import { MediaFilters as MediaFiltersComponent } from "~/features/library/components/MediaFilters/MediaFilters";
+import { MediaFiltersProvider } from "~/features/library/components/MediaFilters/MediaFiltersContext";
+import { useDeleteChannelMutation, useUpdateChannelMutation } from "~/lib/queries/channels";
+import {
+    useContentSchedulesByChannelQuery,
+    useCreateContentScheduleMutation,
+    useUpdateContentScheduleMutation,
+} from "~/lib/queries/content-schedules";
+import { ChannelTypeIcon } from "./ChannelTypeIcon";
+import { ContentScheduleForm } from "./ContentScheduleForm";
+import { ContentScheduleList } from "./ContentScheduleList";
 
 type Channel = typeof ChannelSchema.static;
 type MediaFilters = typeof MediaFilterSchema.static;
-import { useState, useEffect } from "react";
-import { Edit2, Save, X, Plus, Trash2 } from "lucide-react";
-import { Button } from "~/components/ui/Button/Button";
-import { Input } from "~/components/ui/Input/Input";
-import { Textarea } from "~/components/ui/Textarea";
-import {
-  Dialog,
-  DialogModal,
-  DialogTrigger,
-} from "~/components/ui/Dialog";
-import { MediaFilters as MediaFiltersComponent } from "~/features/library/components/MediaFilters/MediaFilters";
-import { MediaFiltersProvider } from "~/features/library/components/MediaFilters/MediaFiltersContext";
-import { FilterPresetProvider } from "~/contexts/FilterPresetContext";
-import { useUpdateChannelMutation, useDeleteChannelMutation } from "~/lib/queries/channels";
-import {
-  useContentSchedulesByChannelQuery,
-  useCreateContentScheduleMutation,
-  useUpdateContentScheduleMutation,
-} from "~/lib/queries/content-schedules";
-import { ChannelTypeIcon } from "./ChannelTypeIcon";
-import { ContentScheduleList } from "./ContentScheduleList";
-import { ContentScheduleForm } from "./ContentScheduleForm";
 
 type ChannelViewProps = {
   channel: Channel;
@@ -67,7 +67,7 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
         id: channel.id,
         updates: {
           name,
-          description: description || undefined,
+          description: description ?? undefined,
           eligibleMediaFilter: eligibleMediaFilter.length > 0 ? eligibleMediaFilter : undefined,
         },
       });

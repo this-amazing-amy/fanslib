@@ -1,7 +1,7 @@
 import type {
-  ContentScheduleWithChannelSchema,
-  CreateContentScheduleRequestBodySchema,
-  MediaFilterSchema,
+    ContentScheduleWithChannelSchema,
+    CreateContentScheduleRequestBodySchema,
+    MediaFilterSchema,
 } from "@fanslib/server/schemas";
 import { Plus, X } from "lucide-react";
 import { useState } from "react";
@@ -70,8 +70,8 @@ export const ContentScheduleForm = ({
 
     const data: typeof CreateContentScheduleRequestBodySchema.static = {
       channelId,
-      name: name.trim() || "Untitled Schedule",
-      emoji: emoji.trim() || undefined,
+      name: name.trim() ?? "Untitled Schedule",
+      emoji: emoji.trim() ?? undefined,
       color: color ?? undefined,
       type,
       postsPerTimeframe: postsPerTimeframe > 0 ? postsPerTimeframe : undefined,
@@ -112,8 +112,8 @@ export const ContentScheduleForm = ({
           <div className="flex items-center gap-3">
             <ColorPicker value={color} onChange={setColor} />
             <ContentScheduleBadge
-              name={name || "Preview"}
-              emoji={emoji || null}
+              name={name ?? "Preview"}
+              emoji={emoji ?? null}
               color={color}
             />
           </div>

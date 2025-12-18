@@ -1,12 +1,12 @@
 import type { TagDefinitionSchema, TagDimensionSchema } from "@fanslib/server/schemas";
 import { ChevronRight, ChevronsUpDown } from "lucide-react";
 import { useMemo, useState } from "react";
-import { TagBadge } from "../MediaTagEditor/DimensionTagSelector/TagBadge";
 import { Button } from "~/components/ui/Button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "~/components/ui/Command";
 import { Popover, PopoverTrigger } from "~/components/ui/Popover";
 import { cn } from "~/lib/cn";
 import { useTagDimensionsQuery } from "~/lib/queries/tags";
+import { TagBadge } from "../MediaTagEditor/DimensionTagSelector/TagBadge";
 
 type TagDimensionWithTags = typeof TagDimensionSchema.static & {
   tags?: typeof TagDefinitionSchema.static[];
@@ -51,14 +51,14 @@ export const TagFilterSelector = ({ value, onChange }: TagFilterSelectorProps) =
         const dimensionMatches = dimension.name.toLowerCase().includes(lowerSearch);
         const matchingTags = (dimension.tags ?? []).filter(
           (tag: TagDefinition) =>
-            tag.displayName.toLowerCase().includes(lowerSearch) ||
+            tag.displayName.toLowerCase().includes(lowerSearch) ??
             dimension.name.toLowerCase().includes(lowerSearch)
         );
 
         return {
           dimension,
           tags: dimensionMatches ? dimension.tags ?? [] : matchingTags,
-          hasMatches: dimensionMatches || matchingTags.length > 0,
+          hasMatches: dimensionMatches ?? matchingTags.length > 0,
         };
       })
       .filter((item) => item.hasMatches);

@@ -3,13 +3,13 @@ import { X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Slider } from "~/components/ui/Slider";
 import {
-  useCreateTagDefinitionMutation,
-  useTagDefinitionsByDimensionQuery,
+    useCreateTagDefinitionMutation,
+    useTagDefinitionsByDimensionQuery,
 } from "~/lib/queries/tags";
 import {
-  formatNumericValue,
-  parseNumericSchema,
-  validateNumericValue,
+    formatNumericValue,
+    parseNumericSchema,
+    validateNumericValue,
 } from "~/lib/tags/tagValidation";
 
 type MediaTag = typeof MediaTagSchema.static;
@@ -140,8 +140,8 @@ export const NumericalTagSelector = ({
       {selectedTag ? (
         <div className="flex items-center gap-2 mb-2">
           <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm flex items-center gap-2">
-            {selectedTag.tagDisplayName ||
-              formatNumericValue(parseFloat(selectedTag.tagValue || "0"), schema)}
+            {selectedTag.tagDisplayName ??
+              formatNumericValue(parseFloat(selectedTag.tagValue ?? "0"), schema)}
             <button
               onClick={handleRemoveTag}
               className="hover:bg-green-200 rounded-full p-0.5"
