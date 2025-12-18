@@ -1,4 +1,4 @@
-import { Settings as SettingsIcon } from 'lucide-react';
+import { Heart, Settings as SettingsIcon } from 'lucide-react';
 import { ConnectionStatus } from './ConnectionStatus';
 
 type PopupHeaderProps = {
@@ -17,8 +17,8 @@ export const PopupHeader = ({
 }: PopupHeaderProps) => (
   <div className='flex items-center gap-3 px-3 py-2 border-b border-base-300 justify-between'>
     <div className='flex items-center gap-3'>
-      <div className='w-9 h-9 bg-primary rounded-lg flex items-center justify-center text-lg font-bold text-primary-content'>
-        FL
+      <div className='w-9 h-9 rounded-lg flex items-center justify-center' style={{ backgroundColor: 'rgb(229, 214, 254)' }}>
+        <Heart className='w-5 h-5 text-white fill-white' />
       </div>
       {postCount > 0 && (
         <div className='text-xs text-base-content/60'>

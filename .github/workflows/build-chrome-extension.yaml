@@ -1,0 +1,37 @@
+name: Build Chrome Extension
+
+on:
+  workflow_dispatch:
+
+env:
+  BUN_VERSION: '1.2.19'
+
+jobs:
+  build:
+    name: Build Chrome Extension
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build extension
+        run: |
+          cd @fanslib/apps/chrome-extension
+          bun run build
+
+      - name: Upload extension build
+        uses: actions/upload-artifact@v4
+        with:
+          name: chrome-extension-build
+          path: |
+            @fanslib/apps/chrome-extension/dist/**/*
+          retention-days: 30

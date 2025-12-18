@@ -1,0 +1,242 @@
+<!doctype html>
+<html data-theme="pastel">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FansLib Companion Status</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        /* DaisyUI Pastel theme colors */
+        --b1: oklch(100% 0 0); /* base-100 white */
+        --b2: oklch(96.27% 0 0); /* base-200 */
+        --b3: oklch(92.4% 0 0); /* base-300 */
+        --bc: oklch(30% 0 0); /* base-content dark text */
+        --p: oklch(65.69% 0.196 275.75); /* primary purple */
+        --pc: oklch(100% 0 0); /* primary-content */
+        --s: oklch(74.8% 0.26 342.55); /* secondary pink */
+        --a: oklch(85% 0.12 35); /* accent coral/peach */
+        --ac: oklch(25% 0.15 35); /* accent-content */
+        --su: oklch(64.8% 0.15 160); /* success green */
+        --er: oklch(65.72% 0.199 27.33); /* error red */
+      }
+
+      body {
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        background: var(--b1);
+        color: var(--bc);
+        padding: 20px;
+        width: 340px;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .status-container {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid var(--b3);
+      }
+
+      .logo-container {
+        width: 40px;
+        height: 40px;
+        background: rgb(229, 214, 254);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .heart-icon {
+        width: 20px;
+        height: 20px;
+        fill: white;
+        stroke: white;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      h1 {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--bc);
+      }
+
+      .status-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        background: var(--b2);
+        border-radius: 12px;
+        border: 1px solid var(--b3);
+      }
+
+      .status-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      .status-indicator.success {
+        background: var(--su);
+        box-shadow: 0 0 8px oklch(from var(--su) l c h / 0.4);
+      }
+
+      .status-indicator.error {
+        background: var(--er);
+        box-shadow: 0 0 8px oklch(from var(--er) l c h / 0.4);
+      }
+
+      .status-indicator.loading {
+        background: var(--a);
+        animation: pulse 1.5s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      .status-content {
+        flex: 1;
+      }
+
+      .status-label {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: var(--bc);
+      }
+
+      .status-detail {
+        font-size: 12px;
+        color: oklch(from var(--bc) calc(l + 0.4) c h);
+      }
+
+      .error-message {
+        font-size: 11px;
+        color: var(--er);
+        margin-top: 4px;
+        word-break: break-word;
+      }
+
+      .footer {
+        padding-top: 16px;
+        border-top: 2px solid var(--b3);
+        font-size: 11px;
+        color: oklch(from var(--bc) calc(l + 0.4) c h);
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="status-container">
+      <div class="header">
+        <div class="logo-container">
+          <svg class="heart-icon" viewBox="0 0 24 24">
+            <path
+              d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
+            />
+          </svg>
+        </div>
+        <h1>FansLib Companion</h1>
+      </div>
+
+      <div class="status-item">
+        <div class="status-indicator" id="bridge-indicator"></div>
+        <div class="status-content">
+          <div class="status-label">Bridge Server</div>
+          <div class="status-detail" id="bridge-detail">Checking...</div>
+          <div
+            class="error-message"
+            id="bridge-error"
+            style="display: none"
+          ></div>
+        </div>
+      </div>
+
+      <div class="status-item">
+        <div class="status-indicator" id="clipboard-indicator"></div>
+        <div class="status-content">
+          <div class="status-label">Clipboard Handler</div>
+          <div class="status-detail" id="clipboard-detail">Ready</div>
+        </div>
+      </div>
+
+      <div class="footer">Port: 6971</div>
+    </div>
+
+    <script>
+      const checkBridgeHealth = async () => {
+        const bridgeIndicator = document.getElementById('bridge-indicator');
+        const bridgeDetail = document.getElementById('bridge-detail');
+        const bridgeError = document.getElementById('bridge-error');
+        const clipboardIndicator = document.getElementById(
+          'clipboard-indicator'
+        );
+        const clipboardDetail = document.getElementById('clipboard-detail');
+
+        bridgeIndicator.className = 'status-indicator loading';
+        bridgeDetail.textContent = 'Checking...';
+        bridgeError.style.display = 'none';
+
+        try {
+          const response = await fetch('http://localhost:6971/health', {
+            method: 'GET',
+            signal: AbortSignal.timeout(2000),
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          if (data.status === 'ok') {
+            bridgeIndicator.className = 'status-indicator success';
+            bridgeDetail.textContent = 'Running on port 6971';
+            clipboardIndicator.className = 'status-indicator success';
+            clipboardDetail.textContent = 'Ready';
+          } else {
+            throw new Error('Unexpected response');
+          }
+        } catch (error) {
+          bridgeIndicator.className = 'status-indicator error';
+          bridgeDetail.textContent = 'Not responding';
+          bridgeError.textContent =
+            error.message || 'Failed to connect to bridge server';
+          bridgeError.style.display = 'block';
+
+          clipboardIndicator.className = 'status-indicator error';
+          clipboardDetail.textContent = 'Unavailable';
+        }
+      };
+
+      // Check health immediately and every 5 seconds
+      checkBridgeHealth();
+      setInterval(checkBridgeHealth, 5000);
+    </script>
+  </body>
+</html>

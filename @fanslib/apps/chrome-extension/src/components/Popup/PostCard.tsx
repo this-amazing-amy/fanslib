@@ -30,6 +30,7 @@ type PostCardProps = {
   libraryPath: string;
   apiUrl: string;
   webUrl: string;
+  bridgeUrl: string;
   onMarkPosted: () => void;
 };
 
@@ -38,6 +39,7 @@ export const PostCard = ({
   libraryPath,
   apiUrl,
   webUrl,
+  bridgeUrl,
   onMarkPosted,
 }: PostCardProps) => {
   const media = post.postMedia ?? [];
@@ -58,7 +60,7 @@ export const PostCard = ({
 
   useEffect(() => {
     if (hasLibraryPath) {
-      checkBridgeHealth()
+      checkBridgeHealth(bridgeUrl)
         .then((available) => {
           setBridgeAvailable(available);
         })
@@ -97,7 +99,7 @@ export const PostCard = ({
     setCopyState('copying');
 
     try {
-      await copyToClipboard(filePaths);
+      await copyToClipboard(bridgeUrl, filePaths);
       setCopyState('copied');
 
       setTimeout(() => {

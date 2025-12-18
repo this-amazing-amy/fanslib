@@ -11,7 +11,7 @@ export const Logo = ({ isCollapsed, className }: LogoProps) => {
   const renderLogo = (isFull: boolean, wrapperClassName?: string) => (
     <motion.div
       className={cn(
-        'flex items-center gap-0 text-3xl font-semibold text-[#9B6ED5] h-[2.5rem]',
+        'flex items-center gap-0 text-3xl font-semibold text-primary h-[2.5rem]',
         wrapperClassName
       )}
       style={{ fontFamily: "'Fredoka', sans-serif" }}
@@ -39,7 +39,8 @@ export const Logo = ({ isCollapsed, className }: LogoProps) => {
         fans
       </motion.span>
       <motion.span
-        className="block relative inline-flex items-center justify-center bg-primary rounded-lg whitespace-nowrap"
+        className="block relative inline-flex items-center justify-center rounded-lg whitespace-nowrap"
+        style={{ backgroundColor: 'rgb(229, 214, 254)' }}
         layout
         transition={{
           layout: { duration: 0.3, ease: [0.4, 0, 0.2, 1] },

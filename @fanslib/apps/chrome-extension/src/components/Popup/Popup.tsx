@@ -117,6 +117,7 @@ export const Popup = () => {
             libraryPath={settings?.libraryPath ?? ''}
             apiUrl={settings?.apiUrl ?? ''}
             webUrl={settings?.webUrl ?? ''}
+            bridgeUrl={settings?.bridgeUrl ?? ''}
             onMarkPosted={() => markAsPosted(currentPost.id)}
           />
 

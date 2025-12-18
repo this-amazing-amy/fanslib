@@ -1,5 +1,3 @@
-const BRIDGE_URL = 'http://localhost:6971';
-
 export type BridgeHealthResponse = {
   status: 'ok';
 };
@@ -22,9 +20,11 @@ export type BridgeErrorResponse = {
   error: string;
 };
 
-export const checkBridgeHealth = async (): Promise<boolean> => {
+export const checkBridgeHealth = async (
+  bridgeUrl: string
+): Promise<boolean> => {
   try {
-    const response = await fetch(`${BRIDGE_URL}/health`, {
+    const response = await fetch(`${bridgeUrl}/health`, {
       method: 'GET',
       signal: AbortSignal.timeout(1000),
     });
@@ -39,9 +39,10 @@ export const checkBridgeHealth = async (): Promise<boolean> => {
 };
 
 export const verifyFile = async (
+  bridgeUrl: string,
   filePath: string
 ): Promise<BridgeVerifyResponse> => {
-  const response = await fetch(`${BRIDGE_URL}/verify`, {
+  const response = await fetch(`${bridgeUrl}/verify`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -59,9 +60,10 @@ export const verifyFile = async (
 };
 
 export const copyToClipboard = async (
+  bridgeUrl: string,
   filePaths: string[]
 ): Promise<BridgeCopyResponse> => {
-  const response = await fetch(`${BRIDGE_URL}/copy`, {
+  const response = await fetch(`${bridgeUrl}/copy`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -79,9 +81,10 @@ export const copyToClipboard = async (
 };
 
 export const revealInFinder = async (
+  bridgeUrl: string,
   filePath: string
 ): Promise<BridgeRevealResponse> => {
-  const response = await fetch(`${BRIDGE_URL}/reveal`, {
+  const response = await fetch(`${bridgeUrl}/reveal`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

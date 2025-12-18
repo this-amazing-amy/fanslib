@@ -1,6 +1,7 @@
-import { app, nativeImage, shell, Tray } from 'electron';
-import fs from 'fs';
 import { writeClipboardFilePaths } from 'clip-filepaths';
+import { app, BrowserWindow, nativeImage, shell, Tray } from 'electron';
+import fs from 'fs';
+import path from 'path';
 import { normalizeFilePath } from './paths';
 import { createServer } from './server';
 
@@ -9,6 +10,7 @@ if (process.platform === 'darwin') {
 }
 
 let tray: Tray | null = null;
+let statusWindow: BrowserWindow | null = null;
 
 const createHeartIcon = (): Electron.NativeImage => {
   const size = 16;
@@ -55,11 +57,64 @@ const createHeartIcon = (): Electron.NativeImage => {
   return nativeImage.createFromBuffer(bitmap, { width: size, height: size });
 };
 
+const createStatusWindow = () => {
+  if (statusWindow && !statusWindow.isDestroyed()) {
+    statusWindow.show();
+    statusWindow.focus();
+    return;
+  }
+
+  statusWindow = new BrowserWindow({
+    width: 340,
+    height: 280,
+    resizable: false,
+    minimizable: false,
+    maximizable: false,
+    fullscreenable: false,
+    show: false,
+    frame: false,
+    transparent: false,
+    backgroundColor: '#1a1a1a',
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+    },
+  });
+
+  const htmlPath = path.join(__dirname, 'status-window.html');
+  statusWindow.loadFile(htmlPath);
+
+  statusWindow.once('ready-to-show', () => {
+    if (statusWindow && !statusWindow.isDestroyed()) {
+      if (tray) {
+        const bounds = tray.getBounds();
+        const windowBounds = statusWindow.getBounds();
+        const x = Math.round(
+          bounds.x + bounds.width / 2 - windowBounds.width / 2
+        );
+        const y = Math.round(bounds.y + bounds.height + 4);
+        statusWindow.setPosition(x, y);
+      }
+      statusWindow.show();
+    }
+  });
+
+  statusWindow.on('blur', () => {
+    if (statusWindow && !statusWindow.isDestroyed()) {
+      statusWindow.hide();
+    }
+  });
+};
+
 app.whenReady().then(async () => {
   const icon = createHeartIcon();
 
   tray = new Tray(icon);
   tray.setToolTip('FansLib Companion');
+
+  tray.on('click', () => {
+    createStatusWindow();
+  });
 
   const handleCopyToClipboard = (filePaths: string[]) => {
     const normalizedPaths = filePaths.map(normalizeFilePath);
