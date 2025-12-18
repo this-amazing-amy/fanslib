@@ -9,7 +9,6 @@
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "preview": "electron-vite preview",
-    "postinstall": "electron-builder install-app-deps",
     "dist": "bun run build && electron-builder",
     "dist:mac": "bun run build && electron-builder --mac",
     "dist:win": "bun run build && electron-builder --win",
