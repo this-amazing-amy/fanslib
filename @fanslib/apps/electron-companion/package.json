@@ -15,7 +15,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "electron": "^31.0.2",
+    "electron": "31.0.2",
     "@electron-toolkit/tsconfig": "^1.0.1",
     "@types/node": "^20.14.8",
     "electron-builder": "^24.13.3",
