@@ -9,6 +9,7 @@
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "preview": "electron-vite preview",
+    "postinstall": "electron-builder install-app-deps",
     "dist": "bun run build && electron-builder",
     "dist:mac": "bun run build && electron-builder --mac",
     "dist:win": "bun run build && electron-builder --win",
@@ -19,10 +20,9 @@
     "@electron-toolkit/tsconfig": "^1.0.1",
     "@types/node": "^20.14.8",
     "electron-builder": "^24.13.3",
-    "electron-rebuild": "^3.2.9",
-    "electron-vite": "^2.3.0",
+    "electron-vite": "^5.0.0",
     "typescript": "^5.5.2",
-    "vite": "~5.4.11"
+    "vite": "^6.0.0"
   },
   "build": {
     "appId": "com.fanslib.companion",

@@ -1,14 +1,12 @@
-import { defineConfig, externalizeDepsPlugin } from 'electron-vite';
+import { defineConfig } from 'electron-vite';
 
 export default defineConfig({
   main: {
-    plugins: [
-      externalizeDepsPlugin({
+    build: {
+      externalizeDeps: {
         exclude: ['clip-filepaths', 'clip-filepaths-win32-x64-msvc'],
-      }),
-    ],
+      },
+    },
   },
-  preload: {
-    plugins: [externalizeDepsPlugin()],
-  },
+  preload: {},
 });
