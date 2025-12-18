@@ -51,6 +51,9 @@ export const PostCard = ({
   const [copyState, setCopyState] = useState<'idle' | 'copying' | 'copied'>(
     'idle'
   );
+  const [captionCopyState, setCaptionCopyState] = useState<'idle' | 'copied'>(
+    'idle'
+  );
   const [selectedMedia, setSelectedMedia] = useState<Set<number>>(new Set());
 
   useEffect(() => {
@@ -116,6 +119,26 @@ export const PostCard = ({
       await revealInFinder(filePath);
     } catch {
       // Silently ignore reveal errors
+    }
+  };
+
+  const handleCopyCaption = async () => {
+    if (!post.caption) return;
+
+    try {
+      // Remove HTML tags and decode HTML entities for plain text copy
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = post.caption;
+      const plainText = tempDiv.textContent || tempDiv.innerText || '';
+
+      await navigator.clipboard.writeText(plainText);
+      setCaptionCopyState('copied');
+
+      setTimeout(() => {
+        setCaptionCopyState('idle');
+      }, 2000);
+    } catch {
+      // Silently ignore copy errors
     }
   };
 
@@ -193,10 +216,23 @@ export const PostCard = ({
       </div>
 
       {post.caption && (
-        <div
-          className='text-sm mb-3 line-clamp-3 text-base-content/80'
-          dangerouslySetInnerHTML={{ __html: escapeHtml(post.caption) }}
-        />
+        <div className='mb-3 relative group'>
+          <div
+            className='text-sm line-clamp-3 text-base-content/80 pr-8'
+            dangerouslySetInnerHTML={{ __html: escapeHtml(post.caption) }}
+          />
+          <button
+            onClick={handleCopyCaption}
+            className='absolute top-0 right-0 p-1 rounded-md bg-base-200/80 hover:bg-base-300 transition-colors opacity-0 group-hover:opacity-100'
+            title='Copy caption text'
+          >
+            {captionCopyState === 'copied' ? (
+              <Check className='w-3.5 h-3.5 text-success' />
+            ) : (
+              <Copy className='w-3.5 h-3.5 text-base-content/60' />
+            )}
+          </button>
+        </div>
       )}
 
       <div className='flex flex-wrap gap-2 mb-3'>
