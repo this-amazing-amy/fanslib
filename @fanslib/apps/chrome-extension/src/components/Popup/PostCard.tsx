@@ -3,16 +3,11 @@ import {
   Check,
   Copy,
   ExternalLink,
-  FolderOpen,
   Image as ImageIcon,
   Video,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import {
-  checkBridgeHealth,
-  copyToClipboard,
-  revealInFinder,
-} from '../../lib/bridge';
+import { checkBridgeHealth, revealInFinder } from '../../lib/bridge';
 import {
   buildLocalPath,
   escapeHtml,
@@ -50,13 +45,9 @@ export const PostCard = ({
   >(new Map());
   const [showDebug, setShowDebug] = useState(false);
   const [bridgeAvailable, setBridgeAvailable] = useState<boolean | null>(null);
-  const [copyState, setCopyState] = useState<'idle' | 'copying' | 'copied'>(
-    'idle'
-  );
   const [captionCopyState, setCaptionCopyState] = useState<'idle' | 'copied'>(
     'idle'
   );
-  const [selectedMedia, setSelectedMedia] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (hasLibraryPath) {
@@ -72,50 +63,10 @@ export const PostCard = ({
     }
   }, [hasLibraryPath]);
 
-  const toggleMediaSelection = (idx: number) => {
-    setSelectedMedia((prev) => {
-      const next = new Set(prev);
-      if (next.has(idx)) {
-        next.delete(idx);
-      } else {
-        next.add(idx);
-      }
-      return next;
-    });
-  };
-
-  const handleCopySelected = async () => {
+  const handleRevealInFinder = async (relativePath: string) => {
     if (!hasLibraryPath || bridgeAvailable !== true) return;
 
-    const indicesToCopy =
-      selectedMedia.size > 0
-        ? Array.from(selectedMedia)
-        : media.map((_, idx) => idx);
-
-    const filePaths = indicesToCopy.map((idx) =>
-      buildLocalPath(libraryPath, media[idx].media.relativePath)
-    );
-
-    setCopyState('copying');
-
-    try {
-      await copyToClipboard(bridgeUrl, filePaths);
-      setCopyState('copied');
-
-      setTimeout(() => {
-        setCopyState('idle');
-      }, 2000);
-    } catch {
-      setCopyState('idle');
-    }
-  };
-
-  const handleRevealInFinder = async () => {
-    if (!hasLibraryPath || bridgeAvailable !== true || media.length === 0)
-      return;
-
-    const firstMedia = media[0];
-    const filePath = buildLocalPath(libraryPath, firstMedia.media.relativePath);
+    const filePath = buildLocalPath(libraryPath, relativePath);
 
     try {
       await revealInFinder(bridgeUrl, filePath);
@@ -243,27 +194,23 @@ export const PostCard = ({
           const isVideoFile = isVideo(m.media.relativePath);
           const loadState = imageLoadStates.get(idx);
           const thumbnailUrl = getMediaThumbnailUrl(apiUrl, m.media.id);
-          const isSelected = selectedMedia.has(idx);
-          const canSelect = hasLibraryPath && bridgeAvailable === true;
+
+          const canReveal = hasLibraryPath && bridgeAvailable === true;
 
           if (isVideoFile || hasError) {
             return (
               <div
                 key={post.id}
-                onClick={() => canSelect && toggleMediaSelection(idx)}
-                className={`w-16 h-16 bg-base-100 rounded-lg flex items-center justify-center border-2 transition-colors relative ${
-                  canSelect
-                    ? 'cursor-pointer hover:bg-base-200'
-                    : 'cursor-default opacity-60'
-                } ${isSelected ? 'border-primary bg-primary/10' : 'border-base-300'}`}
+                onClick={() =>
+                  canReveal && handleRevealInFinder(m.media.relativePath)
+                }
+                className={`w-16 h-16 bg-base-100 rounded-lg flex items-center justify-center border-2 border-base-300 relative ${canReveal ? 'cursor-pointer hover:bg-base-200' : ''}`}
                 title={
                   hasError
                     ? `Failed to load thumbnail\nURL: ${thumbnailUrl}\nMedia ID: ${m.media.id}`
-                    : isVideoFile
-                      ? 'Click to select video'
-                      : bridgeAvailable === false
-                        ? 'FansLib Bridge not running'
-                        : 'Click to select'
+                    : canReveal
+                      ? 'Click to reveal in folder'
+                      : 'Video file'
                 }
               >
                 {isVideoFile ? (
@@ -280,11 +227,6 @@ export const PostCard = ({
                     )}
                   </>
                 )}
-                {isSelected && (
-                  <div className='absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center'>
-                    <Check className='w-2.5 h-2.5 text-primary-content' />
-                  </div>
-                )}
               </div>
             );
           }
@@ -293,35 +235,22 @@ export const PostCard = ({
             <div
               key={thumbnailUrl}
               className='relative'
-              onClick={() => canSelect && toggleMediaSelection(idx)}
+              onClick={() =>
+                canReveal && handleRevealInFinder(m.media.relativePath)
+              }
             >
               <img
                 src={thumbnailUrl}
                 onError={() => handleImageError(idx)}
                 onLoad={() => handleImageLoad(idx)}
                 onLoadStart={() => handleImageLoadStart(idx)}
-                className={`w-16 h-16 object-cover rounded-lg border-2 transition-all ${
-                  canSelect
-                    ? 'cursor-pointer hover:opacity-80'
-                    : 'cursor-default opacity-60'
-                } ${isSelected ? 'border-primary' : 'border-base-300'}`}
+                className={`w-16 h-16 object-cover rounded-lg border-2 border-base-300 ${canReveal ? 'cursor-pointer hover:opacity-80' : ''}`}
                 alt={`Media ${idx + 1}`}
-                title={
-                  !hasLibraryPath
-                    ? `Configure library path in settings\nURL: ${thumbnailUrl}`
-                    : bridgeAvailable === false
-                      ? 'FansLib Bridge not running'
-                      : `Click to select\nURL: ${thumbnailUrl}`
-                }
+                title={canReveal ? 'Click to reveal in folder' : thumbnailUrl}
               />
               {loadState === 'loading' && (
                 <div className='absolute inset-0 flex items-center justify-center bg-base-100/50 rounded-lg'>
                   <div className='w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin' />
-                </div>
-              )}
-              {isSelected && (
-                <div className='absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center'>
-                  <Check className='w-2.5 h-2.5 text-primary-content' />
                 </div>
               )}
             </div>
@@ -331,53 +260,6 @@ export const PostCard = ({
 
       <div className='flex justify-between items-center gap-2'>
         <div className='flex items-center gap-2'>
-          {hasLibraryPath && bridgeAvailable === true && (
-            <>
-              <button
-                onClick={handleCopySelected}
-                disabled={copyState === 'copying'}
-                className={`px-3 py-1.5 text-xs rounded-lg transition-colors font-medium flex items-center gap-1.5 border cursor-pointer ${
-                  copyState === 'copied'
-                    ? 'bg-success/20 border-success text-success'
-                    : 'bg-base-200 border-base-300 text-base-content hover:bg-base-300'
-                }`}
-                title={
-                  selectedMedia.size > 0
-                    ? `Copy ${selectedMedia.size} selected file(s)`
-                    : `Copy all ${media.length} file(s)`
-                }
-              >
-                {copyState === 'copying' ? (
-                  <div className='w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin' />
-                ) : copyState === 'copied' ? (
-                  <Check className='w-3 h-3' />
-                ) : (
-                  <Copy className='w-3 h-3' />
-                )}
-                {copyState === 'copied'
-                  ? 'Copied!'
-                  : selectedMedia.size > 0
-                    ? `Copy (${selectedMedia.size})`
-                    : 'Copy All'}
-              </button>
-              {selectedMedia.size > 0 && (
-                <button
-                  onClick={() => setSelectedMedia(new Set())}
-                  className='px-2 py-1.5 text-xs rounded-lg bg-base-200 border border-base-300 text-base-content/60 hover:bg-base-300 cursor-pointer'
-                >
-                  Clear
-                </button>
-              )}
-              <button
-                onClick={handleRevealInFinder}
-                className='px-2 py-1.5 text-xs rounded-lg bg-base-200 border border-base-300 text-base-content hover:bg-base-300 cursor-pointer flex items-center gap-1'
-                title='Open folder in Finder to drag files'
-              >
-                <FolderOpen className='w-3 h-3' />
-                Reveal
-              </button>
-            </>
-          )}
           {hasLibraryPath && bridgeAvailable === false && (
             <span className='text-xs text-warning'>Bridge not running</span>
           )}

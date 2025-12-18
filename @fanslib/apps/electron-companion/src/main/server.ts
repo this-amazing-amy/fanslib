@@ -7,10 +7,9 @@ import {
 import { URL } from 'url';
 import { normalizeFilePath } from './paths';
 
-type CopyHandler = (filePaths: string[]) => void;
 type RevealHandler = (filePath: string) => void;
 
-export const createServer = (onCopy: CopyHandler, onReveal: RevealHandler) => {
+export const createServer = (onReveal: RevealHandler) => {
   return createHttpServer((req: IncomingMessage, res: ServerResponse) => {
     const url = new URL(req.url || '/', `http://${req.headers.host}`);
 
@@ -58,34 +57,6 @@ export const createServer = (onCopy: CopyHandler, onReveal: RevealHandler) => {
           res.end(
             JSON.stringify({
               error: error instanceof Error ? error.message : 'Invalid request',
-            })
-          );
-        }
-      });
-      return;
-    }
-
-    if (url.pathname === '/copy' && req.method === 'POST') {
-      let body = '';
-      req.on('data', (chunk) => {
-        body += chunk.toString();
-      });
-      req.on('end', () => {
-        try {
-          const { filePaths } = JSON.parse(body);
-          if (!Array.isArray(filePaths)) {
-            throw new Error('filePaths must be an array');
-          }
-
-          onCopy(filePaths);
-
-          res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ success: true }));
-        } catch (error) {
-          res.writeHead(400, { 'Content-Type': 'application/json' });
-          res.end(
-            JSON.stringify({
-              error: error instanceof Error ? error.message : 'Unknown error',
             })
           );
         }

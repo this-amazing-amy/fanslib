@@ -31,16 +31,12 @@
     },
     "files": [
       "out/**/*",
-      "node_modules/clip-filepaths*/**/*",
       "!**/.vscode/*",
       "!src/*",
       "!electron.vite.config.{js,ts,mjs,cjs}",
       "!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}",
       "!{.env,.env.*,.npmrc,pnpm-lock.yaml}",
       "!{tsconfig.json,tsconfig.node.json}"
-    ],
-    "asarUnpack": [
-      "node_modules/clip-filepaths-win32-x64-msvc/**/*"
     ],
     "win": {
       "executableName": "fanslib-companion",
@@ -81,11 +77,5 @@
       "artifactName": "fanslib-companion-${version}-${arch}.${ext}"
     },
     "compression": "maximum"
-  },
-  "dependencies": {
-    "clip-filepaths": "^0.3.0"
-  },
-  "optionalDependencies": {
-    "clip-filepaths-win32-x64-msvc": "^0.3.0"
   }
 }

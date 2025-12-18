@@ -8,10 +8,6 @@ export type BridgeVerifyResponse = {
   isFile: boolean;
 };
 
-export type BridgeCopyResponse = {
-  success: boolean;
-};
-
 export type BridgeRevealResponse = {
   success: boolean;
 };
@@ -54,27 +50,6 @@ export const verifyFile = async (
   if (!response.ok) {
     const error: BridgeErrorResponse = await response.json();
     throw new Error(error.error || 'Failed to verify file');
-  }
-
-  return response.json();
-};
-
-export const copyToClipboard = async (
-  bridgeUrl: string,
-  filePaths: string[]
-): Promise<BridgeCopyResponse> => {
-  const response = await fetch(`${bridgeUrl}/copy`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ filePaths }),
-    signal: AbortSignal.timeout(5000),
-  });
-
-  if (!response.ok) {
-    const error: BridgeErrorResponse = await response.json();
-    throw new Error(error.error || 'Failed to copy to clipboard');
   }
 
   return response.json();
