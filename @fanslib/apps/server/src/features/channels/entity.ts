@@ -9,7 +9,7 @@ import {
   PrimaryColumn,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { Hashtag, HashtagSchema } from "../hashtags/entity";
+import { Hashtag } from "../hashtags/entity";
 import type { MediaFilterSchema } from "../library/schemas/media-filter";
 
 @Entity("channel_type")

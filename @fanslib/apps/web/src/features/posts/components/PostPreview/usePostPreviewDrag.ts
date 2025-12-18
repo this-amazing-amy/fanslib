@@ -1,5 +1,4 @@
 import type { CreatePostRequestBodySchema, MediaSchema, PostWithRelationsSchema } from "@fanslib/server/schemas";
-import { useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
 import { usePostPreferences } from "~/contexts/PostPreferencesContext";
@@ -33,7 +32,6 @@ export const usePostPreviewDrag = ({
   onOpenCreateDialog,
 }: UsePostPreviewDragProps) => {
   const { refetch } = useMediaListQuery();
-  const navigate = useNavigate();
   const { preferences } = usePostPreferences();
   const { draggedMedias, endMediaDrag, isDragging } = useMediaDrag();
   const wasClosedRef = useRef(false);

@@ -247,7 +247,7 @@ export const PostCard = ({
           if (isVideoFile || hasError) {
             return (
               <div
-                key={idx}
+                key={post.id}
                 onClick={() => canSelect && toggleMediaSelection(idx)}
                 className={`w-16 h-16 bg-base-100 rounded-lg flex items-center justify-center border-2 transition-colors relative ${
                   canSelect
@@ -289,7 +289,7 @@ export const PostCard = ({
 
           return (
             <div
-              key={idx}
+              key={thumbnailUrl}
               className='relative'
               onClick={() => canSelect && toggleMediaSelection(idx)}
             >

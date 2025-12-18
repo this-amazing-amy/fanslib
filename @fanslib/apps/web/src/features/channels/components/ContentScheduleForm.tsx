@@ -1,12 +1,10 @@
 import type {
-  CreateContentScheduleRequestBodySchema,
   ContentScheduleWithChannelSchema,
+  CreateContentScheduleRequestBodySchema,
+  MediaFilterSchema,
 } from "@fanslib/server/schemas";
-import type { MediaFilterSchema } from "@fanslib/server/schemas";
-
-type MediaFilters = typeof MediaFilterSchema.static;
-import { useState } from "react";
 import { Plus, X } from "lucide-react";
+import { useState } from "react";
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
 import { Button } from "~/components/ui/Button/Button";
 import { ColorPicker } from "~/components/ui/ColorPicker";
@@ -18,6 +16,8 @@ import { MediaFilters as MediaFiltersComponent } from "~/features/library/compon
 import { MediaFiltersProvider } from "~/features/library/components/MediaFilters/MediaFiltersContext";
 import { cn } from "~/lib/cn";
 import { parseMediaFilters } from "../content-schedule-helpers";
+
+type MediaFilters = typeof MediaFilterSchema.static;
 
 type ContentSchedule = typeof ContentScheduleWithChannelSchema.static;
 type ScheduleType = "daily" | "weekly" | "monthly";
@@ -72,7 +72,7 @@ export const ContentScheduleForm = ({
       channelId,
       name: name.trim() || "Untitled Schedule",
       emoji: emoji.trim() || undefined,
-      color: color || undefined,
+      color: color ?? undefined,
       type,
       postsPerTimeframe: postsPerTimeframe > 0 ? postsPerTimeframe : undefined,
       preferredDays: preferredDays.length > 0 ? preferredDays : undefined,

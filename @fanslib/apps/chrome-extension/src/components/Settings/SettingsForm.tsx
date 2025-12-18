@@ -23,9 +23,7 @@ export const SettingsForm = ({
   onApiUrlChange,
   onWebUrlChange,
   onSave,
-}: SettingsFormProps) => {
-  return (
-    <div className='space-y-6 bg-base-200 rounded-xl p-6 mb-6'>
+}: SettingsFormProps) => <div className='space-y-6 bg-base-200 rounded-xl p-6 mb-6'>
       <LibraryPathInput
         libraryPath={libraryPath}
         apiUrl={apiUrl}
@@ -55,6 +53,4 @@ export const SettingsForm = ({
           )}
         </button>
       </div>
-    </div>
-  );
-};
+    </div>;

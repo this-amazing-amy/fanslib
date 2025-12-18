@@ -32,7 +32,6 @@ type DimensionCardProps = {
 
 export const DimensionCard = ({
   dimension,
-  viewMode,
   selectedTagId,
   onCreateTag,
   onEditTag,

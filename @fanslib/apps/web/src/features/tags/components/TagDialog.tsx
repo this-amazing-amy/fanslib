@@ -1,4 +1,10 @@
-import { useEffect, useState } from "react";
+import type {
+  CreateTagDefinitionRequestBodySchema,
+  TagDefinitionSchema,
+  TagDimensionSchema,
+  UpdateTagDefinitionRequestBodySchema,
+} from "@fanslib/server/schemas";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "~/components/ui/Button";
 import {
   Dialog,
@@ -18,12 +24,6 @@ import {
   parseBooleanSchema,
   parseNumericSchema,
 } from "~/lib/tags/tagValidation";
-import type {
-  CreateTagDefinitionRequestBodySchema,
-  TagDefinitionSchema,
-  TagDimensionSchema,
-  UpdateTagDefinitionRequestBodySchema,
-} from "@fanslib/server/schemas";
 import { BooleanValueInput } from "./BooleanValueInput";
 import { CategoricalValueInput } from "./CategoricalValueInput";
 import { NumericValueInput } from "./NumericValueInput";
@@ -56,7 +56,7 @@ export const TagDialog = ({ editingTag, dimension, availableTags, onClose, onSub
   const isBoolean = dimension?.dataType === "boolean";
   const isCategorical = dimension?.dataType === "categorical";
 
-  const getInitialFormData = () => {
+  const getInitialFormData = useCallback(() => {
     if (!dimension) {
       return {
         displayName: "",
@@ -92,7 +92,7 @@ export const TagDialog = ({ editingTag, dimension, availableTags, onClose, onSub
       color: null as string | null,
       typedValue: defaultValue,
     };
-  };
+  }, [dimension, editingTag]);
 
   const [formData, setFormData] = useState(getInitialFormData);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -101,7 +101,7 @@ export const TagDialog = ({ editingTag, dimension, availableTags, onClose, onSub
     const initialData = getInitialFormData();
     setFormData(initialData);
     setValidationError(null);
-  }, [editingTag, dimension]);
+  }, [editingTag, dimension, getInitialFormData]);
 
   if (!dimension) return null;
 

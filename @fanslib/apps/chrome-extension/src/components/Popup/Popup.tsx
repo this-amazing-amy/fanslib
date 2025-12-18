@@ -114,9 +114,9 @@ export const Popup = () => {
         <div className='px-4 pt-4'>
           <PostCard
             post={currentPost}
-            libraryPath={settings?.libraryPath || ''}
-            apiUrl={settings?.apiUrl || ''}
-            webUrl={settings?.webUrl || ''}
+            libraryPath={settings?.libraryPath ?? ''}
+            apiUrl={settings?.apiUrl ?? ''}
+            webUrl={settings?.webUrl ?? ''}
             onMarkPosted={() => markAsPosted(currentPost.id)}
           />
 

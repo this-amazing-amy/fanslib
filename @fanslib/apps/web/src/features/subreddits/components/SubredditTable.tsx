@@ -1,14 +1,14 @@
 import type { SubredditSchema } from '@fanslib/server/schemas';
-import { ArrowUp, ArrowDown } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { ArrowDown, ArrowUp } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
 import { cn } from '~/lib/cn';
 import {
   useDeleteSubredditMutation,
   useLastPostDatesQuery,
 } from '~/lib/queries/subreddits';
-import { SubredditRow } from './SubredditRow';
 import { EditingSubredditRow } from './EditingSubredditRow';
+import { SubredditRow } from './SubredditRow';
 
 type Subreddit = typeof SubredditSchema.static;
 
@@ -44,8 +44,11 @@ export const SubredditTable = ({
     if (!sortConfig.key) return subreddits;
 
     return [...subreddits].sort((a, b) => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const aValue = a[sortConfig.key!];
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const bValue = b[sortConfig.key!];
+
 
       if (aValue === null || aValue === undefined) return 1;
       if (bValue === null || bValue === undefined) return -1;

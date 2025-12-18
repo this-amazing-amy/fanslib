@@ -38,7 +38,7 @@ const FilterItemBadge = ({
   // Channel filter
   if (item.type === "channel") {
     if (!String(item.id ?? "").trim()) return null;
-    const displayName = channelName?.trim() || String(item.id);
+    const displayName = channelName?.trim() ?? String(item.id);
     return (
       <Tooltip content={`${isInclude ? "Include" : "Exclude"} channel: ${displayName}`} openDelayMs={0}>
         <Badge
@@ -57,7 +57,7 @@ const FilterItemBadge = ({
   // Subreddit filter
   if (item.type === "subreddit") {
     if (!String(item.id ?? "").trim()) return null;
-    const displayName = subredditName?.trim() || String(item.id);
+    const displayName = subredditName?.trim() ?? String(item.id);
     return (
       <Tooltip content={`${isInclude ? "Include" : "Exclude"} subreddit: ${displayName}`} openDelayMs={0}>
         <Badge
@@ -281,10 +281,10 @@ export const MediaFilterSummary = ({
 
   return (
     <div className={cn("flex flex-wrap gap-2", className)}>
-      {filterGroups.map((group, groupIdx) =>
-        group.items.map((item: FilterItem, itemIdx: number) => (
+      {filterGroups.map((group) =>
+        group.items.map((item: FilterItem) => (
           <FilterItemBadge
-            key={`${groupIdx}-${itemIdx}`}
+            key={JSON.stringify(item)}
             item={item}
             group={group}
             channelName={item.type === "channel" ? channelNameById.get(String(item.id)) : undefined}

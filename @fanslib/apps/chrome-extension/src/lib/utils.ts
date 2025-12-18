@@ -23,7 +23,7 @@ export const buildLocalPath = (libraryPath: string, relativePath: string) => {
 // Check if media is a video
 export const isVideo = (path: string) => {
   const ext = path.split('.').pop()?.toLowerCase();
-  return ['mp4', 'mov', 'webm', 'avi', 'mkv'].includes(ext || '');
+  return ['mp4', 'mov', 'webm', 'avi', 'mkv'].includes(ext ?? '');
 };
 
 // Escape HTML to prevent XSS
@@ -115,7 +115,7 @@ const getColorDefinitionFromString = (
 
 export const getScheduleBadgeColors = (color: string | null | undefined) => {
   const colorDef = getColorDefinitionFromString(
-    color || DEFAULT_SCHEDULE_COLOR
+    color ?? DEFAULT_SCHEDULE_COLOR
   );
   return {
     backgroundColor: colorDef.background,

@@ -31,7 +31,7 @@ const VerifyButton = ({
   ) : isVerified ? (
     <>
       <Check className='w-4 h-4' />
-      Verified "{verifiedFolderName}"
+      Verified &quot;{verifiedFolderName}&quot;
       {pathMismatch && (
         <span className='text-warning text-xs ml-1'>(path mismatch)</span>
       )}

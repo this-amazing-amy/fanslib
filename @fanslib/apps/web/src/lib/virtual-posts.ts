@@ -162,9 +162,9 @@ const generateScheduleDates = (schedule: ContentSchedule & { channel: any }, sta
   }
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 export const generateVirtualPosts = (
-  schedules: (ContentSchedule & { channel: any; skippedSlots?: SkippedScheduleSlot[] })[],
+  schedules: (ContentSchedule & { channel: unknown; skippedSlots?: SkippedScheduleSlot[] })[],
   existingPosts: Post[] = [],
   currentTime: Date = new Date()
 ): VirtualPost[] => schedules.flatMap((schedule) => {
@@ -176,10 +176,7 @@ export const generateVirtualPosts = (
         // Only hide virtual post if a real post exists with the same scheduleId
         return isSameMinute(postDate, date) && post.scheduleId === schedule.id;
       }))
-      .filter((date) => !(schedule.skippedSlots ?? []).some((slot) => {
-        // Hide virtual post if the slot is explicitly skipped
-        return isSameMinute(new Date(slot.date), date);
-      }));
+      .filter((date) => !(schedule.skippedSlots ?? []).some((slot) => isSameMinute(new Date(slot.date), date)));
 
     const mediaFilters = parseMediaFilters(schedule.mediaFilters);
 

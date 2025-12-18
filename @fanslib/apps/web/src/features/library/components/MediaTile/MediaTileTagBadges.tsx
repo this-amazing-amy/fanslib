@@ -1,6 +1,6 @@
 import type { MediaSchema } from "@fanslib/server/schemas";
-import { TagBadge } from "../MediaTagEditor/DimensionTagSelector/TagBadge";
 import { useMediaTagsQuery } from "~/lib/queries/tags";
+import { TagBadge } from "../MediaTagEditor/DimensionTagSelector/TagBadge";
 
 type Media = typeof MediaSchema.static;
 
@@ -27,7 +27,7 @@ export const MediaTileTagBadges = ({ media }: MediaTileTagBadgesProps) => {
             color: tag.color,
             displayName: tag.shortRepresentation ?? tag.tagDisplayName,
           }}
-          size="xs"
+          size="sm"
           className="text-[10px]"
           selectionMode="radio"
         />

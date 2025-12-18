@@ -1,9 +1,6 @@
-import type { ContentScheduleWithChannelSchema } from "@fanslib/server/schemas";
 import { cn } from "~/lib/cn";
 import { useContentSchedulesQuery } from "~/lib/queries/content-schedules";
 import { ContentScheduleBadge } from "./ContentScheduleBadge";
-
-type ContentSchedule = typeof ContentScheduleWithChannelSchema.static;
 
 type ContentScheduleSelectProps = {
   value?: string | null;

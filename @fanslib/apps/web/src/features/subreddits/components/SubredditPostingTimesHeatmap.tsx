@@ -53,8 +53,8 @@ export const SubredditPostingTimesHeatmap = ({
         const data = dataMap.get(key);
         return {
           hour,
-          score: data?.score || 0,
-          posts: data?.posts || 0,
+          score: data?.score ?? 0,
+          posts: data?.posts ?? 0,
           formattedHour: formatHour(hour),
         };
       }),

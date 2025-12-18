@@ -1,7 +1,7 @@
 import { IsNull, Not } from "typeorm";
-import { db } from "./db";
-import { TagDefinition } from "../features/tags/entity";
 import { ContentSchedule } from "../features/content-schedules/entity";
+import { TagDefinition } from "../features/tags/entity";
+import { db } from "./db";
 
 const USER_COLOR_PRESETS = [
   { id: "pink", hex: "#F5A8D0" },
@@ -28,8 +28,9 @@ export const migrateColorsToPresets = async () => {
   const tagRepo = dataSource.getRepository(TagDefinition);
   const tags = await tagRepo.find({ where: { color: Not(IsNull()) } });
 
-  const tagsToUpdate = tags.filter((tag) => tag.color && tag.color.startsWith("#"));
+  const tagsToUpdate = tags.filter((tag) => tag.color?.startsWith("#"));
 
+  // eslint-disable-next-line functional/no-loop-statements
   for (const tag of tagsToUpdate) {
     if (tag.color) {
       tag.color = findClosestPreset(tag.color);
@@ -44,8 +45,9 @@ export const migrateColorsToPresets = async () => {
   const scheduleRepo = dataSource.getRepository(ContentSchedule);
   const schedules = await scheduleRepo.find({ where: { color: Not(IsNull()) } });
 
-  const schedulesToUpdate = schedules.filter((schedule) => schedule.color && schedule.color.startsWith("#"));
+  const schedulesToUpdate = schedules.filter((schedule) => schedule.color?.startsWith("#"));
 
+  // eslint-disable-next-line functional/no-loop-statements
   for (const schedule of schedulesToUpdate) {
     if (schedule.color) {
       schedule.color = findClosestPreset(schedule.color);

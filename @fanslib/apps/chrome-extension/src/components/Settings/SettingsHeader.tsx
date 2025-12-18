@@ -1,6 +1,4 @@
-export const SettingsHeader = () => {
-  return (
-    <div className='flex items-center gap-4 mb-8'>
+export const SettingsHeader = () => <div className='flex items-center gap-4 mb-8'>
       <div className='w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-2xl font-bold text-primary-content'>
         F
       </div>
@@ -10,6 +8,4 @@ export const SettingsHeader = () => {
           Configure your extension preferences
         </p>
       </div>
-    </div>
-  );
-};
+    </div>;

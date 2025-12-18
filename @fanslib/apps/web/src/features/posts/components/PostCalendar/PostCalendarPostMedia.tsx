@@ -1,7 +1,6 @@
 import type { PostMediaWithMediaSchema } from "@fanslib/server/schemas";
 import { Camera } from "lucide-react";
 import { MediaSelectionProvider } from "~/contexts/MediaSelectionContext";
-import { cn } from "~/lib/cn";
 import { MediaTile } from "~/features/library/components/MediaTile";
 
 type PostMediaWithMedia = typeof PostMediaWithMediaSchema.static;
@@ -57,7 +56,7 @@ export const PostCalendarPostMedia = ({ postMedia, isVirtual }: PostCalendarPost
           return (
             <div
               className="relative aspect-square rounded-md overflow-hidden"
-              key={`media-slot-${i}`}
+              key={`media-slot-${postMedia[i]?.media.id ?? i}`}
               style={media ? { viewTransitionName: `media-${media.id}` } : undefined}
             >
               {media && (

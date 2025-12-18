@@ -8,13 +8,15 @@ export const HowToUse = () => (
         /Users/you/Pictures/library)
       </li>
       <li>
-        Click "Verify Folder Access" and select your library folder to confirm
-        it works
+        Click &quot;Verify Folder Access&quot; and select your library folder to
+        confirm it works
       </li>
       <li>Save your settings</li>
       <li>Add posts to the queue from the FansLib web interface</li>
       <li>Open the extension popup on Fansly.com to see queued posts</li>
-      <li>Drag and drop media thumbnails directly to Fansly's upload area</li>
+      <li>
+        Drag and drop media thumbnails directly to Fansly&apos;s upload area
+      </li>
     </ol>
   </div>
 );

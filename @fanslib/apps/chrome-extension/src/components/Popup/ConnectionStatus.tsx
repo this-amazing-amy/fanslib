@@ -6,9 +6,7 @@ type ConnectionStatusProps = {
 export const ConnectionStatus = ({
   status,
   errorMessage,
-}: ConnectionStatusProps) => {
-  return (
-    <div className='flex items-center gap-1.5 text-xs'>
+}: ConnectionStatusProps) => <div className='flex items-center gap-1.5 text-xs'>
       <span className='text-base-content/60'>
         {status === 'connected'
           ? 'Connected'
@@ -25,6 +23,4 @@ export const ConnectionStatus = ({
               : 'bg-warning'
         }`}
       />
-    </div>
-  );
-};
+    </div>;

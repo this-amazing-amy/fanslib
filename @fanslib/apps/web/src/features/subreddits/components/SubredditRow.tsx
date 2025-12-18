@@ -1,9 +1,8 @@
 import type { SubredditSchema } from '@fanslib/server/schemas';
-import { ExternalLink, Pencil, BarChart3, Trash2 } from 'lucide-react';
+import { BarChart3, ExternalLink, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
 import { VerificationStatus } from '~/components/VerificationStatus';
 import { usePostFrequencyStatus } from '~/hooks/usePostFrequencyStatus';
-import { cn } from '~/lib/cn';
 import { formatViewCount } from '~/lib/format-views';
 import { PostFrequencyStatus } from './PostFrequencyStatus';
 

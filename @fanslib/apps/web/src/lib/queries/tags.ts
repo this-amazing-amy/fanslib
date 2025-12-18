@@ -140,7 +140,7 @@ export const useCreateTagDefinitionMutation = () => {
 
           return {
             ...dimension,
-            tags: [...(dimension.tags || []), data],
+            tags: [...(dimension.tags ?? []), data],
           };
         });
       });

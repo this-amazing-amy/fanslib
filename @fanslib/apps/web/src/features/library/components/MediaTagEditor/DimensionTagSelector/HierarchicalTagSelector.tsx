@@ -26,12 +26,13 @@ const buildTagTree = (tags: TagDefinition[]): TagNode[] => {
 
   // Second pass: build tree
   tags.forEach((tag) => {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const node = tagMap.get(tag.id)!;
     const parentId = tag.parentTagId;
 
     parentId === null || !tagMap.has(parentId)
       ? roots.push(node)
-      : tagMap.get(parentId)!.children.push(node);
+      : tagMap.get(parentId)?.children.push(node);
   });
 
   return roots;

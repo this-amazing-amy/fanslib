@@ -25,9 +25,9 @@ export const getSettings = async (): Promise<Settings> => {
   ]);
 
   return {
-    libraryPath: result[SETTINGS_KEYS.libraryPath] || '',
-    apiUrl: result[SETTINGS_KEYS.apiUrl] || DEFAULT_API_URL,
-    webUrl: result[SETTINGS_KEYS.webUrl] || DEFAULT_WEB_URL,
+    libraryPath: result[SETTINGS_KEYS.libraryPath] ?? '',
+    apiUrl: result[SETTINGS_KEYS.apiUrl] ?? DEFAULT_API_URL,
+    webUrl: result[SETTINGS_KEYS.webUrl] ?? DEFAULT_WEB_URL,
   };
 };
 
