@@ -22,7 +22,7 @@
     "electron-rebuild": "^3.2.9",
     "electron-vite": "^2.3.0",
     "typescript": "^5.5.2",
-    "vite": "^5.3.1"
+    "vite": "~5.4.11"
   },
   "build": {
     "appId": "com.fanslib.companion",
