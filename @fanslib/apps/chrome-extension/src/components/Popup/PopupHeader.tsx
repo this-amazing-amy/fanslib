@@ -17,7 +17,10 @@ export const PopupHeader = ({
 }: PopupHeaderProps) => (
   <div className='flex items-center gap-3 px-3 py-2 border-b border-base-300 justify-between'>
     <div className='flex items-center gap-3'>
-      <div className='w-9 h-9 rounded-lg flex items-center justify-center' style={{ backgroundColor: 'rgb(229, 214, 254)' }}>
+      <div
+        className='w-9 h-9 rounded-lg flex items-center justify-center'
+        style={{ backgroundColor: 'rgb(229, 214, 254)' }}
+      >
         <Heart className='w-5 h-5 text-white fill-white' />
       </div>
       {postCount > 0 && (
