@@ -118,7 +118,7 @@ export const PostCard = ({
     const filePath = buildLocalPath(libraryPath, firstMedia.media.relativePath);
 
     try {
-      await revealInFinder(filePath);
+      await revealInFinder(bridgeUrl, filePath);
     } catch {
       // Silently ignore reveal errors
     }
