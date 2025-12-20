@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FansLib Queue - Test Mode</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background: #1a1a1a;
+        color: #fff;
+        min-height: 100vh;
+      }
+      .test-container {
+        max-width: 500px;
+        margin: 0 auto;
+        background: transparent;
+        border-radius: 8px;
+        padding: 20px;
+      }
+      #root {
+        background: transparent;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .test-tooltip-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+      }
+      .test-tooltip-button {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: #3a3a3a;
+        border: 2px solid #5a5a5a;
+        color: #fff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        transition: all 0.2s;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        user-select: none;
+      }
+      .test-tooltip-button:hover {
+        background: #4a4a4a;
+        border-color: #6a6a6a;
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+      }
+      .test-tooltip-content {
+        position: absolute;
+        bottom: 50px;
+        right: 0;
+        width: 320px;
+        background: #2a2a2a;
+        border: 1px solid #4a4a4a;
+        border-radius: 8px;
+        padding: 16px;
+        font-size: 13px;
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(10px);
+        transition: all 0.2s;
+      }
+      .test-tooltip-container:hover .test-tooltip-content {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0);
+      }
+      .test-tooltip-content h3 {
+        margin: 0 0 12px 0;
+        font-size: 16px;
+        font-weight: 600;
+      }
+      .test-tooltip-content p {
+        margin: 8px 0;
+        color: #ccc;
+        line-height: 1.5;
+      }
+      .test-tooltip-content code {
+        background: #1a1a1a;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 11px;
+        font-family: 'Monaco', 'Courier New', monospace;
+      }
+      .test-tooltip-content pre {
+        background: #1a1a1a;
+        padding: 10px;
+        border-radius: 4px;
+        overflow-x: auto;
+        font-size: 11px;
+        margin: 10px 0;
+        line-height: 1.4;
+      }
+      .test-tooltip-content .warning {
+        color: #ffa500;
+        margin-top: 10px;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-container">
+      <div id="root"></div>
+    </div>
+    <div class="test-tooltip-container">
+      <div class="test-tooltip-button" title="Test Mode Info">🧪</div>
+      <div class="test-tooltip-content">
+        <h3>🧪 Test Mode</h3>
+        <p>This page emulates the Chrome extension popup for testing.</p>
+        <p>
+          <strong>Storage:</strong> Uses <code>localStorage</code> instead of
+          <code>chrome.storage</code>
+        </p>
+        <p>
+          <strong>Settings:</strong> Configure via browser console or edit
+          localStorage directly
+        </p>
+        <p><strong>Example:</strong></p>
+        <pre>localStorage.setItem('fanslib_api_url', 'http://localhost:6970');
+localStorage.setItem('fanslib_web_url', 'http://localhost:6969');
+localStorage.setItem('fanslib_bridge_url', 'http://localhost:6971');
+localStorage.setItem('fanslib_library_path', '/path/to/library');</pre>
+        <p class="warning">
+          <strong>⚠️ Note:</strong> Check browser console for API errors and
+          network requests
+        </p>
+      </div>
+    </div>
+    <script>
+      // Mock chrome API BEFORE any modules load
+      if (typeof window !== 'undefined' && !window.chrome) {
+        window.chrome = {
+          runtime: {
+            openOptionsPage: () => {
+              console.warn('[TEST MODE] chrome.runtime.openOptionsPage() called');
+              alert(
+                'In test mode, settings are stored in localStorage.\n\n' +
+                  'Open browser console and run:\n' +
+                  "localStorage.setItem('fanslib_api_url', 'http://localhost:6970');\n" +
+                  "localStorage.setItem('fanslib_web_url', 'http://localhost:6969');\n" +
+                  "localStorage.setItem('fanslib_bridge_url', 'http://localhost:6971');"
+              );
+            },
+          },
+          storage: {
+            local: {
+              get: (keys) =>
+                new Promise((resolve) => {
+                  const result = {};
+                  keys.forEach((key) => {
+                    const value = localStorage.getItem(key);
+                    if (value !== null) {
+                      result[key] = value;
+                    }
+                  });
+                  resolve(result);
+                }),
+              set: (items) =>
+                new Promise((resolve) => {
+                  Object.entries(items).forEach(([key, value]) => {
+                    localStorage.setItem(key, value);
+                  });
+                  resolve();
+                }),
+            },
+          },
+        };
+      }
+    </script>
+    <script type="module" src="/src/test-popup.tsx"></script>
+  </body>
+</html>

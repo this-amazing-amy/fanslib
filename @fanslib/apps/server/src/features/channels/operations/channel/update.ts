@@ -47,7 +47,9 @@ export const updateChannel = async (
     } else {
       // Find or create hashtags by names
       const hashtags = await findOrCreateHashtags(defaultHashtags);
-      channel.defaultHashtags = hashtags;
+      // Type assertion needed because findOrCreateHashtags returns HashtagSchema[] 
+      // which may have optional relations, but Channel expects Hashtag[]
+      channel.defaultHashtags = hashtags as typeof channel.defaultHashtags;
     }
   }
 
