@@ -1,5 +1,6 @@
 import type { PostWithRelationsSchema } from '@fanslib/server/schemas';
 import {
+  Calendar,
   Check,
   Copy,
   ExternalLink,
@@ -12,7 +13,6 @@ import {
   buildLocalPath,
   escapeHtml,
   getMediaThumbnailUrl,
-  getPostStatusBorderColor,
   getPostStatusStyles,
   getScheduleBadgeColors,
   isVideo,
@@ -27,6 +27,7 @@ type PostCardProps = {
   webUrl: string;
   bridgeUrl: string;
   onMarkPosted: () => void;
+  onMarkScheduled: () => void;
 };
 
 export const PostCard = ({
@@ -36,6 +37,7 @@ export const PostCard = ({
   webUrl,
   bridgeUrl,
   onMarkPosted,
+  onMarkScheduled,
 }: PostCardProps) => {
   const media = post.postMedia ?? [];
   const hasLibraryPath = !!libraryPath;
@@ -61,7 +63,7 @@ export const PostCard = ({
     } else {
       setBridgeAvailable(null);
     }
-  }, [hasLibraryPath]);
+  }, [hasLibraryPath, bridgeUrl]);
 
   const handleRevealInFinder = async (relativePath: string) => {
     if (!hasLibraryPath || bridgeAvailable !== true) return;
@@ -120,16 +122,8 @@ export const PostCard = ({
     });
   };
 
-  const status = post.status ?? 'ready';
-  const borderColor = getPostStatusBorderColor(
-    status as 'posted' | 'scheduled' | 'ready' | 'draft'
-  );
-
   return (
-    <div
-      className='rounded-xl p-4 border-2 bg-base-100'
-      style={{ borderColor }}
-    >
+    <div className='rounded-xl p-3 bg-base-100'>
       <div className='flex items-start justify-between mb-3'>
         <div className='flex flex-col'>
           <span className='text-base font-semibold text-base-content'>
@@ -176,7 +170,7 @@ export const PostCard = ({
           />
           <button
             onClick={handleCopyCaption}
-            className='absolute top-0 right-0 p-1 rounded-md bg-base-200/80 hover:bg-base-300 transition-colors opacity-0 group-hover:opacity-100'
+            className='absolute top-0 right-0 p-1 rounded-md bg-base-200/80 hover:bg-base-300 transition-colors'
             title='Copy caption text'
           >
             {captionCopyState === 'copied' ? (
@@ -264,14 +258,24 @@ export const PostCard = ({
             <span className='text-xs text-warning'>Bridge not running</span>
           )}
         </div>
-        <button
-          onClick={onMarkPosted}
-          className='px-3 py-1.5 text-xs rounded-lg transition-colors font-medium flex items-center gap-1.5 border hover:opacity-80 cursor-pointer'
-          style={getPostStatusStyles('posted')}
-        >
-          <Check className='w-3 h-3' />
-          Mark Posted
-        </button>
+        <div className='flex items-center gap-2'>
+          <button
+            onClick={onMarkScheduled}
+            className='px-3 py-1.5 text-xs rounded-lg transition-colors font-medium flex items-center gap-1.5 border hover:opacity-80 cursor-pointer'
+            style={getPostStatusStyles('scheduled')}
+          >
+            <Calendar className='w-3 h-3' />
+            Mark Scheduled
+          </button>
+          <button
+            onClick={onMarkPosted}
+            className='px-3 py-1.5 text-xs rounded-lg transition-colors font-medium flex items-center gap-1.5 border hover:opacity-80 cursor-pointer'
+            style={getPostStatusStyles('posted')}
+          >
+            <Check className='w-3 h-3' />
+            Mark Posted
+          </button>
+        </div>
       </div>
 
       {imageErrors.size > 0 && (

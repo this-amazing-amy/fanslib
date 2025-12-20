@@ -6,21 +6,21 @@ type ConnectionStatusProps = {
 export const ConnectionStatus = ({
   status,
   errorMessage,
-}: ConnectionStatusProps) => <div className='flex items-center gap-1.5 text-xs'>
+}: ConnectionStatusProps) => (
+  <div className='flex items-center gap-1.5 text-xs'>
+    {status !== 'connected' && (
       <span className='text-base-content/60'>
-        {status === 'connected'
-          ? 'Connected'
-          : status === 'error'
-            ? `Error: ${errorMessage}`
-            : 'Connecting...'}
+        {status === 'error' ? `Error: ${errorMessage}` : 'Connecting...'}
       </span>
-      <div
-        className={`w-2 h-2 rounded-full ${
-          status === 'connected'
-            ? 'bg-success'
-            : status === 'error'
-              ? 'bg-error'
-              : 'bg-warning'
-        }`}
-      />
-    </div>;
+    )}
+    <div
+      className={`w-2 h-2 rounded-full ${
+        status === 'connected'
+          ? 'bg-success'
+          : status === 'error'
+            ? 'bg-error'
+            : 'bg-warning'
+      }`}
+    />
+  </div>
+);

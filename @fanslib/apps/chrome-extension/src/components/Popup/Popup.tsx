@@ -61,23 +61,50 @@ export const Popup = () => {
     }
   };
 
-  const markAsPosted = async (postId: string) => {
+  const updatePostStatus = async (
+    postId: string,
+    newStatus: 'posted' | 'scheduled'
+  ) => {
     if (!settings) return;
 
     try {
       const api = eden(settings.apiUrl);
       const response = await api.api.posts['by-id']({ id: postId }).patch({
-        status: 'posted',
+        status: newStatus,
       });
 
-      if (response.error) {
-        throw new Error('Failed to update post');
+      // Check for API errors (response may have error property)
+      const responseWithError = response as { error?: unknown; data?: unknown };
+      if (responseWithError.error) {
+        const errorMessage =
+          typeof responseWithError.error === 'string'
+            ? responseWithError.error
+            : 'Failed to update post';
+        console.error('API error:', responseWithError.error);
+        setErrorMessage(errorMessage);
+        setStatus('error');
+        throw new Error(errorMessage);
       }
 
       await loadPosts();
+      setErrorMessage(null);
     } catch (err) {
-      console.error('Failed to mark post as posted:', err);
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : `Failed to mark post as ${newStatus}`;
+      console.error(`Failed to mark post as ${newStatus}:`, err);
+      setErrorMessage(errorMessage);
+      setStatus('error');
     }
+  };
+
+  const markAsPosted = async (postId: string) => {
+    await updatePostStatus(postId, 'posted');
+  };
+
+  const markAsScheduled = async (postId: string) => {
+    await updatePostStatus(postId, 'scheduled');
   };
 
   const goToNext = () => {
@@ -99,7 +126,7 @@ export const Popup = () => {
   const currentPost = posts[currentIndex];
 
   return (
-    <div className='w-[420px] min-h-[300px] max-h-[600px] bg-base-100 text-base-content overflow-y-auto flex flex-col'>
+    <div className='w-[420px] min-h-[300px] max-h-[600px] bg-base-100 text-base-content overflow-y-auto flex flex-col rounded-lg pb-4'>
       <PopupHeader
         postCount={posts.length}
         currentIndex={currentIndex}
@@ -111,7 +138,7 @@ export const Popup = () => {
       {posts.length === 0 ? (
         <EmptyState />
       ) : currentPost ? (
-        <div className='px-4 pt-4'>
+        <div className='px-3 pt-3'>
           <PostCard
             post={currentPost}
             libraryPath={settings?.libraryPath ?? ''}
@@ -119,6 +146,7 @@ export const Popup = () => {
             webUrl={settings?.webUrl ?? ''}
             bridgeUrl={settings?.bridgeUrl ?? ''}
             onMarkPosted={() => markAsPosted(currentPost.id)}
+            onMarkScheduled={() => markAsScheduled(currentPost.id)}
           />
 
           <PostNavigation
