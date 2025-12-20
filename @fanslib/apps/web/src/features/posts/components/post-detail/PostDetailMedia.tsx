@@ -112,9 +112,6 @@ export const PostDetailMedia = ({ post }: PostDetailMediaProps) => {
               )}
             </Button>
           </div>
-          <div className="absolute bottom-2 left-2 text-xs bg-base-100/80 backdrop-blur-sm px-2 py-1 rounded">
-            {index + 1} of {post.postMedia.length}
-          </div>
         </div>
       ))}
       <button
