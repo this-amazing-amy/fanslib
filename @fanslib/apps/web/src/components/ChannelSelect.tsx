@@ -52,19 +52,17 @@ export const ChannelSelect = ({
         const isSelected = value.includes(channel.id);
 
         return (
-          <div
+          <ChannelBadge
             key={channel.id}
+            name={channel.name}
+            typeId={channel.type.id}
+            selectable={selectable}
+            selected={isSelected}
+            disabled={isDisabled}
+            responsive={false}
             className={cn(!multiple && value.length > 0 && !isSelected && "opacity-50")}
-          >
-            <ChannelBadge
-              name={channel.name}
-              typeId={channel.type.id}
-              selectable={selectable}
-              selected={isSelected}
-              disabled={isDisabled}
-              onSelectionChange={() => handleToggleChannel(channel.id)}
-            />
-          </div>
+            onSelectionChange={() => handleToggleChannel(channel.id)}
+          />
         );
       })}
     </div>

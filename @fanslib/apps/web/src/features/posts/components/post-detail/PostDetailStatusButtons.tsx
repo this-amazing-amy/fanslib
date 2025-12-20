@@ -162,7 +162,7 @@ export const PostDetailStatusButtons = ({ post }: PostDetailStatusButtonsProps) 
   };
 
   return (
-    <div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-2">
+    <div className="@container grid grid-cols-[1fr_auto_auto_auto] items-center gap-2">
       {renderButtons()}
     </div>
   );

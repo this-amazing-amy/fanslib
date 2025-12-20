@@ -8,12 +8,13 @@ type ChannelBadgeProps = {
   name?: string;
   typeId: string;
   size?: "sm" | "md" | "lg";
+  borderStyle?: 'visible' | 'none';
   selected?: boolean;
   selectable?: boolean;
   disabled?: boolean;
+  responsive?: boolean;
   onSelectionChange?: (nextSelected: boolean) => void;
   className?: string;
-  noName?: boolean;
 };
 
 const ICON_SIZE_CLASSES: Record<NonNullable<ChannelBadgeProps["size"]>, string> = {
@@ -26,12 +27,13 @@ export const ChannelBadge = ({
   name = "",
   typeId,
   size = "md",
+  borderStyle = 'visible',
   selected: selectedProp = false,
   selectable = false,
   disabled = false,
+  responsive,
   onSelectionChange,
   className,
-  noName = false,
 }: ChannelBadgeProps) => {
   const channelType = CHANNEL_TYPES[typeId as ChannelTypeId];
   const baseColor = channelType?.color ?? "#6b7280";
@@ -44,17 +46,19 @@ export const ChannelBadge = ({
     <Badge
       size={size}
       className={cn(
-        "rounded-full font-medium flex items-center gap-1.5",
+        "rounded-full font-medium",
         disabled && "opacity-30 cursor-not-allowed",
         className
       )}
       selected={isSelected}
       selectable={selectable}
       disabled={disabled}
+      responsive={responsive}
       backgroundColor={backgroundColor}
       foregroundColor={foregroundColor}
       borderColor={borderColor}
-      label={noName ? "" : name}
+      borderStyle={borderStyle}
+      label={name}
       icon={
         <ChannelTypeIcon
           typeId={typeId as ChannelTypeId}

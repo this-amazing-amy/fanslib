@@ -1,16 +1,15 @@
 import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
 import {
-  add,
-  eachDayOfInterval,
-  endOfMonth,
-  endOfWeek,
-  format,
-  getDay,
-  isSameDay,
-  isToday,
-  parse,
-  startOfMonth,
-  startOfWeek,
+    add,
+    eachDayOfInterval,
+    endOfMonth,
+    format,
+    getDay,
+    isSameDay,
+    isToday,
+    parse,
+    startOfMonth,
+    startOfWeek,
 } from "date-fns";
 import { de } from "date-fns/locale";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -37,11 +36,6 @@ export const PostCalendar = ({ className, posts, onUpdate }: PostCalendarProps) 
   const firstDayCurrentMonth = parse(currentMonth, "MMM-yyyy", new Date());
 
   const weekStart = startOfWeek(firstDayCurrentMonth, { locale: de });
-  const weekEnd = endOfWeek(firstDayCurrentMonth, { locale: de });
-
-  const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd }).map((day) =>
-    format(day, "EEEEE", { locale: de })
-  );
 
   const days = eachDayOfInterval({
     start: startOfMonth(firstDayCurrentMonth),
@@ -107,38 +101,31 @@ export const PostCalendar = ({ className, posts, onUpdate }: PostCalendarProps) 
           </div>
         </div>
 
-        <div className="grid grid-cols-7 mb-4 text-xs font-semibold uppercase tracking-wider text-center text-base-content/50 flex-none">
-          {weekDays.map((day) => (
-            <div key={day} className="pb-3">{day}</div>
-          ))}
-        </div>
         <div
           className="grid grid-cols-7 text-sm gap-4"
         >
           {days.map((day, dayIdx) => {
             const dayPosts = posts.filter((post) => isSameDay(new Date(post.date), day));
+            const isTodayDay = isToday(day);
 
             return (
               <div
                 key={day.toString()}
                 className={cn(
                   dayIdx === 0 && colStartClasses[getDayOffset(day)],
-                  "flex flex-col min-h-[120px]"
+                  "flex flex-col min-h-[100px] rounded-lg p-2",
+                  isTodayDay && "bg-base-200 ring-2 ring-primary/50"
                 )}
               >
-                <div className="flex items-center justify-between mb-3 px-1">
-                  <button
-                    type="button"
-                    className={cn(
-                      "flex h-8 w-8 items-center justify-center rounded-lg flex-none text-sm font-semibold transition-all",
-                      isToday(day) 
-                        ? "text-base-100 bg-primary shadow-md" 
-                        : "text-base-content/70 hover:bg-base-200"
-                    )}
+                {/* Day header */}
+                <div className="text-center mb-2 flex-shrink-0">
+                  <div className="text-xs text-base-content/60">{format(day, "EEE")}</div>
+                  <time
+                    dateTime={format(day, "yyyy-MM-dd")}
+                    className={cn("text-sm font-medium", isTodayDay && "text-primary")}
                   >
-                    <time dateTime={format(day, "yyyy-MM-dd")}>{format(day, "d")}</time>
-                  </button>
-                  <span className="text-[10px] font-medium text-base-content/40 uppercase tracking-wide">{format(day, "EEE")}</span>
+                    {format(day, "d MMM")}
+                  </time>
                 </div>
                 {dayPosts.length > 0 && (
                   <div className="flex-1 min-h-0 flex flex-col gap-2">

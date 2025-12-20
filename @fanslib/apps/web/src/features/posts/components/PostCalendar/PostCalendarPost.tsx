@@ -1,16 +1,11 @@
 import type { MediaSchema, PostWithRelationsSchema } from "@fanslib/server/schemas";
 import { Link } from "@tanstack/react-router";
-import { format } from "date-fns";
 import { Trash2, X } from "lucide-react";
 import { useState } from "react";
-import { ChannelBadge } from "~/components/ChannelBadge";
-import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
-import { StatusIcon } from "~/components/StatusIcon";
 import { usePostDrag } from "~/contexts/PostDragContext";
 import { usePostPreferences } from "~/contexts/PostPreferencesContext";
 import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
 import { cn } from "~/lib/cn";
-import { getPostStatusBorderColor } from "~/lib/colors";
 import { useSkipScheduleSlotMutation } from "~/lib/queries/content-schedules";
 import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
 import { useVirtualPostClick } from "../../hooks/useVirtualPostClick";
@@ -18,6 +13,7 @@ import { getCaptionPreview } from "../../lib/captions";
 import { VirtualPostOverlay } from "../VirtualPostOverlay";
 import { PostCalendarDropzone } from "./PostCalendarDropzone";
 import { PostCalendarPostMedia } from "./PostCalendarPostMedia";
+import { PostCalendarPostView } from "./PostCalendarPostView";
 
 type Post = typeof PostWithRelationsSchema.static;
 type Media = typeof MediaSchema.static;
@@ -29,7 +25,6 @@ type PostCalendarPostProps = {
 
 export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
   const { startPostDrag, endPostDrag } = usePostDrag();
-  const time = format(new Date(post.date), "HH:mm");
   const { preferences } = usePostPreferences();
   const skipSlotMutation = useSkipScheduleSlotMutation();
   const [confirmSkip, setConfirmSkip] = useState(false);
@@ -55,22 +50,17 @@ export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
     }
   };
 
-  const dragProps = !isVirtualPost(post)
-    ? {
-        draggable: true,
-        onDragStart: (e: React.DragEvent<HTMLDivElement>) => startPostDrag(e, post),
-        onDragEnd: endPostDrag,
-      }
-    : {};
-
   const status = post.status ?? 'draft';
-  const borderColor = getPostStatusBorderColor(status as 'posted' | 'scheduled' | 'draft');
+  const virtual = isVirtualPost(post);
+
+  // Extract channel typeId safely
+  const channelTypeId = post.channel.type?.id || post.channel.typeId || 'onlyfans';
 
   const handleSkipClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
-    if (!isVirtualPost(post)) return;
+    if (!virtual) return;
     
     if (!confirmSkip) {
       setConfirmSkip(true);
@@ -89,98 +79,81 @@ export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
     setConfirmSkip(false);
   };
 
-  const content = (
-    <div
-      {...dragProps}
+  // Skip button for virtual posts
+  const skipButton = virtual ? (
+    <button
+      onClick={handleSkipClick}
       className={cn(
-        "group flex flex-col transition-all duration-200 relative",
-        "p-2.5 rounded-xl bg-base-100 border-2 shadow-sm hover:shadow-md",
-        {
-          "cursor-grab active:cursor-grabbing": !isVirtualPost(post),
-        }
+        "absolute top-1 right-1 p-1 rounded-md transition-all",
+        "opacity-0 group-hover:opacity-100",
+        "z-10",
+        confirmSkip
+          ? "bg-error/80 hover:bg-error text-error-content"
+          : "bg-base-200/80 hover:bg-base-300 text-base-content/60 hover:text-base-content"
       )}
-      style={{
-        borderColor,
-      }}
-      onMouseLeave={() => setConfirmSkip(false)}
+      title={confirmSkip ? "Click again to confirm skip" : "Skip this slot"}
     >
-      {/* Virtual post overlay */}
-      {isVirtualPost(post) && (
-        <VirtualPostOverlay onClick={virtualPostClick.handleClick} />
-      )}
-      
-      {/* Skip Button (only for virtual posts) */}
-      {isVirtualPost(post) && (
-        <button
-          onClick={handleSkipClick}
-          className={cn(
-            "absolute top-1 right-1 p-1 rounded-md transition-all",
-            "opacity-0 group-hover:opacity-100",
-            "z-10",
-            confirmSkip
-              ? "bg-error/80 hover:bg-error text-error-content"
-              : "bg-base-200/80 hover:bg-base-300 text-base-content/60 hover:text-base-content"
-          )}
-          title={confirmSkip ? "Click again to confirm skip" : "Skip this slot"}
-        >
-          {confirmSkip ? <Trash2 size={14} /> : <X size={14} />}
-        </button>
-      )}
+      {confirmSkip ? <Trash2 size={14} /> : <X size={14} />}
+    </button>
+  ) : undefined;
 
-      {/* Schedule Badge */}
-      {(isVirtualPost(post) || post.schedule) && (
-        <ContentScheduleBadge
-          name={isVirtualPost(post) ? post.schedule.name : post.schedule?.name ?? ""}
-          emoji={isVirtualPost(post) ? post.schedule.emoji : post.schedule?.emoji}
-          color={isVirtualPost(post) ? post.schedule.color : post.schedule?.color}
-          size="sm"
-          className="w-full justify-center mb-1 opacity-40 group-hover:opacity-100 transition-opacity"
-        />
-      )}
+  // Virtual post overlay
+  const overlay = virtual ? (
+    <VirtualPostOverlay onClick={virtualPostClick.handleClick} />
+  ) : undefined;
 
-      {/* Channel Badge */}
-      <ChannelBadge
-        name={post.channel.name ?? ""}
-        typeId={post.channel.type?.id ?? post.channel.typeId}
-        size="sm"
-        className="w-full justify-center mb-2 opacity-40 group-hover:opacity-100 transition-opacity"
-      />
-
-      {/* Metadata Row: Status + Time */}
-      <div className="flex items-center justify-between mb-2">
-        <StatusIcon status={status as 'posted' | 'scheduled' | 'draft'} />
-        <div className="text-xs font-medium text-base-content/60">{time}</div>
-      </div>
-
-      {/* Media Section */}
-      <div className="mb-1.5">
+  // Presentation component
+  const presentationContent = (
+    <PostCalendarPostView
+      date={new Date(post.date)}
+      status={status as 'posted' | 'scheduled' | 'draft'}
+      channel={{
+        name: post.channel.name ?? "",
+        typeId: channelTypeId,
+      }}
+      schedule={
+        virtual || post.schedule
+          ? {
+              name: virtual ? post.schedule.name : post.schedule?.name ?? "",
+              emoji: virtual ? post.schedule.emoji : post.schedule?.emoji,
+              color: virtual ? post.schedule.color : post.schedule?.color,
+            }
+          : undefined
+      }
+      caption={captionPreview}
+      showCaption={preferences.view.showCaptions}
+      mediaSlot={
         <PostCalendarPostMedia
-          postMedia={isVirtualPost(post) ? [] : post.postMedia}
-          isVirtual={isVirtualPost(post)}
+          postMedia={virtual ? [] : post.postMedia}
+          isVirtual={virtual}
         />
-      </div>
-
-      {/* Caption (optional, hidden on mobile) */}
-      {preferences.view.showCaptions && captionPreview && (
-        <div className="pt-1 text-[10px] leading-snug text-base-content line-clamp-2 hidden sm:block">
-          {captionPreview}
-        </div>
-      )}
-    </div>
+      }
+      overlaySlot={overlay}
+      actionSlot={skipButton}
+      onMouseLeave={() => setConfirmSkip(false)}
+    />
   );
 
-  const wrappedContent = isVirtualPost(post) ? (
-    content
-  ) : (
+  // Wrap with drag behavior and link for real posts
+  const viewContent = !virtual ? (
     <Link to="/posts/$postId" params={{ postId: post.id }} className="block">
-      {content}
+      <div
+        draggable
+        onDragStart={(e) => startPostDrag(e, post as Post)}
+        onDragEnd={endPostDrag}
+        className="cursor-grab active:cursor-grabbing"
+      >
+        {presentationContent}
+      </div>
     </Link>
+  ) : (
+    presentationContent
   );
 
   return (
     <>
       <PostCalendarDropzone post={post} onUpdate={onUpdate}>
-        {wrappedContent}
+        {viewContent}
       </PostCalendarDropzone>
       <CreatePostDialog
         open={createPostData !== null}

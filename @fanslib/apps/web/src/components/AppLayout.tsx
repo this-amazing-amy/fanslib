@@ -15,7 +15,7 @@ export interface AppLayoutProps {
 
 const MainContent = ({ children }: { children: ReactNode }) => <main 
       className={cn(
-        'flex-1 min-h-0 p-4 sm:p-6 lg:p-8 content-area overflow-auto'
+        'flex-1 min-h-0 p-4 sm:p-6 lg:p-8 content-area'
       )}
       style={{ viewTransitionName: 'main-content' }}
     >
@@ -54,7 +54,7 @@ const LayoutContent = ({ children }: AppLayoutProps) => {
         />
 
         {/* Page content */}
-        <div className='drawer-content flex flex-col h-[100svh] overflow-hidden'>
+        <div className='drawer-content flex flex-col h-[100svh]'>
           <header className='main-header navbar bg-base-100 shadow-sm border-b border-base-300 lg:hidden h-16 px-4'>
             <div className='flex-none'>
               <label

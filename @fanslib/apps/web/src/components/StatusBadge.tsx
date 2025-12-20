@@ -10,6 +10,7 @@ type StatusBadgeProps = {
   selected?: boolean;
   selectable?: boolean;
   showIcon?: boolean;
+  responsive?: boolean;
   onSelectionChange?: (nextSelected: boolean) => void;
   className?: string;
 };
@@ -27,6 +28,7 @@ export const StatusBadge = ({
   selected = true,
   selectable = false,
   showIcon = true,
+  responsive,
   onSelectionChange,
   className,
 }: StatusBadgeProps) => {
@@ -41,6 +43,7 @@ export const StatusBadge = ({
       className={className}
       selected={selected}
       selectable={selectable}
+      responsive={responsive}
       backgroundColor={backgroundColor}
       foregroundColor={colors.foreground}
       borderColor={colors.foreground}

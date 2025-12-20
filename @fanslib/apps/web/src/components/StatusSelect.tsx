@@ -58,13 +58,13 @@ export const StatusSelect = ({
             status={status.id}
             selected={isSelected}
             selectable
+            responsive={false}
             className={cn(
               "rounded-full font-medium flex items-center gap-1.5 transition-colors cursor-pointer",
               !multiple && values.length > 0 && !isSelected && "opacity-50"
             )}
             onSelectionChange={() => toggleStatus(status.id)}
-          >
-          </StatusBadge>
+          />
         );
       })}
       {includeNoneOption && (

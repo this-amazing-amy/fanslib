@@ -1,5 +1,6 @@
 import { parseDate } from '@internationalized/date';
 import { createFileRoute } from '@tanstack/react-router';
+import { Camera } from 'lucide-react';
 import { useState } from 'react';
 import { ContentScheduleBadge } from '~/components/ContentScheduleBadge';
 import { DateTimePicker } from '~/components/DateTimePicker';
@@ -60,6 +61,7 @@ import { Textarea } from '~/components/ui/Textarea';
 import { Toggle } from '~/components/ui/Toggle';
 import { ToggleGroup } from '~/components/ui/ToggleGroup';
 import { Tooltip } from '~/components/ui/Tooltip';
+import { PostCalendarPostView } from '~/features/posts/components/PostCalendar/PostCalendarPostView';
 import { CHANNEL_COLORS, POST_STATUS_COLORS, TAG_TYPE_COLORS, USER_COLOR_PRESETS } from '~/lib/colors';
 
 const ComponentShowcase = () => {
@@ -884,6 +886,153 @@ const ComponentShowcase = () => {
                   { value: 'large', label: 'Large' },
                 ]}
               />
+            </div>
+          </div>
+        </section>
+
+        <Separator />
+
+        {/* Post Calendar Post Section */}
+        <section className="space-y-4">
+          <h2 className="text-2xl font-bold">Post Calendar Post</h2>
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Draft Post (No Media)</h3>
+              <div className="max-w-[200px]">
+                <PostCalendarPostView
+                  date={new Date('2024-12-25T14:30:00')}
+                  status="draft"
+                  channel={{
+                    name: "OnlyFans Main",
+                    typeId: "onlyfans",
+                  }}
+                  caption="Merry Christmas! 🎄 Check out my new content dropping today"
+                  mediaSlot={
+                    <div className="w-full aspect-square rounded-md border-2 border-dashed border-base-300 bg-base-200/30 flex flex-col items-center justify-center gap-2">
+                      <Camera className="w-8 h-8 text-base-content/20" />
+                      <span className="text-[10px] text-base-content/30 font-medium">No media</span>
+                    </div>
+                  }
+                  showCaption
+                />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Scheduled Post with Schedule</h3>
+              <div className="max-w-[200px]">
+                <PostCalendarPostView
+                  date={new Date('2024-12-25T18:00:00')}
+                  status="scheduled"
+                  channel={{
+                    name: "Reddit GoneWild",
+                    typeId: "reddit",
+                  }}
+                  schedule={{
+                    name: "Daily Content",
+                    emoji: "📅",
+                    color: "#3b82f6",
+                  }}
+                  caption="Evening vibes ✨"
+                  mediaSlot={
+                    <div className="w-full aspect-square rounded-md bg-gradient-to-br from-pink-400 to-purple-600 flex items-center justify-center text-white font-semibold">
+                      Sample Media
+                    </div>
+                  }
+                  showCaption
+                />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Posted</h3>
+              <div className="max-w-[200px]">
+                <PostCalendarPostView
+                  date={new Date('2024-12-20T12:00:00')}
+                  status="posted"
+                  channel={{
+                    name: "Fansly Premium",
+                    typeId: "fansly",
+                  }}
+                  schedule={{
+                    name: "Premium Content",
+                    emoji: "💎",
+                    color: "#f59e0b",
+                  }}
+                  caption="Thank you all for the support! 💕 More coming soon"
+                  mediaSlot={
+                    <div className="w-full aspect-square rounded-md bg-gradient-to-br from-emerald-400 to-cyan-600 flex items-center justify-center text-white font-semibold">
+                      Posted Content
+                    </div>
+                  }
+                  showCaption
+                />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Virtual Slot (Empty)</h3>
+              <div className="max-w-[200px]">
+                <PostCalendarPostView
+                  date={new Date('2024-12-26T10:00:00')}
+                  status="draft"
+                  channel={{
+                    name: "Twitter",
+                    typeId: "twitter",
+                  }}
+                  schedule={{
+                    name: "Morning Posts",
+                    emoji: "☀️",
+                    color: "#10b981",
+                  }}
+                  mediaSlot={
+                    <div className="w-full aspect-square rounded-md border-2 border-dashed border-base-300 bg-base-200/30 flex flex-col items-center justify-center gap-2">
+                      <Camera className="w-8 h-8 text-base-content/20" />
+                      <span className="text-[10px] text-base-content/30 font-medium">No media</span>
+                    </div>
+                  }
+                  actionSlot={
+                    <button
+                      onClick={() => console.log('Skip clicked')}
+                      className="absolute top-1 right-1 p-1 rounded-md transition-all opacity-0 group-hover:opacity-100 z-10 bg-base-200/80 hover:bg-base-300 text-base-content/60 hover:text-base-content"
+                      title="Skip this slot"
+                    >
+                      ×
+                    </button>
+                  }
+                />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Multiple States Side-by-Side</h3>
+              <div className="grid grid-cols-3 gap-4 max-w-3xl">
+                <PostCalendarPostView
+                  date={new Date('2024-12-25T09:00:00')}
+                  status="draft"
+                  channel={{ name: "OF Main", typeId: "onlyfans" }}
+                  mediaSlot={
+                    <div className="w-full aspect-square rounded-md bg-slate-300 dark:bg-slate-700" />
+                  }
+                />
+                <PostCalendarPostView
+                  date={new Date('2024-12-25T15:00:00')}
+                  status="scheduled"
+                  channel={{ name: "Fansly", typeId: "fansly" }}
+                  schedule={{ name: "Afternoon", emoji: "🌤️", color: "#f59e0b" }}
+                  mediaSlot={
+                    <div className="w-full aspect-square rounded-md bg-amber-300 dark:bg-amber-700" />
+                  }
+                />
+                <PostCalendarPostView
+                  date={new Date('2024-12-25T21:00:00')}
+                  status="posted"
+                  channel={{ name: "Reddit", typeId: "reddit" }}
+                  mediaSlot={
+                    <div className="w-full aspect-square rounded-md bg-green-300 dark:bg-green-700" />
+                  }
+                />
+              </div>
             </div>
           </div>
         </section>

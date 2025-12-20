@@ -7,8 +7,10 @@ type ContentScheduleBadgeProps = {
   emoji?: string | null;
   color?: string | null;
   size?: "sm" | "md" | "lg";
+  borderStyle?: 'visible' | 'none';
   selected?: boolean;
   selectable?: boolean;
+  responsive?: boolean;
   onSelectionChange?: (nextSelected: boolean) => void;
   className?: string;
 };
@@ -18,8 +20,10 @@ export const ContentScheduleBadge = ({
   emoji,
   color = DEFAULT_SCHEDULE_COLOR,
   size = "md",
+  borderStyle = 'visible',
   selected = true,
   selectable = false,
+  responsive,
   onSelectionChange,
   className,
 }: ContentScheduleBadgeProps) => {
@@ -30,14 +34,16 @@ export const ContentScheduleBadge = ({
     <Badge
       size={size}
       className={cn(
-        "rounded-full font-medium flex items-center gap-1.5",
+        "rounded-full font-medium",
         className
       )}
       selected={isSelected}
       selectable={selectable}
+      responsive={responsive}
       backgroundColor={colorDef.background}
       foregroundColor={colorDef.foreground}
       borderColor={colorDef.foreground}
+      borderStyle={borderStyle}
       label={name}
       icon={emoji ? <span>{emoji}</span> : undefined}
       onSelectionChange={onSelectionChange}

@@ -11,8 +11,9 @@ import { PostDetailFanslyStatistics } from '~/features/posts/components/post-det
 import { PostDetailMedia } from '~/features/posts/components/post-detail/PostDetailMedia';
 import { PostDetailNavigation } from '~/features/posts/components/post-detail/PostDetailNavigation';
 import { PostDetailPostponeButton } from '~/features/posts/components/post-detail/PostDetailPostponeButton';
-import { PostDetailStatusButtons } from '~/features/posts/components/post-detail/PostDetailStatusButtons';
 import { PostDetailScheduleSelect } from '~/features/posts/components/post-detail/PostDetailScheduleSelect';
+import { PostDetailStatusButtons } from '~/features/posts/components/post-detail/PostDetailStatusButtons';
+import { PostDetailTemporalContext } from '~/features/posts/components/post-detail/PostDetailTemporalContext';
 import { PostDetailUrlInput } from '~/features/posts/components/post-detail/PostDetailUrlInput';
 import { usePostQuery } from '~/lib/queries/posts';
 
@@ -61,7 +62,7 @@ const PostDetailRoute = () => {
 
   return (
     <MediaDragProvider>
-      <div className="overflow-y-auto">
+      <div>
         <div className="max-w-[1280px] px-8 mx-auto pt-8 pb-12">
           <div className="flex items-center gap-2 mb-2">
             <Button variant="outline" size="sm" onClick={goBack}>
@@ -75,7 +76,7 @@ const PostDetailRoute = () => {
           <h1 className="text-3xl font-semibold tracking-tight">Post</h1>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 py-6">
-            <div className="flex flex-col gap-4">
+            <div className="@container flex flex-col gap-4">
                 <ChannelBadge
                   name={normalizedPost.channel.typeId === 'reddit' && normalizedPost.subreddit?.name ? `r/${normalizedPost.subreddit.name}` : normalizedPost.channel.name}
                   typeId={normalizedPost.channel.typeId}
@@ -84,7 +85,7 @@ const PostDetailRoute = () => {
               <PostDetailMedia post={normalizedPost} />
               <PostDetailPostponeButton post={normalizedPost} />
             </div>
-            <div className="flex flex-col gap-4">
+            <div className="@container flex flex-col gap-4">
               <PostDetailStatusButtons post={normalizedPost} />
               <PostDetailScheduleSelect post={normalizedPost} />
               <PostDetailDateTimeInputs post={normalizedPost} />
@@ -93,6 +94,8 @@ const PostDetailRoute = () => {
               <PostDetailCaptionInput post={normalizedPost} />
             </div>
           </div>
+
+          <PostDetailTemporalContext post={normalizedPost} />
         </div>
       </div>
     </MediaDragProvider>

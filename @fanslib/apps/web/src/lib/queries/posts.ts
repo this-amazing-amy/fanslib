@@ -1,15 +1,15 @@
 import type {
-  AddMediaToPostRequestBodySchema,
-  AddMediaToPostRequestParamsSchema,
-  CreatePostRequestBodySchema,
-  DeletePostRequestParamsSchema,
-  FetchAllPostsRequestQuerySchema,
-  FetchPostByIdRequestParamsSchema,
-  FetchPostsByChannelRequestParamsSchema,
-  RemoveMediaFromPostRequestBodySchema,
-  RemoveMediaFromPostRequestParamsSchema,
-  UpdatePostRequestBodySchema,
-  UpdatePostRequestParamsSchema,
+    AddMediaToPostRequestBodySchema,
+    AddMediaToPostRequestParamsSchema,
+    CreatePostRequestBodySchema,
+    DeletePostRequestParamsSchema,
+    FetchAllPostsRequestQuerySchema,
+    FetchPostByIdRequestParamsSchema,
+    FetchPostsByChannelRequestParamsSchema,
+    RemoveMediaFromPostRequestBodySchema,
+    RemoveMediaFromPostRequestParamsSchema,
+    UpdatePostRequestBodySchema,
+    UpdatePostRequestParamsSchema,
 } from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { eden } from '../api/eden';
@@ -138,3 +138,29 @@ export const usePostsByMediaIdQuery = (mediaId: string) =>
     },
     enabled: !!mediaId,
   });
+
+export const useTemporalContextPostsQuery = (centerDate: Date, channelId?: string) => {
+  const startDate = new Date(centerDate);
+  startDate.setDate(startDate.getDate() - 3);
+  const endDate = new Date(centerDate);
+  endDate.setDate(endDate.getDate() + 3);
+
+  return useQuery({
+    queryKey: ['posts', 'temporal-context', channelId ?? 'all', centerDate.toISOString()],
+    queryFn: async () => {
+      const result = await eden.api.posts.all.get({
+        query: {
+          filters: JSON.stringify({
+            ...(channelId ? { channels: [channelId] } : {}),
+            dateRange: {
+              startDate: startDate.toISOString(),
+              endDate: endDate.toISOString(),
+            },
+          }),
+        },
+      });
+      return result.data;
+    },
+    enabled: !!centerDate,
+  });
+};

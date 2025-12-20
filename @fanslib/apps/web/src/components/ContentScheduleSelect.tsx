@@ -50,6 +50,7 @@ export const ContentScheduleSelect = ({
             color={schedule.color}
             selected={isSelected}
             selectable
+            responsive={false}
             onSelectionChange={() => handleToggleSchedule(schedule.id)}
             className={cn("transition-all")}
           />
