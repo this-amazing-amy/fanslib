@@ -1,12 +1,21 @@
 import { t } from "elysia";
 import { db } from "../../../../lib/db";
 import { Channel, ChannelSchema } from "../../entity";
+import { findOrCreateHashtags } from "../../../hashtags/operations/hashtag/find-or-create";
 
 export const UpdateChannelRequestParamsSchema = t.Object({
   id: t.String(),
 });
 
-export const UpdateChannelRequestBodySchema = t.Partial(t.Omit(ChannelSchema, ['id']));
+export const UpdateChannelRequestBodySchema = t.Partial(
+  t.Object({
+    name: t.String(),
+    description: t.Nullable(t.String()),
+    typeId: t.String(),
+    eligibleMediaFilter: t.Nullable(t.Any()),
+    defaultHashtags: t.Array(t.String()),
+  })
+);
 
 export const UpdateChannelResponseSchema = ChannelSchema;
 
@@ -24,7 +33,24 @@ export const updateChannel = async (
 
   if (!channel) return null;
 
-  Object.assign(channel, updates);
+  // Extract defaultHashtags from updates to handle separately
+  const { defaultHashtags, ...otherUpdates } = updates;
+
+  // Update basic fields
+  Object.assign(channel, otherUpdates);
+
+  // Handle defaultHashtags ManyToMany relationship
+  if (defaultHashtags !== undefined) {
+    if (defaultHashtags.length === 0) {
+      // Clear all default hashtags
+      channel.defaultHashtags = [];
+    } else {
+      // Find or create hashtags by names
+      const hashtags = await findOrCreateHashtags(defaultHashtags);
+      channel.defaultHashtags = hashtags;
+    }
+  }
+
   await repository.save(channel);
 
   return repository.findOne({

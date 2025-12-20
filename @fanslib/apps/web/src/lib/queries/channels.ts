@@ -65,6 +65,10 @@ export const useUpdateChannelMutation = () => {
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['channels', 'list'] });
       queryClient.setQueryData(['channels', variables.id], data);
+      // Invalidate hashtags in case new ones were created on the backend
+      if (variables.updates.defaultHashtags) {
+        queryClient.invalidateQueries({ queryKey: ['hashtags', 'list'] });
+      }
     },
   });
 };

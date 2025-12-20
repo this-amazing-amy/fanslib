@@ -2,6 +2,7 @@ import type {
     ChannelSchema,
     ContentScheduleWithChannelSchema,
     CreateContentScheduleRequestBodySchema,
+    HashtagSchema,
     MediaFilterSchema,
 } from "@fanslib/server/schemas";
 import { Edit2, Plus, Save, Trash2, X } from "lucide-react";
@@ -26,9 +27,11 @@ import {
 import { ChannelTypeIcon } from "./ChannelTypeIcon";
 import { ContentScheduleForm } from "./ContentScheduleForm";
 import { ContentScheduleList } from "./ContentScheduleList";
+import { HashtagSelector } from "./HashtagSelector";
 
 type Channel = typeof ChannelSchema.static;
 type MediaFilters = typeof MediaFilterSchema.static;
+type Hashtag = typeof HashtagSchema.static;
 
 type ChannelViewProps = {
   channel: Channel;
@@ -43,6 +46,9 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
   const [description, setDescription] = useState(channel.description ?? "");
   const [eligibleMediaFilter, setEligibleMediaFilter] = useState<MediaFilters>(
     channel.eligibleMediaFilter ?? []
+  );
+  const [defaultHashtags, setDefaultHashtags] = useState<Hashtag[]>(
+    channel.defaultHashtags ?? []
   );
   const [showScheduleForm, setShowScheduleForm] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<ContentSchedule | null>(null);
@@ -59,6 +65,7 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
     setName(channel.name);
     setDescription(channel.description ?? "");
     setEligibleMediaFilter(channel.eligibleMediaFilter ?? []);
+    setDefaultHashtags(channel.defaultHashtags ?? []);
   }, [channel]);
 
   const handleSave = async () => {
@@ -69,6 +76,7 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
           name,
           description: description ?? undefined,
           eligibleMediaFilter: eligibleMediaFilter.length > 0 ? eligibleMediaFilter : undefined,
+          defaultHashtags: defaultHashtags.map((h) => h.name),
         },
       });
       setIsEditing(false);
@@ -81,6 +89,7 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
     setName(channel.name);
     setDescription(channel.description ?? "");
     setEligibleMediaFilter(channel.eligibleMediaFilter ?? []);
+    setDefaultHashtags(channel.defaultHashtags ?? []);
     setIsEditing(false);
   };
 
@@ -248,6 +257,31 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
                 </FilterPresetProvider>
               ) : (
                 <p className="text-sm text-base-content/60">No filters configured</p>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Default Hashtags */}
+        <div className="mt-6">
+          <h4 className="text-lg font-medium mb-3">Default Hashtags</h4>
+          <p className="text-sm text-base-content/70 mb-4">
+            Hashtags that will be automatically added to posts for this channel
+          </p>
+          {isEditing ? (
+            <HashtagSelector
+              value={defaultHashtags}
+              onChange={setDefaultHashtags}
+              disabled={updateChannel.isPending}
+            />
+          ) : (
+            <div className="card bg-base-200 p-4">
+              {defaultHashtags.length > 0 ? (
+                <p className="text-sm text-base-content">
+                  {defaultHashtags.map((hashtag) => hashtag.name).join(" ")}
+                </p>
+              ) : (
+                <p className="text-sm text-base-content/60">No default hashtags configured</p>
               )}
             </div>
           )}
