@@ -1,8 +1,30 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-type ShootViewPreferences = Record<string, unknown>;
+export type ShootViewType = "grid" | "list";
+export type ShootSortField = "name" | "date" | "mediaCount";
+export type ShootSortDirection = "ASC" | "DESC";
 
-const defaultPreferences: ShootViewPreferences = {};
+export type ShootViewPreferences = {
+  view: {
+    viewType: ShootViewType;
+    gridSize: "small" | "large";
+  };
+  sort: {
+    field: ShootSortField;
+    direction: ShootSortDirection;
+  };
+};
+
+const defaultPreferences: ShootViewPreferences = {
+  view: {
+    viewType: "list",
+    gridSize: "small",
+  },
+  sort: {
+    field: "date",
+    direction: "DESC",
+  },
+};
 
 type ShootPreferencesContextType = {
   preferences: ShootViewPreferences;

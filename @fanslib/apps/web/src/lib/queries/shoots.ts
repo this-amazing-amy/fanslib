@@ -73,5 +73,15 @@ export const useDeleteShootMutation = () => {
   });
 };
 
+export const usePostsByShootIdQuery = (shootId: string) =>
+  useQuery({
+    queryKey: ['shoots', 'posts', shootId],
+    queryFn: async () => {
+      const result = await eden.api.shoots['by-id']({ id: shootId }).posts.get();
+      return result.data;
+    },
+    enabled: !!shootId,
+  });
+
 
 

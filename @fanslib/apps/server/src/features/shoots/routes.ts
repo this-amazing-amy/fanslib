@@ -3,6 +3,7 @@ import { CreateShootRequestBodySchema, CreateShootResponseSchema, createShoot } 
 import { DeleteShootRequestParamsSchema, DeleteShootResponseSchema, deleteShoot } from "./operations/shoot/delete";
 import { FetchAllShootsRequestBodySchema, FetchAllShootsResponseSchema, listShoots } from "./operations/shoot/fetch-all";
 import { FetchShootByIdRequestParamsSchema, FetchShootByIdResponseSchema, fetchShootById } from "./operations/shoot/fetch-by-id";
+import { FetchPostsByShootIdResponseSchema, fetchPostsByShootId } from "./operations/shoot/fetch-posts-by-shoot-id";
 import { UpdateShootRequestBodySchema, UpdateShootRequestParamsSchema, UpdateShootResponseSchema, updateShoot } from "./operations/shoot/update";
 
 export const shootsRoutes = new Elysia({ prefix: "/api/shoots" })
@@ -56,5 +57,11 @@ export const shootsRoutes = new Elysia({ prefix: "/api/shoots" })
       200: DeleteShootResponseSchema,
       404: t.Object({ error: t.String() }),
     },
+  })
+  .get("/by-id/:id/posts", async ({ params: { id } }) => {
+    return fetchPostsByShootId(id);
+  }, {
+    params: t.Object({ id: t.String() }),
+    response: FetchPostsByShootIdResponseSchema,
   });
 

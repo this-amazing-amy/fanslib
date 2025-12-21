@@ -49,5 +49,5 @@ export const ShootDetailTitle: FC<ShootDetailTitleProps> = ({
     );
   }
 
-  return shoot.name;
+  return <div className="text-base font-semibold">{shoot.name}</div>;
 };
