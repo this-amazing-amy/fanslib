@@ -55,6 +55,10 @@ export const useUpdateShootMutation = () => {
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['shoots', 'list'] });
       queryClient.setQueryData(['shoots', variables.id], data);
+      // Invalidate media list query when media is added/removed from shoot
+      if (variables.updates.mediaIds !== undefined) {
+        queryClient.invalidateQueries({ queryKey: ['media', 'list'] });
+      }
     },
   });
 };

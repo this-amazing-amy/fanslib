@@ -184,6 +184,7 @@ export const PostPreview = ({
   const content = (
     <div
       {...dragProps}
+      className="max-w-2xl"
       onDragOver={(e) => {
         handleDragOver(e);
         if (!isPostDragging) return;
@@ -249,7 +250,9 @@ export const PostPreview = ({
             <div className="flex flex-col justify-between gap-2 flex-1">
               <div className="flex flex-col gap-2">
                 <div className="flex items-start gap-2">
-                  <StatusIcon status={status as 'posted' | 'scheduled' | 'draft'} />
+                  <div className="mt-1">
+                    <StatusIcon status={status as 'posted' | 'scheduled' | 'draft'} />
+                  </div>
                   <div className="flex flex-col">
                     <span className="text-base font-semibold text-base-content">
                       {format(new Date(post.date), "MMMM d")}

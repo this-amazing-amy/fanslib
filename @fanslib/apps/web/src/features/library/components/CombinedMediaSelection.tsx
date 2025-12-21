@@ -19,6 +19,7 @@ type CombinedMediaSelectionProps = {
   className?: string;
   excludeMediaIds?: string[];
   pageLimit?: number;
+  initialFilters?: MediaFilterType;
 };
 
 export const CombinedMediaSelection = ({
@@ -27,10 +28,11 @@ export const CombinedMediaSelection = ({
   className,
   excludeMediaIds = [],
   pageLimit = 30,
+  initialFilters = [],
 }: CombinedMediaSelectionProps) => {
   const [activePreviewId, setActivePreviewId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [filters, setFilters] = useState<MediaFilterType>([]);
+  const [filters, setFilters] = useState<MediaFilterType>(initialFilters);
 
   const { data: mediaResponse } = useMediaListQuery({
     limit: pageLimit,

@@ -1,6 +1,6 @@
 import type { MediaSchema, ShootSummarySchema } from "@fanslib/server/schemas";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useCallback, useState } from "react";
 import { Button } from "~/components/ui/Button";
 import {
@@ -21,7 +21,6 @@ import { ShootDetailDateInput } from "~/features/shoots/components/shoot-detail/
 import { ShootDetailMediaGrid } from "~/features/shoots/components/shoot-detail/ShootDetailMediaGrid";
 import { ShootDetailTitleInput } from "~/features/shoots/components/shoot-detail/ShootDetailTitleInput";
 import { ShootPosts } from "~/features/shoots/components/shoot-detail/ShootPosts";
-import { cn } from "~/lib/cn";
 import { useShootQuery, useUpdateShootMutation } from "~/lib/queries/shoots";
 
 type ShootSummary = typeof ShootSummarySchema.static;
@@ -112,26 +111,10 @@ const ShootDetailRoute = () => {
 
             <div className="@container flex flex-col gap-4">
               <LibraryPreferencesProvider>
-                {normalizedShoot.media && normalizedShoot.media.length > 0 ? (
-                  <ShootDetailMediaGrid medias={normalizedShoot.media} />
-                ) : (
-                  <div className="grid grid-cols-5 gap-4">
-                    <button
-                      onClick={() => setIsAddMediaOpen(true)}
-                      className={cn(
-                        "aspect-square rounded-2xl border-2 border-dashed border-base-300",
-                        "flex items-center justify-center",
-                        "hover:border-primary hover:bg-primary/10 transition-colors",
-                        "cursor-pointer"
-                      )}
-                    >
-                      <div className="flex flex-col items-center gap-2 text-base-content/60">
-                        <Plus className="h-8 w-8" />
-                        <span className="text-sm">Add Media</span>
-                      </div>
-                    </button>
-                  </div>
-                )}
+                <ShootDetailMediaGrid
+                  medias={normalizedShoot.media ?? []}
+                  onAddMedia={() => setIsAddMediaOpen(true)}
+                />
               </LibraryPreferencesProvider>
             </div>
 
@@ -156,6 +139,12 @@ const ShootDetailRoute = () => {
                             selectedMedia={selectedMedia}
                             onMediaSelect={handleMediaSelect}
                             excludeMediaIds={normalizedShoot.media?.map((m) => m.id) ?? []}
+                            initialFilters={[
+                              {
+                                include: false,
+                                items: [{ type: "shoot", id: "" }],
+                              },
+                            ]}
                           />
                         </div>
                         <DialogFooter>

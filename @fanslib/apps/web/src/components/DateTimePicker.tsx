@@ -175,7 +175,10 @@ export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
   const hours = Array.from({ length: 24 }, (_, index) => index);
   const commonMinutes = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
   const currentTime = format(date, "HH:mm");
-  const currentDate = format(date, "PPP");
+  const currentYear = new Date().getFullYear();
+  const isCurrentYear = date.getFullYear() === currentYear;
+  const dateFormat = isCurrentYear ? "MMMM d" : "MMMM d, yyyy";
+  const currentDate = format(date, dateFormat);
 
   return (
     <PopoverTrigger isOpen={open} onOpenChange={setOpen}>
@@ -188,7 +191,7 @@ export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
         )}
       >
         <CalendarIcon className="mr-2 h-4 w-4" />
-        {date ? format(date, "PPP p") : <span>Pick a date</span>}
+        {date ? `${format(date, dateFormat)} ${format(date, "p")}` : <span>Pick a date</span>}
       </Button>
       <Popover className="w-auto p-0">
         <div className="p-3 relative" style={{ minWidth: "350px", minHeight: "400px" }}>
