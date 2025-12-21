@@ -16,6 +16,7 @@ type TagBadgeProps = {
   className?: string;
   selectionMode?: "checkbox" | "radio";
   size?: BadgeSize;
+  responsive?: boolean;
 };
 
 export const TagBadge = ({
@@ -25,6 +26,7 @@ export const TagBadge = ({
   className,
   selectionMode = "checkbox",
   size = "lg",
+  responsive = false,
 }: TagBadgeProps) => {
   const colorDef = getColorDefinitionFromString(tag.color, tag.id);
   const isSelected = selectionState === "checked" || selectionState === "indeterminate";
@@ -60,6 +62,7 @@ export const TagBadge = ({
       foregroundColor={colorDef.foreground}
       borderColor={borderColor}
       label={tag.displayName}
+      responsive={responsive}
       onSelectionChange={handleSelectionChange}
     />
   );
