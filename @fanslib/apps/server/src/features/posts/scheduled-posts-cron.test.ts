@@ -55,7 +55,6 @@ describe("updateOverdueScheduledNonRedditPosts", () => {
             caption: null,
             date,
             url: null,
-            fanslyStatisticsId: null,
             fypRemovedAt: null,
             status: "scheduled",
             channelId,

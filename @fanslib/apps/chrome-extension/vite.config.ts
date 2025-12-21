@@ -17,9 +17,16 @@ export default defineConfig({
         popup: resolve(__dirname, 'popup.html'),
         settings: resolve(__dirname, 'settings.html'),
         'test-popup': resolve(__dirname, 'test-popup.html'),
+        'content/fansly-interceptor': resolve(__dirname, 'src/content/fansly-interceptor.ts'),
+        'background/index': resolve(__dirname, 'src/background/index.ts'),
       },
       output: {
-        entryFileNames: '[name].js',
+        entryFileNames: (chunkInfo) => {
+          if (chunkInfo.name.startsWith('content/') || chunkInfo.name.startsWith('background/')) {
+            return '[name].js';
+          }
+          return '[name].js';
+        },
         chunkFileNames: '[name].js',
         assetFileNames: (assetInfo) => {
           if (assetInfo.name?.endsWith('.css')) {

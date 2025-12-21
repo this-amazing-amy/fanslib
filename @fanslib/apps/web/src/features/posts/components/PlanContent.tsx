@@ -1,5 +1,5 @@
 import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
-import { CalendarDays, LayoutList } from "lucide-react";
+import { CalendarDays, Columns3, LayoutList } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ToggleGroup } from "~/components/ui/ToggleGroup";
 import { SectionHeader } from "~/components/ui/SectionHeader";
@@ -12,6 +12,7 @@ import { PlanEmptyState } from "./PlanEmptyState";
 import { PlanViewSettings } from "./PlanViewSettings";
 import { PostCalendar } from "./PostCalendar/PostCalendar";
 import { PostFilters } from "./PostFilters";
+import { PostSwimlane, SwimlaneHiddenChannelsDropdown } from "./PostSwimlane";
 import { PostTimeline } from "./PostTimeline";
 
 type Post = typeof PostWithRelationsSchema.static;
@@ -106,6 +107,11 @@ export const PlanContent = () => {
                     icon: <CalendarDays className="h-4 w-4" />,
                     ariaLabel: "Calendar",
                   },
+                  {
+                    value: "swimlane",
+                    icon: <Columns3 className="h-4 w-4" />,
+                    ariaLabel: "Swimlane",
+                  },
                 ]}
                 size="sm"
               />
@@ -113,13 +119,16 @@ export const PlanContent = () => {
             </div>
           }
         />
-        <div className="mt-2">
+        <div className="mt-2 flex items-center gap-2">
           <PostFilters
             value={preferences.filter}
             onFilterChange={(filter) => {
               updatePreferences({ filter });
             }}
           />
+          {preferences.view.viewType === "swimlane" && (
+            <SwimlaneHiddenChannelsDropdown channels={channels ?? []} />
+          )}
         </div>
       </div>
       <div className="flex-1 min-h-0 overflow-y-auto px-6">
@@ -129,6 +138,9 @@ export const PlanContent = () => {
         )}
         {(channels?.length ?? 0) > 0 && preferences.view.viewType === "calendar" && (
           <PostCalendar posts={posts} onUpdate={refetchPosts} />
+        )}
+        {(channels?.length ?? 0) > 0 && preferences.view.viewType === "swimlane" && (
+          <PostSwimlane posts={posts} onUpdate={refetchPosts} />
         )}
       </div>
     </div>

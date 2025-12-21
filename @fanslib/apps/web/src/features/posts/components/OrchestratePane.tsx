@@ -1,4 +1,5 @@
 import type { PaneView } from "~/hooks/useOrchestrateLayout";
+import { PostPreferencesProvider } from "~/contexts/PostPreferencesContext";
 import { LibraryContent } from "~/features/library/components/LibraryContent";
 import { ShootsContent } from "~/features/shoots/components/ShootsContent";
 import { PlanContent } from "./PlanContent";
@@ -24,7 +25,11 @@ export const OrchestratePane = ({ view, availableViews, onViewChange }: Orchestr
       case "shoots":
         return <ShootsContent />;
       case "plan":
-        return <PlanContent />;
+        return (
+          <PostPreferencesProvider>
+            <PlanContent />
+          </PostPreferencesProvider>
+        );
     }
   };
 

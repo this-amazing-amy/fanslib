@@ -164,3 +164,26 @@ export const useTemporalContextPostsQuery = (centerDate: Date, channelId?: strin
     enabled: !!centerDate,
   });
 };
+
+type UpdatePostMediaParams = {
+  postId: string;
+  postMediaId: string;
+  fanslyStatisticsId: string | null;
+};
+
+export const useUpdatePostMediaMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ postId, postMediaId, fanslyStatisticsId }: UpdatePostMediaParams) => {
+      const { data, error } = await eden.api.posts['by-id']({ id: postId }).media({ postMediaId }).patch({
+        fanslyStatisticsId,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['posts', variables.postId] });
+    },
+  });
+};

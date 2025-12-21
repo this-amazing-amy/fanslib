@@ -10,9 +10,7 @@ type ShootDetailMediaGridProps = {
   onAddMedia?: () => void;
 };
 
-export const ShootDetailMediaGrid = ({ medias, onAddMedia }: ShootDetailMediaGridProps) => {
-  return (
-    <div className="grid grid-cols-5 gap-4">
+export const ShootDetailMediaGrid = ({ medias, onAddMedia }: ShootDetailMediaGridProps) => <div className="grid grid-cols-5 gap-4">
       {medias.map((media, index) => (
         <MediaTile
           key={media.id}
@@ -44,7 +42,5 @@ export const ShootDetailMediaGrid = ({ medias, onAddMedia }: ShootDetailMediaGri
           </div>
         </button>
       )}
-    </div>
-  );
-};
+    </div>;
 

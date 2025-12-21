@@ -1,6 +1,7 @@
 import { Elysia, t } from "elysia";
 import { AddMediaToPostRequestBodySchema, AddMediaToPostRequestParamsSchema, AddMediaToPostResponseSchema, addMediaToPost } from "./operations/post-media/add";
 import { RemoveMediaFromPostRequestBodySchema, RemoveMediaFromPostRequestParamsSchema, RemoveMediaFromPostResponseSchema, removeMediaFromPost } from "./operations/post-media/remove";
+import { UpdatePostMediaRequestBodySchema, UpdatePostMediaRequestParamsSchema, UpdatePostMediaResponseSchema, updatePostMedia } from "./operations/post-media/update";
 import { CreatePostRequestBodySchema, CreatePostResponseSchema, createPost } from "./operations/post/create";
 import { DeletePostRequestParamsSchema, DeletePostResponseSchema, deletePost } from "./operations/post/delete";
 import { FetchAllPostsRequestQuerySchema, FetchAllPostsResponseSchema, fetchAllPosts } from "./operations/post/fetch-all";
@@ -105,6 +106,21 @@ export const postsRoutes = new Elysia({ prefix: "/api/posts" })
     body: RemoveMediaFromPostRequestBodySchema,
     response: {
       200: RemoveMediaFromPostResponseSchema,
+      404: t.Object({ error: t.String() }),
+    },
+  })
+  .patch("/by-id/:id/media/:postMediaId", async ({ params: { id, postMediaId }, body, set }) => {
+    const postMedia = await updatePostMedia(id, postMediaId, body);
+    if (!postMedia) {
+      set.status = 404;
+      return { error: "PostMedia not found" };
+    }
+    return postMedia;
+  }, {
+    params: UpdatePostMediaRequestParamsSchema,
+    body: UpdatePostMediaRequestBodySchema,
+    response: {
+      200: UpdatePostMediaResponseSchema,
       404: t.Object({ error: t.String() }),
     },
   });

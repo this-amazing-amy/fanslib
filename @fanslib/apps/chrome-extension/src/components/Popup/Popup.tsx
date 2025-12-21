@@ -7,13 +7,16 @@ import { EmptyState } from './EmptyState';
 import { PopupHeader } from './PopupHeader';
 import { PostCard } from './PostCard';
 import { PostNavigation } from './PostNavigation';
+import { StatisticsTab } from './StatisticsTab';
 
 type Post = typeof PostWithRelationsSchema.static;
+type Tab = 'queue' | 'statistics';
 
 export const Popup = () => {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState<Tab>('queue');
   const [status, setStatus] = useState<'loading' | 'connected' | 'error'>(
     'loading'
   );
@@ -135,28 +138,47 @@ export const Popup = () => {
         onOpenSettings={openSettings}
       />
 
-      {posts.length === 0 ? (
-        <EmptyState />
-      ) : currentPost ? (
-        <div className='px-3 pt-3'>
-          <PostCard
-            post={currentPost}
-            libraryPath={settings?.libraryPath ?? ''}
-            apiUrl={settings?.apiUrl ?? ''}
-            webUrl={settings?.webUrl ?? ''}
-            bridgeUrl={settings?.bridgeUrl ?? ''}
-            onMarkPosted={() => markAsPosted(currentPost.id)}
-            onMarkScheduled={() => markAsScheduled(currentPost.id)}
-          />
+      <div className="tabs tabs-boxed px-3 pt-3">
+        <button
+          className={`tab ${activeTab === 'queue' ? 'tab-active' : ''}`}
+          onClick={() => setActiveTab('queue')}
+        >
+          Post Queue
+        </button>
+        <button
+          className={`tab ${activeTab === 'statistics' ? 'tab-active' : ''}`}
+          onClick={() => setActiveTab('statistics')}
+        >
+          Statistics
+        </button>
+      </div>
 
-          <PostNavigation
-            currentIndex={currentIndex}
-            totalPosts={posts.length}
-            onPrevious={goToPrevious}
-            onNext={goToNext}
-          />
-        </div>
-      ) : null}
+      {activeTab === 'queue' ? (
+        posts.length === 0 ? (
+          <EmptyState />
+        ) : currentPost ? (
+          <div className='px-3 pt-3'>
+            <PostCard
+              post={currentPost}
+              libraryPath={settings?.libraryPath ?? ''}
+              apiUrl={settings?.apiUrl ?? ''}
+              webUrl={settings?.webUrl ?? ''}
+              bridgeUrl={settings?.bridgeUrl ?? ''}
+              onMarkPosted={() => markAsPosted(currentPost.id)}
+              onMarkScheduled={() => markAsScheduled(currentPost.id)}
+            />
+
+            <PostNavigation
+              currentIndex={currentIndex}
+              totalPosts={posts.length}
+              onPrevious={goToPrevious}
+              onNext={goToNext}
+            />
+          </div>
+        ) : null
+      ) : (
+        <StatisticsTab />
+      )}
     </div>
   );
 };

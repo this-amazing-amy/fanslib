@@ -18,5 +18,16 @@
       "128": "logo_small.png"
     }
   },
-  "options_page": "settings.html"
+  "options_page": "settings.html",
+  "content_scripts": [
+    {
+      "matches": ["https://fansly.com/*"],
+      "js": ["content/fansly-interceptor.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "background": {
+    "service_worker": "background/index.js",
+    "type": "module"
+  }
 }

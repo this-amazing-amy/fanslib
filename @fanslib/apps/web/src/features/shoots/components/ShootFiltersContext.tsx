@@ -1,8 +1,5 @@
 import type { ReactNode } from "react";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import type { RangeValue } from "@react-types/shared";
-import type { DateValue } from "react-aria-components";
-import { parseDate } from "@internationalized/date";
 import type { ShootFiltersSchema } from "@fanslib/server/schemas";
 
 type ShootFilter = typeof ShootFiltersSchema.static;
@@ -142,4 +139,5 @@ export const useShootFilters = () => {
   }
   return context;
 };
+
 

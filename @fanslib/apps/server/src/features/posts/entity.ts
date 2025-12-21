@@ -12,6 +12,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import type { FanslyAnalyticsAggregate, FanslyAnalyticsDatapoint } from "../analytics/entity";
+import type { FanslyMediaCandidate } from "../analytics/candidate-entity";
 import { Channel } from "../channels/entity";
 import { ContentSchedule } from "../content-schedules/entity";
 import { Media, MediaSchema } from "../library/entity";
@@ -47,9 +48,6 @@ export class Post {
   @Column({ type: "varchar", nullable: true, name: "url" })
   url: string | null = null;
 
-  @Column({ type: "varchar", nullable: true, name: "fanslyStatisticsId" })
-  fanslyStatisticsId: string | null = null;
-
   @Column({ type: "datetime", nullable: true, name: "fypRemovedAt" })
   fypRemovedAt!: Date | null;
 
@@ -77,20 +75,6 @@ export class Post {
 
   @OneToMany(() => PostMedia, (mediaOrder) => mediaOrder.post)
   postMedia!: Relation<PostMedia>[];
-
-  @OneToMany(
-    "FanslyAnalyticsDatapoint",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (fanslyAnalyticsDatapoint: any) => fanslyAnalyticsDatapoint.post
-  )
-  fanslyAnalyticsDatapoints!: Relation<FanslyAnalyticsDatapoint>[];
-
-  @OneToOne(
-    "FanslyAnalyticsAggregate",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (fanslyAnalyticsAggregate: any) => fanslyAnalyticsAggregate.post
-  )
-  fanslyAnalyticsAggregate?: Relation<FanslyAnalyticsAggregate>;
 }
 
 @Entity("post_media")
@@ -105,6 +89,9 @@ export class PostMedia {
   @Column({ type: "boolean", default: false, name: "isFreePreview" })
   isFreePreview!: boolean;
 
+  @Column({ type: "varchar", nullable: true, name: "fanslyStatisticsId" })
+  fanslyStatisticsId: string | null = null;
+
   @ManyToOne(() => Post, (post) => post.postMedia, { onDelete: "CASCADE" })
   @JoinColumn({ name: "postId" })
   post!: Post;
@@ -114,6 +101,27 @@ export class PostMedia {
     (media: any) => media.postMedia, { onDelete: "CASCADE" })
   @JoinColumn({ name: "mediaId" })
   media!: Relation<Media>;
+
+  @OneToMany(
+    "FanslyAnalyticsDatapoint",
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (fanslyAnalyticsDatapoint: any) => fanslyAnalyticsDatapoint.postMedia
+  )
+  fanslyAnalyticsDatapoints!: Relation<FanslyAnalyticsDatapoint>[];
+
+  @OneToOne(
+    "FanslyAnalyticsAggregate",
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (fanslyAnalyticsAggregate: any) => fanslyAnalyticsAggregate.postMedia
+  )
+  fanslyAnalyticsAggregate?: Relation<FanslyAnalyticsAggregate>;
+
+  @OneToOne(
+    "FanslyMediaCandidate",
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (fanslyMediaCandidate: any) => fanslyMediaCandidate.matchedPostMedia
+  )
+  matchedFromCandidate?: Relation<FanslyMediaCandidate>;
 
   @CreateDateColumn({ name: "createdAt" })
   createdAt!: Date;
@@ -135,6 +143,7 @@ export const PostMediaSchema = t.Object({
   id: t.String(),
   order: t.Number(),
   isFreePreview: t.Boolean(),
+  fanslyStatisticsId: t.Nullable(t.String()),
   createdAt: t.Date(),
   updatedAt: t.Date(),
 });
@@ -154,7 +163,6 @@ export const PostSchema = t.Object({
   caption: t.Nullable(t.String()),
   date: t.String(),
   url: t.Nullable(t.String()),
-  fanslyStatisticsId: t.Nullable(t.String()),
   fypRemovedAt: t.Nullable(t.Date()),
   postponeBlueskyDraftedAt: t.Nullable(t.Date()),
   status: PostStatusSchema,

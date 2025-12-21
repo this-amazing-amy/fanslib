@@ -3,6 +3,7 @@ import { mkdir, unlink } from "fs/promises";
 import { dirname } from "path";
 import "reflect-metadata";
 import { DataSource } from "typeorm";
+import { FanslyMediaCandidate } from "../features/analytics/candidate-entity";
 import {
   AnalyticsFetchHistory,
   FanslyAnalyticsAggregate,
@@ -46,6 +47,7 @@ export const AppDataSource = new DataSource({
     FanslyAnalyticsDatapoint,
     FanslyAnalyticsAggregate,
     AnalyticsFetchHistory,
+    FanslyMediaCandidate,
     // Additional entities will be added as features are migrated
   ],
   synchronize: true,

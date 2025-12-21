@@ -100,7 +100,7 @@ const ToggleGroupItem = ({
       isSelected && 'bg-primary text-primary-content font-semibold border-2 border-primary'
     ),
     outline: cn(
-      'border border-base-300 bg-transparent hover:bg-base-200',
+      'bg-transparent hover:bg-base-200 border border-transparent',
       isSelected && 'bg-base-300 border-base-content/30 font-semibold'
     ),
   };

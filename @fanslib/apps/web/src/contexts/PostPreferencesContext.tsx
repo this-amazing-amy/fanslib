@@ -7,7 +7,7 @@ import type { PostTypeFilter } from "~/lib/virtual-posts";
 
 type PostStatus = typeof PostStatusSchema.static;
 
-export type PostViewType = "timeline" | "calendar";
+export type PostViewType = "timeline" | "calendar" | "swimlane";
 
 export type PostFilterPreferences = {
   search?: string;
@@ -26,6 +26,10 @@ export type PostPreferences = {
     openDialogOnDrop: boolean;
     autoDraftBlueskyOnDrop: boolean;
     postTypeFilter: PostTypeFilter;
+    swimlane?: {
+      channelOrder?: string[];
+      hiddenChannels?: string[];
+    };
   };
   filter: PostFilterPreferences;
 };
@@ -37,6 +41,10 @@ export const defaultPreferences: PostPreferences = {
     openDialogOnDrop: true,
     autoDraftBlueskyOnDrop: true,
     postTypeFilter: "both",
+    swimlane: {
+      channelOrder: undefined,
+      hiddenChannels: [],
+    },
   },
   filter: {
     search: undefined,
@@ -59,17 +67,31 @@ const PostPreferencesContext = createContext<PostPreferencesContextValue | undef
 const STORAGE_KEY = "postPreferences";
 
 export const PostPreferencesProvider = ({ children }: { children: React.ReactNode }) => {
-  const [preferences, setPreferences] = useState<PostPreferences>(() => {
-    if (typeof window === "undefined") return defaultPreferences;
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored) return mergeDeep(defaultPreferences, JSON.parse(stored));
-    return defaultPreferences;
-  });
+  // Always start with defaultPreferences to ensure SSR/client hydration match
+  const [preferences, setPreferences] = useState<PostPreferences>(defaultPreferences);
+  const [isHydrated, setIsHydrated] = useState(false);
 
+  // Hydrate from localStorage after mount (after hydration)
   useEffect(() => {
     if (typeof window === "undefined") return;
+    
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        setPreferences(mergeDeep(defaultPreferences, parsed) as PostPreferences);
+      } catch (error) {
+        console.error("Failed to parse stored preferences:", error);
+      }
+    }
+    setIsHydrated(true);
+  }, []);
+
+  // Save to localStorage after hydration
+  useEffect(() => {
+    if (!isHydrated || typeof window === "undefined") return;
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
-  }, [preferences]);
+  }, [preferences, isHydrated]);
 
   const updatePreferences = useCallback((updates: DeepPartial<PostPreferences>) => {
     setPreferences((prev) => mergeDeep(prev, updates) as PostPreferences);

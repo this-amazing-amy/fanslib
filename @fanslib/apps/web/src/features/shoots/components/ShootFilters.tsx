@@ -56,3 +56,4 @@ export const ShootFilters = ({ value, onFilterChange }: ShootFiltersProps) => {
   );
 };
 
+
