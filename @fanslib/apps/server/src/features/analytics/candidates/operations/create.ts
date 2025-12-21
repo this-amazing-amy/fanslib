@@ -11,17 +11,14 @@ export const createCandidates = async (
   const dataSource = await db();
   const candidateRepository = dataSource.getRepository(FanslyMediaCandidate);
 
-  const results: FanslyMediaCandidate[] = [];
-
-  await Promise.all(
+  const results = await Promise.all(
     items.map(async (item: CandidateItem) => {
       const existing = await candidateRepository.findOne({
         where: { fanslyStatisticsId: item.fanslyStatisticsId },
       });
 
       if (existing) {
-        results.push(existing);
-        return;
+        return existing;
       }
 
       const candidate = candidateRepository.create({
@@ -38,7 +35,7 @@ export const createCandidates = async (
         await candidateRepository.save(saved);
       }
 
-      results.push(saved);
+      return saved;
     })
   );
 

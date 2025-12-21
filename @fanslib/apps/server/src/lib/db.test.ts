@@ -4,6 +4,7 @@ import {
     FanslyAnalyticsAggregate,
     FanslyAnalyticsDatapoint,
 } from "../features/analytics/entity";
+import { FanslyMediaCandidate } from "../features/analytics/candidate-entity";
 import { Channel, ChannelType } from "../features/channels/entity";
 import { ContentSchedule, SkippedScheduleSlot } from "../features/content-schedules/entity";
 import { FilterPreset } from "../features/filter-presets/entity";
@@ -42,6 +43,7 @@ export const createTestDataSource = () => new DataSource({
       FanslyAnalyticsDatapoint,
       FanslyAnalyticsAggregate,
       AnalyticsFetchHistory,
+      FanslyMediaCandidate,
     ],
     synchronize: true,
     logging: false,
@@ -87,6 +89,7 @@ export const clearAllTables = async () => {
 
   const entityClearOrder = [
     "FanslyQueueItem",
+    "FanslyMediaCandidate",
     "PostMedia",
     "Post",
     "HashtagChannelStats",
