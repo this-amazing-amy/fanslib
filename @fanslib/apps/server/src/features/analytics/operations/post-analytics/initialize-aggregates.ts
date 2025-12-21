@@ -1,6 +1,6 @@
 import { db } from "../../../../lib/db";
-import { aggregatePostAnalyticsData } from "../../../../lib/fansly-analytics/aggregate";
-import { Post } from "../../../posts/entity";
+import { aggregatePostMediaAnalyticsData } from "../../../../lib/fansly-analytics/aggregate";
+import { PostMedia } from "../../../posts/entity";
 import { FanslyAnalyticsAggregate } from "../../entity";
 import {
   calculateFypMetrics,
@@ -10,38 +10,38 @@ import {
 
 export const initializeAnalyticsAggregates = async (): Promise<void> => {
   const dataSource = await db();
-  const postRepository = dataSource.getRepository(Post);
+  const postMediaRepository = dataSource.getRepository(PostMedia);
   const aggregateRepo = dataSource.getRepository(FanslyAnalyticsAggregate);
 
-  const posts = await postRepository
-    .createQueryBuilder("post")
-    .leftJoinAndSelect("post.fanslyAnalyticsDatapoints", "datapoints")
-    .leftJoinAndSelect("post.fanslyAnalyticsAggregate", "aggregate")
-    .leftJoinAndSelect("post.postMedia", "postMedia")
+  const postMediaList = await postMediaRepository
+    .createQueryBuilder("postMedia")
+    .leftJoinAndSelect("postMedia.post", "post")
+    .leftJoinAndSelect("postMedia.fanslyAnalyticsDatapoints", "datapoints")
+    .leftJoinAndSelect("postMedia.fanslyAnalyticsAggregate", "aggregate")
     .leftJoinAndSelect("postMedia.media", "media")
     .where("datapoints.id IS NOT NULL")
     .andWhere("aggregate.id IS NULL")
     .getMany();
 
   await Promise.all(
-    posts.map(async (post) => {
-      const aggregated = aggregatePostAnalyticsData(post, false);
+    postMediaList.map(async (postMedia) => {
+      const aggregated = aggregatePostMediaAnalyticsData(postMedia, false);
 
       if (!aggregated.at(-1)) {
         return;
       }
 
       const fypPerformanceScore = await calculateFypPerformanceScore(
-        post,
-        post.fanslyAnalyticsDatapoints
+        postMedia,
+        postMedia.fanslyAnalyticsDatapoints
       );
-      const fypMetrics = await calculateFypMetrics(post, post.fanslyAnalyticsDatapoints);
-      const plateauDay = findPlateauDay(post.fanslyAnalyticsDatapoints);
+      const fypMetrics = await calculateFypMetrics(postMedia, postMedia.fanslyAnalyticsDatapoints);
+      const plateauDay = findPlateauDay(postMedia.fanslyAnalyticsDatapoints);
 
       const fypPlateauDetectedAt = plateauDay > 0 ? new Date() : undefined;
 
       const existingAggregate = await aggregateRepo.findOne({
-        where: { postId: post.id },
+        where: { postMediaId: postMedia.id },
       });
 
       if (existingAggregate) {
@@ -56,8 +56,8 @@ export const initializeAnalyticsAggregates = async (): Promise<void> => {
         await aggregateRepo.save(existingAggregate);
       } else {
         const newAggregate = aggregateRepo.create({
-          post,
-          postId: post.id,
+          postMedia,
+          postMediaId: postMedia.id,
           totalViews: aggregated.at(-1)?.Views ?? 0,
           averageEngagementSeconds: aggregated.at(-1)?.averageWatchTimeSeconds ?? 0,
           averageEngagementPercent: aggregated.at(-1)?.averageWatchTimePercent ?? 0,

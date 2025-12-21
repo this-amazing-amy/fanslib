@@ -1,8 +1,8 @@
 import type { FanslyAnalyticsResponse } from "../../../../lib/fansly-analytics/fansly-analytics-response";
 import { db } from "../../../../lib/db";
-import { aggregatePostAnalyticsData } from "../../../../lib/fansly-analytics/aggregate";
+import { aggregatePostMediaAnalyticsData } from "../../../../lib/fansly-analytics/aggregate";
 import { saveHashtagsFromAnalytics } from "../../../hashtags/operations/hashtag-stats/save-from-analytics";
-import { Post } from "../../../posts/entity";
+import { PostMedia } from "../../../posts/entity";
 import { FanslyAnalyticsAggregate, FanslyAnalyticsDatapoint } from "../../entity";
 import {
   calculateFypMetrics,
@@ -11,27 +11,27 @@ import {
 } from "../../fyp-performance";
 import { gatherFanslyPostAnalyticsDatapoints } from "./helpers";
 
-export const addDatapointsToPost = async (
-  postId: string,
+export const addDatapointsToPostMedia = async (
+  postMediaId: string,
   response: FanslyAnalyticsResponse
 ): Promise<FanslyAnalyticsDatapoint[]> => {
   const dataSource = await db();
-  const postRepository = dataSource.getRepository(Post);
+  const postMediaRepository = dataSource.getRepository(PostMedia);
   const dpRepo = dataSource.getRepository(FanslyAnalyticsDatapoint);
   const aggregateRepo = dataSource.getRepository(FanslyAnalyticsAggregate);
 
-  const post = await postRepository.findOne({
-    where: { id: postId },
-    relations: { channel: true, postMedia: { media: true } },
+  const postMedia = await postMediaRepository.findOne({
+    where: { id: postMediaId },
+    relations: { post: { channel: true }, media: true },
   });
 
-  if (!post) {
-    throw new Error("Post not found");
+  if (!postMedia) {
+    throw new Error("PostMedia not found");
   }
 
-  if (post.channel.typeId === "fansly" && response.response.aggregationData?.tags) {
+  if (postMedia.post.channel.typeId === "fansly" && response.response.aggregationData?.tags) {
     try {
-      await saveHashtagsFromAnalytics(post.channel.id, response);
+      await saveHashtagsFromAnalytics(postMedia.post.channel.id, response);
       console.log(
         `Processed ${response.response.aggregationData.tags.length} hashtags from analytics`
       );
@@ -45,48 +45,49 @@ export const addDatapointsToPost = async (
   const savedDatapoints = await Promise.all(
     datapoints.map(async (dp) => {
       const existingDatapointForTimestamp = await dpRepo.findOne({
-        where: { timestamp: dp.timestamp, postId },
+        where: { timestamp: dp.timestamp, postMediaId },
       });
 
       if (existingDatapointForTimestamp) {
-        const updatedDatapoint = dpRepo.merge(existingDatapointForTimestamp, { post }, dp);
+        const updatedDatapoint = dpRepo.merge(existingDatapointForTimestamp, { postMedia }, dp);
         return dpRepo.save(updatedDatapoint);
       }
 
       const newDatapoint = dpRepo.create({
         ...dp,
-        post,
-        postId,
+        postMedia,
+        postMediaId,
       });
       return dpRepo.save(newDatapoint);
     })
   );
 
-  const postWithDatapoints = await postRepository.findOne({
-    where: { id: postId },
+  const postMediaWithDatapoints = await postMediaRepository.findOne({
+    where: { id: postMediaId },
     relations: {
       fanslyAnalyticsDatapoints: true,
-      postMedia: { media: true },
+      media: true,
+      post: { channel: true },
     },
   });
 
-  if (!postWithDatapoints) {
-    throw new Error("Post not found after saving datapoints");
+  if (!postMediaWithDatapoints) {
+    throw new Error("PostMedia not found after saving datapoints");
   }
 
-  const aggregatedData = aggregatePostAnalyticsData(postWithDatapoints, false);
+  const aggregatedData = aggregatePostMediaAnalyticsData(postMediaWithDatapoints, false);
 
   const fypPerformanceScore = await calculateFypPerformanceScore(
-    postWithDatapoints,
+    postMediaWithDatapoints,
     savedDatapoints
   );
-  const fypMetrics = await calculateFypMetrics(postWithDatapoints, savedDatapoints);
+  const fypMetrics = await calculateFypMetrics(postMediaWithDatapoints, savedDatapoints);
   const plateauDay = findPlateauDay(savedDatapoints);
 
   const fypPlateauDetectedAt = plateauDay > 0 ? new Date() : undefined;
 
   const existingAggregate = await aggregateRepo.findOne({
-    where: { postId },
+    where: { postMediaId },
   });
 
   if (existingAggregate) {
@@ -101,8 +102,8 @@ export const addDatapointsToPost = async (
     await aggregateRepo.save(existingAggregate);
   } else {
     const newAggregate = aggregateRepo.create({
-      post,
-      postId,
+      postMedia,
+      postMediaId,
       totalViews: aggregatedData.at(-1)?.Views ?? 0,
       averageEngagementSeconds: aggregatedData.at(-1)?.averageWatchTimeSeconds ?? 0,
       averageEngagementPercent: aggregatedData.at(-1)?.averageWatchTimePercent ?? 0,

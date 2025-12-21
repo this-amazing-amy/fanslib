@@ -3,7 +3,7 @@ import type { FanslyAnalyticsDatapoint } from "../../entity";
 
 type CreateFanslyAnalyticsDatapointPayload = Omit<
   FanslyAnalyticsDatapoint,
-  "id" | "post" | "postId"
+  "id" | "postMedia" | "postMediaId"
 >;
 
 export const gatherFanslyPostAnalyticsDatapoints = (

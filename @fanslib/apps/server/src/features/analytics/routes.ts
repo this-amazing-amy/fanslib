@@ -1,4 +1,5 @@
 import { Elysia, t } from "elysia";
+import { candidatesRoutes } from "./candidates/routes";
 import { FetchAnalyticsDataRequestBodySchema, FetchAnalyticsDataRequestParamsSchema, fetchFanslyAnalyticsData } from "./fetch-fansly-data";
 import { UpdateCredentialsFromFetchRequestBodySchema, updateFanslyCredentialsFromFetch } from "./operations/credentials";
 import { GenerateInsightsResponseSchema, generateInsights } from "./operations/insights";
@@ -15,14 +16,18 @@ export const analyticsRoutes = new Elysia({ prefix: "/api/analytics" })
     body: UpdateCredentialsFromFetchRequestBodySchema,
     response: t.Object({ success: t.Boolean() }),
   })
-  .post("/fetch/:postId", async ({ params: { postId }, body }) => {
+  .post("/fetch/by-id/:postMediaId", async ({ params: { postMediaId }, body }) => {
     const start = body.startDate ? new Date(body.startDate) : undefined;
     const end = body.endDate ? new Date(body.endDate) : undefined;
-    return fetchFanslyAnalyticsData(postId, start, end);
+    return fetchFanslyAnalyticsData(postMediaId, start, end);
   }, {
     params: FetchAnalyticsDataRequestParamsSchema,
     body: FetchAnalyticsDataRequestBodySchema,
-    response: t.Any(),
+    response: t.Object({
+      success: t.Boolean(),
+      postMediaId: t.String(),
+      datapoints: t.Number(),
+    }),
   })
   .get("/posts", async ({ query }) => getFanslyPostsWithAnalytics(
       query.sortBy,
@@ -50,7 +55,8 @@ export const analyticsRoutes = new Elysia({ prefix: "/api/analytics" })
     return { success: true };
   }, {
     response: t.Object({ success: t.Boolean() }),
-  });
+  })
+  .use(candidatesRoutes);
 
 
 

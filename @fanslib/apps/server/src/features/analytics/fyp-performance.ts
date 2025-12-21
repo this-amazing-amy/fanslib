@@ -1,5 +1,5 @@
 import { db } from "../../lib/db";
-import { Post } from "../posts/entity";
+import type { PostMedia } from "../posts/entity";
 import type { FanslyAnalyticsDatapoint } from "./entity";
 
 export type FypMetrics = {
@@ -46,21 +46,22 @@ const calculateUserPerformanceThreshold = async (
   averageEngagement: number;
 }> => {
   const dataSource = await db();
-  const postRepository = dataSource.getRepository(Post);
+  const postMediaRepository = dataSource.getRepository("PostMedia");
 
   const ninetyDaysAgo = new Date();
   ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
 
-  const historicalPosts = await postRepository
-    .createQueryBuilder("post")
-    .leftJoinAndSelect("post.fanslyAnalyticsAggregate", "analytics")
-    .leftJoinAndSelect("post.fanslyAnalyticsDatapoints", "datapoints")
+  const historicalPostMedia = await postMediaRepository
+    .createQueryBuilder("postMedia")
+    .leftJoinAndSelect("postMedia.post", "post")
+    .leftJoinAndSelect("postMedia.fanslyAnalyticsAggregate", "analytics")
+    .leftJoinAndSelect("postMedia.fanslyAnalyticsDatapoints", "datapoints")
     .where("post.channelId = :channelId", { channelId })
     .andWhere("post.createdAt >= :ninetyDaysAgo", { ninetyDaysAgo: ninetyDaysAgo.toISOString() })
     .andWhere("analytics.id IS NOT NULL")
     .getMany();
 
-  if (historicalPosts.length === 0) {
+  if (historicalPostMedia.length === 0) {
     return {
       averageViews: 100,
       averageVelocity: 10,
@@ -68,19 +69,19 @@ const calculateUserPerformanceThreshold = async (
     };
   }
 
-  const totalViews = historicalPosts.reduce((sum, post) => sum + (post.fanslyAnalyticsAggregate?.totalViews ?? 0), 0);
+  const totalViews = historicalPostMedia.reduce((sum, pm) => sum + (pm.fanslyAnalyticsAggregate?.totalViews ?? 0), 0);
 
-  const totalEngagement = historicalPosts.reduce((sum, post) => sum + (post.fanslyAnalyticsAggregate?.averageEngagementSeconds ?? 0), 0);
+  const totalEngagement = historicalPostMedia.reduce((sum, pm) => sum + (pm.fanslyAnalyticsAggregate?.averageEngagementSeconds ?? 0), 0);
 
-  const averageViews = totalViews / historicalPosts.length;
-  const averageEngagement = totalEngagement / historicalPosts.length;
+  const averageViews = totalViews / historicalPostMedia.length;
+  const averageEngagement = totalEngagement / historicalPostMedia.length;
 
-  const velocities = historicalPosts
-    .filter((post) => post.fanslyAnalyticsDatapoints && post.fanslyAnalyticsDatapoints.length > 0)
-    .map((post) => {
-      const timeSpanDays = calculateTimeSpanDays(post.fanslyAnalyticsDatapoints ?? []);
-      const postViews = post.fanslyAnalyticsAggregate?.totalViews ?? 0;
-      return timeSpanDays > 0 ? postViews / timeSpanDays : 0;
+  const velocities = historicalPostMedia
+    .filter((pm) => pm.fanslyAnalyticsDatapoints && pm.fanslyAnalyticsDatapoints.length > 0)
+    .map((pm) => {
+      const timeSpanDays = calculateTimeSpanDays(pm.fanslyAnalyticsDatapoints ?? []);
+      const pmViews = pm.fanslyAnalyticsAggregate?.totalViews ?? 0;
+      return timeSpanDays > 0 ? pmViews / timeSpanDays : 0;
     });
 
   const averageVelocity = velocities.length > 0 
@@ -95,7 +96,7 @@ const calculateUserPerformanceThreshold = async (
 };
 
 export const calculateFypPerformanceScore = async (
-  post: Post,
+  postMedia: PostMedia,
   datapoints: FanslyAnalyticsDatapoint[]
 ): Promise<number> => {
   if (datapoints.length === 0) {
@@ -111,7 +112,7 @@ export const calculateFypPerformanceScore = async (
   const timeSpanDays = calculateTimeSpanDays(sortedDatapoints);
   const viewVelocity = timeSpanDays > 0 ? totalViews / timeSpanDays : 0;
 
-  const userThreshold = await calculateUserPerformanceThreshold(post.channelId);
+  const userThreshold = await calculateUserPerformanceThreshold(postMedia.post.channelId);
 
   const viewScore = Math.min(100, (totalViews / Math.max(userThreshold.averageViews, 1)) * 50);
   const velocityScore = Math.min(
@@ -163,7 +164,7 @@ export const findPlateauDay = (datapoints: FanslyAnalyticsDatapoint[]): number =
 };
 
 export const calculateFypMetrics = async (
-  post: Post,
+  postMedia: PostMedia,
   datapoints: FanslyAnalyticsDatapoint[]
 ): Promise<FypMetrics> => {
   if (datapoints.length === 0) {
@@ -184,7 +185,7 @@ export const calculateFypMetrics = async (
   const sustainedGrowth = calculateSustainedGrowth(sortedDatapoints);
   const plateauPoint = findPlateauDay(sortedDatapoints);
 
-  const userThreshold = await calculateUserPerformanceThreshold(post.channelId);
+  const userThreshold = await calculateUserPerformanceThreshold(postMedia.post.channelId);
   const isUnderperforming = totalViews < userThreshold.averageViews * 0.5;
 
   return {

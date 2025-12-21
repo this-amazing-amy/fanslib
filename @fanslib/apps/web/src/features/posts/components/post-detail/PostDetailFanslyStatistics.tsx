@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import { useDebounce } from '~/hooks/useDebounce';
-import { useUpdatePostMutation } from '~/lib/queries/posts';
+import { useFetchFanslyDataMutation } from '~/lib/queries/analytics';
+import { useUpdatePostMediaMutation } from '~/lib/queries/posts';
 
 type Post = typeof PostWithRelationsSchema.static;
 
@@ -13,10 +14,44 @@ type PostDetailFanslyStatisticsProps = {
 };
 
 export const PostDetailFanslyStatistics = ({ post }: PostDetailFanslyStatisticsProps) => {
-  const [localStatisticsId, setLocalStatisticsId] = useState(post.fanslyStatisticsId ?? '');
-  const [isSaving, setIsSaving] = useState(false);
-  const [isFetching, setIsFetching] = useState(false);
-  const updatePostMutation = useUpdatePostMutation();
+  if (post.postMedia.length === 0) {
+    return (
+      <div className="text-sm text-base-content/70">
+        No media items in this post
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      {post.postMedia.map((postMedia, index) => (
+        <PostMediaStatisticsInput
+          key={postMedia.id}
+          postId={post.id}
+          postMedia={postMedia}
+          index={index}
+        />
+      ))}
+    </div>
+  );
+};
+
+type PostMediaStatisticsInputProps = {
+  postId: string;
+  postMedia: Post['postMedia'][number];
+  index: number;
+};
+
+const PostMediaStatisticsInput = ({
+  postId,
+  postMedia,
+  index,
+}: PostMediaStatisticsInputProps) => {
+  const localStatisticsId = postMedia.fanslyStatisticsId ?? '';
+  const [localValue, setLocalValue] = useState(localStatisticsId);
+
+  const updatePostMediaMutation = useUpdatePostMediaMutation();
+  const fetchAnalyticsMutation = useFetchFanslyDataMutation();
 
   const parseStatisticsId = (input: string): string | null => {
     if (/^\d{18}$/.test(input)) {
@@ -38,59 +73,40 @@ export const PostDetailFanslyStatistics = ({ post }: PostDetailFanslyStatisticsP
   const saveStatisticsId = async (value: string) => {
     const parsed = parseStatisticsId(value);
     
-    setIsSaving(true);
     try {
-      await updatePostMutation.mutateAsync({
-        id: post.id,
-        updates: {
-          fanslyStatisticsId: parsed,
-        },
+      await updatePostMediaMutation.mutateAsync({
+        postId,
+        postMediaId: postMedia.id,
+        fanslyStatisticsId: parsed,
       });
     } catch (error) {
       console.error('Failed to update statistics ID:', error);
-    } finally {
-      setIsSaving(false);
     }
   };
 
-  const debouncedSaveStatisticsId = useDebounce(saveStatisticsId, 1000);
+  const debouncedSave = useDebounce(saveStatisticsId, 1000);
 
-  const updateStatisticsId = (newValue: string) => {
-    setLocalStatisticsId(newValue);
-    debouncedSaveStatisticsId(newValue);
-  };
-
-  const fetchAnalytics = async () => {
-    if (!post.fanslyStatisticsId) {
-      return;
-    }
-
-    setIsFetching(true);
-    try {
-      console.log('Analytics fetch would happen here - requires backend API');
-    } catch (err) {
-      console.error('Failed to fetch analytics data:', err);
-    } finally {
-      setIsFetching(false);
-    }
-  };
+  const mediaName = postMedia.media?.name ?? 'Unknown';
 
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor="fansly-statistics-id" className="text-sm font-medium">
-        Fansly Statistics ID
+      <label htmlFor={`fansly-statistics-id-${postMedia.id}`} className="text-sm font-medium">
+        Media {index + 1}: {mediaName}
       </label>
       <div className="flex gap-2">
         <div className="relative flex-1">
           <Input
-            id="fansly-statistics-id"
+            id={`fansly-statistics-id-${postMedia.id}`}
             placeholder="Enter ID or fansly.com/statistics/... URL"
-            aria-label="Fansly statistics ID"
-            value={localStatisticsId}
-            onChange={updateStatisticsId}
-            isDisabled={isSaving}
+            aria-label={`Fansly statistics ID for ${mediaName}`}
+            value={localValue}
+            onChange={(value) => {
+              setLocalValue(value);
+              debouncedSave(value);
+            }}
+            isDisabled={updatePostMediaMutation.isPending}
           />
-          {isSaving && (
+          {updatePostMediaMutation.isPending && (
             <div className="absolute right-2 top-1/2 -translate-y-1/2">
               <div className="text-xs">Updating...</div>
             </div>
@@ -99,12 +115,22 @@ export const PostDetailFanslyStatistics = ({ post }: PostDetailFanslyStatisticsP
         <Button
           variant="secondary"
           size="icon"
-          onClick={fetchAnalytics}
-          isDisabled={isFetching || !post.fanslyStatisticsId}
+          onClick={() => fetchAnalyticsMutation.mutate({ postMediaId: postMedia.id })}
+          isDisabled={fetchAnalyticsMutation.isPending || !postMedia.fanslyStatisticsId}
         >
-          <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-4 w-4 ${fetchAnalyticsMutation.isPending ? 'animate-spin' : ''}`} />
         </Button>
       </div>
+      {postMedia.fanslyStatisticsId && (
+        <a
+          href={`https://fansly.com/statistics/${postMedia.fanslyStatisticsId}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs text-primary hover:underline"
+        >
+          View on Fansly →
+        </a>
+      )}
     </div>
   );
 };

@@ -1,7 +1,7 @@
 /* eslint-disable functional/no-classes */
 import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import type { Relation } from "typeorm";
-import { Post } from "../posts/entity";
+import type { PostMedia } from "../posts/entity";
 
 @Entity("fansly_analytics_datapoint")
 export class FanslyAnalyticsDatapoint {
@@ -17,12 +17,12 @@ export class FanslyAnalyticsDatapoint {
   @Column("int")
   interactionTime!: number;
 
-  @ManyToOne(() => Post, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "postId" })
-  post!: Relation<Post>;
+  @ManyToOne("PostMedia", { onDelete: "CASCADE" })
+  @JoinColumn({ name: "postMediaId" })
+  postMedia!: Relation<PostMedia>;
 
   @Column("varchar")
-  postId!: string;
+  postMediaId!: string;
 }
 
 @Entity("fansly_analytics_aggregate")
@@ -53,12 +53,12 @@ export class FanslyAnalyticsAggregate {
   @Column("datetime", { nullable: true })
   fypPlateauDetectedAt?: Date | undefined;
 
-  @OneToOne(() => Post, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "postId" })
-  post!: Relation<Post>;
+  @OneToOne("PostMedia", { onDelete: "CASCADE" })
+  @JoinColumn({ name: "postMediaId" })
+  postMedia!: Relation<PostMedia>;
 
   @Column("varchar")
-  postId!: string;
+  postMediaId!: string;
 }
 
 @Entity("analytics_fetch_history")
@@ -70,7 +70,7 @@ export class AnalyticsFetchHistory {
   timeframeIdentifier!: string;
 
   @Column("varchar")
-  postId!: string;
+  postMediaId!: string;
 
   @Column("datetime")
   fetchedAt!: Date;
@@ -81,9 +81,9 @@ export class AnalyticsFetchHistory {
   @Column("varchar")
   timeframeType!: "rolling" | "fixed";
 
-  @ManyToOne(() => Post, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "postId" })
-  post!: Relation<Post>;
+  @ManyToOne("PostMedia", { onDelete: "CASCADE" })
+  @JoinColumn({ name: "postMediaId" })
+  postMedia!: Relation<PostMedia>;
 }
 
 

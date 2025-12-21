@@ -2,6 +2,8 @@ import type { GetFanslyPostsWithAnalyticsQuerySchema } from '@fanslib/server/sch
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { eden } from '../api/eden';
 
+export type CandidateStatus = 'pending' | 'matched' | 'ignored' | 'no_match';
+
 export const useAnalyticsPostsQuery = (params?: typeof GetFanslyPostsWithAnalyticsQuerySchema.static) =>
   useQuery({
     queryKey: ['analytics', 'posts', params],
@@ -11,6 +13,70 @@ export const useAnalyticsPostsQuery = (params?: typeof GetFanslyPostsWithAnalyti
       return data;
     },
   });
+
+export const useCandidatesQuery = (status?: CandidateStatus) =>
+  useQuery({
+    queryKey: ['analytics', 'candidates', status],
+    queryFn: async () => {
+      const { data, error } = await eden.api.analytics.candidates.get({
+        query: {
+          status,
+          limit: 100,
+        },
+      });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+export const useConfirmMatchMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ candidateId, postMediaId }: { candidateId: string; postMediaId: string }) => {
+      const { data, error } = await eden.api.analytics.candidates['by-id']({ id: candidateId }).match.post({
+        postMediaId,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['analytics', 'candidates'] });
+    },
+  });
+};
+
+export const useIgnoreCandidateMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (candidateId: string) => {
+      const { data, error } = await eden.api.analytics.candidates['by-id']({ id: candidateId }).ignore.post();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['analytics', 'candidates'] });
+    },
+  });
+};
+
+export const useBulkConfirmCandidatesMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (threshold: number) => {
+      const { data, error } = await eden.api.analytics.candidates['bulk-confirm'].post({
+        threshold,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['analytics', 'candidates'] });
+    },
+  });
+};
 
 export const useHashtagAnalyticsQuery = () =>
   useQuery({
@@ -64,24 +130,24 @@ export const useFetchFanslyDataMutation = () => {
 
   return useMutation({
     mutationFn: async ({
-      postId,
+      postMediaId,
       startDate,
       endDate,
     }: {
-      postId: string;
+      postMediaId: string;
       startDate?: string;
       endDate?: string;
     }) => {
-      const { data, error } = await eden.api.analytics.fetch({ postId: postId }).post({
+      const { data, error } = await eden.api.analytics.fetch['by-id']({ postMediaId }).post({
         startDate,
         endDate,
       });
       if (error) throw error;
       return data;
     },
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['analytics', 'posts'] });
-      queryClient.invalidateQueries({ queryKey: ['posts', variables.postId] });
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
     },
   });
 };

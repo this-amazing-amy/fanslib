@@ -1,12 +1,12 @@
 import { t } from "elysia";
 import { db } from "../../lib/db";
 import type { FanslyAnalyticsResponse } from "../../lib/fansly-analytics/fansly-analytics-response";
-import { Post } from "../posts/entity";
+import { PostMedia } from "../posts/entity";
 import { loadFanslyCredentials } from "../settings/operations/credentials/load";
-import { addDatapointsToPost } from "./operations/post-analytics/add-datapoints";
+import { addDatapointsToPostMedia } from "./operations/post-analytics/add-datapoints";
 
 export const FetchAnalyticsDataRequestParamsSchema = t.Object({
-  postId: t.String(),
+  postMediaId: t.String(),
 });
 
 export const FetchAnalyticsDataRequestBodySchema = t.Object({
@@ -16,19 +16,25 @@ export const FetchAnalyticsDataRequestBodySchema = t.Object({
 
 const FANSLY_API_URL = "https://apiv3.fansly.com/api/v1/it/moie/statsnew";
 
+type FetchAnalyticsResult = {
+  success: boolean;
+  postMediaId: string;
+  datapoints: number;
+};
+
 export const fetchFanslyAnalyticsData = async (
-  postId: string,
+  postMediaId: string,
   analyticsStartDate?: Date,
   analyticsEndDate?: Date
-): Promise<FanslyAnalyticsResponse> => {
+): Promise<FetchAnalyticsResult> => {
   const dataSource = await db();
-  const postRepository = dataSource.getRepository(Post);
-  const post = await postRepository.findOneOrFail({
-    where: { id: postId },
+  const postMediaRepository = dataSource.getRepository(PostMedia);
+  const postMedia = await postMediaRepository.findOneOrFail({
+    where: { id: postMediaId },
   });
 
-  if (!post.fanslyStatisticsId) {
-    throw new Error("Post does not have a valid Fansly statistics ID");
+  if (!postMedia.fanslyStatisticsId) {
+    throw new Error("PostMedia does not have a valid Fansly statistics ID");
   }
 
   const credentials = await loadFanslyCredentials();
@@ -53,7 +59,7 @@ export const fetchFanslyAnalyticsData = async (
   const period = 86400000;
 
   const url = new URL(FANSLY_API_URL);
-  url.searchParams.append("mediaOfferId", post.fanslyStatisticsId);
+  url.searchParams.append("mediaOfferId", postMedia.fanslyStatisticsId);
   url.searchParams.append("beforeDate", beforeDate.toString());
   url.searchParams.append("afterDate", afterDate.toString());
   url.searchParams.append("period", period.toString());
@@ -92,9 +98,13 @@ export const fetchFanslyAnalyticsData = async (
 
     const data: FanslyAnalyticsResponse = await response.json();
 
-    await addDatapointsToPost(postId, data);
+    await addDatapointsToPostMedia(postMediaId, data);
 
-    return data;
+    return {
+      success: true,
+      postMediaId,
+      datapoints: data.response.dataset.datapoints.length,
+    };
 };
 
 
