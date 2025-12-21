@@ -1,8 +1,9 @@
 import { t } from "elysia";
 import { db } from "../../../../lib/db";
 import { ChannelSchema } from "../../../channels/entity";
-import { MediaSchema } from "../../../library/entity";
-import { Post, PostMediaSchema, PostSchema } from "../../entity";
+import { MediaSchema } from "../../../library/schema";
+import { Post } from "../../entity";
+import { PostMediaSchema, PostSchema } from "../../schema";
 
 export const FetchPostsByChannelRequestParamsSchema = t.Object({
   channelId: t.String(),

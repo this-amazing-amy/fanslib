@@ -1,6 +1,7 @@
 import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { PostMedia, PostMediaSchema } from "../../entity";
+import { PostMedia } from "../../entity";
+import { PostMediaSchema } from "../../schema";
 
 export const UpdatePostMediaRequestParamsSchema = t.Object({
   id: t.String(),

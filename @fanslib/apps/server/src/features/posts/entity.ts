@@ -1,4 +1,3 @@
-import { t } from "elysia";
 import type { Relation } from "typeorm";
 import {
   Column,
@@ -15,7 +14,7 @@ import type { FanslyAnalyticsAggregate, FanslyAnalyticsDatapoint } from "../anal
 import type { FanslyMediaCandidate } from "../analytics/candidate-entity";
 import { Channel } from "../channels/entity";
 import { ContentSchedule } from "../content-schedules/entity";
-import { Media, MediaSchema } from "../library/entity";
+import { Media } from "../library/entity";
 import { Subreddit } from "../subreddits/entity";
 
 export type PostStatus = "draft" | "ready" | "scheduled" | "posted";
@@ -132,40 +131,4 @@ export class PostMedia {
 
 export type PostWithoutRelations = Omit<Post, "channel" | "media" | "subreddit">;
 
-export const PostStatusSchema = t.Union([
-  t.Literal('draft'),
-  t.Literal('ready'),
-  t.Literal('scheduled'),
-  t.Literal('posted'),
-]);
-
-export const PostMediaSchema = t.Object({
-  id: t.String(),
-  order: t.Number(),
-  isFreePreview: t.Boolean(),
-  fanslyStatisticsId: t.Nullable(t.String()),
-  createdAt: t.Date(),
-  updatedAt: t.Date(),
-});
-
-export const PostMediaWithMediaSchema = t.Composite([
-  PostMediaSchema,
-  t.Object({
-    media: MediaSchema,
-  }),
-]);
-
-export const PostSchema = t.Object({
-  id: t.String(),
-  createdAt: t.String(),
-  updatedAt: t.String(),
-  scheduleId: t.Nullable(t.String()),
-  caption: t.Nullable(t.String()),
-  date: t.String(),
-  url: t.Nullable(t.String()),
-  fypRemovedAt: t.Nullable(t.Date()),
-  postponeBlueskyDraftedAt: t.Nullable(t.Date()),
-  status: PostStatusSchema,
-  channelId: t.String(),
-  subredditId: t.Nullable(t.String()),
-});
+export { PostStatusSchema, PostMediaSchema, PostMediaWithMediaSchema, PostSchema } from "./schema";

@@ -28,7 +28,7 @@ export {
 } from './features/library/operations/scan/scan';
 
 // Media entities
-export { MediaSchema, MediaTypeSchema } from './features/library/entity';
+export { MediaSchema, MediaTypeSchema } from './features/library/schema';
 
 // Media filters
 export {
@@ -99,7 +99,7 @@ export {
 } from './features/posts/operations/post-media/remove';
 
 // Posts entities
-export { PostMediaSchema, PostMediaWithMediaSchema, PostSchema, PostStatusSchema } from './features/posts/entity';
+export { PostMediaSchema, PostMediaWithMediaSchema, PostSchema, PostStatusSchema } from './features/posts/schema';
 
 // Posts filters
 export { PostFiltersSchema } from './features/posts/schemas/post-filters';

@@ -1,9 +1,10 @@
 import { t } from "elysia";
 import { db } from "../../../../lib/db";
 import { ChannelSchema } from "../../../channels/entity";
-import { PostMediaSchema, PostSchema } from "../../../posts/entity";
+import { PostMediaSchema, PostSchema } from "../../../posts/schema";
 import { SubredditSchema } from "../../../subreddits/entity";
-import { Media, MediaSchema } from "../../entity";
+import { Media } from "../../entity";
+import { MediaSchema } from "../../schema";
 
 export const FetchMediaByPathRequestParamsSchema = t.Object({
   path: t.String(),

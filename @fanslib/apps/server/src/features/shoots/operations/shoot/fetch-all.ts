@@ -1,7 +1,7 @@
 import { t } from "elysia";
 import { db } from "../../../../lib/db";
 import { paginatedResponseSchema } from "../../../../lib/pagination";
-import { MediaSchema } from "../../../library/entity";
+import { MediaSchema } from "../../../library/schema";
 import { Shoot, ShootSchema } from "../../entity";
 
 export const ShootFiltersSchema = t.Object({

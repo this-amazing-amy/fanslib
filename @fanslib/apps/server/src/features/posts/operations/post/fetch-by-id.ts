@@ -2,9 +2,10 @@ import { t } from "elysia";
 import { db } from "../../../../lib/db";
 import { ChannelSchema } from "../../../channels/entity";
 import { ContentScheduleSchema } from "../../../content-schedules/entity";
-import { MediaSchema } from "../../../library/entity";
+import { MediaSchema } from "../../../library/schema";
 import { SubredditSchema } from "../../../subreddits/entity";
-import { Post, PostMediaSchema, PostSchema } from "../../entity";
+import { Post } from "../../entity";
+import { PostMediaSchema, PostSchema } from "../../schema";
 
 export const FetchPostByIdRequestParamsSchema = t.Object({
   id: t.String(),

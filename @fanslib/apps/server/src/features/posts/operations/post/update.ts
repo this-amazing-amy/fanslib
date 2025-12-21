@@ -1,6 +1,7 @@
 import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { Post, PostSchema } from "../../entity";
+import { Post } from "../../entity";
+import { PostSchema } from "../../schema";
 import { fetchPostById, FetchPostByIdResponseSchema } from "./fetch-by-id";
 
 export const UpdatePostRequestParamsSchema = t.Object({

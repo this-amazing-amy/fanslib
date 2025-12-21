@@ -1,7 +1,8 @@
 import { t } from "elysia";
 import { In } from "typeorm";
 import { db } from "../../../../lib/db";
-import { Media, MediaSchema } from "../../../library/entity";
+import { Media } from "../../../library/entity";
+import { MediaSchema } from "../../../library/schema";
 import { Shoot, ShootSchema } from "../../entity";
 
 export const UpdateShootRequestParamsSchema = t.Object({

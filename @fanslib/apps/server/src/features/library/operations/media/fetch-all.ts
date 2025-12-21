@@ -2,7 +2,8 @@
 import { t } from "elysia";
 import { db } from "../../../../lib/db";
 import { paginatedResponseSchema } from "../../../../lib/pagination";
-import { Media, MediaSchema } from "../../entity";
+import { Media } from "../../entity";
+import { MediaSchema } from "../../schema";
 import { buildFilterGroupQuery } from "../../filter-helpers";
 import { MediaFilterSchema } from "../../schemas/media-filter";
 import { MediaSortSchema } from "../../schemas/media-sort";

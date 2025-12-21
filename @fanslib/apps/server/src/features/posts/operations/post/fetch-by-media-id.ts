@@ -2,8 +2,9 @@ import { t } from "elysia";
 import { In } from "typeorm";
 import { db } from "../../../../lib/db";
 import { ChannelSchema, ChannelTypeSchema } from "../../../channels/entity";
-import { MediaSchema } from "../../../library/entity";
-import { Post, PostMediaSchema, PostSchema } from "../../entity";
+import { MediaSchema } from "../../../library/schema";
+import { Post } from "../../entity";
+import { PostMediaSchema, PostSchema } from "../../schema";
 
 export const FetchPostsByMediaIdRequestParamsSchema = t.Object({
   mediaId: t.String(),

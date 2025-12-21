@@ -4,7 +4,8 @@ import { db } from "../../../../lib/db";
 import { CHANNEL_TYPES } from "../../../channels/channelTypes";
 import { Channel } from "../../../channels/entity";
 import { Media } from "../../../library/entity";
-import { Post, PostMedia, PostSchema } from "../../entity";
+import { Post, PostMedia } from "../../entity";
+import { PostSchema } from "../../schema";
 import { fetchPostById, FetchPostByIdResponseSchema } from "./fetch-by-id";
 
 export const CreatePostRequestBodySchema = t.Intersect([

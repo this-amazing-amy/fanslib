@@ -1,5 +1,5 @@
 import { t } from "elysia";
-import { MediaSchema } from "../../library/entity";
+import { MediaSchema } from "../../library/schema";
 
 // FanslyPostWithAnalytics
 export const FanslyPostWithAnalyticsSchema = t.Object({

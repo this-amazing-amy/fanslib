@@ -1,5 +1,5 @@
 import { t } from "elysia";
-import { PostStatusSchema } from "../entity";
+import { PostStatusSchema } from "../schema";
 
 export const PostFiltersSchema = t.Object({
   search: t.Optional(t.String()),
