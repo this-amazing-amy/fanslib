@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router';
 import { ExternalLink, Plus, Trash2Icon } from 'lucide-react';
 import { useState } from 'react';
 import { MediaView } from '~/components/MediaView';
+import { RevealInFinderButton } from '~/components/RevealInFinderButton';
 import { Button } from '~/components/ui/Button';
 import {
   Dialog,
@@ -13,7 +14,7 @@ import {
   DialogTrigger,
 } from '~/components/ui/Dialog';
 import { MediaSelectionProvider } from '~/contexts/MediaSelectionContext';
-import { MediaSelection } from '~/features/library/components/MediaSelection';
+import { CombinedMediaSelection } from '~/features/library/components/CombinedMediaSelection';
 import { cn } from '~/lib/cn';
 import { useAddMediaToPostMutation, useRemoveMediaFromPostMutation } from '~/lib/queries/posts';
 
@@ -90,6 +91,10 @@ export const PostDetailMedia = ({ post }: PostDetailMediaProps) => {
             >
               <ExternalLink className="h-4 w-4" />
             </Link>
+            <RevealInFinderButton
+              relativePath={postMedia.media.relativePath}
+              className="backdrop-blur-sm bg-base-100/80 h-8 w-8"
+            />
             <Button
               variant={confirmingDelete === postMedia.id ? 'error' : 'ghost'}
               size="icon"
@@ -138,8 +143,8 @@ export const PostDetailMedia = ({ post }: PostDetailMediaProps) => {
                   <DialogHeader>
                     <DialogTitle>Add Media to Post</DialogTitle>
                   </DialogHeader>
-                  <div className="flex-1 overflow-hidden">
-                    <MediaSelection
+                  <div className="flex-1 min-h-0 overflow-hidden">
+                    <CombinedMediaSelection
                       selectedMedia={selectedMedia}
                       onMediaSelect={handleMediaSelect}
                       excludeMediaIds={existingMediaIds}

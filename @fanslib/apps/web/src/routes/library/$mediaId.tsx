@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
 import { MediaView } from '~/components/MediaView';
+import { RevealInFinderButton } from '~/components/RevealInFinderButton';
 import { MediaDetailDeleteButton } from '~/components/media-detail/MediaDetailDeleteButton';
 import { MediaDetailMetadata } from '~/components/media-detail/MediaDetailMetadata';
 import { MediaDetailNavigation } from '~/components/media-detail/MediaDetailNavigation';
@@ -49,6 +50,7 @@ const MediaRoute = () => {
             <div className="flex justify-between">
               <h1 className="text-3xl font-semibold tracking-tight">{media.name}</h1>
               <div className="flex gap-2">
+                <RevealInFinderButton relativePath={media.relativePath} />
                 <MediaDetailDeleteButton id={media.id} mediaType={media.type} />
               </div>
             </div>

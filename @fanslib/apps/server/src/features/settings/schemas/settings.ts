@@ -10,4 +10,5 @@ export const SettingsSchema = t.Object({
   sfwDefaultMode: t.Union([t.Literal("off"), t.Literal("on"), t.Literal("remember")]),
   sfwHoverDelay: t.Number(),
   backgroundJobsServerUrl: t.Optional(t.String()),
+  libraryPath: t.Optional(t.String()),
 });
