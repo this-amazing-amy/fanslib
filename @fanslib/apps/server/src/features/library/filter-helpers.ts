@@ -16,6 +16,9 @@ export const buildFilterItemQuery = (
 
   switch (item.type) {
     case "channel":
+      if (!item.id || item.id === "") {
+        return;
+      }
       queryBuilder.andWhere(
         `${operator}EXISTS (
           SELECT 1 FROM post_media pm
@@ -28,6 +31,9 @@ export const buildFilterItemQuery = (
       break;
 
     case "subreddit":
+      if (!item.id || item.id === "") {
+        return;
+      }
       queryBuilder.andWhere(
         `${operator}EXISTS (
           SELECT 1 FROM post_media pm
@@ -41,6 +47,9 @@ export const buildFilterItemQuery = (
       break;
 
     case "tag":
+      if (!item.id || item.id === "") {
+        return;
+      }
       queryBuilder.andWhere(
         `${operator}EXISTS (
           SELECT 1 FROM media_tag mt
@@ -52,6 +61,22 @@ export const buildFilterItemQuery = (
       break;
 
     case "shoot":
+      // Empty id means "All shoots"
+      // - Include: do nothing (allow all media)
+      // - Exclude: show only media NOT in any shoot
+      if (!item.id || item.id === "") {
+        if (!include) {
+          // Exclude "All shoots" = show media not in any shoot
+          queryBuilder.andWhere(
+            `NOT EXISTS (
+              SELECT 1 FROM shoot_media sm
+              WHERE sm.media_id = media.id
+            )`
+          );
+        }
+        // Include "All shoots" = do nothing (no filter)
+        return;
+      }
       queryBuilder.andWhere(
         `${operator}EXISTS (
           SELECT 1 FROM shoot_media sm

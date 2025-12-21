@@ -18,15 +18,24 @@ export const ShootFilterSelector = ({ value, onChange }: ShootFilterSelectorProp
   const [open, setOpen] = useState(false);
   const { data: shoots, isLoading } = useShootsQuery();
 
+  // Normalize empty string to undefined for consistent handling
+  const normalizedValue = value && value !== "" ? value : undefined;
+
   const selectedShoot = useMemo(
-    () => (shoots?.items as Shoot[] | undefined)?.find((shoot: Shoot) => shoot.id === value),
-    [shoots, value]
+    () => (shoots?.items as Shoot[] | undefined)?.find((shoot: Shoot) => shoot.id === normalizedValue),
+    [shoots, normalizedValue]
   );
 
-  const displayValue = selectedShoot ? selectedShoot.name : "Select shoot...";
+  const displayValue = normalizedValue
+    ? (selectedShoot ? selectedShoot.name : "Select shoot...")
+    : "All shoots";
 
   const selectShoot = (shootId: string) => {
-    onChange(shootId);
+    // Only call onChange if the value actually changed
+    const newValue = shootId === "" ? "" : shootId;
+    if (newValue !== (value ?? "")) {
+      onChange(newValue);
+    }
     setOpen(false);
   };
 
@@ -49,6 +58,18 @@ export const ShootFilterSelector = ({ value, onChange }: ShootFilterSelectorProp
           {!isLoading && !hasShoots ? <CommandEmpty>No shoot found.</CommandEmpty> : null}
           <div className="max-h-80 overflow-y-auto">
             <CommandGroup>
+              <CommandItem
+                value="All shoots"
+                onSelect={() => selectShoot("")}
+              >
+                <Check
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    !normalizedValue ? "opacity-100" : "opacity-0"
+                  )}
+                />
+                All shoots
+              </CommandItem>
               {shootItems.map((shoot: Shoot) => (
                 <CommandItem
                   key={shoot.id}
@@ -58,7 +79,7 @@ export const ShootFilterSelector = ({ value, onChange }: ShootFilterSelectorProp
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === shoot.id ? "opacity-100" : "opacity-0"
+                      normalizedValue === shoot.id ? "opacity-100" : "opacity-0"
                     )}
                   />
                   {shoot.name}
