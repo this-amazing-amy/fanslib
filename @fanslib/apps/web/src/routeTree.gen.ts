@@ -31,6 +31,7 @@ import { Route as PostsPostIdRouteImport } from './routes/posts/$postId'
 import { Route as LibraryMediaIdRouteImport } from './routes/library/$mediaId'
 import { Route as ContentLibraryRouteImport } from './routes/content/library'
 import { Route as ContentChannelsRouteImport } from './routes/content/channels'
+import { Route as AnalyticsMatchingRouteImport } from './routes/analytics/matching'
 import { Route as ContentLibraryShootsRouteImport } from './routes/content/library/shoots'
 import { Route as ContentLibraryMediaRouteImport } from './routes/content/library/media'
 import { Route as ContentLibraryMediaIndexRouteImport } from './routes/content/library/media/index'
@@ -146,6 +147,11 @@ const ContentChannelsRoute = ContentChannelsRouteImport.update({
   path: '/channels',
   getParentRoute: () => ContentRoute,
 } as any)
+const AnalyticsMatchingRoute = AnalyticsMatchingRouteImport.update({
+  id: '/analytics/matching',
+  path: '/analytics/matching',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContentLibraryShootsRoute = ContentLibraryShootsRouteImport.update({
   id: '/shoots',
   path: '/shoots',
@@ -177,6 +183,7 @@ export interface FileRoutesByFullPath {
   '/orchestrate': typeof OrchestrateRoute
   '/settings': typeof SettingsRouteWithChildren
   '/subreddits': typeof SubredditsRoute
+  '/analytics/matching': typeof AnalyticsMatchingRoute
   '/content/channels': typeof ContentChannelsRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
   '/library/$mediaId': typeof LibraryMediaIdRoute
@@ -204,6 +211,7 @@ export interface FileRoutesByTo {
   '/hashtags': typeof HashtagsRoute
   '/orchestrate': typeof OrchestrateRoute
   '/subreddits': typeof SubredditsRoute
+  '/analytics/matching': typeof AnalyticsMatchingRoute
   '/content/channels': typeof ContentChannelsRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
   '/library/$mediaId': typeof LibraryMediaIdRoute
@@ -232,6 +240,7 @@ export interface FileRoutesById {
   '/orchestrate': typeof OrchestrateRoute
   '/settings': typeof SettingsRouteWithChildren
   '/subreddits': typeof SubredditsRoute
+  '/analytics/matching': typeof AnalyticsMatchingRoute
   '/content/channels': typeof ContentChannelsRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
   '/library/$mediaId': typeof LibraryMediaIdRoute
@@ -262,6 +271,7 @@ export interface FileRouteTypes {
     | '/orchestrate'
     | '/settings'
     | '/subreddits'
+    | '/analytics/matching'
     | '/content/channels'
     | '/content/library'
     | '/library/$mediaId'
@@ -289,6 +299,7 @@ export interface FileRouteTypes {
     | '/hashtags'
     | '/orchestrate'
     | '/subreddits'
+    | '/analytics/matching'
     | '/content/channels'
     | '/content/library'
     | '/library/$mediaId'
@@ -316,6 +327,7 @@ export interface FileRouteTypes {
     | '/orchestrate'
     | '/settings'
     | '/subreddits'
+    | '/analytics/matching'
     | '/content/channels'
     | '/content/library'
     | '/library/$mediaId'
@@ -345,6 +357,7 @@ export interface RootRouteChildren {
   OrchestrateRoute: typeof OrchestrateRoute
   SettingsRoute: typeof SettingsRouteWithChildren
   SubredditsRoute: typeof SubredditsRoute
+  AnalyticsMatchingRoute: typeof AnalyticsMatchingRoute
   LibraryMediaIdRoute: typeof LibraryMediaIdRoute
   PostsPostIdRoute: typeof PostsPostIdRoute
   ShootsShootIdRoute: typeof ShootsShootIdRoute
@@ -509,6 +522,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContentChannelsRouteImport
       parentRoute: typeof ContentRoute
     }
+    '/analytics/matching': {
+      id: '/analytics/matching'
+      path: '/analytics/matching'
+      fullPath: '/analytics/matching'
+      preLoaderRoute: typeof AnalyticsMatchingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/content/library/shoots': {
       id: '/content/library/shoots'
       path: '/shoots'
@@ -612,6 +632,7 @@ const rootRouteChildren: RootRouteChildren = {
   OrchestrateRoute: OrchestrateRoute,
   SettingsRoute: SettingsRouteWithChildren,
   SubredditsRoute: SubredditsRoute,
+  AnalyticsMatchingRoute: AnalyticsMatchingRoute,
   LibraryMediaIdRoute: LibraryMediaIdRoute,
   PostsPostIdRoute: PostsPostIdRoute,
   ShootsShootIdRoute: ShootsShootIdRoute,
