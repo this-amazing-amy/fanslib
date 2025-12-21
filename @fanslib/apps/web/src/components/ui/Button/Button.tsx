@@ -24,7 +24,7 @@ export const Button = ({
   const variantClasses = {
     primary: 'btn-primary',
     secondary: 'btn-secondary',
-    ghost: 'btn-ghost hover:bg-primary/20 hover:ring-2 hover:ring-primary',
+    ghost: 'btn-ghost border-transparent hover:border-primary hover:bg-primary/20',
     error: 'btn-error',
     success: 'btn-success',
     warning: 'btn-warning',
