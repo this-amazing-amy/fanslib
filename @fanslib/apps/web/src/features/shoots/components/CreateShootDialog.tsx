@@ -89,19 +89,7 @@ export const CreateShootDialog = ({
     if (hasSetInitialValues.current || selectedMedia.length === 0) return;
     hasSetInitialValues.current = true;
 
-    // First check file creation dates
-    const allSameCreationDay = selectedMedia.every(
-      (media, i) => i === 0 || isSameDay(media.fileCreationDate, selectedMedia[0]?.fileCreationDate ?? new Date())
-    );
-
-    if (allSameCreationDay) {
-      const mediaDate = new Date(selectedMedia[0]?.fileCreationDate ?? new Date());
-      setShootDate(mediaDate);
-      setShootName(`New Shoot - ${format(mediaDate, "PPP")}`);
-      return;
-    }
-
-    // If creation dates don't match, try to extract dates from filenames
+    // First try to extract dates from filenames
     const datesFromFilenames = selectedMedia
       .map((media) => extractDateFromFilename(media.name))
       .filter((date): date is Date => date !== null);
@@ -115,7 +103,19 @@ export const CreateShootDialog = ({
         const mediaDate = datesFromFilenames[0] ?? new Date();
         setShootDate(mediaDate);
         setShootName(`New Shoot - ${format(mediaDate, "PPP")}`);
+        return;
       }
+    }
+
+    // If filename extraction fails, fall back to file creation dates
+    const allSameCreationDay = selectedMedia.every(
+      (media, i) => i === 0 || isSameDay(media.fileCreationDate, selectedMedia[0]?.fileCreationDate ?? new Date())
+    );
+
+    if (allSameCreationDay) {
+      const mediaDate = new Date(selectedMedia[0]?.fileCreationDate ?? new Date());
+      setShootDate(mediaDate);
+      setShootName(`New Shoot - ${format(mediaDate, "PPP")}`);
     }
   }, [open, selectedMedia]);
 
