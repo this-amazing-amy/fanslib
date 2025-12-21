@@ -498,3 +498,45 @@ export {
 export {
   ActionableInsightSchema, ActionableInsightTypeSchema, ContentThemeInsightSchema, HashtagInsightSchema, PostTimingInsightSchema, VideoLengthInsightSchema
 } from './features/analytics/schemas/insights';
+
+// Analytics Candidates schemas
+export {
+  FetchAllCandidatesRequestQuerySchema,
+  FetchAllCandidatesResponseSchema
+} from './features/analytics/candidates/operations/fetch';
+
+export {
+  CreateCandidatesRequestBodySchema,
+  CreateCandidatesResponseSchema
+} from './features/analytics/candidates/operations/create';
+
+export {
+  ConfirmMatchRequestBodySchema,
+  ConfirmMatchRequestParamsSchema,
+  ConfirmMatchResponseSchema
+} from './features/analytics/candidates/operations/match';
+
+export {
+  IgnoreCandidateRequestParamsSchema,
+  IgnoreCandidateResponseSchema
+} from './features/analytics/candidates/operations/ignore';
+
+export {
+  BulkConfirmCandidatesRequestBodySchema,
+  BulkConfirmCandidatesResponseSchema
+} from './features/analytics/candidates/operations/bulk-confirm';
+
+export {
+  FetchCandidateSuggestionsRequestParamsSchema,
+  FetchCandidateSuggestionsResponseSchema
+} from './features/analytics/candidates/operations/suggestions';
+
+// Analytics Candidates entities
+export {
+  CandidateStatusSchema,
+  CreateCandidateSchema,
+  FanslyMediaCandidateSchema,
+  FanslyMediaTypeSchema,
+  MatchMethodSchema,
+  MatchSuggestionSchema
+} from './features/analytics/candidate-entity';

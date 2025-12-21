@@ -1,25 +1,36 @@
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
 import { PostMedia } from "../../../posts/entity";
-import { FanslyMediaCandidate } from "../../candidate-entity";
+import { FanslyMediaCandidate, FanslyMediaCandidateSchema } from "../../candidate-entity";
+
+export const ConfirmMatchRequestParamsSchema = t.Object({
+  id: t.String(),
+});
+
+export const ConfirmMatchRequestBodySchema = t.Object({
+  postMediaId: t.String(),
+});
+
+export const ConfirmMatchResponseSchema = FanslyMediaCandidateSchema;
 
 export const confirmMatch = async (
-  candidateId: string,
-  postMediaId: string
-): Promise<FanslyMediaCandidate> => {
+  id: string,
+  body: typeof ConfirmMatchRequestBodySchema.static
+): Promise<typeof ConfirmMatchResponseSchema.static> => {
   const dataSource = await db();
   const candidateRepository = dataSource.getRepository(FanslyMediaCandidate);
   const postMediaRepository = dataSource.getRepository(PostMedia);
 
   const candidate = await candidateRepository.findOneOrFail({
-    where: { id: candidateId },
+    where: { id },
   });
 
   const postMedia = await postMediaRepository.findOneOrFail({
-    where: { id: postMediaId },
+    where: { id: body.postMediaId },
   });
 
   candidate.status = "matched";
-  candidate.matchedPostMediaId = postMediaId;
+  candidate.matchedPostMediaId = body.postMediaId;
   candidate.matchedAt = new Date();
   if (!candidate.matchMethod) {
     candidate.matchMethod = "manual";
@@ -32,4 +43,3 @@ export const confirmMatch = async (
 
   return candidate;
 };
-

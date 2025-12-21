@@ -1,18 +1,25 @@
 import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { CandidateStatusSchema, FanslyMediaCandidate } from "../../candidate-entity";
+import { CandidateStatusSchema, FanslyMediaCandidate, FanslyMediaCandidateSchema } from "../../candidate-entity";
 
-export const GetCandidatesQuerySchema = t.Object({
+export const FetchAllCandidatesRequestQuerySchema = t.Object({
   status: t.Optional(CandidateStatusSchema),
-  limit: t.Optional(t.Number()),
-  offset: t.Optional(t.Number()),
+  limit: t.Optional(t.Numeric()),
+  offset: t.Optional(t.Numeric()),
 });
 
-export const fetchCandidates = async (
-  status?: typeof CandidateStatusSchema.static,
-  limit = 50,
-  offset = 0
-): Promise<{ items: FanslyMediaCandidate[]; total: number }> => {
+export const FetchAllCandidatesResponseSchema = t.Object({
+  items: t.Array(FanslyMediaCandidateSchema),
+  total: t.Number(),
+});
+
+export const fetchAllCandidates = async (
+  params?: typeof FetchAllCandidatesRequestQuerySchema.static
+): Promise<typeof FetchAllCandidatesResponseSchema.static> => {
+  const status = params?.status;
+  const limit = params?.limit ?? 50;
+  const offset = params?.offset ?? 0;
+
   const dataSource = await db();
   const candidateRepository = dataSource.getRepository(FanslyMediaCandidate);
 
@@ -32,4 +39,3 @@ export const fetchCandidates = async (
 
   return { items, total };
 };
-

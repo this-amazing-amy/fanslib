@@ -114,10 +114,6 @@ export const CreateCandidateSchema = t.Object({
   mediaType: FanslyMediaTypeSchema,
 });
 
-export const CreateCandidatesRequestSchema = t.Object({
-  items: t.Array(CreateCandidateSchema),
-});
-
 export const MatchSuggestionSchema = t.Object({
   postMediaId: t.String(),
   confidence: t.Number(),

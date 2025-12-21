@@ -3,13 +3,18 @@ import { db } from "../../../../lib/db";
 import { FanslyMediaCandidate } from "../../candidate-entity";
 import { confirmMatch } from "./match";
 
-export const BulkConfirmRequestSchema = t.Object({
+export const BulkConfirmCandidatesRequestBodySchema = t.Object({
   threshold: t.Number(),
 });
 
-export const bulkConfirmMatches = async (
-  threshold: number
-): Promise<{ confirmed: number; failed: number }> => {
+export const BulkConfirmCandidatesResponseSchema = t.Object({
+  confirmed: t.Number(),
+  failed: t.Number(),
+});
+
+export const bulkConfirmCandidates = async (
+  body: typeof BulkConfirmCandidatesRequestBodySchema.static
+): Promise<typeof BulkConfirmCandidatesResponseSchema.static> => {
   const dataSource = await db();
   const candidateRepository = dataSource.getRepository(FanslyMediaCandidate);
 
@@ -20,7 +25,7 @@ export const bulkConfirmMatches = async (
   });
 
   const highConfidenceCandidates = candidates.filter(
-    (c) => c.matchConfidence !== null && c.matchConfidence >= threshold && c.matchMethod !== null
+    (c) => c.matchConfidence !== null && c.matchConfidence >= body.threshold && c.matchMethod !== null
   );
 
   let confirmed = 0;
@@ -34,7 +39,7 @@ export const bulkConfirmMatches = async (
         );
         if (suggestions.length > 0 && suggestions[0]) {
           try {
-            await confirmMatch(candidate.id, suggestions[0].postMediaId);
+            await confirmMatch(candidate.id, { postMediaId: suggestions[0].postMediaId });
             confirmed++;
           } catch {
             failed++;
@@ -50,4 +55,3 @@ export const bulkConfirmMatches = async (
 
   return { confirmed, failed };
 };
-

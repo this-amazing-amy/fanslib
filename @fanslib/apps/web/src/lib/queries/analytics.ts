@@ -18,15 +18,15 @@ export const useCandidatesQuery = (status?: CandidateStatus) =>
   useQuery({
     queryKey: ['analytics', 'candidates', status],
     queryFn: async () => {
-      const { data, error } = await eden.api.analytics.candidates.get({
+      const result = await eden.api.analytics.candidates.get({
         query: {
           status,
           limit: 100,
         },
       });
-      if (error) throw error;
-      return data;
+      return result.data;
     },
+    retry: false,
   });
 
 export const useConfirmMatchMutation = () => {

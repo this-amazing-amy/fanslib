@@ -1,12 +1,21 @@
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { FanslyMediaCandidate } from "../../candidate-entity";
+import { FanslyMediaCandidate, FanslyMediaCandidateSchema } from "../../candidate-entity";
 
-export const ignoreCandidate = async (candidateId: string): Promise<FanslyMediaCandidate> => {
+export const IgnoreCandidateRequestParamsSchema = t.Object({
+  id: t.String(),
+});
+
+export const IgnoreCandidateResponseSchema = FanslyMediaCandidateSchema;
+
+export const ignoreCandidate = async (
+  id: string
+): Promise<typeof IgnoreCandidateResponseSchema.static> => {
   const dataSource = await db();
   const candidateRepository = dataSource.getRepository(FanslyMediaCandidate);
 
   const candidate = await candidateRepository.findOneOrFail({
-    where: { id: candidateId },
+    where: { id },
   });
 
   candidate.status = "ignored";
@@ -14,4 +23,3 @@ export const ignoreCandidate = async (candidateId: string): Promise<FanslyMediaC
 
   return candidate;
 };
-

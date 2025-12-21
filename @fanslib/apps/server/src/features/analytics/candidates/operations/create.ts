@@ -1,18 +1,24 @@
+import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import type { CreateCandidatesRequestSchema } from "../../candidate-entity";
-import { FanslyMediaCandidate } from "../../candidate-entity";
+import { CreateCandidateSchema, FanslyMediaCandidate, FanslyMediaCandidateSchema } from "../../candidate-entity";
 import { computeMatchSuggestions } from "../matching";
 
-type CandidateItem = typeof CreateCandidatesRequestSchema.static.items[number];
+export const CreateCandidatesRequestBodySchema = t.Object({
+  items: t.Array(CreateCandidateSchema),
+});
+
+export const CreateCandidatesResponseSchema = t.Array(FanslyMediaCandidateSchema);
+
+type CandidateItem = typeof CreateCandidateSchema.static;
 
 export const createCandidates = async (
-  items: CandidateItem[]
-): Promise<FanslyMediaCandidate[]> => {
+  body: typeof CreateCandidatesRequestBodySchema.static
+): Promise<typeof CreateCandidatesResponseSchema.static> => {
   const dataSource = await db();
   const candidateRepository = dataSource.getRepository(FanslyMediaCandidate);
 
   const results = await Promise.all(
-    items.map(async (item: CandidateItem) => {
+    body.items.map(async (item: CandidateItem) => {
       const existing = await candidateRepository.findOne({
         where: { fanslyStatisticsId: item.fanslyStatisticsId },
       });
@@ -41,4 +47,3 @@ export const createCandidates = async (
 
   return results;
 };
-
