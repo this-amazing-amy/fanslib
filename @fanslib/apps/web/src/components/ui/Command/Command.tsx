@@ -1,4 +1,4 @@
-import { Command as CommandIcon, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import type { ReactElement, ReactNode } from 'react';
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '~/lib/cn';
@@ -88,10 +88,6 @@ export const CommandInput = ({
         aria-label={placeholder}
         autoFocus={autoFocus}
       />
-      <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border border-base-content/40 bg-base-200 px-1.5 font-mono text-xs font-medium opacity-100 sm:flex">
-        <CommandIcon className="h-3 w-3" />
-        K
-      </kbd>
     </div>
   );
 };
@@ -107,7 +103,7 @@ export const CommandEmpty = ({ children }: { children: ReactNode }) => {
 export const CommandGroup = ({ children, heading }: { children: ReactNode; heading?: ReactNode }) => (
   <div className="space-y-2">
     {heading ? <div className="px-2 py-1.5 text-xs font-semibold text-base-content/70">{heading}</div> : null}
-    <ul className="space-y-1">{children}</ul>
+    <ul className="space-y-1 px-2 py-2">{children}</ul>
   </div>
 );
 
@@ -132,7 +128,7 @@ export const CommandItem = ({ value, onSelect, children, className }: { value: s
   return (
     <li
       className={cn(
-        'relative mx-0.5 flex cursor-pointer select-none items-center rounded-md pl-0 pr-2 py-1.5 text-sm outline-none transition-colors',
+        'relative mx-0.5 flex cursor-pointer select-none items-center rounded-md px-1 py-1.5 text-sm outline-none transition-colors',
         'hover:bg-primary/20 hover:ring-2 hover:ring-primary',
         'focus:bg-primary/20 focus:ring-2 focus:ring-primary',
         className
