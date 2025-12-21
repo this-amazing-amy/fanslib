@@ -90,7 +90,11 @@ export const PostDetailNavigation = ({ post }: PostDetailNavigationProps) => {
 
   const handleDelete = async () => {
     await deletePostMutation.mutateAsync({ id: post.id });
-    navigate({ to: '/plan' });
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      window.history.back();
+    } else {
+      navigate({ to: '/plan' });
+    }
   };
 
   return (

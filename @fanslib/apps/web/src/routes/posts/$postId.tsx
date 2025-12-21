@@ -50,7 +50,7 @@ const PostDetailRoute = () => {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-4">
         <h1 className="text-2xl font-semibold">Post not found</h1>
-        <Button onClick={goBack}>Back</Button>
+        <Button variant="ghost" onClick={goBack}>Back</Button>
       </div>
     );
   }
@@ -65,7 +65,7 @@ const PostDetailRoute = () => {
       <div>
         <div className="max-w-[1280px] px-8 mx-auto pt-8 pb-12">
           <div className="flex items-center gap-2 mb-2">
-            <Button variant="outline" size="sm" onClick={goBack}>
+            <Button variant="ghost" size="sm" onClick={goBack}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back
             </Button>

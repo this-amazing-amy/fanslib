@@ -29,7 +29,7 @@ const MediaRoute = () => {
     return (
       <div className="flex flex-col items-center justify-center h-full">
         <h1 className="text-2xl font-semibold mb-4">Media not found</h1>
-        <Button onClick={() => navigate({ to: "/library" })}>Back to Library</Button>
+        <Button variant="ghost" onClick={() => navigate({ to: "/library" })}>Back to Library</Button>
       </div>
     );
   }
@@ -40,7 +40,7 @@ const MediaRoute = () => {
         <div className="overflow-y-auto">
           <div className="max-w-[1280px] px-8 mx-auto pt-8 pb-12">
             <div className="flex items-center gap-2 mb-2">
-              <Button variant="outline" size="sm" onClick={() => navigate({ to: "/library" })}>
+              <Button variant="ghost" size="sm" onClick={() => navigate({ to: "/library" })}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back
               </Button>
