@@ -57,8 +57,8 @@ const isScheduledPostsCronEnabled = !isCronDisabled && !isTestEnvironment;
 
 const app = new Elysia()
 .use(cors({
-
-
+  origin: true, // Allow all origins (including chrome-extension://)
+  credentials: true,
   exposeHeaders: ["X-Serialization", "Content-Type", "Content-Length"],
 }))
   .use(
