@@ -171,3 +171,48 @@ export const getPostStatusBorderColor = (
   const colors = statusColors[status] || baseColors.postedTeal;
   return colors.background;
 };
+
+type DebugLevel = 'debug' | 'info' | 'warn' | 'error';
+
+type DebugContext = {
+  component?: string;
+  action?: string;
+  [key: string]: unknown;
+};
+
+const DEBUG_ENABLED = true;
+const DEBUG_PREFIX = '[FansLib:Extension]';
+
+export const debug = (
+  level: DebugLevel,
+  message: string,
+  context?: DebugContext,
+  data?: unknown
+) => {
+  if (!DEBUG_ENABLED) return;
+
+  const timestamp = new Date().toISOString();
+  const contextStr = context
+    ? ` [${Object.entries(context)
+        .map(([k, v]) => `${k}:${v}`)
+        .join(', ')}]`
+    : '';
+  const fullMessage = `${DEBUG_PREFIX}${contextStr} ${message}`;
+
+  const logArgs = data !== undefined ? [fullMessage, data] : [fullMessage];
+
+  switch (level) {
+    case 'debug':
+      console.log(`[${timestamp}]`, ...logArgs);
+      break;
+    case 'info':
+      console.info(`[${timestamp}]`, ...logArgs);
+      break;
+    case 'warn':
+      console.warn(`[${timestamp}]`, ...logArgs);
+      break;
+    case 'error':
+      console.error(`[${timestamp}]`, ...logArgs);
+      break;
+  }
+};

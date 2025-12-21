@@ -27,6 +27,21 @@ Then use:
 chrome-extension-cli reload
 ```
 
+## Debugging
+
+The extension includes comprehensive debug logging for the statistics functionality. See [DEBUGGING.md](./DEBUGGING.md) for:
+
+- How to view logs for each component (Content Script, Background Script, Popup)
+- Understanding log formats and levels
+- Common debugging scenarios
+- Troubleshooting guide
+
+**Quick start**:
+
+- Content script logs: Open DevTools on fansly.com, filter by `FansLib:Interceptor`
+- Background script logs: `chrome://extensions/` → Developer mode → "Inspect views: background page"
+- Popup logs: Right-click popup → Inspect, filter by `FansLib:Extension`
+
 ## Common Issues
 
 ### CSS/Padding Not Applied
@@ -42,3 +57,7 @@ chrome-extension-cli reload
   1. Close and reopen the popup
   2. Reload the extension completely
   3. Clear browser cache for the extension
+
+### Statistics Not Updating
+
+See the [DEBUGGING.md](./DEBUGGING.md) guide for detailed troubleshooting steps.

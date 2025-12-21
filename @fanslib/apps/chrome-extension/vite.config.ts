@@ -18,6 +18,7 @@ export default defineConfig({
         settings: resolve(__dirname, 'settings.html'),
         'test-popup': resolve(__dirname, 'test-popup.html'),
         'content/fansly-interceptor': resolve(__dirname, 'src/content/fansly-interceptor.ts'),
+        'content/fansly-bridge': resolve(__dirname, 'src/content/fansly-bridge.ts'),
         'background/index': resolve(__dirname, 'src/background/index.ts'),
       },
       output: {

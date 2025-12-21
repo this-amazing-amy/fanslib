@@ -23,7 +23,14 @@
     {
       "matches": ["https://fansly.com/*"],
       "js": ["content/fansly-interceptor.js"],
-      "run_at": "document_start"
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["https://fansly.com/*"],
+      "js": ["content/fansly-bridge.js"],
+      "run_at": "document_start",
+      "world": "ISOLATED"
     }
   ],
   "background": {
