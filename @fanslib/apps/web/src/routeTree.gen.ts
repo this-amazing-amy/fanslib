@@ -20,6 +20,7 @@ import { Route as ShootsIndexRouteImport } from './routes/shoots/index'
 import { Route as SettingsIndexRouteImport } from './routes/settings/index'
 import { Route as PlanIndexRouteImport } from './routes/plan/index'
 import { Route as LibraryIndexRouteImport } from './routes/library/index'
+import { Route as ShootsShootIdRouteImport } from './routes/shoots/$shootId'
 import { Route as SettingsSnippetsRouteImport } from './routes/settings/snippets'
 import { Route as SettingsIntegrationsRouteImport } from './routes/settings/integrations'
 import { Route as SettingsFilterPresetsRouteImport } from './routes/settings/filter-presets'
@@ -88,6 +89,11 @@ const PlanIndexRoute = PlanIndexRouteImport.update({
 const LibraryIndexRoute = LibraryIndexRouteImport.update({
   id: '/library/',
   path: '/library/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShootsShootIdRoute = ShootsShootIdRouteImport.update({
+  id: '/shoots/$shootId',
+  path: '/shoots/$shootId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsSnippetsRoute = SettingsSnippetsRouteImport.update({
@@ -181,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/settings/filter-presets': typeof SettingsFilterPresetsRoute
   '/settings/integrations': typeof SettingsIntegrationsRoute
   '/settings/snippets': typeof SettingsSnippetsRoute
+  '/shoots/$shootId': typeof ShootsShootIdRoute
   '/library': typeof LibraryIndexRoute
   '/plan': typeof PlanIndexRoute
   '/settings/': typeof SettingsIndexRoute
@@ -207,6 +214,7 @@ export interface FileRoutesByTo {
   '/settings/filter-presets': typeof SettingsFilterPresetsRoute
   '/settings/integrations': typeof SettingsIntegrationsRoute
   '/settings/snippets': typeof SettingsSnippetsRoute
+  '/shoots/$shootId': typeof ShootsShootIdRoute
   '/library': typeof LibraryIndexRoute
   '/plan': typeof PlanIndexRoute
   '/settings': typeof SettingsIndexRoute
@@ -234,6 +242,7 @@ export interface FileRoutesById {
   '/settings/filter-presets': typeof SettingsFilterPresetsRoute
   '/settings/integrations': typeof SettingsIntegrationsRoute
   '/settings/snippets': typeof SettingsSnippetsRoute
+  '/shoots/$shootId': typeof ShootsShootIdRoute
   '/library/': typeof LibraryIndexRoute
   '/plan/': typeof PlanIndexRoute
   '/settings/': typeof SettingsIndexRoute
@@ -263,6 +272,7 @@ export interface FileRouteTypes {
     | '/settings/filter-presets'
     | '/settings/integrations'
     | '/settings/snippets'
+    | '/shoots/$shootId'
     | '/library'
     | '/plan'
     | '/settings/'
@@ -289,6 +299,7 @@ export interface FileRouteTypes {
     | '/settings/filter-presets'
     | '/settings/integrations'
     | '/settings/snippets'
+    | '/shoots/$shootId'
     | '/library'
     | '/plan'
     | '/settings'
@@ -315,6 +326,7 @@ export interface FileRouteTypes {
     | '/settings/filter-presets'
     | '/settings/integrations'
     | '/settings/snippets'
+    | '/shoots/$shootId'
     | '/library/'
     | '/plan/'
     | '/settings/'
@@ -335,6 +347,7 @@ export interface RootRouteChildren {
   SubredditsRoute: typeof SubredditsRoute
   LibraryMediaIdRoute: typeof LibraryMediaIdRoute
   PostsPostIdRoute: typeof PostsPostIdRoute
+  ShootsShootIdRoute: typeof ShootsShootIdRoute
   LibraryIndexRoute: typeof LibraryIndexRoute
   PlanIndexRoute: typeof PlanIndexRoute
   ShootsIndexRoute: typeof ShootsIndexRoute
@@ -417,6 +430,13 @@ declare module '@tanstack/react-router' {
       path: '/library'
       fullPath: '/library'
       preLoaderRoute: typeof LibraryIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shoots/$shootId': {
+      id: '/shoots/$shootId'
+      path: '/shoots/$shootId'
+      fullPath: '/shoots/$shootId'
+      preLoaderRoute: typeof ShootsShootIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings/snippets': {
@@ -594,6 +614,7 @@ const rootRouteChildren: RootRouteChildren = {
   SubredditsRoute: SubredditsRoute,
   LibraryMediaIdRoute: LibraryMediaIdRoute,
   PostsPostIdRoute: PostsPostIdRoute,
+  ShootsShootIdRoute: ShootsShootIdRoute,
   LibraryIndexRoute: LibraryIndexRoute,
   PlanIndexRoute: PlanIndexRoute,
   ShootsIndexRoute: ShootsIndexRoute,

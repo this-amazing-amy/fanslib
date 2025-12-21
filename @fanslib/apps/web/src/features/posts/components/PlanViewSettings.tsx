@@ -1,9 +1,9 @@
-import { CalendarDays, Image, Layers, LayoutList, Settings2, Sparkles } from "lucide-react";
+import { Image, Layers, Settings2, Sparkles } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { Popover, PopoverTrigger } from "~/components/ui/Popover";
 import { Switch } from "~/components/ui/Switch";
 import { ToggleGroup } from "~/components/ui/ToggleGroup";
-import { usePostPreferences, type PostViewType } from "~/contexts/PostPreferencesContext";
+import { usePostPreferences } from "~/contexts/PostPreferencesContext";
 import type { PostTypeFilter } from "~/lib/virtual-posts";
 
 export const PlanViewSettings = () => {
@@ -18,31 +18,6 @@ export const PlanViewSettings = () => {
         <div className="space-y-3">
           <div className="text-sm font-semibold">View Settings</div>
           <div className="border-t border-base-content/20" />
-          <div className="space-y-2">
-            <div className="text-sm font-medium">View Type</div>
-            <ToggleGroup
-              value={preferences.view.viewType}
-              aria-label="Plan view type"
-              onChange={(value) => {
-                if (!value) return;
-                updatePreferences({ view: { viewType: value as PostViewType } });
-              }}
-              options={[
-                {
-                  value: "timeline",
-                  icon: <LayoutList className="h-4 w-4" />,
-                  ariaLabel: "Timeline",
-                },
-                {
-                  value: "calendar",
-                  icon: <CalendarDays className="h-4 w-4" />,
-                  ariaLabel: "Calendar",
-                },
-              ]}
-              optionsClassName="grid grid-cols-2 gap-2"
-              itemClassName="w-full justify-center"
-            />
-          </div>
           <div className="space-y-2">
             <div className="text-sm font-medium">Post Type</div>
             <ToggleGroup

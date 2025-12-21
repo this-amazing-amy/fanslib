@@ -39,16 +39,13 @@ export const ShootDetailDateInput = ({ shoot }: ShootDetailDateInputProps) => {
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      <label className="text-sm font-medium">Date & Time</label>
-      <div className="relative">
-        <DateTimePicker date={localDate} setDate={updateDate} />
-        {isSaving && (
-          <div className="absolute right-2 top-1/2 -translate-y-1/2">
-            <div className="text-xs">Updating...</div>
-          </div>
-        )}
-      </div>
+    <div className="relative max-w-xs">
+      <DateTimePicker date={localDate} setDate={updateDate} />
+      {isSaving && (
+        <div className="absolute right-2 top-1/2 -translate-y-1/2">
+          <div className="text-xs">Updating...</div>
+        </div>
+      )}
     </div>
   );
 };

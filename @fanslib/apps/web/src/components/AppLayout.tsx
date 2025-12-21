@@ -15,7 +15,7 @@ export interface AppLayoutProps {
 
 const MainContent = ({ children }: { children: ReactNode }) => <main 
       className={cn(
-        'flex-1 min-h-0 p-4 sm:p-6 lg:p-8 content-area'
+        'flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 lg:p-8 content-area'
       )}
       style={{ viewTransitionName: 'main-content' }}
     >

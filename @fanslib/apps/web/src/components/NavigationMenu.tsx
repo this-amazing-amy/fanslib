@@ -1,23 +1,26 @@
+import type React from 'react';
 import { Link } from '@tanstack/react-router';
 import { useAtom } from 'jotai';
 import type { LucideIcon } from 'lucide-react';
-import { Calendar, Clapperboard, Columns, Hash, Home, MessageSquare, Monitor, Palette, PanelLeft, PanelLeftClose, Settings } from 'lucide-react';
+import { Calendar, Camera, Clapperboard, Columns, Hash, Home, Monitor, Palette, PanelLeft, PanelLeftClose, Settings } from 'lucide-react';
+import { RedditIcon } from '~/components/icons';
 import { cn } from '~/lib/cn';
 import { closeSidebarAtom, toggleSidebarCollapsedAtom } from '~/state/sidebar';
 
 type MenuItem = {
   to: string;
   label: string;
-  icon: LucideIcon;
+  icon: LucideIcon | React.ComponentType<React.SVGProps<SVGSVGElement>>;
 };
 
 const menuItems: MenuItem[] = [
   { to: '/', label: 'Dashboard', icon: Home },
-  { to: '/content/library/media', label: 'Media', icon: Clapperboard },
-  { to: '/orchestrate', label: 'Orchestrate', icon: Columns },
+  { to: '/library', label: 'Library', icon: Clapperboard },
+  { to: '/shoots', label: 'Shoots', icon: Camera },
   { to: '/plan', label: 'Plan', icon: Calendar },
+  { to: '/orchestrate', label: 'Orchestrate', icon: Columns },
   { to: '/content/channels', label: 'Channels', icon: Monitor },
-  { to: '/subreddits', label: 'Subreddits', icon: MessageSquare },
+  { to: '/subreddits', label: 'Subreddits', icon: RedditIcon },
   { to: '/hashtags', label: 'Hashtags', icon: Hash },
   { to: '/settings', label: 'Settings', icon: Settings },
   { to: '/component-showcase', label: 'UI Components', icon: Palette },

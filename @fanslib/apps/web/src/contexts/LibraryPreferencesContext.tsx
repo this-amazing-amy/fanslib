@@ -11,6 +11,7 @@ export type GridSize = "small" | "large";
 
 type ViewPreferences = {
   gridSize: GridSize;
+  filtersCollapsed: boolean;
 };
 
 type SortPreferences = MediaSort;
@@ -30,6 +31,7 @@ export type LibraryPreferences = {
 const defaultPreferences: LibraryPreferences = {
   view: {
     gridSize: "large",
+    filtersCollapsed: false,
   },
   filter: [],
   sort: {

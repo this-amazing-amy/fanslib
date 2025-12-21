@@ -97,7 +97,7 @@ export const MediaTileLite = memo(
               draggable={false}
             />
             {media.duration && (
-              <div className="absolute bottom-1 right-1 bg-black/50 px-1 py-0.5 rounded text-2xs text-white font-medium">
+              <div className="absolute bottom-1 right-1 bg-black/50 px-0.5 py-0.5 rounded text-[7px] text-white font-medium leading-tight">
                 {formatDuration(media.duration)}
               </div>
             )}

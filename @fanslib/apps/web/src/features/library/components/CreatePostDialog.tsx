@@ -26,8 +26,7 @@ import {
 import { ScrollArea } from "~/components/ui/ScrollArea";
 import { Textarea } from "~/components/ui/Textarea";
 import { MediaSelectionProvider } from "~/contexts/MediaSelectionContext";
-import { MediaSelection } from "~/features/library/components/MediaSelection";
-import { MediaTile } from "~/features/library/components/MediaTile";
+import { CombinedMediaSelection } from "~/features/library/components/CombinedMediaSelection";
 import { cn } from "~/lib/cn";
 import { useChannelsQuery } from "~/lib/queries/channels";
 import { useCreatePostMutation } from "~/lib/queries/posts";
@@ -90,9 +89,6 @@ export const CreatePostDialog = ({
   const [status, setStatus] = useState<PostStatus>(initialStatus ?? "draft");
   const [selectedMedia, setSelectedMedia] = useState<Media[]>(media);
   const [caption, setCaption] = useState(initialCaption ?? "");
-  const [isMediaSelectionOpen, setIsMediaSelectionOpen] = useState(
-    initialMediaSelectionExpanded ?? (media.length === 0)
-  );
   const [isOtherCaptionsOpen, setIsOtherCaptionsOpen] = useState(false);
   const [shouldRedirect, setShouldRedirect] = useState(true);
 
@@ -239,18 +235,26 @@ export const CreatePostDialog = ({
     <MediaSelectionProvider media={selectedMedia}>
       <DialogTrigger isOpen={open} onOpenChange={onOpenChange}>
         <DialogModal>
-          <Dialog maxWidth="3xl" className="max-h-[80vh] flex flex-col">
+          <Dialog maxWidth="3xl" className="max-h-[90vh] flex flex-col overflow-hidden">
             {({ close }) => (
               <>
-                <DialogHeader>
+                <DialogHeader className="flex-shrink-0 mb-2">
                   <DialogTitle>{title}</DialogTitle>
                 </DialogHeader>
 
-          <div className="flex overflow-hidden flex-1">
-            <div className="grid grid-cols-2 gap-6 flex-1 overflow-hidden">
-              {/* Left Column: Post Details */}
-              <ScrollArea className="h-full">
-                <div className="flex flex-col gap-4 pr-2">
+                <ScrollArea className="flex-1 min-h-0">
+                  <div className="flex flex-col gap-4 pr-2">
+                    {/* Top Section: Combined Media Selection */}
+                    <div className="flex-shrink-0">
+                      <CombinedMediaSelection
+                        selectedMedia={selectedMedia}
+                        onMediaSelect={handleMediaSelect}
+                        excludeMediaIds={media.map((m) => m.id)}
+                      />
+                    </div>
+
+                    {/* Bottom Section: Post Details */}
+                    <div className="flex flex-col gap-4">
                   <div className="flex flex-col space-y-2">
                     <label className="text-sm font-medium">Channel</label>
                     <ChannelSelect
@@ -409,75 +413,21 @@ export const CreatePostDialog = ({
                       )}
                     </div>
                   )}
-                </div>
-              </ScrollArea>
-
-              {/* Right Column: Media Selection */}
-              <div className="flex flex-col gap-3 overflow-hidden border-l pl-6">
-                {/* Selected Media Section */}
-                <div className="flex flex-col gap-2 flex-shrink-0">
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium">
-                      Selected Media ({selectedMedia.length})
-                    </label>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onPress={() => setIsMediaSelectionOpen(!isMediaSelectionOpen)}
-                      className="text-xs"
-                    >
-                      {isMediaSelectionOpen ? "Hide Library" : "+ Add Media"}
-                    </Button>
+                    </div>
                   </div>
-                  {selectedMedia.length > 0 ? (
-                    <div className="grid grid-cols-3 gap-2 p-2 border rounded-md bg-base-200/30">
-                      {selectedMedia.map((item, index) => (
-                        <div
-                          key={item.id}
-                          className="relative aspect-square group cursor-pointer"
-                          onClick={() => handleMediaSelect(item)}
-                        >
-                          <MediaTile media={item} allMedias={selectedMedia} index={index} />
-                          <div className="absolute inset-0 bg-error/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-md">
-                            <span className="text-error-content text-xs font-semibold">Remove</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="p-8 border-2 border-dashed rounded-md bg-base-200/30 text-center text-sm text-base-content/60">
-                      No media selected. {!isMediaSelectionOpen && "Click '+ Add Media' to browse your library."}
-                    </div>
-                  )}
+                </ScrollArea>
+
+                <div className="flex items-center space-x-2 flex-shrink-0 mt-2">
+                  <Checkbox
+                    id="redirect-checkbox"
+                    isSelected={shouldRedirect}
+                    onChange={(checked) => setShouldRedirect(checked)}
+                  >
+                    Redirect to post detail after creation
+                  </Checkbox>
                 </div>
 
-                {/* Media Library Browser */}
-                {isMediaSelectionOpen && (
-                  <div className="flex-1 min-h-0 flex flex-col">
-                    <label className="text-sm font-medium mb-2">Library</label>
-                    <MediaSelection
-                      selectedMedia={selectedMedia}
-                      onMediaSelect={handleMediaSelect}
-                      excludeMediaIds={media.map((m) => m.id)}
-                      className="flex-1"
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="redirect-checkbox"
-              isSelected={shouldRedirect}
-              onChange={(checked) => setShouldRedirect(checked)}
-            >
-              Redirect to post detail after creation
-            </Checkbox>
-          </div>
-
-                <DialogFooter className="flex flex-col gap-2">
+                <DialogFooter className="flex flex-col gap-2 flex-shrink-0 mt-2">
                   <Button
                     onPress={() => {
                       handleCreatePost();

@@ -21,12 +21,12 @@ export const EmptyState = ({
   action,
   className,
 }: EmptyStateProps) => {
-  const displayIcon = icon ?? <Inbox className="w-16 h-16 opacity-50" />;
+  const displayIcon = icon ?? <Inbox className="w-16 h-16" />;
 
   return (
     <div className={cn('flex flex-col items-center justify-center py-12 px-4 text-center', className)}>
-      <div className="mb-4">{displayIcon}</div>
-      <h3 className="text-lg font-semibold mb-2">{title}</h3>
+      <div className="mb-4 text-base-content/50">{displayIcon}</div>
+      <h3 className="text-lg font-semibold mb-2 text-base-content/60">{title}</h3>
       {description && <p className="text-base-content/70 mb-6 max-w-sm">{description}</p>}
       {action && (
         <Button onClick={action.onClick} variant="primary">

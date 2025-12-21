@@ -15,6 +15,7 @@ type FilterItem = FilterGroup["items"][number];
 type MediaFilterSummaryProps = {
   mediaFilters: MediaFilters | null;
   className?: string;
+  maxItems?: number;
 };
 
 const IncludeIcon = ({ isInclude }: { isInclude: boolean }) =>
@@ -243,6 +244,7 @@ const FilterItemBadge = ({
 export const MediaFilterSummary = ({
   mediaFilters,
   className,
+  maxItems,
 }: MediaFilterSummaryProps) => {
   const filterGroups = Array.isArray(mediaFilters) ? mediaFilters : [];
   const { data: channels = [] } = useChannelsQuery();
@@ -279,19 +281,32 @@ export const MediaFilterSummary = ({
     return null;
   }
 
+  // Flatten all filter items with their groups
+  const allItems = filterGroups.flatMap((group) =>
+    group.items.map((item: FilterItem) => ({ item, group }))
+  );
+
+  const visibleItems = maxItems !== undefined ? allItems.slice(0, maxItems) : allItems;
+  const remainingCount = maxItems !== undefined ? allItems.length - maxItems : 0;
+
   return (
     <div className={cn("flex flex-wrap gap-2", className)}>
-      {filterGroups.map((group) =>
-        group.items.map((item: FilterItem) => (
-          <FilterItemBadge
-            key={JSON.stringify(item)}
-            item={item}
-            group={group}
-            channelName={item.type === "channel" ? channelNameById.get(String(item.id)) : undefined}
-            subredditName={item.type === "subreddit" ? subredditNameById.get(String(item.id)) : undefined}
-            tagName={item.type === "tag" ? getTagName(item.id) : undefined}
-          />
-        ))
+      {visibleItems.map(({ item, group }, index) => (
+        <FilterItemBadge
+          key={JSON.stringify(item) + index}
+          item={item}
+          group={group}
+          channelName={item.type === "channel" ? channelNameById.get(String(item.id)) : undefined}
+          subredditName={item.type === "subreddit" ? subredditNameById.get(String(item.id)) : undefined}
+          tagName={item.type === "tag" ? getTagName(item.id) : undefined}
+        />
+      ))}
+      {remainingCount > 0 && (
+        <Tooltip content={`${remainingCount} more filter${remainingCount === 1 ? "" : "s"}`} openDelayMs={0}>
+          <Badge variant="secondary" className="text-xs">
+            +{remainingCount} more
+          </Badge>
+        </Tooltip>
       )}
     </div>
   );

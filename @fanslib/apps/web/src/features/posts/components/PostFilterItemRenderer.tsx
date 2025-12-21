@@ -61,7 +61,7 @@ export const PostFilterItemRenderer = ({
           "opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all",
           "border-0 hover:border-0 focus:border-0",
           "ring-0 hover:ring-0 focus:ring-0",
-          "absolute top-1/2 -translate-y-1/2 right-[0.625rem]"
+          "absolute top-1/2 -translate-y-1/2 left-[150px]"
         )}
         onPress={onRemove}
         aria-label="Remove filter"
