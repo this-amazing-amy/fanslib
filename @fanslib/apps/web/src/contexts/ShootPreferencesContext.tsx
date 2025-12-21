@@ -17,7 +17,7 @@ export type ShootViewPreferences = {
 
 const defaultPreferences: ShootViewPreferences = {
   view: {
-    viewType: "list",
+    viewType: "grid",
     gridSize: "small",
   },
   sort: {

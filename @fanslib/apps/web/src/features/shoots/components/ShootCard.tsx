@@ -17,7 +17,7 @@ type ShootCardProps = {
 export const ShootCard: FC<ShootCardProps> = ({ shoot }) => {
   const imageCount = shoot.media?.filter((m) => m.type === "image").length ?? 0;
   const videoCount = shoot.media?.filter((m) => m.type === "video").length ?? 0;
-  const firstMedia = shoot.media?.[0];
+  const mediaItems = shoot.media?.slice(0, 4) ?? [];
   const totalMediaCount = shoot.media?.length ?? 0;
 
   return (
@@ -25,9 +25,13 @@ export const ShootCard: FC<ShootCardProps> = ({ shoot }) => {
       <Card className="overflow-hidden border-base-content cursor-pointer">
         <CardBody className="p-0">
           <div className="p-4">
-            {firstMedia && (
-              <div className="mb-3 aspect-square rounded-lg overflow-hidden bg-base-300">
-                <MediaPreview media={firstMedia} className="w-full h-full" />
+            {mediaItems.length > 0 && (
+              <div className="mb-3 aspect-square rounded-lg overflow-hidden grid grid-cols-2 gap-1">
+                {mediaItems.map((media) => (
+                  <div key={media.id} className="bg-base-200 rounded-md overflow-hidden">
+                    <MediaPreview media={media} className="w-full h-full" />
+                  </div>
+                ))}
               </div>
             )}
             <div className="space-y-2">
