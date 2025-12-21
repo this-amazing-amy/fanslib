@@ -43,7 +43,7 @@ const LibraryPageContent = () => {
                                   ]}
                                   actions={
                                     <div className="flex items-center gap-2">
-                                      <FilterActions />
+                                      <FilterActions usePresetDialog />
                                       <GalleryViewSettings />
                                       <LibrarySortOptions
                                         value={preferences.sort}
