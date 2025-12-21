@@ -5,7 +5,6 @@ import { Camera, Plus, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
-import { MediaFilterSummary } from "~/components/MediaFilterSummary";
 import { StatusIcon } from "~/components/StatusIcon";
 import { MediaSelectionProvider } from "~/contexts/MediaSelectionContext";
 import { usePostDrag } from "~/contexts/PostDragContext";
@@ -13,7 +12,6 @@ import { usePostPreferences } from "~/contexts/PostPreferencesContext";
 import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
 import { MediaTile } from "~/features/library/components/MediaTile";
 import { cn } from "~/lib/cn";
-import { getPostStatusBorderColor } from "~/lib/colors";
 import { useSkipScheduleSlotMutation } from "~/lib/queries/content-schedules";
 import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
 import { useCreatePostFromVirtualSlot } from "../../hooks/useCreatePostFromVirtualSlot";
@@ -182,7 +180,6 @@ export const PostPreview = ({
   );
 
   const status = post.status ?? 'draft';
-  const borderColor = getPostStatusBorderColor(status as 'posted' | 'scheduled' | 'draft');
 
   const content = (
     <div
@@ -210,15 +207,12 @@ export const PostPreview = ({
         {previousDropZone}
         <div
           className={cn(
-            "border-2 rounded-xl relative group transition-all bg-base-100",
+            "border border-base-content rounded-xl relative group transition-all bg-base-100",
             isVirtual && "opacity-60",
             isAnyDragging &&
               isAnyDraggedOver &&
               "border-2 border-dashed border-primary bg-primary/10 opacity-100"
           )}
-          style={{
-            borderColor: isAnyDragging && isAnyDraggedOver ? undefined : borderColor,
-          }}
           onMouseLeave={() => setHasSkipConfirmation(false)}
         >
           {isVirtual && !isAnyDragging && (
@@ -251,45 +245,60 @@ export const PostPreview = ({
             </button>
           )}
           
-          <div className="flex items-start justify-between p-4 gap-4">
-            <div className="flex flex-col gap-2 flex-1">
-              <div className="flex items-start justify-between">
-                <div className="flex flex-col">
-                  <span className="text-base font-semibold text-base-content">
-                    {format(new Date(post.date), "MMMM d")}
-                  </span>
-                  <span className="text-sm font-medium text-base-content/60">
-                    {format(new Date(post.date), "HH:mm")}
-                  </span>
+          <div className="flex items-stretch justify-between p-4 gap-4">
+            <div className="flex flex-col justify-between gap-2 flex-1">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-start gap-2">
+                  <StatusIcon status={status as 'posted' | 'scheduled' | 'draft'} />
+                  <div className="flex flex-col">
+                    <span className="text-base font-semibold text-base-content">
+                      {format(new Date(post.date), "MMMM d")}
+                    </span>
+                    <span className="text-sm font-medium text-base-content/60">
+                      {format(new Date(post.date), "HH:mm")}
+                    </span>
+                  </div>
                 </div>
-                <StatusIcon status={status as 'posted' | 'scheduled' | 'draft'} />
+                {preferences.view.showCaptions && captionPreview && (
+                  <div className="text-sm leading-snug text-base-content line-clamp-2">
+                    {captionPreview}
+                  </div>
+                )}
               </div>
-              <div className="flex items-center gap-2">
-                <ChannelBadge name={post.channel.name} typeId={post.channel.type?.id ?? post.channel.typeId} size="md" />
+              <div className="flex items-center gap-0.5">
+                <ChannelBadge
+                  name={post.channel.name}
+                  typeId={post.channel.type?.id ?? post.channel.typeId}
+                  size="sm"
+                  selected
+                  borderStyle="none"
+                  className="justify-center"
+                  responsive={false}
+                />
                 {isVirtual ? (
                   <ContentScheduleBadge
                     name={post.schedule.name}
                     emoji={post.schedule.emoji}
                     color={post.schedule.color}
-                    size="md"
+                    size="sm"
+                    selected
+                    borderStyle="none"
+                    className="justify-center"
+                    responsive={false}
                   />
                 ) : post.schedule && (
                   <ContentScheduleBadge
                     name={post.schedule.name}
                     emoji={post.schedule.emoji}
                     color={post.schedule.color}
-                    size="md"
+                    size="sm"
+                    selected
+                    borderStyle="none"
+                    className="justify-center"
+                    responsive={false}
                   />
                 )}
-                {isVirtual && (
-                  <MediaFilterSummary mediaFilters={post.mediaFilters} />
-                )}
               </div>
-              {preferences.view.showCaptions && captionPreview && (
-                <div className="text-sm leading-snug text-base-content line-clamp-2">
-                  {captionPreview}
-                </div>
-              )}
             </div>
             <div className="flex items-center gap-2">
               {isVirtual ? (

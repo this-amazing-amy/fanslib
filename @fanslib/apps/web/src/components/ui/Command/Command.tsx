@@ -1,18 +1,40 @@
 import { Command as CommandIcon, Search } from 'lucide-react';
 import type { ReactElement, ReactNode } from 'react';
-import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '~/lib/cn';
 
 type CommandContextValue = {
   query: string;
   setQuery: (v: string) => void;
+  visibleItemCount: number;
+  incrementVisibleCount: () => void;
+  resetVisibleCount: () => void;
 };
 
 const CommandContext = createContext<CommandContextValue | null>(null);
 
 export const Command = ({ children, className }: { children: ReactNode; className?: string }) => {
   const [query, setQuery] = useState('');
-  const value = useMemo(() => ({ query, setQuery }), [query]);
+  const [visibleItemCount, setVisibleItemCount] = useState(0);
+  
+  const incrementVisibleCount = useCallback(() => {
+    setVisibleItemCount((prev) => prev + 1);
+  }, []);
+  
+  const resetVisibleCount = useCallback(() => {
+    setVisibleItemCount(0);
+  }, []);
+  
+  const value = useMemo(
+    () => ({ query, setQuery, visibleItemCount, incrementVisibleCount, resetVisibleCount }),
+    [query, visibleItemCount, incrementVisibleCount, resetVisibleCount]
+  );
+  
+  // Reset visible count when query changes
+  useEffect(() => {
+    resetVisibleCount();
+  }, [query, resetVisibleCount]);
+  
   return (
     <CommandContext.Provider value={value}>
       <div className={cn('flex flex-col w-full max-w-2xl overflow-hidden rounded-xl bg-base-100 shadow-lg', className)}>
@@ -38,6 +60,14 @@ export const CommandInput = ({
   if (!ctx) return null;
 
   const value = controlledValue ?? ctx.query;
+  
+  // Sync controlled value to context query for CommandItem filtering
+  useEffect(() => {
+    if (controlledValue !== undefined) {
+      ctx.setQuery(controlledValue);
+    }
+  }, [controlledValue, ctx]);
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (onValueChange) {
       onValueChange(e.target.value);
@@ -66,9 +96,13 @@ export const CommandInput = ({
   );
 };
 
-export const CommandEmpty = ({ children }: { children: ReactNode }) => (
-  <div className="py-6 text-center text-sm text-base-content/50">{children}</div>
-);
+export const CommandEmpty = ({ children }: { children: ReactNode }) => {
+  const ctx = useContext(CommandContext);
+  if (!ctx) return null;
+  // Only show empty state if no items are visible
+  if (ctx.visibleItemCount > 0) return null;
+  return <div className="py-6 text-center text-sm text-base-content/50">{children}</div>;
+};
 
 export const CommandGroup = ({ children, heading }: { children: ReactNode; heading?: ReactNode }) => (
   <div className="space-y-2">
@@ -84,6 +118,16 @@ export const CommandItem = ({ value, onSelect, children, className }: { value: s
   }, [onSelect]);
   if (!ctx) return null;
   const isVisible = value.toLowerCase().includes(ctx.query.toLowerCase());
+  
+  useLayoutEffect(() => {
+    if (isVisible) {
+      ctx.incrementVisibleCount();
+      return () => {
+        // Decrement on unmount or when becomes invisible
+      };
+    }
+  }, [isVisible, ctx]);
+  
   if (!isVisible) return null;
   return (
     <li
