@@ -18,7 +18,7 @@ export const GallerySkeleton = () => {
       <ScrollArea className="h-[calc(100%-3rem)] @container">
         <div
           className={cn(
-            "grid gap-4 p-4 grid-cols-3",
+            "grid gap-4 p-0 grid-cols-3",
             gridClasses,
           )}
         >

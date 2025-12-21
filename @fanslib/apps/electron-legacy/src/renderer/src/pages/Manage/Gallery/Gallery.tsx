@@ -54,7 +54,7 @@ const GalleryContent = ({ medias, error, libraryPath, onScan }: GalleryProps) =>
       <ScrollArea className="h-[calc(100%-3rem)] @container" ref={containerRef}>
         <div
           className={cn(
-            "grid gap-4 p-4 grid-cols-3",
+            "grid gap-4 p-0 grid-cols-3",
             preferences.view.gridSize === "large"
               ? "@[48rem]:grid-cols-4 @[72rem]:grid-cols-6 @[128rem]:grid-cols-8"
               : "@[48rem]:grid-cols-4 @[72rem]:grid-cols-8 @[128rem]:grid-cols-12"
