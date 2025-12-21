@@ -1,10 +1,19 @@
 import { CalendarDate } from "@internationalized/date";
 import { format } from "date-fns";
-import { CalendarIcon, ChevronUp, ChevronDown, Moon, Sunrise, Sun, Sunset } from "lucide-react";
+import { CalendarIcon, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Moon, Sunrise, Sun, Sunset } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import {
+  Calendar as AriaCalendar,
+  Button as AriaButton,
+  CalendarCell,
+  CalendarGrid,
+  CalendarGridBody,
+  CalendarGridHeader,
+  CalendarHeaderCell,
+  Heading,
+} from "react-aria-components";
 import { I18nProvider } from "react-aria";
 import { Button } from "~/components/ui/Button";
-import { Calendar } from "~/components/ui/Calendar";
 import { Popover, PopoverTrigger } from "~/components/ui/Popover";
 import { cn } from "~/lib/cn";
 
@@ -15,14 +24,17 @@ type DateTimePickerProps = {
 
 export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
   const [open, setOpen] = useState(false);
-  const [view, setView] = useState<"date" | "time">("date");
+  const [view, setView] = useState<"date" | "time" | "year">("date");
   const [tempDate, setTempDate] = useState<Date>(date);
   const [focusedInput, setFocusedInput] = useState<"hours" | "minutes" | null>(null);
+  const [yearInputValue, setYearInputValue] = useState<string>(date.getFullYear().toString());
   const hoursRef = useRef<HTMLInputElement>(null);
   const minutesRef = useRef<HTMLInputElement>(null);
+  const yearRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setTempDate(date);
+    setYearInputValue(date.getFullYear().toString());
   }, [date]);
 
   useEffect(() => {
@@ -31,6 +43,16 @@ export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
       setFocusedInput(null);
     }
   }, [open]);
+
+  const switchToYearMode = () => {
+    setView("year");
+    setTempDate(date);
+    setYearInputValue(date.getFullYear().toString());
+    // Focus year input after switching to year mode
+    setTimeout(() => {
+      yearRef.current?.focus();
+    }, 0);
+  };
 
   const handleCalendarChange = (newDate: CalendarDate | null) => {
     if (!newDate) return;
@@ -82,6 +104,36 @@ export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
     handleTimeChange(updated.getHours(), updated.getMinutes());
   };
 
+  const handleYearChange = (year: number) => {
+    const updated = new Date(tempDate);
+    // Set reasonable bounds for year (e.g., 1900-2100)
+    const clampedYear = Math.max(1900, Math.min(2100, year));
+    updated.setFullYear(clampedYear);
+    setTempDate(updated);
+    const newDate = new Date(date);
+    newDate.setFullYear(clampedYear);
+    setDate(newDate);
+    setYearInputValue(clampedYear.toString());
+  };
+
+  const commitYearInput = (value: string) => {
+    const year = parseInt(value, 10);
+    if (!isNaN(year) && value.length === 4 && year >= 1900 && year <= 2100) {
+      handleYearChange(year);
+    } else {
+      // Reset to current year if invalid
+      setYearInputValue(tempDate.getFullYear().toString());
+    }
+  };
+
+  const incrementYear = () => {
+    handleYearChange(tempDate.getFullYear() + 1);
+  };
+
+  const decrementYear = () => {
+    handleYearChange(tempDate.getFullYear() - 1);
+  };
+
 
   const incrementHour = () => {
     handleHourChange(tempDate.getHours() + 1);
@@ -106,6 +158,16 @@ export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
     newDate.setMinutes(now.getMinutes());
     setTempDate(newDate);
     handleTimeChange(newDate.getHours(), newDate.getMinutes());
+  };
+
+  const setToToday = () => {
+    const today = new Date();
+    const newDate = new Date(date);
+    newDate.setFullYear(today.getFullYear());
+    newDate.setMonth(today.getMonth());
+    newDate.setDate(today.getDate());
+    setDate(newDate);
+    switchToTimeMode();
   };
 
 
@@ -139,7 +201,7 @@ export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
           >
             <div>
               <I18nProvider locale="de-DE">
-                <Calendar
+                <AriaCalendar
                   value={
                     new CalendarDate(
                       date.getFullYear(),
@@ -148,8 +210,55 @@ export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
                     )
                   }
                   onChange={handleCalendarChange}
-                />
+                  className="p-3"
+                >
+                  <header className="flex items-center justify-between pb-2">
+                    <AriaButton slot="previous" className="btn btn-ghost btn-sm">
+                      <ChevronLeft className="h-4 w-4" />
+                    </AriaButton>
+                    <button
+                      type="button"
+                      onClick={switchToYearMode}
+                      className="text-sm font-medium hover:opacity-80 transition-opacity cursor-pointer"
+                    >
+                      {format(date, "MMMM yyyy")}
+                    </button>
+                    <AriaButton slot="next" className="btn btn-ghost btn-sm">
+                      <ChevronRight className="h-4 w-4" />
+                    </AriaButton>
+                  </header>
+                  <CalendarGrid className="w-full border-collapse">
+                    <CalendarGridHeader>
+                      {(day) => (
+                        <CalendarHeaderCell className="text-xs font-normal text-base-content/50 p-1">
+                          {day}
+                        </CalendarHeaderCell>
+                      )}
+                    </CalendarGridHeader>
+                    <CalendarGridBody>
+                      {(date) => (
+                        <CalendarCell
+                          date={date}
+                          className={cn(
+                            'h-9 w-9 p-0 font-normal cursor-pointer flex items-center justify-center text-sm',
+                            'outline-none',
+                            'hover:bg-base-200',
+                            'data-[selected]:bg-primary data-[selected]:text-primary-content data-[selected]:rounded-lg',
+                            'data-[outside-month]:text-base-content/30',
+                            'data-[disabled]:text-base-content/30 data-[disabled]:cursor-not-allowed',
+                            'data-[unavailable]:text-error data-[unavailable]:line-through'
+                          )}
+                        />
+                      )}
+                    </CalendarGridBody>
+                  </CalendarGrid>
+                </AriaCalendar>
               </I18nProvider>
+            </div>
+            <div className="flex justify-center pb-2">
+              <Button size="sm" variant="ghost" onPress={setToToday}>
+                Today
+              </Button>
             </div>
             <div className="border-t border-border pt-3 mt-auto">
               <Button
@@ -340,6 +449,94 @@ export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
                   <Button size="sm" variant="ghost" onPress={setToNow}>
                     Now
                   </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div 
+            className={cn(
+              "flex flex-col absolute inset-0 p-3",
+              view === "year" ? "pointer-events-auto" : "pointer-events-none"
+            )}
+            style={{ visibility: view === "year" ? "visible" : "hidden" }}
+          >
+            <Button
+              variant="ghost"
+              onPress={switchToDateMode}
+              className="w-full justify-start text-left font-normal text-sm transition-opacity hover:opacity-80 mb-4"
+            >
+              <span className="font-bold">{currentDate}</span>
+            </Button>
+            <div className="border-t border-border pt-3 flex-1 flex flex-col">
+              <div className="flex flex-col flex-1 items-center justify-center">
+                {/* Year Display */}
+                <div className="flex flex-col items-center">
+                  <button
+                    type="button"
+                    onClick={incrementYear}
+                    className="p-1 hover:bg-muted rounded transition-colors"
+                    aria-label="Increment year"
+                  >
+                    <ChevronUp className="h-4 w-4" />
+                  </button>
+                  <input
+                    ref={yearRef}
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={yearInputValue}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Only allow digits and limit to 4 digits
+                      if (value === "" || /^\d{1,4}$/.test(value)) {
+                        setYearInputValue(value);
+                        // Only update the date if we have a valid 4-digit year
+                        if (value.length === 4) {
+                          const year = parseInt(value, 10);
+                          if (!isNaN(year) && year >= 1900 && year <= 2100) {
+                            handleYearChange(year);
+                          }
+                        }
+                      }
+                    }}
+                    onFocus={(e) => {
+                      e.target.select();
+                    }}
+                    onBlur={() => {
+                      commitYearInput(yearInputValue);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "ArrowUp") {
+                        e.preventDefault();
+                        incrementYear();
+                      } else if (e.key === "ArrowDown") {
+                        e.preventDefault();
+                        decrementYear();
+                      } else if (e.key === "Enter") {
+                        e.preventDefault();
+                        commitYearInput(yearInputValue);
+                        switchToDateMode();
+                      } else if (e.key === "Escape") {
+                        e.preventDefault();
+                        setYearInputValue(tempDate.getFullYear().toString());
+                        switchToDateMode();
+                      }
+                    }}
+                    className="text-6xl font-mono font-bold text-center w-48 bg-transparent border-none outline-none focus:bg-muted/50 rounded px-2 py-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    onWheel={(e) => {
+                      e.preventDefault();
+                      const delta = e.deltaY > 0 ? -1 : 1;
+                      handleYearChange(tempDate.getFullYear() + delta);
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={decrementYear}
+                    className="p-1 hover:bg-muted rounded transition-colors"
+                    aria-label="Decrement year"
+                  >
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
             </div>
