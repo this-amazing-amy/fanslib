@@ -7,7 +7,7 @@ import { BurgerIcon } from '~/components/ui/BurgerIcon';
 import { ThemeProvider } from '~/contexts/ThemeContext';
 import { cn } from '~/lib/cn';
 import { useToggleSfwModeMutation } from '~/lib/queries/settings';
-import { mobileNavigationDrawerOpenAtom, sidebarCollapsedAtom, toggleSidebarAtom } from '~/state/sidebar';
+import { mobileNavigationDrawerOpenAtom, sidebarCollapsedAtom, STORAGE_KEY, toggleSidebarAtom } from '~/state/sidebar';
 
 export interface AppLayoutProps {
   children: ReactNode;
@@ -25,8 +25,21 @@ const MainContent = ({ children }: { children: ReactNode }) => <main
 const LayoutContent = ({ children }: AppLayoutProps) => {
   const [sidebarOpen] = useAtom(mobileNavigationDrawerOpenAtom);
   const [, toggleSidebar] = useAtom(toggleSidebarAtom);
-  const [isCollapsed] = useAtom(sidebarCollapsedAtom);
+  const [isCollapsed, setIsCollapsed] = useAtom(sidebarCollapsedAtom);
   const toggleSfwMode = useToggleSfwModeMutation();
+
+  useEffect(() => {
+    const stored = typeof window !== 'undefined' 
+      ? window.localStorage.getItem(STORAGE_KEY)
+      : null;
+    if (stored !== null) {
+      try {
+        setIsCollapsed(JSON.parse(stored));
+      } catch {
+        // Ignore parse errors
+      }
+    }
+  }, [setIsCollapsed]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

@@ -65,6 +65,9 @@ export const fetchPostsByMediaId = async (
     },
   });
 
-  return posts;
+  return posts.map((post) => ({
+    ...post,
+    postMedia: post.postMedia.filter((pm) => pm.media !== null),
+  }));
 };
 

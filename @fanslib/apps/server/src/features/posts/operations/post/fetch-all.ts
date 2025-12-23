@@ -18,12 +18,14 @@ export const PostWithRelationsSchema = t.Composite([
   t.Object({
     postMedia: t.Array(PostMediaWithMediaSchema),
     channel: ChannelWithTypeSchema,
-    subreddit: t.Nullable(SubredditSchema),
-    schedule: t.Nullable(ContentScheduleSchema),
+    subreddit: t.Union([SubredditSchema, t.Null()]),
+    schedule: t.Union([ContentScheduleSchema, t.Null()]),
   }),
 ]);
 
-export const FetchAllPostsResponseSchema = t.Array(PostWithRelationsSchema);
+export const FetchAllPostsResponseSchema = t.Object({
+  posts: t.Array(PostWithRelationsSchema),
+});
 
 export const fetchAllPosts = async (filters?: typeof PostFiltersSchema.static): Promise<typeof FetchAllPostsResponseSchema.static> => {
   const dataSource = await db();
@@ -74,12 +76,17 @@ export const fetchAllPosts = async (filters?: typeof PostFiltersSchema.static): 
 
   queryBuilder.orderBy("post.date", "DESC");
   queryBuilder.addOrderBy("postMedia.order", "ASC");
+  queryBuilder.take(100);
 
   const posts = await queryBuilder.getMany();
-  return posts.map((post) => ({
+  
+  const filteredPosts = posts.map((post) => ({
     ...post,
+    postMedia: post.postMedia.filter((pm) => pm.media !== null),
     subreddit: post.subreddit ?? null,
     schedule: post.schedule ?? null,
   }));
+  
+  return JSON.parse(JSON.stringify({ posts: filteredPosts }));
 };
 

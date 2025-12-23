@@ -3,7 +3,7 @@
   "name": "FansLib - Fansly Queue",
   "version": "2.0.0",
   "description": "Post FansLib content to Fansly with drag-and-drop from your local library",
-  "permissions": ["activeTab", "storage"],
+  "permissions": ["activeTab", "storage", "sidePanel"],
   "host_permissions": ["https://fansly.com/*", "http://localhost:6970/*"],
   "icons": {
     "16": "logo_small.png",
@@ -11,12 +11,14 @@
     "128": "logo_small.png"
   },
   "action": {
-    "default_popup": "popup.html",
     "default_icon": {
       "16": "logo_small.png",
       "48": "logo_small.png",
       "128": "logo_small.png"
     }
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
   },
   "options_page": "settings.html",
   "content_scripts": [

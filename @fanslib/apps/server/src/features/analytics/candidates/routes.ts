@@ -5,6 +5,8 @@ import { FetchAllCandidatesRequestQuerySchema, FetchAllCandidatesResponseSchema,
 import { IgnoreCandidateRequestParamsSchema, IgnoreCandidateResponseSchema, ignoreCandidate } from "./operations/ignore";
 import { ConfirmMatchRequestBodySchema, ConfirmMatchRequestParamsSchema, ConfirmMatchResponseSchema, confirmMatch } from "./operations/match";
 import { FetchCandidateSuggestionsRequestParamsSchema, FetchCandidateSuggestionsResponseSchema, fetchCandidateSuggestions } from "./operations/suggestions";
+import { UnignoreCandidateRequestParamsSchema, UnignoreCandidateResponseSchema, unignoreCandidate } from "./operations/unignore";
+import { UnmatchCandidateRequestParamsSchema, UnmatchCandidateResponseSchema, unmatchCandidate } from "./operations/unmatch";
 
 export const candidatesRoutes = new Elysia({ prefix: "/candidates" })
   .post("/", async ({ body }) => createCandidates(body), {
@@ -29,9 +31,9 @@ export const candidatesRoutes = new Elysia({ prefix: "/candidates" })
       404: t.Object({ error: t.String() }),
     },
   })
-  .post("/by-id/:id/match", async ({ params: { id }, body, set }) => {
+  .post("/by-id/:id/match", async ({ params, body, set }) => {
     try {
-      return await confirmMatch(id, body);
+      return await confirmMatch(params.id, body);
     } catch (error) {
       set.status = 404;
       if (error instanceof Error && error.message.includes("Could not find any entity")) {
@@ -47,9 +49,9 @@ export const candidatesRoutes = new Elysia({ prefix: "/candidates" })
       404: t.Object({ error: t.String() }),
     },
   })
-  .post("/by-id/:id/ignore", async ({ params: { id }, set }) => {
+  .post("/by-id/:id/ignore", async ({ params, set }) => {
     try {
-      return await ignoreCandidate(id);
+      return await ignoreCandidate(params.id);
     } catch (error) {
       set.status = 404;
       if (error instanceof Error && error.message.includes("Could not find any entity")) {
@@ -67,4 +69,38 @@ export const candidatesRoutes = new Elysia({ prefix: "/candidates" })
   .post("/bulk-confirm", async ({ body }) => bulkConfirmCandidates(body), {
     body: BulkConfirmCandidatesRequestBodySchema,
     response: BulkConfirmCandidatesResponseSchema,
+  })
+  .post("/by-id/:id/unmatch", async ({ params, set }) => {
+    try {
+      return await unmatchCandidate(params.id);
+    } catch (error) {
+      set.status = 404;
+      if (error instanceof Error && error.message.includes("Could not find any entity")) {
+        return { error: "Candidate not found" };
+      }
+      throw error;
+    }
+  }, {
+    params: UnmatchCandidateRequestParamsSchema,
+    response: {
+      200: UnmatchCandidateResponseSchema,
+      404: t.Object({ error: t.String() }),
+    },
+  })
+  .post("/by-id/:id/unignore", async ({ params, set }) => {
+    try {
+      return await unignoreCandidate(params.id);
+    } catch (error) {
+      set.status = 404;
+      if (error instanceof Error && error.message.includes("Could not find any entity")) {
+        return { error: "Candidate not found" };
+      }
+      throw error;
+    }
+  }, {
+    params: UnignoreCandidateRequestParamsSchema,
+    response: {
+      200: UnignoreCandidateResponseSchema,
+      404: t.Object({ error: t.String() }),
+    },
   });

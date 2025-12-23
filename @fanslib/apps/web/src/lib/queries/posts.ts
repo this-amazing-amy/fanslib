@@ -19,7 +19,7 @@ export const usePostsQuery = (params?: typeof FetchAllPostsRequestQuerySchema.st
     queryKey: ['posts', 'list', params],
     queryFn: async () => {
       const result = await eden.api.posts.all.get({ query: params });
-      return result.data;
+      return result.data?.posts ?? [];
     },
   });
 
@@ -159,7 +159,7 @@ export const useTemporalContextPostsQuery = (centerDate: Date, channelId?: strin
           }),
         },
       });
-      return result.data;
+      return result.data?.posts ?? [];
     },
     enabled: !!centerDate,
   });

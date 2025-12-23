@@ -82,10 +82,12 @@ const ToggleGroupItem = ({
   className,
 }: ToggleGroupItemProps) => {
   const ref = useRef<HTMLInputElement>(null);
+  const hasVisibleContent = option.label || option.icon;
   const { inputProps } = useRadio(
     {
       value: option.value,
       isDisabled: option.disabled,
+      'aria-label': option.ariaLabel || (!hasVisibleContent ? option.value : undefined),
     },
     state,
     ref

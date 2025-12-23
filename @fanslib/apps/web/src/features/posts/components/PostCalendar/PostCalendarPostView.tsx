@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
 import { StatusIcon } from "~/components/StatusIcon";
+import { getPostStatusBorderColor } from "~/lib/colors";
 
 type PostCalendarPostViewProps = {
   // Core data
@@ -51,7 +52,7 @@ export const PostCalendarPostView = ({
 
   const content = (
     <div
-      className="@container group flex flex-col transition-all duration-200 relative p-2 @[150px]:p-2.5 @[180px]:p-3 rounded-xl bg-base-100 border border-base-content"
+      className="@container group flex flex-col transition-all duration-200 relative p-2 @[150px]:p-2.5 @[180px]:p-3 rounded-xl bg-base-100 border"
       onMouseLeave={onMouseLeave}
     >
       {/* Overlay slot (e.g., virtual post overlay) */}

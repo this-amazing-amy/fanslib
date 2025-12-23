@@ -9,7 +9,6 @@ import { StatusIcon } from "~/components/StatusIcon";
 import { MediaSelectionProvider } from "~/contexts/MediaSelectionContext";
 import { usePostDrag } from "~/contexts/PostDragContext";
 import { usePostPreferences } from "~/contexts/PostPreferencesContext";
-import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
 import { MediaTile } from "~/features/library/components/MediaTile";
 import { cn } from "~/lib/cn";
 import { useSkipScheduleSlotMutation } from "~/lib/queries/content-schedules";
@@ -24,6 +23,15 @@ import { usePostPreviewDrag } from "./usePostPreviewDrag";
 type Post = typeof PostWithRelationsSchema.static;
 type Media = typeof MediaSchema.static;
 
+type CreatePostDialogData = {
+  media: Media[];
+  initialDate?: Date;
+  initialChannelId?: string;
+  scheduleId?: string;
+  initialCaption?: string;
+  initialMediaSelectionExpanded?: boolean;
+};
+
 type PostPreviewProps = {
   post: Post | VirtualPost;
   onUpdate: () => Promise<void>;
@@ -31,6 +39,8 @@ type PostPreviewProps = {
   onOpenChange: (isOpen: boolean) => void;
   previousPostInList?: Post | VirtualPost;
   nextPostInList?: Post | VirtualPost;
+  onOpenCreateDialog: (data: CreatePostDialogData) => void;
+  matchedPostMediaIds?: Set<string>;
 };
 
 export const PostPreview = ({
@@ -40,26 +50,20 @@ export const PostPreview = ({
   onOpenChange,
   previousPostInList,
   nextPostInList,
+  onOpenCreateDialog,
+  matchedPostMediaIds,
 }: PostPreviewProps) => {
   const isVirtual = isVirtualPost(post);
   const { preferences } = usePostPreferences();
   const { createPostFromVirtualSlot } = useCreatePostFromVirtualSlot();
   const { startPostDrag, endPostDrag: stopPostDrag, isDragging: isPostDragging, draggedPost } = usePostDrag();
-  const [createPostData, setCreatePostData] = useState<{
-    media: Media[];
-    initialDate?: Date;
-    initialChannelId?: string;
-    scheduleId?: string;
-    initialCaption?: string;
-    initialMediaSelectionExpanded?: boolean;
-  } | null>(null);
   const [hasSkipConfirmation, setHasSkipConfirmation] = useState(false);
   const skipSlotMutation = useSkipScheduleSlotMutation();
   const captionPreview = post.caption ? getCaptionPreview(post.caption) : "";
 
   const virtualPostClick = useVirtualPostClick({
     post: isVirtual ? post : ({} as VirtualPost),
-    onOpenCreateDialog: (data) => setCreatePostData(data),
+    onOpenCreateDialog: (data) => onOpenCreateDialog(data),
   });
 
   const {
@@ -74,7 +78,7 @@ export const PostPreview = ({
     isOpen,
     onOpenChange,
     onUpdate,
-    onOpenCreateDialog: (data) => setCreatePostData({ ...data, initialMediaSelectionExpanded: true }),
+    onOpenCreateDialog: (data) => onOpenCreateDialog({ ...data, initialMediaSelectionExpanded: true }),
   });
 
   const dragProps = isVirtual
@@ -109,7 +113,7 @@ export const PostPreview = ({
     const scheduleId = post.scheduleId;
 
     if (preferences.view.openDialogOnDrop) {
-      setCreatePostData({
+      onOpenCreateDialog({
         media,
         initialCaption: caption,
         initialDate,
@@ -128,11 +132,6 @@ export const PostPreview = ({
       onUpdate,
     });
     return true;
-  };
-
-  const closeCreatePostDialog = () => {
-    setCreatePostData(null);
-    onUpdate();
   };
 
   const skipScheduleSlot = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -167,6 +166,7 @@ export const PostPreview = ({
         className="absolute left-4 right-4 top-2 z-20 mx-0"
         previousPostDate={new Date(previousPostInList.date)}
         dropTargetPost={previousPostInList}
+        onOpenCreateDialog={onOpenCreateDialog}
       />
     );
   const nextDropZone = !shouldShowInsertionZones ? null : (
@@ -175,6 +175,7 @@ export const PostPreview = ({
         className="absolute left-4 right-4 bottom-2 z-20 mx-0"
         previousPostDate={new Date(post.date)}
         dropTargetPost={post}
+        onOpenCreateDialog={onOpenCreateDialog}
       />
     )
   );
@@ -310,17 +311,20 @@ export const PostPreview = ({
                 </div>
               ) : (
                 <MediaSelectionProvider media={post.postMedia.map((pm) => pm.media)}>
-                  {post.postMedia.map((pm) => (
-                    <MediaTile
-                      key={pm.id}
-                      media={pm.media}
-                      allMedias={post.postMedia.map((pm) => pm.media)}
-                      index={post.postMedia.indexOf(pm)}
-                      className="size-24"
-                      withPreview
-                      withDuration
-                    />
-                  ))}
+                  {post.postMedia.map((pm) => {
+                    const isMatched = matchedPostMediaIds?.has(pm.id) ?? false;
+                    return (
+                      <MediaTile
+                        key={pm.id}
+                        media={pm.media}
+                        allMedias={post.postMedia.map((pm) => pm.media)}
+                        index={post.postMedia.indexOf(pm)}
+                        className={cn("size-24", isMatched && "opacity-30")}
+                        withPreview
+                        withDuration
+                      />
+                    );
+                  })}
                 </MediaSelectionProvider>
               )}
             </div>
@@ -344,20 +348,6 @@ export const PostPreview = ({
     </Link>
   );
 
-  return (
-    <>
-      {wrappedContent}
-      <CreatePostDialog
-        open={createPostData !== null}
-        onOpenChange={closeCreatePostDialog}
-        media={createPostData?.media ?? []}
-        initialDate={createPostData?.initialDate}
-        initialChannelId={createPostData?.initialChannelId}
-        scheduleId={createPostData?.scheduleId}
-        initialCaption={createPostData?.initialCaption}
-        initialMediaSelectionExpanded={createPostData?.initialMediaSelectionExpanded}
-      />
-    </>
-  );
+  return wrappedContent;
 };
 

@@ -31,10 +31,24 @@ export const Input = ({
     ghost: 'input-ghost',
   };
 
+  const { onKeyDown: ariaOnKeyDown, ...restInputProps } = inputProps;
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'a') {
+      return;
+    }
+    if (ariaOnKeyDown) {
+      ariaOnKeyDown(e);
+    }
+    if (onKeyDown) {
+      onKeyDown(e);
+    }
+  };
+
   return (
     <input
-      {...inputProps}
-      onKeyDown={onKeyDown}
+      {...restInputProps}
+      onKeyDown={handleKeyDown}
       ref={ref}
       type={type}
       min={min}

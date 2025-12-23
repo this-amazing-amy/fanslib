@@ -116,6 +116,24 @@ export const POST_STATUS_COLORS: Record<string, ColorDefinition> = {
   },
 } as const;
 
+export const MATCHING_STATUS_COLORS: Record<string, ColorDefinition> = {
+  pending: {
+    name: 'Pending',
+    background: baseColors.readyAmber.background,
+    foreground: baseColors.readyAmber.foreground,
+  },
+  matched: {
+    name: 'Matched',
+    background: baseColors.postedTeal.background,
+    foreground: baseColors.postedTeal.foreground,
+  },
+  ignored: {
+    name: 'Ignored',
+    background: baseColors.draftSlate.background,
+    foreground: baseColors.draftSlate.foreground,
+  },
+} as const;
+
 export const VERIFICATION_STATUS_COLORS: Record<string, ColorDefinition> = {
   UNKNOWN: {
     name: 'Unknown',

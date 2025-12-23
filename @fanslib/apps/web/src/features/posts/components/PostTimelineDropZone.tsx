@@ -1,9 +1,7 @@
 import type { MediaSchema, PostWithRelationsSchema } from "@fanslib/server/schemas";
 import { Plus } from "lucide-react";
-import { useState } from "react";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
 import { usePostDrag } from "~/contexts/PostDragContext";
-import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
 import { useDragOver } from "~/hooks/useDragOver";
 import { cn } from "~/lib/cn";
 import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
@@ -11,26 +9,29 @@ import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
 type Media = typeof MediaSchema.static;
 type Post = typeof PostWithRelationsSchema.static;
 
+type CreatePostDialogData = {
+  media: Media[];
+  initialDate?: Date;
+  initialChannelId?: string;
+  initialCaption?: string;
+  scheduleId?: string;
+};
+
 type PostTimelineDropZoneProps = {
   className?: string;
   previousPostDate: Date;
   dropTargetPost: Post | VirtualPost;
+  onOpenCreateDialog: (data: CreatePostDialogData) => void;
 };
 
 export const PostTimelineDropZone = ({
   className,
   previousPostDate,
   dropTargetPost,
+  onOpenCreateDialog,
 }: PostTimelineDropZoneProps) => {
   const { isDragging: isMediaDragging, draggedMedias, endMediaDrag } = useMediaDrag();
   const { isDragging: isPostDragging, draggedPost, endPostDrag } = usePostDrag();
-  const [createPostData, setCreatePostData] = useState<{
-    media: Media[];
-    initialDate?: Date;
-    initialChannelId?: string;
-    initialCaption?: string;
-    scheduleId?: string;
-  } | null>(null);
 
   const isDragging = isMediaDragging || isPostDragging;
 
@@ -46,18 +47,19 @@ export const PostTimelineDropZone = ({
       nextDate.setDate(nextDate.getDate() + 1);
 
       if (isMediaDragging && draggedMedias.length > 0) {
-        setCreatePostData({
+        onOpenCreateDialog({
           media: draggedMedias,
           initialDate: nextDate,
           initialChannelId: getDropTargetChannelId(dropTargetPost),
           scheduleId: getDropTargetScheduleId(dropTargetPost),
         });
         endMediaDrag();
+        setIsOver(false);
         return;
       }
 
       if (isPostDragging && draggedPost) {
-        setCreatePostData({
+        onOpenCreateDialog({
           media: getDraggedPostMedia(draggedPost),
           initialCaption: draggedPost.caption ?? undefined,
           initialChannelId: getDropTargetChannelId(dropTargetPost),
@@ -65,47 +67,31 @@ export const PostTimelineDropZone = ({
           initialDate: nextDate,
         });
         endPostDrag();
+        setIsOver(false);
       }
     },
   });
 
-  const handleClose = () => {
-    setCreatePostData(null);
-    setIsOver(false);
-  };
-
-  if (!isDragging && createPostData === null) {
+  if (!isDragging) {
     return null;
   }
 
   return (
-    <>
-      <div
+    <div
+      className={cn(
+        "h-8 mx-4 rounded-lg border-2 border-dashed flex items-center justify-center transition-colors",
+        isOver ? "border-primary bg-primary/10" : "border-base-300",
+        className
+      )}
+      {...dragHandlers}
+    >
+      <Plus
         className={cn(
-          "h-8 mx-4 rounded-lg border-2 border-dashed flex items-center justify-center transition-colors",
-          isOver ? "border-primary bg-primary/10" : "border-base-300",
-          className
+          "h-4 w-4 transition-colors",
+          isOver ? "text-primary" : "text-base-content/60"
         )}
-        {...dragHandlers}
-      >
-        <Plus
-          className={cn(
-            "h-4 w-4 transition-colors",
-            isOver ? "text-primary" : "text-base-content/60"
-          )}
-        />
-      </div>
-
-      <CreatePostDialog
-        open={createPostData !== null}
-        onOpenChange={handleClose}
-        media={createPostData?.media ?? []}
-        initialDate={createPostData?.initialDate}
-        initialChannelId={createPostData?.initialChannelId}
-        initialCaption={createPostData?.initialCaption}
-        scheduleId={createPostData?.scheduleId}
       />
-    </>
+    </div>
   );
 };
 

@@ -11,8 +11,8 @@ import {
 import type { Relation } from "typeorm";
 import type { PostMedia } from "../posts/entity";
 
-export type CandidateStatus = "pending" | "matched" | "ignored" | "no_match";
-export type MatchMethod = "exact_filename" | "fuzzy_filename" | "manual";
+export type CandidateStatus = "pending" | "matched" | "ignored";
+export type MatchMethod = "exact_filename" | "fuzzy_filename" | "manual" | "auto_detected";
 export type FanslyMediaType = "image" | "video";
 
 @Entity("fansly_media_candidate")
@@ -72,13 +72,13 @@ export const CandidateStatusSchema = t.Union([
   t.Literal("pending"),
   t.Literal("matched"),
   t.Literal("ignored"),
-  t.Literal("no_match"),
 ]);
 
 export const MatchMethodSchema = t.Union([
   t.Literal("exact_filename"),
   t.Literal("fuzzy_filename"),
   t.Literal("manual"),
+  t.Literal("auto_detected"),
 ]);
 
 export const FanslyMediaTypeSchema = t.Union([

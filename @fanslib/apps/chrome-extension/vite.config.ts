@@ -15,6 +15,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         popup: resolve(__dirname, 'popup.html'),
+        sidepanel: resolve(__dirname, 'sidepanel.html'),
         settings: resolve(__dirname, 'settings.html'),
         'test-popup': resolve(__dirname, 'test-popup.html'),
         'content/fansly-interceptor': resolve(__dirname, 'src/content/fansly-interceptor.ts'),

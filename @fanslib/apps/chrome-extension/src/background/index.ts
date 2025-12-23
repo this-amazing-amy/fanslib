@@ -53,6 +53,12 @@ const getApiUrl = async (): Promise<string | null> => {
   return apiUrl || DEFAULT_API_URL;
 };
 
+type SyncResult = {
+  created: number;
+  existing: number;
+  alreadyMatched: number;
+};
+
 const sendCandidates = async (candidates: CandidateItem[]): Promise<void> => {
   debug('info', 'Starting to send candidates to API', {
     candidateCount: candidates.length,
@@ -67,6 +73,8 @@ const sendCandidates = async (candidates: CandidateItem[]): Promise<void> => {
     endpoint,
     candidateCount: candidates.length,
   });
+
+  await chrome.storage.local.set({ isSyncing: true });
 
   try {
     const response = await fetch(endpoint, {
@@ -87,24 +95,36 @@ const sendCandidates = async (candidates: CandidateItem[]): Promise<void> => {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    const result = await response.json();
+    const result = await response.json() as Array<{ candidate: unknown; status: 'created' | 'existing' | 'already_matched' }>;
+    
+    const syncResult: SyncResult = {
+      created: result.filter((r) => r.status === 'created').length,
+      existing: result.filter((r) => r.status === 'existing').length,
+      alreadyMatched: result.filter((r) => r.status === 'already_matched').length,
+    };
+
     debug('info', 'Candidates sent successfully', {
       sentCount: candidates.length,
-      savedCount: result.length,
-      result,
+      resultCount: result.length,
+      syncResult,
     });
 
     const syncTimestamp = Date.now();
     await chrome.storage.local.set({
       lastSyncAt: syncTimestamp,
       lastSyncCount: candidates.length,
+      lastSyncCreated: syncResult.created,
+      lastSyncExisting: syncResult.existing,
+      lastSyncAlreadyMatched: syncResult.alreadyMatched,
       lastSyncError: null,
       lastSyncErrorAt: null,
+      isSyncing: false,
     });
 
     debug('info', 'Sync metadata updated in storage', {
       lastSyncAt: syncTimestamp,
       lastSyncCount: candidates.length,
+      syncResult,
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -119,6 +139,7 @@ const sendCandidates = async (candidates: CandidateItem[]): Promise<void> => {
     await chrome.storage.local.set({
       lastSyncError: errorMessage,
       lastSyncErrorAt: Date.now(),
+      isSyncing: false,
     });
   }
 };
@@ -157,12 +178,59 @@ const flushBuffer = (): void => {
   }
 };
 
+const MAX_RECENT_CANDIDATES = 100;
+
+const storeRecentCandidates = async (candidates: CandidateItem[]): Promise<void> => {
+  try {
+    debug('info', 'Storing recent candidates', {
+      candidateCount: candidates.length,
+      sampleIds: candidates.slice(0, 3).map((c) => c.fanslyStatisticsId),
+    });
+    
+    const result = await chrome.storage.local.get(['recentCandidates']);
+    const existing = (result.recentCandidates as CandidateItem[] | undefined) ?? [];
+    
+    debug('info', 'Retrieved existing candidates from storage', {
+      existingCount: existing.length,
+      existingIsArray: Array.isArray(existing),
+    });
+    
+    const seen = new Set<string>(existing.map((c) => c.fanslyStatisticsId));
+    const newCandidates = candidates.filter((c) => !seen.has(c.fanslyStatisticsId));
+    
+    debug('info', 'Filtered new candidates', {
+      newCount: newCandidates.length,
+      duplicateCount: candidates.length - newCandidates.length,
+    });
+    
+    const combined = [...newCandidates, ...existing].slice(0, MAX_RECENT_CANDIDATES);
+    
+    await chrome.storage.local.set({ recentCandidates: combined });
+    
+    debug('info', 'Stored recent candidates', {
+      newCount: newCandidates.length,
+      totalStored: combined.length,
+      storageSet: true,
+    });
+  } catch (error) {
+    debug('error', 'Failed to store recent candidates', {
+      error,
+      errorMessage: error instanceof Error ? error.message : String(error),
+      errorStack: error instanceof Error ? error.stack : undefined,
+    });
+  }
+};
+
 const addToBuffer = (candidates: CandidateItem[]): void => {
   debug('info', 'Adding candidates to buffer', {
     newCandidateCount: candidates.length,
     currentBufferSize: candidateBuffer.length,
     newCandidateIds: candidates.map((c) => c.fanslyStatisticsId).slice(0, 5),
     showingFirst: Math.min(5, candidates.length),
+  });
+
+  storeRecentCandidates(candidates).catch((error) => {
+    debug('error', 'Error storing recent candidates', error);
   });
 
   const seen = new Set<string>();
@@ -206,7 +274,7 @@ const addToBuffer = (candidates: CandidateItem[]): void => {
   }
 };
 
-chrome.runtime.onMessage.addListener((message: Message) => {
+chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse) => {
   debug('info', 'Received message', {
     type: message.type,
     hasCandidates: !!message.candidates,
@@ -215,9 +283,19 @@ chrome.runtime.onMessage.addListener((message: Message) => {
 
   if (message.type === 'FANSLY_TIMELINE_DATA') {
     addToBuffer(message.candidates);
+    sendResponse({ success: true });
+    return true;
   }
+
+  return false;
 });
 
 chrome.runtime.onInstalled.addListener(() => {
   debug('info', 'Background script installed');
+});
+
+chrome.action.onClicked.addListener((tab) => {
+  if (tab.id) {
+    chrome.sidePanel.open({ tabId: tab.id });
+  }
 });

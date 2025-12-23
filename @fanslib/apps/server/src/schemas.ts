@@ -522,6 +522,16 @@ export {
 } from './features/analytics/candidates/operations/ignore';
 
 export {
+  UnmatchCandidateRequestParamsSchema,
+  UnmatchCandidateResponseSchema
+} from './features/analytics/candidates/operations/unmatch';
+
+export {
+  UnignoreCandidateRequestParamsSchema,
+  UnignoreCandidateResponseSchema
+} from './features/analytics/candidates/operations/unignore';
+
+export {
   BulkConfirmCandidatesRequestBodySchema,
   BulkConfirmCandidatesResponseSchema
 } from './features/analytics/candidates/operations/bulk-confirm';

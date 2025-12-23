@@ -16,34 +16,44 @@ type Post = typeof PostWithRelationsSchema.static;
 type TimelineVirtualizer = ReturnType<typeof usePostTimelineVirtualizer>["virtualizer"];
 type TimelineVirtualItem = ReturnType<TimelineVirtualizer["getVirtualItems"]>[number];
 
+type CreatePostDialogData = {
+  media: Media[];
+  initialDate?: Date;
+  initialChannelId?: string;
+  initialCaption?: string;
+  scheduleId?: string;
+  initialMediaSelectionExpanded?: boolean;
+};
+
 type PostTimelineProps = {
   posts: (Post | VirtualPost)[];
   className?: string;
   onUpdate: () => Promise<void>;
+  matchedPostMediaIds?: Set<string>;
 };
 
-export const PostTimeline = ({ posts, className, onUpdate }: PostTimelineProps) => {
+export const PostTimeline = ({ posts, className, onUpdate, matchedPostMediaIds }: PostTimelineProps) => {
   const [openPostId, setOpenPostId] = useState<string | null>(null);
   const { isDragging: isMediaDragging, draggedMedias, endMediaDrag } = useMediaDrag();
   const { isDragging: isPostDragging, draggedPost, endPostDrag } = usePostDrag();
-  const [createPostData, setCreatePostData] = useState<{
-    media: Media[];
-    initialChannelId?: string;
-    initialCaption?: string;
-  } | null>(null);
+  const [createPostData, setCreatePostData] = useState<CreatePostDialogData | null>(null);
+
+  const onOpenCreateDialog = (data: CreatePostDialogData) => {
+    setCreatePostData(data);
+  };
 
   const isDragging = isMediaDragging || isPostDragging;
 
   const { isOver, dragHandlers } = useDragOver({
     onDrop: async () => {
       if (isMediaDragging && draggedMedias.length > 0) {
-        setCreatePostData({ media: draggedMedias });
+        onOpenCreateDialog({ media: draggedMedias });
         endMediaDrag();
         return;
       }
 
       if (isPostDragging && draggedPost) {
-        setCreatePostData({
+        onOpenCreateDialog({
           media: draggedPost.postMedia.map((pm) => pm.media),
           initialCaption: draggedPost.caption ?? undefined,
           initialChannelId: draggedPost.channel?.id ?? undefined,
@@ -95,8 +105,11 @@ export const PostTimeline = ({ posts, className, onUpdate }: PostTimelineProps) 
           open={createPostData !== null}
           onOpenChange={handleClose}
           media={createPostData?.media ?? []}
+          initialDate={createPostData?.initialDate}
           initialChannelId={createPostData?.initialChannelId}
           initialCaption={createPostData?.initialCaption}
+          scheduleId={createPostData?.scheduleId}
+          initialMediaSelectionExpanded={createPostData?.initialMediaSelectionExpanded}
         />
       </>
     );
@@ -141,11 +154,23 @@ export const PostTimeline = ({ posts, className, onUpdate }: PostTimelineProps) 
                 onOpenChange={(isOpen) => setOpenPostId(isOpen ? id : null)}
                 previousPostInList={previousPost}
                 nextPostInList={nextPost}
+                onOpenCreateDialog={onOpenCreateDialog}
+                matchedPostMediaIds={matchedPostMediaIds}
               />
             </div>
           );
         })}
       </div>
+      <CreatePostDialog
+        open={createPostData !== null}
+        onOpenChange={handleClose}
+        media={createPostData?.media ?? []}
+        initialDate={createPostData?.initialDate}
+        initialChannelId={createPostData?.initialChannelId}
+        initialCaption={createPostData?.initialCaption}
+        scheduleId={createPostData?.scheduleId}
+        initialMediaSelectionExpanded={createPostData?.initialMediaSelectionExpanded}
+      />
     </ScrollArea>
   );
 };

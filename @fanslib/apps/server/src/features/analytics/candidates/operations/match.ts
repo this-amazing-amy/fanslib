@@ -29,6 +29,22 @@ export const confirmMatch = async (
     where: { id: body.postMediaId },
   });
 
+  const existingMatch = await candidateRepository.findOne({
+    where: { matchedPostMediaId: body.postMediaId },
+    relations: { matchedPostMedia: true },
+  });
+
+  if (existingMatch && existingMatch.id !== id) {
+    if (existingMatch.matchedPostMedia) {
+      existingMatch.matchedPostMedia.fanslyStatisticsId = null;
+      await postMediaRepository.save(existingMatch.matchedPostMedia);
+    }
+    existingMatch.status = "pending";
+    existingMatch.matchedPostMediaId = null;
+    existingMatch.matchedAt = null;
+    await candidateRepository.save(existingMatch);
+  }
+
   candidate.status = "matched";
   candidate.matchedPostMediaId = body.postMediaId;
   candidate.matchedAt = new Date();

@@ -48,7 +48,7 @@ export const Popup = () => {
       }
 
       // Sort by date ascending (oldest first)
-      const sortedPosts = (response.data ?? []).sort(
+      const sortedPosts = (response.data?.posts ?? []).sort(
         (a: Post, b: Post) =>
           new Date(a.date).getTime() - new Date(b.date).getTime()
       );
@@ -129,7 +129,7 @@ export const Popup = () => {
   const currentPost = posts[currentIndex];
 
   return (
-    <div className='w-[420px] min-h-[300px] max-h-[600px] bg-base-100 text-base-content overflow-y-auto flex flex-col rounded-lg pb-4'>
+    <div className='w-full h-screen bg-base-100 text-base-content overflow-y-auto flex flex-col'>
       <PopupHeader
         postCount={posts.length}
         currentIndex={currentIndex}

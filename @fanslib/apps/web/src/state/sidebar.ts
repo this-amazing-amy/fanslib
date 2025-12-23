@@ -1,16 +1,6 @@
 import { atom } from 'jotai';
 
-const STORAGE_KEY = 'sidebarCollapsed';
-
-const getInitialCollapsedState = (): boolean => {
-  if (typeof window === 'undefined') return true;
-  try {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : true;
-  } catch {
-    return true;
-  }
-};
+export const STORAGE_KEY = 'sidebarCollapsed';
 
 export const mobileNavigationDrawerOpenAtom = atom<boolean>(false);
 
@@ -26,7 +16,7 @@ export const closeSidebarAtom = atom(null, (get, set) => {
   set(mobileNavigationDrawerOpenAtom, false);
 });
 
-const baseSidebarCollapsedAtom = atom<boolean>(getInitialCollapsedState());
+const baseSidebarCollapsedAtom = atom<boolean>(false);
 
 export const sidebarCollapsedAtom = atom(
   (get) => get(baseSidebarCollapsedAtom),

@@ -26,7 +26,7 @@ export const fetchPostsByChannel = async (channelId: string): Promise<typeof Fet
   const dataSource = await db();
   const repository = dataSource.getRepository(Post);
 
-  return repository.find({
+  const posts = await repository.find({
     where: { channelId },
     relations: {
       postMedia: {
@@ -44,5 +44,10 @@ export const fetchPostsByChannel = async (channelId: string): Promise<typeof Fet
       },
     },
   });
+
+  return posts.map((post) => ({
+    ...post,
+    postMedia: post.postMedia.filter((pm) => pm.media !== null),
+  }));
 };
 

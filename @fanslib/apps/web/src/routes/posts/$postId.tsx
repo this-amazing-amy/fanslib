@@ -7,7 +7,7 @@ import { Button } from '~/components/ui/Button';
 import { MediaDragProvider } from '~/contexts/MediaDragContext';
 import { PostDetailCaptionInput } from '~/features/posts/components/post-detail/PostDetailCaptionInput';
 import { PostDetailDateTimeInputs } from '~/features/posts/components/post-detail/PostDetailDateTimeInputs';
-import { PostDetailFanslyStatistics } from '~/features/posts/components/post-detail/PostDetailFanslyStatistics';
+import { PostDetailAnalytics } from '~/features/posts/components/post-detail/PostDetailAnalytics';
 import { PostDetailMedia } from '~/features/posts/components/post-detail/PostDetailMedia';
 import { PostDetailNavigation } from '~/features/posts/components/post-detail/PostDetailNavigation';
 import { PostDetailPostponeButton } from '~/features/posts/components/post-detail/PostDetailPostponeButton';
@@ -90,12 +90,12 @@ const PostDetailRoute = () => {
               <PostDetailScheduleSelect post={normalizedPost} />
               <PostDetailDateTimeInputs post={normalizedPost} />
               <PostDetailUrlInput post={normalizedPost} />
-              {normalizedPost.channel.typeId === 'fansly' && <PostDetailFanslyStatistics post={normalizedPost} />}
               <PostDetailCaptionInput post={normalizedPost} />
             </div>
           </div>
 
           <PostDetailTemporalContext post={normalizedPost} />
+          <PostDetailAnalytics post={normalizedPost} />
         </div>
       </div>
     </MediaDragProvider>
