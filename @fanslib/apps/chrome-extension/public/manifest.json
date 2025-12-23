@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "FansLib - Fansly Queue",
+  "name": "FansLib",
   "version": "2.0.0",
   "description": "Post FansLib content to Fansly with drag-and-drop from your local library",
   "permissions": ["activeTab", "storage", "sidePanel"],

@@ -72,6 +72,46 @@ window.addEventListener('message', (event) => {
       });
     }
   }
+  
+  if (event.data.type === 'FANSLIB_CREDENTIALS') {
+    debug('info', 'Received credentials from MAIN world', {
+      hasAuth: !!event.data.credentials?.fanslyAuth,
+      hasSessionId: !!event.data.credentials?.fanslySessionId,
+    });
+    
+    try {
+      if (!chrome?.runtime) {
+        debug('error', 'chrome.runtime not available');
+        return;
+      }
+
+      const message = {
+        type: "FANSLY_CREDENTIALS",
+        credentials: event.data.credentials,
+      };
+
+      debug('info', 'Attempting to send credentials to background', {
+        messageType: message.type,
+        hasCredentials: !!message.credentials,
+      });
+
+      chrome.runtime.sendMessage(message)
+        .then(() => {
+          debug('info', 'Credentials sent successfully to background script');
+        })
+        .catch((error) => {
+          debug('error', 'Failed to send credentials to background script', {
+            error,
+            errorMessage: error instanceof Error ? error.message : String(error),
+          });
+        });
+    } catch (error) {
+      debug('error', 'Failed to forward credentials', {
+        error,
+        errorMessage: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
 });
 
 debug('info', 'Bridge message listener installed');

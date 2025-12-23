@@ -1,5 +1,6 @@
 import { Check } from 'lucide-react';
 import { ApiUrlInput } from './ApiUrlInput';
+import { CredentialsStatus } from './CredentialsStatus';
 import { LibraryPathInput } from './LibraryPathInput';
 import { WebUrlInput } from './WebUrlInput';
 
@@ -33,6 +34,10 @@ export const SettingsForm = ({
       <ApiUrlInput apiUrl={apiUrl} onChange={onApiUrlChange} />
 
       <WebUrlInput webUrl={webUrl} onChange={onWebUrlChange} />
+
+      <div className='pt-2 border-t border-base-300'>
+        <CredentialsStatus apiUrl={apiUrl} />
+      </div>
 
       <div className='flex items-center gap-3 pt-2'>
         <button

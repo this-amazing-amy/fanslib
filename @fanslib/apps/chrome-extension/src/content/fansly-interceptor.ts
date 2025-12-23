@@ -32,6 +32,13 @@ export type CandidateItem = {
   mediaType: "image" | "video";
 };
 
+type FanslyCredentials = {
+  fanslyAuth?: string;
+  fanslySessionId?: string;
+  fanslyClientCheck?: string;
+  fanslyClientId?: string;
+};
+
 const DEBUG_PREFIX = '[FansLib:Interceptor:MainWorld]';
 
 const debug = (level: 'info' | 'warn' | 'error', message: string, data?: unknown) => {
@@ -132,6 +139,7 @@ debug('info', 'Content script starting in MAIN world', {
 const originalFetch = window.fetch;
 const originalXHROpen = XMLHttpRequest.prototype.open;
 const originalXHRSend = XMLHttpRequest.prototype.send;
+const originalXHRSetRequestHeader = XMLHttpRequest.prototype.setRequestHeader;
 
 // eslint-disable-next-line functional/no-let
 let fetchInterceptCount = 0;
@@ -154,6 +162,55 @@ const processCandidates = (candidates: CandidateItem[]) => {
     debug('info', 'Candidates posted to window');
   } else {
     debug('warn', 'No candidates extracted from timeline data');
+  }
+};
+
+const extractCredentialsFromHeaders = (headers: HeadersInit | undefined): Partial<FanslyCredentials> => {
+  const credentials: Partial<FanslyCredentials> = {};
+  
+  if (!headers) return credentials;
+  
+  let headerMap: Record<string, string>;
+  
+  if (headers instanceof Headers) {
+    headerMap = Object.fromEntries(headers.entries());
+  } else if (Array.isArray(headers)) {
+    headerMap = Object.fromEntries(headers);
+  } else {
+    headerMap = headers as Record<string, string>;
+  }
+  
+  const getHeader = (name: string): string | undefined => {
+    const lowerName = name.toLowerCase();
+    const entry = Object.entries(headerMap).find(
+      ([key]) => key.toLowerCase() === lowerName
+    );
+    return entry ? String(entry[1]) : undefined;
+  };
+  
+  const auth = getHeader('authorization');
+  if (auth) credentials.fanslyAuth = auth;
+  
+  const sessionId = getHeader('fansly-session-id');
+  if (sessionId) credentials.fanslySessionId = sessionId;
+  
+  const clientCheck = getHeader('fansly-client-check');
+  if (clientCheck) credentials.fanslyClientCheck = clientCheck;
+  
+  const clientId = getHeader('fansly-client-id');
+  if (clientId) credentials.fanslyClientId = clientId;
+  
+  return credentials;
+};
+
+const sendCredentialsIfPresent = (credentials: Partial<FanslyCredentials>): void => {
+  const hasCredentials = Object.keys(credentials).length > 0;
+  
+  if (hasCredentials) {
+    window.postMessage({
+      type: 'FANSLIB_CREDENTIALS',
+      credentials,
+    }, '*');
   }
 };
 
@@ -200,7 +257,13 @@ window.fetch = async function(...args): Promise<Response> {
     url: url.substring(0, 100),
     method: init?.method || 'GET',
     isTimeline: url.includes('timelinenew'),
+    isFanslyApi: url.includes('fansly.com'),
   });
+
+  if (url.includes('fansly.com')) {
+    const credentials = extractCredentialsFromHeaders(init?.headers);
+    sendCredentialsIfPresent(credentials);
+  }
 
   const response = await originalFetch.apply(this, args);
 
@@ -234,14 +297,24 @@ XMLHttpRequest.prototype.open = function(
 ) {
   const urlString = typeof url === 'string' ? url : url.toString();
   
-  (this as XMLHttpRequest & { _url?: string })._url = urlString;
-  (this as XMLHttpRequest & { _method?: string })._method = method;
+  (this as XMLHttpRequest & { _url?: string; _method?: string; _headers?: Record<string, string> })._url = urlString;
+  (this as XMLHttpRequest & { _url?: string; _method?: string; _headers?: Record<string, string> })._method = method;
+  (this as XMLHttpRequest & { _url?: string; _method?: string; _headers?: Record<string, string> })._headers = {};
   
   return originalXHROpen.apply(this, [method, url, ...rest] as Parameters<typeof originalXHROpen>);
 };
 
+XMLHttpRequest.prototype.setRequestHeader = function(name: string, value: string): void {
+  const xhr = this as XMLHttpRequest & { _url?: string; _headers?: Record<string, string> };
+  if (!xhr._headers) {
+    xhr._headers = {};
+  }
+  xhr._headers[name] = value;
+  return originalXHRSetRequestHeader.apply(this, [name, value] as Parameters<typeof originalXHRSetRequestHeader>);
+};
+
 XMLHttpRequest.prototype.send = function(...args: unknown[]) {
-  const xhr = this as XMLHttpRequest & { _url?: string; _method?: string };
+  const xhr = this as XMLHttpRequest & { _url?: string; _method?: string; _headers?: Record<string, string> };
   const url = xhr._url || '';
   const method = xhr._method || 'GET';
   
@@ -250,7 +323,13 @@ XMLHttpRequest.prototype.send = function(...args: unknown[]) {
     url: url.substring(0, 100),
     method,
     isTimeline: url.includes('timelinenew'),
+    isFanslyApi: url.includes('fansly.com'),
   });
+
+  if (url.includes('fansly.com') && xhr._headers) {
+    const credentials = extractCredentialsFromHeaders(xhr._headers);
+    sendCredentialsIfPresent(credentials);
+  }
 
   if (url.includes('apiv3.fansly.com/api/v1/timelinenew')) {
     debug('info', 'Timeline request via XHR detected', { url, method });

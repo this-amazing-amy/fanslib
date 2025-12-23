@@ -1,5 +1,6 @@
 export { ApiUrlInput } from './ApiUrlInput';
 export { ConnectionTest } from './ConnectionTest';
+export { CredentialsStatus } from './CredentialsStatus';
 export { HowToUse } from './HowToUse';
 export { LibraryPathInput } from './LibraryPathInput';
 export { SettingsPage } from './Settings';

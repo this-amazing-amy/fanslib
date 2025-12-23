@@ -1,9 +1,19 @@
 import type { CandidateItem } from '../content/fansly-interceptor';
 
-type Message = {
-  type: 'FANSLY_TIMELINE_DATA';
-  candidates: CandidateItem[];
-};
+type Message = 
+  | {
+      type: 'FANSLY_TIMELINE_DATA';
+      candidates: CandidateItem[];
+    }
+  | {
+      type: 'FANSLY_CREDENTIALS';
+      credentials: {
+        fanslyAuth?: string;
+        fanslySessionId?: string;
+        fanslyClientCheck?: string;
+        fanslyClientId?: string;
+      };
+    };
 
 const BATCH_DELAY_MS = 2000;
 const MAX_BATCH_SIZE = 50;
@@ -57,6 +67,65 @@ type SyncResult = {
   created: number;
   existing: number;
   alreadyMatched: number;
+};
+
+const CREDENTIALS_THROTTLE_MS = 60000;
+
+const sendCredentialsToServer = async (credentials: {
+  fanslyAuth?: string;
+  fanslySessionId?: string;
+  fanslyClientCheck?: string;
+  fanslyClientId?: string;
+}): Promise<void> => {
+  const storage = await chrome.storage.local.get(['lastCredentialsSentAt', 'pendingCredentials']);
+  const lastSentAt = storage.lastCredentialsSentAt ?? 0;
+  const now = Date.now();
+  const timeSinceLastSend = now - lastSentAt;
+
+  const filteredCredentials = Object.fromEntries(
+    Object.entries(credentials).filter(([_, value]) => value !== undefined && value !== null && value !== '')
+  );
+
+  if (timeSinceLastSend < CREDENTIALS_THROTTLE_MS) {
+    await chrome.storage.local.set({
+      pendingCredentials: filteredCredentials,
+    });
+    return;
+  }
+
+  const apiUrl = await getApiUrl();
+  const endpoint = `${apiUrl}/api/settings/fansly-credentials`;
+  
+  const bodyString = JSON.stringify(filteredCredentials);
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: bodyString,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    await chrome.storage.local.set({
+      lastCredentialsUpdateAt: now,
+      lastCredentialsSentAt: now,
+      lastCredentialsError: null,
+      pendingCredentials: null,
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
+    await chrome.storage.local.set({
+      lastCredentialsError: errorMessage,
+      lastCredentialsErrorAt: now,
+      pendingCredentials: filteredCredentials,
+    });
+  }
 };
 
 const sendCandidates = async (candidates: CandidateItem[]): Promise<void> => {
@@ -275,14 +344,16 @@ const addToBuffer = (candidates: CandidateItem[]): void => {
 };
 
 chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse) => {
-  debug('info', 'Received message', {
-    type: message.type,
-    hasCandidates: !!message.candidates,
-    candidateCount: message.candidates?.length,
-  });
-
   if (message.type === 'FANSLY_TIMELINE_DATA') {
     addToBuffer(message.candidates);
+    sendResponse({ success: true });
+    return true;
+  }
+
+  if (message.type === 'FANSLY_CREDENTIALS') {
+    sendCredentialsToServer(message.credentials).catch(() => {
+      // Silently fail - credentials will be retried on next capture
+    });
     sendResponse({ success: true });
     return true;
   }
@@ -290,9 +361,26 @@ chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse) =
   return false;
 });
 
+const processPendingCredentials = async (): Promise<void> => {
+  const storage = await chrome.storage.local.get(['pendingCredentials', 'lastCredentialsSentAt']);
+  const pending = storage.pendingCredentials;
+  const lastSentAt = storage.lastCredentialsSentAt ?? 0;
+  const now = Date.now();
+  const timeSinceLastSend = now - lastSentAt;
+
+  if (pending && timeSinceLastSend >= CREDENTIALS_THROTTLE_MS) {
+    await sendCredentialsToServer(pending);
+  }
+};
+
 chrome.runtime.onInstalled.addListener(() => {
   debug('info', 'Background script installed');
+  processPendingCredentials();
 });
+
+setInterval(() => {
+  processPendingCredentials();
+}, CREDENTIALS_THROTTLE_MS);
 
 chrome.action.onClicked.addListener((tab) => {
   if (tab.id) {

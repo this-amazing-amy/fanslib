@@ -81,8 +81,12 @@ describe("Settings Routes", () => {
         );
         expect(response.status).toBe(200);
 
-        const data = await parseResponse<Record<string, unknown>>(response);
-        expect(typeof data).toBe("object");
+        const data = await parseResponse<{ credentials: Record<string, unknown>; lastUpdated: number | null } | null>(response);
+        if (data) {
+          expect(typeof data).toBe("object");
+          expect(data).toHaveProperty("credentials");
+          expect(data).toHaveProperty("lastUpdated");
+        }
       });
     });
 

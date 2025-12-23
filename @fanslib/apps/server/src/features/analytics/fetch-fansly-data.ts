@@ -37,13 +37,15 @@ export const fetchFanslyAnalyticsData = async (
     throw new Error("PostMedia does not have a valid Fansly statistics ID");
   }
 
-  const credentials = await loadFanslyCredentials();
+  const credentialsData = await loadFanslyCredentials();
 
-  if (!credentials?.fanslyAuth || !credentials?.fanslySessionId) {
+  if (!credentialsData?.credentials?.fanslyAuth || !credentialsData?.credentials?.fanslySessionId) {
     throw new Error(
       "Fansly credentials not configured. Please set up your Fansly authentication in settings."
     );
   }
+
+  const credentials = credentialsData.credentials;
 
   const endDate = analyticsEndDate ?? new Date();
   const startDate =

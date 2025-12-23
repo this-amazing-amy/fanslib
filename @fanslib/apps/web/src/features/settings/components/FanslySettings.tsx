@@ -1,5 +1,5 @@
-import { AlertTriangle, Eye, EyeOff, InfoIcon } from "lucide-react";
-import { useCallback, useState } from "react";
+import { AlertTriangle, CheckCircle, Clock, Eye, EyeOff, InfoIcon, XCircle } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "~/components/ui/Button";
 import { Input } from "~/components/ui/Input";
 import { Textarea } from "~/components/ui/Textarea";
@@ -53,14 +53,48 @@ const parseFetchRequest = (fetchRequest: string): Partial<FanslyCredentials> => 
   return credentials;
 };
 
+const formatTimestamp = (timestamp: number | null): string => {
+  if (!timestamp) return 'Never';
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffSeconds = Math.floor(diffMs / 1000);
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffSeconds < 60) {
+    return `${diffSeconds} second${diffSeconds !== 1 ? 's' : ''} ago`;
+  }
+  if (diffMinutes < 60) {
+    return `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
+  }
+  if (diffHours < 24) {
+    return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+  }
+  if (diffDays < 7) {
+    return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+  }
+  return date.toLocaleString();
+};
+
 export const FanslySettings = () => {
-  const { data: loadedCredentials } = useFanslyCredentialsQuery();
+  const { data: credentialsData } = useFanslyCredentialsQuery();
   const saveMutation = useSaveFanslyCredentialsMutation();
   const clearMutation = useClearFanslyCredentialsMutation();
+
+  const loadedCredentials = credentialsData?.credentials ?? null;
+  const lastUpdated = credentialsData?.lastUpdated ?? null;
 
   const [credentials, setCredentials] = useState<FanslyCredentials>(loadedCredentials ?? {});
   const [showTokens, setShowTokens] = useState(false);
   const [fetchRequest, setFetchRequest] = useState("");
+
+  useEffect(() => {
+    if (loadedCredentials) {
+      setCredentials(loadedCredentials);
+    }
+  }, [loadedCredentials]);
 
   const saveCredentials = useCallback(async () => {
     try {
@@ -128,9 +162,39 @@ export const FanslySettings = () => {
     !!credentials.fanslyClientCheck ||
     !!credentials.fanslyClientId;
   const isLoading = saveMutation.isPending || clearMutation.isPending;
+  const hasCredentials = !!(
+    loadedCredentials &&
+    (loadedCredentials.fanslyAuth || loadedCredentials.fanslySessionId)
+  );
 
   return (
     <div className="space-y-4">
+      <div className="relative w-full rounded-lg border p-4 border-base-300 bg-base-200">
+        <div className="flex items-start gap-3">
+          {hasCredentials ? (
+            <CheckCircle className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
+          ) : (
+            <XCircle className="h-5 w-5 text-error flex-shrink-0 mt-0.5" />
+          )}
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-medium mb-1">
+              {hasCredentials ? 'Credentials Active' : 'No Credentials'}
+            </div>
+            <div className="text-xs text-base-content/60 flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              <span>
+                Last received: {formatTimestamp(lastUpdated)}
+              </span>
+            </div>
+            {hasCredentials && (
+              <div className="text-xs text-base-content/50 mt-2">
+                Credentials are automatically captured when you browse Fansly with the Chrome extension
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
       {hasAnyCredentials && (
         <>
           {!hasAllCredentials && (

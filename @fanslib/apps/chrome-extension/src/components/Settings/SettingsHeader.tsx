@@ -9,7 +9,7 @@ export const SettingsHeader = () => (
       <Heart className='w-6 h-6 text-white fill-white' />
     </div>
     <div>
-      <h1 className='text-2xl font-bold'>FansLib Queue Settings</h1>
+      <h1 className='text-2xl font-bold'>FansLib Settings</h1>
       <p className='text-sm text-base-content/60'>
         Configure your extension preferences
       </p>
