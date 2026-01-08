@@ -3,6 +3,7 @@ import { candidatesRoutes } from "./candidates/routes";
 import { FetchAnalyticsDataRequestBodySchema, FetchAnalyticsDataRequestParamsSchema, fetchFanslyAnalyticsData } from "./fetch-fansly-data";
 import { UpdateCredentialsFromFetchRequestBodySchema, updateFanslyCredentialsFromFetch } from "./operations/credentials";
 import { GenerateInsightsResponseSchema, generateInsights } from "./operations/insights";
+import { FetchDatapointsRequestParamsSchema, FetchDatapointsResponseSchema, fetchDatapoints } from "./operations/post-analytics/fetch-datapoints";
 import { GetHashtagAnalyticsResponseSchema, getHashtagAnalytics } from "./operations/post-analytics/fetch-hashtag-analytics";
 import { GetFanslyPostsWithAnalyticsQuerySchema, GetFanslyPostsWithAnalyticsResponseSchema, getFanslyPostsWithAnalytics } from "./operations/post-analytics/fetch-posts-with-analytics";
 import { GetTimeAnalyticsResponseSchema, getTimeAnalytics } from "./operations/post-analytics/fetch-time-analytics";
@@ -15,6 +16,12 @@ export const analyticsRoutes = new Elysia({ prefix: "/api/analytics" })
   }, {
     body: UpdateCredentialsFromFetchRequestBodySchema,
     response: t.Object({ success: t.Boolean() }),
+  })
+  .get("/datapoints/:postMediaId", async ({ params: { postMediaId } }) => {
+    return fetchDatapoints(postMediaId);
+  }, {
+    params: FetchDatapointsRequestParamsSchema,
+    response: FetchDatapointsResponseSchema,
   })
   .post("/fetch/by-id/:postMediaId", async ({ params: { postMediaId }, body }) => {
     const start = body.startDate ? new Date(body.startDate) : undefined;

@@ -4,8 +4,9 @@ import { useState } from 'react';
 import { MediaPreview } from '~/components/MediaPreview';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
+import { AnalyticsViewsChart } from '~/features/posts/components/post-detail/AnalyticsViewsChart';
 import { useDebounce } from '~/hooks/useDebounce';
-import { useFetchFanslyDataMutation } from '~/lib/queries/analytics';
+import { useFetchFanslyDataMutation, usePostMediaAnalyticsQuery } from '~/lib/queries/analytics';
 import { useUpdatePostMediaMutation } from '~/lib/queries/posts';
 import { cn } from '~/lib/cn';
 
@@ -72,8 +73,56 @@ export const PostDetailAnalytics = ({ post }: PostDetailAnalyticsProps) => {
             index={selectedIndex >= 0 ? selectedIndex : 0}
           />
         </div>
+        {selectedPostMedia.fanslyStatisticsId && (
+          <PostMediaAnalyticsChart
+            postMediaId={selectedPostMedia.id}
+            postDate={post.date}
+          />
+        )}
       </div>
     </div>
+  );
+};
+
+type PostMediaAnalyticsChartProps = {
+  postMediaId: string;
+  postDate: string;
+};
+
+const PostMediaAnalyticsChart = ({ postMediaId, postDate }: PostMediaAnalyticsChartProps) => {
+  const { data: analyticsData, isLoading } = usePostMediaAnalyticsQuery(postMediaId);
+  const fetchAnalyticsMutation = useFetchFanslyDataMutation();
+
+  if (isLoading) {
+    return (
+      <div className="mt-6 flex items-center justify-center h-48">
+        <div className="text-sm text-base-content/70">Loading analytics...</div>
+      </div>
+    );
+  }
+
+  if (!analyticsData || analyticsData.datapoints.length === 0) {
+    return (
+      <div className="mt-6 flex flex-col items-center justify-center h-48 gap-4">
+        <div className="text-sm text-base-content/70">No analytics data available</div>
+        <Button
+          onClick={() => fetchAnalyticsMutation.mutate({ postMediaId })}
+          isDisabled={fetchAnalyticsMutation.isPending}
+        >
+          {fetchAnalyticsMutation.isPending ? 'Fetching...' : 'Fetch Analytics'}
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <AnalyticsViewsChart
+      datapoints={analyticsData.datapoints}
+      postDate={analyticsData.postDate}
+      postMediaId={postMediaId}
+      hasGap={analyticsData.hasGap}
+      suggestedFetchRange={analyticsData.suggestedFetchRange}
+    />
   );
 };
 

@@ -31,6 +31,7 @@ export const fetchFanslyAnalyticsData = async (
   const postMediaRepository = dataSource.getRepository(PostMedia);
   const postMedia = await postMediaRepository.findOneOrFail({
     where: { id: postMediaId },
+    relations: { post: true },
   });
 
   if (!postMedia.fanslyStatisticsId) {
@@ -51,9 +52,9 @@ export const fetchFanslyAnalyticsData = async (
   const startDate =
     analyticsStartDate ??
     (() => {
-      const date = new Date();
-      date.setDate(date.getDate() - 30);
-      return date;
+      const postDate = new Date(postMedia.post.date);
+      postDate.setHours(0, 0, 0, 0);
+      return postDate;
     })();
 
   const beforeDate = endDate.getTime();

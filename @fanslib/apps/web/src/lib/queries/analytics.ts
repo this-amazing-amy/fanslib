@@ -128,6 +128,17 @@ export const useUpdateCredentialsMutation = () => {
   });
 };
 
+export const usePostMediaAnalyticsQuery = (postMediaId: string) =>
+  useQuery({
+    queryKey: ['analytics', 'datapoints', postMediaId],
+    queryFn: async () => {
+      const { data, error } = await eden.api.analytics.datapoints({ postMediaId }).get();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!postMediaId,
+  });
+
 export const useFetchFanslyDataMutation = () => {
   const queryClient = useQueryClient();
 
@@ -148,9 +159,10 @@ export const useFetchFanslyDataMutation = () => {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['analytics', 'posts'] });
       queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: ['analytics', 'datapoints', variables.postMediaId] });
     },
   });
 };
