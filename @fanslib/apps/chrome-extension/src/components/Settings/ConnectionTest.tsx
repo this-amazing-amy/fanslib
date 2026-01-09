@@ -37,9 +37,9 @@ export const ConnectionTest = ({ apiUrl }: ConnectionTestProps) => {
         throw new Error(`Server returned error`);
       }
 
-      const data = response.data ?? [];
+      const posts = response.data?.posts ?? [];
       setTestStatus('success');
-      setTestMessage(`Connected successfully! ${data.length} post(s) ready.`);
+      setTestMessage(`Connected successfully! ${posts.length} post(s) ready.`);
     } catch (err) {
       setTestStatus('error');
       setTestMessage(

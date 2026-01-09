@@ -191,10 +191,10 @@ export const PostCard = ({
 
           const canReveal = hasLibraryPath && bridgeAvailable === true;
 
-          if (isVideoFile || hasError) {
+          if (hasError) {
             return (
               <div
-                key={post.id}
+                key={`${post.id}-${idx}-fallback`}
                 onClick={() =>
                   canReveal && handleRevealInFinder(m.media.relativePath)
                 }
@@ -204,7 +204,9 @@ export const PostCard = ({
                     ? `Failed to load thumbnail\nURL: ${thumbnailUrl}\nMedia ID: ${m.media.id}`
                     : canReveal
                       ? 'Click to reveal in folder'
-                      : 'Video file'
+                    : isVideoFile
+                      ? 'Video file'
+                      : 'Image'
                 }
               >
                 {isVideoFile ? (
@@ -212,13 +214,11 @@ export const PostCard = ({
                 ) : (
                   <>
                     <ImageIcon className='w-6 h-6 text-base-content/60' />
-                    {hasError && (
-                      <div className='absolute inset-0 flex items-center justify-center bg-error/10 rounded-lg'>
-                        <span className='text-[8px] text-error font-bold'>
-                          !
-                        </span>
-                      </div>
-                    )}
+                    <div className='absolute inset-0 flex items-center justify-center bg-error/10 rounded-lg'>
+                      <span className='text-[8px] text-error font-bold'>
+                        !
+                      </span>
+                    </div>
                   </>
                 )}
               </div>
@@ -242,6 +242,11 @@ export const PostCard = ({
                 alt={`Media ${idx + 1}`}
                 title={canReveal ? 'Click to reveal in folder' : thumbnailUrl}
               />
+              {isVideoFile && (
+                <div className='absolute bottom-1 right-1 bg-base-100/80 rounded-full p-0.5'>
+                  <Video className='w-3 h-3 text-base-content/80' />
+                </div>
+              )}
               {loadState === 'loading' && (
                 <div className='absolute inset-0 flex items-center justify-center bg-base-100/50 rounded-lg'>
                   <div className='w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin' />

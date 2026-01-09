@@ -16,6 +16,7 @@ export const postsRoutes = new Elysia({ prefix: "/api/posts" })
     return fetchAllPosts(filters);
   }, {
     query: FetchAllPostsRequestQuerySchema,
+    response: FetchAllPostsResponseSchema,
   })
   .get("/by-id/:id", async ({ params: { id }, set }) => {
     const post = await fetchPostById(id);

@@ -22,12 +22,16 @@ export const Popup = () => {
     'loading'
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     loadPosts();
   }, []);
 
-  const loadPosts = async () => {
+  const loadPosts = async (isRefresh = false) => {
+    if (isRefresh) {
+      setIsRefreshing(true);
+    }
     try {
       const loadedSettings = await getSettings();
       setSettings(loadedSettings);
@@ -48,8 +52,12 @@ export const Popup = () => {
         throw new Error('Failed to fetch posts');
       }
 
-      // Sort by date ascending (oldest first)
-      const sortedPosts = (response.data?.posts ?? []).sort(
+      const responseData = response.data;
+      const postsArray = Array.isArray(responseData)
+        ? responseData
+        : (responseData?.posts ?? []);
+
+      const sortedPosts = postsArray.sort(
         (a: Post, b: Post) =>
           new Date(a.date).getTime() - new Date(b.date).getTime()
       );
@@ -62,6 +70,10 @@ export const Popup = () => {
       setStatus('error');
       setErrorMessage(err instanceof Error ? err.message : 'Failed to connect');
       setPosts([]);
+    } finally {
+      if (isRefresh) {
+        setIsRefreshing(false);
+      }
     }
   };
 
@@ -137,9 +149,11 @@ export const Popup = () => {
         connectionStatus={status}
         errorMessage={errorMessage}
         onOpenSettings={openSettings}
+        onRefresh={() => loadPosts(true)}
+        isRefreshing={isRefreshing}
       />
 
-      <div className="tabs tabs-boxed px-3 pt-3">
+      <div className='tabs tabs-boxed px-3 pt-3'>
         <button
           className={`tab ${activeTab === 'queue' ? 'tab-active' : ''}`}
           onClick={() => setActiveTab('queue')}

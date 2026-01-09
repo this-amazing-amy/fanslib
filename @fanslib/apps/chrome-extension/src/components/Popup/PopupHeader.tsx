@@ -1,4 +1,4 @@
-import { Heart, Settings as SettingsIcon } from 'lucide-react';
+import { Heart, RefreshCw, Settings as SettingsIcon } from 'lucide-react';
 import { ConnectionStatus } from './ConnectionStatus';
 
 type PopupHeaderProps = {
@@ -7,6 +7,8 @@ type PopupHeaderProps = {
   connectionStatus: 'loading' | 'connected' | 'error';
   errorMessage: string | null;
   onOpenSettings: () => void;
+  onRefresh: () => void;
+  isRefreshing: boolean;
 };
 
 export const PopupHeader = ({
@@ -14,6 +16,8 @@ export const PopupHeader = ({
   connectionStatus,
   errorMessage,
   onOpenSettings,
+  onRefresh,
+  isRefreshing,
 }: PopupHeaderProps) => (
   <div className='flex items-center gap-3 px-3 py-2 border-b border-base-300 justify-between'>
     <div className='flex items-center gap-3'>
@@ -31,6 +35,14 @@ export const PopupHeader = ({
     </div>
     <div className='flex items-center gap-2'>
       <ConnectionStatus status={connectionStatus} errorMessage={errorMessage} />
+      <button
+        onClick={onRefresh}
+        disabled={connectionStatus === 'loading' || isRefreshing}
+        className='p-1.5 rounded-lg hover:bg-base-200 text-base-content/60 hover:text-base-content transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
+        title='Refresh'
+      >
+        <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+      </button>
       <button
         onClick={onOpenSettings}
         className='p-1.5 rounded-lg hover:bg-base-200 text-base-content/60 hover:text-base-content transition-colors cursor-pointer'
