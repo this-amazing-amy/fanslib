@@ -1,11 +1,12 @@
 import type { MediaSchema } from "@fanslib/server/schemas";
 
 type Media = typeof MediaSchema.static;
-import { Camera, Send, X } from "lucide-react";
+import { Camera, FolderPlus, Send, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
 import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
 import { TagAssigner } from "~/features/library/components/Gallery/GalleryActionBar/TagAssigner";
+import { AddToShootDialog } from "~/features/shoots/components/AddToShootDialog";
 import { CreateShootDialog } from "~/features/shoots/components/CreateShootDialog";
 import { cn } from "~/lib/cn";
 
@@ -21,6 +22,7 @@ export const GalleryActionBar = ({
   onClearSelection,
 }: GalleryActionBarProps) => {
   const [isCreateShootDialogOpen, setIsCreateShootDialogOpen] = useState(false);
+  const [isAddToShootDialogOpen, setIsAddToShootDialogOpen] = useState(false);
   const [isCreatePostDialogOpen, setIsCreatePostDialogOpen] = useState(false);
 
   if (selectedCount === 0) return null;
@@ -49,6 +51,15 @@ export const GalleryActionBar = ({
             Create Shoot
           </Button>
 
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={() => setIsAddToShootDialogOpen(true)}
+          >
+            <FolderPlus className="h-4 w-4" />
+            Add to Shoot
+          </Button>
+
           <TagAssigner selectedMedia={selectedMedia} />
 
           <Button
@@ -73,6 +84,13 @@ export const GalleryActionBar = ({
       <CreateShootDialog
         open={isCreateShootDialogOpen}
         onOpenChange={setIsCreateShootDialogOpen}
+        selectedMedia={selectedMedia}
+        onSuccess={onClearSelection}
+      />
+
+      <AddToShootDialog
+        open={isAddToShootDialogOpen}
+        onOpenChange={setIsAddToShootDialogOpen}
         selectedMedia={selectedMedia}
         onSuccess={onClearSelection}
       />
