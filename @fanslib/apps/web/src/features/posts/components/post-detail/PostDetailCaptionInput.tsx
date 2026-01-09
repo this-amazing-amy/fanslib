@@ -1,6 +1,6 @@
 import type { PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { Check, Copy } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { HashtagButton } from '~/components/HashtagButton';
 import { SnippetSelector } from '~/components/SnippetSelector';
 import { Button } from '~/components/ui/Button';
@@ -20,6 +20,10 @@ export const PostDetailCaptionInput = ({ post }: PostDetailCaptionInputProps) =>
   const [isSaving, setIsSaving] = useState(false);
   const { isCopied, copy } = useCopyToClipboard();
   const updatePostMutation = useUpdatePostMutation();
+
+  useEffect(() => {
+    setLocalCaption(post.caption ?? '');
+  }, [post.id, post.caption]);
 
   const saveCaption = async (caption: string) => {
     setIsSaving(true);

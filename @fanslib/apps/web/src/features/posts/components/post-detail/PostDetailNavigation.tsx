@@ -153,7 +153,7 @@ export const PostDetailNavigation = ({ post }: PostDetailNavigationProps) => {
         open={isDuplicateDialogOpen}
         onOpenChange={setIsDuplicateDialogOpen}
         media={post.postMedia.map((pm) => pm.media)}
-        initialDate={new Date()}
+        initialDate={new Date(post.date)}
         initialChannelId={post.channelId}
         initialCaption={post.caption ?? undefined}
         initialStatus={post.status}
