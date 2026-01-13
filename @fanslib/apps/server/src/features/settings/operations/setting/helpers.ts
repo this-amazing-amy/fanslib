@@ -7,6 +7,7 @@ import type { SettingsSchema } from "../../schemas/settings";
 export const DEFAULT_SETTINGS: typeof SettingsSchema.static = {
   theme: "dark",
   blueskyUsername: "",
+  blueskyAppPassword: "",
   postponeToken: "",
   blueskyDefaultExpiryDays: 7,
   sfwMode: false,

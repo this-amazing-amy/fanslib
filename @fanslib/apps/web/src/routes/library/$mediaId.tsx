@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import { ArrowLeft } from 'lucide-react';
 import { MediaView } from '~/components/MediaView';
 import { RevealInFinderButton } from '~/components/RevealInFinderButton';
-import { MediaDetailDeleteButton } from '~/components/media-detail/MediaDetailDeleteButton';
+import { MediaDetailDotsMenu } from '~/components/media-detail/MediaDetailDotsMenu';
 import { MediaDetailMetadata } from '~/components/media-detail/MediaDetailMetadata';
 import { MediaDetailNavigation } from '~/components/media-detail/MediaDetailNavigation';
 import { MediaPosts } from '~/components/media-detail/MediaPosts';
@@ -51,7 +51,7 @@ const MediaRoute = () => {
               <h1 className="text-3xl font-semibold tracking-tight">{media.name}</h1>
               <div className="flex gap-2">
                 <RevealInFinderButton relativePath={media.relativePath} />
-                <MediaDetailDeleteButton id={media.id} mediaType={media.type} />
+                <MediaDetailDotsMenu id={media.id} mediaType={media.type} />
               </div>
             </div>
 

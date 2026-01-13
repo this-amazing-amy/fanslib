@@ -78,3 +78,12 @@ export const useClearFanslyCredentialsMutation = () => {
     },
   });
 };
+
+export const useTestBlueskyCredentialsMutation = () => {
+  return useMutation({
+    mutationFn: async () => {
+      const result = await eden.api.bluesky['test-credentials'].post();
+      return result.data;
+    },
+  });
+};

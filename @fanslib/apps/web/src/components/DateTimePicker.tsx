@@ -1,5 +1,5 @@
 import { CalendarDate } from "@internationalized/date";
-import { format } from "date-fns";
+import { format, isSameDay } from "date-fns";
 import { CalendarIcon, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Moon, Sunrise, Sun, Sunset } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -20,9 +20,11 @@ import { cn } from "~/lib/cn";
 type DateTimePickerProps = {
   date: Date;
   setDate: (date: Date) => void;
+  minValue?: Date;
+  preferredTimes?: string[];
 };
 
-export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
+export const DateTimePicker = ({ date, setDate, minValue, preferredTimes = [] }: DateTimePickerProps) => {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<"date" | "time" | "year">("date");
   const [tempDate, setTempDate] = useState<Date>(date);
@@ -87,6 +89,19 @@ export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
     // Wrap around: -1 becomes 23, 24 becomes 0
     const clampedHour = hour < 0 ? 23 : hour > 23 ? 0 : hour;
     updated.setHours(clampedHour);
+    
+    // Check if this hour is disabled
+    if (minValue && isSameDay(date, minValue)) {
+      const minHour = minValue.getHours();
+      if (clampedHour < minHour) {
+        return;
+      }
+      // If selecting the minimum hour, ensure minutes are also valid
+      if (clampedHour === minHour && updated.getMinutes() < minValue.getMinutes()) {
+        updated.setMinutes(minValue.getMinutes());
+      }
+    }
+    
     setTempDate(updated);
     handleTimeChange(updated.getHours(), updated.getMinutes());
     // Focus minutes input after selecting an hour
@@ -100,6 +115,18 @@ export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
     // Wrap around: -1 becomes 59, 60 becomes 0
     const clampedMinute = minute < 0 ? 59 : minute > 59 ? 0 : minute;
     updated.setMinutes(clampedMinute);
+    
+    // Check if this minute is disabled
+    if (minValue && isSameDay(date, minValue)) {
+      const selectedHour = updated.getHours();
+      const minHour = minValue.getHours();
+      const minMinute = minValue.getMinutes();
+      
+      if (selectedHour < minHour || (selectedHour === minHour && clampedMinute < minMinute)) {
+        return;
+      }
+    }
+    
     setTempDate(updated);
     handleTimeChange(updated.getHours(), updated.getMinutes());
   };
@@ -160,6 +187,30 @@ export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
     handleTimeChange(newDate.getHours(), newDate.getMinutes());
   };
 
+  const setTimeFromString = (timeString: string) => {
+    const [hoursStr, minutesStr] = timeString.split(":");
+    const hours = hoursStr ? parseInt(hoursStr, 10) : 0;
+    const minutes = minutesStr ? parseInt(minutesStr, 10) : 0;
+    
+    if (isNaN(hours) || isNaN(minutes)) return;
+    
+    // Check if this time would be disabled
+    if (minValue && isSameDay(date, minValue)) {
+      const minHour = minValue.getHours();
+      const minMinute = minValue.getMinutes();
+      
+      if (hours < minHour || (hours === minHour && minutes < minMinute)) {
+        return;
+      }
+    }
+    
+    const newDate = new Date(date);
+    newDate.setHours(hours);
+    newDate.setMinutes(minutes);
+    setTempDate(newDate);
+    handleTimeChange(hours, minutes);
+  };
+
   const setToToday = () => {
     const today = new Date();
     const newDate = new Date(date);
@@ -179,6 +230,37 @@ export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
   const isCurrentYear = date.getFullYear() === currentYear;
   const dateFormat = isCurrentYear ? "MMMM d" : "MMMM d, yyyy";
   const currentDate = format(date, dateFormat);
+
+  const isHourDisabled = (hour: number): boolean => {
+    if (!minValue || !isSameDay(date, minValue)) return false;
+    return hour < minValue.getHours();
+  };
+
+  const isMinuteDisabled = (minute: number): boolean => {
+    if (!minValue || !isSameDay(date, minValue)) return false;
+    const selectedHour = tempDate.getHours();
+    const minHour = minValue.getHours();
+    const minMinute = minValue.getMinutes();
+    
+    if (selectedHour < minHour) return true;
+    if (selectedHour === minHour) return minute < minMinute;
+    return false;
+  };
+
+  const isTimeStringDisabled = (timeString: string): boolean => {
+    if (!minValue || !isSameDay(date, minValue)) return false;
+    
+    const [hoursStr, minutesStr] = timeString.split(":");
+    const hours = hoursStr ? parseInt(hoursStr, 10) : 0;
+    const minutes = minutesStr ? parseInt(minutesStr, 10) : 0;
+    
+    if (isNaN(hours) || isNaN(minutes)) return true;
+    
+    const minHour = minValue.getHours();
+    const minMinute = minValue.getMinutes();
+    
+    return hours < minHour || (hours === minHour && minutes < minMinute);
+  };
 
   return (
     <PopoverTrigger isOpen={open} onOpenChange={setOpen}>
@@ -213,6 +295,11 @@ export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
                     )
                   }
                   onChange={handleCalendarChange}
+                  minValue={minValue ? new CalendarDate(
+                    minValue.getFullYear(),
+                    minValue.getMonth() + 1,
+                    minValue.getDate()
+                  ) : undefined}
                   className="p-3"
                 >
                   <header className="flex items-center justify-between pb-2">
@@ -418,6 +505,7 @@ export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
                                 size="sm"
                                 variant={tempDate.getHours() === hour ? "primary" : "ghost"}
                                 onPress={() => handleHourChange(hour)}
+                                isDisabled={isHourDisabled(hour)}
                                 className="text-xs h-7 px-2 w-[2.5rem]"
                               >
                                 {hour.toString().padStart(2, "0")}
@@ -439,6 +527,7 @@ export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
                           handleMinuteChange(minute);
                           setOpen(false);
                         }}
+                        isDisabled={isMinuteDisabled(minute)}
                         className="text-xs h-7 px-2 w-[2.5rem]"
                       >
                         {minute.toString().padStart(2, "0")}
@@ -448,10 +537,21 @@ export const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
                 )}
 
                 {/* Quick Actions */}
-                <div className="flex justify-center gap-2 pt-2 mt-auto">
+                <div className="flex justify-center gap-2 pt-2 mt-auto flex-wrap">
                   <Button size="sm" variant="ghost" onPress={setToNow}>
                     Now
                   </Button>
+                  {preferredTimes.map((time) => (
+                    <Button
+                      key={time}
+                      size="sm"
+                      variant={format(tempDate, "HH:mm") === time ? "primary" : "ghost"}
+                      onPress={() => setTimeFromString(time)}
+                      isDisabled={isTimeStringDisabled(time)}
+                    >
+                      {time}
+                    </Button>
+                  ))}
                 </div>
               </div>
             </div>

@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { MoreVertical, Trash2 } from "lucide-react";
+import { MoreVertical, Send, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
 import { Checkbox } from "~/components/ui/Checkbox";
@@ -12,12 +12,13 @@ import {
 } from "~/components/ui/DropdownMenu";
 import { useDeleteMediaMutation } from "~/lib/queries/library";
 
-type MediaDetailDeleteButtonProps = {
+type MediaDetailDotsMenuProps = {
   id: string;
   mediaType: "image" | "video";
+  onCreatePost?: () => void;
 };
 
-export const MediaDetailDeleteButton = ({ id, mediaType }: MediaDetailDeleteButtonProps) => {
+export const MediaDetailDotsMenu = ({ id, mediaType, onCreatePost }: MediaDetailDotsMenuProps) => {
   const navigate = useNavigate();
   const [deleteFile, setDeleteFile] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -32,6 +33,14 @@ export const MediaDetailDeleteButton = ({ id, mediaType }: MediaDetailDeleteButt
     }
   };
 
+  const handleAction = (actionId: string) => {
+    if (actionId === "create-post" && onCreatePost) {
+      onCreatePost();
+    } else if (actionId === "delete") {
+      setIsDeleteDialogOpen(true);
+    }
+  };
+
   return (
     <>
       <DropdownMenuTrigger>
@@ -42,13 +51,22 @@ export const MediaDetailDeleteButton = ({ id, mediaType }: MediaDetailDeleteButt
         >
           <MoreVertical className="h-5 w-5" />
         </Button>
-        <DropdownMenuPopover placement="bottom end" className="w-48">
-          <DropdownMenu onAction={() => setIsDeleteDialogOpen(true)}>
+        <DropdownMenuPopover placement="bottom end" className="w-56">
+          <DropdownMenu onAction={handleAction}>
+            {onCreatePost && (
+              <DropdownMenuItem
+                id="create-post"
+                className="flex items-center gap-2 text-sm font-medium whitespace-nowrap"
+              >
+                <Send className="h-4 w-4 shrink-0" />
+                Create post with media
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem
               id="delete"
               className="flex items-center gap-2 text-sm font-medium text-destructive"
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-4 w-4 shrink-0" />
               Delete Media
             </DropdownMenuItem>
           </DropdownMenu>
@@ -78,4 +96,3 @@ export const MediaDetailDeleteButton = ({ id, mediaType }: MediaDetailDeleteButt
     </>
   );
 };
-

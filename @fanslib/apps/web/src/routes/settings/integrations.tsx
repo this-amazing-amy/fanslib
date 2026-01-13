@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Zap } from "lucide-react";
 import { Tabs, TabItem } from "~/components/ui/Tabs";
+import { BlueskySettings } from "~/features/settings/components/BlueskySettings";
 import { FanslySettings } from "~/features/settings/components/FanslySettings";
 import { PostponeSettings } from "~/features/settings/components/PostponeSettings";
 import { RedditSettings } from "~/features/settings/components/RedditSettings";
@@ -17,6 +18,9 @@ const IntegrationsSettings = () => (
     <Tabs defaultSelectedKey="fansly">
       <TabItem key="fansly" title="Fansly">
         <FanslySettings />
+      </TabItem>
+      <TabItem key="bluesky" title="Bluesky">
+        <BlueskySettings />
       </TabItem>
       <TabItem key="postpone" title="Postpone">
         <PostponeSettings />

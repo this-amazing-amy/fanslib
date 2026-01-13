@@ -1,20 +1,17 @@
 import type { MediaSchema, PostStatusSchema } from "@fanslib/server/schemas";
-import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
 import { useNavigate } from "@tanstack/react-router";
-import { isSameDay } from "date-fns";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { ChannelSelect } from "~/components/ChannelSelect";
 import { ContentScheduleSelect } from "~/components/ContentScheduleSelect";
+import { DateTimePicker } from "~/components/DateTimePicker";
 import { HashtagButton } from "~/components/HashtagButton";
 import { SnippetSelector } from "~/components/SnippetSelector";
 import { StatusSelect } from "~/components/StatusSelect";
 import { SubredditSelect } from "~/components/SubredditSelect";
-import { TimePicker } from "~/components/TimePicker";
 import { Button } from "~/components/ui/Button";
 import { Checkbox } from "~/components/ui/Checkbox";
-import { DatePicker } from "~/components/ui/DatePicker";
 import {
   Dialog,
   DialogFooter,
@@ -29,6 +26,7 @@ import { MediaSelectionProvider } from "~/contexts/MediaSelectionContext";
 import { CombinedMediaSelection } from "~/features/library/components/CombinedMediaSelection";
 import { cn } from "~/lib/cn";
 import { useChannelsQuery } from "~/lib/queries/channels";
+import { useContentScheduleQuery } from "~/lib/queries/content-schedules";
 import { useCreatePostMutation } from "~/lib/queries/posts";
 
 type Media = typeof MediaSchema.static;
@@ -80,11 +78,19 @@ export const CreatePostDialog = ({
   const [selectedChannel, setSelectedChannel] = useState<string[]>([]);
   const [selectedSubreddits, setSelectedSubreddits] = useState<string[]>(initialSubredditId ? [initialSubredditId] : []);
   const [contentScheduleId, setContentScheduleId] = useState<string | null>(scheduleId ?? null);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(() => {
+  
+  const { data: contentSchedule } = useContentScheduleQuery(contentScheduleId ?? "");
+  
+  const [selectedDate, setSelectedDate] = useState<Date>(() => {
     if (initialDate) {
       return new Date(initialDate);
     }
-    return null;
+    const defaultDate = new Date();
+    defaultDate.setHours(12);
+    defaultDate.setMinutes(0);
+    defaultDate.setSeconds(0);
+    defaultDate.setMilliseconds(0);
+    return defaultDate;
   });
   const [status, setStatus] = useState<PostStatus>(initialStatus ?? "draft");
   const [selectedMedia, setSelectedMedia] = useState<Media[]>(media);
@@ -103,15 +109,10 @@ export const CreatePostDialog = ({
   const isRedditChannel = selectedChannelData?.type.id === "reddit";
   const channelCaptionMaxLength = getCaptionMaxLength(selectedChannelData?.type.id);
 
-  const minTime = useMemo(() => {
-    if (!selectedDate) return null;
-    const now = new Date();
-    return isSameDay(selectedDate, now) ? now : null;
-  }, [selectedDate]);
+  const minDateTime = useMemo(() => new Date(), []);
 
   const disabled = 
     selectedChannel.length === 0 || 
-    selectedDate === null || 
     (channelCaptionMaxLength !== Infinity && caption?.length >= channelCaptionMaxLength);
 
   useEffect(() => {
@@ -140,7 +141,12 @@ export const CreatePostDialog = ({
     if (initialDate) {
       setSelectedDate(new Date(initialDate));
     } else {
-      setSelectedDate(null);
+      const defaultDate = new Date();
+      defaultDate.setHours(12);
+      defaultDate.setMinutes(0);
+      defaultDate.setSeconds(0);
+      defaultDate.setMilliseconds(0);
+      setSelectedDate(defaultDate);
     }
   }, [open, initialDate]);
 
@@ -178,11 +184,6 @@ export const CreatePostDialog = ({
 
   const handleCreatePost = useCallback(async () => {
     if (selectedChannel.length === 0) {
-      toast();
-      return;
-    }
-
-    if (!selectedDate) {
       toast();
       return;
     }
@@ -292,41 +293,14 @@ export const CreatePostDialog = ({
                       }}
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="flex flex-col gap-2">
-                      <label className="text-sm font-medium">Date</label>
-                      <DatePicker
-                        value={selectedDate ? parseDate(selectedDate.toISOString().split('T')[0] ?? '') : null}
-                        minValue={today(getLocalTimeZone())}
-                        onChange={(dateValue) => {
-                          if (dateValue) {
-                            const { year, month, day } = dateValue as { year: number; month: number; day: number };
-                            const baseDate = selectedDate ?? new Date();
-                            const newDate = new Date(baseDate);
-                            newDate.setFullYear(year, month - 1, day);
-                            if (!selectedDate) {
-                              newDate.setHours(12);
-                              newDate.setMinutes(0);
-                            }
-                            setSelectedDate(newDate);
-                          }
-                        }}
-                      />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <label className="text-sm font-medium">Time</label>
-                      <TimePicker
-                        date={selectedDate}
-                        minTime={minTime}
-                        setDate={(hours, minutes) => {
-                          const baseDate = selectedDate ?? new Date();
-                          const newDate = new Date(baseDate);
-                          newDate.setHours(hours);
-                          newDate.setMinutes(minutes);
-                          setSelectedDate(newDate);
-                        }}
-                      />
-                    </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium">Date & Time</label>
+                    <DateTimePicker 
+                      date={selectedDate} 
+                      setDate={setSelectedDate}
+                      minValue={minDateTime}
+                      preferredTimes={contentSchedule?.preferredTimes ?? []}
+                    />
                   </div>
                   <div className="flex flex-col gap-2">
                     <label className="text-sm font-medium">Caption</label>

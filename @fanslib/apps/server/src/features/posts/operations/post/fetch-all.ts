@@ -87,6 +87,6 @@ export const fetchAllPosts = async (filters?: typeof PostFiltersSchema.static): 
     schedule: post.schedule ?? null,
   }));
   
-  return JSON.parse(JSON.stringify({ posts: filteredPosts }));
+  return { posts: filteredPosts };
 };
 

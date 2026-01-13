@@ -34,12 +34,12 @@ describe("Posts Routes", () => {
       const response = await app.handle(new Request("http://localhost/api/posts/all"));
       expect(response.status).toBe(200);
 
-      const data = await parseResponse<Post[]>(response);
-      expect(Array.isArray(data)).toBe(true);
-      expect(data?.length).toBeGreaterThanOrEqual(POST_FIXTURES.length);
+      const data = await parseResponse<{ posts: Post[] }>(response);
+      expect(Array.isArray(data?.posts)).toBe(true);
+      expect(data?.posts?.length).toBeGreaterThanOrEqual(POST_FIXTURES.length);
 
       POST_FIXTURES.forEach((fixture) => {
-        const post = data?.find((p: Post) => p.id === fixture.id);
+        const post = data?.posts?.find((p: Post) => p.id === fixture.id);
         expect(post).toBeDefined();
         expect(post?.channelId).toBe(fixture.channelId);
         if (fixture.caption) {
@@ -56,10 +56,10 @@ describe("Posts Routes", () => {
       const response = await app.handle(
         new Request(`http://localhost/api/posts/all?filters=${encodeURIComponent(filters)}`)
       );
-      const data = await parseResponse<Post[]>(response);
+      const data = await parseResponse<{ posts: Post[] }>(response);
 
-      expect(Array.isArray(data)).toBe(true);
-      data?.forEach((post: Post) => {
+      expect(Array.isArray(data?.posts)).toBe(true);
+      data?.posts?.forEach((post: Post) => {
         expect(post.status).toBe("draft");
       });
     });

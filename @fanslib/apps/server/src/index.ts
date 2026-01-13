@@ -4,6 +4,7 @@ import { swagger } from "@elysiajs/swagger";
 import { Elysia } from "elysia";
 import "reflect-metadata";
 import { analyticsRoutes } from "./features/analytics/routes";
+import { blueskyRoutes } from "./features/api-bluesky/routes";
 import { postponeRoutes } from "./features/api-postpone/routes";
 import { channelsRoutes } from "./features/channels/routes";
 import { contentSchedulesRoutes } from "./features/content-schedules/routes";
@@ -99,6 +100,7 @@ const app = new Elysia()
   .use(snippetsRoutes)
   .use(settingsRoutes)
   .use(postponeRoutes)
+  .use(blueskyRoutes)
   .use(analyticsRoutes)
   .use(redditAutomationRoutes)
   .listen(6970);

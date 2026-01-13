@@ -53,6 +53,15 @@ export class Post {
   @Column({ type: "datetime", nullable: true, name: "postponeBlueskyDraftedAt" })
   postponeBlueskyDraftedAt!: Date | null;
 
+  @Column({ type: "varchar", nullable: true, name: "blueskyPostUri" })
+  blueskyPostUri: string | null = null;
+
+  @Column({ type: "text", nullable: true, name: "blueskyPostError" })
+  blueskyPostError: string | null = null;
+
+  @Column({ type: "int", default: 0, name: "blueskyRetryCount" })
+  blueskyRetryCount: number = 0;
+
   @Column({
     type: "varchar",
     enum: ["draft", "ready", "scheduled", "posted"],

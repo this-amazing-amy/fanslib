@@ -67,8 +67,9 @@ export const useUpdatePostMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdatePostParams) => {
-      const result = await eden.api.posts['by-id']({ id }).patch(updates);
-      return result.data;
+      const { data, error } = await eden.api.posts['by-id']({ id }).patch(updates);
+      if (error) throw error;
+      return data;
     },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['posts', 'list'] });
