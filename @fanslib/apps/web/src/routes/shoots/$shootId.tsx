@@ -14,10 +14,12 @@ import {
 import { LibraryPreferencesProvider } from "~/contexts/LibraryPreferencesContext";
 import { MediaSelectionProvider } from "~/contexts/MediaSelectionContext";
 import { CombinedMediaSelection } from "~/features/library/components/CombinedMediaSelection";
+import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
 import { MediaDragProvider } from "~/contexts/MediaDragContext";
 import { PostDragProvider } from "~/contexts/PostDragContext";
 import { PostPreferencesProvider } from "~/contexts/PostPreferencesContext";
 import { ShootDetailDateInput } from "~/features/shoots/components/shoot-detail/ShootDetailDateInput";
+import { ShootDetailDotsMenu } from "~/features/shoots/components/shoot-detail/ShootDetailDotsMenu";
 import { ShootDetailMediaGrid } from "~/features/shoots/components/shoot-detail/ShootDetailMediaGrid";
 import { ShootDetailTitleInput } from "~/features/shoots/components/shoot-detail/ShootDetailTitleInput";
 import { ShootPosts } from "~/features/shoots/components/shoot-detail/ShootPosts";
@@ -31,6 +33,7 @@ const ShootDetailRoute = () => {
   const navigate = useNavigate();
   const { data: shoot, isLoading, error } = useShootQuery({ id: shootId });
   const [isAddMediaOpen, setIsAddMediaOpen] = useState(false);
+  const [isCreatePostDialogOpen, setIsCreatePostDialogOpen] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState<Media[]>([]);
   const updateShootMutation = useUpdateShootMutation();
 
@@ -101,6 +104,10 @@ const ShootDetailRoute = () => {
                 Back
               </Button>
               <div className="flex-1" />
+              <ShootDetailDotsMenu
+                onCreatePost={() => setIsCreatePostDialogOpen(true)}
+                mediaCount={normalizedShoot.media?.length ?? 0}
+              />
             </div>
 
             <ShootDetailTitleInput shoot={normalizedShoot} />
@@ -166,6 +173,12 @@ const ShootDetailRoute = () => {
                 </DialogModal>
               </DialogTrigger>
             </MediaSelectionProvider>
+
+            <CreatePostDialog
+              open={isCreatePostDialogOpen}
+              onOpenChange={setIsCreatePostDialogOpen}
+              media={normalizedShoot.media ?? []}
+            />
           </MediaSelectionProvider>
         </PostPreferencesProvider>
       </PostDragProvider>
