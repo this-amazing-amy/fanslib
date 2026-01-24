@@ -4,7 +4,7 @@ import { cn } from '~/lib/cn';
 
 export type ButtonProps = AriaButtonProps & {
   variant?: 'primary' | 'secondary' | 'ghost' | 'error' | 'success' | 'warning' | 'info' | 'outline';
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'icon';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'icon';
   isLoading?: boolean;
   children: ReactNode;
   className?: string;
@@ -37,6 +37,7 @@ export const Button = ({
     sm: 'btn-sm',
     md: 'btn-md',
     lg: 'btn-lg',
+    xl: 'w-20 h-20',
     icon: 'btn-square',
   };
 

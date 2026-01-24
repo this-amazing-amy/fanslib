@@ -14,6 +14,7 @@ export type MediaTileLiteProps = {
   onImageError?: (error: boolean) => void;
   imageError?: boolean;
   isActivePreview?: boolean;
+  hideTagStickers?: boolean;
 };
 
 export const MediaTileLite = memo(
@@ -23,6 +24,7 @@ export const MediaTileLite = memo(
     onImageError,
     imageError: controlledImageError,
     isActivePreview = false,
+    hideTagStickers = false,
   }: MediaTileLiteProps) => {
     const [localImageError, setLocalImageError] = useState(false);
     const imageError = controlledImageError ?? localImageError;
@@ -121,19 +123,21 @@ export const MediaTileLite = memo(
             )}
           </div>
         )}
-        <div className="absolute bottom-1 left-1 flex gap-1 z-10">
-          {stickerTags.length > 0 && (
-            <div className="size-5 p-1 rounded bg-black/50 flex items-center justify-center">
-              {stickerTags.map((tag) => (
-                <div
-                  key={tag.id}
-                  className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: tag.color ?? "#666" }}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+        {!hideTagStickers && (
+          <div className="absolute bottom-1 left-1 flex gap-1 z-10">
+            {stickerTags.length > 0 && (
+              <div className="size-5 p-1 rounded bg-black/50 flex items-center justify-center">
+                {stickerTags.map((tag) => (
+                  <div
+                    key={tag.id}
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: tag.color ?? "#666" }}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     );
   }

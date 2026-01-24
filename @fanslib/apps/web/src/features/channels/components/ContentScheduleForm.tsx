@@ -16,6 +16,7 @@ import { MediaFilters as MediaFiltersComponent } from "~/features/library/compon
 import { MediaFiltersProvider } from "~/features/library/components/MediaFilters/MediaFiltersContext";
 import { cn } from "~/lib/cn";
 import { parseMediaFilters } from "../content-schedule-helpers";
+import { SchedulePreviewCalendar } from "./SchedulePreviewCalendar";
 
 type MediaFilters = typeof MediaFilterSchema.static;
 
@@ -65,13 +66,13 @@ export const ContentScheduleForm = ({
     setPreferredTimes((prev) => prev.filter((t) => t !== time));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     const data: typeof CreateContentScheduleRequestBodySchema.static = {
       channelId,
-      name: name.trim() ?? "Untitled Schedule",
-      emoji: emoji.trim() ?? undefined,
+      name: name.trim() || "Untitled Schedule",
+      emoji: emoji.trim() || undefined,
       color: color ?? undefined,
       type,
       postsPerTimeframe: postsPerTimeframe > 0 ? postsPerTimeframe : undefined,
@@ -80,43 +81,34 @@ export const ContentScheduleForm = ({
       mediaFilters: mediaFilters.length > 0 ? mediaFilters : undefined,
     };
 
-    await onSubmit(data);
+    onSubmit(data);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
       {/* Schedule Name & Identity */}
       <div className="space-y-4">
-        <div>
-          <label className="label">
-            <span className="label-text font-medium">Name</span>
-          </label>
-          <div className="flex gap-2">
-            <EmojiPicker
-              value={emoji}
-              onChange={setEmoji}
-              placeholder="📅"
-            />
-            <Input
-              value={name}
-              onChange={setName}
-              placeholder="Schedule name"
-              className="flex-1"
-            />
-          </div>
+        <div className="flex gap-2">
+          <EmojiPicker
+            value={emoji}
+            onChange={setEmoji}
+            placeholder="📅"
+          />
+          <ColorPicker value={color} onChange={setColor} />
+          <Input
+            value={name}
+            onChange={setName}
+            placeholder="Schedule name"
+            className="flex-1"
+          />
         </div>
         <div>
-          <label className="label">
-            <span className="label-text font-medium">Color & Preview</span>
-          </label>
-          <div className="flex items-center gap-3">
-            <ColorPicker value={color} onChange={setColor} />
-            <ContentScheduleBadge
-              name={name ?? "Preview"}
-              emoji={emoji ?? null}
-              color={color}
-            />
-          </div>
+          <ContentScheduleBadge
+            name={name ?? "Preview"}
+            emoji={emoji ?? null}
+            color={color}
+            responsive={false}
+          />
         </div>
       </div>
 
@@ -229,6 +221,19 @@ export const ContentScheduleForm = ({
         </div>
       </div>
 
+      {/* Schedule Preview */}
+      <div>
+        <label className="label">
+          <span className="label-text font-medium">Preview</span>
+        </label>
+        <SchedulePreviewCalendar
+          type={type}
+          postsPerTimeframe={postsPerTimeframe}
+          preferredDays={preferredDays}
+          preferredTimes={preferredTimes}
+        />
+      </div>
+
       {/* Media Filters */}
       <div>
         <label className="label">
@@ -245,13 +250,13 @@ export const ContentScheduleForm = ({
       </div>
 
       {/* Form Actions */}
-      <div className="flex justify-end gap-2">
-        <Button type="button" variant="ghost" onPress={onCancel}>
-          Cancel
-        </Button>
-        <Button type="submit" variant="primary">
+      <div className="flex gap-2 pt-4">
+        <button type="submit" className="btn btn-primary">
           {schedule ? "Update Schedule" : "Create Schedule"}
-        </Button>
+        </button>
+        <button type="button" className="btn btn-outline" onClick={onCancel}>
+          Cancel
+        </button>
       </div>
     </form>
   );

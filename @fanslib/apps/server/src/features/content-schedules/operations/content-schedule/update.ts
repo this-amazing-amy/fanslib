@@ -15,8 +15,8 @@ export const UpdateContentScheduleRequestBodySchema = t.Object({
   color: t.Optional(t.Union([t.String(), t.Null()])),
   type: t.Optional(ContentScheduleTypeSchema),
   postsPerTimeframe: t.Optional(t.Number()),
-  preferredDays: t.Optional(t.Array(t.String())),
-  preferredTimes: t.Optional(t.Array(t.String())),
+  preferredDays: t.Optional(t.Union([t.Array(t.String()), t.Null()])),
+  preferredTimes: t.Optional(t.Union([t.Array(t.String()), t.Null()])),
   mediaFilters: t.Optional(t.Union([MediaFilterSchema, t.Null()])),
 });
 
@@ -54,10 +54,26 @@ export const updateContentSchedule = async (
       : stringifyMediaFilters(updates.mediaFilters)
     : undefined;
 
+  const hasPreferredDaysUpdate = "preferredDays" in updates;
+  const preferredDaysValue = hasPreferredDaysUpdate
+    ? updates.preferredDays === null || updates.preferredDays === undefined || (Array.isArray(updates.preferredDays) && updates.preferredDays.length === 0)
+      ? null
+      : updates.preferredDays
+    : undefined;
+
+  const hasPreferredTimesUpdate = "preferredTimes" in updates;
+  const preferredTimesValue = hasPreferredTimesUpdate
+    ? updates.preferredTimes === null || updates.preferredTimes === undefined || (Array.isArray(updates.preferredTimes) && updates.preferredTimes.length === 0)
+      ? null
+      : updates.preferredTimes
+    : undefined;
+
   Object.assign(schedule, {
     ...updates,
-    updatedAt: new Date().toISOString(),
+    updatedAt: new Date(),
     ...(hasMediaFiltersUpdate && { mediaFilters: mediaFiltersValue }),
+    ...(hasPreferredDaysUpdate && { preferredDays: preferredDaysValue }),
+    ...(hasPreferredTimesUpdate && { preferredTimes: preferredTimesValue }),
   });
 
   await repository.save(schedule);

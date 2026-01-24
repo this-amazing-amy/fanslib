@@ -75,6 +75,14 @@ describe("Posts Routes", () => {
       const response = await app.handle(
         new Request(`http://localhost/api/posts/by-id/${fixturePost.id}`)
       );
+      
+      // Log response body for debugging if status is not 200
+      if (response.status !== 200) {
+        const body = await response.clone().text();
+        console.log("Response status:", response.status);
+        console.log("Response body:", body);
+      }
+      
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Post>(response);
@@ -83,6 +91,49 @@ describe("Posts Routes", () => {
       if (fixturePost.caption) {
         expect(data?.caption).toBe(fixturePost.caption);
       }
+    });
+
+    test("returns post with media and validates schema", async () => {
+      const channel = fixtures.channels.channels.find((c) => c.typeId === "fansly");
+      const media = fixtures.media[0];
+      if (!channel || !media) {
+        throw new Error("No channel or media fixtures available");
+      }
+
+      // Create a post with media
+      const createResponse = await app.handle(
+        new Request("http://localhost/api/posts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            caption: "Test post with media",
+            status: "draft" as const,
+            channelId: channel.id,
+            date: new Date().toISOString(),
+            mediaIds: [media.id],
+          }),
+        })
+      );
+      expect(createResponse.status).toBe(200);
+      const createdPost = await parseResponse<Post>(createResponse);
+      expect(createdPost?.id).toBeDefined();
+
+      // Fetch the post and check for validation errors
+      const response = await app.handle(
+        new Request(`http://localhost/api/posts/by-id/${createdPost?.id}`)
+      );
+
+      // Log if we get a validation error (422)
+      if (response.status === 422) {
+        const body = await response.clone().text();
+        console.log("Validation error (422):", body);
+      }
+
+      expect(response.status).toBe(200);
+
+      const data = await parseResponse<Post>(response);
+      expect(data?.postMedia?.length).toBeGreaterThan(0);
+      expect(data?.postMedia?.[0]?.media).toBeDefined();
     });
 
     test("returns error for non-existent post", async () => {

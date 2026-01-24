@@ -6,7 +6,7 @@ export const FetchLastPostDatesRequestBodySchema = t.Object({
   subredditIds: t.Array(t.String()),
 });
 
-export const FetchLastPostDatesResponseSchema = t.Record(t.String(), t.String());
+export const FetchLastPostDatesResponseSchema = t.Record(t.String(), t.Date());
 
 export const fetchLastPostDatesForSubreddits = async (
   payload: typeof FetchLastPostDatesRequestBodySchema.static
@@ -24,10 +24,10 @@ export const fetchLastPostDatesForSubreddits = async (
 
   return result.reduce(
     (acc, { subredditId, lastPostDate }) => {
-      acc[subredditId] = lastPostDate;
+      acc[subredditId] = new Date(lastPostDate);
       return acc;
     },
-    {} as Record<string, string>
+    {} as Record<string, Date>
   );
 };
 

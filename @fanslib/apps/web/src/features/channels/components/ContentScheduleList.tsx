@@ -53,6 +53,7 @@ export const ContentScheduleList = ({ schedules, onEdit }: ContentScheduleListPr
                   name={schedule.name}
                   emoji={schedule.emoji}
                   color={schedule.color}
+                  responsive={false}
                 />
                 <span className="badge badge-ghost">
                   {formatScheduleType(schedule.type)}
@@ -84,10 +85,7 @@ export const ContentScheduleList = ({ schedules, onEdit }: ContentScheduleListPr
 
               {mediaFilters && (
                 <div className="text-sm">
-                  <span className="font-medium">Media filters:</span>
-                  <div className="mt-1">
-                    <MediaFilterSummary mediaFilters={mediaFilters} />
-                  </div>
+                  <MediaFilterSummary mediaFilters={mediaFilters} />
                 </div>
               )}
             </div>

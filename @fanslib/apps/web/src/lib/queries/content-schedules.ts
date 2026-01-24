@@ -1,5 +1,6 @@
 import type {
   CreateContentScheduleRequestBodySchema,
+  FetchVirtualPostsRequestQuerySchema,
   UpdateContentScheduleRequestBodySchema,
 } from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -32,6 +33,25 @@ export const useContentSchedulesByChannelQuery = (channelId: string) =>
       return result.data;
     },
     enabled: !!channelId,
+  });
+
+export const useVirtualPostsQuery = (params: {
+  channelIds: string[];
+  fromDate: Date;
+  toDate: Date;
+}) =>
+  useQuery({
+    queryKey: ['content-schedules', 'virtual-posts', params],
+    queryFn: async () => {
+      const query: typeof FetchVirtualPostsRequestQuerySchema.static = {
+        channelIds: params.channelIds,
+        fromDate: params.fromDate.toISOString(),
+        toDate: params.toDate.toISOString(),
+      };
+      const result = await eden.api['content-schedules']['virtual-posts'].get({ query });
+      return result.data ?? [];
+    },
+    enabled: params.channelIds.length > 0,
   });
 
 export const useCreateContentScheduleMutation = () => {

@@ -33,7 +33,7 @@ export const createContentSchedule = async (
   const repository = dataSource.getRepository(ContentSchedule);
 
   const schedule = new ContentSchedule();
-  const now = new Date().toISOString();
+  const now = new Date();
 
   const mediaFilters = data.mediaFilters ? stringifyMediaFilters(data.mediaFilters) : undefined;
 

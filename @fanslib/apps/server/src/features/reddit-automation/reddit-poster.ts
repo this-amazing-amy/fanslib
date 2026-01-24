@@ -34,8 +34,8 @@ type ScheduledPost = {
   subreddit: SubredditType;
   media: Media;
   caption: string;
-  scheduledDate: string;
-  createdAt: string;
+  scheduledDate: Date;
+  createdAt: Date;
   status?: "queued" | "processing" | "posted" | "failed";
   errorMessage?: string;
   postUrl?: string;
@@ -116,12 +116,12 @@ export const generatePosts = async (
 
     allPosts.push({
       id: `temp-${index}`,
-      date: date.toISOString(),
+      date,
       subredditId: subreddit.id,
       channelId,
       status: "scheduled" as const,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     } as Post);
   });
 
@@ -181,7 +181,7 @@ export const scheduleAllPosts = async (
         {
           channelId: redditChannel.id,
           subredditId: post.subreddit.id,
-          date: post.date.toISOString(),
+          date: post.date,
           status: "scheduled",
           caption: post.caption,
         },

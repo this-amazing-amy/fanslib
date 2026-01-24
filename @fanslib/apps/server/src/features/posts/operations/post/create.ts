@@ -43,8 +43,8 @@ export const createPost = async (
 
   const post = postRepo.create({
     ...postData,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
     fypRemovedAt:
       typeof postData.fypRemovedAt === "undefined" &&
       channel.type.id === CHANNEL_TYPES.fansly.id

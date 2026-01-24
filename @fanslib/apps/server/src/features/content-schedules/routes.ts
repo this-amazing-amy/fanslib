@@ -5,6 +5,7 @@ import { FetchAllContentSchedulesResponseSchema, fetchAllContentSchedules } from
 import { FetchContentSchedulesByChannelResponseSchema, fetchContentSchedulesByChannel } from "./operations/content-schedule/fetch-by-channel";
 import { FetchContentScheduleByIdRequestParamsSchema, FetchContentScheduleByIdResponseSchema, fetchContentScheduleById } from "./operations/content-schedule/fetch-by-id";
 import { UpdateContentScheduleRequestBodySchema, UpdateContentScheduleRequestParamsSchema, UpdateContentScheduleResponseSchema, updateContentSchedule } from "./operations/content-schedule/update";
+import { FetchVirtualPostsRequestQuerySchema, FetchVirtualPostsResponseSchema, fetchVirtualPosts } from "./operations/generate-virtual-posts";
 import { CreateSkippedSlotRequestBodySchema, CreateSkippedSlotResponseSchema, createSkippedSlot } from "./operations/skipped-slots/create";
 import { RemoveSkippedSlotRequestParamsSchema, RemoveSkippedSlotResponseSchema, removeSkippedSlot } from "./operations/skipped-slots/remove";
 
@@ -29,6 +30,10 @@ export const contentSchedulesRoutes = new Elysia({ prefix: "/api/content-schedul
       200: FetchContentScheduleByIdResponseSchema,
       404: t.Object({ error: t.String() }),
     },
+  })
+  .get("/virtual-posts", async ({ query }) => fetchVirtualPosts(query), {
+    query: FetchVirtualPostsRequestQuerySchema,
+    response: FetchVirtualPostsResponseSchema,
   })
   .post("/", async ({ body }) => createContentSchedule(body), {
     body: CreateContentScheduleRequestBodySchema,

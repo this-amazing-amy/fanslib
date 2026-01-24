@@ -25,11 +25,11 @@ export class Post {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @Column({ type: "varchar", name: "createdAt" })
-  createdAt!: string;
+  @CreateDateColumn({ name: "createdAt" })
+  createdAt!: Date;
 
-  @Column({ type: "varchar", name: "updatedAt" })
-  updatedAt!: string;
+  @UpdateDateColumn({ name: "updatedAt" })
+  updatedAt!: Date;
 
   @Column({ type: "varchar", nullable: true, name: "scheduleId" })
   scheduleId: string | null = null;
@@ -41,8 +41,8 @@ export class Post {
   @Column({ type: "varchar", nullable: true, name: "caption" })
   caption: string | null = null;
 
-  @Column({ type: "varchar", name: "date" })
-  date!: string;
+  @Column({ type: "datetime", name: "date" })
+  date!: Date;
 
   @Column({ type: "varchar", nullable: true, name: "url" })
   url: string | null = null;

@@ -44,6 +44,7 @@ type CreatePostDialogProps = {
   scheduleId?: string;
   title?: string;
   initialMediaSelectionExpanded?: boolean;
+  initialShouldRedirect?: boolean;
 };
 
 const toast = () => {};
@@ -70,6 +71,7 @@ export const CreatePostDialog = ({
   scheduleId,
   title = "Create Post",
   initialMediaSelectionExpanded,
+  initialShouldRedirect = true,
 }: CreatePostDialogProps) => {
   const navigate = useNavigate();
   const { data: channels = [] } = useChannelsQuery();
@@ -96,7 +98,7 @@ export const CreatePostDialog = ({
   const [selectedMedia, setSelectedMedia] = useState<Media[]>(media);
   const [caption, setCaption] = useState(initialCaption ?? "");
   const [isOtherCaptionsOpen, setIsOtherCaptionsOpen] = useState(false);
-  const [shouldRedirect, setShouldRedirect] = useState(true);
+  const [shouldRedirect, setShouldRedirect] = useState(initialShouldRedirect);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -164,6 +166,11 @@ export const CreatePostDialog = ({
     if (!open) return;
     setStatus(initialStatus ?? "draft");
   }, [open, initialStatus]);
+
+  useEffect(() => {
+    if (!open) return;
+    setShouldRedirect(initialShouldRedirect);
+  }, [open, initialShouldRedirect]);
 
   useEffect(() => {
     if (!isRedditChannel) {

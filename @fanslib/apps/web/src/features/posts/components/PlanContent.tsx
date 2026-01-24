@@ -1,13 +1,14 @@
 import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
+import { addMonths } from "date-fns";
 import { CalendarDays, Columns3, LayoutList } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ToggleGroup } from "~/components/ui/ToggleGroup";
 import { SectionHeader } from "~/components/ui/SectionHeader";
 import { usePostPreferences, type PostViewType } from "~/contexts/PostPreferencesContext";
 import { useChannelsQuery } from "~/lib/queries/channels";
-import { useContentSchedulesQuery } from "~/lib/queries/content-schedules";
+import { useContentSchedulesQuery, useVirtualPostsQuery } from "~/lib/queries/content-schedules";
 import { usePostsQuery } from "~/lib/queries/posts";
-import { filterPostsByType, generateVirtualPosts, type VirtualPost } from "~/lib/virtual-posts";
+import { filterPostsByType } from "~/lib/virtual-posts";
 import { PlanEmptyState } from "./PlanEmptyState";
 import { PlanViewSettings } from "./PlanViewSettings";
 import { PostCalendar } from "./PostCalendar/PostCalendar";
@@ -20,37 +21,49 @@ type Post = typeof PostWithRelationsSchema.static;
 export const PlanContent = () => {
   const { data: channels = [] } = useChannelsQuery();
   const { preferences, updatePreferences } = usePostPreferences();
-  const [posts, setPosts] = useState<(Post | VirtualPost)[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
 
   const filtersQuery = useMemo(() => {
     if (!preferences.filter) return undefined;
     return JSON.stringify(preferences.filter);
   }, [preferences.filter]);
 
-  const allPostsFiltersQuery = useMemo(() => {
-    if (!preferences.filter?.dateRange) return undefined;
-    return JSON.stringify({
-      dateRange: preferences.filter.dateRange,
-    });
-  }, [preferences.filter?.dateRange]);
-
   const { data: filteredPosts = [], refetch: refetchFilteredPosts } = usePostsQuery({
     filters: filtersQuery,
   });
 
-  const { data: allPosts = [], refetch: refetchAllPosts } = usePostsQuery({
-    filters: allPostsFiltersQuery,
-  });
-
   const { data: schedules, refetch: refetchSchedules } = useContentSchedulesQuery();
+
+  const channelIds = useMemo(() => {
+    if (preferences.filter?.channels?.length) {
+      return preferences.filter.channels;
+    }
+    return (schedules ?? []).map((schedule) => (schedule.channel as { id: string }).id);
+  }, [preferences.filter?.channels, schedules]);
+
+  const fromDate = useMemo(() => {
+    const start = preferences.filter?.dateRange?.startDate;
+    return start ? new Date(start) : new Date();
+  }, [preferences.filter?.dateRange?.startDate]);
+
+  const toDate = useMemo(() => {
+    const end = preferences.filter?.dateRange?.endDate;
+    return end ? new Date(end) : addMonths(fromDate, 1);
+  }, [preferences.filter?.dateRange?.endDate, fromDate]);
+
+  const { data: virtualPosts = [], refetch: refetchVirtualPosts } = useVirtualPostsQuery({
+    channelIds,
+    fromDate,
+    toDate,
+  });
 
   const fetchPosts = useCallback(async () => {
     try {
-      await Promise.all([refetchFilteredPosts(), refetchAllPosts(), refetchSchedules()]);
+      await Promise.all([refetchFilteredPosts(), refetchSchedules(), refetchVirtualPosts()]);
     } catch (error) {
       console.error("Error fetching posts:", error);
     }
-  }, [refetchFilteredPosts, refetchAllPosts, refetchSchedules]);
+  }, [refetchFilteredPosts, refetchSchedules, refetchVirtualPosts]);
 
   useEffect(() => {
     fetchPosts();
@@ -60,23 +73,16 @@ export const PlanContent = () => {
     const shouldShowDraftPosts =
       !preferences.filter.statuses || preferences.filter.statuses.includes("draft");
 
-    const filteredSchedules = (schedules ?? []).filter(
-      (s) =>
-        !preferences.filter.channels || preferences.filter.channels?.includes((s.channel as { id: string })?.id)
-    );
+    const visibleVirtualPosts = shouldShowDraftPosts ? virtualPosts : [];
 
-    const virtualPosts = shouldShowDraftPosts
-      ? generateVirtualPosts(filteredSchedules, allPosts ?? [])
-      : [];
-
-    const allPostsCombined = [...(filteredPosts ?? []), ...virtualPosts].sort(
+    const allPostsCombined = [...(filteredPosts ?? []), ...visibleVirtualPosts].sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 
     const filteredByType = filterPostsByType(allPostsCombined, preferences.view.postTypeFilter);
 
     setPosts(filteredByType);
-  }, [filteredPosts, allPosts, schedules, preferences.filter, preferences.view.postTypeFilter]);
+  }, [filteredPosts, virtualPosts, preferences.filter, preferences.view.postTypeFilter]);
 
   const refetchPosts = useCallback(async () => {
     await fetchPosts();

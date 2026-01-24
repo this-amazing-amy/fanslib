@@ -50,11 +50,13 @@ export const fetchPostById = async (id: string): Promise<typeof FetchPostByIdRes
     },
   });
 
-  return post ? {
+  if (!post) return null;
+
+  return {
     ...post,
     postMedia: post.postMedia.filter((pm) => pm.media !== null),
     schedule: post.schedule ?? null,
     subreddit: post.subreddit ?? null,
-  } : null;
+  };
 };
 

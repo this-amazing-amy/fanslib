@@ -93,10 +93,9 @@ export const PostSwimlaneCell = ({
 
   return (
     <div className="flex flex-col gap-1 min-h-[80px]">
-      {sortedPosts.map((post) => {
-        const id = isVirtualPost(post) ? post.virtualId : post.id;
-        return <PostSwimlaneCard key={id} post={post} />;
-      })}
+      {sortedPosts.map((post) => (
+        <PostSwimlaneCard key={post.id} post={post} />
+      ))}
       {isDragging && (
         <div
           {...dragHandlers}

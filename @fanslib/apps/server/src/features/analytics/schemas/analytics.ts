@@ -4,7 +4,7 @@ import { MediaSchema } from "../../library/schema";
 // FanslyPostWithAnalytics
 export const FanslyPostWithAnalyticsSchema = t.Object({
   id: t.String(),
-  date: t.String(),
+  date: t.Date(),
   caption: t.String(),
   thumbnailUrl: t.String(),
   postUrl: t.Optional(t.String()),

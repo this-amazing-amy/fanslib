@@ -4,7 +4,7 @@ import { SkippedScheduleSlot, SkippedScheduleSlotSchema } from "../../entity";
 
 export const CreateSkippedSlotRequestBodySchema = t.Object({
   scheduleId: t.String(),
-  date: t.String(),
+  date: t.Date(),
 });
 
 export const CreateSkippedSlotResponseSchema = SkippedScheduleSlotSchema;

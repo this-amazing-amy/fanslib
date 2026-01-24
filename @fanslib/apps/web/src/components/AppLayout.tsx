@@ -68,7 +68,7 @@ const LayoutContent = ({ children }: AppLayoutProps) => {
 
         {/* Page content */}
         <div className='drawer-content flex flex-col h-[100svh]'>
-          <header className='main-header navbar bg-base-100 shadow-sm border-b border-base-300 lg:hidden h-16 px-4'>
+          <header className='main-header navbar bg-base-100 lg:hidden h-16 px-4 items-center'>
             <div className='flex-none'>
               <label
                 htmlFor='drawer-toggle'
@@ -77,10 +77,8 @@ const LayoutContent = ({ children }: AppLayoutProps) => {
                 <BurgerIcon />
               </label>
             </div>
-            <div className='flex-1'>
-              <div className='flex items-center space-x-2 ml-2'>
-                <Logo isCollapsed={false} className="h-8" />
-              </div>
+            <div className='flex-1 flex items-center'>
+              <Logo isCollapsed={false} className="h-8" />
             </div>
           </header>
 

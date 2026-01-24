@@ -11,6 +11,7 @@ import { contentSchedulesRoutes } from "./features/content-schedules/routes";
 import { filterPresetsRoutes } from "./features/filter-presets/routes";
 import { hashtagsRoutes } from "./features/hashtags/routes";
 import { libraryRoutes } from "./features/library/routes";
+import { pipelineRoutes } from "./features/pipeline/routes";
 import { postsRoutes } from "./features/posts/routes";
 import { runScheduledPostsCronTick } from "./features/posts/scheduled-posts-cron";
 import { redditAutomationRoutes } from "./features/reddit-automation/routes";
@@ -23,6 +24,7 @@ import { db } from "./lib/db";
 import { env } from "./lib/env";
 import { migrateColorsToPresets } from "./lib/migrate-colors-to-presets";
 import { seedDatabase } from "./lib/seed";
+import { mapResponse } from "./lib/serialization";
 import { walkDirectory } from "./lib/walkDirectory";
 
 
@@ -57,11 +59,12 @@ const isTestEnvironment = process.env.NODE_ENV === "test";
 const isScheduledPostsCronEnabled = !isCronDisabled && !isTestEnvironment;
 
 const app = new Elysia()
-.use(cors({
-  origin: true, // Allow all origins (including chrome-extension://)
-  credentials: true,
-  exposeHeaders: ["X-Serialization", "Content-Type", "Content-Length"],
-}))
+  .use(cors({
+    origin: true, // Allow all origins (including chrome-extension://)
+    credentials: true,
+    exposeHeaders: ["X-Serialization", "Content-Type", "Content-Length"],
+  }))
+  .mapResponse(mapResponse)
   .use(
     isScheduledPostsCronEnabled
       ? cron({
@@ -79,7 +82,7 @@ const app = new Elysia()
       },
     },
   }))
-  .get("/health", () => ({ status: "ok", timestamp: new Date().toISOString() }))
+  .get("/health", () => ({ status: "ok", timestamp: new Date() }))
   .post("/migrate-colors", async () => {
     try {
       const result = await migrateColorsToPresets();
@@ -103,6 +106,7 @@ const app = new Elysia()
   .use(blueskyRoutes)
   .use(analyticsRoutes)
   .use(redditAutomationRoutes)
+  .use(pipelineRoutes)
   .listen(6970);
 
 db()

@@ -122,7 +122,8 @@ export const CommandItem = ({ value, onSelect, children, className }: { value: s
         // Decrement on unmount or when becomes invisible
       };
     }
-  }, [isVisible, ctx]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isVisible]);
   
   if (!isVisible) return null;
   return (

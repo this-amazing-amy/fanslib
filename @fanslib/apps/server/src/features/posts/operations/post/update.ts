@@ -1,4 +1,5 @@
 import { t } from "elysia";
+import { In } from "typeorm";
 import { db } from "../../../../lib/db";
 import { CHANNEL_TYPES } from "../../../channels/channelTypes";
 import { Post } from "../../entity";
@@ -10,12 +11,17 @@ export const UpdatePostRequestParamsSchema = t.Object({
   id: t.String(),
 });
 
-export const UpdatePostRequestBodySchema = t.Partial(PostSchema);
+export const UpdatePostRequestBodySchema = t.Intersect([
+  t.Partial(PostSchema),
+  t.Object({
+    syncToPostIds: t.Optional(t.Array(t.String())),
+  }),
+]);
 export const UpdatePostResponseSchema = FetchPostByIdResponseSchema;
 
 export const updatePost = async (
   id: string,
-  updates: Partial<Post>
+  updates: Partial<Post> & { syncToPostIds?: string[] }
 ): Promise<typeof UpdatePostResponseSchema.static | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Post);
@@ -37,7 +43,9 @@ export const updatePost = async (
 
   if (!post) return null;
 
-  const isStatusChangeToScheduled = updates.status === "scheduled" && post.status !== "scheduled";
+  const { syncToPostIds = [], ...postUpdates } = updates;
+  const isStatusChangeToScheduled =
+    postUpdates.status === "scheduled" && post.status !== "scheduled";
   const isBlueskyPost = post.channel.typeId === CHANNEL_TYPES.bluesky.id;
 
   if (isStatusChangeToScheduled && isBlueskyPost) {
@@ -46,7 +54,7 @@ export const updatePost = async (
       .map((pm) => pm.media)
       .filter((m): m is NonNullable<typeof m> => m !== null);
 
-    const validation = await validatePost(updates.caption ?? post.caption, media);
+    const validation = await validatePost(postUpdates.caption ?? post.caption, media);
 
     if (!validation.valid) {
       throw new Error(
@@ -55,12 +63,71 @@ export const updatePost = async (
     }
   }
 
+  const updatedAt = new Date();
   Object.assign(post, {
-    ...updates,
-    updatedAt: new Date().toISOString(),
+    ...postUpdates,
+    updatedAt,
   });
 
   await repository.save(post);
+
+  if (syncToPostIds.length > 0) {
+    const syncedPosts = await repository.find({
+      where: {
+        id: In(syncToPostIds),
+      },
+      relations: {
+        postMedia: {
+          media: true,
+        },
+        channel: true,
+      },
+      order: {
+        postMedia: {
+          order: "ASC",
+        },
+      },
+    });
+
+    const resolvePipelineStatus = (channelTypeId: string, requestedStatus?: Post["status"]) => {
+      if (requestedStatus !== "ready" && requestedStatus !== "scheduled") return requestedStatus;
+      const autoChannels: string[] = [CHANNEL_TYPES.bluesky.id, CHANNEL_TYPES.reddit.id];
+      return autoChannels.includes(channelTypeId) ? "scheduled" : "ready";
+    };
+
+    await Promise.all(
+      syncedPosts.map(async (syncPost) => {
+        const syncStatus = resolvePipelineStatus(syncPost.channel.typeId, postUpdates.status);
+        const syncUpdates =
+          syncStatus ? { ...postUpdates, status: syncStatus } : { ...postUpdates };
+
+        const shouldValidateBluesky =
+          syncStatus === "scheduled" && syncPost.status !== "scheduled" && syncPost.channel.typeId === CHANNEL_TYPES.bluesky.id;
+
+        if (shouldValidateBluesky) {
+          const media = syncPost.postMedia
+            .filter((pm) => pm.media !== null)
+            .map((pm) => pm.media)
+            .filter((m): m is NonNullable<typeof m> => m !== null);
+
+          const validation = await validatePost(syncUpdates.caption ?? syncPost.caption, media);
+
+          if (!validation.valid) {
+            throw new Error(
+              `Cannot schedule Bluesky post: ${validation.errors.map((e) => e.message).join("; ")}`
+            );
+          }
+        }
+
+        Object.assign(syncPost, {
+          ...syncUpdates,
+          updatedAt,
+        });
+
+        return repository.save(syncPost);
+      })
+    );
+  }
 
   return fetchPostById(id);
 };

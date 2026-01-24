@@ -26,11 +26,11 @@ export const PostMediaWithMediaSchema = t.Composite([
 
 export const PostSchema = t.Object({
   id: t.String(),
-  createdAt: t.String(),
-  updatedAt: t.String(),
+  createdAt: t.Date(),
+  updatedAt: t.Date(),
   scheduleId: t.Nullable(t.String()),
   caption: t.Nullable(t.String()),
-  date: t.String(),
+  date: t.Date(),
   url: t.Nullable(t.String()),
   fypRemovedAt: t.Nullable(t.Date()),
   postponeBlueskyDraftedAt: t.Nullable(t.Date()),

@@ -125,7 +125,7 @@ export const PostTimeline = ({ posts, className, onUpdate, matchedPostMediaIds }
       >
         {virtualizer.getVirtualItems().map((virtualRow: TimelineVirtualItem) => {
           const post = sortedPosts[virtualRow.index];
-          const id = isVirtualPost(post) ? post.virtualId : post.id;
+          const id = post.id;
           const previousPost =
             virtualRow.index > 0 ? sortedPosts[virtualRow.index - 1] : undefined;
           const nextPost =

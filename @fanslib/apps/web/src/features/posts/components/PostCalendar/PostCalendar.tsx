@@ -17,7 +17,6 @@ import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/Button";
 import { usePostPreferences } from "~/contexts/PostPreferencesContext";
 import { cn } from "~/lib/cn";
-import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
 import { PostCalendarDayDropzone } from "./PostCalendarDayDropzone";
 import { PostCalendarPost } from "./PostCalendarPost";
 
@@ -25,7 +24,7 @@ type Post = typeof PostWithRelationsSchema.static;
 
 type PostCalendarProps = {
   className?: string;
-  posts: (Post | VirtualPost)[];
+  posts: Post[];
   onUpdate: () => Promise<void>;
 };
 
@@ -130,7 +129,7 @@ export const PostCalendar = ({ className, posts, onUpdate }: PostCalendarProps) 
                 {dayPosts.length > 0 && (
                   <div className="flex-1 min-h-0 flex flex-col gap-2">
                     {dayPosts.map((post) => <PostCalendarPost
-                          key={isVirtualPost(post) ? post.virtualId : post.id}
+                          key={post.id}
                           onUpdate={onUpdate}
                           post={post}
                         />)}

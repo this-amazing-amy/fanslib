@@ -83,6 +83,18 @@ export {
   UpdatePostRequestBodySchema, UpdatePostRequestParamsSchema, UpdatePostResponseSchema
 } from './features/posts/operations/post/update';
 
+// Pipeline schemas
+export {
+  AssignMediaRequestBodySchema,
+  AssignMediaResponseSchema
+} from './features/pipeline/operations/assign-media';
+
+export {
+  FetchCaptionQueueRequestQuerySchema,
+  FetchCaptionQueueResponseSchema,
+  CaptionQueueItemSchema
+} from './features/pipeline/operations/fetch-caption-queue';
+
 export { type PostStatus } from './features/posts/entity';
 
 export {
@@ -327,6 +339,11 @@ export {
 export {
   FetchContentScheduleByIdResponseSchema
 } from './features/content-schedules/operations/content-schedule/fetch-by-id';
+
+export {
+  FetchVirtualPostsRequestQuerySchema,
+  FetchVirtualPostsResponseSchema
+} from './features/content-schedules/operations/generate-virtual-posts';
 
 export {
   ContentScheduleWithChannelSchema,

@@ -1,8 +1,12 @@
 import { cn } from "~/lib/cn";
-import type { TabConfig } from "~/hooks/useTabNavigation";
+
+type TabItem<T extends string> = {
+  id: T;
+  label: string;
+};
 
 type TabNavigationProps<T extends string> = {
-  tabs: TabConfig<T>[];
+  tabs: TabItem<T>[];
   activeTabId: T;
   onTabChange: (tabId: T) => void;
   className?: string;
@@ -25,7 +29,7 @@ export const TabNavigation = <T extends string,>({
             "font-bold transition-colors cursor-pointer",
             activeTabId === tab.id
               ? "text-base-content"
-              : "text-base-content/60 hover:text-base-content/80"
+              : "text-base-content/40 hover:text-base-content/60"
           )}
         >
           {tab.label}

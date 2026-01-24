@@ -1,6 +1,6 @@
 import type { TagDefinitionSchema, TagDimensionSchema } from "@fanslib/server/schemas";
 import { ChevronRight, ChevronsUpDown } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "~/components/ui/Button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "~/components/ui/Command";
 import { Popover, PopoverTrigger } from "~/components/ui/Popover";
@@ -65,14 +65,15 @@ export const TagFilterSelector = ({ value, onChange }: TagFilterSelectorProps) =
   }, [categoricalDimensions, searchValue]);
 
   // Auto-expand dimensions that have matching tags when searching
-  useMemo(() => {
+  useEffect(() => {
     if (searchValue.trim()) {
       const dimensionsWithMatches = filteredDimensionsWithTags
         .filter((item) => item.hasMatches)
         .map((item) => item.dimension.id);
       setExpandedDimensions(new Set(dimensionsWithMatches));
     }
-  }, [searchValue, filteredDimensionsWithTags]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchValue]);
 
   const toggleDimension = (dimensionId: number) => {
     if (searchValue.trim()) return; // Don't allow manual toggle during search

@@ -2,12 +2,14 @@ import { t } from "elysia";
 import type { Relation } from "typeorm";
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryColumn,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from "typeorm";
 import { Channel } from "../channels/entity";
 
@@ -45,11 +47,11 @@ export class ContentSchedule {
   @Column({ type: "simple-array", nullable: true, name: "preferredTimes" })
   preferredTimes: string[] | null = null;
 
-  @Column({ type: "varchar", name: "updatedAt" })
-  updatedAt!: string;
+  @UpdateDateColumn({ name: "updatedAt" })
+  updatedAt!: Date;
 
-  @Column({ type: "varchar", name: "createdAt" })
-  createdAt!: string;
+  @CreateDateColumn({ name: "createdAt" })
+  createdAt!: Date;
 
   @Column({ type: "text", nullable: true, name: "mediaFilters" })
   mediaFilters: string | null = null;
@@ -71,8 +73,8 @@ export class SkippedScheduleSlot {
   @Column({ type: "varchar", name: "scheduleId" })
   scheduleId!: string;
 
-  @Column({ type: "varchar", name: "date" })
-  date!: string;
+  @Column({ type: "datetime", name: "date" })
+  date!: Date;
 
   @ManyToOne(() => ContentSchedule, { onDelete: "CASCADE" })
   @JoinColumn({ name: "scheduleId" })
@@ -95,15 +97,15 @@ export const ContentScheduleSchema = t.Object({
   postsPerTimeframe: t.Nullable(t.Number()),
   preferredDays: t.Nullable(t.Array(t.String())),
   preferredTimes: t.Nullable(t.Array(t.String())),
-  updatedAt: t.String(),
-  createdAt: t.String(),
+  updatedAt: t.Date(),
+  createdAt: t.Date(),
   mediaFilters: t.Nullable(t.String()),
 });
 
 export const SkippedScheduleSlotSchema = t.Object({
   id: t.String(),
   scheduleId: t.String(),
-  date: t.String(),
+  date: t.Date(),
 });
 
 export const ContentScheduleWithSkippedSlotsSchema = t.Intersect([

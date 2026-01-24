@@ -18,18 +18,18 @@ type UpdatedPostLog = {
 type UpdateResult = {
   updatedPosts: UpdatedPostLog[];
   skippedPosts: UpdatedPostLog[];
-  now: string;
+  now: Date;
 };
 
 type OverduePostRow = {
   id: string;
   caption: string | null;
-  date: string;
+  date: Date;
   channelTypeId: string;
   blueskyRetryCount: number;
 };
 
-const findOverdueScheduledNonRedditPosts = async (postRepository: Repository<Post>, now: string): Promise<OverduePostRow[]> => postRepository
+const findOverdueScheduledNonRedditPosts = async (postRepository: Repository<Post>, now: Date): Promise<OverduePostRow[]> => postRepository
     .createQueryBuilder("post")
     .leftJoin(Channel, "channel", "channel.id = post.channelId")
     .leftJoinAndSelect("post.postMedia", "postMedia")
@@ -64,7 +64,7 @@ const extractMediaFromPost = (post: Post) => post.postMedia
     .map((pm) => pm.media)
     .filter((m): m is NonNullable<typeof m> => m !== null);
 
-const postToBluesky = async (post: Post, retryCount: number, now: string): Promise<UpdatedPostLog> => {
+const postToBluesky = async (post: Post, retryCount: number, now: Date): Promise<UpdatedPostLog> => {
   const postRepository = (await db()).getRepository(Post);
   const media = extractMediaFromPost(post);
 
@@ -141,7 +141,7 @@ const postToBluesky = async (post: Post, retryCount: number, now: string): Promi
   }
 };
 
-const markPostAsPosted = async (post: Post, now: string): Promise<void> => {
+const markPostAsPosted = async (post: Post, now: Date): Promise<void> => {
   const postRepository = (await db()).getRepository(Post);
   await postRepository.update(post.id, {
     status: "posted",
@@ -152,7 +152,7 @@ const markPostAsPosted = async (post: Post, now: string): Promise<void> => {
 const processOverduePost = async (
   postRepository: Repository<Post>,
   row: OverduePostRow,
-  now: string
+  now: Date
 ): Promise<UpdatedPostLog> => {
   const post = await fetchPostWithRelations(postRepository, row.id);
 
@@ -205,7 +205,7 @@ export const runScheduledPostsCronTick = async (): Promise<void> => {
 export const updateOverdueScheduledNonRedditPosts = async (): Promise<UpdateResult> => {
   const dataSource = await db();
   const postRepository = dataSource.getRepository(Post);
-  const now = new Date().toISOString();
+  const now = new Date();
 
   const overduePosts = await findOverdueScheduledNonRedditPosts(postRepository, now);
 

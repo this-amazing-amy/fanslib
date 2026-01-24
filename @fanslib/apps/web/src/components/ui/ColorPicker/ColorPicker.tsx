@@ -29,7 +29,7 @@ export const ColorPicker = ({ value, onChange, className }: ColorPickerProps) =>
     <PopoverTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
       <Button
         variant="ghost"
-        className={cn("w-10 h-10 p-0 rounded border-2", className)}
+        className={cn("w-10 h-10 p-0 rounded-full border", className)}
         style={{
           backgroundColor: displayColor,
           borderColor: colorDef.foreground,

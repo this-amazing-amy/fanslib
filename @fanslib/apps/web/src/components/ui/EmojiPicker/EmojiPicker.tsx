@@ -43,7 +43,7 @@ export const EmojiPicker = ({
       <Button
         variant="ghost"
         className={cn(
-          "w-12 h-10 p-0 text-xl border border-base-300 hover:border-base-content/30",
+          "w-10 h-10 p-0 text-xl border border-base-content rounded-full",
           className
         )}
         aria-label="Select emoji"

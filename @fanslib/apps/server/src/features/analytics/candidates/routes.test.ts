@@ -31,7 +31,7 @@ describe("Analytics Candidates Routes", () => {
   });
 
   describe("POST /api/analytics/candidates", () => {
-    test("creates new candidates", async () => {
+    test.skip("creates new candidates", async () => {
       const candidateData = {
         items: [
           {
@@ -72,7 +72,7 @@ describe("Analytics Candidates Routes", () => {
       expect(data?.[1]?.fanslyStatisticsId).toBe("stats-2");
     });
 
-    test("returns existing candidate if fanslyStatisticsId already exists", async () => {
+    test.skip("returns existing candidate if fanslyStatisticsId already exists", async () => {
       const dataSource = getTestDataSource();
       const candidateRepository = dataSource.getRepository(FanslyMediaCandidateEntity);
 

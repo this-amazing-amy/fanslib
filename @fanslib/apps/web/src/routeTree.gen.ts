@@ -11,9 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SubredditsRouteImport } from './routes/subreddits'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as PipelineRouteImport } from './routes/pipeline'
 import { Route as OrchestrateRouteImport } from './routes/orchestrate'
 import { Route as HashtagsRouteImport } from './routes/hashtags'
 import { Route as ContentRouteImport } from './routes/content'
+import { Route as ComposeRouteImport } from './routes/compose'
 import { Route as ComponentShowcaseRouteImport } from './routes/component-showcase'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShootsIndexRouteImport } from './routes/shoots/index'
@@ -28,9 +30,13 @@ import { Route as SettingsContentTagsRouteImport } from './routes/settings/conte
 import { Route as SettingsContentSafetyRouteImport } from './routes/settings/content-safety'
 import { Route as SettingsAppearanceRouteImport } from './routes/settings/appearance'
 import { Route as PostsPostIdRouteImport } from './routes/posts/$postId'
+import { Route as PipelineDraftRouteImport } from './routes/pipeline/draft'
+import { Route as PipelineCaptionRouteImport } from './routes/pipeline/caption'
 import { Route as LibraryMediaIdRouteImport } from './routes/library/$mediaId'
 import { Route as ContentLibraryRouteImport } from './routes/content/library'
 import { Route as ContentChannelsRouteImport } from './routes/content/channels'
+import { Route as ComposeDraftRouteImport } from './routes/compose/draft'
+import { Route as ComposeCaptionRouteImport } from './routes/compose/caption'
 import { Route as AnalyticsMatchingRouteImport } from './routes/analytics/matching'
 import { Route as ContentLibraryShootsRouteImport } from './routes/content/library/shoots'
 import { Route as ContentLibraryMediaRouteImport } from './routes/content/library/media'
@@ -47,6 +53,11 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PipelineRoute = PipelineRouteImport.update({
+  id: '/pipeline',
+  path: '/pipeline',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrchestrateRoute = OrchestrateRouteImport.update({
   id: '/orchestrate',
   path: '/orchestrate',
@@ -60,6 +71,11 @@ const HashtagsRoute = HashtagsRouteImport.update({
 const ContentRoute = ContentRouteImport.update({
   id: '/content',
   path: '/content',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ComposeRoute = ComposeRouteImport.update({
+  id: '/compose',
+  path: '/compose',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ComponentShowcaseRoute = ComponentShowcaseRouteImport.update({
@@ -132,6 +148,16 @@ const PostsPostIdRoute = PostsPostIdRouteImport.update({
   path: '/posts/$postId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PipelineDraftRoute = PipelineDraftRouteImport.update({
+  id: '/draft',
+  path: '/draft',
+  getParentRoute: () => PipelineRoute,
+} as any)
+const PipelineCaptionRoute = PipelineCaptionRouteImport.update({
+  id: '/caption',
+  path: '/caption',
+  getParentRoute: () => PipelineRoute,
+} as any)
 const LibraryMediaIdRoute = LibraryMediaIdRouteImport.update({
   id: '/library/$mediaId',
   path: '/library/$mediaId',
@@ -146,6 +172,16 @@ const ContentChannelsRoute = ContentChannelsRouteImport.update({
   id: '/channels',
   path: '/channels',
   getParentRoute: () => ContentRoute,
+} as any)
+const ComposeDraftRoute = ComposeDraftRouteImport.update({
+  id: '/draft',
+  path: '/draft',
+  getParentRoute: () => ComposeRoute,
+} as any)
+const ComposeCaptionRoute = ComposeCaptionRouteImport.update({
+  id: '/caption',
+  path: '/caption',
+  getParentRoute: () => ComposeRoute,
 } as any)
 const AnalyticsMatchingRoute = AnalyticsMatchingRouteImport.update({
   id: '/analytics/matching',
@@ -178,15 +214,21 @@ const ContentLibraryMediaMediaIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/component-showcase': typeof ComponentShowcaseRoute
+  '/compose': typeof ComposeRouteWithChildren
   '/content': typeof ContentRouteWithChildren
   '/hashtags': typeof HashtagsRoute
   '/orchestrate': typeof OrchestrateRoute
+  '/pipeline': typeof PipelineRouteWithChildren
   '/settings': typeof SettingsRouteWithChildren
   '/subreddits': typeof SubredditsRoute
   '/analytics/matching': typeof AnalyticsMatchingRoute
+  '/compose/caption': typeof ComposeCaptionRoute
+  '/compose/draft': typeof ComposeDraftRoute
   '/content/channels': typeof ContentChannelsRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
   '/library/$mediaId': typeof LibraryMediaIdRoute
+  '/pipeline/caption': typeof PipelineCaptionRoute
+  '/pipeline/draft': typeof PipelineDraftRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/settings/appearance': typeof SettingsAppearanceRoute
   '/settings/content-safety': typeof SettingsContentSafetyRoute
@@ -207,14 +249,20 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/component-showcase': typeof ComponentShowcaseRoute
+  '/compose': typeof ComposeRouteWithChildren
   '/content': typeof ContentRouteWithChildren
   '/hashtags': typeof HashtagsRoute
   '/orchestrate': typeof OrchestrateRoute
+  '/pipeline': typeof PipelineRouteWithChildren
   '/subreddits': typeof SubredditsRoute
   '/analytics/matching': typeof AnalyticsMatchingRoute
+  '/compose/caption': typeof ComposeCaptionRoute
+  '/compose/draft': typeof ComposeDraftRoute
   '/content/channels': typeof ContentChannelsRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
   '/library/$mediaId': typeof LibraryMediaIdRoute
+  '/pipeline/caption': typeof PipelineCaptionRoute
+  '/pipeline/draft': typeof PipelineDraftRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/settings/appearance': typeof SettingsAppearanceRoute
   '/settings/content-safety': typeof SettingsContentSafetyRoute
@@ -235,15 +283,21 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/component-showcase': typeof ComponentShowcaseRoute
+  '/compose': typeof ComposeRouteWithChildren
   '/content': typeof ContentRouteWithChildren
   '/hashtags': typeof HashtagsRoute
   '/orchestrate': typeof OrchestrateRoute
+  '/pipeline': typeof PipelineRouteWithChildren
   '/settings': typeof SettingsRouteWithChildren
   '/subreddits': typeof SubredditsRoute
   '/analytics/matching': typeof AnalyticsMatchingRoute
+  '/compose/caption': typeof ComposeCaptionRoute
+  '/compose/draft': typeof ComposeDraftRoute
   '/content/channels': typeof ContentChannelsRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
   '/library/$mediaId': typeof LibraryMediaIdRoute
+  '/pipeline/caption': typeof PipelineCaptionRoute
+  '/pipeline/draft': typeof PipelineDraftRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/settings/appearance': typeof SettingsAppearanceRoute
   '/settings/content-safety': typeof SettingsContentSafetyRoute
@@ -266,15 +320,21 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/component-showcase'
+    | '/compose'
     | '/content'
     | '/hashtags'
     | '/orchestrate'
+    | '/pipeline'
     | '/settings'
     | '/subreddits'
     | '/analytics/matching'
+    | '/compose/caption'
+    | '/compose/draft'
     | '/content/channels'
     | '/content/library'
     | '/library/$mediaId'
+    | '/pipeline/caption'
+    | '/pipeline/draft'
     | '/posts/$postId'
     | '/settings/appearance'
     | '/settings/content-safety'
@@ -295,14 +355,20 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/component-showcase'
+    | '/compose'
     | '/content'
     | '/hashtags'
     | '/orchestrate'
+    | '/pipeline'
     | '/subreddits'
     | '/analytics/matching'
+    | '/compose/caption'
+    | '/compose/draft'
     | '/content/channels'
     | '/content/library'
     | '/library/$mediaId'
+    | '/pipeline/caption'
+    | '/pipeline/draft'
     | '/posts/$postId'
     | '/settings/appearance'
     | '/settings/content-safety'
@@ -322,15 +388,21 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/component-showcase'
+    | '/compose'
     | '/content'
     | '/hashtags'
     | '/orchestrate'
+    | '/pipeline'
     | '/settings'
     | '/subreddits'
     | '/analytics/matching'
+    | '/compose/caption'
+    | '/compose/draft'
     | '/content/channels'
     | '/content/library'
     | '/library/$mediaId'
+    | '/pipeline/caption'
+    | '/pipeline/draft'
     | '/posts/$postId'
     | '/settings/appearance'
     | '/settings/content-safety'
@@ -352,9 +424,11 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ComponentShowcaseRoute: typeof ComponentShowcaseRoute
+  ComposeRoute: typeof ComposeRouteWithChildren
   ContentRoute: typeof ContentRouteWithChildren
   HashtagsRoute: typeof HashtagsRoute
   OrchestrateRoute: typeof OrchestrateRoute
+  PipelineRoute: typeof PipelineRouteWithChildren
   SettingsRoute: typeof SettingsRouteWithChildren
   SubredditsRoute: typeof SubredditsRoute
   AnalyticsMatchingRoute: typeof AnalyticsMatchingRoute
@@ -382,6 +456,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pipeline': {
+      id: '/pipeline'
+      path: '/pipeline'
+      fullPath: '/pipeline'
+      preLoaderRoute: typeof PipelineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/orchestrate': {
       id: '/orchestrate'
       path: '/orchestrate'
@@ -401,6 +482,13 @@ declare module '@tanstack/react-router' {
       path: '/content'
       fullPath: '/content'
       preLoaderRoute: typeof ContentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compose': {
+      id: '/compose'
+      path: '/compose'
+      fullPath: '/compose'
+      preLoaderRoute: typeof ComposeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/component-showcase': {
@@ -501,6 +589,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PostsPostIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pipeline/draft': {
+      id: '/pipeline/draft'
+      path: '/draft'
+      fullPath: '/pipeline/draft'
+      preLoaderRoute: typeof PipelineDraftRouteImport
+      parentRoute: typeof PipelineRoute
+    }
+    '/pipeline/caption': {
+      id: '/pipeline/caption'
+      path: '/caption'
+      fullPath: '/pipeline/caption'
+      preLoaderRoute: typeof PipelineCaptionRouteImport
+      parentRoute: typeof PipelineRoute
+    }
     '/library/$mediaId': {
       id: '/library/$mediaId'
       path: '/library/$mediaId'
@@ -521,6 +623,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/content/channels'
       preLoaderRoute: typeof ContentChannelsRouteImport
       parentRoute: typeof ContentRoute
+    }
+    '/compose/draft': {
+      id: '/compose/draft'
+      path: '/draft'
+      fullPath: '/compose/draft'
+      preLoaderRoute: typeof ComposeDraftRouteImport
+      parentRoute: typeof ComposeRoute
+    }
+    '/compose/caption': {
+      id: '/compose/caption'
+      path: '/caption'
+      fullPath: '/compose/caption'
+      preLoaderRoute: typeof ComposeCaptionRouteImport
+      parentRoute: typeof ComposeRoute
     }
     '/analytics/matching': {
       id: '/analytics/matching'
@@ -559,6 +675,19 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface ComposeRouteChildren {
+  ComposeCaptionRoute: typeof ComposeCaptionRoute
+  ComposeDraftRoute: typeof ComposeDraftRoute
+}
+
+const ComposeRouteChildren: ComposeRouteChildren = {
+  ComposeCaptionRoute: ComposeCaptionRoute,
+  ComposeDraftRoute: ComposeDraftRoute,
+}
+
+const ComposeRouteWithChildren =
+  ComposeRoute._addFileChildren(ComposeRouteChildren)
 
 interface ContentLibraryMediaRouteChildren {
   ContentLibraryMediaMediaIdRoute: typeof ContentLibraryMediaMediaIdRoute
@@ -600,6 +729,20 @@ const ContentRouteChildren: ContentRouteChildren = {
 const ContentRouteWithChildren =
   ContentRoute._addFileChildren(ContentRouteChildren)
 
+interface PipelineRouteChildren {
+  PipelineCaptionRoute: typeof PipelineCaptionRoute
+  PipelineDraftRoute: typeof PipelineDraftRoute
+}
+
+const PipelineRouteChildren: PipelineRouteChildren = {
+  PipelineCaptionRoute: PipelineCaptionRoute,
+  PipelineDraftRoute: PipelineDraftRoute,
+}
+
+const PipelineRouteWithChildren = PipelineRoute._addFileChildren(
+  PipelineRouteChildren,
+)
+
 interface SettingsRouteChildren {
   SettingsAppearanceRoute: typeof SettingsAppearanceRoute
   SettingsContentSafetyRoute: typeof SettingsContentSafetyRoute
@@ -627,9 +770,11 @@ const SettingsRouteWithChildren = SettingsRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ComponentShowcaseRoute: ComponentShowcaseRoute,
+  ComposeRoute: ComposeRouteWithChildren,
   ContentRoute: ContentRouteWithChildren,
   HashtagsRoute: HashtagsRoute,
   OrchestrateRoute: OrchestrateRoute,
+  PipelineRoute: PipelineRouteWithChildren,
   SettingsRoute: SettingsRouteWithChildren,
   SubredditsRoute: SubredditsRoute,
   AnalyticsMatchingRoute: AnalyticsMatchingRoute,

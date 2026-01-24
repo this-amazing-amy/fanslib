@@ -16,9 +16,11 @@ export const fetchShootById = async (id: string): Promise<typeof FetchShootByIdR
   const database = await db();
   const shootRepository = database.getRepository(Shoot);
 
-  return shootRepository.findOne({
+  const shoot = await shootRepository.findOne({
     where: { id },
     relations: ["media"],
   });
+
+  return shoot;
 };
 
