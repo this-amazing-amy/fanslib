@@ -55,15 +55,23 @@ const LibraryPreferencesContext = createContext<LibraryPreferencesContextValue |
 
 const STORAGE_KEY = "libraryPreferences";
 
-export const LibraryPreferencesProvider = ({ children }: { children: React.ReactNode }) => {
+type LibraryPreferencesProviderProps = {
+  children: React.ReactNode;
+  storageKey?: string;
+};
+
+export const LibraryPreferencesProvider = ({
+  children,
+  storageKey,
+}: LibraryPreferencesProviderProps) => {
   const { value: preferences, setValue: setPreferences } = useLocalStorage(
-    STORAGE_KEY,
+    storageKey ?? STORAGE_KEY,
     defaultPreferences,
     (defaults, stored) => mergeDeep(defaults, stored)
   );
 
   const updatePreferences = useCallback((updates: DeepPartial<LibraryPreferences>) => {
-    const newPreferences = mergeDeep(preferences, updates) as LibraryPreferences
+    const newPreferences = mergeDeep(preferences, updates) as LibraryPreferences;
     setPreferences(newPreferences);
   }, [setPreferences, preferences]);
 

@@ -1,12 +1,17 @@
 import { AlertTriangle } from "lucide-react";
 import type { AssignMediaResponseSchema } from "@fanslib/server/schemas";
-import { UnfilledSlotItem } from "./UnfilledSlotItem";
+import type { MediaSchema } from "@fanslib/server/schemas";
+import { UnfilledSlotDropzone } from "./UnfilledSlotDropzone";
+import { UnfilledSlotsLibrary } from "./UnfilledSlotsLibrary";
 
 type UnfilledSlotsListProps = {
   slots: typeof AssignMediaResponseSchema.static["unfilled"];
   schedules: Array<{ id: string; name: string; emoji: string | null; color: string | null }>;
   channels: Array<{ id: string; name: string; typeId: string; type?: { id: string } }>;
-  onSlotAssign: (slot: typeof AssignMediaResponseSchema.static["unfilled"][number]) => void;
+  onSlotAssign: (
+    slot: typeof AssignMediaResponseSchema.static["unfilled"][number],
+    medias: typeof MediaSchema.static[]
+  ) => void;
 };
 
 export const UnfilledSlotsList = ({ slots, schedules, channels, onSlotAssign }: UnfilledSlotsListProps) => {
@@ -15,27 +20,32 @@ export const UnfilledSlotsList = ({ slots, schedules, channels, onSlotAssign }: 
   }
 
   return (
-    <div className="space-y-2 mt-4">
-      <div className="flex items-center gap-2 text-base font-medium">
+    <div className="space-y-4 mt-4">
+      <div className="mt-2 flex items-center gap-2 text-base font-medium">
         <AlertTriangle className="w-5 h-5 text-orange-600 dark:text-orange-400" />
         <span>
           {slots.length} {slots.length === 1 ? "Slot" : "Slots"} couldn&apos;t be filled
         </span>
       </div>
-      <div className="space-y-2">
-        {slots.map((slot) => {
-          const schedule = schedules.find((s) => s.id === slot.scheduleId);
-          const channel = channels.find((c) => c.id === slot.channelId);
-          return (
-            <UnfilledSlotItem
-              key={`${slot.scheduleId}-${slot.date}`}
-              slot={slot}
-              schedule={schedule}
-              channel={channel}
-              onAssign={() => onSlotAssign(slot)}
-            />
-          );
-        })}
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+        <div className="min-h-[520px] overflow-hidden">
+          <UnfilledSlotsLibrary />
+        </div>
+        <div className="space-y-3">
+          {slots.map((slot) => {
+            const schedule = schedules.find((s) => s.id === slot.scheduleId);
+            const channel = channels.find((c) => c.id === slot.channelId);
+            return (
+              <UnfilledSlotDropzone
+                key={`${slot.scheduleId}-${slot.date}`}
+                slot={slot}
+                schedule={schedule}
+                channel={channel}
+                onDropMedia={onSlotAssign}
+              />
+            );
+          })}
+        </div>
       </div>
     </div>
   );

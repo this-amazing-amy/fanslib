@@ -12,11 +12,17 @@ import { MediaFilters as MediaFiltersComponent } from "./MediaFilters/MediaFilte
 import { MediaFiltersProvider } from "./MediaFilters/MediaFiltersContext";
 import { ScanButton } from "./ScanButton";
 import { ScanProgress } from "./ScanProgress";
+import { cn } from "~/lib/cn";
 
 type MediaFilters = typeof MediaFilterSchema.static;
 type Media = typeof MediaSchema.static;
 
-export const LibraryContent = () => {
+type LibraryContentProps = {
+  showScan?: boolean;
+  contentClassName?: string;
+};
+
+export const LibraryContent = ({ showScan = true, contentClassName }: LibraryContentProps) => {
   const { preferences, updatePreferences } = useLibraryPreferences();
   const {
     data: mediaList,
@@ -50,7 +56,7 @@ export const LibraryContent = () => {
     <FilterPresetProvider onFiltersChange={updateFilters}>
       <MediaFiltersProvider value={preferences.filter} onChange={updateFilters}>
         <div className="flex h-full w-full flex-col overflow-hidden">
-          <div className="flex-1 min-h-0 px-6 pb-6 flex flex-col">
+          <div className={cn("flex-1 min-h-0 px-6 pb-6 flex flex-col", contentClassName)}>
             <div className="mb-4">
               <div className="flex items-center justify-end gap-2 pt-2 mb-4">
                 <LibrarySortOptions
@@ -63,7 +69,7 @@ export const LibraryContent = () => {
                   }}
                 />
                 <GalleryViewSettings />
-                <ScanButton isScanning={isScanning} onScan={handleScan} />
+                {showScan ? <ScanButton isScanning={isScanning} onScan={handleScan} /> : null}
               </div>
               <div className="mb-4">
                 <MediaFiltersComponent
@@ -73,7 +79,9 @@ export const LibraryContent = () => {
               </div>
             </div>
 
-            <ScanProgress scanProgress={scanProgress} scanResult={scanResult} />
+            {showScan ? (
+              <ScanProgress scanProgress={scanProgress} scanResult={scanResult} />
+            ) : null}
 
             <div className="flex-1 min-h-0 overflow-auto">
               {isLoading || (isFetching && !mediaList) ? (
@@ -82,7 +90,7 @@ export const LibraryContent = () => {
                 <Gallery
                   medias={(mediaList?.items as Media[] | undefined) ?? []}
                   error={error ? (error instanceof Error ? error.message : "Unknown error") : undefined}
-                  onScan={handleScan}
+                  onScan={showScan ? handleScan : undefined}
                 />
               )}
             </div>

@@ -1,12 +1,15 @@
 import { Loader2, Sparkles } from "lucide-react";
-import { useMemo, useState } from "react";
+import { isSameMinute } from "date-fns";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { AssignMediaResponseSchema } from "@fanslib/server/schemas";
+import type { AssignMediaResponseSchema, MediaSchema } from "@fanslib/server/schemas";
 import { Button } from "~/components/ui/Button";
 import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
+import type { VirtualPost } from "~/lib/virtual-posts";
 import { useChannelsQuery } from "~/lib/queries/channels";
 import { useContentSchedulesQuery, useVirtualPostsQuery } from "~/lib/queries/content-schedules";
 import { useAssignMediaMutation } from "~/lib/queries/pipeline";
+import { useCreatePostFromVirtualSlot } from "~/features/posts/hooks/useCreatePostFromVirtualSlot";
 import { eden } from "~/lib/api/eden";
 import { AssignmentDateRange } from "./AssignmentDateRange";
 import { AssignmentChannelSelection } from "./AssignmentChannelSelection";
@@ -25,12 +28,7 @@ type AssignmentStepProps = {
 };
 
 type AssignmentResult = typeof AssignMediaResponseSchema.static;
-
-type ManualSlot = {
-  scheduleId: string;
-  channelId: string;
-  date: string;
-};
+type Media = typeof MediaSchema.static;
 
 export const AssignmentStep = ({
   selectedChannelIds,
@@ -59,9 +57,10 @@ export const AssignmentStep = ({
   });
 
   const { mutateAsync: assignMedia, isPending } = useAssignMediaMutation();
+  const { createPostFromVirtualSlot } = useCreatePostFromVirtualSlot();
 
   const [assignmentResult, setAssignmentResult] = useState<AssignmentResult | null>(null);
-  const [manualSlot, setManualSlot] = useState<ManualSlot | null>(null);
+  const [unfilledSlotsState, setUnfilledSlotsState] = useState<AssignmentResult["unfilled"]>([]);
   const [draftToAssignMedia, setDraftToAssignMedia] = useState<{ id: string; channelId: string; date: string; scheduleId: string | null } | null>(null);
 
   const shouldFetchDrafts = assignmentResult !== null && selectedChannelIds.length > 0;
@@ -83,7 +82,7 @@ export const AssignmentStep = ({
       });
       return result.data?.posts ?? [];
     },
-    enabled: shouldFetchDrafts,
+    enabled: false,
   });
 
   const channelSlotCounts = useMemo(
@@ -117,12 +116,29 @@ export const AssignmentStep = ({
     onAssignmentComplete();
 
     setTimeout(() => {
-      refetchDrafts();
+      if (shouldFetchDrafts) {
+        refetchDrafts();
+      }
     }, 500);
   };
 
-  const unfilledSlots = assignmentResult?.unfilled ?? [];
+  useEffect(() => {
+    setUnfilledSlotsState(assignmentResult?.unfilled ?? []);
+  }, [assignmentResult]);
+
+  const unfilledSlots = unfilledSlotsState;
   const hasUnfilledSlots = unfilledSlots.length > 0;
+  const virtualSlotPosts = virtualPosts as VirtualPost[];
+  const removeUnfilledSlot = (slot: AssignmentResult["unfilled"][number]) => {
+    setUnfilledSlotsState((prev) =>
+      prev.filter(
+        (item) =>
+          !(item.channelId === slot.channelId &&
+            item.scheduleId === slot.scheduleId &&
+            isSameMinute(new Date(item.date), new Date(slot.date)))
+      )
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -182,37 +198,25 @@ export const AssignmentStep = ({
               slots={unfilledSlots}
               schedules={schedules}
               channels={channels}
-              onSlotAssign={(slot) =>
-                setManualSlot({
-                  scheduleId: slot.scheduleId,
-                  channelId: slot.channelId,
-                  date: slot.date,
-                })
-              }
+              onSlotAssign={async (slot, media) => {
+                const matchingVirtualPost = virtualSlotPosts.find(
+                  (post) =>
+                    post.channelId === slot.channelId &&
+                    post.scheduleId === slot.scheduleId &&
+                    isSameMinute(new Date(post.date), new Date(slot.date))
+                );
+
+                if (!matchingVirtualPost) return;
+
+                await createPostFromVirtualSlot({
+                  virtualPost: matchingVirtualPost,
+                  mediaIds: media.map((item) => item.id),
+                });
+                removeUnfilledSlot(slot);
+              }}
             />
           )}
         </div>
-      )}
-      {manualSlot && (
-        <CreatePostDialog
-          open={Boolean(manualSlot)}
-          onOpenChange={(open) => {
-            if (!open) {
-              setManualSlot(null);
-              setTimeout(() => {
-                refetchDrafts();
-              }, 500);
-            }
-          }}
-          media={[]}
-          initialDate={new Date(manualSlot.date)}
-          initialChannelId={manualSlot.channelId}
-          scheduleId={manualSlot.scheduleId}
-          initialStatus="draft"
-          initialMediaSelectionExpanded
-          initialShouldRedirect={false}
-          title="Assign Media"
-        />
       )}
       {draftToAssignMedia && (
         <CreatePostDialog
@@ -221,7 +225,9 @@ export const AssignmentStep = ({
             if (!open) {
               setDraftToAssignMedia(null);
               setTimeout(() => {
-                refetchDrafts();
+                if (shouldFetchDrafts) {
+                  refetchDrafts();
+                }
               }, 500);
             }
           }}

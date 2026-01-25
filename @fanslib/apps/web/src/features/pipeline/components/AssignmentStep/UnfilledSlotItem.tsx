@@ -4,6 +4,7 @@ import type { AssignMediaResponseSchema } from "@fanslib/server/schemas";
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { Button } from "~/components/ui/Button";
+import { getUnfilledSlotReasonText } from "./unfilled-slot-utils";
 
 type UnfilledSlot = typeof AssignMediaResponseSchema.static["unfilled"][number];
 
@@ -12,17 +13,6 @@ type UnfilledSlotItemProps = {
   schedule: { name: string; emoji: string | null; color: string | null } | undefined;
   channel: { name: string; typeId: string; type?: { id: string } } | undefined;
   onAssign: () => void;
-};
-
-const getReasonText = (reason: UnfilledSlot["reason"]) => {
-  switch (reason) {
-    case "no_eligible_media":
-      return "No matching media";
-    case "no_subreddits":
-      return "No subreddits configured";
-    default:
-      return "Unknown reason";
-  }
 };
 
 export const UnfilledSlotItem = ({ slot, schedule, channel, onAssign }: UnfilledSlotItemProps) => {
@@ -47,7 +37,7 @@ export const UnfilledSlotItem = ({ slot, schedule, channel, onAssign }: Unfilled
           {format(slotDate, "HH:mm")}
         </span>
         <span className="text-xs text-orange-600 dark:text-orange-400">
-          ({getReasonText(slot.reason)})
+          ({getUnfilledSlotReasonText(slot.reason)})
         </span>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">
