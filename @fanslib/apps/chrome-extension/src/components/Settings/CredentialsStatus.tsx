@@ -43,12 +43,13 @@ export const CredentialsStatus = ({ apiUrl }: CredentialsStatusProps) => {
 
       const responseData = credentialsResponse.data;
       const credentials = responseData?.credentials ?? null;
-      const hasCredentials =
+      const hasCredentials = Boolean(
         credentials &&
-        typeof credentials === 'object' &&
-        [credentials.fanslyAuth, credentials.fanslySessionId].some(
-          (value) => value !== undefined && value !== null && value !== ''
-        );
+          typeof credentials === 'object' &&
+          [credentials.fanslyAuth, credentials.fanslySessionId].some(
+            (value) => value !== undefined && value !== null && value !== ''
+          )
+      );
 
       const storageResult = await chrome.storage.local.get([
         'lastCredentialsUpdateAt',

@@ -58,7 +58,7 @@ export const CommandInput = ({
   const ctx = useContext(CommandContext);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const value = controlledValue ?? ctx.query;
+  const value = controlledValue ?? ctx?.query ?? "";
   
   // Sync controlled value to context query for CommandItem filtering
   useEffect(() => {

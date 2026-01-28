@@ -190,14 +190,19 @@ const extractCredentialsFromHeaders = (
 
   if (!headers) return credentials;
 
-  const headerMap: Record<string, string> =
-    headers instanceof Headers
-      ? Object.fromEntries(
-          Array.from(headers.entries()).map(([key, value]) => [key, value])
-        )
-      : Array.isArray(headers)
-        ? Object.fromEntries(headers)
-        : (headers as Record<string, string>);
+  const headerMap: Record<string, string> = (() => {
+    if (headers instanceof Headers) {
+      const result: Record<string, string> = {};
+      headers.forEach((value, key) => {
+        result[key] = value;
+      });
+      return result;
+    }
+    if (Array.isArray(headers)) {
+      return Object.fromEntries(headers);
+    }
+    return headers as Record<string, string>;
+  })();
 
   const getHeader = (name: string): string | undefined => {
     const lowerName = name.toLowerCase();

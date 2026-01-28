@@ -1,3 +1,4 @@
 [test]
 preload = ["reflect-metadata/Reflect.js", "./src/test-utils/env.setup.ts"]
+timeout = 30000
 

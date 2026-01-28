@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import "reflect-metadata";
 import { getTestDataSource, resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../../lib/db.test";
 import { createTestChannel, createTestPost } from "../../../test-utils/setup";
-import { ContentSchedule, SkippedScheduleSlot } from "../entity";
+import { ContentSchedule, ScheduleChannel, SkippedScheduleSlot } from "../entity";
 import { fetchVirtualPosts, generateScheduleDates } from "./generate-virtual-posts";
 
 describe("generateScheduleDates", () => {
@@ -426,5 +426,449 @@ describe("fetchVirtualPosts", () => {
     expect(post?.schedule?.emoji).toBe("📅");
     expect(post?.schedule?.color).toBe("#ff0000");
     expect(post?.id).toMatch(/^virtual-/);
+  });
+});
+
+describe("fetchVirtualPosts - multi-channel schedules", () => {
+  beforeAll(async () => {
+    await setupTestDatabase();
+  });
+
+  afterAll(async () => {
+    await teardownTestDatabase();
+  });
+
+  beforeEach(async () => {
+    await resetAllFixtures();
+  });
+
+  test("schedule with multiple channels generates virtual post per channel", async () => {
+    const channel1 = await createTestChannel({ name: "YouTube" });
+    const channel2 = await createTestChannel({ name: "TikTok" });
+    const channel3 = await createTestChannel({ name: "Instagram" });
+    const dataSource = getTestDataSource();
+    const scheduleRepo = dataSource.getRepository(ContentSchedule);
+    const scheduleChannelRepo = dataSource.getRepository(ScheduleChannel);
+
+    const schedule = scheduleRepo.create({
+      id: "multi-channel-schedule",
+      channelId: null,
+      name: "Full-length Video",
+      type: "weekly",
+      postsPerTimeframe: 1,
+      preferredDays: ["Monday"],
+      preferredTimes: ["12:00"],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    await scheduleRepo.save(schedule);
+
+    const scheduleChannels = [channel1, channel2, channel3].map((ch, index) =>
+      scheduleChannelRepo.create({
+        scheduleId: "multi-channel-schedule",
+        channelId: ch.id,
+        sortOrder: index,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      })
+    );
+    await scheduleChannelRepo.save(scheduleChannels);
+
+    const virtualPosts = await fetchVirtualPosts({
+      channelIds: [channel1.id, channel2.id, channel3.id],
+      fromDate: "2026-01-19T00:00:00Z",
+      toDate: "2026-01-25T23:59:59Z",
+    });
+
+    expect(virtualPosts.length).toBe(3);
+
+    const channelIds = virtualPosts.map((p) => p.channelId);
+    expect(channelIds).toContain(channel1.id);
+    expect(channelIds).toContain(channel2.id);
+    expect(channelIds).toContain(channel3.id);
+
+    virtualPosts.forEach((post) => {
+      expect(post.scheduleId).toBe("multi-channel-schedule");
+      expect(post.isVirtual).toBe(true);
+    });
+  });
+
+  test("multi-channel schedule virtual posts share postGroupId", async () => {
+    const channel1 = await createTestChannel({ name: "Channel A" });
+    const channel2 = await createTestChannel({ name: "Channel B" });
+    const dataSource = getTestDataSource();
+    const scheduleRepo = dataSource.getRepository(ContentSchedule);
+    const scheduleChannelRepo = dataSource.getRepository(ScheduleChannel);
+
+    const schedule = scheduleRepo.create({
+      id: "grouped-schedule",
+      channelId: null,
+      name: "Grouped Content",
+      type: "daily",
+      postsPerTimeframe: 1,
+      preferredTimes: ["14:00"],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    await scheduleRepo.save(schedule);
+
+    await scheduleChannelRepo.save([
+      scheduleChannelRepo.create({
+        scheduleId: "grouped-schedule",
+        channelId: channel1.id,
+        sortOrder: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }),
+      scheduleChannelRepo.create({
+        scheduleId: "grouped-schedule",
+        channelId: channel2.id,
+        sortOrder: 1,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }),
+    ]);
+
+    const virtualPosts = await fetchVirtualPosts({
+      channelIds: [channel1.id, channel2.id],
+      fromDate: "2026-01-19T00:00:00Z",
+      toDate: "2026-01-19T23:59:59Z",
+    });
+
+    expect(virtualPosts.length).toBe(2);
+
+    const postGroupIds = virtualPosts.map((p) => p.postGroupId);
+    expect(postGroupIds[0]).not.toBeNull();
+    expect(postGroupIds[0]).toBe(postGroupIds[1]);
+  });
+
+  test("single-channel schedule has null postGroupId", async () => {
+    const channel = await createTestChannel();
+    const dataSource = getTestDataSource();
+    const scheduleRepo = dataSource.getRepository(ContentSchedule);
+    const scheduleChannelRepo = dataSource.getRepository(ScheduleChannel);
+
+    const schedule = scheduleRepo.create({
+      id: "single-channel-new",
+      channelId: null,
+      name: "Single Channel",
+      type: "daily",
+      postsPerTimeframe: 1,
+      preferredTimes: ["10:00"],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    await scheduleRepo.save(schedule);
+
+    await scheduleChannelRepo.save(
+      scheduleChannelRepo.create({
+        scheduleId: "single-channel-new",
+        channelId: channel.id,
+        sortOrder: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      })
+    );
+
+    const virtualPosts = await fetchVirtualPosts({
+      channelIds: [channel.id],
+      fromDate: "2026-01-19T00:00:00Z",
+      toDate: "2026-01-19T23:59:59Z",
+    });
+
+    expect(virtualPosts.length).toBe(1);
+    expect(virtualPosts[0]?.postGroupId).toBeNull();
+  });
+
+  test("filters virtual posts by requested channelIds", async () => {
+    const channel1 = await createTestChannel({ name: "Requested" });
+    const channel2 = await createTestChannel({ name: "Not Requested" });
+    const dataSource = getTestDataSource();
+    const scheduleRepo = dataSource.getRepository(ContentSchedule);
+    const scheduleChannelRepo = dataSource.getRepository(ScheduleChannel);
+
+    const schedule = scheduleRepo.create({
+      id: "filter-test-schedule",
+      channelId: null,
+      name: "Filter Test",
+      type: "daily",
+      postsPerTimeframe: 1,
+      preferredTimes: ["12:00"],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    await scheduleRepo.save(schedule);
+
+    await scheduleChannelRepo.save([
+      scheduleChannelRepo.create({
+        scheduleId: "filter-test-schedule",
+        channelId: channel1.id,
+        sortOrder: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }),
+      scheduleChannelRepo.create({
+        scheduleId: "filter-test-schedule",
+        channelId: channel2.id,
+        sortOrder: 1,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }),
+    ]);
+
+    const virtualPosts = await fetchVirtualPosts({
+      channelIds: [channel1.id],
+      fromDate: "2026-01-19T00:00:00Z",
+      toDate: "2026-01-19T23:59:59Z",
+    });
+
+    expect(virtualPosts.length).toBe(1);
+    expect(virtualPosts[0]?.channelId).toBe(channel1.id);
+  });
+
+  test("excludes slot for specific channel when post exists", async () => {
+    const channel1 = await createTestChannel({ name: "With Post" });
+    const channel2 = await createTestChannel({ name: "Without Post" });
+    const dataSource = getTestDataSource();
+    const scheduleRepo = dataSource.getRepository(ContentSchedule);
+    const scheduleChannelRepo = dataSource.getRepository(ScheduleChannel);
+
+    const schedule = scheduleRepo.create({
+      id: "partial-filled-schedule",
+      channelId: null,
+      name: "Partial Filled",
+      type: "daily",
+      postsPerTimeframe: 1,
+      preferredTimes: ["12:00"],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    await scheduleRepo.save(schedule);
+
+    await scheduleChannelRepo.save([
+      scheduleChannelRepo.create({
+        scheduleId: "partial-filled-schedule",
+        channelId: channel1.id,
+        sortOrder: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }),
+      scheduleChannelRepo.create({
+        scheduleId: "partial-filled-schedule",
+        channelId: channel2.id,
+        sortOrder: 1,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }),
+    ]);
+
+    await createTestPost(channel1.id, {
+      scheduleId: "partial-filled-schedule",
+      date: new Date("2026-01-19T12:00:00.000Z"),
+    });
+
+    const virtualPosts = await fetchVirtualPosts({
+      channelIds: [channel1.id, channel2.id],
+      fromDate: "2026-01-19T00:00:00Z",
+      toDate: "2026-01-19T23:59:59Z",
+    });
+
+    expect(virtualPosts.length).toBe(1);
+    expect(virtualPosts[0]?.channelId).toBe(channel2.id);
+  });
+
+  test("targetChannelIds contains all channels in schedule", async () => {
+    const channel1 = await createTestChannel({ name: "Target 1" });
+    const channel2 = await createTestChannel({ name: "Target 2" });
+    const channel3 = await createTestChannel({ name: "Target 3" });
+    const dataSource = getTestDataSource();
+    const scheduleRepo = dataSource.getRepository(ContentSchedule);
+    const scheduleChannelRepo = dataSource.getRepository(ScheduleChannel);
+
+    const schedule = scheduleRepo.create({
+      id: "target-channels-schedule",
+      channelId: null,
+      name: "Target Channels Test",
+      type: "daily",
+      postsPerTimeframe: 1,
+      preferredTimes: ["12:00"],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    await scheduleRepo.save(schedule);
+
+    await scheduleChannelRepo.save([
+      scheduleChannelRepo.create({
+        scheduleId: "target-channels-schedule",
+        channelId: channel1.id,
+        sortOrder: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }),
+      scheduleChannelRepo.create({
+        scheduleId: "target-channels-schedule",
+        channelId: channel2.id,
+        sortOrder: 1,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }),
+      scheduleChannelRepo.create({
+        scheduleId: "target-channels-schedule",
+        channelId: channel3.id,
+        sortOrder: 2,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }),
+    ]);
+
+    const virtualPosts = await fetchVirtualPosts({
+      channelIds: [channel1.id, channel2.id],
+      fromDate: "2026-01-19T00:00:00Z",
+      toDate: "2026-01-19T23:59:59Z",
+    });
+
+    expect(virtualPosts.length).toBe(2);
+
+    virtualPosts.forEach((post) => {
+      expect(post.targetChannelIds).toBeDefined();
+      expect(post.targetChannelIds?.length).toBe(2);
+      expect(post.targetChannelIds).toContain(channel1.id);
+      expect(post.targetChannelIds).toContain(channel2.id);
+    });
+  });
+
+  test("legacy channelId schedule still works alongside new scheduleChannels", async () => {
+    const legacyChannel = await createTestChannel({ name: "Legacy Channel" });
+    const dataSource = getTestDataSource();
+    const scheduleRepo = dataSource.getRepository(ContentSchedule);
+
+    const schedule = scheduleRepo.create({
+      id: "legacy-schedule",
+      channelId: legacyChannel.id,
+      name: "Legacy Schedule",
+      type: "daily",
+      postsPerTimeframe: 1,
+      preferredTimes: ["09:00"],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    await scheduleRepo.save(schedule);
+
+    const virtualPosts = await fetchVirtualPosts({
+      channelIds: [legacyChannel.id],
+      fromDate: "2026-01-19T00:00:00Z",
+      toDate: "2026-01-19T23:59:59Z",
+    });
+
+    expect(virtualPosts.length).toBe(1);
+    expect(virtualPosts[0]?.channelId).toBe(legacyChannel.id);
+    expect(virtualPosts[0]?.scheduleId).toBe("legacy-schedule");
+  });
+
+  test("multi-channel schedule with 2 posts/day generates correct slots", async () => {
+    const channel1 = await createTestChannel({ name: "Multi A" });
+    const channel2 = await createTestChannel({ name: "Multi B" });
+    const dataSource = getTestDataSource();
+    const scheduleRepo = dataSource.getRepository(ContentSchedule);
+    const scheduleChannelRepo = dataSource.getRepository(ScheduleChannel);
+
+    const schedule = scheduleRepo.create({
+      id: "multi-posts-schedule",
+      channelId: null,
+      name: "Multiple Posts Per Day",
+      type: "daily",
+      postsPerTimeframe: 2,
+      preferredTimes: ["10:00", "18:00"],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    await scheduleRepo.save(schedule);
+
+    await scheduleChannelRepo.save([
+      scheduleChannelRepo.create({
+        scheduleId: "multi-posts-schedule",
+        channelId: channel1.id,
+        sortOrder: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }),
+      scheduleChannelRepo.create({
+        scheduleId: "multi-posts-schedule",
+        channelId: channel2.id,
+        sortOrder: 1,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }),
+    ]);
+
+    const virtualPosts = await fetchVirtualPosts({
+      channelIds: [channel1.id, channel2.id],
+      fromDate: "2026-01-19T00:00:00Z",
+      toDate: "2026-01-19T23:59:59Z",
+    });
+
+    expect(virtualPosts.length).toBe(4);
+
+    const channel1Posts = virtualPosts.filter((p) => p.channelId === channel1.id);
+    const channel2Posts = virtualPosts.filter((p) => p.channelId === channel2.id);
+
+    expect(channel1Posts.length).toBe(2);
+    expect(channel2Posts.length).toBe(2);
+
+    const channel1Hours = channel1Posts.map((p) => p.date.getHours()).sort();
+    expect(channel1Hours).toEqual([10, 18]);
+  });
+
+  test("skipped slot affects all channels in schedule", async () => {
+    const channel1 = await createTestChannel({ name: "Skip A" });
+    const channel2 = await createTestChannel({ name: "Skip B" });
+    const dataSource = getTestDataSource();
+    const scheduleRepo = dataSource.getRepository(ContentSchedule);
+    const scheduleChannelRepo = dataSource.getRepository(ScheduleChannel);
+    const skippedRepo = dataSource.getRepository(SkippedScheduleSlot);
+
+    const schedule = scheduleRepo.create({
+      id: "skipped-multi-schedule",
+      channelId: null,
+      name: "Skipped Multi",
+      type: "daily",
+      postsPerTimeframe: 1,
+      preferredTimes: ["12:00"],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    await scheduleRepo.save(schedule);
+
+    await scheduleChannelRepo.save([
+      scheduleChannelRepo.create({
+        scheduleId: "skipped-multi-schedule",
+        channelId: channel1.id,
+        sortOrder: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }),
+      scheduleChannelRepo.create({
+        scheduleId: "skipped-multi-schedule",
+        channelId: channel2.id,
+        sortOrder: 1,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }),
+    ]);
+
+    await skippedRepo.save(
+      skippedRepo.create({
+        scheduleId: "skipped-multi-schedule",
+        date: new Date("2026-01-19T12:00:00.000Z"),
+      })
+    );
+
+    const virtualPosts = await fetchVirtualPosts({
+      channelIds: [channel1.id, channel2.id],
+      fromDate: "2026-01-19T00:00:00Z",
+      toDate: "2026-01-19T23:59:59Z",
+    });
+
+    expect(virtualPosts.length).toBe(0);
   });
 });
