@@ -58,9 +58,7 @@ export const shootsRoutes = new Elysia({ prefix: "/api/shoots" })
       404: t.Object({ error: t.String() }),
     },
   })
-  .get("/by-id/:id/posts", async ({ params: { id } }) => {
-    return fetchPostsByShootId(id);
-  }, {
+  .get("/by-id/:id/posts", ({ params: { id } }) => fetchPostsByShootId(id), {
     params: t.Object({ id: t.String() }),
     response: FetchPostsByShootIdResponseSchema,
   });

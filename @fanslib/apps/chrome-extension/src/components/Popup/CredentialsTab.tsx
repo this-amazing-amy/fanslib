@@ -2,7 +2,6 @@ import { CheckCircle, Clock, XCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { eden } from '../../lib/api';
 import { getSettings } from '../../lib/storage';
-import { debug } from '../../lib/utils';
 
 type CredentialsState = {
   hasCredentials: boolean;
@@ -49,7 +48,9 @@ export const CredentialsTab = () => {
       const settings = await getSettings();
       const api = eden(settings.apiUrl);
 
-      const credentialsResponse = await api.api.settings['fansly-credentials'].get({
+      const credentialsResponse = await api.api.settings[
+        'fansly-credentials'
+      ].get({
         fetch: {
           signal: AbortSignal.timeout(5000),
         },
@@ -62,19 +63,25 @@ export const CredentialsTab = () => {
       const credentialsData = credentialsResponse.data;
       const credentials = credentialsData?.credentials ?? null;
 
-      const hasCredentials = !!(
+      const hasCredentialValues =
         credentials &&
         typeof credentials === 'object' &&
         credentials !== null &&
         Object.keys(credentials).length > 0 &&
-        (credentials.fanslyAuth || credentials.fanslySessionId)
-      );
+        [credentials.fanslyAuth, credentials.fanslySessionId].some(
+          (value) => value !== undefined && value !== null && value !== ''
+        );
 
-      const storageResult = await chrome.storage.local.get(['lastCredentialsUpdateAt']);
-      const lastUpdateAt = storageResult.lastCredentialsUpdateAt ?? credentialsData?.lastUpdated ?? null;
+      const storageResult = await chrome.storage.local.get([
+        'lastCredentialsUpdateAt',
+      ]);
+      const lastUpdateAt =
+        storageResult.lastCredentialsUpdateAt ??
+        credentialsData?.lastUpdated ??
+        null;
 
       setState({
-        hasCredentials,
+        hasCredentials: !!hasCredentialValues,
         lastUpdateAt,
         loading: false,
         error: null,
@@ -160,15 +167,20 @@ export const CredentialsTab = () => {
               )}
               <div className='flex-1 min-w-0'>
                 <div className='text-sm font-semibold mb-1'>
-                  {state.hasCredentials ? 'Credentials Active' : 'No Credentials'}
+                  {state.hasCredentials
+                    ? 'Credentials Active'
+                    : 'No Credentials'}
                 </div>
                 <div className='text-xs text-base-content/60 flex items-center gap-1'>
                   <Clock className='h-3 w-3' />
-                  <span>Last received: {formatTimestamp(state.lastUpdateAt)}</span>
+                  <span>
+                    Last received: {formatTimestamp(state.lastUpdateAt)}
+                  </span>
                 </div>
                 {state.hasCredentials && (
                   <div className='text-xs text-base-content/50 mt-2'>
-                    Credentials are automatically captured when you browse Fansly
+                    Credentials are automatically captured when you browse
+                    Fansly
                   </div>
                 )}
               </div>
@@ -180,11 +192,9 @@ export const CredentialsTab = () => {
           <div className='card bg-base-200 border border-base-300'>
             <div className='card-body p-4'>
               <div className='text-sm text-base-content/70'>
-                <p className='mb-2'>
-                  To capture credentials automatically:
-                </p>
+                <p className='mb-2'>To capture credentials automatically:</p>
                 <ol className='list-decimal list-inside space-y-1 text-xs'>
-                  <li>Make sure you're logged into Fansly</li>
+                  <li>Make sure you are logged into Fansly</li>
                   <li>Browse Fansly (open posts, timeline, etc.)</li>
                   <li>Credentials will be captured automatically</li>
                 </ol>
@@ -196,4 +206,3 @@ export const CredentialsTab = () => {
     </div>
   );
 };
-

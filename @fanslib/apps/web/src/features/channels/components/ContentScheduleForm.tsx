@@ -1,10 +1,12 @@
 import type {
-    ContentScheduleWithChannelSchema,
     CreateContentScheduleRequestBodySchema,
     MediaFilterSchema,
+    ScheduleChannelSchema,
 } from "@fanslib/server/schemas";
-import { Plus, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, Settings2, X } from "lucide-react";
 import { useState } from "react";
+import { ChannelBadge } from "~/components/ChannelBadge";
+import { ChannelSelect } from "~/components/ChannelSelect";
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
 import { Button } from "~/components/ui/Button/Button";
 import { ColorPicker } from "~/components/ui/ColorPicker";
@@ -15,22 +17,61 @@ import { FilterPresetProvider } from "~/contexts/FilterPresetContext";
 import { MediaFilters as MediaFiltersComponent } from "~/features/library/components/MediaFilters/MediaFilters";
 import { MediaFiltersProvider } from "~/features/library/components/MediaFilters/MediaFiltersContext";
 import { cn } from "~/lib/cn";
+import { useChannelsQuery } from "~/lib/queries/channels";
 import { parseMediaFilters } from "../content-schedule-helpers";
 import { SchedulePreviewCalendar } from "./SchedulePreviewCalendar";
 
 type MediaFilters = typeof MediaFilterSchema.static;
 
-type ContentSchedule = typeof ContentScheduleWithChannelSchema.static;
+type ScheduleChannel = typeof ScheduleChannelSchema.static;
 type ScheduleType = "daily" | "weekly" | "monthly";
 
-type ContentScheduleFormProps = {
+type ScheduleChannelInput = {
+  id?: string;
   channelId: string;
-  schedule?: ContentSchedule;
+  mediaFilterOverrides: MediaFilters | null;
+  sortOrder: number;
+};
+
+type ContentScheduleWithChannels = {
+  id: string;
+  name: string;
+  emoji: string | null;
+  color: string | null;
+  type: ScheduleType;
+  postsPerTimeframe: number | null;
+  preferredDays: string[] | null;
+  preferredTimes: string[] | null;
+  mediaFilters: string | null;
+  scheduleChannels?: ScheduleChannel[];
+};
+
+type ContentScheduleFormProps = {
+  channelId?: string;
+  schedule?: ContentScheduleWithChannels;
   onSubmit: (data: typeof CreateContentScheduleRequestBodySchema.static) => void | Promise<void>;
   onCancel: () => void;
 };
 
 const DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+const initializeScheduleChannels = (
+  schedule: ContentScheduleWithChannels | undefined,
+  channelId: string | undefined
+): ScheduleChannelInput[] => {
+  if (schedule?.scheduleChannels && schedule.scheduleChannels.length > 0) {
+    return schedule.scheduleChannels.map((sc, index) => ({
+      id: sc.id,
+      channelId: sc.channelId,
+      mediaFilterOverrides: sc.mediaFilterOverrides ?? null,
+      sortOrder: sc.sortOrder ?? index,
+    }));
+  }
+  if (channelId) {
+    return [{ channelId, mediaFilterOverrides: null, sortOrder: 0 }];
+  }
+  return [];
+};
 
 export const ContentScheduleForm = ({
   channelId,
@@ -38,6 +79,7 @@ export const ContentScheduleForm = ({
   onSubmit,
   onCancel,
 }: ContentScheduleFormProps) => {
+  const { data: channels = [] } = useChannelsQuery();
   const [name, setName] = useState(schedule?.name ?? "");
   const [emoji, setEmoji] = useState(schedule?.emoji ?? "");
   const [color, setColor] = useState<string | null>(schedule?.color ?? null);
@@ -49,6 +91,32 @@ export const ContentScheduleForm = ({
   const [mediaFilters, setMediaFilters] = useState<MediaFilters>(
     schedule?.mediaFilters ? parseMediaFilters(schedule.mediaFilters) ?? [] : []
   );
+  const [scheduleChannels, setScheduleChannels] = useState<ScheduleChannelInput[]>(
+    initializeScheduleChannels(schedule, channelId)
+  );
+  const [expandedChannelFilters, setExpandedChannelFilters] = useState<string | null>(null);
+
+  const selectedChannelIds = scheduleChannels.map((sc) => sc.channelId);
+
+  const handleChannelSelectionChange = (newChannelIds: string[]) => {
+    setScheduleChannels((prev) => {
+      const existingMap = new Map(prev.map((sc) => [sc.channelId, sc]));
+      return newChannelIds.map((cid, index) => {
+        const existing = existingMap.get(cid);
+        return existing ?? { channelId: cid, mediaFilterOverrides: null, sortOrder: index };
+      });
+    });
+  };
+
+  const handleChannelFilterChange = (channelId: string, filters: MediaFilters) => {
+    setScheduleChannels((prev) =>
+      prev.map((sc) =>
+        sc.channelId === channelId
+          ? { ...sc, mediaFilterOverrides: filters.length > 0 ? filters : null }
+          : sc
+      )
+    );
+  };
 
   const handleDayToggle = (day: string) => {
     setPreferredDays((prev) =>
@@ -70,7 +138,12 @@ export const ContentScheduleForm = ({
     e.preventDefault();
 
     const data: typeof CreateContentScheduleRequestBodySchema.static = {
-      channelId,
+      scheduleChannels: scheduleChannels.map((sc, index) => ({
+        ...(sc.id && { id: sc.id }),
+        channelId: sc.channelId,
+        mediaFilterOverrides: sc.mediaFilterOverrides,
+        sortOrder: index,
+      })),
       name: name.trim() || "Untitled Schedule",
       emoji: emoji.trim() || undefined,
       color: color ?? undefined,
@@ -110,6 +183,84 @@ export const ContentScheduleForm = ({
             responsive={false}
           />
         </div>
+      </div>
+
+      {/* Target Channels */}
+      <div>
+        <label className="label">
+          <span className="label-text font-medium">Target Channels</span>
+          <span className="label-text-alt text-base-content/60">
+            Select channels this schedule will post to
+          </span>
+        </label>
+        <ChannelSelect
+          value={selectedChannelIds}
+          onChange={handleChannelSelectionChange}
+          multiple
+        />
+
+        {/* Per-channel filter overrides */}
+        {scheduleChannels.length > 0 && (
+          <div className="mt-4 space-y-2">
+            <div className="text-sm text-base-content/60">
+              Click a channel to configure additional media filters for that channel
+            </div>
+            {scheduleChannels.map((sc) => {
+              const channel = (channels ?? []).find((c) => c.id === sc.channelId);
+              const isExpanded = expandedChannelFilters === sc.channelId;
+              const hasOverrides = sc.mediaFilterOverrides && sc.mediaFilterOverrides.length > 0;
+
+              return (
+                <div key={sc.channelId} className="border border-base-300 rounded-lg">
+                  <button
+                    type="button"
+                    onClick={() => setExpandedChannelFilters(isExpanded ? null : sc.channelId)}
+                    className="w-full flex items-center justify-between p-3 hover:bg-base-200 rounded-lg transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      {channel && (
+                        <ChannelBadge
+                          name={channel.name}
+                          typeId={channel.type.id}
+                          responsive={false}
+                        />
+                      )}
+                      {hasOverrides && (
+                        <span className="badge badge-sm badge-primary">
+                          <Settings2 className="w-3 h-3 mr-1" />
+                          Filters
+                        </span>
+                      )}
+                    </div>
+                    {isExpanded ? (
+                      <ChevronUp className="w-4 h-4 text-base-content/60" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-base-content/60" />
+                    )}
+                  </button>
+
+                  {isExpanded && (
+                    <div className="p-4 pt-0 border-t border-base-300">
+                      <div className="text-sm text-base-content/60 mb-2">
+                        Additional filters for {channel?.name} (e.g., censored content only)
+                      </div>
+                      <FilterPresetProvider
+                        onFiltersChange={(filters) => handleChannelFilterChange(sc.channelId, filters)}
+                      >
+                        <MediaFiltersProvider
+                          value={sc.mediaFilterOverrides ?? []}
+                          onChange={(filters) => handleChannelFilterChange(sc.channelId, filters)}
+                        >
+                          <MediaFiltersComponent />
+                        </MediaFiltersProvider>
+                      </FilterPresetProvider>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Schedule Type */}

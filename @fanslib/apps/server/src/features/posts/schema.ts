@@ -28,6 +28,7 @@ export const PostSchema = t.Object({
   id: t.String(),
   createdAt: t.Date(),
   updatedAt: t.Date(),
+  postGroupId: t.Nullable(t.String()),
   scheduleId: t.Nullable(t.String()),
   caption: t.Nullable(t.String()),
   date: t.Date(),

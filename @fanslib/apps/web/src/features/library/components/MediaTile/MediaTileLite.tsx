@@ -7,9 +7,10 @@ import { useMediaTagsQuery } from "~/lib/queries/tags";
 import { formatDuration } from "~/lib/video";
 
 type Media = typeof MediaSchema.static;
+type MediaPreview = Pick<Media, "id" | "name" | "type" | "duration">;
 
 export type MediaTileLiteProps = {
-  media: Media;
+  media: MediaPreview;
   className?: string;
   onImageError?: (error: boolean) => void;
   imageError?: boolean;

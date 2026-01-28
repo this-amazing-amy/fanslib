@@ -1,4 +1,4 @@
-import type { ShootSummarySchema, UpdateShootRequestBodySchema } from "@fanslib/server/schemas";
+import type { ShootSummarySchema } from "@fanslib/server/schemas";
 import { useState } from "react";
 import { DateTimePicker } from "~/components/DateTimePicker";
 import { useDebounce } from "~/hooks/useDebounce";
@@ -21,7 +21,7 @@ export const ShootDetailDateInput = ({ shoot }: ShootDetailDateInputProps) => {
       await updateShootMutation.mutateAsync({
         id: shoot.id,
         updates: {
-          shootDate: date.toISOString(),
+          shootDate: date,
         },
       });
     } catch (error) {

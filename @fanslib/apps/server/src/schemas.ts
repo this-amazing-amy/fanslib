@@ -369,6 +369,8 @@ export {
   ContentScheduleSchema,
   ContentScheduleTypeSchema,
   ContentScheduleWithSkippedSlotsSchema,
+  ContentScheduleWithChannelsSchema,
+  ScheduleChannelSchema,
   SkippedScheduleSlotSchema
 } from './features/content-schedules/entity';
 

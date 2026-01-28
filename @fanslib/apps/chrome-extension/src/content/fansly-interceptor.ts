@@ -29,7 +29,7 @@ export type CandidateItem = {
   caption: string | null;
   fanslyCreatedAt: number;
   position: number;
-  mediaType: "image" | "video";
+  mediaType: 'image' | 'video';
 };
 
 type FanslyCredentials = {
@@ -41,10 +41,17 @@ type FanslyCredentials = {
 
 const DEBUG_PREFIX = '[FansLib:Interceptor:MainWorld]';
 
-const debug = (level: 'info' | 'warn' | 'error', message: string, data?: unknown) => {
+const debug = (
+  level: 'info' | 'warn' | 'error',
+  message: string,
+  data?: unknown
+) => {
   const timestamp = new Date().toISOString();
-  const logArgs = data !== undefined ? [`[${timestamp}] ${DEBUG_PREFIX} ${message}`, data] : [`[${timestamp}] ${DEBUG_PREFIX} ${message}`];
-  
+  const logArgs =
+    data !== undefined
+      ? [`[${timestamp}] ${DEBUG_PREFIX} ${message}`, data]
+      : [`[${timestamp}] ${DEBUG_PREFIX} ${message}`];
+
   switch (level) {
     case 'info':
       console.log(...logArgs);
@@ -63,28 +70,32 @@ const extractCandidates = (data: TimelineResponse): CandidateItem[] => {
     postCount: data.response.posts.length,
     mediaCount: data.response.accountMedia.length,
   });
-  
+
   const candidates: CandidateItem[] = [];
   const mediaMap = new Map<string, { filename: string }>();
 
   data.response.accountMedia.forEach((am) => {
     mediaMap.set(am.id, { filename: am.media.filename });
   });
-  
+
   debug('info', 'Media map built', {
     mediaMapSize: mediaMap.size,
     sampleMediaIds: Array.from(mediaMap.keys()).slice(0, 3),
   });
 
   data.response.posts.forEach((post, postIndex) => {
-    debug('info', `Processing post ${postIndex + 1}/${data.response.posts.length}`, {
-      postId: post.id,
-      attachmentCount: post.attachments.length,
-      hasCaption: !!post.content,
-      captionLength: post.content?.length,
-      createdAt: post.createdAt,
-    });
-    
+    debug(
+      'info',
+      `Processing post ${postIndex + 1}/${data.response.posts.length}`,
+      {
+        postId: post.id,
+        attachmentCount: post.attachments.length,
+        hasCaption: !!post.content,
+        captionLength: post.content?.length,
+        createdAt: post.createdAt,
+      }
+    );
+
     post.attachments.forEach((attachment, attachmentIndex) => {
       const mediaInfo = mediaMap.get(attachment.contentId);
       if (!mediaInfo) {
@@ -106,15 +117,19 @@ const extractCandidates = (data: TimelineResponse): CandidateItem[] => {
         caption: post.content,
         fanslyCreatedAt: post.createdAt,
         position: attachment.pos,
-        mediaType: isVideo ? "video" : "image",
+        mediaType: isVideo ? 'video' : 'image',
       };
-      
-      debug('info', `Extracted candidate ${attachmentIndex + 1}/${post.attachments.length}`, {
-        statisticsId: candidate.fanslyStatisticsId,
-        filename: candidate.filename,
-        mediaType: candidate.mediaType,
-        position: candidate.position,
-      });
+
+      debug(
+        'info',
+        `Extracted candidate ${attachmentIndex + 1}/${post.attachments.length}`,
+        {
+          statisticsId: candidate.fanslyStatisticsId,
+          filename: candidate.filename,
+          mediaType: candidate.mediaType,
+          position: candidate.position,
+        }
+      );
 
       candidates.push(candidate);
     });
@@ -153,33 +168,37 @@ const processCandidates = (candidates: CandidateItem[]) => {
     debug('info', 'Posting candidates to window for bridge', {
       candidateCount: candidates.length,
     });
-    
-    window.postMessage({
-      type: 'FANSLIB_TIMELINE_DATA',
-      candidates,
-    }, '*');
-    
+
+    window.postMessage(
+      {
+        type: 'FANSLIB_TIMELINE_DATA',
+        candidates,
+      },
+      '*'
+    );
+
     debug('info', 'Candidates posted to window');
   } else {
     debug('warn', 'No candidates extracted from timeline data');
   }
 };
 
-const extractCredentialsFromHeaders = (headers: HeadersInit | undefined): Partial<FanslyCredentials> => {
+const extractCredentialsFromHeaders = (
+  headers: HeadersInit | undefined
+): Partial<FanslyCredentials> => {
   const credentials: Partial<FanslyCredentials> = {};
-  
+
   if (!headers) return credentials;
-  
-  let headerMap: Record<string, string>;
-  
-  if (headers instanceof Headers) {
-    headerMap = Object.fromEntries(headers.entries());
-  } else if (Array.isArray(headers)) {
-    headerMap = Object.fromEntries(headers);
-  } else {
-    headerMap = headers as Record<string, string>;
-  }
-  
+
+  const headerMap: Record<string, string> =
+    headers instanceof Headers
+      ? Object.fromEntries(
+          Array.from(headers.entries()).map(([key, value]) => [key, value])
+        )
+      : Array.isArray(headers)
+        ? Object.fromEntries(headers)
+        : (headers as Record<string, string>);
+
   const getHeader = (name: string): string | undefined => {
     const lowerName = name.toLowerCase();
     const entry = Object.entries(headerMap).find(
@@ -187,36 +206,43 @@ const extractCredentialsFromHeaders = (headers: HeadersInit | undefined): Partia
     );
     return entry ? String(entry[1]) : undefined;
   };
-  
+
   const auth = getHeader('authorization');
   if (auth) credentials.fanslyAuth = auth;
-  
+
   const sessionId = getHeader('fansly-session-id');
   if (sessionId) credentials.fanslySessionId = sessionId;
-  
+
   const clientCheck = getHeader('fansly-client-check');
   if (clientCheck) credentials.fanslyClientCheck = clientCheck;
-  
+
   const clientId = getHeader('fansly-client-id');
   if (clientId) credentials.fanslyClientId = clientId;
-  
+
   return credentials;
 };
 
-const sendCredentialsIfPresent = (credentials: Partial<FanslyCredentials>): void => {
+const sendCredentialsIfPresent = (
+  credentials: Partial<FanslyCredentials>
+): void => {
   const hasCredentials = Object.keys(credentials).length > 0;
-  
+
   if (hasCredentials) {
-    window.postMessage({
-      type: 'FANSLIB_CREDENTIALS',
-      credentials,
-    }, '*');
+    window.postMessage(
+      {
+        type: 'FANSLIB_CREDENTIALS',
+        credentials,
+      },
+      '*'
+    );
   }
 };
 
 const processTimelineResponse = (url: string, responseText: string) => {
   timelineInterceptCount++;
-  debug('info', `Timeline request detected (#${timelineInterceptCount})`, { url });
+  debug('info', `Timeline request detected (#${timelineInterceptCount})`, {
+    url,
+  });
 
   try {
     const data = JSON.parse(responseText) as TimelineResponse;
@@ -248,14 +274,14 @@ const processTimelineResponse = (url: string, responseText: string) => {
   }
 };
 
-window.fetch = async function(...args): Promise<Response> {
+const interceptedFetch = (async (...args): Promise<Response> => {
   fetchInterceptCount++;
   const [input, init] = args;
-  const url = typeof input === 'string' ? input : input?.toString() || '';
-  
+  const url = typeof input === 'string' ? input : (input?.toString() ?? '');
+
   debug('info', `Fetch intercepted (#${fetchInterceptCount})`, {
     url: url.substring(0, 100),
-    method: init?.method || 'GET',
+    method: init?.method ?? 'GET',
     isTimeline: url.includes('timelinenew'),
     isFanslyApi: url.includes('fansly.com'),
   });
@@ -265,7 +291,7 @@ window.fetch = async function(...args): Promise<Response> {
     sendCredentialsIfPresent(credentials);
   }
 
-  const response = await originalFetch.apply(this, args);
+  const response = await originalFetch(...args);
 
   if (url.includes('apiv3.fansly.com/api/v1/timelinenew')) {
     debug('info', 'Timeline request via fetch detected', {
@@ -288,36 +314,70 @@ window.fetch = async function(...args): Promise<Response> {
   }
 
   return response;
-};
+}) as typeof fetch;
 
-XMLHttpRequest.prototype.open = function(
+Object.assign(interceptedFetch, originalFetch);
+window.fetch = interceptedFetch;
+
+/* eslint-disable functional/no-this-expressions */
+XMLHttpRequest.prototype.open = function (
   method: string,
   url: string | URL,
   ...rest: unknown[]
 ) {
   const urlString = typeof url === 'string' ? url : url.toString();
-  
-  (this as XMLHttpRequest & { _url?: string; _method?: string; _headers?: Record<string, string> })._url = urlString;
-  (this as XMLHttpRequest & { _url?: string; _method?: string; _headers?: Record<string, string> })._method = method;
-  (this as XMLHttpRequest & { _url?: string; _method?: string; _headers?: Record<string, string> })._headers = {};
-  
-  return originalXHROpen.apply(this, [method, url, ...rest] as Parameters<typeof originalXHROpen>);
+
+  (
+    this as XMLHttpRequest & {
+      _url?: string;
+      _method?: string;
+      _headers?: Record<string, string>;
+    }
+  )._url = urlString;
+  (
+    this as XMLHttpRequest & {
+      _url?: string;
+      _method?: string;
+      _headers?: Record<string, string>;
+    }
+  )._method = method;
+  (
+    this as XMLHttpRequest & {
+      _url?: string;
+      _method?: string;
+      _headers?: Record<string, string>;
+    }
+  )._headers = {};
+
+  return originalXHROpen.apply(this, [method, url, ...rest] as Parameters<
+    typeof originalXHROpen
+  >);
 };
 
-XMLHttpRequest.prototype.setRequestHeader = function(name: string, value: string): void {
-  const xhr = this as XMLHttpRequest & { _url?: string; _headers?: Record<string, string> };
-  if (!xhr._headers) {
-    xhr._headers = {};
-  }
+XMLHttpRequest.prototype.setRequestHeader = function (
+  name: string,
+  value: string
+): void {
+  const xhr = this as XMLHttpRequest & {
+    _url?: string;
+    _headers?: Record<string, string>;
+  };
+  xhr._headers ??= {};
   xhr._headers[name] = value;
-  return originalXHRSetRequestHeader.apply(this, [name, value] as Parameters<typeof originalXHRSetRequestHeader>);
+  return originalXHRSetRequestHeader.apply(this, [name, value] as Parameters<
+    typeof originalXHRSetRequestHeader
+  >);
 };
 
-XMLHttpRequest.prototype.send = function(...args: unknown[]) {
-  const xhr = this as XMLHttpRequest & { _url?: string; _method?: string; _headers?: Record<string, string> };
-  const url = xhr._url || '';
-  const method = xhr._method || 'GET';
-  
+XMLHttpRequest.prototype.send = function (...args: unknown[]) {
+  const xhr = this as XMLHttpRequest & {
+    _url?: string;
+    _method?: string;
+    _headers?: Record<string, string>;
+  };
+  const url = xhr._url ?? '';
+  const method = xhr._method ?? 'GET';
+
   xhrInterceptCount++;
   debug('info', `XHR intercepted (#${xhrInterceptCount})`, {
     url: url.substring(0, 100),
@@ -333,24 +393,28 @@ XMLHttpRequest.prototype.send = function(...args: unknown[]) {
 
   if (url.includes('apiv3.fansly.com/api/v1/timelinenew')) {
     debug('info', 'Timeline request via XHR detected', { url, method });
-    
+
     const originalOnLoad = xhr.onload;
     const originalOnReadyStateChange = xhr.onreadystatechange;
 
-    xhr.onreadystatechange = function(this: XMLHttpRequest, ...eventArgs: unknown[]) {
+    xhr.onreadystatechange = function (
+      this: XMLHttpRequest,
+      ...eventArgs: unknown[]
+    ) {
       if (this.readyState === 4 && this.status === 200) {
         debug('info', 'XHR timeline request completed', {
           status: this.status,
           statusText: this.statusText,
           responseLength: this.responseText?.length,
         });
-        
+
         try {
           processTimelineResponse(url, this.responseText);
         } catch (error) {
           debug('error', 'Failed to process XHR timeline response', {
             error,
-            errorMessage: error instanceof Error ? error.message : String(error),
+            errorMessage:
+              error instanceof Error ? error.message : String(error),
           });
         }
       }
@@ -360,7 +424,7 @@ XMLHttpRequest.prototype.send = function(...args: unknown[]) {
       }
     };
 
-    xhr.onload = function(this: XMLHttpRequest, ...eventArgs: unknown[]) {
+    xhr.onload = function (this: XMLHttpRequest, ...eventArgs: unknown[]) {
       debug('info', 'XHR onload fired for timeline request', {
         status: this.status,
         responseLength: this.responseText?.length,
@@ -372,10 +436,13 @@ XMLHttpRequest.prototype.send = function(...args: unknown[]) {
     };
   }
 
-  return originalXHRSend.apply(this, args as Parameters<typeof originalXHRSend>);
+  return originalXHRSend.apply(
+    this,
+    args as Parameters<typeof originalXHRSend>
+  );
 };
+/* eslint-enable functional/no-this-expressions */
 
 debug('info', 'Fetch and XHR interception installed in main world');
 
 export {};
-

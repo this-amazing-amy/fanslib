@@ -10,7 +10,7 @@ import { fetchPostById, FetchPostByIdResponseSchema } from "./fetch-by-id";
 
 export const CreatePostRequestBodySchema = t.Intersect([
   t.Required(t.Pick(PostSchema, ["date", "channelId", "status"])),
-  t.Partial(t.Pick(PostSchema, ["scheduleId", "caption", "url", "fanslyStatisticsId", "fypRemovedAt", "subredditId"])),
+  t.Partial(t.Pick(PostSchema, ["scheduleId", "caption", "url", "fypRemovedAt", "subredditId", "postGroupId"])),
   t.Object({
     mediaIds: t.Optional(t.Array(t.String())),
   }),

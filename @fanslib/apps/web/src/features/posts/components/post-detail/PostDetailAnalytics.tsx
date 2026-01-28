@@ -6,9 +6,9 @@ import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import { AnalyticsViewsChart } from '~/features/posts/components/post-detail/AnalyticsViewsChart';
 import { useDebounce } from '~/hooks/useDebounce';
+import { cn } from '~/lib/cn';
 import { useFetchFanslyDataMutation, usePostMediaAnalyticsQuery } from '~/lib/queries/analytics';
 import { useUpdatePostMediaMutation } from '~/lib/queries/posts';
-import { cn } from '~/lib/cn';
 
 type Post = typeof PostWithRelationsSchema.static;
 
@@ -37,7 +37,6 @@ export const PostDetailAnalytics = ({ post }: PostDetailAnalyticsProps) => {
   }
 
   const selectedPostMedia = post.postMedia.find((pm) => pm.id === selectedMediaId) ?? post.postMedia[0];
-  const selectedIndex = post.postMedia.findIndex((pm) => pm.id === selectedMediaId);
 
   return (
     <div className="mt-8">
@@ -70,13 +69,11 @@ export const PostDetailAnalytics = ({ post }: PostDetailAnalyticsProps) => {
           <PostMediaStatisticsInput
             postId={post.id}
             postMedia={selectedPostMedia}
-            index={selectedIndex >= 0 ? selectedIndex : 0}
           />
         </div>
         {selectedPostMedia.fanslyStatisticsId && (
           <PostMediaAnalyticsChart
             postMediaId={selectedPostMedia.id}
-            postDate={post.date}
           />
         )}
       </div>
@@ -86,10 +83,9 @@ export const PostDetailAnalytics = ({ post }: PostDetailAnalyticsProps) => {
 
 type PostMediaAnalyticsChartProps = {
   postMediaId: string;
-  postDate: string;
 };
 
-const PostMediaAnalyticsChart = ({ postMediaId, postDate }: PostMediaAnalyticsChartProps) => {
+const PostMediaAnalyticsChart = ({ postMediaId }: PostMediaAnalyticsChartProps) => {
   const { data: analyticsData, isLoading } = usePostMediaAnalyticsQuery(postMediaId);
   const fetchAnalyticsMutation = useFetchFanslyDataMutation();
 
@@ -129,13 +125,11 @@ const PostMediaAnalyticsChart = ({ postMediaId, postDate }: PostMediaAnalyticsCh
 type PostMediaStatisticsInputProps = {
   postId: string;
   postMedia: Post['postMedia'][number];
-  index: number;
 };
 
 const PostMediaStatisticsInput = ({
   postId,
   postMedia,
-  index,
 }: PostMediaStatisticsInputProps) => {
   const localStatisticsId = postMedia.fanslyStatisticsId ?? '';
   const [localValue, setLocalValue] = useState(localStatisticsId);

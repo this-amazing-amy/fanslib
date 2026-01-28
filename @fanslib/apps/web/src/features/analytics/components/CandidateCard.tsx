@@ -17,7 +17,7 @@ type Candidate = {
   caption: string | null;
   fanslyCreatedAt: number;
   matchConfidence: number | null;
-  matchMethod: "exact_filename" | "fuzzy_filename" | "manual" | null;
+  matchMethod: "exact_filename" | "fuzzy_filename" | "manual" | "auto_detected" | null;
   status: CandidateStatus;
 };
 

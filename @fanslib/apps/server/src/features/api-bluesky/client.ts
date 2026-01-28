@@ -6,15 +6,15 @@ type SessionCache = {
   expiresAt: number;
 };
 
-let sessionCache: SessionCache | null = null;
+const sessionCache = { value: null as SessionCache | null };
 
 const SESSION_EXPIRY_BUFFER_MS = 5 * 60 * 1000;
 
 const getOrCreateAgent = async (): Promise<BskyAgent> => {
   const now = Date.now();
 
-  if (sessionCache && sessionCache.expiresAt > now) {
-    return sessionCache.agent;
+  if (sessionCache.value && sessionCache.value.expiresAt > now) {
+    return sessionCache.value.agent;
   }
 
   const settings = await loadSettings();
@@ -34,7 +34,7 @@ const getOrCreateAgent = async (): Promise<BskyAgent> => {
 
   const expiresAt = now + (120 * 60 * 1000) - SESSION_EXPIRY_BUFFER_MS;
 
-  sessionCache = {
+  sessionCache.value = {
     agent,
     expiresAt,
   };
@@ -46,11 +46,11 @@ export const getBlueskyAgent = async (): Promise<BskyAgent> => {
   try {
     return await getOrCreateAgent();
   } catch (error) {
-    sessionCache = null;
+    sessionCache.value = null;
     throw error;
   }
 };
 
 export const clearSessionCache = (): void => {
-  sessionCache = null;
+  sessionCache.value = null;
 };

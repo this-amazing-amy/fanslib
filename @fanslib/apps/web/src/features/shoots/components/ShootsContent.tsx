@@ -10,12 +10,12 @@ import { useShootContext } from "~/contexts/ShootContext";
 import { useShootPreferences } from "~/contexts/ShootPreferencesContext";
 import { ShootCard } from "~/features/shoots/components/ShootCard";
 import { ShootCreateDropZone } from "~/features/shoots/components/ShootCreateDropZone";
+import { ShootsSortOptions } from "~/features/shoots/components/ShootsSortOptions";
 import { ShootViewSettings } from "~/features/shoots/components/ShootViewSettings";
 import { useScrollPosition } from "~/hooks/useScrollPosition";
 import { cn } from "~/lib/cn";
 import { useMediaListQuery } from "~/lib/queries/library";
 import { ShootFilters } from "./ShootFilters";
-import { ShootsSortOptions } from "~/features/shoots/components/ShootsSortOptions";
 import { useShootsMedia } from "./useShootsMedia";
 
 type ShootsContentProps = {
@@ -35,15 +35,12 @@ export const ShootsContent: FC<ShootsContentProps> = ({ className }) => {
     const { field, direction } = preferences.sort;
 
     sorted.sort((a, b) => {
-      let comparison = 0;
-
-      if (field === "name") {
-        comparison = (a.name ?? "").localeCompare(b.name ?? "");
-      } else if (field === "date") {
-        comparison = new Date(a.shootDate).getTime() - new Date(b.shootDate).getTime();
-      } else if (field === "mediaCount") {
-        comparison = (a.media?.length ?? 0) - (b.media?.length ?? 0);
-      }
+      const comparison =
+        field === "name"
+          ? (a.name ?? "").localeCompare(b.name ?? "")
+          : field === "date"
+            ? new Date(a.shootDate).getTime() - new Date(b.shootDate).getTime()
+            : (a.media?.length ?? 0) - (b.media?.length ?? 0);
 
       return direction === "ASC" ? comparison : -comparison;
     });

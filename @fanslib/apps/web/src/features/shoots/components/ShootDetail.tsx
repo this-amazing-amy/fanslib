@@ -12,21 +12,19 @@ type ShootDetailProps = {
   onUpdate: () => void;
 };
 
-export const ShootDetail: FC<ShootDetailProps> = ({ shoot }) => {
-  return (
-    <Link to="/shoots/$shootId" params={{ shootId: shoot.id }}>
-      <Card className="overflow-hidden border-base-content cursor-pointer">
-        <CardBody className="p-0">
-          <div className="px-4 py-3">
-            <ShootHeader
-              shoot={shoot}
-              isEditing={false}
-              onUpdate={async () => {}}
-              onCancel={() => {}}
-            />
-          </div>
-        </CardBody>
-      </Card>
-    </Link>
-  );
-};
+export const ShootDetail: FC<ShootDetailProps> = ({ shoot }) => (
+  <Link to="/shoots/$shootId" params={{ shootId: shoot.id }}>
+    <Card className="overflow-hidden border-base-content cursor-pointer">
+      <CardBody className="p-0">
+        <div className="px-4 py-3">
+          <ShootHeader
+            shoot={shoot}
+            isEditing={false}
+            onUpdate={async () => {}}
+            onCancel={() => {}}
+          />
+        </div>
+      </CardBody>
+    </Card>
+  </Link>
+);

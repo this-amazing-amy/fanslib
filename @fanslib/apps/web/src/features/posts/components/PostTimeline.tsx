@@ -7,7 +7,7 @@ import { usePostDrag } from "~/contexts/PostDragContext";
 import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
 import { useDragOver } from "~/hooks/useDragOver";
 import { cn } from "~/lib/cn";
-import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
+import { type VirtualPost } from "~/lib/virtual-posts";
 import { PostPreview } from "./PostPreview/PostPreview";
 import { usePostTimelineVirtualizer } from "./usePostTimelineVirtualizer";
 

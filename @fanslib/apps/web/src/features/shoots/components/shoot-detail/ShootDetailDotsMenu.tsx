@@ -1,4 +1,5 @@
 import { MoreVertical, Send } from "lucide-react";
+import type { Key } from "@react-types/shared";
 import { Button } from "~/components/ui/Button";
 import {
   DropdownMenu,
@@ -13,7 +14,8 @@ type ShootDetailDotsMenuProps = {
 };
 
 export const ShootDetailDotsMenu = ({ onCreatePost, mediaCount }: ShootDetailDotsMenuProps) => {
-  const handleAction = (actionId: string) => {
+  const handleAction = (key: Key) => {
+    const actionId = String(key);
     if (actionId === "create-post") {
       onCreatePost();
     }

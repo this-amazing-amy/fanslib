@@ -8,7 +8,7 @@ type VirtualPostClickData = {
   media: Media[];
   initialDate: Date;
   initialChannelId: string;
-  scheduleId: string;
+  scheduleId?: string;
   initialMediaSelectionExpanded: boolean;
 };
 
@@ -25,7 +25,7 @@ export const useVirtualPostClick = ({ post, onOpenCreateDialog }: UseVirtualPost
       media: [],
       initialDate: new Date(post.date),
       initialChannelId: post.channelId,
-      scheduleId: post.scheduleId,
+      scheduleId: post.scheduleId ?? undefined,
       initialMediaSelectionExpanded: true,
     };
 

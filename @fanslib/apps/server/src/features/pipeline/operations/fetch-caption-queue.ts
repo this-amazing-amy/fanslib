@@ -82,7 +82,7 @@ const uniqueByPostId = <T extends { postId: string }>(items: T[]): T[] =>
 type PostWithChannel = {
   id: string;
   caption: string | null;
-  date: string;
+  date: Date;
   channel: {
     name: string;
     type: { id: string };
@@ -114,7 +114,7 @@ export const fetchCaptionQueue = async (
   }
 
   if (query.fromDate && query.toDate) {
-    whereConditions.date = Between(query.fromDate, query.toDate);
+    whereConditions.date = Between(new Date(query.fromDate), new Date(query.toDate));
   }
 
   const posts = await postRepo.find({

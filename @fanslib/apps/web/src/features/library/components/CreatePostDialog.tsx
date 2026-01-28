@@ -13,12 +13,12 @@ import { SubredditSelect } from "~/components/SubredditSelect";
 import { Button } from "~/components/ui/Button";
 import { Checkbox } from "~/components/ui/Checkbox";
 import {
-  Dialog,
-  DialogFooter,
-  DialogHeader,
-  DialogModal,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogFooter,
+    DialogHeader,
+    DialogModal,
+    DialogTitle,
+    DialogTrigger,
 } from "~/components/ui/Dialog";
 import { ScrollArea } from "~/components/ui/ScrollArea";
 import { Textarea } from "~/components/ui/Textarea";
@@ -70,7 +70,7 @@ export const CreatePostDialog = ({
   initialSubredditId,
   scheduleId,
   title = "Create Post",
-  initialMediaSelectionExpanded,
+  initialMediaSelectionExpanded: _initialMediaSelectionExpanded,
   initialShouldRedirect = true,
 }: CreatePostDialogProps) => {
   const navigate = useNavigate();
@@ -206,7 +206,7 @@ export const CreatePostDialog = ({
         return;
       }
       const newPost = await createPost({
-        date: selectedDate.toISOString(),
+        date: selectedDate,
         channelId: selectedChannel[0],
         status,
         caption: caption || null,

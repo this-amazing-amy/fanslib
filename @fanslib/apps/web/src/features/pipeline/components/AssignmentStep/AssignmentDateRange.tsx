@@ -12,17 +12,15 @@ export const AssignmentDateRange = ({
   toDate,
   onFromDateChange,
   onToDateChange,
-}: AssignmentDateRangeProps) => {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div className="space-y-2">
-        <div className="text-sm font-medium">From</div>
-        <DateTimePicker date={fromDate} setDate={onFromDateChange} />
-      </div>
-      <div className="space-y-2">
-        <div className="text-sm font-medium">To</div>
-        <DateTimePicker date={toDate} setDate={onToDateChange} />
-      </div>
+}: AssignmentDateRangeProps) => (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="space-y-2">
+      <div className="text-sm font-medium">From</div>
+      <DateTimePicker date={fromDate} setDate={onFromDateChange} />
     </div>
-  );
-};
+    <div className="space-y-2">
+      <div className="text-sm font-medium">To</div>
+      <DateTimePicker date={toDate} setDate={onToDateChange} />
+    </div>
+  </div>
+);

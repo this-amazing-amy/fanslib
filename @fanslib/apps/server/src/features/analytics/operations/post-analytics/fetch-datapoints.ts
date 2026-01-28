@@ -48,7 +48,6 @@ export const fetchDatapoints = async (
     order: { timestamp: "ASC" },
   });
 
-  const postDate = new Date(postMedia.post.date);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -83,7 +82,7 @@ export const fetchDatapoints = async (
     lastDatapointDate: lastDatapointTimestamp,
     hasGap,
     suggestedFetchRange,
-    postDate: postMedia.post.date,
+    postDate: postMedia.post.date.toISOString(),
   };
 };
 

@@ -1,11 +1,11 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
 import { Elysia } from "elysia";
 import "reflect-metadata";
-import { getTestDataSource, resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
+import { resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
 import { mapResponse } from "../../lib/serialization";
 import { logError, parseResponse } from "../../test-utils/setup";
-import { pipelineRoutes } from "./routes";
 import type { FetchCaptionQueueResponseSchema } from "./operations/fetch-caption-queue";
+import { pipelineRoutes } from "./routes";
 
 describe("Pipeline Routes", () => {
   // eslint-disable-next-line functional/no-let
@@ -29,8 +29,6 @@ describe("Pipeline Routes", () => {
 
   describe("GET /api/pipeline/caption-queue", () => {
     test.skip("returns caption queue with draft posts and validates Date types", async () => {
-      const dataSource = getTestDataSource();
-      
       // Get a channel ID from fixtures
       const channelId = fixtures.channels.channels[0]?.id;
       if (!channelId) {
@@ -54,7 +52,7 @@ describe("Pipeline Routes", () => {
           const errorData = JSON.parse(text);
           console.log("\nParsed error data:");
           console.log(JSON.stringify(errorData, null, 2).slice(0, 3000));
-        } catch (e) {
+        } catch {
           console.log("Not valid JSON");
         }
       }
@@ -70,13 +68,6 @@ describe("Pipeline Routes", () => {
         console.log("\nDate type checks:");
         console.log("post.createdAt is Date?", firstItem?.post?.createdAt instanceof Date);
         console.log("post.createdAt value:", firstItem?.post?.createdAt);
-        
-        if (firstItem?.post?.postMedia?.[0]?.media) {
-          const media = firstItem.post.postMedia[0].media;
-          console.log("media.createdAt is Date?", media.createdAt instanceof Date);
-          console.log("media.createdAt value:", media.createdAt);
-          console.log("media.fileCreationDate is Date?", media.fileCreationDate instanceof Date);
-        }
         
         if (firstItem?.post?.postMedia?.[0]) {
           const postMedia = firstItem.post.postMedia[0];
@@ -102,7 +93,7 @@ describe("Pipeline Routes", () => {
           const errorData = JSON.parse(text);
           console.log("\nValidation error details:");
           console.log(JSON.stringify(errorData, null, 2).slice(0, 5000));
-        } catch (e) {
+        } catch {
           // Not JSON
         }
       }
@@ -132,7 +123,7 @@ describe("Pipeline Routes", () => {
           const errorData = JSON.parse(text);
           console.log("\nValidation error:");
           console.log(JSON.stringify(errorData, null, 2).slice(0, 3000));
-        } catch (e) {
+        } catch {
           // Not JSON
         }
       }

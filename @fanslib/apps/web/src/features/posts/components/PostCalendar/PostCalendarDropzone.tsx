@@ -59,7 +59,7 @@ export const PostCalendarDropzone = ({ post, children, onUpdate }: PostCalendarD
           setCreatePostData({
             media: draggedMedias,
             initialChannelId: post.channelId,
-            scheduleId: post.scheduleId,
+            scheduleId: post.scheduleId ?? undefined,
             initialDate: new Date(post.date),
           });
         } else {
@@ -80,7 +80,7 @@ export const PostCalendarDropzone = ({ post, children, onUpdate }: PostCalendarD
             media,
             caption: draggedPost.caption ?? undefined,
             initialChannelId: post.channelId,
-            scheduleId: post.scheduleId,
+            scheduleId: post.scheduleId ?? undefined,
             initialDate: new Date(post.date),
           });
         } else {

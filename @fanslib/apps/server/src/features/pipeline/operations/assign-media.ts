@@ -4,7 +4,7 @@ import { isSameMinute } from "date-fns";
 import { db } from "../../../lib/db";
 import { CHANNEL_TYPES } from "../../channels/channelTypes";
 import { Channel } from "../../channels/entity";
-import { ContentSchedule } from "../../content-schedules/entity";
+import { ContentSchedule, ScheduleChannel } from "../../content-schedules/entity";
 import { generateScheduleDates } from "../../content-schedules/operations/generate-virtual-posts";
 import type { MediaFilterSchema } from "../../library/schemas/media-filter";
 import { Post } from "../../posts/entity";
@@ -57,13 +57,28 @@ type AssignedPost = {
   channelId: string;
   mediaId: string;
   postId: string;
+  postGroupId: string | null;
 };
 
 const uniqueById = <T extends { id: string }>(items: T[]): T[] =>
   items.reduce<T[]>((acc, item) => (acc.some((existing) => existing.id === item.id) ? acc : [...acc, item]), []);
 
-const getChannelFilter = (schedule: ContentSchedule, channel: Channel): MediaFilters | null =>
-  parseMediaFilters(schedule.mediaFilters) ?? channel.eligibleMediaFilter ?? null;
+const combineFilters = (baseFilters: MediaFilters | null, overrides: MediaFilters | null): MediaFilters | null => {
+  if (!baseFilters && !overrides) return null;
+  if (!baseFilters) return overrides;
+  if (!overrides) return baseFilters;
+  return [...baseFilters, ...overrides];
+};
+
+const getChannelFilter = (
+  schedule: ContentSchedule,
+  channel: Channel,
+  scheduleChannel?: ScheduleChannel
+): MediaFilters | null => {
+  const baseFilters = parseMediaFilters(schedule.mediaFilters) ?? channel.eligibleMediaFilter ?? null;
+  const overrides = scheduleChannel?.mediaFilterOverrides ?? null;
+  return combineFilters(baseFilters, overrides);
+};
 
 const getSubredditFilter = (subreddit: Subreddit, channel: Channel): MediaFilters | null =>
   subreddit.eligibleMediaFilter ?? channel.eligibleMediaFilter ?? null;
@@ -73,13 +88,24 @@ type ScheduleAssignmentResult = {
   unfilled: AssignMediaResult["unfilled"];
 };
 
+type ScheduleWithChannels = ContentSchedule & {
+  scheduleChannels: (ScheduleChannel & { channel: Channel })[];
+};
+
 const assignStandardScheduleSlots = async (
-  schedule: ContentSchedule,
-  channel: Channel,
+  schedule: ScheduleWithChannels,
   slots: Date[],
   existingUsedMediaIds: string[] = []
 ): Promise<ScheduleAssignmentResult> => {
-  const eligibleFilter = getChannelFilter(schedule, channel);
+  const targetChannels = schedule.scheduleChannels.length > 0
+    ? schedule.scheduleChannels
+    : schedule.channel
+      ? [{ channel: schedule.channel, scheduleId: schedule.id, channelId: schedule.channel.id, mediaFilterOverrides: null, sortOrder: 0, id: "", createdAt: new Date(), updatedAt: new Date() } as ScheduleChannel & { channel: Channel }]
+      : [];
+
+  if (targetChannels.length === 0) {
+    return { createdPosts: [], unfilled: [] };
+  }
 
   const initialState = {
     createdPosts: [] as AssignedPost[],
@@ -89,50 +115,68 @@ const assignStandardScheduleSlots = async (
 
   return slots.reduce<Promise<typeof initialState>>(async (promise, slotDate) => {
     const state = await promise;
-    const { media } = await selectRandomMedia(eligibleFilter, state.usedMediaIds);
+    const postGroupId = targetChannels.length > 1 ? crypto.randomUUID() : null;
 
-    if (!media) {
+    const slotResults = await targetChannels.reduce<Promise<{
+      createdPosts: AssignedPost[];
+      unfilled: AssignMediaResult["unfilled"];
+      usedMediaIds: string[];
+    }>>(async (channelPromise, scheduleChannel) => {
+      const channelState = await channelPromise;
+      const eligibleFilter = getChannelFilter(schedule, scheduleChannel.channel, scheduleChannel);
+      const { media } = await selectRandomMedia(eligibleFilter, channelState.usedMediaIds);
+
+      if (!media) {
+        return {
+          ...channelState,
+          unfilled: [
+            ...channelState.unfilled,
+            {
+              scheduleId: schedule.id,
+              channelId: scheduleChannel.channelId,
+              date: slotDate,
+              reason: "no_eligible_media" as const,
+            },
+          ],
+        };
+      }
+
+      const created = await createPost(
+        {
+          date: slotDate,
+          channelId: scheduleChannel.channelId,
+          status: "draft",
+          scheduleId: schedule.id,
+          postGroupId,
+        },
+        [media.id]
+      );
+
       return {
-        ...state,
-        unfilled: [
-          ...state.unfilled,
+        ...channelState,
+        createdPosts: [
+          ...channelState.createdPosts,
           {
-            scheduleId: schedule.id,
-            channelId: schedule.channelId,
-            date: slotDate,
-            reason: "no_eligible_media" as const,
+            channelId: scheduleChannel.channelId,
+            mediaId: media.id,
+            postId: created.id,
+            postGroupId,
           },
         ],
+        usedMediaIds: [...channelState.usedMediaIds, media.id],
       };
-    }
-
-    const created = await createPost(
-      {
-        date: slotDate,
-        channelId: schedule.channelId,
-        status: "draft",
-        scheduleId: schedule.id,
-      },
-      [media.id]
-    );
+    }, Promise.resolve({ createdPosts: [], unfilled: [], usedMediaIds: state.usedMediaIds }));
 
     return {
-      ...state,
-      createdPosts: [
-        ...state.createdPosts,
-        {
-          channelId: schedule.channelId,
-          mediaId: media.id,
-          postId: created.id,
-        },
-      ],
-      usedMediaIds: [...state.usedMediaIds, media.id],
+      createdPosts: [...state.createdPosts, ...slotResults.createdPosts],
+      unfilled: [...state.unfilled, ...slotResults.unfilled],
+      usedMediaIds: slotResults.usedMediaIds,
     };
   }, Promise.resolve(initialState));
 };
 
 const assignRedditScheduleSlots = async (
-  schedule: ContentSchedule,
+  schedule: ScheduleWithChannels,
   channel: Channel,
   slots: Date[],
   subreddits: Subreddit[],
@@ -143,7 +187,7 @@ const assignRedditScheduleSlots = async (
       createdPosts: [],
       unfilled: slots.map((slotDate) => ({
         scheduleId: schedule.id,
-        channelId: schedule.channelId,
+        channelId: channel.id,
         date: slotDate,
         reason: "no_subreddits" as const,
       })),
@@ -167,7 +211,7 @@ const assignRedditScheduleSlots = async (
           ...state.unfilled,
           {
             scheduleId: schedule.id,
-            channelId: schedule.channelId,
+            channelId: channel.id,
             date: slotDate,
             reason: "no_subreddits" as const,
           },
@@ -176,7 +220,7 @@ const assignRedditScheduleSlots = async (
     }
 
     const eligibleFilter = getSubredditFilter(subreddit, channel);
-    const usedFromSubreddit = await getUsedMediaForSubreddit(subreddit.id, schedule.channelId);
+    const usedFromSubreddit = await getUsedMediaForSubreddit(subreddit.id, channel.id);
     const excludeIds = Array.from(new Set([...state.usedMediaIds, ...usedFromSubreddit]));
     const { media } = await selectRandomMedia(eligibleFilter, excludeIds);
 
@@ -187,7 +231,7 @@ const assignRedditScheduleSlots = async (
           ...state.unfilled,
           {
             scheduleId: schedule.id,
-            channelId: schedule.channelId,
+            channelId: channel.id,
             date: slotDate,
             reason: "no_eligible_media" as const,
           },
@@ -198,10 +242,11 @@ const assignRedditScheduleSlots = async (
     const created = await createPost(
       {
         date: slotDate,
-        channelId: schedule.channelId,
+        channelId: channel.id,
         status: "draft",
         scheduleId: schedule.id,
         subredditId: subreddit.id,
+        postGroupId: null,
       },
       [media.id]
     );
@@ -211,9 +256,10 @@ const assignRedditScheduleSlots = async (
       createdPosts: [
         ...state.createdPosts,
         {
-          channelId: schedule.channelId,
+          channelId: channel.id,
           mediaId: media.id,
           postId: created.id,
+          postGroupId: null,
         },
       ],
       usedMediaIds: [...state.usedMediaIds, media.id],
@@ -226,6 +272,7 @@ export const assignMediaToSchedules = async (
 ): Promise<AssignMediaResult> => {
   const dataSource = await db();
   const scheduleRepo = dataSource.getRepository(ContentSchedule);
+  const scheduleChannelRepo = dataSource.getRepository(ScheduleChannel);
   const postRepo = dataSource.getRepository(Post);
   const subredditRepo = dataSource.getRepository(Subreddit);
   const channelRepo = dataSource.getRepository(Channel);
@@ -233,18 +280,24 @@ export const assignMediaToSchedules = async (
   const fromDate = new Date(payload.fromDate);
   const toDate = new Date(payload.toDate);
 
-  const schedules = await scheduleRepo.find({
-    where: {
-      channelId: In(payload.channelIds),
-    },
-    relations: {
-      channel: {
-        type: true,
-      },
-    },
+  const scheduleChannels = await scheduleChannelRepo.find({
+    where: { channelId: In(payload.channelIds) },
+    select: { scheduleId: true },
   });
+  const scheduleIdsFromChannels = [...new Set(scheduleChannels.map((sc) => sc.scheduleId))];
 
-  const channelIds = uniqueById(
+  const schedules = await scheduleRepo
+    .createQueryBuilder("schedule")
+    .leftJoinAndSelect("schedule.channel", "channel")
+    .leftJoinAndSelect("channel.type", "channelType")
+    .leftJoinAndSelect("schedule.scheduleChannels", "scheduleChannels")
+    .leftJoinAndSelect("scheduleChannels.channel", "scChannel")
+    .leftJoinAndSelect("scChannel.type", "scChannelType")
+    .where("schedule.channelId IN (:...channelIds)", { channelIds: payload.channelIds.length > 0 ? payload.channelIds : ["__none__"] })
+    .orWhere("schedule.id IN (:...scheduleIds)", { scheduleIds: scheduleIdsFromChannels.length > 0 ? scheduleIdsFromChannels : ["__none__"] })
+    .getMany() as ScheduleWithChannels[];
+
+  const channels = uniqueById(
     await channelRepo.find({
       where: {
         id: In(payload.channelIds),
@@ -256,7 +309,7 @@ export const assignMediaToSchedules = async (
     return {
       created: 0,
       unfilled: [],
-      summary: channelIds.map((channel) => ({
+      summary: channels.map((channel) => ({
         channelId: channel.id,
         channelName: channel.name,
         draftsCreated: 0,
@@ -277,7 +330,6 @@ export const assignMediaToSchedules = async (
     },
   });
 
-  // Extract all media IDs from existing posts to avoid reusing them
   const existingMediaIds = existingPosts
     .flatMap((post) => post.postMedia?.map((pm) => pm.media?.id) ?? [])
     .filter((id): id is string => Boolean(id));
@@ -286,27 +338,56 @@ export const assignMediaToSchedules = async (
 
   const scheduleAssignments = await Promise.all(
     schedules.map(async (schedule) => {
+      const targetChannels = schedule.scheduleChannels?.filter((sc) =>
+        payload.channelIds.includes(sc.channelId)
+      ) ?? [];
+
+      const legacyChannel = schedule.channel && payload.channelIds.includes(schedule.channel.id)
+        ? schedule.channel
+        : null;
+
+      if (targetChannels.length === 0 && !legacyChannel) {
+        return { createdPosts: [], unfilled: [] };
+      }
+
       const schedulePosts = existingPosts.filter((post) => post.scheduleId === schedule.id);
       const allSlots = generateScheduleDates(schedule, fromDate, toDate)
         .filter((slot) => slot >= fromDate && slot <= toDate);
-      
+
       const slots = allSlots.filter(
         (slot) =>
           !schedulePosts.some((post) => isSameMinute(new Date(post.date), slot))
       );
 
-      if (schedule.channel.typeId === CHANNEL_TYPES.reddit.id) {
-        return assignRedditScheduleSlots(schedule, schedule.channel, slots, subreddits, existingMediaIds);
+      const hasRedditChannel = targetChannels.some((sc) => sc.channel?.typeId === CHANNEL_TYPES.reddit.id)
+        || legacyChannel?.typeId === CHANNEL_TYPES.reddit.id;
+
+      if (hasRedditChannel && legacyChannel?.typeId === CHANNEL_TYPES.reddit.id) {
+        return assignRedditScheduleSlots(schedule, legacyChannel, slots, subreddits, existingMediaIds);
       }
 
-      return assignStandardScheduleSlots(schedule, schedule.channel, slots, existingMediaIds);
+      const scheduleWithFilteredChannels: ScheduleWithChannels = {
+        ...schedule,
+        scheduleChannels: targetChannels.length > 0 ? targetChannels : (legacyChannel ? [{
+          id: "",
+          scheduleId: schedule.id,
+          channelId: legacyChannel.id,
+          channel: legacyChannel,
+          mediaFilterOverrides: null,
+          sortOrder: 0,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        } as ScheduleChannel & { channel: Channel }] : []),
+      };
+
+      return assignStandardScheduleSlots(scheduleWithFilteredChannels, slots, existingMediaIds);
     })
   );
 
   const createdPosts = scheduleAssignments.flatMap((assignment) => assignment.createdPosts);
   const unfilled = scheduleAssignments.flatMap((assignment) => assignment.unfilled);
 
-  const summary = channelIds.map((channel) => {
+  const summary = channels.map((channel) => {
     const channelPosts = createdPosts.filter((post) => post.channelId === channel.id);
     const uniqueMedia = Array.from(
       new Set(channelPosts.map((post) => post.mediaId))

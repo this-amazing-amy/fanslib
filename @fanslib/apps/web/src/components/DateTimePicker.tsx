@@ -1,18 +1,17 @@
 import { CalendarDate } from "@internationalized/date";
 import { format, isSameDay } from "date-fns";
-import { CalendarIcon, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Moon, Sunrise, Sun, Sunset } from "lucide-react";
+import { CalendarIcon, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Moon, Sun, Sunrise, Sunset } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import {
-  Calendar as AriaCalendar,
-  Button as AriaButton,
-  CalendarCell,
-  CalendarGrid,
-  CalendarGridBody,
-  CalendarGridHeader,
-  CalendarHeaderCell,
-  Heading,
-} from "react-aria-components";
 import { I18nProvider } from "react-aria";
+import {
+    Button as AriaButton,
+    Calendar as AriaCalendar,
+    CalendarCell,
+    CalendarGrid,
+    CalendarGridBody,
+    CalendarGridHeader,
+    CalendarHeaderCell,
+} from "react-aria-components";
 import { Button } from "~/components/ui/Button";
 import { Popover, PopoverTrigger } from "~/components/ui/Popover";
 import { cn } from "~/lib/cn";
@@ -223,7 +222,6 @@ export const DateTimePicker = ({ date, setDate, minValue, preferredTimes = [] }:
 
 
 
-  const hours = Array.from({ length: 24 }, (_, index) => index);
   const commonMinutes = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
   const currentTime = format(date, "HH:mm");
   const currentYear = new Date().getFullYear();
@@ -493,10 +491,11 @@ export const DateTimePicker = ({ date, setDate, minValue, preferredTimes = [] }:
                       { icon: Sunrise, hours: [6, 7, 8, 9, 10, 11] },
                       { icon: Sun, hours: [12, 13, 14, 15, 16, 17] },
                       { icon: Sunset, hours: [18, 19, 20, 21, 22, 23] },
-                    ].map((period, index) => {
+                    ].map((period) => {
                       const Icon = period.icon;
+                      const periodKey = `${period.hours[0]}-${period.hours[period.hours.length - 1]}`;
                       return (
-                        <div key={index} className="flex items-center gap-1.5">
+                        <div key={periodKey} className="flex items-center gap-1.5">
                           <Icon className="h-4 w-4 text-muted-foreground opacity-40 flex-shrink-0" />
                           <div className="flex gap-1 flex-wrap">
                             {period.hours.map((hour) => (

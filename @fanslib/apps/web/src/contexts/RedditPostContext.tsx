@@ -67,7 +67,7 @@ export const RedditPostProvider = ({ children }: { children: ReactNode }) => {
 
       const promises = drafts.map(async (draft) => {
         const postData = {
-          date: new Date().toISOString(),
+          date: new Date(),
           channelId: redditChannel.id,
           status: "posted" as const,
           caption: draft.caption ?? "",

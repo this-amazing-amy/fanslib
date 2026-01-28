@@ -1,12 +1,12 @@
 import { DataSource } from "typeorm";
+import { FanslyMediaCandidate } from "../features/analytics/candidate-entity";
 import {
     AnalyticsFetchHistory,
     FanslyAnalyticsAggregate,
     FanslyAnalyticsDatapoint,
 } from "../features/analytics/entity";
-import { FanslyMediaCandidate } from "../features/analytics/candidate-entity";
 import { Channel, ChannelType } from "../features/channels/entity";
-import { ContentSchedule, SkippedScheduleSlot } from "../features/content-schedules/entity";
+import { ContentSchedule, ScheduleChannel, SkippedScheduleSlot } from "../features/content-schedules/entity";
 import { FilterPreset } from "../features/filter-presets/entity";
 import { Hashtag, HashtagChannelStats } from "../features/hashtags/entity";
 import { Media } from "../features/library/entity";
@@ -37,6 +37,7 @@ export const createTestDataSource = () => new DataSource({
       HashtagChannelStats,
       Shoot,
       ContentSchedule,
+      ScheduleChannel,
       SkippedScheduleSlot,
       FilterPreset,
       CaptionSnippet,
@@ -94,6 +95,7 @@ export const clearAllTables = async () => {
     "Post",
     "HashtagChannelStats",
     "MediaTag",
+    "ScheduleChannel",
     "ContentSchedule",
     "CaptionSnippet",
     "Channel",

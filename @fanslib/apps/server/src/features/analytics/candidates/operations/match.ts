@@ -48,9 +48,7 @@ export const confirmMatch = async (
   candidate.status = "matched";
   candidate.matchedPostMediaId = body.postMediaId;
   candidate.matchedAt = new Date();
-  if (!candidate.matchMethod) {
-    candidate.matchMethod = "manual";
-  }
+  candidate.matchMethod ??= "manual";
 
   await candidateRepository.save(candidate);
 

@@ -4,9 +4,9 @@ import { Button } from "~/components/ui/Button";
 import { Input } from "~/components/ui/Input";
 import { Textarea } from "~/components/ui/Textarea";
 import {
-  useClearFanslyCredentialsMutation,
-  useFanslyCredentialsQuery,
-  useSaveFanslyCredentialsMutation,
+    useClearFanslyCredentialsMutation,
+    useFanslyCredentialsQuery,
+    useSaveFanslyCredentialsMutation,
 } from "~/lib/queries/settings";
 import { SettingRow } from "./SettingRow";
 
@@ -121,7 +121,7 @@ export const FanslySettings = () => {
   const updateCredential = (key: keyof FanslyCredentials, value: string) => {
     setCredentials((prev) => ({
       ...prev,
-      [key]: value || undefined,
+      [key]: value === "" ? undefined : value,
     }));
   };
 
@@ -164,7 +164,9 @@ export const FanslySettings = () => {
   const isLoading = saveMutation.isPending || clearMutation.isPending;
   const hasCredentials = !!(
     loadedCredentials &&
-    (loadedCredentials.fanslyAuth || loadedCredentials.fanslySessionId)
+    [loadedCredentials.fanslyAuth, loadedCredentials.fanslySessionId].some(
+      (value) => value !== undefined && value !== null && value !== ""
+    )
   );
 
   return (

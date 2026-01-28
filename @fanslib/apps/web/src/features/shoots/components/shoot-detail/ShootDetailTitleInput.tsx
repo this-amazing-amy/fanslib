@@ -1,4 +1,5 @@
-import type { ShootSummarySchema, UpdateShootRequestBodySchema } from "@fanslib/server/schemas";
+import type { ShootSummarySchema } from "@fanslib/server/schemas";
+import type { KeyboardEvent } from "react";
 import { useState } from "react";
 import { Input } from "~/components/ui/Input";
 import { useUpdateShootMutation } from "~/lib/queries/shoots";
@@ -36,7 +37,7 @@ export const ShootDetailTitleInput = ({ shoot }: ShootDetailTitleInputProps) => 
     saveName(localName);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.currentTarget.blur();
     } else if (e.key === "Escape") {

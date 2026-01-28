@@ -38,9 +38,9 @@ describe("updateOverdueScheduledNonRedditPosts", () => {
       )
     );
 
-    const createdAt = new Date().toISOString();
-    const updatedAt = new Date().toISOString();
-    const pastDate = new Date(Date.now() - 60_000).toISOString();
+    const createdAt = new Date();
+    const updatedAt = new Date();
+    const pastDate = new Date(Date.now() - 60_000);
 
     const [overdueFanslyPost, overdueRedditPost] = await Promise.all(
       [
@@ -75,10 +75,10 @@ describe("updateOverdueScheduledNonRedditPosts", () => {
     expect(updatedPostIds).not.toContain(overdueRedditPost.id);
 
     expect(updatedFanslyPost.status).toBe("posted");
-    expect(updatedFanslyPost.updatedAt).toBe(result.now);
+    expect(updatedFanslyPost.updatedAt).toEqual(result.now);
 
     expect(updatedRedditPost.status).toBe("scheduled");
-    expect(updatedRedditPost.updatedAt).toBe(updatedAt);
+    expect(updatedRedditPost.updatedAt).toEqual(updatedAt);
 
     await teardownTestDatabase();
   });

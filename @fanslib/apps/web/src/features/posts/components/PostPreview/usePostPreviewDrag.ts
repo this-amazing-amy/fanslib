@@ -95,7 +95,7 @@ export const usePostPreviewDrag = ({
             media: draggedMedias,
             initialDate: new Date(post.date),
             initialChannelId: post.channelId,
-            scheduleId: post.scheduleId,
+            scheduleId: post.scheduleId ?? undefined,
           });
           endMediaDrag();
         } else {
@@ -106,7 +106,7 @@ export const usePostPreviewDrag = ({
             status: "draft",
             caption: "",
             mediaIds: draggedMedias.map((media) => media.id),
-            scheduleId: post.scheduleId,
+            scheduleId: post.scheduleId ?? undefined,
           };
           await createPostMutation.mutateAsync(createPostData);
           await onUpdate();

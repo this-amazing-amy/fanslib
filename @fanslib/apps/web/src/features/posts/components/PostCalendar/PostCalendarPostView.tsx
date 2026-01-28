@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
 import { StatusIcon } from "~/components/StatusIcon";
-import { getPostStatusBorderColor } from "~/lib/colors";
 
 type PostCalendarPostViewProps = {
   // Core data

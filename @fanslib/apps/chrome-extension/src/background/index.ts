@@ -1,6 +1,6 @@
 import type { CandidateItem } from '../content/fansly-interceptor';
 
-type Message = 
+type Message =
   | {
       type: 'FANSLY_TIMELINE_DATA';
       candidates: CandidateItem[];
@@ -54,13 +54,17 @@ const debug = (
 const getApiUrl = async (): Promise<string | null> => {
   debug('info', 'Fetching API URL from storage');
   const result = await chrome.storage.local.get(SETTINGS_KEY_API_URL);
-  const apiUrl = result[SETTINGS_KEY_API_URL] ?? null;
+  const storedApiUrl = result[SETTINGS_KEY_API_URL];
+  const apiUrl =
+    typeof storedApiUrl === 'string' && storedApiUrl.trim() !== ''
+      ? storedApiUrl
+      : null;
   debug('info', 'API URL retrieved', {
-    apiUrl: apiUrl || DEFAULT_API_URL,
-    hasApiUrl: !!apiUrl,
-    isDefault: !apiUrl,
+    apiUrl: apiUrl ?? DEFAULT_API_URL,
+    hasApiUrl: apiUrl !== null,
+    isDefault: apiUrl === null,
   });
-  return apiUrl || DEFAULT_API_URL;
+  return apiUrl ?? DEFAULT_API_URL;
 };
 
 type SyncResult = {
@@ -77,13 +81,18 @@ const sendCredentialsToServer = async (credentials: {
   fanslyClientCheck?: string;
   fanslyClientId?: string;
 }): Promise<void> => {
-  const storage = await chrome.storage.local.get(['lastCredentialsSentAt', 'pendingCredentials']);
+  const storage = await chrome.storage.local.get([
+    'lastCredentialsSentAt',
+    'pendingCredentials',
+  ]);
   const lastSentAt = storage.lastCredentialsSentAt ?? 0;
   const now = Date.now();
   const timeSinceLastSend = now - lastSentAt;
 
   const filteredCredentials = Object.fromEntries(
-    Object.entries(credentials).filter(([_, value]) => value !== undefined && value !== null && value !== '')
+    Object.entries(credentials).filter(
+      ([_, value]) => value !== undefined && value !== null && value !== ''
+    )
   );
 
   if (timeSinceLastSend < CREDENTIALS_THROTTLE_MS) {
@@ -95,7 +104,7 @@ const sendCredentialsToServer = async (credentials: {
 
   const apiUrl = await getApiUrl();
   const endpoint = `${apiUrl}/api/settings/fansly-credentials`;
-  
+
   const bodyString = JSON.stringify(filteredCredentials);
 
   try {
@@ -164,12 +173,16 @@ const sendCandidates = async (candidates: CandidateItem[]): Promise<void> => {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    const result = await response.json() as Array<{ candidate: unknown; status: 'created' | 'existing' | 'already_matched' }>;
-    
+    const result = (await response.json()) as Array<{
+      candidate: unknown;
+      status: 'created' | 'existing' | 'already_matched';
+    }>;
+
     const syncResult: SyncResult = {
       created: result.filter((r) => r.status === 'created').length,
       existing: result.filter((r) => r.status === 'existing').length,
-      alreadyMatched: result.filter((r) => r.status === 'already_matched').length,
+      alreadyMatched: result.filter((r) => r.status === 'already_matched')
+        .length,
     };
 
     debug('info', 'Candidates sent successfully', {
@@ -249,33 +262,41 @@ const flushBuffer = (): void => {
 
 const MAX_RECENT_CANDIDATES = 100;
 
-const storeRecentCandidates = async (candidates: CandidateItem[]): Promise<void> => {
+const storeRecentCandidates = async (
+  candidates: CandidateItem[]
+): Promise<void> => {
   try {
     debug('info', 'Storing recent candidates', {
       candidateCount: candidates.length,
       sampleIds: candidates.slice(0, 3).map((c) => c.fanslyStatisticsId),
     });
-    
+
     const result = await chrome.storage.local.get(['recentCandidates']);
-    const existing = (result.recentCandidates as CandidateItem[] | undefined) ?? [];
-    
+    const existing =
+      (result.recentCandidates as CandidateItem[] | undefined) ?? [];
+
     debug('info', 'Retrieved existing candidates from storage', {
       existingCount: existing.length,
       existingIsArray: Array.isArray(existing),
     });
-    
+
     const seen = new Set<string>(existing.map((c) => c.fanslyStatisticsId));
-    const newCandidates = candidates.filter((c) => !seen.has(c.fanslyStatisticsId));
-    
+    const newCandidates = candidates.filter(
+      (c) => !seen.has(c.fanslyStatisticsId)
+    );
+
     debug('info', 'Filtered new candidates', {
       newCount: newCandidates.length,
       duplicateCount: candidates.length - newCandidates.length,
     });
-    
-    const combined = [...newCandidates, ...existing].slice(0, MAX_RECENT_CANDIDATES);
-    
+
+    const combined = [...newCandidates, ...existing].slice(
+      0,
+      MAX_RECENT_CANDIDATES
+    );
+
     await chrome.storage.local.set({ recentCandidates: combined });
-    
+
     debug('info', 'Stored recent candidates', {
       newCount: newCandidates.length,
       totalStored: combined.length,
@@ -343,26 +364,31 @@ const addToBuffer = (candidates: CandidateItem[]): void => {
   }
 };
 
-chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse) => {
-  if (message.type === 'FANSLY_TIMELINE_DATA') {
-    addToBuffer(message.candidates);
-    sendResponse({ success: true });
-    return true;
-  }
+chrome.runtime.onMessage.addListener(
+  (message: Message, _sender, sendResponse) => {
+    if (message.type === 'FANSLY_TIMELINE_DATA') {
+      addToBuffer(message.candidates);
+      sendResponse({ success: true });
+      return true;
+    }
 
-  if (message.type === 'FANSLY_CREDENTIALS') {
-    sendCredentialsToServer(message.credentials).catch(() => {
-      // Silently fail - credentials will be retried on next capture
-    });
-    sendResponse({ success: true });
-    return true;
-  }
+    if (message.type === 'FANSLY_CREDENTIALS') {
+      sendCredentialsToServer(message.credentials).catch(() => {
+        // Silently fail - credentials will be retried on next capture
+      });
+      sendResponse({ success: true });
+      return true;
+    }
 
-  return false;
-});
+    return false;
+  }
+);
 
 const processPendingCredentials = async (): Promise<void> => {
-  const storage = await chrome.storage.local.get(['pendingCredentials', 'lastCredentialsSentAt']);
+  const storage = await chrome.storage.local.get([
+    'pendingCredentials',
+    'lastCredentialsSentAt',
+  ]);
   const pending = storage.pendingCredentials;
   const lastSentAt = storage.lastCredentialsSentAt ?? 0;
   const now = Date.now();

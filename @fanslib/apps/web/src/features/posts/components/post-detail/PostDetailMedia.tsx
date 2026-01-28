@@ -6,12 +6,12 @@ import { MediaView } from '~/components/MediaView';
 import { RevealInFinderButton } from '~/components/RevealInFinderButton';
 import { Button } from '~/components/ui/Button';
 import {
-  Dialog,
-  DialogFooter,
-  DialogHeader,
-  DialogModal,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogFooter,
+    DialogHeader,
+    DialogModal,
+    DialogTitle,
+    DialogTrigger,
 } from '~/components/ui/Dialog';
 import { MediaSelectionProvider } from '~/contexts/MediaSelectionContext';
 import { CombinedMediaSelection } from '~/features/library/components/CombinedMediaSelection';
@@ -74,7 +74,7 @@ export const PostDetailMedia = ({ post }: PostDetailMediaProps) => {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      {post.postMedia.map((postMedia, index) => (
+      {post.postMedia.map((postMedia) => (
         <div
           key={postMedia.id}
           className="group relative aspect-square rounded-2xl overflow-hidden bg-base-300"

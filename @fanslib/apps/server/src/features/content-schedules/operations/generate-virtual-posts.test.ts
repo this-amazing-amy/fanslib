@@ -335,7 +335,7 @@ describe("fetchVirtualPosts", () => {
 
     await createTestPost(channel.id, {
       scheduleId: "test-schedule-existing",
-      date: "2026-01-20T12:00:00.000Z",
+      date: new Date("2026-01-20T12:00:00.000Z"),
     });
 
     const virtualPosts = await fetchVirtualPosts({
@@ -345,7 +345,7 @@ describe("fetchVirtualPosts", () => {
     });
 
     const mondaySlot = virtualPosts.find((p) =>
-      p.date.includes("2026-01-20")
+      p.date.toISOString().includes("2026-01-20")
     );
     expect(mondaySlot).toBeUndefined();
   });
@@ -371,7 +371,7 @@ describe("fetchVirtualPosts", () => {
 
     const skipped = skippedRepo.create({
       scheduleId: "test-schedule-skipped",
-      date: "2026-01-20T12:00:00.000Z",
+      date: new Date("2026-01-20T12:00:00.000Z"),
     });
     await skippedRepo.save(skipped);
 
@@ -382,7 +382,7 @@ describe("fetchVirtualPosts", () => {
     });
 
     const mondaySlot = virtualPosts.find((p) =>
-      p.date.includes("2026-01-20")
+      p.date.toISOString().includes("2026-01-20")
     );
     expect(mondaySlot).toBeUndefined();
   });

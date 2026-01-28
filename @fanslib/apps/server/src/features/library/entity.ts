@@ -1,4 +1,3 @@
-import { t } from "elysia";
 import type { Relation } from "typeorm";
 import {
   Column,

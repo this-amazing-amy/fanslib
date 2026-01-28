@@ -15,7 +15,7 @@ export const POST_FIXTURES: PostFixture[] = [
     channelId: "channel-1",
     caption: "Check out this amazing content!",
     status: "draft",
-    date: "2024-01-15",
+    date: new Date("2024-01-15"),
     subredditId: null
   },
   {
@@ -24,14 +24,14 @@ export const POST_FIXTURES: PostFixture[] = [
     subredditId: "subreddit-1",
     caption: "New post here!",
     status: "scheduled",
-    date: "2024-01-16",
+    date: new Date("2024-01-16"),
   },
   {
     id: "post-3",
     channelId: "channel-2",
     caption: "Posted content",
     status: "posted",
-    date: "2024-01-17",
+    date: new Date("2024-01-17"),
     subredditId: null
   },
 ];

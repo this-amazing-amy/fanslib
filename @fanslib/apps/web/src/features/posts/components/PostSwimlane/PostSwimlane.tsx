@@ -1,6 +1,6 @@
+import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
 import { eachDayOfInterval, isSameDay } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
-import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
 import { ScrollArea } from "~/components/ui/ScrollArea";
 import { usePostPreferences } from "~/contexts/PostPreferencesContext";
 import { useChannelsQuery } from "~/lib/queries/channels";
@@ -20,7 +20,8 @@ type PostSwimlaneProps = {
 
 export const PostSwimlane = ({ posts, className, onUpdate }: PostSwimlaneProps) => {
   const { preferences } = usePostPreferences();
-  const { data: channels = [] } = useChannelsQuery();
+  const { data: channelsData } = useChannelsQuery();
+  const channels = useMemo(() => channelsData ?? [], [channelsData]);
   const [isDesktop, setIsDesktop] = useState(true);
 
   useEffect(() => {
@@ -32,24 +33,16 @@ export const PostSwimlane = ({ posts, className, onUpdate }: PostSwimlaneProps) 
     return () => window.removeEventListener("resize", checkDesktop);
   }, []);
 
-  // Fallback to timeline on mobile
-  if (!isDesktop) {
-    return <PostTimeline posts={posts} className={className} onUpdate={onUpdate} />;
-  }
-
   const dateRange = preferences.filter.dateRange;
-  if (!dateRange?.startDate || !dateRange?.endDate) {
-    return <PostTimeline posts={posts} className={className} onUpdate={onUpdate} />;
-  }
+  const hasDateRange = !!(dateRange?.startDate && dateRange?.endDate);
 
-  const days = useMemo(
-    () =>
-      eachDayOfInterval({
-        start: new Date(dateRange.startDate),
-        end: new Date(dateRange.endDate),
-      }),
-    [dateRange.startDate, dateRange.endDate]
-  );
+  const days = useMemo(() => {
+    if (!dateRange?.startDate || !dateRange?.endDate) return [];
+    return eachDayOfInterval({
+      start: new Date(dateRange.startDate),
+      end: new Date(dateRange.endDate),
+    });
+  }, [dateRange?.startDate, dateRange?.endDate]);
 
   // Group posts by day and channel
   // Get channel order and visibility preferences
@@ -70,26 +63,42 @@ export const PostSwimlane = ({ posts, className, onUpdate }: PostSwimlaneProps) 
   );
 
   // Apply order and filter hidden channels
-  const visibleChannels = useMemo(() => channelOrder
-      .map((id) => channels.find((c) => c.id === id))
-      .filter((c): c is NonNullable<typeof c> => c !== undefined && !hiddenChannels.includes(c.id)), [channels, channelOrder, hiddenChannels]);
+  const visibleChannels = useMemo(
+    () =>
+      channelOrder
+        .map((id) => channels.find((c) => c.id === id))
+        .filter((c): c is NonNullable<typeof c> => c !== undefined && !hiddenChannels.includes(c.id)),
+    [channels, channelOrder, hiddenChannels]
+  );
 
-  const grid = useMemo(() => days.map((day) => {
-      const postsByChannel = new Map<string, (Post | VirtualPost)[]>();
+  const grid = useMemo(
+    () =>
+      days.map((day) => {
+        const postsByChannel = new Map<string, (Post | VirtualPost)[]>();
 
-      posts
-        .filter((post) => isSameDay(new Date(post.date), day))
-        .forEach((post) => {
-          const channelId = post.channelId;
-          const existing = postsByChannel.get(channelId) ?? [];
-          postsByChannel.set(channelId, [...existing, post]);
-        });
+        posts
+          .filter((post) => isSameDay(new Date(post.date), day))
+          .forEach((post) => {
+            const channelId = post.channelId;
+            const existing = postsByChannel.get(channelId) ?? [];
+            postsByChannel.set(channelId, [...existing, post]);
+          });
 
-      return {
-        date: day,
-        postsByChannel,
-      };
-    }), [days, posts]);
+        return {
+          date: day,
+          postsByChannel,
+        };
+      }),
+    [days, posts]
+  );
+
+  if (!isDesktop) {
+    return <PostTimeline posts={posts} className={className} onUpdate={onUpdate} />;
+  }
+
+  if (!hasDateRange) {
+    return <PostTimeline posts={posts} className={className} onUpdate={onUpdate} />;
+  }
 
   if (channels.length === 0) {
     return <PostTimeline posts={posts} className={className} onUpdate={onUpdate} />;

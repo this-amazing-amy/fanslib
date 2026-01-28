@@ -112,7 +112,7 @@ export const useSkipScheduleSlotMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ scheduleId, date }: { scheduleId: string; date: string }) => {
+    mutationFn: async ({ scheduleId, date }: { scheduleId: string; date: Date }) => {
       const result = await eden.api['content-schedules']['skipped-slots'].post({
         scheduleId,
         date,

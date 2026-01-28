@@ -30,32 +30,27 @@ export const aggregateDatapoints = (
     day: "numeric",
   });
 
-  const datapointsByDay = new Map<string, { views: number; timestamp: number }>();
-  let cumulativeViews = 0;
-
-  sortedDatapoints.forEach((datapoint) => {
-    cumulativeViews += datapoint.views;
-
-    const datapointDate = new Date(datapoint.timestamp);
-    datapointDate.setHours(0, 0, 0, 0);
-
-    const dateKey = datapointDate.toISOString().split("T")[0] ?? "";
-
-    const existing = datapointsByDay.get(dateKey);
-    if (existing) {
-      existing.views = cumulativeViews;
-    } else {
-      datapointsByDay.set(dateKey, {
+  const datapointsByDay = sortedDatapoints.reduce(
+    (acc, datapoint) => {
+      const cumulativeViews = acc.cumulativeViews + datapoint.views;
+      const datapointDate = new Date(datapoint.timestamp);
+      datapointDate.setHours(0, 0, 0, 0);
+      const dateKey = datapointDate.toISOString().split("T")[0] ?? "";
+      const nextMap = new Map(acc.byDay);
+      nextMap.set(dateKey, {
         views: cumulativeViews,
         timestamp: datapoint.timestamp,
       });
-    }
-  });
 
-  const result: AggregatedDataPoint[] = [];
+      return { cumulativeViews, byDay: nextMap };
+    },
+    {
+      cumulativeViews: 0,
+      byDay: new Map<string, { views: number; timestamp: number }>(),
+    }
+  ).byDay;
   const dayMs = 24 * 60 * 60 * 1000;
 
-  const allDateKeys: string[] = [];
   const lastDatapointDate = new Date(
     sortedDatapoints[sortedDatapoints.length - 1]?.timestamp ?? 0
   );
@@ -63,47 +58,40 @@ export const aggregateDatapoints = (
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const endDate = new Date(Math.min(lastDatapointDate.getTime(), today.getTime()));
+  const totalDays = Math.max(
+    0,
+    Math.floor((endDate.getTime() - postDateObj.getTime()) / dayMs)
+  );
 
-  for (
-    let currentDate = new Date(postDateObj);
-    currentDate <= endDate;
-    currentDate = new Date(currentDate.getTime() + dayMs)
-  ) {
-    allDateKeys.push(currentDate.toISOString().split("T")[0] ?? "");
-  }
+  const allDateKeys = Array.from({ length: totalDays + 1 }, (_, index) =>
+    new Date(postDateObj.getTime() + index * dayMs)
+      .toISOString()
+      .split("T")[0] ?? ""
+  );
 
-  allDateKeys.forEach((dateKey) => {
-    const currentDate = new Date(dateKey + "T00:00:00Z");
-    const daysSincePost = Math.floor(
-      (currentDate.getTime() - postDateObj.getTime()) / dayMs
-    );
-
-    if (datapointsByDay.has(dateKey)) {
+  const aggregated = allDateKeys.reduce(
+    (acc, dateKey) => {
+      const currentDate = new Date(`${dateKey}T00:00:00Z`);
+      const daysSincePost = Math.floor(
+        (currentDate.getTime() - postDateObj.getTime()) / dayMs
+      );
       const data = datapointsByDay.get(dateKey);
-      result.push({
+      const views = data?.views ?? acc.prevViews;
+      const nextPoint: AggregatedDataPoint = {
         date: formatter.format(currentDate),
         daysSincePost,
-        views: data?.views ?? 0,
+        views,
         timestamp: data?.timestamp ?? currentDate.getTime(),
-      });
-    } else {
-      let prevViews = 0;
-      for (let i = result.length - 1; i >= 0; i--) {
-        if (result[i]) {
-          prevViews = result[i]?.views ?? 0;
-          break;
-        }
-      }
+      };
 
-      result.push({
-        date: formatter.format(currentDate),
-        daysSincePost,
-        views: prevViews,
-        timestamp: currentDate.getTime(),
-      });
-    }
-  });
+      return {
+        prevViews: views,
+        result: [...acc.result, nextPoint],
+      };
+    },
+    { prevViews: 0, result: [] as AggregatedDataPoint[] }
+  );
 
-  return result;
+  return aggregated.result;
 };
 

@@ -28,30 +28,33 @@ export const bulkConfirmCandidates = async (
     (c) => c.matchConfidence !== null && c.matchConfidence >= body.threshold && c.matchMethod !== null
   );
 
-  let confirmed = 0;
-  let failed = 0;
-
-  await Promise.all(
+  const results = await Promise.all(
     highConfidenceCandidates.map(async (candidate) => {
-      if (candidate.matchMethod === "exact_filename" || candidate.matchMethod === "fuzzy_filename") {
-        const suggestions = await import("../matching").then((m) =>
-          m.computeMatchSuggestions(candidate)
-        );
-        if (suggestions.length > 0 && suggestions[0]) {
-          try {
-            await confirmMatch(candidate.id, { postMediaId: suggestions[0].postMediaId });
-            confirmed++;
-          } catch {
-            failed++;
-          }
-        } else {
-          failed++;
-        }
-      } else {
-        failed++;
+      if (candidate.matchMethod !== "exact_filename" && candidate.matchMethod !== "fuzzy_filename") {
+        return { confirmed: 0, failed: 1 };
       }
+
+      const suggestions = await import("../matching").then((m) =>
+        m.computeMatchSuggestions(candidate)
+      );
+
+      if (suggestions.length === 0 || !suggestions[0]) {
+        return { confirmed: 0, failed: 1 };
+      }
+
+      return confirmMatch(candidate.id, { postMediaId: suggestions[0].postMediaId })
+        .then(() => ({ confirmed: 1, failed: 0 }))
+        .catch(() => ({ confirmed: 0, failed: 1 }));
     })
   );
 
-  return { confirmed, failed };
+  const totals = results.reduce(
+    (acc, result) => ({
+      confirmed: acc.confirmed + result.confirmed,
+      failed: acc.failed + result.failed,
+    }),
+    { confirmed: 0, failed: 0 }
+  );
+
+  return totals;
 };

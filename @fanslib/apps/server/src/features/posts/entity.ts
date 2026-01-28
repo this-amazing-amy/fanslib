@@ -31,6 +31,9 @@ export class Post {
   @UpdateDateColumn({ name: "updatedAt" })
   updatedAt!: Date;
 
+  @Column({ type: "varchar", nullable: true, name: "postGroupId" })
+  postGroupId: string | null = null;
+
   @Column({ type: "varchar", nullable: true, name: "scheduleId" })
   scheduleId: string | null = null;
 

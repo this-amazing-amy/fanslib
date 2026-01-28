@@ -10,7 +10,7 @@ import {
   FanslyAnalyticsDatapoint,
 } from "../features/analytics/entity";
 import { Channel, ChannelType } from "../features/channels/entity";
-import { ContentSchedule, SkippedScheduleSlot } from "../features/content-schedules/entity";
+import { ContentSchedule, ScheduleChannel, SkippedScheduleSlot } from "../features/content-schedules/entity";
 import { FilterPreset } from "../features/filter-presets/entity";
 import { Hashtag, HashtagChannelStats } from "../features/hashtags/entity";
 import { Media } from "../features/library/entity";
@@ -41,6 +41,7 @@ export const AppDataSource = new DataSource({
     HashtagChannelStats,
     Shoot,
     ContentSchedule,
+    ScheduleChannel,
     SkippedScheduleSlot,
     FilterPreset,
     CaptionSnippet,
@@ -48,7 +49,6 @@ export const AppDataSource = new DataSource({
     FanslyAnalyticsAggregate,
     AnalyticsFetchHistory,
     FanslyMediaCandidate,
-    // Additional entities will be added as features are migrated
   ],
   synchronize: true,
   logging: false,

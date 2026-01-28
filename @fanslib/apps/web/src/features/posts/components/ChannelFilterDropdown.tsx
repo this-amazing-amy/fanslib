@@ -16,7 +16,8 @@ type ChannelFilterDropdownProps = {
 };
 
 export const ChannelFilterDropdown = ({ value = [], onChange }: ChannelFilterDropdownProps) => {
-  const { data: channels = [], isLoading } = useChannelsQuery();
+  const { data: channelsData, isLoading } = useChannelsQuery();
+  const channels = channelsData ?? [];
 
   const handleToggleChannel = (channelId: string) => {
     if (value.includes(channelId)) {

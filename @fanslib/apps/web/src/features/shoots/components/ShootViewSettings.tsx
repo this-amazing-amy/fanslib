@@ -23,7 +23,9 @@ export const ShootViewSettings = () => {
               aria-label="Grid size"
               onChange={(value) => {
                 if (!value) return;
-                updatePreferences({ view: { gridSize: value as "small" | "large" } });
+                updatePreferences({
+                  view: { viewType: preferences.view.viewType, gridSize: value as "small" | "large" },
+                });
               }}
               options={[
                 { value: "small", label: "Small" },

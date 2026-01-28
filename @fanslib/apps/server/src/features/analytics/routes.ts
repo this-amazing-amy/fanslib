@@ -17,9 +17,7 @@ export const analyticsRoutes = new Elysia({ prefix: "/api/analytics" })
     body: UpdateCredentialsFromFetchRequestBodySchema,
     response: t.Object({ success: t.Boolean() }),
   })
-  .get("/datapoints/:postMediaId", async ({ params: { postMediaId } }) => {
-    return fetchDatapoints(postMediaId);
-  }, {
+  .get("/datapoints/:postMediaId", async ({ params: { postMediaId } }) => fetchDatapoints(postMediaId), {
     params: FetchDatapointsRequestParamsSchema,
     response: FetchDatapointsResponseSchema,
   })
@@ -36,7 +34,8 @@ export const analyticsRoutes = new Elysia({ prefix: "/api/analytics" })
       datapoints: t.Number(),
     }),
   })
-  .get("/posts", async ({ query }) => getFanslyPostsWithAnalytics(
+  .get("/posts", ({ query }) =>
+    getFanslyPostsWithAnalytics(
       query.sortBy,
       query.sortDirection,
       query.startDate,

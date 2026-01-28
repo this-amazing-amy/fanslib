@@ -1,21 +1,21 @@
-import { Loader2, Sparkles } from "lucide-react";
-import { isSameMinute } from "date-fns";
-import { useEffect, useMemo, useState } from "react";
+import type { AssignMediaResponseSchema } from "@fanslib/server/schemas";
 import { useQuery } from "@tanstack/react-query";
-import type { AssignMediaResponseSchema, MediaSchema } from "@fanslib/server/schemas";
+import { isSameMinute } from "date-fns";
+import { Loader2, Sparkles } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "~/components/ui/Button";
 import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
-import type { VirtualPost } from "~/lib/virtual-posts";
+import { useCreatePostFromVirtualSlot } from "~/features/posts/hooks/useCreatePostFromVirtualSlot";
+import { eden } from "~/lib/api/eden";
 import { useChannelsQuery } from "~/lib/queries/channels";
 import { useContentSchedulesQuery, useVirtualPostsQuery } from "~/lib/queries/content-schedules";
 import { useAssignMediaMutation } from "~/lib/queries/pipeline";
-import { useCreatePostFromVirtualSlot } from "~/features/posts/hooks/useCreatePostFromVirtualSlot";
-import { eden } from "~/lib/api/eden";
-import { AssignmentDateRange } from "./AssignmentDateRange";
+import type { VirtualPost } from "~/lib/virtual-posts";
 import { AssignmentChannelSelection } from "./AssignmentChannelSelection";
+import { AssignmentDateRange } from "./AssignmentDateRange";
+import { CreatedDraftsList } from "./CreatedDraftsList";
 import { ScheduleBreakdown } from "./ScheduleBreakdown";
 import { UnfilledSlotsList } from "./UnfilledSlotsList";
-import { CreatedDraftsList } from "./CreatedDraftsList";
 
 type AssignmentStepProps = {
   selectedChannelIds: string[];
@@ -28,8 +28,6 @@ type AssignmentStepProps = {
 };
 
 type AssignmentResult = typeof AssignMediaResponseSchema.static;
-type Media = typeof MediaSchema.static;
-
 export const AssignmentStep = ({
   selectedChannelIds,
   onSelectedChannelIdsChange,
@@ -41,8 +39,16 @@ export const AssignmentStep = ({
 }: AssignmentStepProps) => {
   const { data: channelsData } = useChannelsQuery();
   const { data: schedulesData } = useContentSchedulesQuery();
-  const channels = channelsData ?? [];
-  const schedules = schedulesData ?? [];
+  const channels = useMemo(() => channelsData ?? [], [channelsData]);
+  const schedules = (schedulesData ?? []).filter(
+    (schedule): schedule is (typeof schedule & { channelId: string }) => schedule.channelId !== null
+  );
+  const schedulesForBreakdown = schedules.map((schedule) => ({
+    ...schedule,
+    skippedSlots: schedule.skippedSlots?.map((slot) => ({
+      date: slot.date.toISOString(),
+    })),
+  }));
 
   // Always calculate slot counts for all channels, regardless of selection
   const allChannelIds = useMemo(
@@ -61,7 +67,12 @@ export const AssignmentStep = ({
 
   const [assignmentResult, setAssignmentResult] = useState<AssignmentResult | null>(null);
   const [unfilledSlotsState, setUnfilledSlotsState] = useState<AssignmentResult["unfilled"]>([]);
-  const [draftToAssignMedia, setDraftToAssignMedia] = useState<{ id: string; channelId: string; date: string; scheduleId: string | null } | null>(null);
+  const [draftToAssignMedia, setDraftToAssignMedia] = useState<{
+    id: string;
+    channelId: string;
+    date: Date;
+    scheduleId: string | null;
+  } | null>(null);
 
   const shouldFetchDrafts = assignmentResult !== null && selectedChannelIds.length > 0;
 
@@ -155,7 +166,7 @@ export const AssignmentStep = ({
       />
       <ScheduleBreakdown
         selectedChannelIds={selectedChannelIds}
-        schedules={schedules}
+        schedules={schedulesForBreakdown}
         fromDate={fromDate}
         toDate={toDate}
       />
@@ -232,7 +243,7 @@ export const AssignmentStep = ({
             }
           }}
           media={[]}
-          initialDate={new Date(draftToAssignMedia.date)}
+          initialDate={draftToAssignMedia.date}
           initialChannelId={draftToAssignMedia.channelId}
           scheduleId={draftToAssignMedia.scheduleId ?? undefined}
           initialStatus="draft"

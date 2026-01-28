@@ -1,16 +1,25 @@
 import { t } from "elysia";
 import { db } from "../../../../lib/db";
 import { ChannelSchema } from "../../../channels/entity";
-import { ContentSchedule, ContentScheduleSchema } from "../../entity";
+import { ContentSchedule, ContentScheduleSchema, ScheduleChannelSchema, SkippedScheduleSlotSchema } from "../../entity";
 
 export const FetchContentScheduleByIdRequestParamsSchema = t.Object({
   id: t.String(),
 });
 
+export const ScheduleChannelWithChannelSchema = t.Composite([
+  ScheduleChannelSchema,
+  t.Object({
+    channel: ChannelSchema,
+  }),
+]);
+
 export const FetchContentScheduleByIdResponseSchema = t.Composite([
   ContentScheduleSchema,
   t.Object({
-    channel: ChannelSchema,
+    channel: t.Nullable(ChannelSchema),
+    skippedSlots: t.Array(SkippedScheduleSlotSchema),
+    scheduleChannels: t.Array(ScheduleChannelWithChannelSchema),
   }),
 ]);
 
@@ -18,11 +27,23 @@ export const fetchContentScheduleById = async (id: string): Promise<typeof Fetch
   const dataSource = await db();
   const repository = dataSource.getRepository(ContentSchedule);
 
-  return repository.findOne({
+  const schedule = await repository.findOne({
     where: { id },
     relations: {
       channel: { type: true, defaultHashtags: true },
+      skippedSlots: true,
+      scheduleChannels: {
+        channel: { type: true, defaultHashtags: true },
+      },
     },
   });
+
+  if (!schedule) return null;
+
+  return {
+    ...schedule,
+    channel: schedule.channel ?? null,
+    scheduleChannels: schedule.scheduleChannels ?? [],
+  };
 };
 

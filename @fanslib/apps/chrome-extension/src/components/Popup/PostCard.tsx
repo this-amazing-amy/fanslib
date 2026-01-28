@@ -188,13 +188,14 @@ export const PostCard = ({
           const isVideoFile = isVideo(m.media.relativePath);
           const loadState = imageLoadStates.get(idx);
           const thumbnailUrl = getMediaThumbnailUrl(apiUrl, m.media.id);
+          const mediaKey = `${post.id}-${m.media.id}`;
 
           const canReveal = hasLibraryPath && bridgeAvailable === true;
 
           if (hasError) {
             return (
               <div
-                key={`${post.id}-${idx}-fallback`}
+                key={`${mediaKey}-fallback`}
                 onClick={() =>
                   canReveal && handleRevealInFinder(m.media.relativePath)
                 }
@@ -204,9 +205,9 @@ export const PostCard = ({
                     ? `Failed to load thumbnail\nURL: ${thumbnailUrl}\nMedia ID: ${m.media.id}`
                     : canReveal
                       ? 'Click to reveal in folder'
-                    : isVideoFile
-                      ? 'Video file'
-                      : 'Image'
+                      : isVideoFile
+                        ? 'Video file'
+                        : 'Image'
                 }
               >
                 {isVideoFile ? (
@@ -215,9 +216,7 @@ export const PostCard = ({
                   <>
                     <ImageIcon className='w-6 h-6 text-base-content/60' />
                     <div className='absolute inset-0 flex items-center justify-center bg-error/10 rounded-lg'>
-                      <span className='text-[8px] text-error font-bold'>
-                        !
-                      </span>
+                      <span className='text-[8px] text-error font-bold'>!</span>
                     </div>
                   </>
                 )}
@@ -227,7 +226,7 @@ export const PostCard = ({
 
           return (
             <div
-              key={thumbnailUrl}
+              key={mediaKey}
               className='relative'
               onClick={() =>
                 canReveal && handleRevealInFinder(m.media.relativePath)

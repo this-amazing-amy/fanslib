@@ -23,22 +23,26 @@ const normalizeHashtagName = (name: string): string => {
 export const HashtagSelector = ({ value, onChange, disabled = false }: HashtagSelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { data: allHashtags = [], isLoading } = useHashtagsQuery();
+  const { data: hashtagsData, isLoading } = useHashtagsQuery();
+  const allHashtags = useMemo(() => hashtagsData ?? [], [hashtagsData]);
   const createHashtagMutation = useCreateHashtagMutation();
 
   const selectedIds = useMemo(() => new Set(value.map((h) => h.id)), [value]);
 
-  const availableHashtags = useMemo(() => {
-    return allHashtags.filter((hashtag) => !selectedIds.has(hashtag.id));
-  }, [allHashtags, selectedIds]);
+  const availableHashtags = useMemo(
+    () => allHashtags.filter((hashtag) => !selectedIds.has(hashtag.id)),
+    [allHashtags, selectedIds]
+  );
 
-  const filteredHashtags = useMemo(() => {
-    if (!searchQuery.trim()) return availableHashtags;
-    const normalizedQuery = searchQuery.toLowerCase();
-    return availableHashtags.filter((hashtag) =>
-      hashtag.name.toLowerCase().includes(normalizedQuery)
-    );
-  }, [availableHashtags, searchQuery]);
+  const filteredHashtags = useMemo(
+    () =>
+      !searchQuery.trim()
+        ? availableHashtags
+        : availableHashtags.filter((hashtag) =>
+            hashtag.name.toLowerCase().includes(searchQuery.toLowerCase())
+          ),
+    [availableHashtags, searchQuery]
+  );
 
   const canCreateNew = useMemo(() => {
     if (!searchQuery.trim()) return false;
@@ -65,6 +69,9 @@ export const HashtagSelector = ({ value, onChange, disabled = false }: HashtagSe
     const normalizedName = normalizeHashtagName(searchQuery);
     try {
       const newHashtag = await createHashtagMutation.mutateAsync({ name: normalizedName });
+      if (!newHashtag) {
+        return;
+      }
       onChange([...value, newHashtag]);
       setSearchQuery("");
     } catch (error) {
@@ -109,7 +116,7 @@ export const HashtagSelector = ({ value, onChange, disabled = false }: HashtagSe
                       onSelect={handleCreateNew}
                       className="text-primary font-medium"
                     >
-                      <span>+ Create "{normalizeHashtagName(searchQuery)}"</span>
+                      <span>+ Create “{normalizeHashtagName(searchQuery)}”</span>
                     </CommandItem>
                   )}
                 </CommandGroup>

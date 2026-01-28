@@ -2,9 +2,9 @@ import { ListX } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { Tooltip } from "~/components/ui/Tooltip";
 import type { PostFilterPreferences } from "~/contexts/PostPreferencesContext";
-import { PostFiltersProvider, usePostFilters } from "./PostFiltersContext";
 import { PostFilterDropdown } from "./PostFilterDropdown";
 import { PostFilterItemRenderer } from "./PostFilterItemRenderer";
+import { PostFiltersProvider, usePostFilters } from "./PostFiltersContext";
 
 type PostFiltersProps = {
   value: PostFilterPreferences;
@@ -25,7 +25,7 @@ const PostFiltersContent = () => {
           <div className="flex-grow flex flex-wrap gap-2">
             {filters.map((filter, index) => (
               <PostFilterItemRenderer
-                key={`${filter.type}-${index}`}
+                key={filter.type}
                 item={filter}
                 onChange={(item) => updateFilter(index, item)}
                 onRemove={() => removeFilter(index)}
@@ -46,6 +46,8 @@ const PostFiltersContent = () => {
   );
 };
 
-export const PostFilters = ({ value, onFilterChange }: PostFiltersProps) => <PostFiltersProvider value={value} onChange={onFilterChange}>
-      <PostFiltersContent />
-    </PostFiltersProvider>;
+export const PostFilters = ({ value, onFilterChange }: PostFiltersProps) => (
+  <PostFiltersProvider value={value} onChange={onFilterChange}>
+    <PostFiltersContent />
+  </PostFiltersProvider>
+);

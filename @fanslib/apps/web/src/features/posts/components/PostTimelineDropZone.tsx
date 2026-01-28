@@ -39,7 +39,7 @@ export const PostTimelineDropZone = ({
   const getDropTargetChannelId = (post: Post | VirtualPost): string =>
     isVirtualPost(post) ? post.channelId : post.channel.id;
   const getDropTargetScheduleId = (post: Post | VirtualPost): string | undefined =>
-    isVirtualPost(post) ? post.scheduleId : post.schedule?.id ?? undefined;
+    isVirtualPost(post) ? post.scheduleId ?? undefined : post.schedule?.id ?? undefined;
 
   const { isOver, dragHandlers, setIsOver } = useDragOver({
     onDrop: async () => {

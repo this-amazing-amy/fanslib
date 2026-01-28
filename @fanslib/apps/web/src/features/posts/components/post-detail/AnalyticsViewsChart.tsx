@@ -1,5 +1,5 @@
 import { ParentSize } from '@visx/responsive';
-import { XYChart, AreaSeries, Axis, Grid, Tooltip, buildChartTheme } from '@visx/xychart';
+import { AreaSeries, Axis, Grid, Tooltip, XYChart, buildChartTheme } from '@visx/xychart';
 import { useMemo } from 'react';
 import { Button } from '~/components/ui/Button';
 import { aggregateDatapoints } from '~/lib/analytics/aggregate';
@@ -81,7 +81,7 @@ export const AnalyticsViewsChart = ({
       <h3 className="text-lg font-semibold mb-4">Views Over Time</h3>
       <div className="relative" style={{ minHeight: '300px' }}>
         <ParentSize>
-          {({ width, height }) => (
+          {({ width }) => (
             <XYChart
               theme={chartTheme}
               xScale={{ type: 'time' }}

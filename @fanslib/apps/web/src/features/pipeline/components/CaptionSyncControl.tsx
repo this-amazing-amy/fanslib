@@ -1,9 +1,9 @@
 import type { CaptionQueueItemSchema } from "@fanslib/server/schemas";
-import { format } from "date-fns";
 import { useQueries } from "@tanstack/react-query";
-import { Checkbox } from "~/components/ui/Checkbox";
+import { format } from "date-fns";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
+import { Checkbox } from "~/components/ui/Checkbox";
 import { eden } from "~/lib/api/eden";
 import { cn } from "~/lib/cn";
 
@@ -20,10 +20,6 @@ export const CaptionSyncControl = ({
   selectedPostIds,
   onSelectionChange,
 }: CaptionSyncControlProps) => {
-  if (linkedPosts.length === 0) {
-    return null;
-  }
-
   const postQueries = useQueries({
     queries: linkedPosts.map((linked) => ({
       queryKey: ["posts", linked.postId],
@@ -37,6 +33,10 @@ export const CaptionSyncControl = ({
       enabled: !!linked.postId,
     })),
   });
+
+  if (linkedPosts.length === 0) {
+    return null;
+  }
 
   const toggleLinkedPost = (postId: string) => {
     const next = selectedPostIds.includes(postId)

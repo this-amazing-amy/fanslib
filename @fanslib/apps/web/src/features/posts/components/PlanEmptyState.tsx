@@ -9,7 +9,7 @@ export const PlanEmptyState = () => {
     <EmptyState
       icon={<Calendar className="h-12 w-12" />}
       title="No channels configured"
-      description="You don't have any channels to post your content to yet."
+      description="You do not have any channels to post your content to yet."
       action={{
         label: "Add Channel",
         onClick: () => {

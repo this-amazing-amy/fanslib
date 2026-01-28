@@ -1,5 +1,5 @@
+import { useCallback, useEffect, useState } from 'react';
 import type { CandidateItem } from '../../content/fansly-interceptor';
-import { useEffect, useState } from 'react';
 import { eden } from '../../lib/api';
 import { getSettings } from '../../lib/storage';
 import { debug } from '../../lib/utils';
@@ -35,113 +35,76 @@ export const StatisticsTab = () => {
   const [loading, setLoading] = useState(true);
   const [webUrl, setWebUrl] = useState<string | null>(null);
   const [recentCandidates, setRecentCandidates] = useState<CandidateItem[]>([]);
-  const [postStatuses, setPostStatuses] = useState<Map<string, PostStatus>>(new Map());
+  const [postStatuses, setPostStatuses] = useState<Map<string, PostStatus>>(
+    new Map()
+  );
 
-  useEffect(() => {
-    debug('info', 'StatisticsTab mounted, loading status', {
-      component: 'StatisticsTab',
-      action: 'mount',
-    });
-    loadStatus();
-    loadRecentCandidates().then((candidates) => {
-      if (candidates && candidates.length > 0) {
-        loadPostStatuses(candidates);
-      }
-    });
+  const loadPostStatuses = useCallback(
+    async (candidatesToCheck?: CandidateItem[]) => {
+      const candidates = candidatesToCheck ?? recentCandidates;
+      if (candidates.length === 0) return;
 
-    const storageListener = (
-      changes: Record<string, chrome.storage.StorageChange>,
-      areaName: string
-    ) => {
-      if (areaName === 'local') {
-        if (changes.recentCandidates) {
-          const newCandidates = Array.isArray(changes.recentCandidates.newValue)
-            ? (changes.recentCandidates.newValue as CandidateItem[])
-            : [];
-          setRecentCandidates(newCandidates);
-          if (newCandidates.length > 0) {
-            loadPostStatuses(newCandidates);
+      try {
+        const settings = await getSettings();
+        const api = eden(settings.apiUrl);
+
+        const response = await api.api.analytics.candidates.get({
+          query: {},
+        });
+
+        if (response.error || !response.data) {
+          debug('warn', 'Failed to load candidate statuses', {
+            component: 'StatisticsTab',
+            action: 'loadPostStatuses',
+            error: response.error,
+          });
+          return;
+        }
+
+        const allCandidates = response.data.items ?? [];
+        const statusMap = new Map<string, PostStatus>();
+
+        candidates.forEach((candidate) => {
+          const foundCandidate = allCandidates.find(
+            (c) => c.fanslyStatisticsId === candidate.fanslyStatisticsId
+          );
+
+          if (foundCandidate) {
+            statusMap.set(candidate.fanslyStatisticsId, {
+              synced: true,
+              candidateStatus: foundCandidate.status,
+              syncedAt: foundCandidate.capturedAt
+                ? new Date(foundCandidate.capturedAt).getTime()
+                : undefined,
+            });
+          } else {
+            statusMap.set(candidate.fanslyStatisticsId, {
+              synced: false,
+              candidateStatus: null,
+            });
           }
-        }
-        if (changes.lastSyncAt || changes.isSyncing || changes.lastSyncCreated) {
-          loadStatus();
-          loadPostStatuses();
-        }
-      }
-    };
+        });
 
-    chrome.storage.onChanged.addListener(storageListener);
-
-    const statusRefreshInterval = setInterval(() => {
-      loadPostStatuses();
-    }, 30000);
-
-    return () => {
-      chrome.storage.onChanged.removeListener(storageListener);
-      clearInterval(statusRefreshInterval);
-    };
-  }, []);
-
-  const loadPostStatuses = async (candidatesToCheck?: CandidateItem[]) => {
-    const candidates = candidatesToCheck ?? recentCandidates;
-    if (candidates.length === 0) return;
-
-    try {
-      const settings = await getSettings();
-      const api = eden(settings.apiUrl);
-
-      const response = await api.api.analytics.candidates.get({
-        query: {},
-      });
-
-      if (response.error || !response.data) {
-        debug('warn', 'Failed to load candidate statuses', {
+        setPostStatuses(statusMap);
+      } catch (error) {
+        debug('error', 'Failed to load post statuses', {
           component: 'StatisticsTab',
           action: 'loadPostStatuses',
-          error: response.error,
+          error,
+          errorMessage: error instanceof Error ? error.message : String(error),
         });
-        return;
       }
+    },
+    [recentCandidates]
+  );
 
-      const allCandidates = response.data.items ?? [];
-      const statusMap = new Map<string, PostStatus>();
-
-      candidates.forEach((candidate) => {
-        const foundCandidate = allCandidates.find(
-          (c) => c.fanslyStatisticsId === candidate.fanslyStatisticsId
-        );
-
-        if (foundCandidate) {
-          statusMap.set(candidate.fanslyStatisticsId, {
-            synced: true,
-            candidateStatus: foundCandidate.status,
-            syncedAt: foundCandidate.capturedAt
-              ? new Date(foundCandidate.capturedAt).getTime()
-              : undefined,
-          });
-        } else {
-          statusMap.set(candidate.fanslyStatisticsId, {
-            synced: false,
-            candidateStatus: null,
-          });
-        }
-      });
-
-      setPostStatuses(statusMap);
-    } catch (error) {
-      debug('error', 'Failed to load post statuses', {
-        component: 'StatisticsTab',
-        action: 'loadPostStatuses',
-        error,
-        errorMessage: error instanceof Error ? error.message : String(error),
-      });
-    }
-  };
-
-  const loadRecentCandidates = async (): Promise<CandidateItem[]> => {
+  const loadRecentCandidates = useCallback(async (): Promise<
+    CandidateItem[]
+  > => {
     try {
       const result = await chrome.storage.local.get(['recentCandidates']);
-      const candidates = (result.recentCandidates as CandidateItem[] | undefined) ?? [];
+      const candidates =
+        (result.recentCandidates as CandidateItem[] | undefined) ?? [];
       setRecentCandidates(candidates);
       return candidates;
     } catch (error) {
@@ -153,9 +116,9 @@ export const StatisticsTab = () => {
       });
       return [];
     }
-  };
+  }, []);
 
-  const loadStatus = async () => {
+  const loadStatus = useCallback(async () => {
     debug('debug', 'Starting to load statistics status', {
       component: 'StatisticsTab',
       action: 'loadStatus',
@@ -220,7 +183,56 @@ export const StatisticsTab = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    debug('info', 'StatisticsTab mounted, loading status', {
+      component: 'StatisticsTab',
+      action: 'mount',
+    });
+    loadStatus();
+    loadRecentCandidates().then((candidates) => {
+      if (candidates && candidates.length > 0) {
+        loadPostStatuses(candidates);
+      }
+    });
+
+    const storageListener = (
+      changes: Record<string, chrome.storage.StorageChange>,
+      areaName: string
+    ) => {
+      if (areaName === 'local') {
+        if (changes.recentCandidates) {
+          const newCandidates = Array.isArray(changes.recentCandidates.newValue)
+            ? (changes.recentCandidates.newValue as CandidateItem[])
+            : [];
+          setRecentCandidates(newCandidates);
+          if (newCandidates.length > 0) {
+            loadPostStatuses(newCandidates);
+          }
+        }
+        if (
+          changes.lastSyncAt ||
+          changes.isSyncing ||
+          changes.lastSyncCreated
+        ) {
+          loadStatus();
+          loadPostStatuses();
+        }
+      }
+    };
+
+    chrome.storage.onChanged.addListener(storageListener);
+
+    const statusRefreshInterval = setInterval(() => {
+      loadPostStatuses();
+    }, 30000);
+
+    return () => {
+      chrome.storage.onChanged.removeListener(storageListener);
+      clearInterval(statusRefreshInterval);
+    };
+  }, [loadPostStatuses, loadRecentCandidates, loadStatus]);
 
   const formatDate = (timestamp: number): string => {
     const timestampMs = timestamp < 10000000000 ? timestamp * 1000 : timestamp;
@@ -285,14 +297,11 @@ export const StatisticsTab = () => {
     }
   };
 
-  const getPostStatus = (statisticsId: string): PostStatus => {
-    return (
-      postStatuses.get(statisticsId) ?? {
-        synced: false,
-        candidateStatus: null,
-      }
-    );
-  };
+  const getPostStatus = (statisticsId: string): PostStatus =>
+    postStatuses.get(statisticsId) ?? {
+      synced: false,
+      candidateStatus: null,
+    };
 
   const getSyncBadge = (status: PostStatus) => {
     if (!status.synced) {
@@ -341,8 +350,12 @@ export const StatisticsTab = () => {
             <div className='card-body p-3'>
               <div className='flex items-start justify-between gap-2'>
                 <div className='flex-1'>
-                  <div className='font-semibold text-error text-sm'>Sync Error</div>
-                  <div className='text-xs text-error/80 mt-1'>{syncStatus.lastError}</div>
+                  <div className='font-semibold text-error text-sm'>
+                    Sync Error
+                  </div>
+                  <div className='text-xs text-error/80 mt-1'>
+                    {syncStatus.lastError}
+                  </div>
                 </div>
                 <button
                   onClick={clearError}
@@ -395,8 +408,12 @@ export const StatisticsTab = () => {
             ) : (
               <div className='space-y-2'>
                 <div className='text-sm'>
-                  <span className='text-base-content/70'>Candidates pending: </span>
-                  <span className='font-semibold'>{syncStatus.pendingCount}</span>
+                  <span className='text-base-content/70'>
+                    Candidates pending:{' '}
+                  </span>
+                  <span className='font-semibold'>
+                    {syncStatus.pendingCount}
+                  </span>
                 </div>
                 {syncStatus.pendingCount > 0 && webUrl && (
                   <button
@@ -440,7 +457,10 @@ export const StatisticsTab = () => {
                     >
                       <div className='flex items-start justify-between gap-2'>
                         <div className='flex-1 min-w-0'>
-                          <div className='font-medium truncate text-sm' title={candidate.filename}>
+                          <div
+                            className='font-medium truncate text-sm'
+                            title={candidate.filename}
+                          >
                             {candidate.filename}
                           </div>
                           {candidate.caption && (
@@ -452,7 +472,9 @@ export const StatisticsTab = () => {
                             </div>
                           )}
                           <div className='flex items-center gap-2 mt-2 flex-wrap'>
-                            <span className='badge badge-xs'>{candidate.mediaType}</span>
+                            <span className='badge badge-xs'>
+                              {candidate.mediaType}
+                            </span>
                             {getSyncBadge(status)}
                             {getMatchBadge(status)}
                           </div>

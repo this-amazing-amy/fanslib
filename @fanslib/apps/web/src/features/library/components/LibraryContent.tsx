@@ -90,7 +90,7 @@ export const LibraryContent = ({ showScan = true, contentClassName }: LibraryCon
                 <Gallery
                   medias={(mediaList?.items as Media[] | undefined) ?? []}
                   error={error ? (error instanceof Error ? error.message : "Unknown error") : undefined}
-                  onScan={showScan ? handleScan : undefined}
+                  onScan={showScan ? handleScan : () => {}}
                 />
               )}
             </div>

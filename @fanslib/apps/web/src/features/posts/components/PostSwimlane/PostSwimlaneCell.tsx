@@ -48,7 +48,7 @@ export const PostSwimlaneCell = ({
           initialCaption: draggedPost.caption ?? undefined,
           initialChannelId: channelId,
           initialDate: date,
-          scheduleId: isVirtualPost(draggedPost) ? draggedPost.scheduleId : draggedPost.schedule?.id,
+          scheduleId: isVirtualPost(draggedPost) ? draggedPost.scheduleId ?? undefined : draggedPost.schedule?.id,
         });
         endPostDrag();
       }

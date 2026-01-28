@@ -51,13 +51,12 @@ export const seedChannelFixtures = async () => {
     CHANNEL_FIXTURES.map(async (fixture) => {
       const existing = await channelRepo.findOne({ where: { id: fixture.id } });
       if (!existing) {
-        const channel = channelRepo.create({
+        await channelRepo.insert({
           id: fixture.id,
           name: fixture.name,
           typeId: fixture.typeId,
           description: fixture.description,
         });
-        await channelRepo.save(channel);
       }
     })
   );

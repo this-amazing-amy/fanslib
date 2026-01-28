@@ -1,23 +1,23 @@
-import { useMemo, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
-import {
-  type CandidateStatus,
-  useBulkConfirmCandidatesMutation,
-  useCandidatesQuery,
-  useConfirmMatchMutation,
-  useIgnoreCandidateMutation,
-  useUnignoreCandidateMutation,
-  useUnmatchCandidateMutation,
-} from "~/lib/queries/analytics";
-import { usePostsQuery } from "~/lib/queries/posts";
+import { useQueryClient } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
 import { ErrorState } from "~/components/ui/ErrorState/ErrorState";
 import { Input } from "~/components/ui/Input/Input";
 import { Skeleton } from "~/components/ui/Skeleton";
+import { usePostDrag } from "~/contexts/PostDragContext";
+import { PostTimeline } from "~/features/posts/components/PostTimeline";
+import {
+    type CandidateStatus,
+    useBulkConfirmCandidatesMutation,
+    useCandidatesQuery,
+    useConfirmMatchMutation,
+    useIgnoreCandidateMutation,
+    useUnignoreCandidateMutation,
+    useUnmatchCandidateMutation,
+} from "~/lib/queries/analytics";
+import { usePostsQuery } from "~/lib/queries/posts";
 import { CandidateCard } from "./CandidateCard";
 import { SelectPostMediaDialog } from "./SelectPostMediaDialog";
-import { PostTimeline } from "~/features/posts/components/PostTimeline";
-import { usePostDrag } from "~/contexts/PostDragContext";
 
 type Post = typeof PostWithRelationsSchema.static;
 
@@ -68,24 +68,33 @@ export const MatchingPage = () => {
     await refetchPostsQuery();
   };
   
-  const filteredCandidates = useMemo(() => {
-    const filtered = data?.items.filter((candidate) => candidate.status === selectedStatus) ?? [];
-    return [...filtered].sort((a, b) => a.fanslyCreatedAt - b.fanslyCreatedAt);
-  }, [data?.items, selectedStatus]);
+  const filteredCandidates = useMemo(
+    () =>
+      (data?.items ?? [])
+        .filter((candidate) => candidate.status === selectedStatus)
+        .sort((a, b) => a.fanslyCreatedAt - b.fanslyCreatedAt),
+    [data?.items, selectedStatus]
+  );
   
-  const matchedPostMediaIds = useMemo(() => {
-    return new Set(
-      data?.items
-        .filter((candidate) => candidate.status === "matched" && candidate.matchedPostMediaId)
-        .map((candidate) => candidate.matchedPostMediaId!)
-    );
-  }, [data?.items]);
+  const matchedPostMediaIds = useMemo(
+    () =>
+      new Set(
+        (data?.items ?? []).flatMap((candidate) =>
+          candidate.status === "matched" && candidate.matchedPostMediaId
+            ? [candidate.matchedPostMediaId]
+            : []
+        )
+      ),
+    [data?.items]
+  );
   
-  const posts = useMemo(() => {
-    return allPosts
-      .slice(0, 30)
-      .filter((post) => post.postMedia.some((pm) => !matchedPostMediaIds.has(pm.id)));
-  }, [allPosts, matchedPostMediaIds]);
+  const posts = useMemo(
+    () =>
+      allPosts
+        .slice(0, 30)
+        .filter((post) => post.postMedia.some((pm) => !matchedPostMediaIds.has(pm.id))),
+    [allPosts, matchedPostMediaIds]
+  );
 
   const confirmMatchMutation = useConfirmMatchMutation();
   const ignoreMutation = useIgnoreCandidateMutation();

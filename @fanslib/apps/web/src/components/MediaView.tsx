@@ -5,9 +5,10 @@ import { cn } from "~/lib/cn";
 import { getMediaFileUrl } from "~/lib/media-urls";
 
 type Media = typeof MediaSchema.static;
+type MediaPreview = Pick<Media, "id" | "name" | "type">;
 
 type MediaViewProps = {
-  media: Media;
+  media: MediaPreview;
   className?: string;
   controls?: boolean;
   linkToMediaDetail?: boolean;

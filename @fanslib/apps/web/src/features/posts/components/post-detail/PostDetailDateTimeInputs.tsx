@@ -21,7 +21,7 @@ export const PostDetailDateTimeInputs = ({ post }: PostDetailDateTimeInputsProps
       await updatePostMutation.mutateAsync({
         id: post.id,
         updates: {
-          date: date.toISOString(),
+          date,
         },
       });
     } catch (error) {

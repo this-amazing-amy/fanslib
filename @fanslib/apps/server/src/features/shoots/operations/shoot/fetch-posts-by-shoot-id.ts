@@ -42,7 +42,7 @@ export const fetchPostsByShootId = async (
     relations: ["media"],
   });
 
-  if (!shoot || !shoot.media || shoot.media.length === 0) {
+  if (!shoot?.media?.length) {
     return [];
   }
 

@@ -27,8 +27,8 @@ export const useCandidatesQuery = () =>
     staleTime: 0,
   });
 
-export const useConfirmMatchMutation = () => {
-  return useMutation({
+export const useConfirmMatchMutation = () =>
+  useMutation({
     mutationFn: async ({ candidateId, postMediaId }: { candidateId: string; postMediaId: string }) => {
       const { data, error } = await eden.api.analytics.candidates['by-id']({ id: candidateId }).match.post({
         postMediaId,
@@ -37,20 +37,18 @@ export const useConfirmMatchMutation = () => {
       return data;
     },
   });
-};
 
-export const useIgnoreCandidateMutation = () => {
-  return useMutation({
+export const useIgnoreCandidateMutation = () =>
+  useMutation({
     mutationFn: async (candidateId: string) => {
       const { data, error } = await eden.api.analytics.candidates['by-id']({ id: candidateId }).ignore.post();
       if (error) throw error;
       return data;
     },
   });
-};
 
-export const useBulkConfirmCandidatesMutation = () => {
-  return useMutation({
+export const useBulkConfirmCandidatesMutation = () =>
+  useMutation({
     mutationFn: async (threshold: number) => {
       const { data, error } = await eden.api.analytics.candidates['bulk-confirm'].post({
         threshold,
@@ -59,27 +57,24 @@ export const useBulkConfirmCandidatesMutation = () => {
       return data;
     },
   });
-};
 
-export const useUnmatchCandidateMutation = () => {
-  return useMutation({
+export const useUnmatchCandidateMutation = () =>
+  useMutation({
     mutationFn: async (candidateId: string) => {
       const { data, error } = await eden.api.analytics.candidates['by-id']({ id: candidateId }).unmatch.post();
       if (error) throw error;
       return data;
     },
   });
-};
 
-export const useUnignoreCandidateMutation = () => {
-  return useMutation({
+export const useUnignoreCandidateMutation = () =>
+  useMutation({
     mutationFn: async (candidateId: string) => {
       const { data, error } = await eden.api.analytics.candidates['by-id']({ id: candidateId }).unignore.post();
       if (error) throw error;
       return data;
     },
   });
-};
 
 export const useHashtagAnalyticsQuery = () =>
   useQuery({

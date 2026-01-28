@@ -1,5 +1,5 @@
 import { CheckCircle, Clock, XCircle } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { eden } from '../../lib/api';
 import { DEFAULT_API_URL } from '../../lib/storage';
 
@@ -22,13 +22,16 @@ export const CredentialsStatus = ({ apiUrl }: CredentialsStatusProps) => {
     error: null,
   });
 
-  const loadStatus = async () => {
-    const urlToCheck = apiUrl.trim() || DEFAULT_API_URL;
+  const loadStatus = useCallback(async () => {
+    const trimmedApiUrl = apiUrl.trim();
+    const urlToCheck = trimmedApiUrl === '' ? DEFAULT_API_URL : trimmedApiUrl;
     setState((prev) => ({ ...prev, loading: true, error: null }));
 
     try {
       const api = eden(urlToCheck);
-      const credentialsResponse = await api.api.settings['fansly-credentials'].get({
+      const credentialsResponse = await api.api.settings[
+        'fansly-credentials'
+      ].get({
         fetch: {
           signal: AbortSignal.timeout(5000),
         },
@@ -38,14 +41,18 @@ export const CredentialsStatus = ({ apiUrl }: CredentialsStatusProps) => {
         throw new Error('Failed to fetch credentials');
       }
 
-      const credentials = credentialsResponse.data;
-      const hasCredentials = !!(
+      const responseData = credentialsResponse.data;
+      const credentials = responseData?.credentials ?? null;
+      const hasCredentials =
         credentials &&
         typeof credentials === 'object' &&
-        (credentials.fanslyAuth || credentials.fanslySessionId)
-      );
+        [credentials.fanslyAuth, credentials.fanslySessionId].some(
+          (value) => value !== undefined && value !== null && value !== ''
+        );
 
-      const storageResult = await chrome.storage.local.get(['lastCredentialsUpdateAt']);
+      const storageResult = await chrome.storage.local.get([
+        'lastCredentialsUpdateAt',
+      ]);
       const lastUpdateAt = storageResult.lastCredentialsUpdateAt ?? null;
 
       setState({
@@ -62,7 +69,7 @@ export const CredentialsStatus = ({ apiUrl }: CredentialsStatusProps) => {
         error: err instanceof Error ? err.message : 'Unknown error',
       });
     }
-  };
+  }, [apiUrl]);
 
   useEffect(() => {
     loadStatus();
@@ -71,7 +78,9 @@ export const CredentialsStatus = ({ apiUrl }: CredentialsStatusProps) => {
       loadStatus();
     }, 5000);
 
-    const storageListener = (changes: Record<string, chrome.storage.StorageChange>) => {
+    const storageListener = (
+      changes: Record<string, chrome.storage.StorageChange>
+    ) => {
       if ('lastCredentialsUpdateAt' in changes) {
         loadStatus();
       }
@@ -83,7 +92,7 @@ export const CredentialsStatus = ({ apiUrl }: CredentialsStatusProps) => {
       clearInterval(interval);
       chrome.storage.onChanged.removeListener(storageListener);
     };
-  }, [apiUrl]);
+  }, [loadStatus]);
 
   const formatTimestamp = (timestamp: number | null): string => {
     if (!timestamp) return 'Never';
@@ -146,9 +155,7 @@ export const CredentialsStatus = ({ apiUrl }: CredentialsStatusProps) => {
           </div>
           <div className='text-xs text-base-content/60 flex items-center gap-1'>
             <Clock className='w-3 h-3' />
-            <span>
-              Last received: {formatTimestamp(state.lastUpdateAt)}
-            </span>
+            <span>Last received: {formatTimestamp(state.lastUpdateAt)}</span>
           </div>
           {state.hasCredentials && (
             <div className='text-xs text-base-content/50 mt-2'>
@@ -160,4 +167,3 @@ export const CredentialsStatus = ({ apiUrl }: CredentialsStatusProps) => {
     </div>
   );
 };
-

@@ -17,17 +17,12 @@ export const loadFanslyCredentials = async (): Promise<typeof LoadFanslyCredenti
     const data = await readFile(filePath, "utf8");
     const credentials = JSON.parse(data) as typeof FanslyCredentialsSchema.static;
     
-    let lastUpdated: number | null = null;
-    if (credentials._lastUpdated && typeof credentials._lastUpdated === 'number') {
-      lastUpdated = credentials._lastUpdated;
-    } else {
-      try {
-        const stats = await stat(filePath);
-        lastUpdated = stats.mtimeMs;
-      } catch {
-        // Ignore stat errors
-      }
-    }
+    const lastUpdated =
+      credentials._lastUpdated && typeof credentials._lastUpdated === "number"
+        ? credentials._lastUpdated
+        : await stat(filePath)
+            .then((stats) => stats.mtimeMs)
+            .catch(() => null);
 
     const { _lastUpdated, ...credentialsWithoutMeta } = credentials;
 

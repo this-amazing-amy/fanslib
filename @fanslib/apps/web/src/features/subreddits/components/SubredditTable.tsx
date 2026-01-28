@@ -161,7 +161,11 @@ export const SubredditTable = ({
                     subreddit={subreddit}
                     onEdit={() => setEditingSubredditId(subreddit.id)}
                     onDelete={() => handleDelete(subreddit.id)}
-                    lastPostDate={lastPostDates?.[subreddit.id]}
+                    lastPostDate={
+                      lastPostDates?.[subreddit.id]
+                        ? new Date(lastPostDates[subreddit.id]).toISOString()
+                        : null
+                    }
                   />
                 )}
               </div>

@@ -3,12 +3,12 @@ import { useState } from 'react';
 import { MediaPreview } from '~/components/MediaPreview';
 import { Button } from '~/components/ui/Button';
 import {
-  Dialog,
-  DialogFooter,
-  DialogHeader,
-  DialogModal,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogFooter,
+    DialogHeader,
+    DialogModal,
+    DialogTitle,
+    DialogTrigger,
 } from '~/components/ui/Dialog';
 import { cn } from '~/lib/cn';
 
@@ -57,7 +57,7 @@ export const SelectPostMediaDialog = ({
               </DialogHeader>
               <div className="flex-1 min-h-0 overflow-y-auto py-4">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {post.postMedia.map((postMedia, index) => {
+                  {post.postMedia.map((postMedia) => {
                     const isMatched = matchedPostMediaIds?.has(postMedia.id) ?? false;
                     const isSelected = selectedPostMediaId === postMedia.id;
                     return (

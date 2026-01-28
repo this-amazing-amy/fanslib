@@ -2,7 +2,7 @@ import { t } from "elysia";
 import { mkdir, writeFile } from "fs/promises";
 import { dirname } from "path";
 import { fanslyCredentialsFilePath } from "../../../../lib/env";
-import { FanslyCredentialsSchema, loadFanslyCredentials } from "./load";
+import { loadFanslyCredentials } from "./load";
 
 export const SaveFanslyCredentialsRequestBodySchema = t.Object({
   fanslyAuth: t.Optional(t.String()),

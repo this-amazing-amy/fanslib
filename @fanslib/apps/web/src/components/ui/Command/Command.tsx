@@ -57,16 +57,18 @@ export const CommandInput = ({
 }) => {
   const ctx = useContext(CommandContext);
   const inputRef = useRef<HTMLInputElement>(null);
-  if (!ctx) return null;
 
   const value = controlledValue ?? ctx.query;
   
   // Sync controlled value to context query for CommandItem filtering
   useEffect(() => {
+    if (!ctx) return;
     if (controlledValue !== undefined) {
       ctx.setQuery(controlledValue);
     }
   }, [controlledValue, ctx]);
+
+  if (!ctx) return null;
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (onValueChange) {
@@ -112,20 +114,17 @@ export const CommandItem = ({ value, onSelect, children, className }: { value: s
   const select = useCallback(() => {
     onSelect?.();
   }, [onSelect]);
-  if (!ctx) return null;
-  const isVisible = value.toLowerCase().includes(ctx.query.toLowerCase());
+  const isVisible = ctx ? value.toLowerCase().includes(ctx.query.toLowerCase()) : false;
   
   useLayoutEffect(() => {
+    if (!ctx) return undefined;
     if (isVisible) {
       ctx.incrementVisibleCount();
-      return () => {
-        // Decrement on unmount or when becomes invisible
-      };
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isVisible]);
+    return undefined;
+  }, [ctx, isVisible]);
   
-  if (!isVisible) return null;
+  if (!ctx || !isVisible) return null;
   return (
     <li
       className={cn(

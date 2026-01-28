@@ -1,4 +1,5 @@
 import type { CaptionQueueItemSchema, PostStatusSchema } from "@fanslib/server/schemas";
+import type { Key } from "@react-types/shared";
 import { format } from "date-fns";
 import { Circle, CheckCircle2, ExternalLink, Link2, MoreVertical, Trash2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
@@ -51,10 +52,10 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   
   const firstMedia = item.post.postMedia?.[0]?.media;
-  const { data: mediaTags = [] } = useMediaTagsQuery({ 
-    mediaId: firstMedia?.id ?? "", 
-    enabled: !!firstMedia 
+  const { data: mediaTagsData } = useMediaTagsQuery({ 
+    mediaId: firstMedia?.id ?? "" 
   });
+  const mediaTags = mediaTagsData ?? [];
 
   const linkedPostIds = useMemo(
     () => item.linkedPosts.map((linked) => linked.postId),
@@ -151,7 +152,8 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
     }
   };
 
-  const handleMenuAction = (actionId: string) => {
+  const handleMenuAction = (key: Key) => {
+    const actionId = String(key);
     if (actionId === "delete") {
       setIsDeleteDialogOpen(true);
     }

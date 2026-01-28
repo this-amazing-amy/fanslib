@@ -67,6 +67,11 @@ export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
       return;
     }
     
+    if (!post.scheduleId) {
+      setConfirmSkip(false);
+      return;
+    }
+
     await skipSlotMutation.mutateAsync({
       scheduleId: post.scheduleId,
       date: post.date,
@@ -114,9 +119,9 @@ export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
       schedule={
         virtual || post.schedule
           ? {
-              name: virtual ? post.schedule.name : post.schedule?.name ?? "",
-              emoji: virtual ? post.schedule.emoji : post.schedule?.emoji,
-              color: virtual ? post.schedule.color : post.schedule?.color,
+              name: virtual ? post.schedule?.name ?? "" : post.schedule?.name ?? "",
+              emoji: virtual ? post.schedule?.emoji ?? undefined : post.schedule?.emoji ?? undefined,
+              color: virtual ? post.schedule?.color ?? undefined : post.schedule?.color ?? undefined,
             }
           : undefined
       }

@@ -45,6 +45,7 @@ export const ShootPosts = ({ shootId }: ShootPostsProps) => {
           onUpdate={handleUpdate}
           isOpen={openPostId === post.id}
           onOpenChange={(isOpen) => setOpenPostId(isOpen ? post.id : null)}
+          onOpenCreateDialog={() => {}}
           previousPostInList={index > 0 ? (posts[index - 1] as Post) : undefined}
           nextPostInList={index < posts.length - 1 ? (posts[index + 1] as Post) : undefined}
         />

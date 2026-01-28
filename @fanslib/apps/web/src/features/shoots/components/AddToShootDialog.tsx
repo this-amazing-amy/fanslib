@@ -1,24 +1,25 @@
-import type { MediaSchema, ShootSchema } from "@fanslib/server/schemas";
+import type { FetchShootByIdResponseSchema, MediaSchema, ShootSchema } from "@fanslib/server/schemas";
 import { format } from "date-fns";
 import { Check, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "~/components/ui/Button";
 import {
-  Dialog,
-  DialogFooter,
-  DialogHeader,
-  DialogModal,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogFooter,
+    DialogHeader,
+    DialogModal,
+    DialogTitle,
+    DialogTrigger,
 } from "~/components/ui/Dialog";
 import { ScrollArea } from "~/components/ui/ScrollArea";
 import { MediaTileLite } from "~/features/library/components/MediaTile/MediaTileLite";
 import { cn } from "~/lib/cn";
 import { useMediaListQuery } from "~/lib/queries/library";
-import { useShootsQuery, useUpdateShootMutation } from "~/lib/queries/shoots";
+import { useShootQuery, useShootsQuery, useUpdateShootMutation } from "~/lib/queries/shoots";
 
 type Media = typeof MediaSchema.static;
 type Shoot = typeof ShootSchema.static;
+type ShootWithMedia = typeof FetchShootByIdResponseSchema.static;
 
 type AddToShootDialogProps = {
   open: boolean;
@@ -36,10 +37,14 @@ export const AddToShootDialog = ({
   const [selectedShootId, setSelectedShootId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const { data: shootsData, isLoading } = useShootsQuery();
+  const { data: selectedShootData } = useShootQuery({ id: selectedShootId ?? "" });
   const { refetch: refetchLibrary } = useMediaListQuery();
   const updateMutation = useUpdateShootMutation();
 
-  const shoots = (shootsData?.items as Shoot[] | undefined) ?? [];
+  const shoots = useMemo(
+    () => (shootsData?.items as Shoot[] | undefined) ?? [],
+    [shootsData]
+  );
 
   const filteredShoots = useMemo(() => {
     if (!search) return shoots;
@@ -51,11 +56,13 @@ export const AddToShootDialog = ({
     () => shoots.find((shoot) => shoot.id === selectedShootId),
     [shoots, selectedShootId]
   );
+  const selectedShootDetails = selectedShootData as ShootWithMedia | null | undefined;
+  const selectedShootMedia = selectedShootDetails?.media ?? [];
 
   const handleAddToShoot = async () => {
-    if (!selectedShootId || !selectedShoot) return;
+    if (!selectedShootId || !selectedShootDetails) return;
 
-    const existingMediaIds = selectedShoot.media?.map((m) => m.id) ?? [];
+    const existingMediaIds = selectedShootMedia.map((media) => media.id);
     const newMediaIds = selectedMedia
       .filter((media) => !existingMediaIds.includes(media.id))
       .map((media) => media.id);
@@ -86,7 +93,7 @@ export const AddToShootDialog = ({
   };
 
   const mediaCountToAdd = selectedShoot
-    ? selectedMedia.filter((media) => !selectedShoot.media?.some((m) => m.id === media.id)).length
+    ? selectedMedia.filter((media) => !selectedShootMedia.some((item) => item.id === media.id)).length
     : selectedMedia.length;
 
   return (
@@ -150,7 +157,7 @@ export const AddToShootDialog = ({
                   <ScrollArea className="h-[200px] border rounded-md p-2">
                     <div className="space-y-2">
                       {selectedMedia
-                        .filter((media) => !selectedShoot?.media?.some((m) => m.id === media.id))
+                        .filter((media) => !selectedShootMedia.some((item) => item.id === media.id))
                         .map((media) => (
                           <div
                             key={media.id}

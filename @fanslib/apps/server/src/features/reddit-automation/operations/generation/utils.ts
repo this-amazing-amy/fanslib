@@ -105,8 +105,8 @@ export const getUsedMediaForSubreddit = async (
 
 const addMinutes = (date: Date, minutes: number): Date => new Date(date.getTime() + minutes * 60000);
 
-const hasConflict = <T extends { date: string }>(targetDate: Date, existingPosts: T[], minSpacingMinutes = 5): boolean => existingPosts.some((post) => {
-    const postDate = new Date(post.date);
+const hasConflict = <T extends { date: Date }>(targetDate: Date, existingPosts: T[], minSpacingMinutes = 5): boolean => existingPosts.some((post) => {
+    const postDate = post.date;
     const timeDiff = Math.abs(targetDate.getTime() - postDate.getTime());
     return timeDiff < minSpacingMinutes * 60000;
   });
@@ -127,7 +127,7 @@ const roundToNextHour = (date: Date): Date => {
   return rounded;
 };
 
-const calculateMinAllowedPostTime = <T extends { date: string }>(
+const calculateMinAllowedPostTime = <T extends { date: Date }>(
   searchStartDate: Date,
   subreddit: Subreddit,
   subredditPosts: T[]
@@ -139,7 +139,7 @@ const calculateMinAllowedPostTime = <T extends { date: string }>(
   }
 
   const lastPost = subredditPosts
-    .map((p) => new Date(p.date))
+    .map((p) => p.date)
     .sort((a, b) => b.getTime() - a.getTime())[0];
 
   const minNextPostTime = addMinutes(lastPost ?? new Date(), minTimeBetweenPosts * 60);
@@ -161,7 +161,7 @@ const createCandidateDate = (baseDate: Date, hour: number): Date => {
   return date;
 };
 
-const isValidTimeSlot = <T extends { date: string }>(candidateDate: Date, now: Date, minAllowedPostTime: Date, channelPosts: T[]): boolean => candidateDate > now &&
+const isValidTimeSlot = <T extends { date: Date }>(candidateDate: Date, now: Date, minAllowedPostTime: Date, channelPosts: T[]): boolean => candidateDate > now &&
     candidateDate >= minAllowedPostTime &&
     !hasConflict(candidateDate, channelPosts, 5);
 
@@ -171,7 +171,7 @@ type SubredditPostingTime = {
   score: number;
 };
 
-const getValidTimeSlotsForDay = <T extends { date: string }>(
+const getValidTimeSlotsForDay = <T extends { date: Date }>(
   dayDate: Date,
   postingTimes: SubredditPostingTime[],
   now: Date,
@@ -199,7 +199,7 @@ const getBestTimeSlotForDay = (timeSlots: Array<{ date: Date; score: number }>):
     null as { date: Date; score: number } | null
   );
 
-const generateFallbackDate = <T extends { subredditId: string | null; date: string }>(minAllowedPostTime: Date, channelPosts: T[]): Date => {
+const generateFallbackDate = <T extends { subredditId: string | null; date: Date }>(minAllowedPostTime: Date, channelPosts: T[]): Date => {
   const generateCandidates = (startTime: Date): Date[] => Array.from({ length: 48 }, (_, i) => addMinutes(startTime, i * 30));
 
   return (
@@ -208,7 +208,7 @@ const generateFallbackDate = <T extends { subredditId: string | null; date: stri
   );
 };
 
-export const calculateOptimalScheduleDate = <T extends { subredditId: string | null; date: string }>(
+export const calculateOptimalScheduleDate = <T extends { subredditId: string | null; date: Date }>(
   subreddit: Subreddit,
   subredditPosts: T[],
   channelPosts: T[]

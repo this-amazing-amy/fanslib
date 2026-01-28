@@ -90,7 +90,7 @@ export const postToReddit = async (
     {
       channelId: redditChannel?.id,
       subredditId: subreddit.id,
-      date: new Date().toISOString(),
+      date: new Date(),
       status: "posted",
       caption: fullCaption,
     },

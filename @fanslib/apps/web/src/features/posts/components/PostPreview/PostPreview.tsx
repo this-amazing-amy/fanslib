@@ -110,7 +110,7 @@ export const PostPreview = ({
     const caption = draggedPost.caption ?? undefined;
     const initialDate = new Date(post.date);
     const initialChannelId = post.channelId;
-    const scheduleId = post.scheduleId;
+    const scheduleId = post.scheduleId ?? undefined;
 
     if (preferences.view.openDialogOnDrop) {
       onOpenCreateDialog({
@@ -144,6 +144,11 @@ export const PostPreview = ({
 
     if (!hasSkipConfirmation) {
       setHasSkipConfirmation(true);
+      return;
+    }
+
+    if (!post.scheduleId) {
+      setHasSkipConfirmation(false);
       return;
     }
 
@@ -281,27 +286,27 @@ export const PostPreview = ({
                 />
                 {isVirtual ? (
                   <ContentScheduleBadge
-                    name={post.schedule.name}
-                    emoji={post.schedule.emoji}
-                    color={post.schedule.color}
+                    name={post.schedule?.name ?? ""}
+                    emoji={post.schedule?.emoji ?? undefined}
+                    color={post.schedule?.color ?? undefined}
                     size="sm"
                     selected
                     borderStyle="none"
                     className="justify-center"
                     responsive={false}
                   />
-                ) : post.schedule && (
+                ) : post.schedule ? (
                   <ContentScheduleBadge
                     name={post.schedule.name}
-                    emoji={post.schedule.emoji}
-                    color={post.schedule.color}
+                    emoji={post.schedule.emoji ?? undefined}
+                    color={post.schedule.color ?? undefined}
                     size="sm"
                     selected
                     borderStyle="none"
                     className="justify-center"
                     responsive={false}
                   />
-                )}
+                ) : null}
               </div>
             </div>
             <div className="flex items-center gap-2">

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Card, CardBody } from "~/components/ui/Card";
 import { MediaDragProvider } from "~/contexts/MediaDragContext";
 import { MediaSelectionProvider } from "~/contexts/MediaSelectionContext";
@@ -9,16 +9,15 @@ import { useChannelsQuery } from "~/lib/queries/channels";
 
 const CaptionRoute = () => {
   const { data: channelsData } = useChannelsQuery();
-  const channels = channelsData ?? [];
-  const [selectedChannelIds, setSelectedChannelIds] = useState<string[]>([]);
-  const [captionRefreshKey, setCaptionRefreshKey] = useState(0);
+  const channels = useMemo(() => channelsData ?? [], [channelsData]);
+  const captionRefreshKey = 0;
 
   const allChannelIds = useMemo(
     () => channels.map((channel) => channel.id),
     [channels]
   );
 
-  const channelIds = selectedChannelIds.length > 0 ? selectedChannelIds : allChannelIds;
+  const channelIds = allChannelIds;
 
   return (
     <PostPreferencesProvider>

@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { addDays } from "date-fns";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Card, CardBody } from "~/components/ui/Card";
 import { MediaDragProvider } from "~/contexts/MediaDragContext";
 import { MediaSelectionProvider } from "~/contexts/MediaSelectionContext";
@@ -16,10 +16,7 @@ const DraftRoute = () => {
     return date;
   });
   const [toDate, setToDate] = useState<Date>(() => addDays(new Date(), 21));
-  const [captionRefreshKey, setCaptionRefreshKey] = useState(0);
-
   const refreshCaptioning = () => {
-    setCaptionRefreshKey((value) => value + 1);
     navigate({ to: "/pipeline/caption" });
   };
 

@@ -1,6 +1,6 @@
 import type {
-  SaveFanslyCredentialsRequestBodySchema,
-  SaveSettingsRequestBodySchema,
+    SaveFanslyCredentialsRequestBodySchema,
+    SaveSettingsRequestBodySchema,
 } from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { eden } from '../api/eden';
@@ -79,11 +79,10 @@ export const useClearFanslyCredentialsMutation = () => {
   });
 };
 
-export const useTestBlueskyCredentialsMutation = () => {
-  return useMutation({
+export const useTestBlueskyCredentialsMutation = () =>
+  useMutation({
     mutationFn: async () => {
       const result = await eden.api.bluesky['test-credentials'].post();
       return result.data;
     },
   });
-};

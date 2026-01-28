@@ -12,7 +12,12 @@ type CaptioningStepProps = {
   refreshKey: number;
 };
 
-export const CaptioningStep = ({ channelIds, fromDate, toDate, refreshKey }: CaptioningStepProps) => {
+export const CaptioningStep = ({
+  channelIds,
+  fromDate: _fromDate,
+  toDate: _toDate,
+  refreshKey,
+}: CaptioningStepProps) => {
   const queryParams = useMemo(
     () => ({
       channelIds: channelIds.join(","),

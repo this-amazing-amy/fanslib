@@ -3,7 +3,7 @@ import type { Channel } from "../channels/entity";
 import type { ContentSchedule } from "./entity";
 import { ContentSchedule as ContentScheduleEntity } from "./entity";
 
-export type ContentScheduleFixture = Omit<ContentSchedule, "createdAt" | "updatedAt" | "mediaFilters" | "channel">;
+export type ContentScheduleFixture = Omit<ContentSchedule, "createdAt" | "updatedAt" | "mediaFilters" | "channel" | "scheduleChannels">;
 
 export const CONTENT_SCHEDULE_FIXTURES: ContentScheduleFixture[] = [
   {

@@ -1,10 +1,10 @@
+import type { ShootFiltersSchema } from "@fanslib/server/schemas";
 import { ListX } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { Tooltip } from "~/components/ui/Tooltip";
-import type { ShootFiltersSchema } from "@fanslib/server/schemas";
-import { ShootFiltersProvider, useShootFilters } from "./ShootFiltersContext";
 import { ShootFilterDropdown } from "./ShootFilterDropdown";
 import { ShootFilterItemRenderer } from "./ShootFilterItemRenderer";
+import { ShootFiltersProvider, useShootFilters } from "./ShootFiltersContext";
 
 type ShootFilter = typeof ShootFiltersSchema.static;
 
@@ -27,7 +27,7 @@ const ShootFiltersContent = () => {
           <div className="flex-grow flex flex-wrap gap-2">
             {filters.map((filter, index) => (
               <ShootFilterItemRenderer
-                key={`${filter.type}-${index}`}
+                key={filter.type}
                 item={filter}
                 onChange={(item) => updateFilter(index, item)}
                 onRemove={() => removeFilter(index)}
@@ -48,12 +48,10 @@ const ShootFiltersContent = () => {
   );
 };
 
-export const ShootFilters = ({ value, onFilterChange }: ShootFiltersProps) => {
-  return (
-    <ShootFiltersProvider value={value} onChange={onFilterChange}>
-      <ShootFiltersContent />
-    </ShootFiltersProvider>
-  );
-};
+export const ShootFilters = ({ value, onFilterChange }: ShootFiltersProps) => (
+  <ShootFiltersProvider value={value} onChange={onFilterChange}>
+    <ShootFiltersContent />
+  </ShootFiltersProvider>
+);
 
 

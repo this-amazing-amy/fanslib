@@ -291,9 +291,9 @@ export const MediaFilterSummary = ({
 
   return (
     <div className={cn("flex flex-wrap gap-2", className)}>
-      {visibleItems.map(({ item, group }, index) => (
+      {visibleItems.map(({ item, group }) => (
         <FilterItemBadge
-          key={JSON.stringify(item) + index}
+          key={`${group.include ? "include" : "exclude"}-${item.type}-${"id" in item ? String(item.id ?? "") : String(item.value ?? "")}`}
           item={item}
           group={group}
           channelName={item.type === "channel" ? channelNameById.get(String(item.id)) : undefined}

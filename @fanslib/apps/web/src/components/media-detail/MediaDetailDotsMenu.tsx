@@ -1,4 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
+import type { Key } from "@react-types/shared";
 import { MoreVertical, Send, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
@@ -33,7 +34,8 @@ export const MediaDetailDotsMenu = ({ id, mediaType, onCreatePost }: MediaDetail
     }
   };
 
-  const handleAction = (actionId: string) => {
+  const handleAction = (key: Key) => {
+    const actionId = String(key);
     if (actionId === "create-post" && onCreatePost) {
       onCreatePost();
     } else if (actionId === "delete") {
