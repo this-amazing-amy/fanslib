@@ -1,30 +1,29 @@
 import { isSameMinute } from "date-fns";
-import { t } from "elysia";
 import { Between, In } from "typeorm";
+import { z } from "zod";
 import { db } from "../../../lib/db";
 import type { Channel } from "../../channels/entity";
 import { Post } from "../../posts/entity";
-import { PostWithRelationsSchema } from "../../posts/operations/post/fetch-all";
 import { ContentSchedule, ScheduleChannel } from "../entity";
 import { generateScheduleDates } from "../schedule-dates";
 
 export { generateScheduleDates } from "../schedule-dates";
 
-export const FetchVirtualPostsRequestQuerySchema = t.Object({
-  channelIds: t.Array(t.String()),
-  fromDate: t.String(),
-  toDate: t.String(),
+export const FetchVirtualPostsRequestQuerySchema = z.object({
+  channelIds: z.array(z.string()),
+  fromDate: z.string(),
+  toDate: z.string(),
 });
 
-export const VirtualPostSchema = t.Composite([
-  PostWithRelationsSchema,
-  t.Object({
-    isVirtual: t.Literal(true),
-    targetChannelIds: t.Optional(t.Array(t.String())),
-  }),
-]);
+// TODO: Replace z.unknown() with PostWithRelationsSchema once the posts feature is migrated to Zod
+export const VirtualPostSchema = z.unknown().and(
+  z.object({
+    isVirtual: z.literal(true),
+    targetChannelIds: z.array(z.string()).optional(),
+  })
+);
 
-export const FetchVirtualPostsResponseSchema = t.Array(VirtualPostSchema);
+export const FetchVirtualPostsResponseSchema = z.array(VirtualPostSchema);
 
 type ScheduleWithRelations = ContentSchedule & {
   channel: Channel | null;
@@ -78,8 +77,8 @@ const toVirtualPost = (
 });
 
 export const fetchVirtualPosts = async (
-  params: typeof FetchVirtualPostsRequestQuerySchema.static
-): Promise<typeof FetchVirtualPostsResponseSchema.static> => {
+  params: z.infer<typeof FetchVirtualPostsRequestQuerySchema>
+): Promise<z.infer<typeof FetchVirtualPostsResponseSchema>> => {
   const dataSource = await db();
   const scheduleRepo = dataSource.getRepository(ContentSchedule);
   const scheduleChannelRepo = dataSource.getRepository(ScheduleChannel);

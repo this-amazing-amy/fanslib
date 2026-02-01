@@ -31,11 +31,11 @@ Migrate the server from Elysia + Eden + TypeBox to Hono + hc client + Zod. This 
   - shoots/entity.ts ✅
   - snippets/entity.ts ✅
 
-**Remaining Entity Schemas (5):**
+**Remaining Entity Schemas (4):**
 
-- posts/entity.ts (PostSchema, PostMediaSchema, PostStatusSchema)
-- library/entity.ts (Media, MediaTypeSchema)
-- content-schedules/entity.ts (ContentSchedule, SkippedScheduleSlot, ScheduleChannel)
+- posts/entity.ts (PostSchema, PostMediaSchema, PostStatusSchema) - ALREADY DONE
+- library/entity.ts (Media, MediaTypeSchema) - Media already done, just MediaType remaining
+- content-schedules/entity.ts (ContentSchedule, SkippedScheduleSlot, ScheduleChannel) - ✅ DONE
 - tags/entity.ts (TagDimension, TagDefinition, MediaTag) - COMPLEX, 3 entities
 - analytics/entity.ts + candidate-entity.ts
 
@@ -142,7 +142,7 @@ Continue with schema migrations and feature conversions per the original plan. D
 - Web client: hono-client.ts
 - Main app: index.ts (migrated to Hono)
 
-**Entity Schemas (7/11 migrated to Zod):**
+**Entity Schemas (8/11 migrated to Zod):**
 - ✅ filter-presets/entity.ts
 - ✅ channels/entity.ts
 - ✅ hashtags/entity.ts
@@ -150,7 +150,7 @@ Continue with schema migrations and feature conversions per the original plan. D
 - ✅ shoots/entity.ts
 - ✅ snippets/entity.ts
 - ✅ posts/schema.ts (Post, PostMedia, PostStatus)
-- ⏳ content-schedules/entity.ts (ContentSchedule, SkippedScheduleSlot, ScheduleChannel) - TODO
+- ✅ content-schedules/entity.ts (ContentSchedule, SkippedScheduleSlot, ScheduleChannel)
 - ⏳ library/entity.ts (Media - already done, just MediaType) - TODO
 - ⏳ tags/entity.ts (TagDimension, TagDefinition, MediaTag) - COMPLEX, 3 entities - TODO
 - ⏳ analytics/entity.ts + candidate-entity.ts - TODO
@@ -240,12 +240,19 @@ Each feature requires: (1) convert TypeBox schemas to Zod, (2) migrate routes to
 
 ### Content Schedules Feature (9 endpoints)
 
-- [ ] Convert content-schedules schemas to Zod
-  - `entity.ts` (ContentScheduleSchema, SkippedScheduleSlotSchema, etc.)
-  - `operations/content-schedule/*.ts`
-  - `operations/skipped-slots/*.ts`
-  - `operations/generate-virtual-posts.ts`
-- [ ] Migrate content-schedules routes in `features/content-schedules/routes.ts`
+- [x] Convert content-schedules schemas to Zod
+  - `entity.ts` (ContentScheduleSchema, SkippedScheduleSlotSchema, ScheduleChannelSchema) - ✅ 6 base schemas (3 entities)
+  - `operations/content-schedule/create.ts` (CreateContentScheduleRequestSchema, ContentScheduleResponseSchema) - ✅
+  - `operations/content-schedule/update.ts` (UpdateContentScheduleRequestSchema, ContentScheduleResponseSchema) - ✅
+  - `operations/content-schedule/fetch-all.ts` (ContentScheduleResponseSchema) - ✅
+  - `operations/content-schedule/fetch-by-id.ts` (ContentScheduleResponseSchema) - ✅
+  - `operations/content-schedule/fetch-by-channel.ts` (ContentScheduleResponseSchema) - ✅
+  - `operations/content-schedule/delete.ts` - ✅
+  - `operations/skipped-slots/create.ts` (CreateSkippedSlotRequestSchema, SkippedScheduleSlotResponseSchema) - ✅
+  - `operations/skipped-slots/remove.ts` (RemoveSkippedSlotRequestSchema) - ✅
+  - `operations/generate-virtual-posts.ts` (VirtualPostsRequestSchema, VirtualPostsResponseSchema, VirtualPostSchema) - ✅
+  - **Note:** VirtualPostSchema uses `z.unknown()` for `post` field (PostWithRelationsSchema) - temporary placeholder until posts feature migration complete
+- [ ] Migrate content-schedules routes in `features/content-schedules/routes.ts` - **NEXT PRIORITY** (will unblock routes tests)
 - [ ] Update `@fanslib/apps/web/src/lib/queries/content-schedules.ts` to use hc client
 
 ### Library/Media Feature (12 endpoints)

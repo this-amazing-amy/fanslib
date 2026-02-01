@@ -1,7 +1,6 @@
-import { t } from "elysia";
-import type { z } from "zod";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
-import { type ChannelSchema } from "../../../channels/entity";
+import { ChannelSchema } from "../../../channels/entity";
 import {
   ContentSchedule,
   ContentScheduleSchema,
@@ -9,34 +8,20 @@ import {
   SkippedScheduleSlotSchema,
 } from "../../entity";
 
-export const ScheduleChannelWithChannelSchema = t.Composite([
-  ScheduleChannelSchema,
-  t.Object({
-    channel: t.Any(), // Channel is now Zod, can't use with TypeBox
-  }),
-]);
+export const ScheduleChannelWithChannelSchema = ScheduleChannelSchema.extend({
+  channel: ChannelSchema,
+});
 
-export const FetchAllContentSchedulesResponseSchema = t.Array(
-  t.Composite([
-    ContentScheduleSchema,
-    t.Object({
-      channel: t.Nullable(t.Any()), // Channel is now Zod
-      skippedSlots: t.Array(SkippedScheduleSlotSchema),
-      scheduleChannels: t.Array(ScheduleChannelWithChannelSchema),
-    }),
-  ]),
+export const FetchAllContentSchedulesResponseSchema = z.array(
+  ContentScheduleSchema.extend({
+    channel: ChannelSchema.nullable(),
+    skippedSlots: z.array(SkippedScheduleSlotSchema),
+    scheduleChannels: z.array(ScheduleChannelWithChannelSchema),
+  }),
 );
 
-type ChannelType = z.infer<typeof ChannelSchema>;
-
 export const fetchAllContentSchedules = async (): Promise<
-  (Omit<ContentSchedule, "channel" | "scheduleChannels" | "skippedSlots"> & {
-    channel: ChannelType | null;
-    skippedSlots: typeof SkippedScheduleSlotSchema.static[];
-    scheduleChannels: (typeof ScheduleChannelSchema.static & {
-      channel: ChannelType;
-    })[];
-  })[]
+  z.infer<typeof FetchAllContentSchedulesResponseSchema>
 > => {
   const dataSource = await db();
   const repository = dataSource.getRepository(ContentSchedule);

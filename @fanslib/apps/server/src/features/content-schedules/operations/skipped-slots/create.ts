@@ -1,17 +1,17 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { SkippedScheduleSlot, SkippedScheduleSlotSchema } from "../../entity";
 
-export const CreateSkippedSlotRequestBodySchema = t.Object({
-  scheduleId: t.String(),
-  date: t.Date(),
+export const CreateSkippedSlotRequestBodySchema = z.object({
+  scheduleId: z.string(),
+  date: z.coerce.date(),
 });
 
 export const CreateSkippedSlotResponseSchema = SkippedScheduleSlotSchema;
 
 export const createSkippedSlot = async (
-  data: typeof CreateSkippedSlotRequestBodySchema.static
-): Promise<typeof CreateSkippedSlotResponseSchema.static> => {
+  data: z.infer<typeof CreateSkippedSlotRequestBodySchema>
+): Promise<z.infer<typeof CreateSkippedSlotResponseSchema>> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(SkippedScheduleSlot);
 

@@ -1,47 +1,42 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { In } from "typeorm";
 import { db } from "../../../../lib/db";
 import { MediaFilterSchema } from "../../../library/schemas/media-filter";
+import { ChannelSchema } from "../../../channels/entity";
 import { ContentSchedule, ContentScheduleSchema, ContentScheduleTypeSchema, ScheduleChannel, ScheduleChannelSchema } from "../../entity";
 
-export const UpdateContentScheduleRequestParamsSchema = t.Object({
-  id: t.String(),
+export const UpdateContentScheduleRequestParamsSchema = z.object({
+  id: z.string(),
 });
 
-export const ScheduleChannelUpdateInputSchema = t.Object({
-  id: t.Optional(t.String()),
-  channelId: t.String(),
-  mediaFilterOverrides: t.Optional(t.Nullable(MediaFilterSchema)),
-  sortOrder: t.Optional(t.Number()),
+export const ScheduleChannelUpdateInputSchema = z.object({
+  id: z.string().optional(),
+  channelId: z.string(),
+  mediaFilterOverrides: MediaFilterSchema.nullable().optional(),
+  sortOrder: z.number().optional(),
 });
 
-export const UpdateContentScheduleRequestBodySchema = t.Object({
-  channelId: t.Optional(t.Nullable(t.String())),
-  scheduleChannels: t.Optional(t.Array(ScheduleChannelUpdateInputSchema)),
-  name: t.Optional(t.String()),
-  emoji: t.Optional(t.Union([t.String(), t.Null()])),
-  color: t.Optional(t.Union([t.String(), t.Null()])),
-  type: t.Optional(ContentScheduleTypeSchema),
-  postsPerTimeframe: t.Optional(t.Number()),
-  preferredDays: t.Optional(t.Union([t.Array(t.String()), t.Null()])),
-  preferredTimes: t.Optional(t.Union([t.Array(t.String()), t.Null()])),
-  mediaFilters: t.Optional(t.Union([MediaFilterSchema, t.Null()])),
+export const UpdateContentScheduleRequestBodySchema = z.object({
+  channelId: z.string().nullable().optional(),
+  scheduleChannels: z.array(ScheduleChannelUpdateInputSchema).optional(),
+  name: z.string().optional(),
+  emoji: z.string().nullable().optional(),
+  color: z.string().nullable().optional(),
+  type: ContentScheduleTypeSchema.optional(),
+  postsPerTimeframe: z.number().optional(),
+  preferredDays: z.array(z.string()).nullable().optional(),
+  preferredTimes: z.array(z.string()).nullable().optional(),
+  mediaFilters: MediaFilterSchema.nullable().optional(),
 });
 
-export const ScheduleChannelWithChannelSchema = t.Composite([
-  ScheduleChannelSchema,
-  t.Object({
-    channel: t.Any(), // Channel is now Zod, can't use with TypeBox
-  }),
-]);
+export const ScheduleChannelWithChannelSchema = ScheduleChannelSchema.extend({
+  channel: ChannelSchema,
+});
 
-export const UpdateContentScheduleResponseSchema = t.Composite([
-  ContentScheduleSchema,
-  t.Object({
-    channel: t.Nullable(t.Any()), // Channel is now Zod
-    scheduleChannels: t.Array(ScheduleChannelWithChannelSchema),
-  }),
-]);
+export const UpdateContentScheduleResponseSchema = ContentScheduleSchema.extend({
+  channel: ChannelSchema.nullable(),
+  scheduleChannels: z.array(ScheduleChannelWithChannelSchema),
+});
 
 
 const stringifyMediaFilters = (filters: Parameters<typeof JSON.stringify>[0]): string =>
@@ -49,8 +44,8 @@ const stringifyMediaFilters = (filters: Parameters<typeof JSON.stringify>[0]): s
 
 export const updateContentSchedule = async (
   id: string,
-  updates: typeof UpdateContentScheduleRequestBodySchema.static
-): Promise<typeof UpdateContentScheduleResponseSchema.static | null> => {
+  updates: z.infer<typeof UpdateContentScheduleRequestBodySchema>
+): Promise<z.infer<typeof UpdateContentScheduleResponseSchema> | null> => {
   const dataSource = await db();
   const scheduleRepo = dataSource.getRepository(ContentSchedule);
   const scheduleChannelRepo = dataSource.getRepository(ScheduleChannel);
