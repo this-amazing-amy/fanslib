@@ -1,9 +1,9 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
-import { Elysia } from "elysia";
+import { Hono } from "hono";
 import "reflect-metadata";
 import { getTestDataSource, resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
-import { mapResponse } from "../../lib/serialization";
-import { logError, parseResponse } from "../../test-utils/setup";
+import { devalueMiddleware } from "../../lib/devalue-middleware";
+import { parseResponse } from "../../test-utils/setup";
 import type { ChannelType } from "./entity";
 import { Channel } from "./entity";
 import { CHANNEL_FIXTURES } from "./fixtures";
@@ -11,14 +11,16 @@ import { channelsRoutes } from "./routes";
 
 describe("Channels Routes", () => {
   // eslint-disable-next-line functional/no-let
-  let app: Elysia;
+  let app: Hono;
   // eslint-disable-next-line functional/no-let
   let fixtures: Awaited<ReturnType<typeof resetAllFixtures>>;
 
   beforeAll(async () => {
     await setupTestDatabase();
     fixtures = await resetAllFixtures();
-    app = new Elysia().onError(logError()).mapResponse(mapResponse).use(channelsRoutes);
+    app = new Hono()
+      .use("*", devalueMiddleware())
+      .route("/", channelsRoutes);
   });
 
   afterAll(async () => {
@@ -31,7 +33,7 @@ describe("Channels Routes", () => {
 
   describe("GET /api/channels/all", () => {
     test("returns all channels", async () => {
-      const response = await app.handle(new Request("http://localhost/api/channels/all"));
+      const response = await app.request("/api/channels/all");
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Channel[]>(response);
@@ -49,7 +51,7 @@ describe("Channels Routes", () => {
 
   describe("GET /api/channels/types", () => {
     test("returns channel types", async () => {
-      const response = await app.handle(new Request("http://localhost/api/channels/types"));
+      const response = await app.request("/api/channels/types");
       expect(response.status).toBe(200);
 
       const data = await parseResponse<ChannelType[]>(response);
@@ -72,9 +74,7 @@ describe("Channels Routes", () => {
         throw new Error("No channel fixtures available");
       }
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/channels/by-id/${fixtureChannel.id}`)
-      );
+      const response = await app.request(`/api/channels/by-id/${fixtureChannel.id}`);
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Channel>(response);
@@ -84,9 +84,7 @@ describe("Channels Routes", () => {
     });
 
     test("returns error for non-existent channel", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/channels/by-id/non-existent-id")
-      );
+      const response = await app.request("/api/channels/by-id/non-existent-id");
 
       const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
@@ -101,13 +99,11 @@ describe("Channels Routes", () => {
         typeId: "fansly",
       };
 
-      const response = await app.handle(
-        new Request("http://localhost/api/channels", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(channelData),
-        })
-      );
+      const response = await app.request("/api/channels", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(channelData),
+      });
 
       expect(response.status).toBe(200);
 
@@ -130,13 +126,11 @@ describe("Channels Routes", () => {
         name: "Updated Name",
       };
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/channels/by-id/${fixtureChannel.id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updateData),
-        })
-      );
+      const response = await app.request(`/api/channels/by-id/${fixtureChannel.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updateData),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Channel>(response);
@@ -145,13 +139,11 @@ describe("Channels Routes", () => {
     });
 
     test("returns error for non-existent channel", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/channels/by-id/non-existent-id", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: "Updated" }),
-        })
-      );
+      const response = await app.request("/api/channels/by-id/non-existent-id", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: "Updated" }),
+      });
 
       const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
@@ -165,11 +157,9 @@ describe("Channels Routes", () => {
         throw new Error("No channel fixtures available");
       }
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/channels/by-id/${fixtureChannel.id}`, {
-          method: "DELETE",
-        })
-      );
+      const response = await app.request(`/api/channels/by-id/${fixtureChannel.id}`, {
+        method: "DELETE",
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<{ success: boolean }>(response);
@@ -182,11 +172,9 @@ describe("Channels Routes", () => {
     });
 
     test("returns 404 when channel not found", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/channels/by-id/non-existent-id", {
-          method: "DELETE",
-        })
-      );
+      const response = await app.request("/api/channels/by-id/non-existent-id", {
+        method: "DELETE",
+      });
       expect(response.status).toBe(404);
 
       const data = await parseResponse<{ error: string }>(response);

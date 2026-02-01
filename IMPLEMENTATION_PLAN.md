@@ -22,6 +22,7 @@ Migrate the server from Elysia + Eden + TypeBox to Hono + hc client + Zod. This 
 - ✅ Filter-presets Feature (5 endpoints - FULLY migrated: schemas + routes + web client)
 - ✅ Snippets Feature (7 endpoints - FULLY migrated: schemas + routes + web client)
 - ✅ Subreddits Feature (6 endpoints - FULLY migrated: schemas + routes + web client)
+- ✅ Channels Feature (6 endpoints - FULLY migrated: schemas + routes + web client)
 - ✅ Entity schemas migrated to Zod (7/11):
   - filter-presets/entity.ts ✅
   - channels/entity.ts ✅
@@ -91,10 +92,10 @@ We're 60% done with the migration. The infrastructure is in place. Completing it
 
 **Progress Summary:**
 - Infrastructure: 100% complete
-- Features migrated: 8/15 (Settings, Bluesky, Hashtags, Shoots, Filter-presets, Snippets, Subreddits)
+- Features migrated: 9/15 (Settings, Bluesky, Hashtags, Shoots, Filter-presets, Snippets, Subreddits, Channels)
 - Entity schemas migrated: 7/11
-- Operations converted: ~40/130
-- Estimated remaining effort: 90-100 operations to convert
+- Operations converted: ~46/130
+- Estimated remaining effort: 84-90 operations to convert
 
 **Migration Strategy Going Forward:**
 Given the cross-dependencies between features, the most efficient approach is:
@@ -162,12 +163,13 @@ Each feature requires: (1) convert TypeBox schemas to Zod, (2) migrate routes to
 
 ### Channels Feature (6 endpoints)
 
-- [ ] Convert channels schemas to Zod
-  - `entity.ts` (ChannelSchema, ChannelTypeSchema) - Note: fix `t.Any()` for defaultHashtags
-  - `operations/channel/*.ts` (all request/response schemas)
-  - `operations/channel-type/fetch-all.ts`
-- [ ] Migrate channels routes in `features/channels/routes.ts`
-- [ ] Update `@fanslib/apps/web/src/lib/queries/channels.ts` to use hc client
+- [x] Convert channels schemas to Zod
+  - `entity.ts` (ChannelSchema, ChannelTypeSchema) - ALREADY DONE
+  - `operations/channel/*.ts` (all request/response schemas) - CONVERTED ALL
+  - `operations/channel-type/fetch-all.ts` - CONVERTED ALL
+- [x] Migrate channels routes in `features/channels/routes.ts` - DONE
+- [x] Update `@fanslib/apps/web/src/lib/queries/channels.ts` to use hc client - DONE
+- [x] Register routes in main index.ts - DONE
 
 ### Content Schedules Feature (9 endpoints)
 

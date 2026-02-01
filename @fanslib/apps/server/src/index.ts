@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import "reflect-metadata";
 import { blueskyRoutes } from "./features/api-bluesky/routes";
+import { channelsRoutes } from "./features/channels/routes";
 import { filterPresetsRoutes } from "./features/filter-presets/routes";
 import { hashtagsRoutes } from "./features/hashtags/routes";
 import { runScheduledPostsCronTick } from "./features/posts/scheduled-posts-cron";
@@ -74,7 +75,8 @@ const app = new Hono()
   .route("/", shootsRoutes)
   .route("/", filterPresetsRoutes)
   .route("/", snippetsRoutes)
-  .route("/", subredditsRoutes);
+  .route("/", subredditsRoutes)
+  .route("/", channelsRoutes);
 
 // Set up cron job if enabled
 if (isScheduledPostsCronEnabled) {

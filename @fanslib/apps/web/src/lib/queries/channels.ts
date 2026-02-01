@@ -1,28 +1,21 @@
-import type {
-  CreateChannelRequestBodySchema,
-  DeleteChannelRequestParamsSchema,
-  FetchChannelByIdRequestParamsSchema,
-  UpdateChannelRequestBodySchema,
-  UpdateChannelRequestParamsSchema,
-} from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { eden } from '../api/eden';
+import { api } from '../api/hono-client';
 
 export const useChannelsQuery = () =>
   useQuery({
     queryKey: ['channels', 'list'],
     queryFn: async () => {
-      const result = await eden.api.channels.all.get();
-      return result.data;
+      const result = await api.api.channels.all.$get();
+      return result.json();
     },
   });
 
-export const useChannelQuery = (params: typeof FetchChannelByIdRequestParamsSchema.static) =>
+export const useChannelQuery = (params: { id: string }) =>
   useQuery({
     queryKey: ['channels', params.id],
     queryFn: async () => {
-      const result = await eden.api.channels['by-id']({ id: params.id }).get();
-      return result.data;
+      const result = await api.api.channels['by-id'][':id'].$get({ param: { id: params.id } });
+      return result.json();
     },
     enabled: !!params.id,
   });
@@ -31,8 +24,8 @@ export const useChannelTypesQuery = () =>
   useQuery({
     queryKey: ['channels', 'types'],
     queryFn: async () => {
-      const result = await eden.api.channels.all.get();
-      return result.data;
+      const result = await api.api.channels.types.$get();
+      return result.json();
     },
   });
 
@@ -40,9 +33,14 @@ export const useCreateChannelMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: typeof CreateChannelRequestBodySchema.static) => {
-      const result = await eden.api.channels.post(data);
-      return result.data;
+    mutationFn: async (data: {
+      name: string;
+      typeId: string;
+      description?: string;
+      eligibleMediaFilter?: unknown;
+    }) => {
+      const result = await api.api.channels.$post({ json: data });
+      return result.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['channels', 'list'] });
@@ -50,8 +48,15 @@ export const useCreateChannelMutation = () => {
   });
 };
 
-type UpdateChannelParams = typeof UpdateChannelRequestParamsSchema.static & {
-  updates: typeof UpdateChannelRequestBodySchema.static;
+type UpdateChannelParams = {
+  id: string;
+  updates: {
+    name?: string;
+    description?: string | null;
+    typeId?: string;
+    eligibleMediaFilter?: unknown | null;
+    defaultHashtags?: string[];
+  };
 };
 
 export const useUpdateChannelMutation = () => {
@@ -59,8 +64,8 @@ export const useUpdateChannelMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdateChannelParams) => {
-      const result = await eden.api.channels['by-id']({ id }).patch(updates);
-      return result.data;
+      const result = await api.api.channels['by-id'][':id'].$patch({ param: { id }, json: updates });
+      return result.json();
     },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['channels', 'list'] });
@@ -77,9 +82,9 @@ export const useDeleteChannelMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (params: typeof DeleteChannelRequestParamsSchema.static) => {
-      const result = await eden.api.channels['by-id']({ id: params.id }).delete();
-      return result.data;
+    mutationFn: async (params: { id: string }) => {
+      const result = await api.api.channels['by-id'][':id'].$delete({ param: { id: params.id } });
+      return result.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['channels', 'list'] });

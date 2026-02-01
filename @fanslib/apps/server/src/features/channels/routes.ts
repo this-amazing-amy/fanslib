@@ -1,63 +1,51 @@
-import { Elysia, t } from "elysia";
-import { FetchChannelTypesResponseSchema, fetchChannelTypes } from "./operations/channel-type/fetch-all";
-import { CreateChannelRequestBodySchema, CreateChannelResponseSchema, createChannel } from "./operations/channel/create";
-import { DeleteChannelRequestParamsSchema, DeleteChannelResponseSchema, deleteChannel } from "./operations/channel/delete";
-import { FetchAllChannelsResponseSchema, fetchAllChannels } from "./operations/channel/fetch-all";
-import { FetchChannelByIdRequestParamsSchema, FetchChannelByIdResponseSchema, fetchChannelById } from "./operations/channel/fetch-by-id";
-import { UpdateChannelRequestBodySchema, UpdateChannelRequestParamsSchema, UpdateChannelResponseSchema, updateChannel } from "./operations/channel/update";
+import { Hono } from "hono";
+import { zValidator } from "@hono/zod-validator";
+import { validationError, notFound } from "../../lib/hono-utils";
+import { fetchChannelTypes } from "./operations/channel-type/fetch-all";
+import { CreateChannelRequestBodySchema, createChannel } from "./operations/channel/create";
+import { deleteChannel } from "./operations/channel/delete";
+import { fetchAllChannels } from "./operations/channel/fetch-all";
+import { fetchChannelById } from "./operations/channel/fetch-by-id";
+import { UpdateChannelRequestBodySchema, updateChannel } from "./operations/channel/update";
 
-export const channelsRoutes = new Elysia({ prefix: "/api/channels" })
-  .get("/all", fetchAllChannels, {
-    response: FetchAllChannelsResponseSchema,
+export const channelsRoutes = new Hono()
+  .basePath("/api/channels")
+  .get("/all", async (c) => {
+    const result = await fetchAllChannels();
+    return c.json(result);
   })
-  .get("/types", fetchChannelTypes, {
-    response: FetchChannelTypesResponseSchema,
+  .get("/types", async (c) => {
+    const result = await fetchChannelTypes();
+    return c.json(result);
   })
-  .get("/by-id/:id", async ({ params: { id }, set }) => {
+  .get("/by-id/:id", async (c) => {
+    const id = c.req.param("id");
     const channel = await fetchChannelById(id);
     if (!channel) {
-      set.status = 404;
-      return { error: "Channel not found" };
+      return notFound(c, "Channel not found");
     }
-    return channel;
-  }, {
-    params: FetchChannelByIdRequestParamsSchema,
-    response: {
-      200: FetchChannelByIdResponseSchema,
-      404: t.Object({ error: t.String() }),
-    },
+    return c.json(channel);
   })
-  .post("/", async ({ body }) => createChannel(body), {
-    body: CreateChannelRequestBodySchema,
-    response: CreateChannelResponseSchema,
+  .post("/", zValidator("json", CreateChannelRequestBodySchema, validationError), async (c) => {
+    const body = c.req.valid("json");
+    const result = await createChannel(body);
+    return c.json(result);
   })
-  .patch("/by-id/:id", async ({ params: { id }, body, set }) => {
+  .patch("/by-id/:id", zValidator("json", UpdateChannelRequestBodySchema, validationError), async (c) => {
+    const id = c.req.param("id");
+    const body = c.req.valid("json");
     const channel = await updateChannel(id, body);
     if (!channel) {
-      set.status = 404;
-      return { error: "Channel not found" };
+      return notFound(c, "Channel not found");
     }
-    return channel;
-  }, {
-    params: UpdateChannelRequestParamsSchema,
-    body: UpdateChannelRequestBodySchema,
-    response: {
-      200: UpdateChannelResponseSchema,
-      404: t.Object({ error: t.String() }),
-    },
+    return c.json(channel);
   })
-  .delete("/by-id/:id", async ({ params: { id }, set }) => {
+  .delete("/by-id/:id", async (c) => {
+    const id = c.req.param("id");
     const success = await deleteChannel(id);
     if (!success) {
-      set.status = 404;
-      return { error: "Channel not found" };
+      return notFound(c, "Channel not found");
     }
-    return { success: true };
-  }, {
-    params: DeleteChannelRequestParamsSchema,
-    response: {
-      200: DeleteChannelResponseSchema,
-      404: t.Object({ error: t.String() }),
-    },
+    return c.json({ success: true });
   });
 
