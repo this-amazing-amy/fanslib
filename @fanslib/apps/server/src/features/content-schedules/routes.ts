@@ -1,89 +1,73 @@
-import { Elysia, t } from "elysia";
-import { CreateContentScheduleRequestBodySchema, CreateContentScheduleResponseSchema, createContentSchedule } from "./operations/content-schedule/create";
-import { DeleteContentScheduleRequestParamsSchema, DeleteContentScheduleResponseSchema, deleteContentSchedule } from "./operations/content-schedule/delete";
-import { FetchAllContentSchedulesResponseSchema, fetchAllContentSchedules } from "./operations/content-schedule/fetch-all";
-import { FetchContentSchedulesByChannelResponseSchema, fetchContentSchedulesByChannel } from "./operations/content-schedule/fetch-by-channel";
-import { FetchContentScheduleByIdRequestParamsSchema, FetchContentScheduleByIdResponseSchema, fetchContentScheduleById } from "./operations/content-schedule/fetch-by-id";
-import { UpdateContentScheduleRequestBodySchema, UpdateContentScheduleRequestParamsSchema, UpdateContentScheduleResponseSchema, updateContentSchedule } from "./operations/content-schedule/update";
-import { FetchVirtualPostsRequestQuerySchema, FetchVirtualPostsResponseSchema, fetchVirtualPosts } from "./operations/generate-virtual-posts";
-import { CreateSkippedSlotRequestBodySchema, CreateSkippedSlotResponseSchema, createSkippedSlot } from "./operations/skipped-slots/create";
-import { RemoveSkippedSlotRequestParamsSchema, RemoveSkippedSlotResponseSchema, removeSkippedSlot } from "./operations/skipped-slots/remove";
+import { Hono } from "hono";
+import { zValidator } from "@hono/zod-validator";
+import { validationError, notFound } from "../../lib/hono-utils";
+import { CreateContentScheduleRequestBodySchema, createContentSchedule } from "./operations/content-schedule/create";
+import { deleteContentSchedule } from "./operations/content-schedule/delete";
+import { fetchAllContentSchedules } from "./operations/content-schedule/fetch-all";
+import { fetchContentSchedulesByChannel } from "./operations/content-schedule/fetch-by-channel";
+import { fetchContentScheduleById } from "./operations/content-schedule/fetch-by-id";
+import { UpdateContentScheduleRequestBodySchema, updateContentSchedule } from "./operations/content-schedule/update";
+import { FetchVirtualPostsRequestQuerySchema, fetchVirtualPosts } from "./operations/generate-virtual-posts";
+import { CreateSkippedSlotRequestBodySchema, createSkippedSlot } from "./operations/skipped-slots/create";
+import { removeSkippedSlot } from "./operations/skipped-slots/remove";
 
-export const contentSchedulesRoutes = new Elysia({ prefix: "/api/content-schedules" })
-  .get("/all", async () => fetchAllContentSchedules(), {
-    response: FetchAllContentSchedulesResponseSchema,
+export const contentSchedulesRoutes = new Hono()
+  .basePath("/api/content-schedules")
+  .get("/all", async (c) => {
+    const result = await fetchAllContentSchedules();
+    return c.json(result);
   })
-  .get("/by-channel-id/:channelId", async ({ params: { channelId } }) =>
-    fetchContentSchedulesByChannel(channelId), {
-    response: FetchContentSchedulesByChannelResponseSchema,
+  .get("/by-channel-id/:channelId", async (c) => {
+    const channelId = c.req.param("channelId");
+    const result = await fetchContentSchedulesByChannel(channelId);
+    return c.json(result);
   })
-  .get("/by-id/:id", async ({ params: { id }, set }) => {
+  .get("/by-id/:id", async (c) => {
+    const id = c.req.param("id");
     const schedule = await fetchContentScheduleById(id);
     if (!schedule) {
-      set.status = 404;
-      return { error: "Content schedule not found" };
+      return notFound(c, "Content schedule not found");
     }
-    return schedule;
-  }, {
-    params: FetchContentScheduleByIdRequestParamsSchema,
-    response: {
-      200: FetchContentScheduleByIdResponseSchema,
-      404: t.Object({ error: t.String() }),
-    },
+    return c.json(schedule);
   })
-  .get("/virtual-posts", async ({ query }) => fetchVirtualPosts(query), {
-    query: FetchVirtualPostsRequestQuerySchema,
-    response: FetchVirtualPostsResponseSchema,
+  .get("/virtual-posts", zValidator("query", FetchVirtualPostsRequestQuerySchema, validationError), async (c) => {
+    const query = c.req.valid("query");
+    const result = await fetchVirtualPosts(query);
+    return c.json(result);
   })
-  .post("/", async ({ body }) => createContentSchedule(body), {
-    body: CreateContentScheduleRequestBodySchema,
-    response: CreateContentScheduleResponseSchema,
+  .post("/", zValidator("json", CreateContentScheduleRequestBodySchema, validationError), async (c) => {
+    const body = c.req.valid("json");
+    const result = await createContentSchedule(body);
+    return c.json(result);
   })
-  .patch("/by-id/:id", async ({ params: { id }, body, set }) => {
+  .patch("/by-id/:id", zValidator("json", UpdateContentScheduleRequestBodySchema, validationError), async (c) => {
+    const id = c.req.param("id");
+    const body = c.req.valid("json");
     const schedule = await updateContentSchedule(id, body);
     if (!schedule) {
-      set.status = 404;
-      return { error: "Content schedule not found" };
+      return notFound(c, "Content schedule not found");
     }
-    return schedule;
-  }, {
-    params: UpdateContentScheduleRequestParamsSchema,
-    body: UpdateContentScheduleRequestBodySchema,
-    response: {
-      200: UpdateContentScheduleResponseSchema,
-      404: t.Object({ error: t.String() }),
-    },
+    return c.json(schedule);
   })
-  .delete("/by-id/:id", async ({ params: { id }, set }) => {
+  .delete("/by-id/:id", async (c) => {
+    const id = c.req.param("id");
     const success = await deleteContentSchedule(id);
     if (!success) {
-      set.status = 404;
-      return { error: "Content schedule not found" };
+      return notFound(c, "Content schedule not found");
     }
-    return { success: true };
-  }, {
-    params: DeleteContentScheduleRequestParamsSchema,
-    response: {
-      200: DeleteContentScheduleResponseSchema,
-      404: t.Object({ error: t.String() }),
-    },
+    return c.json({ success: true });
   })
-  .post("/skipped-slots", async ({ body }) => createSkippedSlot(body), {
-    body: CreateSkippedSlotRequestBodySchema,
-    response: CreateSkippedSlotResponseSchema,
+  .post("/skipped-slots", zValidator("json", CreateSkippedSlotRequestBodySchema, validationError), async (c) => {
+    const body = c.req.valid("json");
+    const result = await createSkippedSlot(body);
+    return c.json(result);
   })
-  .delete("/skipped-slots/:id", async ({ params: { id }, set }) => {
+  .delete("/skipped-slots/:id", async (c) => {
+    const id = c.req.param("id");
     const success = await removeSkippedSlot(id);
     if (!success) {
-      set.status = 404;
-      return { error: "Skipped slot not found" };
+      return notFound(c, "Skipped slot not found");
     }
-    return { success: true };
-  }, {
-    params: RemoveSkippedSlotRequestParamsSchema,
-    response: {
-      200: RemoveSkippedSlotResponseSchema,
-      404: t.Object({ error: t.String() }),
-    },
+    return c.json({ success: true });
   });
 

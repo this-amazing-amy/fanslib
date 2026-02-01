@@ -69,7 +69,7 @@ bun add zod@^3.24.1
 ---
 
 ✅ Server migrated to Hono with devalue middleware
-✅ 9 features fully working with Hono (45 endpoints migrated)
+✅ 10 features fully working with Hono (~54 endpoints migrated)
 ✅ Post and Media entity schemas already using Zod
 ✅ MediaFilter schemas migrated to Zod (shared dependency)
 
@@ -80,27 +80,27 @@ bun add zod@^3.24.1
 - Tests passing for migrated features
 
 **Remaining Work:**
-- ContentSchedule entity schema needs Zod conversion (blocks Pipeline, Posts features)
+- ContentSchedule entity schema - ✅ DONE
 - Tags entity schema needs Zod conversion (3 entities)
 - Analytics entity schema needs Zod conversion
-- 6 major features remaining (Posts, Content-Schedules, Library, Analytics, Tags, Reddit Automation)
-- ~85 endpoints remaining
+- 5 major features remaining (Posts, Library, Analytics, Tags, Reddit Automation)
+- ~80 endpoints remaining
 
 **Key Insight:**
 
 Most remaining features have complex dependencies:
-- Posts feature (10 endpoints) depends on ContentSchedule schema
-- Pipeline feature (3 endpoints) depends on ContentSchedule and Post schemas  
-- Content-schedules feature (9 endpoints) needs own schema migrated first
+- Posts feature (10 endpoints) depends on ContentSchedule schema - ✅ DONE
+- Pipeline feature (3 endpoints) depends on ContentSchedule and Post schemas - ✅ Schemas DONE
+- Content-schedules feature (9 endpoints) - ✅ FULLY COMPLETE
 - Library/Media feature (11 endpoints) is large but schemas already done
 - Analytics and Tags features are very large (18 and 17 endpoints)
 
 **Progress Summary:**
 - Infrastructure: 100% complete
-- Features migrated: 9/15 (Settings, Bluesky, Hashtags, Shoots, Filter-presets, Snippets, Subreddits, Channels)
-- Entity schemas migrated: 7/11
-- Operations converted: ~46/130
-- Estimated remaining effort: 84-90 operations to convert
+- Features migrated: 10/15 (Settings, Bluesky, Hashtags, Shoots, Filter-presets, Snippets, Subreddits, Channels, Content-Schedules)
+- Entity schemas migrated: 8/11
+- Operations converted: ~54/134
+- Estimated remaining effort: ~80 operations to convert
 
 **Migration Strategy Going Forward:**
 Given the cross-dependencies between features, the most efficient approach is:
@@ -161,7 +161,7 @@ Continue with schema migrations and feature conversions per the original plan. D
 - ✅ library/schemas/media-filter.ts (MediaFilterSchema + all filter items)
 - ✅ posts/schema.ts (PostSchema, PostMediaSchema, PostStatusSchema)
 
-**Features Fully Migrated (9/15 = 45 endpoints):**
+**Features Fully Migrated (10/15 = ~54 endpoints):**
 1. ✅ Settings (6 endpoints)
 2. ✅ Bluesky (1 endpoint)
 3. ✅ Hashtags (8 endpoints)
@@ -170,14 +170,14 @@ Continue with schema migrations and feature conversions per the original plan. D
 6. ✅ Snippets (7 endpoints)
 7. ✅ Subreddits (6 endpoints)
 8. ✅ Channels (6 endpoints)
+9. ✅ Content-Schedules (9 endpoints)
 
-**Features Remaining (6/15 = ~85 endpoints):**
-- Posts (10 endpoints) - depends on ContentSchedule schema
-- Content Schedules (9 endpoints) - needs entity schema migrated
+**Features Remaining (5/15 = ~80 endpoints):**
+- Posts (10 endpoints) - schemas ready (depends on ContentSchedule ✅)
 - Library/Media (11 endpoints) - large feature, schemas done
 - Analytics (18 endpoints) - very large
 - Tags (17 endpoints) - very large, complex
-- Pipeline (3 endpoints) - depends on ContentSchedule + Post
+- Pipeline (3 endpoints) - schemas ready (depends on ContentSchedule + Post ✅)
 - Postpone (4 endpoints) - small
 - Reddit Automation (11 endpoints) - large
 - Root endpoints (2 endpoints) - trivial
@@ -238,7 +238,7 @@ Each feature requires: (1) convert TypeBox schemas to Zod, (2) migrate routes to
 - [x] Update `@fanslib/apps/web/src/lib/queries/channels.ts` to use hc client - DONE
 - [x] Register routes in main index.ts - DONE
 
-### Content Schedules Feature (9 endpoints)
+### Content Schedules Feature (9 endpoints) ✅ FULLY COMPLETE
 
 - [x] Convert content-schedules schemas to Zod
   - `entity.ts` (ContentScheduleSchema, SkippedScheduleSlotSchema, ScheduleChannelSchema) - ✅ 6 base schemas (3 entities)
@@ -251,9 +251,8 @@ Each feature requires: (1) convert TypeBox schemas to Zod, (2) migrate routes to
   - `operations/skipped-slots/create.ts` (CreateSkippedSlotRequestSchema, SkippedScheduleSlotResponseSchema) - ✅
   - `operations/skipped-slots/remove.ts` (RemoveSkippedSlotRequestSchema) - ✅
   - `operations/generate-virtual-posts.ts` (VirtualPostsRequestSchema, VirtualPostsResponseSchema, VirtualPostSchema) - ✅
-  - **Note:** VirtualPostSchema uses `z.unknown()` for `post` field (PostWithRelationsSchema) - temporary placeholder until posts feature migration complete
-- [ ] Migrate content-schedules routes in `features/content-schedules/routes.ts` - **NEXT PRIORITY** (will unblock routes tests)
-- [ ] Update `@fanslib/apps/web/src/lib/queries/content-schedules.ts` to use hc client
+- [x] Migrate content-schedules routes in `features/content-schedules/routes.ts` - ✅ DONE
+- [x] Update `@fanslib/apps/web/src/lib/queries/content-schedules.ts` to use hc client - ✅ DONE
 
 ### Library/Media Feature (12 endpoints)
 

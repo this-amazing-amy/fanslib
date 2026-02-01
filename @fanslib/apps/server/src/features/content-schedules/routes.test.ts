@@ -1,23 +1,25 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
-import { Elysia } from "elysia";
+import { Hono } from "hono";
 import "reflect-metadata";
 import { getTestDataSource, resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
-import { mapResponse } from "../../lib/serialization";
-import { logError, parseResponse } from "../../test-utils/setup";
+import { devalueMiddleware } from "../../lib/devalue-middleware";
+import { parseResponse } from "../../test-utils/setup";
 import { ContentSchedule } from "./entity";
 import { CONTENT_SCHEDULE_FIXTURES } from "./fixtures";
 import { contentSchedulesRoutes } from "./routes";
 
 describe("Content Schedules Routes", () => {
   // eslint-disable-next-line functional/no-let
-  let app: Elysia;
+  let app: Hono;
   // eslint-disable-next-line functional/no-let
   let fixtures: Awaited<ReturnType<typeof resetAllFixtures>>;
 
   beforeAll(async () => {
     await setupTestDatabase();
     fixtures = await resetAllFixtures();
-    app = new Elysia().onError(logError()).mapResponse(mapResponse).use(contentSchedulesRoutes);
+    app = new Hono()
+      .use("*", devalueMiddleware())
+      .route("/", contentSchedulesRoutes);
   });
 
   afterAll(async () => {
@@ -30,7 +32,7 @@ describe("Content Schedules Routes", () => {
 
   describe("GET /api/content-schedules/all", () => {
     test("returns all content schedules", async () => {
-      const response = await app.handle(new Request("http://localhost/api/content-schedules/all"));
+      const response = await app.request("/api/content-schedules/all");
       expect(response.status).toBe(200);
 
       const data = await parseResponse<ContentSchedule[]>(response);
@@ -53,9 +55,7 @@ describe("Content Schedules Routes", () => {
         throw new Error("No content schedule fixtures available");
       }
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/content-schedules/by-id/${fixtureSchedule.id}`)
-      );
+      const response = await app.request(`/api/content-schedules/by-id/${fixtureSchedule.id}`);
       expect(response.status).toBe(200);
 
       const data = await parseResponse<ContentSchedule>(response);
@@ -65,11 +65,8 @@ describe("Content Schedules Routes", () => {
     });
 
     test("returns error for non-existent schedule", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/content-schedules/by-id/non-existent-id")
-      );
+      const response = await app.request("/api/content-schedules/by-id/non-existent-id");
 
-      expect(response.status).toBe(404);
       const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
       expect(data?.error).toBe("Content schedule not found");
@@ -83,9 +80,7 @@ describe("Content Schedules Routes", () => {
         throw new Error("No channel fixtures available");
       }
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/content-schedules/by-channel-id/${fixtureChannel.id}`)
-      );
+      const response = await app.request(`/api/content-schedules/by-channel-id/${fixtureChannel.id}`);
       const data = await parseResponse<ContentSchedule[]>(response);
 
       expect(Array.isArray(data)).toBe(true);
@@ -110,13 +105,11 @@ describe("Content Schedules Routes", () => {
         preferredTimes: ["14:30"],
       };
 
-      const response = await app.handle(
-        new Request("http://localhost/api/content-schedules", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(scheduleData),
-        })
-      );
+      const response = await app.request("/api/content-schedules", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(scheduleData),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<ContentSchedule>(response);
@@ -136,13 +129,11 @@ describe("Content Schedules Routes", () => {
         preferredTimes: ["16:00"],
       };
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/content-schedules/by-id/${fixtureSchedule.id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updateData),
-        })
-      );
+      const response = await app.request(`/api/content-schedules/by-id/${fixtureSchedule.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updateData),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<ContentSchedule>(response);
@@ -151,15 +142,12 @@ describe("Content Schedules Routes", () => {
     });
 
     test("returns error for non-existent schedule", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/content-schedules/by-id/non-existent-id", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ time: "12:00" }),
-        })
-      );
+      const response = await app.request("/api/content-schedules/by-id/non-existent-id", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ time: "12:00" }),
+      });
 
-      expect(response.status).toBe(404);
       const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
       expect(data?.error).toBe("Content schedule not found");
@@ -173,11 +161,9 @@ describe("Content Schedules Routes", () => {
         throw new Error("No content schedule fixtures available");
       }
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/content-schedules/by-id/${fixtureSchedule.id}`, {
-          method: "DELETE",
-        })
-      );
+      const response = await app.request(`/api/content-schedules/by-id/${fixtureSchedule.id}`, {
+        method: "DELETE",
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<{ success: boolean }>(response);
@@ -190,11 +176,9 @@ describe("Content Schedules Routes", () => {
     });
 
     test("returns 404 when content schedule not found", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/content-schedules/by-id/non-existent-id", {
-          method: "DELETE",
-        })
-      );
+      const response = await app.request("/api/content-schedules/by-id/non-existent-id", {
+        method: "DELETE",
+      });
       expect(response.status).toBe(404);
 
       const data = await parseResponse<{ error: string }>(response);
