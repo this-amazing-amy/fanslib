@@ -218,20 +218,27 @@ Each feature requires: (1) convert TypeBox schemas to Zod, (2) migrate routes to
 
 ### Hashtags Feature (8 endpoints)
 
-- [ ] Convert hashtags schemas to Zod
-  - `entity.ts` (HashtagSchema, HashtagChannelStatsSchema)
-  - `operations/hashtag/*.ts`
-  - `operations/hashtag-stats/*.ts`
-- [ ] Migrate hashtags routes in `features/hashtags/routes.ts`
-- [ ] Update `@fanslib/apps/web/src/lib/queries/hashtags.ts` to use hc client
+- [x] Convert hashtags schemas to Zod
+  - `entity.ts` (HashtagSchema, HashtagChannelStatsSchema) - ALREADY DONE
+  - `operations/hashtag/*.ts` - CONVERTED ALL
+  - `operations/hashtag-stats/*.ts` - CONVERTED ALL
+- [x] Migrate hashtags routes in `features/hashtags/routes.ts` - DONE
+- [x] Update `@fanslib/apps/web/src/lib/queries/hashtags.ts` to use hc client - DONE
+- [x] Register routes in main index.ts - DONE
 
 ### Shoots Feature (6 endpoints)
 
-- [ ] Convert shoots schemas to Zod
-  - `entity.ts` (ShootSchema)
-  - `operations/shoot/*.ts`
-- [ ] Migrate shoots routes in `features/shoots/routes.ts`
-- [ ] Update `@fanslib/apps/web/src/lib/queries/shoots.ts` to use hc client
+- [x] Convert shoots schemas to Zod
+  - `entity.ts` (ShootSchema) - ALREADY DONE
+  - `operations/shoot/*.ts` - CONVERTED ALL
+- [x] Migrate shoots routes in `features/shoots/routes.ts` - DONE
+- [x] Update `@fanslib/apps/web/src/lib/queries/shoots.ts` to use hc client - DONE
+- [x] Register routes in main index.ts - DONE
+
+**Note:** Also migrated shared schemas:
+- `lib/pagination.ts` - paginatedResponseSchema converted to Zod
+- `features/library/schema.ts` - MediaSchema, MediaTypeSchema converted to Zod
+- `features/posts/schema.ts` - PostSchema, PostMediaSchema, PostStatusSchema converted to Zod
 
 ### Subreddits Feature (6 endpoints)
 

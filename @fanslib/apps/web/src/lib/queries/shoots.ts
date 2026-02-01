@@ -1,27 +1,32 @@
-import type {
-  CreateShootRequestBodySchema,
-  FetchAllShootsRequestBodySchema,
-  FetchShootByIdRequestParamsSchema,
-  UpdateShootRequestBodySchema,
-} from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { eden } from '../api/eden';
+import { z } from 'zod';
+import { api } from '../api/hono-client';
 
-export const useShootsQuery = (params?: typeof FetchAllShootsRequestBodySchema.static) =>
+type FetchAllShootsParams = {
+  page?: number;
+  limit?: number;
+  filter?: {
+    name?: string;
+    startDate?: Date;
+    endDate?: Date;
+  };
+};
+
+export const useShootsQuery = (params?: FetchAllShootsParams) =>
   useQuery({
     queryKey: ['shoots', 'list', params],
     queryFn: async () => {
-      const result = await eden.api.shoots.all.post(params);
-      return result.data;
+      const result = await api.api.shoots.all.$post({ json: params || {} });
+      return result.json();
     },
   });
 
-export const useShootQuery = (params: typeof FetchShootByIdRequestParamsSchema.static) =>
+export const useShootQuery = (params: { id: string }) =>
   useQuery({
     queryKey: ['shoots', params.id],
     queryFn: async () => {
-      const result = await eden.api.shoots['by-id']({ id: params.id }).get();
-      return result.data;
+      const result = await api.api.shoots['by-id'][':id'].$get({ param: { id: params.id } });
+      return result.json();
     },
     enabled: !!params.id,
   });
@@ -30,9 +35,14 @@ export const useCreateShootMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: typeof CreateShootRequestBodySchema.static) => {
-      const result = await eden.api.shoots.post(data);
-      return result.data;
+    mutationFn: async (data: {
+      name: string;
+      description?: string;
+      shootDate: Date;
+      mediaIds?: string[];
+    }) => {
+      const result = await api.api.shoots.$post({ json: data });
+      return result.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['shoots', 'list'] });
@@ -40,8 +50,14 @@ export const useCreateShootMutation = () => {
   });
 };
 
-type UpdateShootParams = typeof FetchShootByIdRequestParamsSchema.static & {
-  updates: typeof UpdateShootRequestBodySchema.static;
+type UpdateShootParams = {
+  id: string;
+  updates: {
+    name?: string;
+    description?: string;
+    shootDate?: Date;
+    mediaIds?: string[];
+  };
 };
 
 export const useUpdateShootMutation = () => {
@@ -49,8 +65,11 @@ export const useUpdateShootMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdateShootParams) => {
-      const result = await eden.api.shoots['by-id']({ id }).patch(updates);
-      return result.data;
+      const result = await api.api.shoots['by-id'][':id'].$patch({ 
+        param: { id },
+        json: updates 
+      });
+      return result.json();
     },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['shoots', 'list'] });
@@ -67,9 +86,9 @@ export const useDeleteShootMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (params: typeof FetchShootByIdRequestParamsSchema.static) => {
-      const result = await eden.api.shoots['by-id']({ id: params.id }).delete();
-      return result.data;
+    mutationFn: async (params: { id: string }) => {
+      const result = await api.api.shoots['by-id'][':id'].$delete({ param: { id: params.id } });
+      return result.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['shoots', 'list'] });
@@ -81,8 +100,8 @@ export const usePostsByShootIdQuery = (shootId: string) =>
   useQuery({
     queryKey: ['shoots', 'posts', shootId],
     queryFn: async () => {
-      const result = await eden.api.shoots['by-id']({ id: shootId }).posts.get();
-      return result.data;
+      const result = await api.api.shoots['by-id'][':id'].posts.$get({ param: { id: shootId } });
+      return result.json();
     },
     enabled: !!shootId,
   });

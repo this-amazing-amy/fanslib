@@ -1,18 +1,18 @@
-import { t } from "elysia";
+import { z } from "zod";
 
-export const MediaTypeSchema = t.Union([t.Literal('image'), t.Literal('video')]);
+export const MediaTypeSchema = z.enum(['image', 'video']);
 
-export const MediaSchema = t.Object({
-  id: t.String(),
-  relativePath: t.String(),
+export const MediaSchema = z.object({
+  id: z.string(),
+  relativePath: z.string(),
   type: MediaTypeSchema,
-  name: t.String(),
-  size: t.Number(),
-  duration: t.Nullable(t.Number()),
-  redgifsUrl: t.Nullable(t.String()),
-  createdAt: t.Date(),
-  updatedAt: t.Date(),
-  fileCreationDate: t.Date(),
-  fileModificationDate: t.Date(),
+  name: z.string(),
+  size: z.number(),
+  duration: z.number().nullable(),
+  redgifsUrl: z.string().nullable(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+  fileCreationDate: z.coerce.date(),
+  fileModificationDate: z.coerce.date(),
 });
 

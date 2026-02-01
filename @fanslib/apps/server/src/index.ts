@@ -2,8 +2,10 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import "reflect-metadata";
 import { blueskyRoutes } from "./features/api-bluesky/routes";
+import { hashtagsRoutes } from "./features/hashtags/routes";
 import { runScheduledPostsCronTick } from "./features/posts/scheduled-posts-cron";
 import { settingsRoutes } from "./features/settings/routes";
+import { shootsRoutes } from "./features/shoots/routes";
 import { db } from "./lib/db";
 import { devalueMiddleware } from "./lib/devalue-middleware";
 import { env } from "./lib/env";
@@ -64,7 +66,9 @@ const app = new Hono()
     }
   })
   .route("/", settingsRoutes)
-  .route("/", blueskyRoutes);
+  .route("/", blueskyRoutes)
+  .route("/", hashtagsRoutes)
+  .route("/", shootsRoutes);
 
 // Set up cron job if enabled
 if (isScheduledPostsCronEnabled) {
@@ -99,6 +103,9 @@ db()
     console.error("Failed to initialize database:", error);
     process.exit(1);
   });
+
+// Export app type for Hono client type inference
+export type AppType = typeof app;
 
 // Export app type for hono/client
 export type AppType = typeof app;

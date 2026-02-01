@@ -1,32 +1,29 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { paginatedResponseSchema } from "../../../../lib/pagination";
 import { MediaSchema } from "../../../library/schema";
 import { Shoot, ShootSchema } from "../../entity";
 
-export const ShootFiltersSchema = t.Object({
-  name: t.Optional(t.String()),
-  startDate: t.Optional(t.Date()),
-  endDate: t.Optional(t.Date()),
+export const ShootFiltersSchema = z.object({
+  name: z.string().optional(),
+  startDate: z.coerce.date().optional(),
+  endDate: z.coerce.date().optional(),
 });
 
-export const FetchAllShootsRequestBodySchema = t.Object({
-  page: t.Optional(t.Numeric()),
-  limit: t.Optional(t.Numeric()),
-  filter: t.Optional(ShootFiltersSchema),
+export const FetchAllShootsRequestBodySchema = z.object({
+  page: z.number().optional(),
+  limit: z.number().optional(),
+  filter: ShootFiltersSchema.optional(),
 });
 
-export const ShootSummarySchema = t.Composite([
-  ShootSchema,
-  t.Object({ 
-    mediaCount: t.Number(),
-    media: t.Array(MediaSchema),
-  }),
-]);
+export const ShootSummarySchema = ShootSchema.extend({ 
+  mediaCount: z.number(),
+  media: z.array(MediaSchema),
+});
 
 export const FetchAllShootsResponseSchema = paginatedResponseSchema(ShootSummarySchema);
 
-export const listShoots = async (payload: typeof FetchAllShootsRequestBodySchema.static): Promise<typeof FetchAllShootsResponseSchema.static> => {
+export const listShoots = async (payload: z.infer<typeof FetchAllShootsRequestBodySchema>): Promise<z.infer<typeof FetchAllShootsResponseSchema>> => {
   const { page = 1, limit = 50, filter } = payload;
   const database = await db();
   const shootRepository = database.getRepository(Shoot);

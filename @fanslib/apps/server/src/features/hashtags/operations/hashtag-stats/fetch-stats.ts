@@ -1,18 +1,19 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { ChannelSchema } from "../../../channels/entity";
 import { HashtagChannelStats, HashtagChannelStatsSchema } from "../../entity";
 
-export const FetchHashtagStatsRequestParamsSchema = t.Object({
-  id: t.String(),
+export const FetchHashtagStatsRequestParamsSchema = z.object({
+  id: z.string(),
 });
 
-export const FetchHashtagStatsResponseSchema = t.Array(t.Composite([
-  HashtagChannelStatsSchema,
-  t.Object({ channel: ChannelSchema }),
-]));
+export const FetchHashtagStatsResponseSchema = z.array(
+  HashtagChannelStatsSchema.extend({
+    channel: ChannelSchema,
+  })
+);
 
-export const fetchHashtagStats = async (hashtagId: number): Promise<typeof FetchHashtagStatsResponseSchema.static> => {
+export const fetchHashtagStats = async (hashtagId: number): Promise<z.infer<typeof FetchHashtagStatsResponseSchema>> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(HashtagChannelStats);
 

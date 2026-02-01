@@ -1,23 +1,21 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { ChannelSchema } from "../../../channels/entity";
 import { Hashtag, HashtagChannelStatsSchema, HashtagSchema } from "../../entity";
 
-export const FetchHashtagByIdRequestParamsSchema = t.Object({
-  id: t.String(),
+export const FetchHashtagByIdRequestParamsSchema = z.object({
+  id: z.string(),
 });
 
-export const FetchHashtagByIdResponseSchema = t.Composite([
-  t.Omit(HashtagSchema, ["channelStats"]),
-  t.Object({
-    channelStats: t.Array(t.Composite([
-      HashtagChannelStatsSchema,
-      t.Object({ channel: ChannelSchema }),
-    ])),
-  }),
-]);
+export const FetchHashtagByIdResponseSchema = HashtagSchema.omit({ channelStats: true }).extend({
+  channelStats: z.array(
+    HashtagChannelStatsSchema.extend({
+      channel: ChannelSchema,
+    })
+  ),
+});
 
-export const fetchHashtagById = async (id: number): Promise<typeof FetchHashtagByIdResponseSchema.static | null> => {
+export const fetchHashtagById = async (id: number): Promise<z.infer<typeof FetchHashtagByIdResponseSchema> | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Hashtag);
 

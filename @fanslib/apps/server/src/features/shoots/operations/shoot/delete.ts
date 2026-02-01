@@ -1,13 +1,13 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { Shoot } from "../../entity";
 
-export const DeleteShootRequestParamsSchema = t.Object({
-  id: t.String(),
+export const DeleteShootRequestParamsSchema = z.object({
+  id: z.string(),
 });
 
-export const DeleteShootResponseSchema = t.Object({
-  success: t.Boolean(),
+export const DeleteShootResponseSchema = z.object({
+  success: z.boolean(),
 });
 
 export const deleteShoot = async (id: string): Promise<boolean> => {

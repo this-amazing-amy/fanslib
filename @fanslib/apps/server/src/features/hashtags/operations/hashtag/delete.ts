@@ -1,13 +1,13 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { Hashtag, HashtagChannelStats } from "../../entity";
 
-export const DeleteHashtagRequestParamsSchema = t.Object({
-  id: t.String(),
+export const DeleteHashtagRequestParamsSchema = z.object({
+  id: z.string(),
 });
 
-export const DeleteHashtagResponseSchema = t.Object({
-  success: t.Boolean(),
+export const DeleteHashtagResponseSchema = z.object({
+  success: z.boolean(),
 });
 
 export const deleteHashtag = async (id: number): Promise<boolean> => {

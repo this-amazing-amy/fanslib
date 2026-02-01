@@ -1,20 +1,20 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { Hashtag, HashtagSchema } from "../../entity";
 import { normalizeHashtagName } from "./helpers";
 
-export const FindOrCreateHashtagRequestBodySchema = t.Object({
-  name: t.String(),
+export const FindOrCreateHashtagRequestBodySchema = z.object({
+  name: z.string(),
 });
 
-export const FindOrCreateHashtagsByIdsRequestBodySchema = t.Object({
-  names: t.Array(t.String()),
+export const FindOrCreateHashtagsByIdsRequestBodySchema = z.object({
+  names: z.array(z.string()),
 });
 
 export const FindOrCreateHashtagResponseSchema = HashtagSchema;
-export const FindOrCreateHashtagsByIdsResponseSchema = t.Array(HashtagSchema);
+export const FindOrCreateHashtagsByIdsResponseSchema = z.array(HashtagSchema);
 
-export const findOrCreateHashtag = async (name: string): Promise<typeof FindOrCreateHashtagResponseSchema.static> => {
+export const findOrCreateHashtag = async (name: string): Promise<z.infer<typeof FindOrCreateHashtagResponseSchema>> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Hashtag);
   const normalizedName = normalizeHashtagName(name);
@@ -31,6 +31,6 @@ export const findOrCreateHashtag = async (name: string): Promise<typeof FindOrCr
   return repository.save(hashtag);
 };
 
-export const findOrCreateHashtags = async (names: string[]): Promise<typeof FindOrCreateHashtagsByIdsResponseSchema.static> =>
+export const findOrCreateHashtags = async (names: string[]): Promise<z.infer<typeof FindOrCreateHashtagsByIdsResponseSchema>> =>
   Promise.all(names.map((name) => findOrCreateHashtag(name)));
 

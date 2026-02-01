@@ -1,41 +1,32 @@
-import type {
-  DeleteHashtagRequestParamsSchema,
-  FetchHashtagByIdRequestParamsSchema,
-  FetchHashtagsByIdsQuerySchema,
-  FetchHashtagStatsRequestParamsSchema,
-  FindOrCreateHashtagRequestBodySchema,
-  FindOrCreateHashtagsByIdsRequestBodySchema,
-  UpdateHashtagStatsRequestBodySchema,
-  UpdateHashtagStatsRequestParamsSchema,
-} from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { eden } from '../api/eden';
+import { z } from 'zod';
+import { api } from '../api/hono-client';
 
 export const useHashtagsQuery = () =>
   useQuery({
     queryKey: ['hashtags', 'list'],
     queryFn: async () => {
-      const result = await eden.api.hashtags.all.get();
-      return result.data;
+      const result = await api.api.hashtags.all.$get();
+      return result.json();
     },
   });
 
-export const useHashtagQuery = (params: typeof FetchHashtagByIdRequestParamsSchema.static) =>
+export const useHashtagQuery = (params: { id: string }) =>
   useQuery({
     queryKey: ['hashtags', params.id],
     queryFn: async () => {
-      const result = await eden.api.hashtags['by-id']({ id: params.id }).get();
-      return result.data;
+      const result = await api.api.hashtags['by-id'][':id'].$get({ param: { id: params.id } });
+      return result.json();
     },
     enabled: !!params.id,
   });
 
-export const useHashtagsByIdsQuery = (query: typeof FetchHashtagsByIdsQuerySchema.static) =>
+export const useHashtagsByIdsQuery = (query: { ids?: string }) =>
   useQuery({
     queryKey: ['hashtags', 'by-ids', query.ids],
     queryFn: async () => {
-      const result = await eden.api.hashtags['by-ids'].get({ query: { ids: query.ids } });
-      return result.data;
+      const result = await api.api.hashtags['by-ids'].$get({ query: { ids: query.ids } });
+      return result.json();
     },
     enabled: !!query.ids,
   });
@@ -44,9 +35,9 @@ export const useCreateHashtagMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: typeof FindOrCreateHashtagRequestBodySchema.static) => {
-      const result = await eden.api.hashtags.post(data);
-      return result.data;
+    mutationFn: async (data: { name: string }) => {
+      const result = await api.api.hashtags.$post({ json: data });
+      return result.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['hashtags', 'list'] });
@@ -58,9 +49,9 @@ export const useCreateHashtagsBatchMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: typeof FindOrCreateHashtagsByIdsRequestBodySchema.static) => {
-      const result = await eden.api.hashtags['by-ids'].post(data);
-      return result.data;
+    mutationFn: async (data: { names: string[] }) => {
+      const result = await api.api.hashtags['by-ids'].$post({ json: data });
+      return result.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['hashtags', 'list'] });
@@ -72,9 +63,9 @@ export const useDeleteHashtagMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (params: typeof DeleteHashtagRequestParamsSchema.static) => {
-      const result = await eden.api.hashtags['by-id']({ id: params.id }).delete();
-      return result.data;
+    mutationFn: async (params: { id: string }) => {
+      const result = await api.api.hashtags['by-id'][':id'].$delete({ param: { id: params.id } });
+      return result.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['hashtags', 'list'] });
@@ -82,18 +73,22 @@ export const useDeleteHashtagMutation = () => {
   });
 };
 
-export const useHashtagStatsQuery = (params: typeof FetchHashtagStatsRequestParamsSchema.static) =>
+export const useHashtagStatsQuery = (params: { id: string }) =>
   useQuery({
     queryKey: ['hashtags', params.id, 'stats'],
     queryFn: async () => {
-      const result = await eden.api.hashtags['by-id']({ id: params.id }).stats.get();
-      return result.data;
+      const result = await api.api.hashtags['by-id'][':id'].stats.$get({ param: { id: params.id } });
+      return result.json();
     },
     enabled: !!params.id,
   });
 
-type UpdateHashtagStatsParams = typeof UpdateHashtagStatsRequestParamsSchema.static & {
-  updates: typeof UpdateHashtagStatsRequestBodySchema.static;
+type UpdateHashtagStatsParams = {
+  id: string;
+  updates: {
+    channelId: string;
+    views: number;
+  };
 };
 
 export const useUpdateHashtagStatsMutation = () => {
@@ -101,8 +96,11 @@ export const useUpdateHashtagStatsMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdateHashtagStatsParams) => {
-      const result = await eden.api.hashtags['by-id']({ id }).stats.post(updates);
-      return result.data;
+      const result = await api.api.hashtags['by-id'][':id'].stats.$post({ 
+        param: { id },
+        json: updates 
+      });
+      return result.json();
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['hashtags', variables.id, 'stats'] });

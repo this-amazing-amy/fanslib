@@ -1,46 +1,43 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { MediaSchema } from "../library/schema";
 
-export const PostStatusSchema = t.Union([
-  t.Literal('draft'),
-  t.Literal('ready'),
-  t.Literal('scheduled'),
-  t.Literal('posted'),
+export const PostStatusSchema = z.enum([
+  'draft',
+  'ready',
+  'scheduled',
+  'posted',
 ]);
 
-export const PostMediaSchema = t.Object({
-  id: t.String(),
-  order: t.Number(),
-  isFreePreview: t.Boolean(),
-  fanslyStatisticsId: t.Nullable(t.String()),
-  createdAt: t.Date(),
-  updatedAt: t.Date(),
+export const PostMediaSchema = z.object({
+  id: z.string(),
+  order: z.number(),
+  isFreePreview: z.boolean(),
+  fanslyStatisticsId: z.string().nullable(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
 });
 
-export const PostMediaWithMediaSchema = t.Composite([
-  PostMediaSchema,
-  t.Object({
-    media: MediaSchema,
-  }),
-]);
+export const PostMediaWithMediaSchema = PostMediaSchema.extend({
+  media: MediaSchema,
+});
 
-export const PostSchema = t.Object({
-  id: t.String(),
-  createdAt: t.Date(),
-  updatedAt: t.Date(),
-  postGroupId: t.Nullable(t.String()),
-  scheduleId: t.Nullable(t.String()),
-  caption: t.Nullable(t.String()),
-  date: t.Date(),
-  url: t.Nullable(t.String()),
-  fypRemovedAt: t.Nullable(t.Date()),
-  fypManuallyRemoved: t.Boolean(),
-  postponeBlueskyDraftedAt: t.Nullable(t.Date()),
-  blueskyPostUri: t.Nullable(t.String()),
-  blueskyPostError: t.Nullable(t.String()),
-  blueskyRetryCount: t.Number(),
+export const PostSchema = z.object({
+  id: z.string(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+  postGroupId: z.string().nullable(),
+  scheduleId: z.string().nullable(),
+  caption: z.string().nullable(),
+  date: z.coerce.date(),
+  url: z.string().nullable(),
+  fypRemovedAt: z.coerce.date().nullable(),
+  fypManuallyRemoved: z.boolean(),
+  postponeBlueskyDraftedAt: z.coerce.date().nullable(),
+  blueskyPostUri: z.string().nullable(),
+  blueskyPostError: z.string().nullable(),
+  blueskyRetryCount: z.number(),
   status: PostStatusSchema,
-  channelId: t.String(),
-  subredditId: t.Nullable(t.String()),
+  channelId: z.string(),
+  subredditId: z.string().nullable(),
 });
 

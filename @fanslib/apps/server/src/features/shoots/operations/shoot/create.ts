@@ -1,23 +1,22 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { In } from "typeorm";
 import { db } from "../../../../lib/db";
 import { Media } from "../../../library/entity";
 import { MediaSchema } from "../../../library/schema";
 import { Shoot, ShootSchema } from "../../entity";
 
-export const CreateShootRequestBodySchema = t.Object({
-  name: t.String(),
-  description: t.Optional(t.String()),
-  shootDate: t.Date(),
-  mediaIds: t.Optional(t.Array(t.String())),
+export const CreateShootRequestBodySchema = z.object({
+  name: z.string(),
+  description: z.string().optional(),
+  shootDate: z.coerce.date(),
+  mediaIds: z.array(z.string()).optional(),
 });
 
-export const CreateShootResponseSchema = t.Composite([
-  ShootSchema,
-  t.Object({ media: t.Array(MediaSchema) }),
-]);
+export const CreateShootResponseSchema = ShootSchema.extend({
+  media: z.array(MediaSchema),
+});
 
-export const createShoot = async (payload: typeof CreateShootRequestBodySchema.static): Promise<typeof CreateShootResponseSchema.static> => {
+export const createShoot = async (payload: z.infer<typeof CreateShootRequestBodySchema>): Promise<z.infer<typeof CreateShootResponseSchema>> => {
   const database = await db();
   const mediaRepository = database.getRepository(Media);
   const shootRepository = database.getRepository(Shoot);

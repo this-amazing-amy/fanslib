@@ -1,18 +1,17 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { MediaSchema } from "../../../library/schema";
 import { Shoot, ShootSchema } from "../../entity";
 
-export const FetchShootByIdRequestParamsSchema = t.Object({
-  id: t.String(),
+export const FetchShootByIdRequestParamsSchema = z.object({
+  id: z.string(),
 });
 
-export const FetchShootByIdResponseSchema = t.Composite([
-  ShootSchema,
-  t.Object({ media: t.Array(MediaSchema) }),
-]);
+export const FetchShootByIdResponseSchema = ShootSchema.extend({
+  media: z.array(MediaSchema),
+});
 
-export const fetchShootById = async (id: string): Promise<typeof FetchShootByIdResponseSchema.static | null> => {
+export const fetchShootById = async (id: string): Promise<z.infer<typeof FetchShootByIdResponseSchema> | null> => {
   const database = await db();
   const shootRepository = database.getRepository(Shoot);
 

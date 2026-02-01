@@ -1,14 +1,14 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { Hashtag, HashtagSchema } from "../../entity";
 
-export const FetchHashtagsByIdsQuerySchema = t.Object({
-  ids: t.Optional(t.String()), // JSON stringified number[]
+export const FetchHashtagsByIdsQuerySchema = z.object({
+  ids: z.string().optional(), // JSON stringified number[]
 });
 
-export const FetchHashtagsByIdsResponseSchema = t.Array(HashtagSchema);
+export const FetchHashtagsByIdsResponseSchema = z.array(HashtagSchema);
 
-export const fetchHashtagsByIds = async (ids: number[]): Promise<typeof FetchHashtagsByIdsResponseSchema.static> =>{
+export const fetchHashtagsByIds = async (ids: number[]): Promise<z.infer<typeof FetchHashtagsByIdsResponseSchema>> =>{
   if (ids.length === 0) return [];
 
   const dataSource = await db();

@@ -1,30 +1,29 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { In } from "typeorm";
 import { db } from "../../../../lib/db";
 import { Media } from "../../../library/entity";
 import { MediaSchema } from "../../../library/schema";
 import { Shoot, ShootSchema } from "../../entity";
 
-export const UpdateShootRequestParamsSchema = t.Object({
-  id: t.String(),
+export const UpdateShootRequestParamsSchema = z.object({
+  id: z.string(),
 });
 
-export const UpdateShootRequestBodySchema = t.Object({
-  name: t.Optional(t.String()),
-  description: t.Optional(t.String()),
-  shootDate: t.Optional(t.Date()),
-  mediaIds: t.Optional(t.Array(t.String())),
+export const UpdateShootRequestBodySchema = z.object({
+  name: z.string().optional(),
+  description: z.string().optional(),
+  shootDate: z.coerce.date().optional(),
+  mediaIds: z.array(z.string()).optional(),
 });
 
-export const UpdateShootResponseSchema = t.Composite([
-  ShootSchema,
-  t.Object({ media: t.Array(MediaSchema) }),
-]);
+export const UpdateShootResponseSchema = ShootSchema.extend({
+  media: z.array(MediaSchema),
+});
 
 export const updateShoot = async (
   id: string,
-  payload: typeof UpdateShootRequestBodySchema.static
-): Promise<typeof UpdateShootResponseSchema.static | null> => {
+  payload: z.infer<typeof UpdateShootRequestBodySchema>
+): Promise<z.infer<typeof UpdateShootResponseSchema> | null> => {
   const database = await db();
   const shootRepository = database.getRepository(Shoot);
   const mediaRepository = database.getRepository(Media);

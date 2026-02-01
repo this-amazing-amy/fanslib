@@ -1,9 +1,10 @@
-import { t, type TSchema } from "elysia";
+import { z } from "zod";
 
-export const paginatedResponseSchema = (itemSchema: TSchema) => t.Object({
-    items: t.Array(itemSchema),
-    total: t.Numeric(),
-    page: t.Numeric(),
-    limit: t.Numeric(),
-    totalPages: t.Numeric(),
-})
+export const paginatedResponseSchema = <T extends z.ZodTypeAny>(itemSchema: T) =>
+  z.object({
+    items: z.array(itemSchema),
+    total: z.number(),
+    page: z.number(),
+    limit: z.number(),
+    totalPages: z.number(),
+  });

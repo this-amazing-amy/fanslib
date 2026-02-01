@@ -1,4 +1,4 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { In } from "typeorm";
 import { db } from "../../../../lib/db";
 import { ChannelSchema, ChannelTypeSchema } from "../../../channels/entity";
@@ -7,31 +7,26 @@ import { Post } from "../../../posts/entity";
 import { PostMediaSchema, PostSchema } from "../../../posts/schema";
 import { Shoot } from "../../entity";
 
-export const FetchPostsByShootIdRequestParamsSchema = t.Object({
-  id: t.String(),
+export const FetchPostsByShootIdRequestParamsSchema = z.object({
+  id: z.string(),
 });
 
-export const FetchPostsByShootIdResponseSchema = t.Array(t.Composite([
-  PostSchema,
-  t.Object({
-    postMedia: t.Array(t.Composite([
-      PostMediaSchema,
-      t.Object({
+export const FetchPostsByShootIdResponseSchema = z.array(
+  PostSchema.extend({
+    postMedia: z.array(
+      PostMediaSchema.extend({
         media: MediaSchema,
-      }),
-    ])),
-    channel: t.Composite([
-      ChannelSchema,
-      t.Object({
-        type: ChannelTypeSchema,
-      }),
-    ]),
-  }),
-]));
+      })
+    ),
+    channel: ChannelSchema.extend({
+      type: ChannelTypeSchema,
+    }),
+  })
+);
 
 export const fetchPostsByShootId = async (
   shootId: string
-): Promise<typeof FetchPostsByShootIdResponseSchema.static> => {
+): Promise<z.infer<typeof FetchPostsByShootIdResponseSchema>> => {
   const repository = (await db()).getRepository(Post);
 
   // First, get all media IDs that belong to this shoot

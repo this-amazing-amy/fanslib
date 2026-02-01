@@ -1,65 +1,53 @@
-import { Elysia, t } from "elysia";
-import { CreateShootRequestBodySchema, CreateShootResponseSchema, createShoot } from "./operations/shoot/create";
-import { DeleteShootRequestParamsSchema, DeleteShootResponseSchema, deleteShoot } from "./operations/shoot/delete";
-import { FetchAllShootsRequestBodySchema, FetchAllShootsResponseSchema, listShoots } from "./operations/shoot/fetch-all";
-import { FetchShootByIdRequestParamsSchema, FetchShootByIdResponseSchema, fetchShootById } from "./operations/shoot/fetch-by-id";
-import { FetchPostsByShootIdResponseSchema, fetchPostsByShootId } from "./operations/shoot/fetch-posts-by-shoot-id";
-import { UpdateShootRequestBodySchema, UpdateShootRequestParamsSchema, UpdateShootResponseSchema, updateShoot } from "./operations/shoot/update";
+import { Hono } from "hono";
+import { zValidator } from "@hono/zod-validator";
+import { validationError, notFound } from "../../lib/hono-utils";
+import { CreateShootRequestBodySchema, createShoot } from "./operations/shoot/create";
+import { deleteShoot } from "./operations/shoot/delete";
+import { FetchAllShootsRequestBodySchema, listShoots } from "./operations/shoot/fetch-all";
+import { fetchShootById } from "./operations/shoot/fetch-by-id";
+import { fetchPostsByShootId } from "./operations/shoot/fetch-posts-by-shoot-id";
+import { UpdateShootRequestBodySchema, updateShoot } from "./operations/shoot/update";
 
-export const shootsRoutes = new Elysia({ prefix: "/api/shoots" })
-  .post("/all", ({ body }) => listShoots(body), {
-    body: FetchAllShootsRequestBodySchema,
-    response: FetchAllShootsResponseSchema,
+export const shootsRoutes = new Hono()
+  .basePath("/api/shoots")
+  .post("/all", zValidator("json", FetchAllShootsRequestBodySchema, validationError), async (c) => {
+    const body = c.req.valid("json");
+    const result = await listShoots(body);
+    return c.json(result);
   })
-  .get("/by-id/:id", async ({ params: { id }, set }) => {
+  .get("/by-id/:id", async (c) => {
+    const id = c.req.param("id");
     const shoot = await fetchShootById(id);
     if (!shoot) {
-      set.status = 404;
-      return { error: "Shoot not found" };
+      return notFound(c, "Shoot not found");
     }
-    return shoot;
-  }, {
-    params: FetchShootByIdRequestParamsSchema,
-    response: {
-      200: FetchShootByIdResponseSchema,
-      404: t.Object({ error: t.String() }),
-    }
+    return c.json(shoot);
   })
-  .post("/", ({ body }) => createShoot(body), {
-    body: CreateShootRequestBodySchema,
-    response: CreateShootResponseSchema,
+  .post("/", zValidator("json", CreateShootRequestBodySchema, validationError), async (c) => {
+    const body = c.req.valid("json");
+    const result = await createShoot(body);
+    return c.json(result);
   })
-  .patch("/by-id/:id", async ({ params: { id }, body, set }) => {
+  .patch("/by-id/:id", zValidator("json", UpdateShootRequestBodySchema, validationError), async (c) => {
+    const id = c.req.param("id");
+    const body = c.req.valid("json");
     const shoot = await updateShoot(id, body);
     if (!shoot) {
-      set.status = 404;
-      return { error: "Shoot not found" };
+      return notFound(c, "Shoot not found");
     }
-    return shoot;
-  }, {
-    params: UpdateShootRequestParamsSchema,
-    body: UpdateShootRequestBodySchema,
-    response: {
-      200: UpdateShootResponseSchema,
-      404: t.Object({ error: t.String() }),
-    },
+    return c.json(shoot);
   })
-  .delete("/by-id/:id", async ({ params: { id }, set }) => {
+  .delete("/by-id/:id", async (c) => {
+    const id = c.req.param("id");
     const success = await deleteShoot(id);
     if (!success) {
-      set.status = 404;
-      return { error: "Shoot not found" };
+      return notFound(c, "Shoot not found");
     }
-    return { success: true };
-  }, {
-    params: DeleteShootRequestParamsSchema,
-    response: {
-      200: DeleteShootResponseSchema,
-      404: t.Object({ error: t.String() }),
-    },
+    return c.json({ success: true });
   })
-  .get("/by-id/:id/posts", ({ params: { id } }) => fetchPostsByShootId(id), {
-    params: t.Object({ id: t.String() }),
-    response: FetchPostsByShootIdResponseSchema,
+  .get("/by-id/:id/posts", async (c) => {
+    const id = c.req.param("id");
+    const result = await fetchPostsByShootId(id);
+    return c.json(result);
   });
 

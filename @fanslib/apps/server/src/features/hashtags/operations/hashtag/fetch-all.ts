@@ -1,10 +1,10 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { Hashtag, HashtagSchema } from "../../entity";
 
-export const FetchAllHashtagsResponseSchema = t.Array(HashtagSchema);
+export const FetchAllHashtagsResponseSchema = z.array(HashtagSchema);
 
-export const fetchAllHashtags = async (): Promise<typeof FetchAllHashtagsResponseSchema.static> => {
+export const fetchAllHashtags = async (): Promise<z.infer<typeof FetchAllHashtagsResponseSchema>> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Hashtag);
 
