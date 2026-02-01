@@ -1,22 +1,22 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { In } from "typeorm";
 import { db } from "../../../../lib/db";
 import { MediaTag } from "../../entity";
 import { fetchAllTagDefinitionsForHierarchy, getDescendantTagIds } from "../helpers";
 
-export const RemoveTagsFromMediaRequestParamsSchema = t.Object({
-  mediaId: t.String(),
+export const RemoveTagsFromMediaRequestParamsSchema = z.object({
+  mediaId: z.string(),
 });
 
-export const RemoveTagsFromMediaRequestBodySchema = t.Object({
-  tagIds: t.Array(t.Number()),
+export const RemoveTagsFromMediaRequestBodySchema = z.object({
+  tagIds: z.array(z.number()),
 });
 
-export const RemoveTagsFromMediaResponseSchema = t.Object({
-  success: t.Boolean(),
+export const RemoveTagsFromMediaResponseSchema = z.object({
+  success: z.boolean(),
 });
 
-export const removeTagsFromMedia = async (params: typeof RemoveTagsFromMediaRequestParamsSchema.static, payload: typeof RemoveTagsFromMediaRequestBodySchema.static): Promise<typeof RemoveTagsFromMediaResponseSchema.static> => {
+export const removeTagsFromMedia = async (params: z.infer<typeof RemoveTagsFromMediaRequestParamsSchema>, payload: z.infer<typeof RemoveTagsFromMediaRequestBodySchema>): Promise<z.infer<typeof RemoveTagsFromMediaResponseSchema>> => {
   if (payload.tagIds.length === 0) {
     return { success: true };
   }

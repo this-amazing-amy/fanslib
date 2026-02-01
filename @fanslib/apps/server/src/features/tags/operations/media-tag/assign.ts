@@ -1,21 +1,21 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { Media } from "../../../library/entity";
 import { validateMediaTagAssignment } from "../../drift-prevention";
 import { MediaTag, MediaTagSchema, TagDefinition, TagSourceSchema } from "../../entity";
 import { populateDenormalizedFields } from "../helpers";
 
-export const AssignTagsToMediaRequestBodySchema = t.Object({
-  mediaId: t.String(),
-  tagDefinitionIds: t.Array(t.Number()),
+export const AssignTagsToMediaRequestBodySchema = z.object({
+  mediaId: z.string(),
+  tagDefinitionIds: z.array(z.number()),
   source: TagSourceSchema,
-  confidence: t.Optional(t.Number()),
+  confidence: z.number().optional(),
 });
 
-export const AssignTagsToMediaResponseSchema = t.Array(MediaTagSchema);
+export const AssignTagsToMediaResponseSchema = z.array(MediaTagSchema);
 
 
-export const assignTagsToMedia = async (payload: typeof AssignTagsToMediaRequestBodySchema.static): Promise<typeof AssignTagsToMediaResponseSchema.static> => {
+export const assignTagsToMedia = async (payload: z.infer<typeof AssignTagsToMediaRequestBodySchema>): Promise<z.infer<typeof AssignTagsToMediaResponseSchema>> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(MediaTag);
 

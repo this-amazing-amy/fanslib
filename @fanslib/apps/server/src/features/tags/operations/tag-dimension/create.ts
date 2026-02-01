@@ -1,15 +1,23 @@
-import { t } from "elysia";
+import type { z } from "zod";
 import { db } from "../../../../lib/db";
 import { STICKER_DISPLAY_MODES, TagDimension, TagDimensionSchema } from "../../entity";
 
-export const CreateTagDimensionRequestBodySchema = t.Intersect([
-  t.Required(t.Pick(t.Omit(TagDimensionSchema, ["id", "createdAt", "updatedAt"]), ["name", "dataType"])),
-  t.Partial(t.Omit(TagDimensionSchema, ["id", "createdAt", "updatedAt", "name", "dataType"])),
-]);
+export const CreateTagDimensionRequestBodySchema = TagDimensionSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  tags: true,
+}).required({ name: true, dataType: true }).partial({
+  description: true,
+  validationSchema: true,
+  sortOrder: true,
+  stickerDisplay: true,
+  isExclusive: true,
+});
 
 export const CreateTagDimensionResponseSchema = TagDimensionSchema;
 
-export const createTagDimension = async (payload: typeof CreateTagDimensionRequestBodySchema.static): Promise<typeof CreateTagDimensionResponseSchema.static> => {
+export const createTagDimension = async (payload: z.infer<typeof CreateTagDimensionRequestBodySchema>): Promise<z.infer<typeof CreateTagDimensionResponseSchema>> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(TagDimension);
 

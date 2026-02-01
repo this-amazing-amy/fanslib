@@ -1,17 +1,17 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { In } from "typeorm";
 import { db } from "../../../../lib/db";
 import { TagDefinition, TagDefinitionSchema } from "../../entity";
 
-export const FetchTagDefinitionsByIdsRequestQuerySchema = t.Object({
-  ids: t.Array(t.Number()),
+export const FetchTagDefinitionsByIdsRequestQuerySchema = z.object({
+  ids: z.array(z.number()),
 });
 
-export const FetchTagDefinitionsByIdsResponseSchema = t.Array(TagDefinitionSchema);
+export const FetchTagDefinitionsByIdsResponseSchema = z.array(TagDefinitionSchema);
 
 export const fetchTagDefinitionsByIds = async (
-  payload: typeof FetchTagDefinitionsByIdsRequestQuerySchema.static
-): Promise<typeof FetchTagDefinitionsByIdsResponseSchema.static> => {
+  payload: z.infer<typeof FetchTagDefinitionsByIdsRequestQuerySchema>
+): Promise<z.infer<typeof FetchTagDefinitionsByIdsResponseSchema>> => {
   if (payload.ids?.length === 0) {
     return [];
   }

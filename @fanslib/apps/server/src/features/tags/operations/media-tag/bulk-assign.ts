@@ -1,20 +1,20 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { validateMediaTagAssignment } from "../../drift-prevention";
 import { MediaTagSchema, TagDefinition, TagSourceSchema } from "../../entity";
 import { assignTagsToMedia } from "./assign";
 
-export const BulkAssignTagsRequestBodySchema = t.Array(t.Object({
-  mediaId: t.String(),
-  tagDefinitionIds: t.Array(t.Number()),
+export const BulkAssignTagsRequestBodySchema = z.array(z.object({
+  mediaId: z.string(),
+  tagDefinitionIds: z.array(z.number()),
   source: TagSourceSchema,
-  confidence: t.Optional(t.Number()),
+  confidence: z.number().optional(),
 }));
 
-export const BulkAssignTagsResponseSchema = t.Array(MediaTagSchema);
+export const BulkAssignTagsResponseSchema = z.array(MediaTagSchema);
 
 
-export const bulkAssignTags = async (payload: typeof BulkAssignTagsRequestBodySchema.static): Promise<typeof BulkAssignTagsResponseSchema.static> => {
+export const bulkAssignTags = async (payload: z.infer<typeof BulkAssignTagsRequestBodySchema>): Promise<z.infer<typeof BulkAssignTagsResponseSchema>> => {
   const validationResults = await Promise.all(
     payload.map(async (assignment) => ({
       assignment,

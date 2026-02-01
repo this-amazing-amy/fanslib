@@ -1,14 +1,15 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { TagDefinition, TagDefinitionSchema } from "../../entity";
 
-export const FetchTagsByDimensionQuerySchema = t.Object({
-  dimensionId: t.Optional(t.Number()),
+export const FetchTagsByDimensionQuerySchema = z.object({
+  dimensionId: z.number().optional(),
+  dimensionName: z.string().optional(),
 });
 
-export const FetchTagsByDimensionResponseSchema = t.Array(TagDefinitionSchema);
+export const FetchTagsByDimensionResponseSchema = z.array(TagDefinitionSchema);
 
-export const fetchTagsByDimension = async (payload: typeof FetchTagsByDimensionQuerySchema.static): Promise<typeof FetchTagsByDimensionResponseSchema.static> => {
+export const fetchTagsByDimension = async (payload: z.infer<typeof FetchTagsByDimensionQuerySchema>): Promise<z.infer<typeof FetchTagsByDimensionResponseSchema>> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(TagDefinition);
 

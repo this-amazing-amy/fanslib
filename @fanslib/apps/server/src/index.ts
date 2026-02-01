@@ -17,6 +17,7 @@ import { settingsRoutes } from "./features/settings/routes";
 import { shootsRoutes } from "./features/shoots/routes";
 import { snippetsRoutes } from "./features/snippets/routes";
 import { subredditsRoutes } from "./features/subreddits/routes";
+import { tagsRoutes } from "./features/tags/routes";
 import { db } from "./lib/db";
 import { devalueMiddleware } from "./lib/devalue-middleware";
 import { env } from "./lib/env";
@@ -84,6 +85,7 @@ const app = new Hono()
   .route("/", filterPresetsRoutes)
   .route("/", snippetsRoutes)
   .route("/", subredditsRoutes)
+  .route("/", tagsRoutes)
   .route("/", channelsRoutes)
   .route("/", contentSchedulesRoutes)
   .route("/", libraryRoutes)

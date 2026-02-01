@@ -1,17 +1,25 @@
-import { t } from "elysia";
+import type { z } from "zod";
 import { validateColorFormat } from "../../../../lib/color";
 import { db } from "../../../../lib/db";
 import { TagDefinition, TagDefinitionSchema, TagDimension } from "../../entity";
 import { assignColorForCategoricalTag } from "../helpers";
 
-export const CreateTagDefinitionRequestBodySchema = t.Intersect([
-  t.Required(t.Pick(t.Omit(TagDefinitionSchema, ["id", "createdAt", "updatedAt"]), ["dimensionId", "value", "displayName"])),
-  t.Partial(t.Omit(TagDefinitionSchema, ["id", "createdAt", "updatedAt", "dimensionId", "value", "displayName"])),
-]);
+export const CreateTagDefinitionRequestBodySchema = TagDefinitionSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).required({ dimensionId: true, value: true, displayName: true }).partial({
+  description: true,
+  metadata: true,
+  color: true,
+  shortRepresentation: true,
+  sortOrder: true,
+  parentTagId: true,
+});
 
 export const CreateTagDefinitionResponseSchema = TagDefinitionSchema;
 
-export const createTagDefinition = async (dto: typeof CreateTagDefinitionRequestBodySchema.static): Promise<typeof CreateTagDefinitionResponseSchema.static> => {
+export const createTagDefinition = async (dto: z.infer<typeof CreateTagDefinitionRequestBodySchema>): Promise<z.infer<typeof CreateTagDefinitionResponseSchema>> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(TagDefinition);
   const dimensionRepository = dataSource.getRepository(TagDimension);

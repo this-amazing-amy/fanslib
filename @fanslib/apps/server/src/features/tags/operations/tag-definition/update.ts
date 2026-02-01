@@ -1,25 +1,28 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { validateColorFormat } from "../../../../lib/color";
 import { db } from "../../../../lib/db";
 import { TagDefinition, TagDefinitionSchema } from "../../entity";
 import { syncDenormalizedFieldsForTag } from "../helpers";
 
-export const UpdateTagDefinitionParamsSchema = t.Object({
-  id: t.String(),
+export const UpdateTagDefinitionParamsSchema = z.object({
+  id: z.string(),
 });
 
-export const UpdateTagDefinitionRequestBodySchema = t.Partial(t.Omit(TagDefinitionSchema, ["id", "createdAt", "updatedAt"]));
+export const UpdateTagDefinitionRequestBodySchema = TagDefinitionSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).partial();
 
-export const UpdateTagDefinitionResponseSchema = t.Object({
-  ...TagDefinitionSchema.properties,
-  parent: t.Optional(t.Any()),
-  children: t.Optional(t.Array(t.Any())),
+export const UpdateTagDefinitionResponseSchema = TagDefinitionSchema.extend({
+  parent: z.any().optional(),
+  children: z.array(z.any()).optional(),
 });
 
 export const updateTagDefinition = async (
   id: number,
-  payload: typeof UpdateTagDefinitionRequestBodySchema.static
-): Promise<typeof UpdateTagDefinitionResponseSchema.static | null> => {
+  payload: z.infer<typeof UpdateTagDefinitionRequestBodySchema>
+): Promise<z.infer<typeof UpdateTagDefinitionResponseSchema> | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(TagDefinition);
 
@@ -73,6 +76,6 @@ export const updateTagDefinition = async (
 
   await syncDenormalizedFieldsForTag(id);
 
-  return tag as typeof UpdateTagDefinitionResponseSchema.static;
+  return tag as z.infer<typeof UpdateTagDefinitionResponseSchema>;
 };
 

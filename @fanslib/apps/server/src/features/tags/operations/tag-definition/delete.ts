@@ -1,13 +1,13 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { MediaTag, TagDefinition } from "../../entity";
 
-export const DeleteTagDefinitionParamsSchema = t.Object({
-  id: t.String(),
+export const DeleteTagDefinitionParamsSchema = z.object({
+  id: z.string(),
 });
 
-export const DeleteTagDefinitionResponseSchema = t.Object({
-  success: t.Boolean(),
+export const DeleteTagDefinitionResponseSchema = z.object({
+  success: z.boolean(),
 });
 
 export const deleteTagDefinition = async (id: number): Promise<boolean> => {

@@ -1,14 +1,14 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { In } from "typeorm";
 import { db } from "../../../../lib/db";
 import { MediaTag, TagDefinition, TagDimension } from "../../entity";
 
-export const DeleteTagDimensionParamsSchema = t.Object({
-  id: t.String(),
+export const DeleteTagDimensionParamsSchema = z.object({
+  id: z.string(),
 });
 
-export const DeleteTagDimensionResponseSchema = t.Object({
-  success: t.Boolean(),
+export const DeleteTagDimensionResponseSchema = z.object({
+  success: z.boolean(),
 });
 
 export const deleteTagDimension = async (id: number): Promise<boolean> => {

@@ -416,7 +416,7 @@ import {
 export {
   GetAllTagDimensionsResponseSchema
 };
-export type GetAllTagDimensionsResponse = Static<typeof GetAllTagDimensionsResponseSchema>;
+export type GetAllTagDimensionsResponse = z.infer<typeof GetAllTagDimensionsResponseSchema>;
 
 
 import {
@@ -427,8 +427,8 @@ export {
   FetchTagDimensionByIdRequestParamsSchema,
   FetchTagDimensionByIdResponseSchema
 };
-export type FetchTagDimensionByIdRequestParams = Static<typeof FetchTagDimensionByIdRequestParamsSchema>;
-export type FetchTagDimensionByIdResponse = Static<typeof FetchTagDimensionByIdResponseSchema>;
+export type FetchTagDimensionByIdRequestParams = z.infer<typeof FetchTagDimensionByIdRequestParamsSchema>;
+export type FetchTagDimensionByIdResponse = z.infer<typeof FetchTagDimensionByIdResponseSchema>;
 
 
 import {
@@ -439,8 +439,8 @@ export {
   CreateTagDimensionRequestBodySchema,
   CreateTagDimensionResponseSchema
 };
-export type CreateTagDimensionRequestBody = Static<typeof CreateTagDimensionRequestBodySchema>;
-export type CreateTagDimensionResponse = Static<typeof CreateTagDimensionResponseSchema>;
+export type CreateTagDimensionRequestBody = z.infer<typeof CreateTagDimensionRequestBodySchema>;
+export type CreateTagDimensionResponse = z.infer<typeof CreateTagDimensionResponseSchema>;
 
 
 import {
@@ -453,9 +453,9 @@ export {
   UpdateTagDimensionRequestBodySchema,
   UpdateTagDimensionResponseSchema
 };
-export type UpdateTagDimensionParams = Static<typeof UpdateTagDimensionParamsSchema>;
-export type UpdateTagDimensionRequestBody = Static<typeof UpdateTagDimensionRequestBodySchema>;
-export type UpdateTagDimensionResponse = Static<typeof UpdateTagDimensionResponseSchema>;
+export type UpdateTagDimensionParams = z.infer<typeof UpdateTagDimensionParamsSchema>;
+export type UpdateTagDimensionRequestBody = z.infer<typeof UpdateTagDimensionRequestBodySchema>;
+export type UpdateTagDimensionResponse = z.infer<typeof UpdateTagDimensionResponseSchema>;
 
 
 import {
@@ -466,8 +466,8 @@ export {
   DeleteTagDimensionParamsSchema,
   DeleteTagDimensionResponseSchema
 };
-export type DeleteTagDimensionParams = Static<typeof DeleteTagDimensionParamsSchema>;
-export type DeleteTagDimensionResponse = Static<typeof DeleteTagDimensionResponseSchema>;
+export type DeleteTagDimensionParams = z.infer<typeof DeleteTagDimensionParamsSchema>;
+export type DeleteTagDimensionResponse = z.infer<typeof DeleteTagDimensionResponseSchema>;
 
 
 // Tags - Tag Definitions schemas
@@ -479,8 +479,8 @@ export {
   FetchTagsByDimensionQuerySchema,
   FetchTagsByDimensionResponseSchema
 };
-export type FetchTagsByDimensionQuery = Static<typeof FetchTagsByDimensionQuerySchema>;
-export type FetchTagsByDimensionResponse = Static<typeof FetchTagsByDimensionResponseSchema>;
+export type FetchTagsByDimensionQuery = z.infer<typeof FetchTagsByDimensionQuerySchema>;
+export type FetchTagsByDimensionResponse = z.infer<typeof FetchTagsByDimensionResponseSchema>;
 
 
 import {
@@ -491,8 +491,8 @@ export {
   FetchTagDefinitionByIdRequestParamsSchema,
   FetchTagDefinitionByIdResponseSchema
 };
-export type FetchTagDefinitionByIdRequestParams = Static<typeof FetchTagDefinitionByIdRequestParamsSchema>;
-export type FetchTagDefinitionByIdResponse = Static<typeof FetchTagDefinitionByIdResponseSchema>;
+export type FetchTagDefinitionByIdRequestParams = z.infer<typeof FetchTagDefinitionByIdRequestParamsSchema>;
+export type FetchTagDefinitionByIdResponse = z.infer<typeof FetchTagDefinitionByIdResponseSchema>;
 
 
 import {
@@ -503,8 +503,8 @@ export {
   FetchTagDefinitionsByIdsRequestQuerySchema,
   FetchTagDefinitionsByIdsResponseSchema
 };
-export type FetchTagDefinitionsByIdsRequestQuery = Static<typeof FetchTagDefinitionsByIdsRequestQuerySchema>;
-export type FetchTagDefinitionsByIdsResponse = Static<typeof FetchTagDefinitionsByIdsResponseSchema>;
+export type FetchTagDefinitionsByIdsRequestQuery = z.infer<typeof FetchTagDefinitionsByIdsRequestQuerySchema>;
+export type FetchTagDefinitionsByIdsResponse = z.infer<typeof FetchTagDefinitionsByIdsResponseSchema>;
 
 
 import {
@@ -515,8 +515,8 @@ export {
   CreateTagDefinitionRequestBodySchema,
   CreateTagDefinitionResponseSchema
 };
-export type CreateTagDefinitionRequestBody = Static<typeof CreateTagDefinitionRequestBodySchema>;
-export type CreateTagDefinitionResponse = Static<typeof CreateTagDefinitionResponseSchema>;
+export type CreateTagDefinitionRequestBody = z.infer<typeof CreateTagDefinitionRequestBodySchema>;
+export type CreateTagDefinitionResponse = z.infer<typeof CreateTagDefinitionResponseSchema>;
 
 
 import {
@@ -529,9 +529,9 @@ export {
   UpdateTagDefinitionRequestBodySchema,
   UpdateTagDefinitionResponseSchema
 };
-export type UpdateTagDefinitionParams = Static<typeof UpdateTagDefinitionParamsSchema>;
-export type UpdateTagDefinitionRequestBody = Static<typeof UpdateTagDefinitionRequestBodySchema>;
-export type UpdateTagDefinitionResponse = Static<typeof UpdateTagDefinitionResponseSchema>;
+export type UpdateTagDefinitionParams = z.infer<typeof UpdateTagDefinitionParamsSchema>;
+export type UpdateTagDefinitionRequestBody = z.infer<typeof UpdateTagDefinitionRequestBodySchema>;
+export type UpdateTagDefinitionResponse = z.infer<typeof UpdateTagDefinitionResponseSchema>;
 
 
 import {
@@ -542,8 +542,8 @@ export {
   DeleteTagDefinitionParamsSchema,
   DeleteTagDefinitionResponseSchema
 };
-export type DeleteTagDefinitionParams = Static<typeof DeleteTagDefinitionParamsSchema>;
-export type DeleteTagDefinitionResponse = Static<typeof DeleteTagDefinitionResponseSchema>;
+export type DeleteTagDefinitionParams = z.infer<typeof DeleteTagDefinitionParamsSchema>;
+export type DeleteTagDefinitionResponse = z.infer<typeof DeleteTagDefinitionResponseSchema>;
 
 
 // Tags - Media Tags schemas
@@ -557,9 +557,9 @@ export {
   FetchMediaTagsRequestQuerySchema,
   FetchMediaTagsResponseSchema
 };
-export type FetchMediaTagsRequestParams = Static<typeof FetchMediaTagsRequestParamsSchema>;
-export type FetchMediaTagsRequestQuery = Static<typeof FetchMediaTagsRequestQuerySchema>;
-export type FetchMediaTagsResponse = Static<typeof FetchMediaTagsResponseSchema>;
+export type FetchMediaTagsRequestParams = z.infer<typeof FetchMediaTagsRequestParamsSchema>;
+export type FetchMediaTagsRequestQuery = z.infer<typeof FetchMediaTagsRequestQuerySchema>;
+export type FetchMediaTagsResponse = z.infer<typeof FetchMediaTagsResponseSchema>;
 
 
 import {
@@ -570,8 +570,8 @@ export {
   AssignTagsToMediaRequestBodySchema,
   AssignTagsToMediaResponseSchema
 };
-export type AssignTagsToMediaRequestBody = Static<typeof AssignTagsToMediaRequestBodySchema>;
-export type AssignTagsToMediaResponse = Static<typeof AssignTagsToMediaResponseSchema>;
+export type AssignTagsToMediaRequestBody = z.infer<typeof AssignTagsToMediaRequestBodySchema>;
+export type AssignTagsToMediaResponse = z.infer<typeof AssignTagsToMediaResponseSchema>;
 
 
 import {
@@ -582,8 +582,8 @@ export {
   BulkAssignTagsRequestBodySchema,
   BulkAssignTagsResponseSchema
 };
-export type BulkAssignTagsRequestBody = Static<typeof BulkAssignTagsRequestBodySchema>;
-export type BulkAssignTagsResponse = Static<typeof BulkAssignTagsResponseSchema>;
+export type BulkAssignTagsRequestBody = z.infer<typeof BulkAssignTagsRequestBodySchema>;
+export type BulkAssignTagsResponse = z.infer<typeof BulkAssignTagsResponseSchema>;
 
 
 import {
@@ -592,17 +592,17 @@ import {
 export {
   RemoveTagsFromMediaRequestBodySchema, RemoveTagsFromMediaRequestParamsSchema, RemoveTagsFromMediaResponseSchema
 };
-export type RemoveTagsFromMediaRequestBody = Static<typeof RemoveTagsFromMediaRequestBodySchema>;
-export type RemoveTagsFromMediaRequestParams = Static<typeof RemoveTagsFromMediaRequestParamsSchema>;
-export type RemoveTagsFromMediaResponse = Static<typeof RemoveTagsFromMediaResponseSchema>;
+export type RemoveTagsFromMediaRequestBody = z.infer<typeof RemoveTagsFromMediaRequestBodySchema>;
+export type RemoveTagsFromMediaRequestParams = z.infer<typeof RemoveTagsFromMediaRequestParamsSchema>;
+export type RemoveTagsFromMediaResponse = z.infer<typeof RemoveTagsFromMediaResponseSchema>;
 
 
 // Tags entities
 import { MediaTagSchema, TagDefinitionSchema, TagDimensionSchema } from './features/tags/entity';
 export { MediaTagSchema, TagDefinitionSchema, TagDimensionSchema };
-export type TagDefinition = Static<typeof TagDefinitionSchema>;
-export type TagDimension = Static<typeof TagDimensionSchema>;
-export type MediaTag = Static<typeof MediaTagSchema>;
+export type TagDefinition = z.infer<typeof TagDefinitionSchema>;
+export type TagDimension = z.infer<typeof TagDimensionSchema>;
+export type MediaTag = z.infer<typeof MediaTagSchema>;
 
 
 // Hashtags schemas

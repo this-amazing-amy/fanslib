@@ -1,18 +1,18 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { MediaTag, MediaTagSchema } from "../../entity";
 
-export const FetchMediaTagsRequestParamsSchema = t.Object({
-  mediaId: t.String(),
+export const FetchMediaTagsRequestParamsSchema = z.object({
+  mediaId: z.string(),
 });
 
-export const FetchMediaTagsRequestQuerySchema = t.Object({
-  dimensionId: t.Optional(t.String()),
+export const FetchMediaTagsRequestQuerySchema = z.object({
+  dimensionId: z.string().optional(),
 });
 
-export const FetchMediaTagsResponseSchema = t.Array(MediaTagSchema);
+export const FetchMediaTagsResponseSchema = z.array(MediaTagSchema);
 
-export const fetchMediaTags = async (params: typeof FetchMediaTagsRequestParamsSchema.static, query: typeof FetchMediaTagsRequestQuerySchema.static): Promise<typeof FetchMediaTagsResponseSchema.static> => {
+export const fetchMediaTags = async (params: z.infer<typeof FetchMediaTagsRequestParamsSchema>, query: z.infer<typeof FetchMediaTagsRequestQuerySchema>): Promise<z.infer<typeof FetchMediaTagsResponseSchema>> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(MediaTag);
 

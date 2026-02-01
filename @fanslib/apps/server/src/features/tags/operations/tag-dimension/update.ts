@@ -1,20 +1,24 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { STICKER_DISPLAY_MODES, TagDimension, TagDimensionSchema } from "../../entity";
 import { syncDenormalizedFieldsForDimension, validateExistingAssignments } from "../helpers";
 
-export const UpdateTagDimensionParamsSchema = t.Object({
-  id: t.String(),
+export const UpdateTagDimensionParamsSchema = z.object({
+  id: z.string(),
 });
 
-export const UpdateTagDimensionRequestBodySchema = t.Partial(t.Omit(TagDimensionSchema, ["id", "createdAt", "updatedAt"]));
+export const UpdateTagDimensionRequestBodySchema = TagDimensionSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).partial();
 
 export const UpdateTagDimensionResponseSchema = TagDimensionSchema;
 
 export const updateTagDimension = async (
   id: number,
-  payload: typeof UpdateTagDimensionRequestBodySchema.static
-): Promise<typeof UpdateTagDimensionResponseSchema.static | null> => {
+  payload: z.infer<typeof UpdateTagDimensionRequestBodySchema>
+): Promise<z.infer<typeof UpdateTagDimensionResponseSchema> | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(TagDimension);
 
