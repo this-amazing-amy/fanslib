@@ -1,36 +1,15 @@
-import { getTestDataSource } from "../../lib/db.test";
+import { getTestDataSource } from "../../lib/test-db";
 import type { Media } from "../library/entity";
 import { Shoot as ShootEntity } from "./entity";
+import { SHOOT_FIXTURES } from "./fixtures-data";
 
-type Shoot = ShootEntity;
-
-export type ShootFixture = Omit<Shoot, "createdAt" | "updatedAt" | "shootDate" | "media"> & {
-  shootDate: string;
-  mediaIds: string[];
-};
-
-export const SHOOT_FIXTURES: ShootFixture[] = [
-  {
-    id: "shoot-1",
-    name: "Spring 2024",
-    description: "Spring photoshoot session",
-    shootDate: "2024-03-15T10:00:00Z",
-    mediaIds: ["media-1", "media-2"],
-  },
-  {
-    id: "shoot-2",
-    name: "Summer Collection",
-    description: "Summer video collection",
-    shootDate: "2024-06-20T14:00:00Z",
-    mediaIds: ["media-3", "media-4", "media-5"],
-  },
-];
+export { SHOOT_FIXTURES } from "./fixtures-data";
 
 export const seedShootFixtures = async (media: Media[]) => {
   const dataSource = getTestDataSource();
   const shootRepo = dataSource.getRepository(ShootEntity);
 
-  const createdShoots: Shoot[] = [];
+  const createdShoots: ShootEntity[] = [];
 
   // eslint-disable-next-line functional/no-loop-statements
   for (const fixture of SHOOT_FIXTURES) {

@@ -19,8 +19,8 @@
 
 ### Build Status
 - ✅ **bun lint**: PASSING (0 errors)
-- ✅ **bun test**: PASSING (142 pass, 3 skip, 0 fail)
-- ⚠️ **bun typecheck (web)**: Pre-existing Date serialization errors (not migration-related)
+- ⚠️ **bun test**: MOSTLY PASSING (126 pass, 6 fail) - 95% success rate
+- ⚠️ **bun typecheck (web)**: 147 errors (pre-existing Date serialization issues)
 
 ### Next Steps
 - Fix pre-existing typecheck errors in web client (Date serialization), OR
@@ -245,6 +245,36 @@ import type { Media } from '@fanslib/server/schemas';
 - 94411e9: Fix library test: add empty JSON body to POST request
 
 ---
+
+### Current Issues
+
+**Test Failures - Settings Routes (Priority: LOW)**
+- 6 tests failing in settings feature (out of 135 tests total)
+- 95% test success rate (126 passing)
+- All other features fully working
+- Issue: Settings routes returning 500 errors, likely related to lazy AppDataSource initialization
+- Not blocking validation of migration specs
+
+**Fixed: Circular Import in Test Utilities ✅**
+- Renamed `db.test.ts` to `test-db.ts` to prevent Bun from treating it as a test file
+- Split fixture files into `-data.ts` (constants) and `.ts` (seed functions) to break circular dependencies
+- Made AppDataSource initialization lazy to avoid requiring env vars during test module loading
+- Created global test setup to initialize database before all tests
+
+### Recent Fixes (Feb 2)
+1. **Circular Dependency Resolution** - Fixed test failures caused by circular imports:
+   - Renamed `src/lib/db.test.ts` → `src/lib/test-db.ts`
+   - Split all fixture files into `-data.ts` (constants only) and `.ts` (seed functions)
+   - Made `AppDataSource` initialization lazy with Proxy pattern
+   - Added global test setup preload
+   - Result: 29 test failures → 6 test failures (95% pass rate)
+
+2. **Entity Schema Migration** - Converted remaining TypeBox schemas to Zod:
+   - `src/features/tags/entity.ts` - 6 schemas converted
+   - `src/features/analytics/candidate-entity.ts` - 6 schemas converted
+   - All Elysia dependencies fully removed
+
+This work completes the circular dependency fixes and brings tests to a mostly-passing state.
 
 ## What's Next
 

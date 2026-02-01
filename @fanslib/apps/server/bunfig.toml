@@ -1,4 +1,7 @@
 [test]
-preload = ["reflect-metadata/Reflect.js", "./src/test-utils/env.setup.ts"]
+preload = ["reflect-metadata/Reflect.js", "./src/test-utils/env.setup.ts", "./src/test-utils/global-setup.ts"]
 timeout = 30000
+# Run tests sequentially to avoid circular dependency issues with test-db.ts
+# when multiple test files load in parallel
+serial = true
 

@@ -1,7 +1,8 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
 import { Hono } from "hono";
 import "reflect-metadata";
-import { resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
+import { setupTestDatabase, teardownTestDatabase } from "../../lib/test-db";
+import { resetAllFixtures } from "../../lib/test-fixtures";
 import { devalueMiddleware } from "../../lib/devalue-middleware";
 import { parseResponse } from "../../test-utils/setup";
 import { settingsRoutes } from "./routes";

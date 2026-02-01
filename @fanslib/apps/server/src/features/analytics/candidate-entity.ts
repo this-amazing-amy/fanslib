@@ -1,5 +1,5 @@
 /* eslint-disable functional/no-classes */
-import { t } from "elysia";
+import { z } from "zod";
 import {
   Column,
   CreateDateColumn,
@@ -68,57 +68,50 @@ export class FanslyMediaCandidate {
 }
 
 // Schemas for API validation
-export const CandidateStatusSchema = t.Union([
-  t.Literal("pending"),
-  t.Literal("matched"),
-  t.Literal("ignored"),
+export const CandidateStatusSchema = z.enum(["pending", "matched", "ignored"]);
+
+export const MatchMethodSchema = z.enum([
+  "exact_filename",
+  "fuzzy_filename",
+  "manual",
+  "auto_detected",
 ]);
 
-export const MatchMethodSchema = t.Union([
-  t.Literal("exact_filename"),
-  t.Literal("fuzzy_filename"),
-  t.Literal("manual"),
-  t.Literal("auto_detected"),
-]);
+export const FanslyMediaTypeSchema = z.enum(["image", "video"]);
 
-export const FanslyMediaTypeSchema = t.Union([
-  t.Literal("image"),
-  t.Literal("video"),
-]);
-
-export const FanslyMediaCandidateSchema = t.Object({
-  id: t.String(),
-  fanslyStatisticsId: t.String(),
-  fanslyPostId: t.String(),
-  filename: t.String(),
-  caption: t.Nullable(t.String()),
-  fanslyCreatedAt: t.Number(),
-  position: t.Number(),
+export const FanslyMediaCandidateSchema = z.object({
+  id: z.string(),
+  fanslyStatisticsId: z.string(),
+  fanslyPostId: z.string(),
+  filename: z.string(),
+  caption: z.string().nullable(),
+  fanslyCreatedAt: z.number(),
+  position: z.number(),
   mediaType: FanslyMediaTypeSchema,
   status: CandidateStatusSchema,
-  matchedPostMediaId: t.Nullable(t.String()),
-  matchConfidence: t.Nullable(t.Number()),
-  matchMethod: t.Nullable(MatchMethodSchema),
-  capturedAt: t.Date(),
-  matchedAt: t.Nullable(t.Date()),
+  matchedPostMediaId: z.string().nullable(),
+  matchConfidence: z.number().nullable(),
+  matchMethod: MatchMethodSchema.nullable(),
+  capturedAt: z.date(),
+  matchedAt: z.date().nullable(),
 });
 
 // Schema for incoming candidates from Chrome extension
-export const CreateCandidateSchema = t.Object({
-  fanslyStatisticsId: t.String(),
-  fanslyPostId: t.String(),
-  filename: t.String(),
-  caption: t.Nullable(t.String()),
-  fanslyCreatedAt: t.Number(),
-  position: t.Number(),
+export const CreateCandidateSchema = z.object({
+  fanslyStatisticsId: z.string(),
+  fanslyPostId: z.string(),
+  filename: z.string(),
+  caption: z.string().nullable(),
+  fanslyCreatedAt: z.number(),
+  position: z.number(),
   mediaType: FanslyMediaTypeSchema,
 });
 
-export const MatchSuggestionSchema = t.Object({
-  postMediaId: t.String(),
-  confidence: t.Number(),
+export const MatchSuggestionSchema = z.object({
+  postMediaId: z.string(),
+  confidence: z.number(),
   method: MatchMethodSchema,
-  filename: t.String(),
-  caption: t.Optional(t.String()),
+  filename: z.string(),
+  caption: z.string().optional(),
 });
 

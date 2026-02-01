@@ -2,11 +2,12 @@ import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:tes
 import { Hono } from "hono";
 import type { z } from "zod";
 import "reflect-metadata";
-import { getTestDataSource, resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
+import { getTestDataSource, setupTestDatabase, teardownTestDatabase } from "../../lib/test-db";
+import { resetAllFixtures } from "../../lib/test-fixtures";
 import { devalueMiddleware } from "../../lib/devalue-middleware";
 import { parseResponse } from "../../test-utils/setup";
 import { CaptionSnippet } from "./entity";
-import { CAPTION_SNIPPET_FIXTURES } from "./fixtures";
+import { CAPTION_SNIPPET_FIXTURES } from "./fixtures-data";
 import type { CreateSnippetResponseSchema } from "./operations/snippet/create";
 import { snippetsRoutes } from "./routes";
 

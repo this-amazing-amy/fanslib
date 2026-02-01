@@ -1,7 +1,8 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
 import { format } from "date-fns";
 import "reflect-metadata";
-import { getTestDataSource, resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../../lib/db.test";
+import { getTestDataSource, setupTestDatabase, teardownTestDatabase } from "../../../lib/test-db";
+import { resetAllFixtures } from "../../../lib/test-fixtures";
 import { createTestChannel, createTestPost } from "../../../test-utils/setup";
 import { ContentSchedule, ScheduleChannel, SkippedScheduleSlot } from "../entity";
 import { fetchVirtualPosts, generateScheduleDates } from "./generate-virtual-posts";

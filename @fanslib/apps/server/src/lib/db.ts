@@ -21,37 +21,56 @@ import { Subreddit } from "../features/subreddits/entity";
 import { MediaTag, TagDefinition, TagDimension } from "../features/tags/entity";
 import { sqliteDbPath } from "./env";
 
-const dbPath = sqliteDbPath();
+// Lazy initialization to avoid requiring env vars during test setup
+// eslint-disable-next-line functional/no-let
+let _dbPath: string | null = null;
+// eslint-disable-next-line functional/no-let
+let _appDataSource: DataSource | null = null;
 
-export const AppDataSource = new DataSource({
-  type: "sqljs",
-  location: dbPath,
-  autoSave: true,
-  entities: [
-    Media,
-    Post,
-    PostMedia,
-    Channel,
-    ChannelType,
-    Subreddit,
-    TagDimension,
-    TagDefinition,
-    MediaTag,
-    Hashtag,
-    HashtagChannelStats,
-    Shoot,
-    ContentSchedule,
-    ScheduleChannel,
-    SkippedScheduleSlot,
-    FilterPreset,
-    CaptionSnippet,
-    FanslyAnalyticsDatapoint,
-    FanslyAnalyticsAggregate,
-    AnalyticsFetchHistory,
-    FanslyMediaCandidate,
-  ],
-  synchronize: true,
-  logging: false,
+const getDbPath = () => {
+  _dbPath ??= sqliteDbPath();
+  return _dbPath;
+};
+
+const createAppDataSource = () => {
+  _appDataSource ??= new DataSource({
+    type: "sqljs",
+    location: getDbPath(),
+    autoSave: true,
+    entities: [
+      Media,
+      Post,
+      PostMedia,
+      Channel,
+      ChannelType,
+      Subreddit,
+      TagDimension,
+      TagDefinition,
+      MediaTag,
+      Hashtag,
+      HashtagChannelStats,
+      Shoot,
+      ContentSchedule,
+      ScheduleChannel,
+      SkippedScheduleSlot,
+      FilterPreset,
+      CaptionSnippet,
+      FanslyAnalyticsDatapoint,
+      FanslyAnalyticsAggregate,
+      AnalyticsFetchHistory,
+      FanslyMediaCandidate,
+    ],
+    synchronize: true,
+    logging: false,
+  });
+  return _appDataSource;
+};
+
+export const AppDataSource = new Proxy({} as DataSource, {
+  get: (target, prop) => {
+    const source = createAppDataSource();
+    return source[prop as keyof DataSource];
+  },
 });
 
 // eslint-disable-next-line functional/no-let
@@ -65,7 +84,8 @@ export const setTestDataSource = (dataSource: DataSource | null) => {
 
 export const uninitialize = async () => {
   if (initialized) {
-    await AppDataSource.destroy();
+    const source = createAppDataSource();
+    await source.destroy();
     initialized = false;
   }
 };
@@ -76,16 +96,17 @@ export const db = async () => {
   }
   
   if (!initialized) {
-    const dbDir = dirname(dbPath);
+    const dbDir = dirname(getDbPath());
     if (!existsSync(dbDir)) {
       await mkdir(dbDir, { recursive: true });
     }
     
-    await AppDataSource.initialize();
+    const source = createAppDataSource();
+    await source.initialize();
     initialized = true;
   }
 
-  return AppDataSource;
+  return createAppDataSource();
 };
 
 export const resetDatabase = async (): Promise<void> => {
@@ -95,8 +116,9 @@ export const resetDatabase = async (): Promise<void> => {
     await dataSource.destroy();
     initialized = false;
 
-    if (existsSync(dbPath)) {
-      await unlink(dbPath);
+    const path = getDbPath();
+    if (existsSync(path)) {
+      await unlink(path);
     }
 
     await db();

@@ -1,4 +1,4 @@
-import { getTestDataSource } from "../../lib/db.test";
+import { getTestDataSource } from "../../lib/test-db";
 import type { Media } from "../library/entity";
 import { MediaTag as MediaTagEntity, TagDefinition as TagDefinitionEntity, TagDimension as TagDimensionEntity } from "./entity";
 

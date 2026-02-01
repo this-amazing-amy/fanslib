@@ -1,11 +1,12 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
 import { Hono } from "hono";
 import "reflect-metadata";
-import { getTestDataSource, resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
+import { getTestDataSource, setupTestDatabase, teardownTestDatabase } from "../../lib/test-db";
+import { resetAllFixtures } from "../../lib/test-fixtures";
 import { devalueMiddleware } from "../../lib/devalue-middleware";
 import { parseResponse } from "../../test-utils/setup";
 import { Shoot } from "./entity";
-import { SHOOT_FIXTURES } from "./fixtures";
+import { SHOOT_FIXTURES } from "./fixtures-data";
 import { shootsRoutes } from "./routes";
 
 describe("Shoots Routes", () => {

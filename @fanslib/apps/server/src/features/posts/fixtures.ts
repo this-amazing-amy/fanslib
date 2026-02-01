@@ -1,52 +1,11 @@
-import { getTestDataSource } from "../../lib/db.test";
+import { getTestDataSource } from "../../lib/test-db";
 import type { Channel } from "../channels/entity";
 import type { Media } from "../library/entity";
 import type { Subreddit } from "../subreddits/entity";
 import { Post as PostEntity, PostMedia as PostMediaEntity } from "./entity";
+import { POST_FIXTURES, POST_MEDIA_FIXTURES } from "./fixtures-data";
 
-type Post = PostEntity;
-type PostMedia = PostMediaEntity;
-
-export type PostFixture = Pick<Post, "id" | "channelId" | "subredditId" | "caption" | "status" | "date">;
-
-export const POST_FIXTURES: PostFixture[] = [
-  {
-    id: "post-1",
-    channelId: "channel-1",
-    caption: "Check out this amazing content!",
-    status: "draft",
-    date: new Date("2024-01-15"),
-    subredditId: null
-  },
-  {
-    id: "post-2",
-    channelId: "channel-1",
-    subredditId: "subreddit-1",
-    caption: "New post here!",
-    status: "scheduled",
-    date: new Date("2024-01-16"),
-  },
-  {
-    id: "post-3",
-    channelId: "channel-2",
-    caption: "Posted content",
-    status: "posted",
-    date: new Date("2024-01-17"),
-    subredditId: null
-  },
-];
-
-export type PostMediaFixture = Pick<PostMedia, "order" | "isFreePreview"> & {
-  postId: string;
-  mediaId: string;
-};
-
-export const POST_MEDIA_FIXTURES: PostMediaFixture[] = [
-  { postId: "post-1", mediaId: "media-1", order: 0, isFreePreview: true },
-  { postId: "post-1", mediaId: "media-2", order: 1, isFreePreview: false },
-  { postId: "post-2", mediaId: "media-3", order: 0, isFreePreview: true },
-  { postId: "post-3", mediaId: "media-4", order: 0, isFreePreview: false },
-];
+export { POST_FIXTURES, POST_MEDIA_FIXTURES } from "./fixtures-data";
 
 export const seedPostFixtures = async (
   channels: Channel[],
@@ -58,7 +17,7 @@ export const seedPostFixtures = async (
   const postMediaRepo = dataSource.getRepository(PostMediaEntity);
   const now = new Date().toISOString();
 
-  const createdPosts: Post[] = [];
+  const createdPosts: PostEntity[] = [];
 
   // eslint-disable-next-line functional/no-loop-statements
   for (const fixture of POST_FIXTURES) {

@@ -1,9 +1,9 @@
 import { DataSource } from "typeorm";
 import { FanslyMediaCandidate } from "../features/analytics/candidate-entity";
 import {
-    AnalyticsFetchHistory,
-    FanslyAnalyticsAggregate,
-    FanslyAnalyticsDatapoint,
+  AnalyticsFetchHistory,
+  FanslyAnalyticsAggregate,
+  FanslyAnalyticsDatapoint,
 } from "../features/analytics/entity";
 import { Channel, ChannelType } from "../features/channels/entity";
 import { ContentSchedule, ScheduleChannel, SkippedScheduleSlot } from "../features/content-schedules/entity";
@@ -21,35 +21,35 @@ import { setTestDataSource } from "./db";
 let testDataSource: DataSource | null = null;
 
 export const createTestDataSource = () => new DataSource({
-    type: "sqlite",
-    database: ":memory:",
-    entities: [
-      Media,
-      Post,
-      PostMedia,
-      Channel,
-      ChannelType,
-      Subreddit,
-      TagDimension,
-      TagDefinition,
-      MediaTag,
-      Hashtag,
-      HashtagChannelStats,
-      Shoot,
-      ContentSchedule,
-      ScheduleChannel,
-      SkippedScheduleSlot,
-      FilterPreset,
-      CaptionSnippet,
-      FanslyAnalyticsDatapoint,
-      FanslyAnalyticsAggregate,
-      AnalyticsFetchHistory,
-      FanslyMediaCandidate,
-    ],
-    synchronize: true,
-    logging: false,
-    dropSchema: false,
-  });
+  type: "sqlite",
+  database: ":memory:",
+  entities: [
+    Media,
+    Post,
+    PostMedia,
+    Channel,
+    ChannelType,
+    Subreddit,
+    TagDimension,
+    TagDefinition,
+    MediaTag,
+    Hashtag,
+    HashtagChannelStats,
+    Shoot,
+    ContentSchedule,
+    ScheduleChannel,
+    SkippedScheduleSlot,
+    FilterPreset,
+    CaptionSnippet,
+    FanslyAnalyticsDatapoint,
+    FanslyAnalyticsAggregate,
+    AnalyticsFetchHistory,
+    FanslyMediaCandidate,
+  ],
+  synchronize: true,
+  logging: false,
+  dropSchema: false,
+});
 
 export const setupTestDatabase = async () => {
   if (testDataSource?.isInitialized) {
@@ -116,11 +116,5 @@ export const clearAllTables = async () => {
     (promise, entityName) => promise.then(() => clearIfEntityExists(entityName)),
     Promise.resolve()
   );
-};
-
-export const resetAllFixtures = async () => {
-  await clearAllTables();
-  const { seedAllFixtures } = await import("./fixtures");
-  return seedAllFixtures();
 };
 

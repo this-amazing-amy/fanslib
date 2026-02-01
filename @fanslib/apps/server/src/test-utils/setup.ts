@@ -5,7 +5,7 @@ import { Media } from "../features/library/entity";
 import { Post } from "../features/posts/entity";
 import { Subreddit } from "../features/subreddits/entity";
 import { TagDefinition, TagDimension } from "../features/tags/entity";
-import { getTestDataSource } from "../lib/db.test";
+import { getTestDataSource } from "../lib/test-db";
 
 export const parseResponse = async <T>(response: Response): Promise<T | null> => {
   const text = await response.text();

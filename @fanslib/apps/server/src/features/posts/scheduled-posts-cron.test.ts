@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
+import { setupTestDatabase, teardownTestDatabase } from "../../lib/test-db";
 import { Channel, ChannelType } from "../channels/entity";
 import { Post } from "./entity";
 import { updateOverdueScheduledNonRedditPosts } from "./scheduled-posts-cron";

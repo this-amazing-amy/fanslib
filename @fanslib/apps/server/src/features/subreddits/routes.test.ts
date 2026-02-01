@@ -10,14 +10,14 @@ import { Hono } from "hono";
 import "reflect-metadata";
 import {
   getTestDataSource,
-  resetAllFixtures,
   setupTestDatabase,
   teardownTestDatabase,
-} from "../../lib/db.test";
+} from "../../lib/test-db";
+import { resetAllFixtures } from "../../lib/test-fixtures";
 import { devalueMiddleware } from "../../lib/devalue-middleware";
 import { parseResponse } from "../../test-utils/setup";
 import { Subreddit } from "./entity";
-import { SUBREDDIT_FIXTURES } from "./fixtures";
+import { SUBREDDIT_FIXTURES } from "./fixtures-data";
 import { subredditsRoutes } from "./routes";
 
 describe("Subreddits Routes", () => {

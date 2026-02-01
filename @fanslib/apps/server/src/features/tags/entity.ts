@@ -1,4 +1,4 @@
-import { t } from "elysia";
+import { z } from "zod";
 import type { Relation } from "typeorm";
 import {
   Column,
@@ -168,70 +168,58 @@ export class MediaTag {
 }
 
 // Schemas
-export const StickerDisplayModeSchema = t.Union([
-  t.Literal("none"),
-  t.Literal("color"),
-  t.Literal("short"),
-]);
+export const StickerDisplayModeSchema = z.enum(["none", "color", "short"]);
 
-export const DataTypeSchema = t.Union([
-  t.Literal("categorical"),
-  t.Literal("numerical"),
-  t.Literal("boolean"),
-]);
+export const DataTypeSchema = z.enum(["categorical", "numerical", "boolean"]);
 
-export const TagSourceSchema = t.Union([
-  t.Literal("manual"),
-  t.Literal("automated"),
-  t.Literal("imported"),
-]);
+export const TagSourceSchema = z.enum(["manual", "automated", "imported"]);
 
-export const TagDefinitionSchema = t.Object({
-  id: t.Number(),
-  dimensionId: t.Number(),
-  value: t.String(),
-  displayName: t.String(),
-  description: t.Nullable(t.String()),
-  metadata: t.Nullable(t.String()),
-  color: t.Nullable(t.String()),
-  shortRepresentation: t.Nullable(t.String()),
-  sortOrder: t.Number(),
-  parentTagId: t.Nullable(t.Number()),
-  createdAt: t.Date(),
-  updatedAt: t.Date(),
+export const TagDefinitionSchema = z.object({
+  id: z.number(),
+  dimensionId: z.number(),
+  value: z.string(),
+  displayName: z.string(),
+  description: z.string().nullable(),
+  metadata: z.string().nullable(),
+  color: z.string().nullable(),
+  shortRepresentation: z.string().nullable(),
+  sortOrder: z.number(),
+  parentTagId: z.number().nullable(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
-export const TagDimensionSchema = t.Object({
-  id: t.Number(),
-  name: t.String(),
-  description: t.Nullable(t.String()),
+export const TagDimensionSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  description: z.string().nullable(),
   dataType: DataTypeSchema,
-  validationSchema: t.Nullable(t.String()),
-  sortOrder: t.Number(),
+  validationSchema: z.string().nullable(),
+  sortOrder: z.number(),
   stickerDisplay: StickerDisplayModeSchema,
-  isExclusive: t.Boolean(),
-  createdAt: t.Date(),
-  updatedAt: t.Date(),
-  tags: t.Optional(t.Array(TagDefinitionSchema)),
+  isExclusive: z.boolean(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  tags: z.array(TagDefinitionSchema).optional(),
 });
 
-export const MediaTagSchema = t.Object({
-  id: t.Number(),
-  mediaId: t.String(),
-  tagDefinitionId: t.Number(),
-  dimensionId: t.Number(),
-  dimensionName: t.String(),
+export const MediaTagSchema = z.object({
+  id: z.number(),
+  mediaId: z.string(),
+  tagDefinitionId: z.number(),
+  dimensionId: z.number(),
+  dimensionName: z.string(),
   dataType: DataTypeSchema,
-  tagValue: t.String(),
-  tagDisplayName: t.String(),
-  color: t.Nullable(t.String()),
+  tagValue: z.string(),
+  tagDisplayName: z.string(),
+  color: z.string().nullable(),
   stickerDisplay: StickerDisplayModeSchema,
-  shortRepresentation: t.Nullable(t.String()),
-  numericValue: t.Nullable(t.Number()),
-  booleanValue: t.Nullable(t.Boolean()),
-  confidence: t.Nullable(t.Number()),
+  shortRepresentation: z.string().nullable(),
+  numericValue: z.number().nullable(),
+  booleanValue: z.boolean().nullable(),
+  confidence: z.number().nullable(),
   source: TagSourceSchema,
-  assignedAt: t.Date(),
+  assignedAt: z.date(),
 });
 
 

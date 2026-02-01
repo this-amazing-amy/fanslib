@@ -1,33 +1,9 @@
-import { getTestDataSource } from "../../lib/db.test";
+import { getTestDataSource } from "../../lib/test-db";
 import { CHANNEL_TYPES } from "./channelTypes";
-import type { Channel } from "./entity";
 import { Channel as ChannelEntity, ChannelType as ChannelTypeEntity } from "./entity";
+import { CHANNEL_FIXTURES } from "./fixtures-data";
 
-export type ChannelFixture = Omit<Channel, "eligibleMediaFilter" | "type">;
-
-export const CHANNEL_FIXTURES: ChannelFixture[] = [
-  {
-    id: "channel-1",
-    name: "My Fansly Channel",
-    typeId: "fansly",
-    description: "Main Fansly channel for content",
-    defaultHashtags: [],
-  },
-  {
-    id: "channel-2",
-    name: "OnlyFans Account",
-    typeId: "onlyfans",
-    description: "Primary OnlyFans channel",
-    defaultHashtags: [],
-  },
-  {
-    id: "channel-3",
-    name: "Reddit Promo",
-    typeId: "reddit",
-    description: "Reddit promotion channel",
-    defaultHashtags: [],
-  },
-];
+export { CHANNEL_FIXTURES } from "./fixtures-data";
 
 export const seedChannelFixtures = async () => {
   const dataSource = getTestDataSource();
