@@ -1,4 +1,4 @@
-import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations } from '@fanslib/server/schemas';
 import { Send } from 'lucide-react';
 import { useState } from 'react';
 import { Alert } from '~/components/ui/Alert';

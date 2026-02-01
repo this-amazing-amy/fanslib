@@ -1,4 +1,4 @@
-import type { ShootSummary, ShootSummarySchema } from '@fanslib/server/schemas';
+import type { ShootSummary } from '@fanslib/server/schemas';
 import { Trash2 } from "lucide-react";
 import { type FC } from "react";
 import {

@@ -1,4 +1,4 @@
-import type { FypActionsQuery, FypActionsQuerySchema, GetFanslyPostsWithAnalyticsQuery, GetFanslyPostsWithAnalyticsQuerySchema } from '@fanslib/server/schemas';
+import type { FypActionsQuery, GetFanslyPostsWithAnalyticsQuery } from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/hono-client';
 

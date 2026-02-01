@@ -1,4 +1,4 @@
-import type { TagDefinition, TagDefinitionSchema } from '@fanslib/server/schemas';
+import type { TagDefinition } from '@fanslib/server/schemas';
 import { Edit, Trash2 } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { cn } from "~/lib/cn";

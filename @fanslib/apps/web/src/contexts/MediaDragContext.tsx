@@ -1,4 +1,4 @@
-import type { Media, MediaSchema } from '@fanslib/server/schemas';
+import type { Media } from '@fanslib/server/schemas';
 import { createContext, useContext, useState, type FC, type ReactNode } from "react";
 
 

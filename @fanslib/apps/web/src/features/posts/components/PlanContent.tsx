@@ -1,4 +1,4 @@
-import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations } from '@fanslib/server/schemas';
 import { addMonths } from "date-fns";
 import { CalendarDays, Columns3, LayoutList } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";

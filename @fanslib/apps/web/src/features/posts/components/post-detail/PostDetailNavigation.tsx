@@ -1,4 +1,4 @@
-import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations } from '@fanslib/server/schemas';
 import { useNavigate } from '@tanstack/react-router';
 import { ChevronLeft, ChevronRight, Copy, MoreVertical, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';

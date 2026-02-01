@@ -1,4 +1,4 @@
-import type { Media, MediaSchema } from '@fanslib/server/schemas';
+import type { Media } from '@fanslib/server/schemas';
 import { format, isSameDay, parse } from "date-fns";
 import { useEffect, useRef, useState } from "react";
 import { DateTimePicker } from "~/components/DateTimePicker";

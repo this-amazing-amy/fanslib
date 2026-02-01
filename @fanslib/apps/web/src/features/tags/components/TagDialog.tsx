@@ -1,4 +1,4 @@
-import type { CreateTagDefinitionRequestBody, CreateTagDefinitionRequestBodySchema, TagDefinition, TagDefinitionSchema, TagDimension, TagDimensionSchema, UpdateTagDefinitionRequestBody, UpdateTagDefinitionRequestBodySchema } from '@fanslib/server/schemas';
+import type { CreateTagDefinitionRequestBody, TagDefinition, TagDimension, UpdateTagDefinitionRequestBody } from '@fanslib/server/schemas';
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "~/components/ui/Button";
 import {

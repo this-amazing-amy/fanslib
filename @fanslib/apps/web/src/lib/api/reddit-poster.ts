@@ -1,4 +1,4 @@
-import type { Media, MediaSchema, Subreddit, SubredditSchema } from '@fanslib/server/schemas';
+import type { Media, Subreddit } from '@fanslib/server/schemas';
 import { eden } from './eden';
 
 

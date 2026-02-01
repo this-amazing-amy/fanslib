@@ -1,4 +1,4 @@
-import type { AssignTagsToMediaRequestBody, AssignTagsToMediaRequestBodySchema, BulkAssignTagsRequestBody, BulkAssignTagsRequestBodySchema, CreateTagDefinitionRequestBody, CreateTagDefinitionRequestBodySchema, CreateTagDimensionRequestBody, CreateTagDimensionRequestBodySchema, DeleteTagDefinitionParams, DeleteTagDefinitionParamsSchema, DeleteTagDimensionParams, DeleteTagDimensionParamsSchema, FetchMediaTagsRequestParams, FetchMediaTagsRequestParamsSchema, FetchMediaTagsRequestQuery, FetchMediaTagsRequestQuerySchema, FetchTagDefinitionByIdRequestParams, FetchTagDefinitionByIdRequestParamsSchema, FetchTagDefinitionsByIdsRequestQuery, FetchTagDefinitionsByIdsRequestQuerySchema, FetchTagDimensionByIdRequestParams, FetchTagDimensionByIdRequestParamsSchema, FetchTagsByDimensionQuery, FetchTagsByDimensionQuerySchema, RemoveTagsFromMediaRequestBody, RemoveTagsFromMediaRequestBodySchema, RemoveTagsFromMediaRequestParams, RemoveTagsFromMediaRequestParamsSchema, UpdateTagDefinitionParams, UpdateTagDefinitionParamsSchema, UpdateTagDefinitionRequestBody, UpdateTagDefinitionRequestBodySchema, UpdateTagDimensionParams, UpdateTagDimensionParamsSchema, UpdateTagDimensionRequestBody, UpdateTagDimensionRequestBodySchema } from '@fanslib/server/schemas';
+import type { AssignTagsToMediaRequestBody, BulkAssignTagsRequestBody, CreateTagDefinitionRequestBody, CreateTagDimensionRequestBody, DeleteTagDefinitionParams, DeleteTagDimensionParams, FetchMediaTagsRequestParams, FetchMediaTagsRequestQuery, FetchTagDefinitionByIdRequestParams, FetchTagDefinitionsByIdsRequestQuery, FetchTagDimensionByIdRequestParams, FetchTagsByDimensionQuery, RemoveTagsFromMediaRequestBody, RemoveTagsFromMediaRequestParams, UpdateTagDefinitionParams, UpdateTagDefinitionRequestBody, UpdateTagDimensionParams, UpdateTagDimensionRequestBody } from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/hono-client';
 
@@ -36,7 +36,7 @@ export const useCreateTagDimensionMutation = () => {
   });
 };
 
-type UpdateTagDimensionParams = UpdateTagDimensionParams & {
+type UpdateTagDimensionInput = UpdateTagDimensionParams & {
   updates: UpdateTagDimensionRequestBody;
 };
 
@@ -44,7 +44,7 @@ export const useUpdateTagDimensionMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, updates }: UpdateTagDimensionParams) => {
+    mutationFn: async ({ id, updates }: UpdateTagDimensionInput) => {
       const result = await api.api.tags.dimensions[':id'].$patch({ param: { id }, json: updates });
       return result.json();
     },
@@ -134,7 +134,7 @@ export const useCreateTagDefinitionMutation = () => {
   });
 };
 
-type UpdateTagDefinitionParams = UpdateTagDefinitionParams & {
+type UpdateTagDefinitionInput = UpdateTagDefinitionParams & {
   updates: UpdateTagDefinitionRequestBody;
 };
 
@@ -142,7 +142,7 @@ export const useUpdateTagDefinitionMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, updates }: UpdateTagDefinitionParams) => {
+    mutationFn: async ({ id, updates }: UpdateTagDefinitionInput) => {
       const result = await api.api.tags.definitions[':id'].$patch({ param: { id }, json: updates });
       return result.json();
     },

@@ -1,4 +1,4 @@
-import type { CaptionQueueItem, CaptionQueueItemSchema, PostStatus, PostStatusSchema } from '@fanslib/server/schemas';
+import type { CaptionQueueItem, PostStatus } from '@fanslib/server/schemas';
 import type { Key } from "@react-types/shared";
 import { format } from "date-fns";
 import { Circle, CheckCircle2, ExternalLink, Link2, MoreVertical, Trash2 } from "lucide-react";

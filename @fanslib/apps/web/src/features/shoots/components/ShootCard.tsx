@@ -1,4 +1,4 @@
-import type { ShootSummary, ShootSummarySchema } from '@fanslib/server/schemas';
+import type { ShootSummary } from '@fanslib/server/schemas';
 import { ImageIcon, Plus, VideoIcon } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";

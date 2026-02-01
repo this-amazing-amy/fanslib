@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useState } from "react";
-import type { Media, MediaSchema } from '@fanslib/server/schemas';
+import type { Media } from '@fanslib/server/schemas';
 import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
 
 

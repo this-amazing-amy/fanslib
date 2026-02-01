@@ -1,4 +1,4 @@
-import type { MediaTag, MediaTagSchema, TagDimension, TagDimensionSchema } from '@fanslib/server/schemas';
+import type { MediaTag, TagDimension } from '@fanslib/server/schemas';
 import { X } from "lucide-react";
 import { useState } from "react";
 import { Switch } from "~/components/ui/Switch";

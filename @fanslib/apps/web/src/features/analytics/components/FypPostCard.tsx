@@ -1,4 +1,4 @@
-import type { FypPost, FypPostSchema } from '@fanslib/server/schemas';
+import type { FypPost } from '@fanslib/server/schemas';
 import { TrendingDown, TrendingUp } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { cn } from "~/lib/cn";

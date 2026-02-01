@@ -1,4 +1,4 @@
-import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations } from '@fanslib/server/schemas';
 import { AlertTriangle, CalendarDays, Check, Undo2, Zap } from 'lucide-react';
 import { useState } from 'react';
 import { StatusBadge } from '~/components/StatusBadge';

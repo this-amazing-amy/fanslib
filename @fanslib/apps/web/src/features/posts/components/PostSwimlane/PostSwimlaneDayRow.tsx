@@ -1,6 +1,6 @@
 import { format, isToday } from "date-fns";
 import { cn } from "~/lib/cn";
-import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations } from '@fanslib/server/schemas';
 import type { VirtualPost } from "~/lib/virtual-posts";
 import { PostSwimlaneCell } from "./PostSwimlaneCell";
 

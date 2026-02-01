@@ -1,4 +1,4 @@
-import type { Media, MediaSchema } from '@fanslib/server/schemas';
+import type { Media } from '@fanslib/server/schemas';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useGalleryKeyboardHandling } from "~/hooks/useGalleryKeyboardHandling";
 

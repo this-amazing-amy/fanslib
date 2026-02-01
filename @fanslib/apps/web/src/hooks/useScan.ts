@@ -1,4 +1,4 @@
-import type { LibraryScanProgress, LibraryScanProgressSchema, LibraryScanResult, LibraryScanResultSchema } from '@fanslib/server/schemas';
+import type { LibraryScanProgress, LibraryScanResult } from '@fanslib/server/schemas';
 import { useEffect, useState } from "react";
 import { eden } from "~/lib/api/eden";
 

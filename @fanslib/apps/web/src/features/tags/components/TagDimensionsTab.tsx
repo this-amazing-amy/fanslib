@@ -1,4 +1,4 @@
-import type { CreateTagDefinitionRequestBody, CreateTagDefinitionRequestBodySchema, CreateTagDimensionRequestBody, CreateTagDimensionRequestBodySchema, TagDefinition, TagDefinitionSchema, TagDimension, TagDimensionSchema, UpdateTagDefinitionRequestBody, UpdateTagDefinitionRequestBodySchema, UpdateTagDimensionRequestBody, UpdateTagDimensionRequestBodySchema } from '@fanslib/server/schemas';
+import type { CreateTagDefinitionRequestBody, CreateTagDimensionRequestBody, TagDefinition, TagDimension, UpdateTagDefinitionRequestBody, UpdateTagDimensionRequestBody } from '@fanslib/server/schemas';
 import { Plus, Tags } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";

@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { Link } from "@tanstack/react-router";
-import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations } from '@fanslib/server/schemas';
 import { Camera } from "lucide-react";
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
 import { MediaSelectionProvider } from "~/contexts/MediaSelectionContext";

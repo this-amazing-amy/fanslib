@@ -1,4 +1,4 @@
-import type { PostStatus, PostStatusSchema } from '@fanslib/server/schemas';
+import type { PostStatus } from '@fanslib/server/schemas';
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import {

@@ -1,4 +1,4 @@
-import type { Subreddit, SubredditSchema } from '@fanslib/server/schemas';
+import type { Subreddit } from '@fanslib/server/schemas';
 import { ArrowDown, ArrowUp } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useLocalStorage } from '~/hooks/useLocalStorage';

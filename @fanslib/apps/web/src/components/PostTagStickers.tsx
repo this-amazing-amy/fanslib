@@ -1,4 +1,4 @@
-import type { PostMediaWithMedia, PostMediaWithMediaSchema } from '@fanslib/server/schemas';
+import type { PostMediaWithMedia } from '@fanslib/server/schemas';
 import { memo, useMemo } from "react";
 import { groupBy } from "remeda";
 import { useTagsForMediasQuery } from "~/lib/queries/tags";

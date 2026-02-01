@@ -1,4 +1,4 @@
-import type { CaptionQueueItem, CaptionQueueItemSchema } from '@fanslib/server/schemas';
+import type { CaptionQueueItem } from '@fanslib/server/schemas';
 import { format } from "date-fns";
 import { useQueries } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";

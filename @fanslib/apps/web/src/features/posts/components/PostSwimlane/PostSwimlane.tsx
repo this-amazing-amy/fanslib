@@ -1,4 +1,4 @@
-import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations } from '@fanslib/server/schemas';
 import { eachDayOfInterval, isSameDay } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
 import { ScrollArea } from "~/components/ui/ScrollArea";

@@ -1,4 +1,4 @@
-import type { Media, MediaFilter, MediaFilterSchema, MediaSchema } from '@fanslib/server/schemas';
+import type { Media, MediaFilter } from '@fanslib/server/schemas';
 import { Check, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 import { Button } from "~/components/ui/Button";

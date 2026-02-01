@@ -6,7 +6,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/Dialog";
-import type { CreateTagDimensionRequestBody, CreateTagDimensionRequestBodySchema, TagDimension, TagDimensionSchema, UpdateTagDimensionRequestBody, UpdateTagDimensionRequestBodySchema } from '@fanslib/server/schemas';
+import type { CreateTagDimensionRequestBody, TagDimension, UpdateTagDimensionRequestBody } from '@fanslib/server/schemas';
 import { DimensionForm } from "./DimensionForm";
 
 

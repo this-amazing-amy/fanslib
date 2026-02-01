@@ -1,4 +1,4 @@
-import type { Media, MediaSchema } from '@fanslib/server/schemas';
+import type { Media } from '@fanslib/server/schemas';
 import { Link } from "@tanstack/react-router";
 import { useSfwMode } from "~/hooks/useSfwMode";
 import { cn } from "~/lib/cn";

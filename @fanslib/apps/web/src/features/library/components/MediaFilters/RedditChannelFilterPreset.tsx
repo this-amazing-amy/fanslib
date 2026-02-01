@@ -1,4 +1,4 @@
-import type { MediaFilter, MediaFilterSchema } from '@fanslib/server/schemas';
+import type { MediaFilter } from '@fanslib/server/schemas';
 import { Copy } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { Tooltip } from "~/components/ui/Tooltip";

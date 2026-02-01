@@ -1,4 +1,4 @@
-import type { TagDimension, TagDimensionSchema } from '@fanslib/server/schemas';
+import type { TagDimension } from '@fanslib/server/schemas';
 
 
 // Schema type definitions

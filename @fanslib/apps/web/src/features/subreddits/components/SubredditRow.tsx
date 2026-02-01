@@ -1,4 +1,4 @@
-import type { Subreddit, SubredditSchema } from '@fanslib/server/schemas';
+import type { Subreddit } from '@fanslib/server/schemas';
 import { BarChart3, ExternalLink, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
 import { VerificationStatus } from '~/components/VerificationStatus';

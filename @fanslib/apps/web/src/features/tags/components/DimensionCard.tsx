@@ -1,4 +1,4 @@
-import type { TagDefinition, TagDefinitionSchema, TagDimension, TagDimensionSchema } from '@fanslib/server/schemas';
+import type { TagDefinition, TagDimension } from '@fanslib/server/schemas';
 import { MoreVertical, PenLine, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";

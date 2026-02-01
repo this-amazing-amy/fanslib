@@ -1,5 +1,5 @@
 import { CheckCircle2, FileX } from "lucide-react";
-import type { AssignMediaResponse, AssignMediaResponseSchema } from '@fanslib/server/schemas';
+import type { AssignMediaResponse } from '@fanslib/server/schemas';
 
 type AssignmentResultsProps = {
   result: AssignMediaResponse;

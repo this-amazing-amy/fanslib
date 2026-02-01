@@ -1,4 +1,4 @@
-import type { Media, MediaSchema, PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { Media, PostWithRelations } from '@fanslib/server/schemas';
 import { Link } from '@tanstack/react-router';
 import { ExternalLink, Plus, Trash2Icon } from 'lucide-react';
 import { useState } from 'react';

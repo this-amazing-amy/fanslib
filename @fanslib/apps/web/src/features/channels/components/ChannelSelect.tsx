@@ -1,4 +1,4 @@
-import type { Channel, ChannelSchema } from '@fanslib/server/schemas';
+import type { Channel } from '@fanslib/server/schemas';
 
 
 import { useChannelsQuery } from "~/lib/queries/channels";

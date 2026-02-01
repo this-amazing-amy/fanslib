@@ -1,4 +1,4 @@
-import type { Media, MediaSchema } from '@fanslib/server/schemas';
+import type { Media } from '@fanslib/server/schemas';
 import { useMemo } from "react";
 import { groupBy } from "remeda";
 import { useBulkMediaTagsQuery } from "~/lib/queries/tags";

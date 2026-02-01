@@ -1,4 +1,4 @@
-import type { Channel, ChannelSchema } from '@fanslib/server/schemas';
+import type { Channel } from '@fanslib/server/schemas';
 
 
 import { Badge } from "~/components/ui/Badge/Badge";

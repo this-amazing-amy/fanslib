@@ -1,4 +1,4 @@
-import type { PostMediaWithMedia, PostMediaWithMediaSchema } from '@fanslib/server/schemas';
+import type { PostMediaWithMedia } from '@fanslib/server/schemas';
 import { Camera } from "lucide-react";
 import { MediaSelectionProvider } from "~/contexts/MediaSelectionContext";
 import { MediaTile } from "~/features/library/components/MediaTile";

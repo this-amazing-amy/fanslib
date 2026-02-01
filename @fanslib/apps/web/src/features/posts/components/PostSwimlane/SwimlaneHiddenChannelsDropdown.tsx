@@ -1,5 +1,5 @@
 import { Eye, MoreHorizontal } from "lucide-react";
-import type { Channel, ChannelSchema } from '@fanslib/server/schemas';
+import type { Channel } from '@fanslib/server/schemas';
 import { Button } from "~/components/ui/Button";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import {

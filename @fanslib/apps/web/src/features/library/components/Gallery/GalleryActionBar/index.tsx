@@ -1,4 +1,4 @@
-import type { Media, MediaSchema } from '@fanslib/server/schemas';
+import type { Media } from '@fanslib/server/schemas';
 
 
 import { Camera, FolderPlus, Send, X } from "lucide-react";

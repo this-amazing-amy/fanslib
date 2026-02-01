@@ -1,4 +1,4 @@
-import type { ShootSummary, ShootSummarySchema } from '@fanslib/server/schemas';
+import type { ShootSummary } from '@fanslib/server/schemas';
 import type { KeyboardEvent } from "react";
 import { useState } from "react";
 import { Input } from "~/components/ui/Input";

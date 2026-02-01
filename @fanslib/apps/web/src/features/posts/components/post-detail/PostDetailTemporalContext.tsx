@@ -1,4 +1,4 @@
-import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations } from '@fanslib/server/schemas';
 import { Link } from '@tanstack/react-router';
 import { addDays, format, isSameDay } from 'date-fns';
 import { Layers } from 'lucide-react';

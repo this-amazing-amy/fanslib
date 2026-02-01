@@ -1,4 +1,4 @@
-import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations } from '@fanslib/server/schemas';
 import { createContext, useContext, useState, type FC, type ReactNode } from "react";
 
 type Post = PostWithRelations;

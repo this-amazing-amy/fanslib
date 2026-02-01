@@ -1,4 +1,4 @@
-import type { ContentScheduleWithChannel, ContentScheduleWithChannelSchema } from '@fanslib/server/schemas';
+import type { ContentScheduleWithChannel } from '@fanslib/server/schemas';
 import { Edit, Trash2 } from "lucide-react";
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
 import { MediaFilterSummary } from "~/components/MediaFilterSummary";

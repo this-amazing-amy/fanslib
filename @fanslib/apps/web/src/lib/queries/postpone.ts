@@ -1,4 +1,4 @@
-import type { DraftBlueskyPostRequestBody, DraftBlueskyPostRequestBodySchema, FindRedgifsURLRequestBody, FindRedgifsURLRequestBodySchema, FindSubredditPostingTimesRequestBody, FindSubredditPostingTimesRequestBodySchema, RefreshRedgifsURLRequestBody, RefreshRedgifsURLRequestBodySchema } from '@fanslib/server/schemas';
+import type { DraftBlueskyPostRequestBody, FindRedgifsURLRequestBody, FindSubredditPostingTimesRequestBody, RefreshRedgifsURLRequestBody } from '@fanslib/server/schemas';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/hono-client';
 

@@ -1,4 +1,4 @@
-import type { Hashtag, HashtagSchema } from '@fanslib/server/schemas';
+import type { Hashtag } from '@fanslib/server/schemas';
 import { X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Badge } from "~/components/ui/Badge";

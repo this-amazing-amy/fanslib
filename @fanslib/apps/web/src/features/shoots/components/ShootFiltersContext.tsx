@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import type { ShootFilters, ShootFiltersSchema } from '@fanslib/server/schemas';
+import type { ShootFilters } from '@fanslib/server/schemas';
 
 type ShootFilter = ShootFilters;
 

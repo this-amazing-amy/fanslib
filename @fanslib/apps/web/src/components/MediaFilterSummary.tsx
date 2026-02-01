@@ -1,4 +1,4 @@
-import type { MediaFilter, MediaFilterSchema } from '@fanslib/server/schemas';
+import type { MediaFilter } from '@fanslib/server/schemas';
 import { Calendar, Camera, FileText, Hash, Minus, Tag } from "lucide-react";
 import { useMemo } from "react";
 import { useTagFilterNames } from "~/hooks/useTagFilterNames";

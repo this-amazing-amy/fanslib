@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Media, MediaSchema } from '@fanslib/server/schemas';
+import type { Media } from '@fanslib/server/schemas';
 
 
 import { useSfwMode } from "~/hooks/useSfwMode";

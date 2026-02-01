@@ -1,4 +1,4 @@
-import type { Media, MediaSchema, PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { Media, PostWithRelations } from '@fanslib/server/schemas';
 import { Plus } from "lucide-react";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
 import { usePostDrag } from "~/contexts/PostDragContext";

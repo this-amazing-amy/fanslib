@@ -1,4 +1,4 @@
-import type { ShootSummary, ShootSummarySchema } from '@fanslib/server/schemas';
+import type { ShootSummary } from '@fanslib/server/schemas';
 import { useState } from "react";
 import { DateTimePicker } from "~/components/DateTimePicker";
 import { useDebounce } from "~/hooks/useDebounce";

@@ -1,4 +1,4 @@
-import type { CreateShootRequestBody, CreateShootRequestBodySchema, FetchAllShootsRequestBody, FetchAllShootsRequestBodySchema, ShootFilters, ShootFiltersSchema, ShootSummary, ShootSummarySchema } from '@fanslib/server/schemas';
+import type { CreateShootRequestBody, FetchAllShootsRequestBody, ShootFilters, ShootSummary } from '@fanslib/server/schemas';
 import { createContext, useCallback, useContext, useState } from "react";
 import {
   useCreateShootMutation,

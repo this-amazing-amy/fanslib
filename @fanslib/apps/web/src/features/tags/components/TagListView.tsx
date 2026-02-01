@@ -1,4 +1,4 @@
-import type { TagDefinition, TagDefinitionSchema } from '@fanslib/server/schemas';
+import type { TagDefinition } from '@fanslib/server/schemas';
 import { TagListItem } from "./TagListItem";
 
 

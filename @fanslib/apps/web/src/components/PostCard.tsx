@@ -1,4 +1,4 @@
-import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations } from '@fanslib/server/schemas';
 import { format } from "date-fns";
 import { MediaTile } from "~/features/library/components/MediaTile";
 import { ChannelBadge } from "./ChannelBadge";

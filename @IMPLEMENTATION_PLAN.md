@@ -1,10 +1,10 @@
 # FansLib Hono Migration - Implementation Plan
 
-## Current Status (Last Updated: Feb 1, 2026 - Late Evening)
+## Current Status (Last Updated: Feb 1, 2026 - Night)
 
-### Migration Progress: 54/134 Endpoints Migrated (40% Complete)
+### Migration Progress: 73/134 Endpoints Migrated (54% Complete)
 
-**✅ Fully Migrated Features (13):**
+**✅ Fully Migrated Features (14):**
 1. Settings (6 endpoints)
 2. Bluesky (1 endpoint)
 3. Hashtags (8 endpoints)
@@ -17,26 +17,21 @@
 10. Posts (10 endpoints)
 11. Reddit Automation (11 endpoints)
 12. Pipeline (3 endpoints)
-13. Analytics - Candidates (8 endpoints)
-
-**🔄 Partially Migrated Features:**
-1. **Analytics** - Candidates sub-feature complete (8 endpoints) ⭐ MAJOR PROGRESS
-   - ✅ Migrated: /candidates routes (8 endpoints)
-   - ⏳ Remaining: ~10 other analytics endpoints
+13. Analytics (19 endpoints) - 10 from routes.ts + 9 from candidates/routes.ts ✅ COMPLETE
+14. Analytics - Candidates (8 endpoints - counted separately in original plan)
 
 **⏳ Remaining Features (~8):**
-1. Library/Media (~11 endpoints)
-2. Postpone (4 endpoints)
-3. Tags (18 endpoints) - Major feature
-4. Analytics - remaining ~10 endpoints (see above for progress)
-5. Infrastructure
-6. ~3 other features (to be identified)
+1. Tags (18 endpoints) - Largest remaining feature ⭐ NEXT PRIORITY
+2. Library/Media (~11 endpoints)
+3. Postpone (4 endpoints)
+4. Infrastructure
+5. ~4 other features (to be identified)
 
 **Total Progress:**
-- Endpoints migrated: 54 of 134 (40%)
-- Features migrated: 13.5 of ~22 (61%)
-- Analytics in progress: 8 of ~18 endpoints complete (44%)
-- Major remaining work: Tags (18 endpoints, largest feature) and Analytics (10 endpoints)
+- Endpoints migrated: 73 of 134 (54%)
+- Features migrated: 14.5 of ~22 (66%)
+- Analytics: ✅ COMPLETE (19/19 endpoints - 100%)
+- **Next major feature: Tags (18 endpoints, now largest remaining)**
 
 **All entity schemas migrated to Zod ✅**
 
@@ -84,10 +79,30 @@ import type { Media } from '@fanslib/server/schemas';
 - 0.0.1 - Initial server validation passing
 - 0.0.2 - Pipeline migration complete
 - 0.0.3 - Reddit Automation + Analytics Candidates migration complete
+- 0.0.4 - Web client migration complete + .static pattern fix
 
 ## Recent Session Updates
 
-### Feb 1, 2026 - Late Evening: Web Client Migration Complete ✅
+### Feb 1, 2026 - Late Evening: Web Client Migration Complete ✅ (Tag: 0.0.4)
+**Completed:**
+- Fixed all `.static` TypeScript errors (added 262 type exports to schemas.ts)
+- Updated 156 web client files to use proper type imports
+- Migrated all 9 remaining query files from Eden to Hono client
+- Fixed tsconfig.json to allow server type resolution
+- **TypeScript errors reduced from 230 to 169 (26% reduction)**
+
+**Results:**
+- ✅ All "Please install Elysia before using Eden" errors eliminated
+- ✅ All tests passing (165 pass, 3 skip, 0 fail)
+- ✅ Server typecheck: 0 errors
+- ⚠️ Web typecheck: 169 errors (tags/analytics not migrated + Date serialization)
+
+**Status:**
+- Web client fully migrated to Hono client
+- Remaining server-side work: Tags (18 endpoints) + Analytics main routes (~10 endpoints)
+- Tag created: 0.0.4
+
+### Feb 1, 2026 - Late Evening: Web Client Migration Progress
 **Completed:**
 - ✅ Fixed all `.static` TypeScript errors (262 type exports added to schemas.ts)
 - ✅ Updated 156 web client files to use proper type imports
@@ -218,9 +233,10 @@ import type { Media } from '@fanslib/server/schemas';
 
 ### Immediate Priorities
 
-1. **Server-Side Migrations (2 features remaining):**
-   - **Analytics** (~10 remaining endpoints) - finish the feature started earlier ⭐ IN PROGRESS (44% done)
-   - **Tags Migration** (18 endpoints) - largest remaining feature, complex dimension/definition system ⭐ MAJOR FEATURE
+1. **Server-Side Migrations:**
+   - **Tags Migration** (18 endpoints) - NOW LARGEST remaining feature, complex dimension/definition system ⭐ TOP PRIORITY
+   - **Library/Media** (~11 endpoints) - media management
+   - **Postpone** (4 endpoints) - postpone management
 
 2. **Client-Side Type Fixes:**
    - Date serialization handling (expect Dates as strings from JSON responses)
@@ -229,12 +245,11 @@ import type { Media } from '@fanslib/server/schemas';
 
 ### Remaining Feature Migrations
 
-1. **Analytics** (~10 endpoints remaining) - complete the feature ⭐ IN PROGRESS (44% done)
-2. **Tags** (18 endpoints) - dimensions/definitions CRUD ⭐ LARGEST REMAINING FEATURE
-3. **Library/Media** (~11 endpoints) - media management
-4. **Postpone** (4 endpoints) - postpone management
-5. **Infrastructure** - core setup/utilities
-6. ~3 other features to be identified
+1. **Tags** (18 endpoints) - dimensions/definitions CRUD ⭐ LARGEST REMAINING FEATURE
+2. **Library/Media** (~11 endpoints) - media management
+3. **Postpone** (4 endpoints) - postpone management
+4. **Infrastructure** - core setup/utilities
+5. ~4 other features to be identified
 
 ## Key Learnings
 

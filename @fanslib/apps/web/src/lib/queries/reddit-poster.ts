@@ -1,4 +1,4 @@
-import type { Subreddit, SubredditSchema } from '@fanslib/server/schemas';
+import type { Subreddit } from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/hono-client';
 

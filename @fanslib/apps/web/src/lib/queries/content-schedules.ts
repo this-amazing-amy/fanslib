@@ -1,4 +1,4 @@
-import type { CreateContentScheduleRequestBody, CreateContentScheduleRequestBodySchema, FetchVirtualPostsRequestQuery, FetchVirtualPostsRequestQuerySchema, UpdateContentScheduleRequestBody, UpdateContentScheduleRequestBodySchema } from '@fanslib/server/schemas';
+import type { CreateContentScheduleRequestBody, FetchVirtualPostsRequestQuery, UpdateContentScheduleRequestBody } from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/hono-client';
 

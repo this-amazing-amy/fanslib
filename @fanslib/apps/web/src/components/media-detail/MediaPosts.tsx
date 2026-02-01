@@ -1,4 +1,4 @@
-import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations } from '@fanslib/server/schemas';
 import { PostCard } from "~/components/PostCard";
 import { usePostsByMediaIdQuery } from "~/lib/queries/posts";
 

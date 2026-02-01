@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { ImagePlus } from "lucide-react";
-import type { AssignMediaResponse, AssignMediaResponseSchema } from '@fanslib/server/schemas';
+import type { AssignMediaResponse } from '@fanslib/server/schemas';
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { Button } from "~/components/ui/Button";

@@ -1,4 +1,4 @@
-import type { AssignMediaResponse, AssignMediaResponseSchema } from '@fanslib/server/schemas';
+import type { AssignMediaResponse } from '@fanslib/server/schemas';
 
 type UnfilledSlot = AssignMediaResponse["unfilled"][number];
 

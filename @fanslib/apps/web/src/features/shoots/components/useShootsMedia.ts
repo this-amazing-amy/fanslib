@@ -1,4 +1,4 @@
-import type { Media, MediaSchema, ShootSummary, ShootSummarySchema } from '@fanslib/server/schemas';
+import type { Media, ShootSummary } from '@fanslib/server/schemas';
 import { useMemo } from "react";
 
 

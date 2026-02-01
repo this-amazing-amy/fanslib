@@ -1,4 +1,4 @@
-import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations } from '@fanslib/server/schemas';
 import { useState } from 'react';
 import { DateTimePicker } from '~/components/DateTimePicker';
 import { useDebounce } from '~/hooks/useDebounce';

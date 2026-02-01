@@ -1,4 +1,4 @@
-import type { TagDefinition, TagDefinitionSchema } from '@fanslib/server/schemas';
+import type { TagDefinition } from '@fanslib/server/schemas';
 import { ChevronDown, ChevronRight, Edit, GripVertical, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";

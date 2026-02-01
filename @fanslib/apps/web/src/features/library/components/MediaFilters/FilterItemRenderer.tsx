@@ -1,4 +1,4 @@
-import type { MediaFilter, MediaFilterSchema } from '@fanslib/server/schemas';
+import type { MediaFilter } from '@fanslib/server/schemas';
 import { CalendarDate } from "@internationalized/date";
 import { format } from "date-fns";
 import { CalendarIcon, ImageIcon, VideoIcon, X } from "lucide-react";

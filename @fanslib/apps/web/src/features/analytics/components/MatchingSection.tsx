@@ -1,4 +1,4 @@
-import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations } from '@fanslib/server/schemas';
 import { useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { ErrorState } from "~/components/ui/ErrorState/ErrorState";

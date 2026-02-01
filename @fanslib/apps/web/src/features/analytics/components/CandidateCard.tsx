@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { Link2, RotateCcw, X } from "lucide-react";
 import { useState } from "react";
-import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations } from '@fanslib/server/schemas';
 import { MatchingStatusBadge } from "~/components/MatchingStatusBadge";
 import { usePostDrag } from "~/contexts/PostDragContext";
 import { cn } from "~/lib/cn";

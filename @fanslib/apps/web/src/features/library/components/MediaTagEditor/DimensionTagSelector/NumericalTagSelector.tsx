@@ -1,4 +1,4 @@
-import type { MediaTag, MediaTagSchema, TagDimension, TagDimensionSchema } from '@fanslib/server/schemas';
+import type { MediaTag, TagDimension } from '@fanslib/server/schemas';
 import { X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Slider } from "~/components/ui/Slider";

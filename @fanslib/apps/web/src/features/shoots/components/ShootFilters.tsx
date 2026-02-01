@@ -1,4 +1,4 @@
-import type { ShootFilters, ShootFiltersSchema } from '@fanslib/server/schemas';
+import type { ShootFilters as ShootFiltersType } from '@fanslib/server/schemas';
 import { ListX } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { Tooltip } from "~/components/ui/Tooltip";
@@ -6,7 +6,7 @@ import { ShootFilterDropdown } from "./ShootFilterDropdown";
 import { ShootFilterItemRenderer } from "./ShootFilterItemRenderer";
 import { ShootFiltersProvider, useShootFilters } from "./ShootFiltersContext";
 
-type ShootFilter = ShootFilters;
+type ShootFilter = ShootFiltersType;
 
 type ShootFiltersProps = {
   value: ShootFilter;

@@ -1,4 +1,4 @@
-import type { Media, MediaSchema, ShootSummary, ShootSummarySchema } from '@fanslib/server/schemas';
+import type { Media, ShootSummary } from '@fanslib/server/schemas';
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { useCallback, useState } from "react";

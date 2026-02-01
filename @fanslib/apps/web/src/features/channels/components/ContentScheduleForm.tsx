@@ -1,4 +1,4 @@
-import type { CreateContentScheduleRequestBody, CreateContentScheduleRequestBodySchema, MediaFilter, MediaFilterSchema, ScheduleChannel, ScheduleChannelSchema } from '@fanslib/server/schemas';
+import type { CreateContentScheduleRequestBody, MediaFilter, ScheduleChannel } from '@fanslib/server/schemas';
 import { ChevronDown, ChevronUp, Plus, Settings2, X } from "lucide-react";
 import { useState } from "react";
 import { ChannelBadge } from "~/components/ChannelBadge";
@@ -18,8 +18,6 @@ import { parseMediaFilters } from "../content-schedule-helpers";
 import { SchedulePreviewCalendar } from "./SchedulePreviewCalendar";
 
 type MediaFilters = MediaFilter;
-
-type ScheduleChannel = ScheduleChannel;
 type ScheduleType = "daily" | "weekly" | "monthly";
 
 type ScheduleChannelInput = {

@@ -1,4 +1,4 @@
-import type { MediaFilter, MediaFilterSchema } from '@fanslib/server/schemas';
+import type { MediaFilter } from '@fanslib/server/schemas';
 import type { ReactNode } from "react";
 import { createContext, useContext } from "react";
 import {

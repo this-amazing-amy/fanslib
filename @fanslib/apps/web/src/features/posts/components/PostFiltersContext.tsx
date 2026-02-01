@@ -1,4 +1,4 @@
-import type { PostStatus, PostStatusSchema } from '@fanslib/server/schemas';
+import type { PostStatus } from '@fanslib/server/schemas';
 import type { ReactNode } from "react";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import type { PostFilterPreferences } from "~/contexts/PostPreferencesContext";

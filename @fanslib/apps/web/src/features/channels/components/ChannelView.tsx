@@ -1,4 +1,4 @@
-import type { Channel, ChannelSchema, ContentScheduleWithChannel, ContentScheduleWithChannelSchema, CreateContentScheduleRequestBody, CreateContentScheduleRequestBodySchema, Hashtag, HashtagSchema, MediaFilter, MediaFilterSchema } from '@fanslib/server/schemas';
+import type { Channel, ContentScheduleWithChannel, CreateContentScheduleRequestBody, Hashtag, MediaFilter } from '@fanslib/server/schemas';
 import { Edit2, Plus, Save, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/Button/Button";

@@ -1,4 +1,4 @@
-import type { TagDefinition, TagDefinitionSchema } from '@fanslib/server/schemas';
+import type { TagDefinition } from '@fanslib/server/schemas';
 import { ColorPicker } from "~/components/ui/ColorPicker";
 import { Input } from "~/components/ui/Input";
 import { Label } from "~/components/ui/Label";

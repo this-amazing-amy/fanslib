@@ -1,4 +1,4 @@
-import type { Shoot, ShootSchema } from '@fanslib/server/schemas';
+import type { Shoot } from '@fanslib/server/schemas';
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "~/components/ui/Button";

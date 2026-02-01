@@ -1,4 +1,4 @@
-import type { FetchShootByIdResponse, FetchShootByIdResponseSchema, Media, MediaSchema, Shoot, ShootSchema } from '@fanslib/server/schemas';
+import type { FetchShootByIdResponse, Media, Shoot } from '@fanslib/server/schemas';
 import { format } from "date-fns";
 import { Check, Search } from "lucide-react";
 import { useMemo, useState } from "react";

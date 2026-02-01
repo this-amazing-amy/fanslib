@@ -1,4 +1,4 @@
-import type { MediaFilter, MediaFilterSchema, MediaSort, MediaSortSchema } from '@fanslib/server/schemas';
+import type { MediaFilter, MediaSort } from '@fanslib/server/schemas';
 import { createContext, useCallback, useContext } from "react";
 import { mergeDeep } from "remeda";
 import { useLocalStorage } from "~/hooks/useLocalStorage";

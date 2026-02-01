@@ -1,4 +1,4 @@
-import type { Media, MediaSchema, PostStatus, PostStatusSchema } from '@fanslib/server/schemas';
+import type { Media, PostStatus } from '@fanslib/server/schemas';
 import { useNavigate } from "@tanstack/react-router";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";

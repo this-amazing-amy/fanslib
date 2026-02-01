@@ -1,4 +1,4 @@
-import type { Media, MediaSchema } from '@fanslib/server/schemas';
+import type { Media } from '@fanslib/server/schemas';
 import { Plus } from "lucide-react";
 import { MediaTile } from "~/features/library/components/MediaTile";
 import { cn } from "~/lib/cn";

@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { CheckCircle2, FileX, ImagePlus } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import type { AssignMediaResponse, AssignMediaResponseSchema, PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { AssignMediaResponse, PostWithRelations } from '@fanslib/server/schemas';
 import { MediaTileLite } from "~/features/library/components/MediaTile/MediaTileLite";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";

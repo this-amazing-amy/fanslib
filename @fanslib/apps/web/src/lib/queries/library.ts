@@ -1,4 +1,4 @@
-import type { DeleteMediaRequestParams, DeleteMediaRequestParamsSchema, FetchAllMediaRequestBody, FetchAllMediaRequestBodySchema, FetchMediaByIdRequestParams, FetchMediaByIdRequestParamsSchema, FindAdjacentMediaBody, FindAdjacentMediaBodySchema, FindAdjacentMediaRequestParams, FindAdjacentMediaRequestParamsSchema, UpdateMediaRequestBody, UpdateMediaRequestBodySchema, UpdateMediaRequestParams, UpdateMediaRequestParamsSchema } from '@fanslib/server/schemas';
+import type { DeleteMediaRequestParams, FetchAllMediaRequestBody, FetchMediaByIdRequestParams, FindAdjacentMediaBody, FindAdjacentMediaRequestParams, UpdateMediaRequestBody, UpdateMediaRequestParams } from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/hono-client';
 

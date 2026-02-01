@@ -1,4 +1,4 @@
-import type { Media, MediaSchema, PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { Media, PostWithRelations } from '@fanslib/server/schemas';
 import { CalendarDays } from "lucide-react";
 import { useState } from "react";
 import { ScrollArea } from "~/components/ui/ScrollArea";

@@ -11,7 +11,7 @@ import {
   parseBooleanSchema,
   parseNumericSchema,
 } from "~/lib/tags/tagValidation";
-import type { CreateTagDimensionRequestBody, CreateTagDimensionRequestBodySchema, TagDimension, TagDimensionSchema, UpdateTagDimensionRequestBody, UpdateTagDimensionRequestBodySchema } from '@fanslib/server/schemas';
+import type { CreateTagDimensionRequestBody, TagDimension, UpdateTagDimensionRequestBody } from '@fanslib/server/schemas';
 
 
 type DimensionFormProps = {

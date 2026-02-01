@@ -1,6 +1,5 @@
 import { AlertTriangle } from "lucide-react";
-import type { AssignMediaResponse, AssignMediaResponseSchema, Media } from '@fanslib/server/schemas';
-import type { MediaSchema } from "@fanslib/server/schemas";
+import type { AssignMediaResponse, Media } from '@fanslib/server/schemas';
 import { UnfilledSlotDropzone } from "./UnfilledSlotDropzone";
 import { UnfilledSlotsLibrary } from "./UnfilledSlotsLibrary";
 

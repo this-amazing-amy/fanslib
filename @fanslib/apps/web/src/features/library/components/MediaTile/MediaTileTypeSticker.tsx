@@ -1,6 +1,6 @@
 import { Sticker } from "~/components/ui/Sticker";
 import { ImageIcon, Video } from "lucide-react";
-import type { Media, MediaSchema } from '@fanslib/server/schemas';
+import type { Media } from '@fanslib/server/schemas';
 
 
 export const MediaTileTypeSticker = ({ media }: { media: Media }) =>

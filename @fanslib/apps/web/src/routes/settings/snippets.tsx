@@ -1,4 +1,4 @@
-import type { FetchAllSnippetsResponse, FetchAllSnippetsResponseSchema } from '@fanslib/server/schemas';
+import type { FetchAllSnippetsResponse } from '@fanslib/server/schemas';
 import { createFileRoute } from "@tanstack/react-router";
 import { Edit, FileText, Globe, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";

@@ -1,4 +1,4 @@
-import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations } from '@fanslib/server/schemas';
 import { useState } from 'react';
 import { Input } from '~/components/ui/Input';
 import { useDebounce } from '~/hooks/useDebounce';

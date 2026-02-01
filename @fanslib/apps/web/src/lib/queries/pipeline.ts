@@ -1,4 +1,4 @@
-import type { AssignMediaRequestBody, AssignMediaRequestBodySchema, FetchCaptionQueueRequestQuery, FetchCaptionQueueRequestQuerySchema } from '@fanslib/server/schemas';
+import type { AssignMediaRequestBody, FetchCaptionQueueRequestQuery } from '@fanslib/server/schemas';
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { api } from "../api/hono-client";
 

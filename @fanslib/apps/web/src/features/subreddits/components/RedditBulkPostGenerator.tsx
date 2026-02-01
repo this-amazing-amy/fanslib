@@ -1,4 +1,4 @@
-import type { Subreddit, SubredditSchema } from '@fanslib/server/schemas';
+import type { Subreddit } from '@fanslib/server/schemas';
 import { ChevronRight, Clock, Loader2, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
