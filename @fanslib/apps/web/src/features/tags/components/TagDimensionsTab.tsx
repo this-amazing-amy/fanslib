@@ -164,7 +164,7 @@ export const TagDimensionsTab = () => {
           {dimensions?.map((dimension) => (
             <DimensionCard
               key={dimension.id}
-              dimension={dimension}
+              dimension={dimension as unknown as TagDimensionWithTags}
                 viewMode="tree"
               onDeleteDimension={(dimensionId) => deleteDimensionMutation.mutate({ id: dimensionId.toString() })}
               onEditDimension={handleEditDimension}
@@ -185,7 +185,7 @@ export const TagDimensionsTab = () => {
             editingTag
               ? dimensions?.find((d) =>
                   editingTag.mode === "create" ? d.id === editingTag.dimensionId : d.id === editingTag.tag.dimensionId
-                )
+                ) as TagDimensionWithTags | undefined
               : undefined
           }
           availableTags={editingDimensionTags}

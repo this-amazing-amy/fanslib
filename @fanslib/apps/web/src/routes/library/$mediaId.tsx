@@ -25,7 +25,7 @@ const MediaRoute = () => {
     );
   }
 
-  if (error || !media) {
+  if (error || !media || 'error' in media) {
     return (
       <div className="flex flex-col items-center justify-center h-full">
         <h1 className="text-2xl font-semibold mb-4">Media not found</h1>
@@ -34,9 +34,11 @@ const MediaRoute = () => {
     );
   }
 
+  const mediaWithDates = media as unknown as typeof media & { createdAt: Date; updatedAt: Date; fileCreationDate: Date; fileModificationDate: Date };
+
   return (
     <LibraryPreferencesProvider>
-      <MediaSelectionProvider media={[media]}>
+      <MediaSelectionProvider media={[mediaWithDates]}>
         <div className="overflow-y-auto">
           <div className="max-w-[1280px] px-8 mx-auto pt-8 pb-12">
             <div className="flex items-center gap-2 mb-2">
@@ -57,11 +59,11 @@ const MediaRoute = () => {
 
             <div className="grid grid-cols-2 gap-8 py-6">
               <div className="rounded-2xl bg-base-300 aspect-square overflow-hidden">
-                <MediaView media={media} controls />
+                <MediaView media={mediaWithDates} controls />
               </div>
               <div className="flex flex-col gap-6">
-                <MediaDetailMetadata media={media} />
-                <MediaTagEditor media={[media]} />
+                <MediaDetailMetadata media={mediaWithDates} />
+                <MediaTagEditor media={[mediaWithDates]} />
               </div>
             </div>
 

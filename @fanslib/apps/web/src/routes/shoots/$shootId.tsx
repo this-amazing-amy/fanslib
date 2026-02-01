@@ -57,7 +57,7 @@ const ShootDetailRoute = () => {
   }, []);
 
   const handleAddMedia = useCallback(async () => {
-    if (selectedMedia.length === 0 || !shoot) return;
+    if (selectedMedia.length === 0 || !shoot || 'error' in shoot) return;
     
     const existingMediaIds = shoot.media?.map((m) => m.id) ?? [];
     await updateShootMutation.mutateAsync({
@@ -78,7 +78,7 @@ const ShootDetailRoute = () => {
     );
   }
 
-  if (error || !shoot) {
+  if (error || !shoot || 'error' in shoot) {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-4">
         <h1 className="text-2xl font-semibold">Shoot not found</h1>
@@ -87,7 +87,7 @@ const ShootDetailRoute = () => {
     );
   }
 
-  const normalizedShoot: ShootSummary = shoot as ShootSummary;
+  const normalizedShoot = shoot as unknown as ShootSummary;
 
   return (
     <MediaDragProvider>

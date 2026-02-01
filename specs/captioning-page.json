@@ -1,0 +1,216 @@
+{
+  "name": "Captioning Page",
+  "description": "A workflow page for efficiently adding captions to draft posts before publishing",
+  "context": {
+    "problem": "Users need to write captions for multiple draft posts across channels, and manually navigating to each post is tedious",
+    "impact": "Without a dedicated workflow, adding captions requires navigating between individual post pages, losing context of related posts",
+    "user_need": "Quickly caption all draft posts in a queue, with easy access to related captions for consistency and inspiration",
+    "data_ready": true
+  },
+  "scope": {
+    "in_scope": [
+      "Queue of draft posts needing captions",
+      "Caption text editing with auto-save",
+      "Media preview for context",
+      "Related captions panel (same media/shoot)",
+      "Caption syncing to linked posts",
+      "Channel and schedule metadata display",
+      "Save & advance workflow",
+      "Skip functionality",
+      "Snippet insertion",
+      "Hashtag insertion",
+      "Delete post from queue"
+    ],
+    "out_of_scope": [
+      "Creating new posts (handled in Draft tab)",
+      "Media selection or reordering",
+      "Scheduling changes",
+      "Channel assignment changes",
+      "Bulk operations across multiple posts at once"
+    ]
+  },
+  "reference_patterns": {
+    "CaptioningStep": "Main container component that fetches caption queue and manages expansion state",
+    "CaptionItem": "Individual queue item with collapsed/expanded states and caption editing",
+    "RelatedCaptionsPanel": "Shows captions from related posts (same media or shoot) with 'Use' button",
+    "CaptionSyncControl": "Checkbox list for syncing caption to linked posts sharing the same media",
+    "current_files": [
+      "@fanslib/apps/web/src/routes/pipeline/caption.tsx",
+      "@fanslib/apps/web/src/features/pipeline/components/CaptioningStep/"
+    ]
+  },
+  "features": [
+    {
+      "category": "functional",
+      "description": "Draft posts queue displays all drafts across selected channels with date, time, channel badge, and schedule badge",
+      "acceptance_criteria": [
+        "Queue shows all posts with status 'draft'",
+        "Each item displays formatted date (EEE, MMM d) and time (HH:mm)",
+        "Channel badge shows channel name and type icon",
+        "Schedule badge shows schedule name with emoji and color",
+        "Items are ordered by date ascending"
+      ],
+      "passes": true
+    },
+    {
+      "category": "functional",
+      "description": "Accordion-style expansion where one post can be expanded at a time for focused editing",
+      "acceptance_criteria": [
+        "Clicking a collapsed item expands it and collapses any previously expanded item",
+        "First item auto-expands on initial load",
+        "Expanded item shows media preview, caption textarea, and related panels",
+        "Visual indicator (check/circle icon) shows whether post has caption"
+      ],
+      "passes": true
+    },
+    {
+      "category": "functional",
+      "description": "Caption textarea with auto-save and keyboard shortcut for save & advance",
+      "acceptance_criteria": [
+        "Textarea shows current caption or placeholder",
+        "Changes auto-save with 1-second debounce",
+        "Cmd/Ctrl+Enter triggers Save & Next action",
+        "Saving indicator appears while save is in progress"
+      ],
+      "passes": false
+    },
+    {
+      "category": "functional",
+      "description": "Save & Next button marks post as ready/scheduled and advances to next item in queue",
+      "acceptance_criteria": [
+        "Clicking 'Save & Next' saves caption and changes status",
+        "Bluesky and Reddit posts change to 'scheduled', others to 'ready'",
+        "Post disappears from queue after saving",
+        "Next item in queue auto-expands"
+      ],
+      "passes": false
+    },
+    {
+      "category": "functional",
+      "description": "Skip button advances to next post without changing status or caption",
+      "acceptance_criteria": [
+        "Clicking 'Skip' moves to next item without saving",
+        "Current item remains in queue with draft status",
+        "Next item auto-expands"
+      ],
+      "passes": true
+    },
+    {
+      "category": "functional",
+      "description": "Media preview shows all media items in the post with appropriate viewers",
+      "acceptance_criteria": [
+        "All media items in the post are displayed, not just the first one",
+        "Images display with MediaTileLite component",
+        "Videos display with MediaView component including controls",
+        "Media tags with sticker display appear as badges on the media tile, just like in the library",
+        "Multiple media items arranged in a scrollable or grid layout"
+      ],
+      "passes": false
+    },
+    {
+      "category": "functional",
+      "description": "Related captions panel shows captions from posts using the same media or from the same shoot, merged by caption text",
+      "acceptance_criteria": [
+        "Related posts with identical captions are merged into a single entry",
+        "Merged entry shows caption text once with aggregated channel/date info",
+        "Each unique caption shows thumbnail, channels list, and date range",
+        "Shoot name displayed for shoot-related items",
+        "'Use' button copies caption to current post textarea",
+        "Empty state shown when no related captions exist"
+      ],
+      "passes": false
+    },
+    {
+      "category": "functional",
+      "description": "Caption sync control allows syncing caption to linked posts sharing the same media",
+      "acceptance_criteria": [
+        "Linked posts shown as checkbox list with channel and schedule info",
+        "Checkboxes pre-selected based on existing links",
+        "Selecting posts includes them in sync when saving",
+        "Visual indicator (purple border) highlights linked posts in main queue"
+      ],
+      "passes": false
+    },
+    {
+      "category": "functional",
+      "description": "Snippet selector inserts saved caption snippets (global or channel-specific)",
+      "acceptance_criteria": [
+        "Button appears in textarea toolbar",
+        "Dropdown shows global snippets and channel-specific snippets",
+        "Selecting snippet inserts content at cursor",
+        "Button hidden if no snippets available"
+      ],
+      "passes": true
+    },
+    {
+      "category": "functional",
+      "description": "Hashtag button inserts channel default hashtags into caption",
+      "acceptance_criteria": [
+        "Button appears in textarea toolbar",
+        "Clicking adds all channel default hashtags not already in caption",
+        "Hashtags inserted near existing hashtags or at end",
+        "Button hidden if channel has no default hashtags"
+      ],
+      "passes": true
+    },
+    {
+      "category": "functional",
+      "description": "Delete post action removes post from queue with confirmation dialog",
+      "acceptance_criteria": [
+        "Three-dot menu contains 'Delete Post' option",
+        "Clicking shows confirmation dialog with warning",
+        "Confirming deletes post and advances to next item",
+        "Loading state shown during deletion"
+      ],
+      "passes": false
+    },
+    {
+      "category": "functional",
+      "description": "External link to full post detail page",
+      "acceptance_criteria": [
+        "External link icon in header links to /posts/$postId",
+        "Opens in same tab for detailed editing if needed"
+      ],
+      "passes": true
+    },
+    {
+      "category": "edge-case",
+      "description": "Empty queue state when no draft posts exist",
+      "acceptance_criteria": [
+        "Empty state with icon and helpful message",
+        "Message directs user to Draft tab to create drafts"
+      ],
+      "passes": true
+    },
+    {
+      "category": "edge-case",
+      "description": "Queue updates correctly when all items are processed",
+      "acceptance_criteria": [
+        "Last item in queue can be saved/skipped",
+        "After processing last item, empty state appears",
+        "No errors when queue becomes empty"
+      ],
+      "passes": true
+    },
+    {
+      "category": "ux",
+      "description": "Two-column layout on larger screens with media/caption on left, related panels on right",
+      "acceptance_criteria": [
+        "Grid layout with lg:grid-cols-2 breakpoint",
+        "Related captions panel takes full width on mobile",
+        "Adequate spacing between sections"
+      ],
+      "passes": true
+    }
+  ],
+  "technical_notes": {
+    "implementation_approach": "Feature-based React components with TanStack Query for data fetching, context for linked posts state management",
+    "key_components": {
+      "CaptioningStep": "Orchestrates queue fetching, expansion state, and advancement logic",
+      "CaptionItem": "Self-contained item with local caption state, debounced save, and mutation handling",
+      "LinkedPostsContext": "React context tracking which posts are linked to the currently expanded item"
+    },
+    "api_endpoint": "GET /api/pipeline/caption-queue with channelIds query param",
+    "data_flow": "Queue items include post, related captions (by media/shoot), and linked posts (same media in queue)"
+  }
+}

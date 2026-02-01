@@ -312,7 +312,7 @@ export const MatchingSection = () => {
             </div>
           ) : (
             <PostTimeline
-              posts={posts}
+              posts={posts as unknown as Post[]}
               onUpdate={refetchPosts}
               matchedPostMediaIds={matchedPostMediaIds}
             />

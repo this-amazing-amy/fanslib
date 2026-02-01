@@ -4,7 +4,7 @@ import { useQueries } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { MediaTileLite } from "~/features/library/components/MediaTile/MediaTileLite";
-import { eden } from "~/lib/api/eden";
+import { api } from "~/lib/api/hono-client";
 
 
 type RelatedCaptionsPanelProps = {
@@ -28,11 +28,11 @@ export const RelatedCaptionsPanel = ({ relatedByMedia, relatedByShoot, onUseCapt
     queries: allRelated.map((item) => ({
       queryKey: ["posts", item.postId],
       queryFn: async () => {
-        const result = await eden.api.posts["by-id"]({ id: item.postId }).get();
-        if (result.error) {
+        const result = await api.api.posts['by-id'][':id'].$get({ param: { id: item.postId } });
+        if (!result.ok) {
           return null;
         }
-        return result.data ?? null;
+        return await result.json();
       },
       enabled: !!item.postId,
     })),

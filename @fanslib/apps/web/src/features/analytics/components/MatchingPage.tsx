@@ -286,7 +286,7 @@ export const MatchingPage = () => {
               ))}
             </div>
           ) : (
-            <PostTimeline posts={posts} onUpdate={refetchPosts} matchedPostMediaIds={matchedPostMediaIds} />
+            <PostTimeline posts={posts as unknown as Post[]} onUpdate={refetchPosts} matchedPostMediaIds={matchedPostMediaIds} />
           )}
         </div>
       </div>

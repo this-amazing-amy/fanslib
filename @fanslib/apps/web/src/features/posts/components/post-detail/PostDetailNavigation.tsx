@@ -89,7 +89,7 @@ export const PostDetailNavigation = ({ post }: PostDetailNavigationProps) => {
   const hasNext = !!adjacentPosts.next;
 
   const handleDelete = async () => {
-    await deletePostMutation.mutateAsync({ id: post.id });
+    await deletePostMutation.mutateAsync(post.id);
     if (typeof window !== 'undefined' && window.history.length > 1) {
       window.history.back();
     } else {

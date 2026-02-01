@@ -1,6 +1,6 @@
 import type { LibraryScanProgress, LibraryScanResult } from '@fanslib/server/schemas';
 import { useEffect, useState } from "react";
-import { eden } from "~/lib/api/eden";
+import { api } from "~/lib/api/hono-client";
 
 type UseScanResult = {
   scanProgress: LibraryScanProgress | null;
@@ -19,8 +19,8 @@ export const useScan = (onScanComplete?: () => void): UseScanResult => {
     if (!isScanning) return () => {};
 
     const pollInterval = setInterval(async () => {
-      const statusResponse = await eden.api.media.scan.status.get();
-      const status = statusResponse.data;
+      const statusResponse = await api.api.media.scan.status.$get();
+      const status = await statusResponse.json();
 
       if (!status) return;
 
@@ -50,7 +50,7 @@ export const useScan = (onScanComplete?: () => void): UseScanResult => {
   const handleScan = async () => {
     resetScan();
     setIsScanning(true);
-    await eden.api.media.scan.post();
+    await api.api.media.scan.$post();
   };
 
   return {

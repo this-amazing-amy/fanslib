@@ -1,5 +1,5 @@
 import type { Media, Subreddit } from '@fanslib/server/schemas';
-import { eden } from './eden';
+import { api } from './hono-client';
 
 
 type GeneratedPost = {
@@ -75,24 +75,38 @@ export type CheckRedditPosterLoginResponse = {
 };
 
 export const redditPosterApi = {
-  generateRandomPost: (request: GenerateRandomPostRequest) =>
-    eden.api['reddit-automation']['generate-random-post'].post(request),
+  generateRandomPost: async (request: GenerateRandomPostRequest) => {
+    const response = await api.api['reddit-automation']['generate-random-post'].$post({ json: request });
+    return response.json();
+  },
 
-  generatePosts: (request: GeneratePostsRequest) =>
-    eden.api['reddit-automation']['generate-posts'].post(request),
+  generatePosts: async (request: GeneratePostsRequest) => {
+    const response = await api.api['reddit-automation']['generate-posts'].$post({ json: request });
+    return response.json();
+  },
 
-  regenerateMedia: (request: RegenerateMediaRequest) =>
-    eden.api['reddit-automation']['regenerate-media'].post(request),
+  regenerateMedia: async (request: RegenerateMediaRequest) => {
+    const response = await api.api['reddit-automation']['regenerate-media'].$post({ json: request });
+    return response.json();
+  },
 
-  schedulePosts: (request: SchedulePostsRequest) =>
-    eden.api['reddit-automation']['schedule-posts'].post(request),
+  schedulePosts: async (request: SchedulePostsRequest) => {
+    const response = await api.api['reddit-automation']['schedule-posts'].$post({ json: request });
+    return response.json();
+  },
 
-  getScheduledPosts: () =>
-    eden.api['reddit-automation']['scheduled-posts'].get(),
+  getScheduledPosts: async () => {
+    const response = await api.api['reddit-automation']['scheduled-posts'].$get();
+    return response.json();
+  },
 
-  login: (request: RedditPosterLoginRequest) =>
-    eden.api['reddit-automation'].login.post(request),
+  login: async (request: RedditPosterLoginRequest) => {
+    const response = await api.api['reddit-automation'].login.$post({ json: request });
+    return response.json();
+  },
 
-  checkLogin: (request: CheckRedditPosterLoginRequest) =>
-    eden.api['reddit-automation']['check-login'].post(request),
+  checkLogin: async (request: CheckRedditPosterLoginRequest) => {
+    const response = await api.api['reddit-automation']['check-login'].$post({ json: request });
+    return response.json();
+  },
 };

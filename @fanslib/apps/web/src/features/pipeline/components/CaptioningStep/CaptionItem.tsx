@@ -1,4 +1,4 @@
-import type { CaptionQueueItem, PostStatus } from '@fanslib/server/schemas';
+import type { CaptionQueueItem, Media, PostStatus } from '@fanslib/server/schemas';
 import type { Key } from "@react-types/shared";
 import { format } from "date-fns";
 import { Circle, CheckCircle2, ExternalLink, Link2, MoreVertical, Trash2 } from "lucide-react";
@@ -139,7 +139,7 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
 
   const handleDelete = async () => {
     try {
-      await deletePostMutation.mutateAsync({ id: item.post.id });
+      await deletePostMutation.mutateAsync(item.post.id);
       onAdvance();
     } catch (error) {
       console.error("Failed to delete post:", error);
@@ -248,9 +248,9 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
                 <div className="flex gap-4 items-start">
                   <div className="w-full aspect-square max-w-xs flex-shrink-0">
                     {firstMedia.type === "video" ? (
-                      <MediaView media={firstMedia} controls />
+                      <MediaView media={firstMedia as unknown as Media} controls />
                     ) : (
-                      <MediaTileLite media={firstMedia} />
+                      <MediaTileLite media={firstMedia as unknown as Media} />
                     )}
                   </div>
                   <div className="flex flex-wrap gap-2 pt-2">

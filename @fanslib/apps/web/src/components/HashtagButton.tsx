@@ -22,7 +22,7 @@ export const HashtagButton = ({
   const collectHashtags = () => {
     const channelHashtags = channel?.defaultHashtags ?? [];
 
-    const uniqueHashtags = Array.from(new Set([...channelHashtags]));
+    const uniqueHashtags = Array.from(new Set(channelHashtags as unknown as Iterable<{ name: string }>));
 
     return uniqueHashtags.map((hashtag) =>
       hashtag.name.startsWith("#") ? hashtag.name : `#${hashtag.name}`

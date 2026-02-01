@@ -1,3 +1,4 @@
+import type { UpdateSubredditRequestBody } from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/hono-client';
 import { useFindSubredditPostingTimesMutation } from './postpone';
@@ -48,24 +49,7 @@ export const useCreateSubredditMutation = () => {
 
 type UpdateSubredditParams = {
   id: string;
-  updates: {
-    name?: string;
-    maxPostFrequencyHours?: number | null;
-    notes?: string | null;
-    memberCount?: number | null;
-    eligibleMediaFilter?: unknown | null;
-    verificationStatus?: string;
-    defaultFlair?: string | null;
-    captionPrefix?: string | null;
-    postingTimesData?: Array<{
-      day: number;
-      hour: number;
-      posts: number;
-      score: number;
-    }> | null;
-    postingTimesLastFetched?: Date | null;
-    postingTimesTimezone?: string | null;
-  };
+  updates: UpdateSubredditRequestBody;
 };
 
 export const useUpdateSubredditMutation = () => {

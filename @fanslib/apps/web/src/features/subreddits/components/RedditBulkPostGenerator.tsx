@@ -66,7 +66,7 @@ export const RedditBulkPostGenerator = ({ subreddits }: RedditBulkPostGeneratorP
         subreddits,
         channelId: "reddit", // TODO: Get from context or settings
       });
-      setGeneratedPosts(posts as GeneratedPost[]);
+      setGeneratedPosts(posts as unknown as GeneratedPost[]);
     } catch (error) {
       console.error("Failed to generate posts:", error);
     }

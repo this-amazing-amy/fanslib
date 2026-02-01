@@ -1,8 +1,9 @@
-import type { PostStatus } from '@fanslib/server/schemas';
+import type { PostStatusSchema } from "@fanslib/server/schemas";
 import { cn } from "~/lib/cn";
 import { POST_STATUS_COLORS } from "~/lib/colors";
 import { StatusBadge } from "./StatusBadge";
 
+type PostStatus = typeof PostStatusSchema._type;
 
 const STATUS_LABELS: Record<PostStatus, string> = {
   draft: "Draft",

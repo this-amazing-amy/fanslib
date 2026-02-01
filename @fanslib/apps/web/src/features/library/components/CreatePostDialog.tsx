@@ -305,7 +305,7 @@ export const CreatePostDialog = ({
                       date={selectedDate} 
                       setDate={setSelectedDate}
                       minValue={minDateTime}
-                      preferredTimes={contentSchedule?.preferredTimes ?? []}
+                      preferredTimes={contentSchedule && 'preferredTimes' in contentSchedule ? contentSchedule.preferredTimes ?? [] : []}
                     />
                   </div>
                   <div className="flex flex-col gap-2">

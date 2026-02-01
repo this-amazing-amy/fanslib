@@ -31,7 +31,7 @@ export const SubredditsPage = () => {
 
       <Tabs>
         <TabItem key="bulk-posting" title="Post to Reddit">
-          <RedditBulkPostGenerator subreddits={subreddits ?? []} />
+          <RedditBulkPostGenerator subreddits={subreddits as unknown as Array<typeof subreddits[number] & { postingTimesLastFetched: Date | null }> ?? []} />
         </TabItem>
         
         <TabItem key="subreddits" title="Manage Subreddits">
@@ -44,7 +44,7 @@ export const SubredditsPage = () => {
             </div>
 
             <SubredditTable
-              subreddits={subreddits ?? []}
+              subreddits={subreddits as unknown as Array<typeof subreddits[number] & { postingTimesLastFetched: Date | null }> ?? []}
               onSubredditUpdated={handleSubredditUpdated}
             />
           </div>

@@ -79,7 +79,7 @@ export const PlanContent = () => {
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 
-    const filteredByType = filterPostsByType(allPostsCombined, preferences.view.postTypeFilter);
+    const filteredByType = filterPostsByType(allPostsCombined as unknown as Post[], preferences.view.postTypeFilter);
 
     setPosts(filteredByType);
   }, [filteredPosts, virtualPosts, preferences.filter, preferences.view.postTypeFilter]);

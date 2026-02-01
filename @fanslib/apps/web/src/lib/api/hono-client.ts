@@ -7,8 +7,11 @@ const baseUrl = import.meta.env.VITE_API_URL ?? "http://localhost:6970";
 /**
  * Custom fetch wrapper that handles devalue deserialization.
  * Checks for X-Serialization header and parses response accordingly.
+ * 
+ * CRITICAL: We extend Response to include the parsed devalue data directly.
+ * This preserves Date objects and other non-JSON types through the entire chain.
  */
-const customFetch: typeof fetch = async (input, init) => {
+const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
   const response = await fetch(input, init);
 
   // Check if response should be devalue-deserialized
@@ -18,12 +21,19 @@ const customFetch: typeof fetch = async (input, init) => {
     const text = await response.text();
     const data = devalue.parse(text);
 
-    // Create a new response with parsed data
-    return new Response(JSON.stringify(data), {
+    // Extend Response with custom json() method that returns the parsed devalue data
+    // This preserves Date objects instead of converting them back to strings
+    const extendedResponse = new Response(text, {
       status: response.status,
       statusText: response.statusText,
       headers: response.headers,
     });
+    
+    // Override json() to return the already-parsed devalue data
+    // @ts-ignore - we're intentionally extending Response
+    extendedResponse.json = async () => data;
+    
+    return extendedResponse;
   }
 
   return response;

@@ -1,0 +1,145 @@
+{
+  "name": "Smart Virtual Post Filling",
+  "description": "Streamlined workflow for assigning media to virtual posts with contextual filtering and suggestions",
+  "context": {
+    "problem": "Pipeline auto-assignment creates posts that always need manual review and reassignment, making it slower than intentional curation",
+    "user_need": "Click a virtual post and immediately see relevant, filtered media options to assign with minimal friction"
+  },
+  "scope": {
+    "in_scope": [
+      "Contextual media filtering when selecting a virtual post",
+      "Quick media assignment from filtered view",
+      "Navigation between unfilled slots",
+      "Smart suggestions based on posting history"
+    ],
+    "out_of_scope": [
+      "AI-powered content recommendations",
+      "Automated caption generation",
+      "Cross-platform content optimization"
+    ]
+  },
+  "features": [
+    {
+      "category": "functional",
+      "description": "Open filtered library panel when clicking virtual post",
+      "acceptance_criteria": [
+        "Clicking virtual post opens media selection panel",
+        "Library is pre-filtered to schedule's mediaFilters",
+        "Library is pre-filtered to channel's eligibleMediaFilter",
+        "Combined filters apply (schedule + channel + scheduleChannel overrides)"
+      ],
+      "passes": false
+    },
+    {
+      "category": "functional",
+      "description": "Exclude recently-used media from suggestions",
+      "acceptance_criteria": [
+        "Media posted to this channel within cooldown period is deprioritized or hidden",
+        "Cooldown period is configurable per channel",
+        "User can toggle to show all media including recently-used"
+      ],
+      "passes": false
+    },
+    {
+      "category": "functional",
+      "description": "Sort media by freshness/unused status",
+      "acceptance_criteria": [
+        "Default sort shows never-posted-to-this-channel media first",
+        "Secondary sort by least-recently-used across all channels",
+        "User can change sort order (newest, oldest, most used, least used)"
+      ],
+      "passes": false
+    },
+    {
+      "category": "functional",
+      "description": "Media selection reuses existing library selection UI",
+      "acceptance_criteria": [
+        "Uses same selection mechanism as existing library (click to select, shift-click for range)",
+        "Selected media shown in staging area with reorder capability",
+        "Existing drag-and-drop from library to virtual post still works"
+      ],
+      "passes": false
+    },
+    {
+      "category": "functional",
+      "description": "Create post action with keyboard shortcut",
+      "acceptance_criteria": [
+        "Explicit 'Create Post' button to confirm assignment",
+        "Keyboard shortcut (e.g., Cmd+Enter) to create post quickly",
+        "Post inherits date, channel, scheduleId from virtual post",
+        "Optional 'Create and Next' to save and jump to next unfilled slot"
+      ],
+      "passes": false
+    },
+    {
+      "category": "functional",
+      "description": "Navigate to next unfilled slot",
+      "acceptance_criteria": [
+        "After creating post, option to jump to next unfilled virtual post",
+        "Keyboard shortcut for quick navigation (e.g., Tab or arrow keys)",
+        "Respects current channel filter (next in same channel vs any channel)"
+      ],
+      "passes": false
+    },
+    {
+      "category": "functional",
+      "description": "Show slot context while selecting media",
+      "acceptance_criteria": [
+        "Display which channel the slot is for",
+        "Display the date/time of the slot",
+        "Display schedule name and color",
+        "Show what was posted recently on this channel for context"
+      ],
+      "passes": false
+    },
+    {
+      "category": "ux",
+      "description": "Quick filter refinement without leaving context",
+      "acceptance_criteria": [
+        "User can add/remove tag filters inline",
+        "User can filter by media type (image/video)",
+        "User can search by filename",
+        "Filters are additive to schedule's base filters"
+      ],
+      "passes": false
+    },
+    {
+      "category": "ux",
+      "description": "Visual indication of media posting history",
+      "acceptance_criteria": [
+        "Media thumbnails show indicator if posted to current channel before",
+        "Hover/click shows when and where media was last posted",
+        "Clear visual difference between fresh and used media"
+      ],
+      "passes": false
+    },
+    {
+      "category": "edge-case",
+      "description": "No eligible media available",
+      "acceptance_criteria": [
+        "Clear message when filters result in empty media list",
+        "Suggestion to adjust filters or add more media",
+        "Option to skip this slot"
+      ],
+      "passes": false
+    },
+    {
+      "category": "edge-case",
+      "description": "Slot already filled while panel open",
+      "acceptance_criteria": [
+        "If another user/tab fills the slot, panel shows notification",
+        "User can choose to create additional post or move to next slot"
+      ],
+      "passes": false
+    }
+  ],
+  "technical_notes": {
+    "replaces": "Pipeline bulk auto-assignment for most use cases",
+    "integrates_with": [
+      "content-schedules (virtual posts)",
+      "library (media filtering)",
+      "posts (creation)"
+    ],
+    "key_insight": "Curation is inherently a human decision; optimize the interface, not the algorithm"
+  }
+}

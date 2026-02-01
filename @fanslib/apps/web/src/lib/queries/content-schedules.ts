@@ -16,7 +16,7 @@ export const useContentScheduleQuery = (id: string) =>
   useQuery({
     queryKey: QUERY_KEYS.contentSchedules.byId(id),
     queryFn: async () => {
-      const result = await api.api['content-schedules'][':id'].$get({ param: { id } });
+      const result = await api.api['content-schedules']['by-id'][':id'].$get({ param: { id } });
       return result.json();
     },
     enabled: !!id,
@@ -49,7 +49,7 @@ export const useVirtualPostsQuery = (params: {
         fromDate: params.fromDate.toISOString(),
         toDate: params.toDate.toISOString(),
       };
-      const result = await api.api['content-schedules']['virtual-posts'].$get(query);
+      const result = await api.api['content-schedules']['virtual-posts'].$get({ query });
       const data = await result.json();
       return data ?? [];
     },
@@ -66,7 +66,7 @@ export const useCreateContentScheduleMutation = () => {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contentSchedules.list() });
-      if (data && 'channelId' in data) {
+      if (data && 'channelId' in data && data.channelId) {
         queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.contentSchedules.byChannel(data.channelId),
         });
@@ -85,7 +85,7 @@ export const useUpdateContentScheduleMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdateContentScheduleParams) => {
-      const result = await api.api['content-schedules'][':id'].$patch({ param: { id }, json: updates });
+      const result = await api.api['content-schedules']['by-id'][':id'].$patch({ param: { id }, json: updates });
       return result.json();
     },
     onSuccess: (data, variables) => {
@@ -101,7 +101,7 @@ export const useDeleteContentScheduleMutation = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const result = await api.api['content-schedules'][':id'].$delete({ param: { id } });
+      const result = await api.api['content-schedules']['by-id'][':id'].$delete({ param: { id } });
       return result.json();
     },
     onSuccess: () => {

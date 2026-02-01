@@ -1,36 +1,40 @@
-import type { AddMediaToPostRequestBody, AddMediaToPostRequestParams, CreatePostRequestBody, DeletePostRequestParams, FetchAllPostsRequestQuery, FetchPostByIdRequestParams, FetchPostsByChannelRequestParams, RemoveMediaFromPostRequestBody, RemoveMediaFromPostRequestParams, UpdatePostRequestBody, UpdatePostRequestParams } from '@fanslib/server/schemas';
+import type { AddMediaToPostRequestBody, CreatePostRequestBody, RemoveMediaFromPostRequestBody, UpdatePostRequestBody } from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/hono-client';
 import { QUERY_KEYS } from './query-keys';
 
-export const usePostsQuery = (params?: FetchAllPostsRequestQuery) =>
+type PostFilters = {
+  filters?: string;
+};
+
+export const usePostsQuery = (params?: PostFilters) =>
   useQuery({
     queryKey: QUERY_KEYS.posts.list(params),
     queryFn: async () => {
-      const result = await api.api.posts.all.$get(params);
+      const result = await api.api.posts.all.$get({ query: params ?? {} });
       const data = await result.json();
       return data?.posts ?? [];
     },
   });
 
-export const usePostQuery = (params: FetchPostByIdRequestParams) =>
+export const usePostQuery = (params: { id: string }) =>
   useQuery({
     queryKey: QUERY_KEYS.posts.byId(params.id),
     queryFn: async () => {
-      const result = await api.api.posts[':id'].$get({ param: { id: params.id } });
+      const result = await api.api.posts['by-id'][':id'].$get({ param: { id: params.id } });
       return result.json();
     },
     enabled: !!params.id,
   });
 
-export const usePostsByChannelQuery = (params: FetchPostsByChannelRequestParams) =>
+export const usePostsByChannelQuery = (channelId: string) =>
   useQuery({
-    queryKey: QUERY_KEYS.posts.byChannel(params.channelId),
+    queryKey: QUERY_KEYS.posts.byChannel(channelId),
     queryFn: async () => {
-      const result = await api.api.posts['by-channel-id'][':channelId'].$get({ param: { channelId: params.channelId } });
+      const result = await api.api.posts['by-channel-id'][':channelId'].$get({ param: { channelId } });
       return result.json();
     },
-    enabled: !!params.channelId,
+    enabled: !!channelId,
   });
 
 export const useCreatePostMutation = () => {
@@ -47,7 +51,8 @@ export const useCreatePostMutation = () => {
   });
 };
 
-type UpdatePostParams = UpdatePostRequestParams & {
+type UpdatePostParams = {
+  id: string;
   updates: UpdatePostRequestBody;
 };
 
@@ -56,7 +61,7 @@ export const useUpdatePostMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdatePostParams) => {
-      const result = await api.api.posts[':id'].$patch({ param: { id }, json: updates });
+      const result = await api.api.posts['by-id'][':id'].$patch({ param: { id }, json: updates });
       return result.json();
     },
     onSuccess: (data, variables) => {
@@ -71,8 +76,8 @@ export const useDeletePostMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (params: DeletePostRequestParams) => {
-      const result = await api.api.posts[':id'].$delete({ param: { id: params.id } });
+    mutationFn: async (id: string) => {
+      const result = await api.api.posts['by-id'][':id'].$delete({ param: { id } });
       return result.json();
     },
     onSuccess: () => {
@@ -84,7 +89,8 @@ export const useDeletePostMutation = () => {
   });
 };
 
-type AddMediaToPostParams = AddMediaToPostRequestParams & {
+type AddMediaToPostParams = {
+  id: string;
   mediaIds: AddMediaToPostRequestBody['mediaIds'];
 };
 
@@ -93,7 +99,7 @@ export const useAddMediaToPostMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, mediaIds }: AddMediaToPostParams) => {
-      const result = await api.api.posts[':id'].media.$post({ param: { id }, json: { mediaIds } });
+      const result = await api.api.posts['by-id'][':id'].media.$post({ param: { id }, json: { mediaIds } });
       return result.json();
     },
     onSuccess: (data, variables) => {
@@ -103,7 +109,8 @@ export const useAddMediaToPostMutation = () => {
   });
 };
 
-type RemoveMediaFromPostParams = RemoveMediaFromPostRequestParams & {
+type RemoveMediaFromPostParams = {
+  id: string;
   mediaIds: RemoveMediaFromPostRequestBody['mediaIds'];
 };
 
@@ -112,7 +119,7 @@ export const useRemoveMediaFromPostMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, mediaIds }: RemoveMediaFromPostParams) => {
-      const result = await api.api.posts[':id'].media.$delete({ param: { id }, json: { mediaIds } });
+      const result = await api.api.posts['by-id'][':id'].media.$delete({ param: { id }, json: { mediaIds } });
       return result.json();
     },
     onSuccess: (data, variables) => {
@@ -137,7 +144,7 @@ export const useRemoveFromFypMutation = () => {
 
   return useMutation({
     mutationFn: async (postId: string) => {
-      const result = await api.api.posts[':id'].$patch({ 
+      const result = await api.api.posts['by-id'][':id'].$patch({ 
         param: { id: postId },
         json: {
           fypRemovedAt: new Date(),
@@ -163,13 +170,15 @@ export const useTemporalContextPostsQuery = (centerDate: Date, channelId?: strin
     queryKey: QUERY_KEYS.posts.temporalContext(channelId ?? 'all', centerDate.toISOString()),
     queryFn: async () => {
       const result = await api.api.posts.all.$get({
-        filters: JSON.stringify({
-          ...(channelId ? { channels: [channelId] } : {}),
-          dateRange: {
-            startDate: startDate.toISOString(),
-            endDate: endDate.toISOString(),
-          },
-        }),
+        query: {
+          filters: JSON.stringify({
+            ...(channelId ? { channels: [channelId] } : {}),
+            dateRange: {
+              startDate: startDate.toISOString(),
+              endDate: endDate.toISOString(),
+            },
+          }),
+        },
       });
       const data = await result.json();
       return data?.posts ?? [];
@@ -189,7 +198,7 @@ export const useUpdatePostMediaMutation = () => {
 
   return useMutation({
     mutationFn: async ({ postId, postMediaId, fanslyStatisticsId }: UpdatePostMediaParams) => {
-      const result = await api.api.posts[':id'].media[':postMediaId'].$patch({ 
+      const result = await api.api.posts['by-id'][':id'].media[':postMediaId'].$patch({ 
         param: { id: postId, postMediaId },
         json: { fanslyStatisticsId }
       });

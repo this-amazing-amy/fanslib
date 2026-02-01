@@ -54,7 +54,7 @@ export const HashtagSelector = ({ value, onChange, disabled = false }: HashtagSe
 
   const handleSelectHashtag = (hashtag: Hashtag) => {
     if (selectedIds.has(hashtag.id)) return;
-    onChange([...value, hashtag]);
+    onChange([...value, hashtag as unknown as Hashtag]);
     setSearchQuery("");
   };
 
@@ -71,7 +71,7 @@ export const HashtagSelector = ({ value, onChange, disabled = false }: HashtagSe
       if (!newHashtag) {
         return;
       }
-      onChange([...value, newHashtag]);
+      onChange([...value, newHashtag as unknown as Hashtag]);
       setSearchQuery("");
     } catch (error) {
       console.error("Failed to create hashtag:", error);
@@ -104,7 +104,7 @@ export const HashtagSelector = ({ value, onChange, disabled = false }: HashtagSe
                     <CommandItem
                       key={hashtag.id}
                       value={hashtag.name}
-                      onSelect={() => handleSelectHashtag(hashtag)}
+                      onSelect={() => handleSelectHashtag(hashtag as unknown as Hashtag)}
                     >
                       <span>{hashtag.name}</span>
                     </CommandItem>

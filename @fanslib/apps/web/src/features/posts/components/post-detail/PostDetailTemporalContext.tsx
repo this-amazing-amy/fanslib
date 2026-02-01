@@ -10,10 +10,22 @@ import type { ChannelTypeId } from '~/lib/channel-types';
 import { useTemporalContextPostsQuery } from '~/lib/queries/posts';
 import { PostCalendarPostMedia } from '../PostCalendar/PostCalendarPostMedia';
 import { PostCalendarPostView } from '../PostCalendar/PostCalendarPostView';
+import type { PostMediaWithMedia } from '@fanslib/server/schemas';
 
 type Post = PostWithRelations;
 
 type ChannelFilter = 'same' | 'all';
+
+type PostMediaDateCasted = PostMediaWithMedia & {
+  createdAt: Date;
+  updatedAt: Date;
+  media: {
+    createdAt: Date;
+    updatedAt: Date;
+    fileCreationDate: Date;
+    fileModificationDate: Date;
+  };
+};
 
 type PostDetailTemporalContextProps = {
   post: Post;
@@ -129,7 +141,7 @@ export const PostDetailTemporalContext = ({ post }: PostDetailTemporalContextPro
                       showCaption={false}
                       mediaSlot={
                         <PostCalendarPostMedia
-                          postMedia={dayPost.postMedia}
+                          postMedia={dayPost.postMedia as unknown as PostMediaDateCasted[]}
                           isVirtual={false}
                         />
                       }

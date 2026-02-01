@@ -16,7 +16,6 @@
 
 import type {
   FetchAllMediaRequestBody,
-  FetchAllPostsRequestQuery,
   FetchCaptionQueueRequestQuery,
   FetchMediaTagsRequestQuery,
   FetchTagsByDimensionQuery,
@@ -42,7 +41,7 @@ export const QUERY_KEYS = {
 
   posts: {
     all: ['posts'] as const,
-    list: (params?: FetchAllPostsRequestQuery) => ['posts', 'list', params] as const,
+    list: (params?: { filters?: string }) => ['posts', 'list', params] as const,
     byId: (id: string) => ['posts', id] as const,
     byChannel: (channelId: string) => ['posts', 'by-channel', channelId] as const,
     byMedia: (mediaId: string) => ['posts', 'by-media', mediaId] as const,

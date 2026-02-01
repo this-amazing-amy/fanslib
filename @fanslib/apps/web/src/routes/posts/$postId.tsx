@@ -46,7 +46,7 @@ const PostDetailRoute = () => {
     );
   }
 
-  if (error || !post) {
+  if (error || !post || 'error' in post) {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-4">
         <h1 className="text-2xl font-semibold">Post not found</h1>
@@ -55,10 +55,7 @@ const PostDetailRoute = () => {
     );
   }
 
-  const normalizedPost: Post = {
-    ...post,
-    subreddit: post.subreddit ?? null,
-  } as Post;
+  const normalizedPost = post as unknown as Post;
 
   return (
     <MediaDragProvider>

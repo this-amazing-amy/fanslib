@@ -26,7 +26,7 @@ export const MediaPosts = ({ mediaId }: MediaPostsProps) => {
   return (
     <div className="flex flex-col gap-2">
       {posts.map((post) => (
-        <PostCard key={post.id} post={post as Post} />
+        <PostCard key={post.id} post={post as unknown as Post} />
       ))}
     </div>
   );

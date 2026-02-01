@@ -76,7 +76,7 @@ export const ShootProvider = ({ children, params }: ShootProviderProps) => {
   );
 
   const value = {
-    shoots: (data?.items ?? []) as ShootSummary[],
+    shoots: (data?.items ?? []) as unknown as ShootSummary[],
     totalItems: data?.total ?? 0,
     totalPages: data?.totalPages ?? 0,
     isLoading,

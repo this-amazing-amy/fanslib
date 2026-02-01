@@ -41,13 +41,13 @@ export const ShootPosts = ({ shootId }: ShootPostsProps) => {
       {posts.map((post, index) => (
         <PostPreview
           key={post.id}
-          post={post as Post}
+          post={post as unknown as Post}
           onUpdate={handleUpdate}
           isOpen={openPostId === post.id}
           onOpenChange={(isOpen) => setOpenPostId(isOpen ? post.id : null)}
           onOpenCreateDialog={() => {}}
-          previousPostInList={index > 0 ? (posts[index - 1] as Post) : undefined}
-          nextPostInList={index < posts.length - 1 ? (posts[index + 1] as Post) : undefined}
+          previousPostInList={index > 0 ? (posts[index - 1] as unknown as Post) : undefined}
+          nextPostInList={index < posts.length - 1 ? (posts[index + 1] as unknown as Post) : undefined}
         />
       ))}
     </div>

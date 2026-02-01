@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
 import { Checkbox } from "~/components/ui/Checkbox";
-import { eden } from "~/lib/api/eden";
+import { api } from "~/lib/api/hono-client";
 import { cn } from "~/lib/cn";
 
 
@@ -23,11 +23,11 @@ export const CaptionSyncControl = ({
     queries: linkedPosts.map((linked) => ({
       queryKey: ["posts", linked.postId],
       queryFn: async () => {
-        const result = await eden.api.posts["by-id"]({ id: linked.postId }).get();
-        if (result.error) {
+        const result = await api.api.posts['by-id'][':id'].$get({ param: { id: linked.postId } });
+        if (!result.ok) {
           return null;
         }
-        return result.data ?? null;
+        return await result.json();
       },
       enabled: !!linked.postId,
     })),

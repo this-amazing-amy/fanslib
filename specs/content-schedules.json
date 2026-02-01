@@ -1,0 +1,238 @@
+{
+  "name": "Content Schedules",
+  "description": "Recurring posting patterns that generate virtual post slots for content creators to fill",
+  "context": {
+    "problem": "Content creators need predictable posting cadences across multiple platforms",
+    "user_need": "Automated schedule slots that can be filled with content via click, drag-and-drop, or bulk pipeline"
+  },
+  "scope": {
+    "in_scope": [
+      "Schedule CRUD operations",
+      "Virtual post generation",
+      "Multi-channel schedule support",
+      "Slot skipping",
+      "Media filter constraints",
+      "Pipeline bulk assignment"
+    ],
+    "out_of_scope": [
+      "Actual posting to platforms (handled by channel-specific features)",
+      "Media library management"
+    ]
+  },
+  "features": [
+    {
+      "category": "functional",
+      "description": "Create content schedule with frequency type (daily/weekly/monthly)",
+      "acceptance_criteria": [
+        "User can create schedule with name, emoji, and color",
+        "User can select frequency type: daily, weekly, or monthly",
+        "User can set postsPerTimeframe (number of posts per period)",
+        "User can set preferredDays for weekly/monthly schedules",
+        "User can set preferredTimes (HH:MM format)"
+      ],
+      "passes": true
+    },
+    {
+      "category": "functional",
+      "description": "Assign schedule to multiple channels",
+      "acceptance_criteria": [
+        "User can link schedule to one or more channels",
+        "Channels have sortOrder for display/grouping",
+        "Per-channel media filter overrides are supported",
+        "Legacy single-channel schedules continue to work"
+      ],
+      "passes": true
+    },
+    {
+      "category": "functional",
+      "description": "Generate virtual posts for unfilled schedule slots",
+      "acceptance_criteria": [
+        "Virtual posts are generated on-the-fly for date range",
+        "Virtual posts have isVirtual: true flag",
+        "Slots with existing real posts are excluded",
+        "Multi-channel schedules generate one virtual post per channel per slot",
+        "Multi-channel virtual posts share a postGroupId"
+      ],
+      "passes": true
+    },
+    {
+      "category": "functional",
+      "description": "Daily schedule slot generation",
+      "acceptance_criteria": [
+        "Generates postsPerTimeframe slots per day",
+        "Slots use preferredTimes or default to 12:00",
+        "Times are distributed evenly if fewer preferredTimes than postsPerTimeframe"
+      ],
+      "passes": true
+    },
+    {
+      "category": "functional",
+      "description": "Weekly schedule slot generation",
+      "acceptance_criteria": [
+        "Distributes postsPerTimeframe evenly across the week",
+        "Respects preferredDays if specified",
+        "Falls back to all days if no preferredDays",
+        "Week starts on Monday"
+      ],
+      "passes": true
+    },
+    {
+      "category": "functional",
+      "description": "Monthly schedule slot generation",
+      "acceptance_criteria": [
+        "Distributes postsPerTimeframe evenly across the month",
+        "Respects preferredDays (e.g., all Fridays in month)",
+        "Falls back to all days if no preferredDays"
+      ],
+      "passes": true
+    },
+    {
+      "category": "functional",
+      "description": "Fill virtual slot by clicking",
+      "acceptance_criteria": [
+        "Clicking virtual post opens create dialog",
+        "Dialog pre-fills date, channel, and scheduleId",
+        "Created post has scheduleId reference",
+        "Virtual post disappears after real post created"
+      ],
+      "passes": true
+    },
+    {
+      "category": "functional",
+      "description": "Fill virtual slot by drag-and-drop",
+      "acceptance_criteria": [
+        "User can drag media onto virtual post",
+        "Post is created with dragged media",
+        "Post inherits date, channelId, scheduleId from virtual post"
+      ],
+      "passes": true
+    },
+    {
+      "category": "functional",
+      "description": "Skip schedule slots",
+      "acceptance_criteria": [
+        "User can mark a specific slot as skipped",
+        "Skipped slots do not generate virtual posts",
+        "Skipped slots can be unskipped"
+      ],
+      "passes": true
+    },
+    {
+      "category": "functional",
+      "description": "Media filters on schedules",
+      "acceptance_criteria": [
+        "Schedule can have mediaFilters to constrain eligible media",
+        "Filters cascade: schedule -> channel -> scheduleChannel override",
+        "Filters are used by smart filling UI to pre-filter library"
+      ],
+      "passes": true
+    },
+    {
+      "category": "functional",
+      "description": "Pipeline bulk media assignment (DEPRECATED)",
+      "acceptance_criteria": [
+        "Pipeline identifies unfilled schedule slots in date range",
+        "Media is selected based on schedule/channel filters",
+        "Posts are auto-created with selected media",
+        "Reports unfilled slots when no eligible media found"
+      ],
+      "passes": true,
+      "notes": "Superseded by smart-virtual-post-filling spec - pipeline creates low-quality assignments that require manual review anyway"
+    },
+    {
+      "category": "ux",
+      "description": "Visual distinction between real and virtual posts",
+      "acceptance_criteria": [
+        "Virtual posts have distinct styling (placeholder appearance)",
+        "Schedule emoji and color are displayed on virtual posts",
+        "User can filter view by post type: all, real only, virtual only"
+      ],
+      "passes": true
+    },
+    {
+      "category": "edge-case",
+      "description": "Partial fill of multi-channel schedule",
+      "acceptance_criteria": [
+        "When some channels have posts and others don't, only unfilled channels show virtual posts",
+        "PostGroupId links related posts across channels"
+      ],
+      "passes": true
+    },
+    {
+      "category": "edge-case",
+      "description": "Schedule with no channels assigned",
+      "acceptance_criteria": [
+        "Schedule with neither legacy channelId nor scheduleChannels generates no virtual posts",
+        "System handles gracefully without errors"
+      ],
+      "passes": true
+    },
+    {
+      "category": "edge-case",
+      "description": "Channel deletion while schedule exists",
+      "acceptance_criteria": [
+        "Deleting a channel removes it from scheduleChannels (CASCADE)",
+        "Legacy channelId is SET NULL on channel deletion",
+        "Schedule remains functional with remaining channels"
+      ],
+      "passes": true
+    },
+    {
+      "category": "edge-case",
+      "description": "Schedule deletion with existing posts",
+      "acceptance_criteria": [
+        "Deleting schedule does not delete associated real posts",
+        "Real posts retain scheduleId reference (orphaned but preserved)",
+        "SkippedScheduleSlots are deleted (CASCADE)"
+      ],
+      "passes": true
+    },
+    {
+      "category": "edge-case",
+      "description": "postsPerTimeframe exceeds available slots",
+      "acceptance_criteria": [
+        "If postsPerTimeframe > available time slots, caps at available count",
+        "Weekly schedule with 10 posts but only 3 preferred days caps at 3",
+        "No duplicate slots generated"
+      ],
+      "passes": true
+    },
+    {
+      "category": "edge-case",
+      "description": "Date range boundary handling",
+      "acceptance_criteria": [
+        "Slots exactly at fromDate are included",
+        "Slots exactly at toDate are included",
+        "Partial weeks/months at range boundaries generate correct slots"
+      ],
+      "passes": true
+    },
+    {
+      "category": "edge-case",
+      "description": "Invalid or missing preferredTimes format",
+      "acceptance_criteria": [
+        "Missing preferredTimes defaults to 12:00",
+        "Empty preferredTimes array defaults to 12:00",
+        "Malformed time strings (non-numeric) fall back to 12:00"
+      ],
+      "passes": true
+    },
+    {
+      "category": "edge-case",
+      "description": "Same slot skipped and filled",
+      "acceptance_criteria": [
+        "If a slot has both a real post AND a skipped record, real post takes precedence",
+        "Skipped slots only affect virtual post generation, not real posts"
+      ],
+      "passes": true
+    }
+  ],
+  "technical_notes": {
+    "key_files": [
+      "content-schedules/entity.ts",
+      "content-schedules/schedule-dates.ts",
+      "content-schedules/operations/generate-virtual-posts.ts"
+    ],
+    "virtual_post_id_format": "virtual-{scheduleId}-{channelId}-{timestamp}"
+  }
+}

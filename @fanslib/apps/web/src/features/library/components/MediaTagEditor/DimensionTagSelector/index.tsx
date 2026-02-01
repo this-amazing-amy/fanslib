@@ -1,4 +1,4 @@
-import type { TagDimension } from '@fanslib/server/schemas';
+import type { TagDefinition, TagDimension } from '@fanslib/server/schemas';
 import { useTagDefinitionsByDimensionQuery } from "~/lib/queries/tags";
 import type { SelectionState } from "~/lib/tags/selection-state";
 import { BooleanTagSelector } from "./BooleanTagSelector";
@@ -57,7 +57,7 @@ export const DimensionTagSelector = ({
   return (
     <div className="flex flex-col gap-2">
       <HierarchicalTagSelector
-        tags={availableTags ?? []}
+        tags={(availableTags ?? []) as unknown as TagDefinition[]}
         tagStates={tagStates}
         onTagToggle={handleTagToggle}
       />

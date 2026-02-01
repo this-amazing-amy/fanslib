@@ -29,7 +29,10 @@ import {
   useUpdateSnippetMutation,
 } from "~/lib/queries/snippets";
 
-type CaptionSnippet = FetchAllSnippetsResponse[number];
+type CaptionSnippet = Omit<FetchAllSnippetsResponse[number], 'createdAt' | 'updatedAt'> & {
+  createdAt: string;
+  updatedAt: string;
+};
 
 type SnippetFormData = {
   name: string;

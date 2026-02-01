@@ -19,7 +19,7 @@ export const PostDetailDeleteButton = ({ post }: PostDetailDeleteButtonProps) =>
 
   const handleDelete = async () => {
     try {
-      await deletePostMutation.mutateAsync({ id: post.id });
+      await deletePostMutation.mutateAsync(post.id);
       if (typeof window !== 'undefined' && window.history.length > 1) {
         window.history.back();
       } else {

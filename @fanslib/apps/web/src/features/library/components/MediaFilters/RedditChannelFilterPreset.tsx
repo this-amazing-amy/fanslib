@@ -26,7 +26,7 @@ export const RedditChannelFilterPreset = ({
   }
 
   const applyRedditFilter = () => {
-    onApplyFilter(redditChannel.eligibleMediaFilter);
+    onApplyFilter(redditChannel.eligibleMediaFilter as MediaFilter);
   };
 
   return (

@@ -1,5 +1,6 @@
 import { FileText } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import type { CaptionQueueItem } from '@fanslib/server/schemas';
 import { EmptyState } from "~/components/ui/EmptyState";
 import { useCaptionQueueQuery } from "~/lib/queries/pipeline";
 import { CaptionItem } from "./CaptionItem";
@@ -75,13 +76,34 @@ export const CaptioningStep = ({
     );
   }
 
+type CaptionItemDateCasted = CaptionQueueItem & {
+  post: {
+    date: Date;
+    postMedia: Array<{
+      createdAt: Date;
+      updatedAt: Date;
+      media: {
+        createdAt: Date;
+        updatedAt: Date;
+        fileCreationDate: Date;
+        fileModificationDate: Date;
+        shoots: Array<{
+          createdAt: Date;
+          updatedAt: Date;
+          shootDate: Date;
+        }>;
+      };
+    }>;
+  };
+};
+
   return (
     <LinkedPostsProvider>
     <div className="space-y-3">
       {queue.map((item) => (
         <CaptionItem
           key={item.post.id}
-          item={item}
+          item={item as unknown as CaptionItemDateCasted}
           isExpanded={item.post.id === expandedPostId}
           onExpand={() => setExpandedPostId(item.post.id)}
           onAdvance={() => advanceFrom(item.post.id)}

@@ -1,4 +1,4 @@
-import type { Media } from '@fanslib/server/schemas';
+import type { Media, TagDimension, TagDefinition } from '@fanslib/server/schemas';
 
 
 import { useTagStates } from "~/hooks/useTagStates";
@@ -9,6 +9,10 @@ import {
 } from "~/lib/queries/tags";
 import type { SelectionState } from "~/lib/tags/selection-state";
 import { DimensionTagSelector } from "./DimensionTagSelector";
+
+type TagDimensionWithTags = TagDimension & {
+  tags?: TagDefinition[];
+};
 
 type MediaTagEditorProps = {
   media: Media[]; // Always an array of media items
@@ -93,7 +97,7 @@ export const MediaTagEditor = ({ media, className }: MediaTagEditorProps) => {
         <div key={dimension.id} className="pb-6 p-4">
           <span className="flex text-lg font-medium text-gray-900 mb-2">{dimension.name}</span>
           <DimensionTagSelector
-            dimension={dimension}
+            dimension={dimension as unknown as TagDimensionWithTags}
             tagStates={tagStates.tagStates}
             onTagToggle={handleTagToggle}
           />

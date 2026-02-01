@@ -1,4 +1,4 @@
-import type { Subreddit } from '@fanslib/server/schemas';
+import type { MediaFilter, Subreddit } from '@fanslib/server/schemas';
 import { BarChart3, Check, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
@@ -186,7 +186,7 @@ export const EditingSubredditRow = ({ subreddit, onUpdate }: EditingSubredditRow
           {/* Media Filters Section */}
           <div>
             <MediaFiltersProvider
-              value={editingSubreddit.eligibleMediaFilter}
+              value={editingSubreddit.eligibleMediaFilter as MediaFilter}
               onChange={(filter) =>
                 setEditingSubreddit({ ...editingSubreddit, eligibleMediaFilter: filter })
               }

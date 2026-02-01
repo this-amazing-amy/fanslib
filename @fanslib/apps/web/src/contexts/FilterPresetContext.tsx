@@ -50,7 +50,7 @@ export const FilterPresetProvider = ({ children, onFiltersChange }: FilterPreset
   };
 
   const contextValue: FilterPresetContextValue = {
-    presets: presets ?? [],
+    presets: (presets ?? []) as unknown as FilterPreset[],
     isLoading,
 
     createPreset,

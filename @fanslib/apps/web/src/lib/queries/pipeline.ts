@@ -27,7 +27,7 @@ export const useCaptionQueueQuery = (
   useQuery({
     queryKey: QUERY_KEYS.pipeline.captionQueue(params, refreshKey),
     queryFn: async () => {
-      const result = await api.api.pipeline["caption-queue"].$get(params);
+      const result = await api.api.pipeline["caption-queue"].$get({ query: params });
       const data = await result.json();
       return data ?? [];
     },

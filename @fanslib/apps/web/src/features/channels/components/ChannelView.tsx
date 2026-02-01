@@ -38,10 +38,10 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
   const [name, setName] = useState(channel.name);
   const [description, setDescription] = useState(channel.description ?? "");
   const [eligibleMediaFilter, setEligibleMediaFilter] = useState<MediaFilters>(
-    channel.eligibleMediaFilter ?? []
+    (channel.eligibleMediaFilter as MediaFilters) ?? []
   );
   const [defaultHashtags, setDefaultHashtags] = useState<Hashtag[]>(
-    channel.defaultHashtags ?? []
+    (channel.defaultHashtags as Hashtag[]) ?? []
   );
   const [showScheduleForm, setShowScheduleForm] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<ContentSchedule | null>(null);
@@ -57,8 +57,8 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
   useEffect(() => {
     setName(channel.name);
     setDescription(channel.description ?? "");
-    setEligibleMediaFilter(channel.eligibleMediaFilter ?? []);
-    setDefaultHashtags(channel.defaultHashtags ?? []);
+    setEligibleMediaFilter((channel.eligibleMediaFilter as MediaFilters) ?? []);
+    setDefaultHashtags((channel.defaultHashtags as Hashtag[]) ?? []);
   }, [channel]);
 
   const handleSave = async () => {
@@ -81,8 +81,8 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
   const handleCancel = () => {
     setName(channel.name);
     setDescription(channel.description ?? "");
-    setEligibleMediaFilter(channel.eligibleMediaFilter ?? []);
-    setDefaultHashtags(channel.defaultHashtags ?? []);
+    setEligibleMediaFilter((channel.eligibleMediaFilter as MediaFilters) ?? []);
+    setDefaultHashtags((channel.defaultHashtags as Hashtag[]) ?? []);
     setIsEditing(false);
   };
 
@@ -308,7 +308,7 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
           ) : isLoadingSchedules ? (
             <div className="text-center py-8 text-base-content/60">Loading schedules...</div>
           ) : schedules && schedules.length > 0 ? (
-            <ContentScheduleList schedules={schedules} onEdit={handleEditSchedule} />
+            <ContentScheduleList schedules={schedules as unknown as ContentSchedule[]} onEdit={handleEditSchedule} />
           ) : (
             <div className="card bg-base-200 p-8 text-center text-base-content/60">
               No content schedules configured. Add one to get started.

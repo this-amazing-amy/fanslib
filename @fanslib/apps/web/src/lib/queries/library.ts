@@ -7,7 +7,7 @@ export const useMediaListQuery = (params?: FetchAllMediaRequestBody) =>
   useQuery({
     queryKey: QUERY_KEYS.media.list(params),
     queryFn: async () => {
-      const result = await api.api.media.all.$post({ json: params });
+      const result = await api.api.media.all.$post({ json: params ?? {} });
       return result.json();
     },
   });
@@ -16,7 +16,7 @@ export const useMediaQuery = (params: FetchMediaByIdRequestParams) =>
   useQuery({
     queryKey: QUERY_KEYS.media.byId(params.id),
     queryFn: async () => {
-      const result = await api.api.media[':id'].$get({ param: { id: params.id } });
+      const result = await api.api.media['by-id'][':id'].$get({ param: { id: params.id } });
       return result.json();
     },
     enabled: !!params.id,
@@ -29,7 +29,7 @@ export const useMediaAdjacentQuery = (
   useQuery({
     queryKey: QUERY_KEYS.media.adjacent(params.id, body),
     queryFn: async () => {
-      const result = await api.api.media[':id'].adjacent.$post({ param: { id: params.id }, json: body });
+      const result = await api.api.media['by-id'][':id'].adjacent.$post({ param: { id: params.id }, json: body ?? {} });
       return result.json();
     },
     enabled: !!params.id,
@@ -44,7 +44,7 @@ export const useUpdateMediaMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdateMediaParams) => {
-      const result = await api.api.media[':id'].$patch({ param: { id }, json: updates });
+      const result = await api.api.media['by-id'][':id'].$patch({ param: { id }, json: updates });
       return result.json();
     },
     onSuccess: (data, variables) => {
@@ -64,7 +64,7 @@ export const useDeleteMediaMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, deleteFile = false }: DeleteMediaParams) => {
-      const result = await api.api.media[':id'].$delete({ 
+      const result = await api.api.media['by-id'][':id'].$delete({ 
         param: { id }, 
         query: { deleteFile: deleteFile ? 'true' : undefined } 
       });
@@ -72,7 +72,7 @@ export const useDeleteMediaMutation = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.shoots.all });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.shoots.all() });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.media.all });
     },
   });

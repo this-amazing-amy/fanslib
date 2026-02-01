@@ -236,7 +236,7 @@ export const HashtagsTab = () => {
                 {fanslyChannels.map((channel) => (
                   <div key={channel.id} className="p-2 h-12 max-w-48 flex items-center justify-start">
                     <HashtagViewInput
-                      initialValue={getViewCount(hashtag, channel.id)}
+                      initialValue={getViewCount(hashtag as unknown as Hashtag & { createdAt: Date; updatedAt: Date }, channel.id)}
                       onViewCountChange={(newValue) =>
                         updateHashtagStats(hashtag.id, channel.id, newValue)
                       }

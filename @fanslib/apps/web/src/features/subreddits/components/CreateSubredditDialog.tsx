@@ -10,7 +10,6 @@ import {
 } from '~/components/ui/Dialog';
 import { Input } from '~/components/ui/Input';
 import { VERIFICATION_STATUS, type VerificationStatusType } from '~/components/VerificationStatus';
-import { parseViewCount } from '~/lib/format-views';
 import { useCreateSubredditMutation, useAnalyzePostingTimesMutation } from '~/lib/queries/subreddits';
 
 type CreateSubredditDialogProps = {
@@ -46,18 +45,15 @@ export const CreateSubredditDialog = ({
     }
 
     try {
-      const parsedMemberCount = memberCount ? parseViewCount(memberCount.replaceAll(',', '.')) : null;
       const parsedFrequency = postFrequencyHours ? parseInt(postFrequencyHours) : null;
 
       const result = await createSubredditMutation.mutateAsync({
         name: name.trim(),
         notes: notes.trim() || null,
-        memberCount: parsedMemberCount,
         maxPostFrequencyHours: parsedFrequency,
-        verificationStatus,
         defaultFlair: defaultFlair.trim() || null,
         captionPrefix: captionPrefix.trim() || null,
-      });
+      } as unknown as Parameters<typeof createSubredditMutation.mutateAsync>[0]);
 
       console.log(`Subreddit r/${name} created successfully`);
 

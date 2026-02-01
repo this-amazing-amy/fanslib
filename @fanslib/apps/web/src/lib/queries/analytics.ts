@@ -19,7 +19,11 @@ export const useFypActionsQuery = (params?: FypActionsQuery) =>
   useQuery({
     queryKey: QUERY_KEYS.analytics.fypActions(params),
     queryFn: async () => {
-      const result = await api.api.analytics['fyp-actions'].$get(params);
+      const query = params ? { 
+        ...(params.thresholdType && { thresholdType: params.thresholdType }),
+        ...(params.thresholdValue !== undefined && { thresholdValue: String(params.thresholdValue) }),
+      } : undefined;
+      const result = await api.api.analytics['fyp-actions'].$get(query ? { query } as unknown as { query: { thresholdType?: string | string[]; thresholdValue?: string | string[] } } : { query: {} });
       return result.json();
     },
     staleTime: 60_000,
@@ -29,7 +33,13 @@ export const useAnalyticsPostsQuery = (params?: GetFanslyPostsWithAnalyticsQuery
   useQuery({
     queryKey: QUERY_KEYS.analytics.posts(params),
     queryFn: async () => {
-      const result = await api.api.analytics.posts.$get(params);
+      const query = params ? {
+        ...(params.sortBy && { sortBy: params.sortBy }),
+        ...(params.sortDirection && { sortDirection: params.sortDirection }),
+        ...(params.startDate && { startDate: params.startDate }),
+        ...(params.endDate && { endDate: params.endDate }),
+      } : undefined;
+      const result = await api.api.analytics.posts.$get(query ? { query } as unknown as { query: { startDate?: string; endDate?: string; sortBy?: string; sortDirection?: 'asc' | 'desc' } } : { query: {} });
       return result.json();
     },
   });
@@ -38,7 +48,7 @@ export const useCandidatesQuery = () =>
   useQuery({
     queryKey: QUERY_KEYS.analytics.candidates(),
     queryFn: async () => {
-      const result = await api.api.analytics.candidates.$get({ limit: 1000 });
+      const result = await api.api.analytics.candidates.$get({ query: { limit: '1000' } });
       return result.json();
     },
     retry: false,
@@ -50,7 +60,7 @@ export const useConfirmMatchMutation = () => {
 
   return useMutation({
     mutationFn: async ({ candidateId, postMediaId }: { candidateId: string; postMediaId: string }) => {
-      const result = await api.api.analytics.candidates[':id'].match.$post({ 
+      const result = await api.api.analytics.candidates['by-id'][':id'].match.$post({ 
         param: { id: candidateId },
         json: { postMediaId }
       });
@@ -69,7 +79,7 @@ export const useIgnoreCandidateMutation = () => {
 
   return useMutation({
     mutationFn: async (candidateId: string) => {
-      const result = await api.api.analytics.candidates[':id'].ignore.$post({ param: { id: candidateId } });
+      const result = await api.api.analytics.candidates['by-id'][':id'].ignore.$post({ param: { id: candidateId } });
       return result.json();
     },
     onSuccess: () => {
@@ -99,7 +109,7 @@ export const useUnmatchCandidateMutation = () => {
 
   return useMutation({
     mutationFn: async (candidateId: string) => {
-      const result = await api.api.analytics.candidates[':id'].unmatch.$post({ param: { id: candidateId } });
+      const result = await api.api.analytics.candidates['by-id'][':id'].unmatch.$post({ param: { id: candidateId } });
       return result.json();
     },
     onSuccess: () => {
@@ -115,7 +125,7 @@ export const useUnignoreCandidateMutation = () => {
 
   return useMutation({
     mutationFn: async (candidateId: string) => {
-      const result = await api.api.analytics.candidates[':id'].unignore.$post({ param: { id: candidateId } });
+      const result = await api.api.analytics.candidates['by-id'][':id'].unignore.$post({ param: { id: candidateId } });
       return result.json();
     },
     onSuccess: () => {
@@ -188,7 +198,7 @@ export const useFetchFanslyDataMutation = () => {
       startDate?: string;
       endDate?: string;
     }) => {
-      const result = await api.api.analytics.fetch[':postMediaId'].$post({ 
+      const result = await api.api.analytics.fetch['by-id'][':postMediaId'].$post({ 
         param: { postMediaId },
         json: { startDate, endDate }
       });

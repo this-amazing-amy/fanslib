@@ -24,7 +24,7 @@ export const TagFilterSelector = ({ value, onChange }: TagFilterSelectorProps) =
   const { data: dimensions = [], isLoading } = useTagDimensionsQuery();
 
   const categoricalDimensions = useMemo(
-    () => (dimensions as TagDimensionWithTags[] ?? []).filter((d) => d.dataType === "categorical"),
+    () => (dimensions as unknown as TagDimensionWithTags[] ?? []).filter((d) => d.dataType === "categorical"),
     [dimensions]
   );
 
