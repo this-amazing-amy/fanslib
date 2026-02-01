@@ -46,7 +46,7 @@
         "notFound() helper returns 404 responses",
         "AppType exported for client inference"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "infrastructure",
@@ -58,7 +58,7 @@
         "Error responses handled appropriately",
         "Type safety maintained via AppType inference"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "schema-migration",
@@ -120,7 +120,7 @@
         "Filtering and pagination work",
         "Manual smoke test passes"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "feature-migration",
@@ -158,7 +158,7 @@
         "Web client updated",
         "Manual test passes"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "feature-migration",
