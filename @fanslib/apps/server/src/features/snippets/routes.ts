@@ -1,68 +1,56 @@
-import { Elysia, t } from "elysia";
-import { CreateSnippetRequestBodySchema, CreateSnippetResponseSchema, createSnippet } from "./operations/snippet/create";
-import { DeleteSnippetRequestParamsSchema, DeleteSnippetResponseSchema, deleteSnippet } from "./operations/snippet/delete";
-import { FetchAllSnippetsResponseSchema, fetchAllSnippets } from "./operations/snippet/fetch-all";
-import { FetchSnippetsByChannelRequestParamsSchema, FetchSnippetsByChannelResponseSchema, fetchSnippetsByChannel } from "./operations/snippet/fetch-by-channel";
-import { FetchSnippetByIdRequestParamsSchema, FetchSnippetByIdResponseSchema, fetchSnippetById } from "./operations/snippet/fetch-by-id";
-import { FetchGlobalSnippetsResponseSchema, fetchGlobalSnippets } from "./operations/snippet/fetch-global";
-import { UpdateSnippetRequestBodySchema, UpdateSnippetRequestParamsSchema, UpdateSnippetResponseSchema, updateSnippet } from "./operations/snippet/update";
+import { Hono } from "hono";
+import { zValidator } from "@hono/zod-validator";
+import { validationError, notFound } from "../../lib/hono-utils";
+import { CreateSnippetRequestBodySchema, createSnippet } from "./operations/snippet/create";
+import { deleteSnippet } from "./operations/snippet/delete";
+import { fetchAllSnippets } from "./operations/snippet/fetch-all";
+import { fetchSnippetsByChannel } from "./operations/snippet/fetch-by-channel";
+import { fetchSnippetById } from "./operations/snippet/fetch-by-id";
+import { fetchGlobalSnippets } from "./operations/snippet/fetch-global";
+import { UpdateSnippetRequestBodySchema, updateSnippet } from "./operations/snippet/update";
 
-export const snippetsRoutes = new Elysia({ prefix: "/api/snippets" })
-  .get("/all", fetchAllSnippets, {
-    response: FetchAllSnippetsResponseSchema,
+export const snippetsRoutes = new Hono()
+  .basePath("/api/snippets")
+  .get("/all", async (c) => {
+    const result = await fetchAllSnippets();
+    return c.json(result);
   })
-  .get("/global", fetchGlobalSnippets, {
-    response: FetchGlobalSnippetsResponseSchema,
+  .get("/global", async (c) => {
+    const result = await fetchGlobalSnippets();
+    return c.json(result);
   })
-  .get("/by-channel-id/:channelId", async ({ params: { channelId } }) =>
-    fetchSnippetsByChannel(channelId), {
-    params: FetchSnippetsByChannelRequestParamsSchema,
-    response: FetchSnippetsByChannelResponseSchema,
+  .get("/by-channel-id/:channelId", async (c) => {
+    const channelId = c.req.param("channelId");
+    const result = await fetchSnippetsByChannel(channelId);
+    return c.json(result);
   })
-  .get("/by-id/:id", async ({ params: { id }, set }) => {
+  .get("/by-id/:id", async (c) => {
+    const id = c.req.param("id");
     const snippet = await fetchSnippetById(id);
     if (!snippet) {
-      set.status = 404;
-      return { error: "Snippet not found" };
+      return notFound(c, "Snippet not found");
     }
-    return snippet;
-  }, {
-    params: FetchSnippetByIdRequestParamsSchema,
-    response: {
-      200: FetchSnippetByIdResponseSchema,
-      404: t.Object({ error: t.String() }),
-    },
+    return c.json(snippet);
   })
-  .post("/", async ({ body }) => createSnippet(body), {
-    body: CreateSnippetRequestBodySchema,
-    response: CreateSnippetResponseSchema,
+  .post("/", zValidator("json", CreateSnippetRequestBodySchema, validationError), async (c) => {
+    const body = c.req.valid("json");
+    const result = await createSnippet(body);
+    return c.json(result);
   })
-  .patch("/by-id/:id", async ({ params: { id }, body, set }) => {
+  .patch("/by-id/:id", zValidator("json", UpdateSnippetRequestBodySchema, validationError), async (c) => {
+    const id = c.req.param("id");
+    const body = c.req.valid("json");
     const snippet = await updateSnippet(id, body);
     if (!snippet) {
-      set.status = 404;
-      return { error: "Snippet not found" };
+      return notFound(c, "Snippet not found");
     }
-    return snippet;
-  }, {
-    params: UpdateSnippetRequestParamsSchema,
-    body: UpdateSnippetRequestBodySchema,
-    response: {
-      200: UpdateSnippetResponseSchema,
-      404: t.Object({ error: t.String() }),
-    },
+    return c.json(snippet);
   })
-  .delete("/by-id/:id", async ({ params: { id }, set }) => {
+  .delete("/by-id/:id", async (c) => {
+    const id = c.req.param("id");
     const success = await deleteSnippet(id);
     if (!success) {
-      set.status = 404;
-      return { error: "Snippet not found" };
+      return notFound(c, "Snippet not found");
     }
-    return { success: true };
-  }, {
-    params: DeleteSnippetRequestParamsSchema,
-    response: {
-      200: DeleteSnippetResponseSchema,
-      404: t.Object({ error: t.String() }),
-    },
+    return c.json({ success: true });
   });

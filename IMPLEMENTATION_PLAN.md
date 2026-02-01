@@ -250,11 +250,12 @@ Each feature requires: (1) convert TypeBox schemas to Zod, (2) migrate routes to
 
 ### Snippets Feature (7 endpoints)
 
-- [ ] Convert snippets schemas to Zod
-  - `entity.ts` (CaptionSnippetSchema)
-  - `operations/snippet/*.ts`
-- [ ] Migrate snippets routes in `features/snippets/routes.ts`
-- [ ] Update `@fanslib/apps/web/src/lib/queries/snippets.ts` to use hc client
+- [x] Convert snippets schemas to Zod
+  - `entity.ts` (CaptionSnippetSchema) - ALREADY DONE
+  - `operations/snippet/*.ts` - CONVERTED ALL
+- [x] Migrate snippets routes in `features/snippets/routes.ts` - DONE
+- [x] Update `@fanslib/apps/web/src/lib/queries/snippets.ts` to use hc client - DONE
+- [x] Register routes in main index.ts - DONE
 
 ### Filter Presets Feature (5 endpoints)
 

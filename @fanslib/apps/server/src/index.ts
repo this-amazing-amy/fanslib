@@ -7,6 +7,7 @@ import { hashtagsRoutes } from "./features/hashtags/routes";
 import { runScheduledPostsCronTick } from "./features/posts/scheduled-posts-cron";
 import { settingsRoutes } from "./features/settings/routes";
 import { shootsRoutes } from "./features/shoots/routes";
+import { snippetsRoutes } from "./features/snippets/routes";
 import { db } from "./lib/db";
 import { devalueMiddleware } from "./lib/devalue-middleware";
 import { env } from "./lib/env";
@@ -70,7 +71,8 @@ const app = new Hono()
   .route("/", blueskyRoutes)
   .route("/", hashtagsRoutes)
   .route("/", shootsRoutes)
-  .route("/", filterPresetsRoutes);
+  .route("/", filterPresetsRoutes)
+  .route("/", snippetsRoutes);
 
 // Set up cron job if enabled
 if (isScheduledPostsCronEnabled) {

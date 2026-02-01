@@ -28,7 +28,7 @@
     "Infrastructure setup (utilities, middleware, client)",
     "Entity schemas (TypeBox → Zod)",
     "Settings feature (6 endpoints) - DONE",
-    "Bluesky feature (1 endpoint) - DONE", 
+    "Bluesky feature (1 endpoint) - DONE",
     "Remaining features one by one",
     "Remove Elysia dependencies"
   ],
@@ -332,7 +332,12 @@
       "web": ["hono"]
     },
     "dependencies_to_remove": {
-      "server": ["elysia", "@elysiajs/cors", "@elysiajs/cron", "@elysiajs/swagger"],
+      "server": [
+        "elysia",
+        "@elysiajs/cors",
+        "@elysiajs/cron",
+        "@elysiajs/swagger"
+      ],
       "web": ["@elysiajs/eden"]
     },
     "files_to_create": [

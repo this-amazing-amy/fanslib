@@ -1,23 +1,23 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { CaptionSnippet, CaptionSnippetSchema } from "../../entity";
 
-export const UpdateSnippetRequestParamsSchema = t.Object({
-  id: t.String(),
+export const UpdateSnippetRequestParamsSchema = z.object({
+  id: z.string(),
 });
 
-export const UpdateSnippetRequestBodySchema = t.Object({
-  name: t.Optional(t.String()),
-  content: t.Optional(t.String()),
-  channelId: t.Optional(t.String()),
+export const UpdateSnippetRequestBodySchema = z.object({
+  name: z.string().optional(),
+  content: z.string().optional(),
+  channelId: z.string().optional(),
 });
 
-export const UpdateSnippetResponseSchema = t.Omit(CaptionSnippetSchema, ["channelId"]);
+export const UpdateSnippetResponseSchema = CaptionSnippetSchema.omit({ channelId: true });
 
 export const updateSnippet = async (
   id: string,
-  data: typeof UpdateSnippetRequestBodySchema.static,
-): Promise<typeof UpdateSnippetResponseSchema.static | null> => {
+  data: z.infer<typeof UpdateSnippetRequestBodySchema>,
+): Promise<z.infer<typeof UpdateSnippetResponseSchema> | null> => {
   const dataSource = await db();
   const repo = dataSource.getRepository(CaptionSnippet);
 

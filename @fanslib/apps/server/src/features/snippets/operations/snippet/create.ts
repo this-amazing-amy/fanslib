@@ -1,23 +1,21 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { IsNull } from "typeorm";
 import { db } from "../../../../lib/db";
+import { ChannelSchema } from "../../../channels/entity";
 import { Channel } from "../../../channels/entity";
 import { CaptionSnippet, CaptionSnippetSchema } from "../../entity";
 
-export const CreateSnippetRequestBodySchema = t.Object({
-  name: t.String(),
-  content: t.String(),
-  channelId: t.Optional(t.String()),
+export const CreateSnippetRequestBodySchema = z.object({
+  name: z.string(),
+  content: z.string(),
+  channelId: z.string().optional(),
 });
 
-export const CreateSnippetResponseSchema = t.Composite([
-  t.Omit(CaptionSnippetSchema, ["channelId"]),
-  t.Object({
-    channel: t.Nullable(t.Any()) // Channel is now Zod
-  }),
-]);
+export const CreateSnippetResponseSchema = CaptionSnippetSchema.omit({ channelId: true }).extend({
+  channel: ChannelSchema.nullable(),
+});
 
-export const createSnippet = async (data: typeof CreateSnippetRequestBodySchema.static): Promise<typeof CreateSnippetResponseSchema.static> => {
+export const createSnippet = async (data: z.infer<typeof CreateSnippetRequestBodySchema>): Promise<z.infer<typeof CreateSnippetResponseSchema>> => {
   const database = await db();
   const repo = database.getRepository(CaptionSnippet);
 

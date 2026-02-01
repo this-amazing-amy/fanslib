@@ -7,6 +7,7 @@
 The server is being migrated from Elysia + Eden + TypeBox to Hono + hc client + Zod. This is an **in-progress migration**.
 
 ### Current State:
+
 - ✅ Dependencies installed (hono, @hono/zod-validator, zod)
 - ✅ Infrastructure complete (hono-utils.ts, devalue-middleware.ts, hono-client.ts)
 - ✅ Main server app migrated to Hono (index.ts)
@@ -15,22 +16,46 @@ The server is being migrated from Elysia + Eden + TypeBox to Hono + hc client + 
 - ⚠️ Many features still use Elysia routes with TypeBox schemas
 
 ### What Works:
+
 - `bun dev` - Server starts and runs
 - Settings endpoints (Hono)
-- Bluesky endpoints (Hono)  
+- Bluesky endpoints (Hono)
 - All Elysia endpoints still function
 
 ### What Doesn't Work Yet:
+
 - `bun typecheck` fails with ~70 errors (expected during migration)
 - Features with mixed Zod/TypeBox schemas have type issues
 - Some cross-dependencies between features cause type conflicts
 
 ### For Developers:
+
 See `IMPLEMENTATION_PLAN.md` for detailed migration status, strategy, and next steps. Do NOT try to run full validation until migration is complete.
 
 ## Ralph Loop Operations
 
 When running in the Ralph loop (`./loop.sh`), follow these operational guidelines:
+
+**Spec Format**
+
+Specifications live in `specs/*.json` and use the Anthropic agent-first format:
+
+- **JSON structure** - Machine-readable with clear fields
+- **Features array** - Each feature has `category`, `description`, `acceptance_criteria[]`, and `passes` (boolean)
+- **Incremental progress** - Mark features as `passes: true` when complete
+- **Context section** - Problem, impact, user need (brief)
+- **Scope section** - What's in/out of scope
+- **Technical notes** - High-level guidance, not step-by-step HOW
+
+**Working with Specs:**
+
+1. Read the spec's `features` array
+2. Choose the next feature with `passes: false`
+3. Implement the feature
+4. Test acceptance criteria
+5. Update spec: change `passes: false` → `passes: true`
+6. Commit with descriptive message
+7. Repeat until all features pass
 
 **Validation (Backpressure)**
 
@@ -47,6 +72,7 @@ bun lint && bun typecheck && bun test
 
 - Keep `@IMPLEMENTATION_PLAN.md` current with progress, discoveries, and bugs
 - Update `@AGENTS.md` only for operational learnings (how to build/run)
+- Update spec JSON files to mark features as passing
 - Do NOT put status updates or progress notes in AGENTS.md
 
 ---
