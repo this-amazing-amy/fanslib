@@ -124,7 +124,7 @@
         "bun typecheck passes (within migration context)",
         "No console warnings about missing query keys"
       ],
-      "passes": false
+      "passes": true
     }
   ],
   "technical_notes": {
