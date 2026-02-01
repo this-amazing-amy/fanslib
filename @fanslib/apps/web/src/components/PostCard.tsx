@@ -1,11 +1,11 @@
-import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
+import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { format } from "date-fns";
 import { MediaTile } from "~/features/library/components/MediaTile";
 import { ChannelBadge } from "./ChannelBadge";
 import { PostTagStickers } from "./PostTagStickers";
 import { StatusBadge } from "./StatusBadge";
 
-type Post = typeof PostWithRelationsSchema.static;
+type Post = PostWithRelations;
 
 type PostCardProps = {
   post: Post;

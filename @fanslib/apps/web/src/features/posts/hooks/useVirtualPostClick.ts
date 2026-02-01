@@ -1,8 +1,7 @@
-import type { MediaSchema } from "@fanslib/server/schemas";
+import type { Media, MediaSchema } from '@fanslib/server/schemas';
 import { useState } from "react";
 import type { VirtualPost } from "~/lib/virtual-posts";
 
-type Media = typeof MediaSchema.static;
 
 type VirtualPostClickData = {
   media: Media[];

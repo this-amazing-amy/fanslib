@@ -1,4 +1,4 @@
-import type { PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import { MediaPreview } from '~/components/MediaPreview';
@@ -10,7 +10,7 @@ import { cn } from '~/lib/cn';
 import { useFetchFanslyDataMutation, usePostMediaAnalyticsQuery } from '~/lib/queries/analytics';
 import { useUpdatePostMediaMutation } from '~/lib/queries/posts';
 
-type Post = typeof PostWithRelationsSchema.static;
+type Post = PostWithRelations;
 
 type PostDetailAnalyticsProps = {
   post: Post;

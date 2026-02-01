@@ -1,4 +1,4 @@
-import type { PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
 import { useCallback } from 'react';
@@ -17,7 +17,7 @@ import { PostDetailTemporalContext } from '~/features/posts/components/post-deta
 import { PostDetailUrlInput } from '~/features/posts/components/post-detail/PostDetailUrlInput';
 import { usePostQuery } from '~/lib/queries/posts';
 
-type Post = typeof PostWithRelationsSchema.static;
+type Post = PostWithRelations;
 
 const PostDetailRoute = () => {
   const { postId } = Route.useParams();

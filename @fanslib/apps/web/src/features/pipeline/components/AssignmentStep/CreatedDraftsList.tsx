@@ -1,17 +1,17 @@
 import { format } from "date-fns";
 import { CheckCircle2, FileX, ImagePlus } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import type { PostWithRelationsSchema, AssignMediaResponseSchema } from "@fanslib/server/schemas";
+import type { AssignMediaResponse, AssignMediaResponseSchema, PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { MediaTileLite } from "~/features/library/components/MediaTile/MediaTileLite";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
 import { Button } from "~/components/ui/Button";
 
 type CreatedDraftsListProps = {
-  drafts: typeof PostWithRelationsSchema.static[];
+  drafts: PostWithRelations[];
   fromDate: Date;
   toDate: Date;
-  assignmentResult: typeof AssignMediaResponseSchema.static | null;
+  assignmentResult: AssignMediaResponse | null;
   onAssignMedia?: (draftId: string) => void;
 };
 

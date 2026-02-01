@@ -1,4 +1,4 @@
-import type { CreatePostRequestBodySchema } from "@fanslib/server/schemas";
+import type { CreatePostRequestBody, CreatePostRequestBodySchema } from '@fanslib/server/schemas';
 import { useNavigate } from "@tanstack/react-router";
 import { usePostPreferences } from "~/contexts/PostPreferencesContext";
 import { useDraftBlueskyMutation } from "~/lib/queries/postpone";
@@ -41,7 +41,7 @@ export const useCreatePostFromVirtualSlot = () => {
         caption: caption ?? "",
         mediaIds,
         scheduleId: virtualPost.scheduleId,
-      } satisfies typeof CreatePostRequestBodySchema.static);
+      } satisfies CreatePostRequestBody);
 
       if (!createdPost?.id) {
         return;

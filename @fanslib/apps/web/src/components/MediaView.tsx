@@ -1,10 +1,10 @@
-import type { MediaSchema } from "@fanslib/server/schemas";
+import type { Media, MediaSchema } from '@fanslib/server/schemas';
 import { Link } from "@tanstack/react-router";
 import { useSfwMode } from "~/hooks/useSfwMode";
 import { cn } from "~/lib/cn";
 import { getMediaFileUrl } from "~/lib/media-urls";
 
-type Media = typeof MediaSchema.static;
+
 type MediaPreview = Pick<Media, "id" | "name" | "type">;
 
 type MediaViewProps = {

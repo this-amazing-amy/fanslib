@@ -1,9 +1,9 @@
-import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
+import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useRef } from "react";
 import type { VirtualPost } from "~/lib/virtual-posts";
 
-type Post = typeof PostWithRelationsSchema.static;
+type Post = PostWithRelations;
 
 type UsePostTimelineVirtualizerArgs = {
   posts: (Post | VirtualPost)[];

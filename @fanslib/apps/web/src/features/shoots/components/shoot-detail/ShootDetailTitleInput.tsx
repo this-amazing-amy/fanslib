@@ -1,10 +1,9 @@
-import type { ShootSummarySchema } from "@fanslib/server/schemas";
+import type { ShootSummary, ShootSummarySchema } from '@fanslib/server/schemas';
 import type { KeyboardEvent } from "react";
 import { useState } from "react";
 import { Input } from "~/components/ui/Input";
 import { useUpdateShootMutation } from "~/lib/queries/shoots";
 
-type ShootSummary = typeof ShootSummarySchema.static;
 
 type ShootDetailTitleInputProps = {
   shoot: ShootSummary;

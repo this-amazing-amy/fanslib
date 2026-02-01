@@ -1,5 +1,5 @@
 import { Plus } from "lucide-react";
-import type { MediaSchema, PostWithRelationsSchema } from "@fanslib/server/schemas";
+import type { Media, MediaSchema, PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { useMediaDrag } from "~/contexts/MediaDragContext";
 import { usePostDrag } from "~/contexts/PostDragContext";
 import { useDragOver } from "~/hooks/useDragOver";
@@ -8,8 +8,8 @@ import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
 import { useCreatePostDialog } from "./CreatePostDialogContext";
 import { PostSwimlaneCard } from "./PostSwimlaneCard";
 
-type Media = typeof MediaSchema.static;
-type Post = typeof PostWithRelationsSchema.static;
+
+type Post = PostWithRelations;
 
 type PostSwimlaneCellProps = {
   date: Date;

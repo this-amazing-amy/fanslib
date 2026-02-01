@@ -1,11 +1,10 @@
-import type { PostStatusSchema } from "@fanslib/server/schemas";
+import type { PostStatus, PostStatusSchema } from '@fanslib/server/schemas';
 import { addMonths, startOfMonth } from "date-fns";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { mergeDeep } from "remeda";
 import type { DeepPartial } from "~/lib/deep-partial";
 import type { PostTypeFilter } from "~/lib/virtual-posts";
 
-type PostStatus = typeof PostStatusSchema.static;
 
 export type PostViewType = "timeline" | "calendar" | "swimlane";
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
-import type { MediaSchema } from "@fanslib/server/schemas";
+import type { Media, MediaSchema } from '@fanslib/server/schemas';
 
-type Media = typeof MediaSchema.static;
+
 import { useSfwMode } from "~/hooks/useSfwMode";
 import { cn } from "~/lib/cn";
 import { getMediaFileUrl, getMediaThumbnailUrl } from "~/lib/media-urls";

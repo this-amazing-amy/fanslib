@@ -1,6 +1,6 @@
-import type { TagDefinitionSchema } from "@fanslib/server/schemas";
+import type { TagDefinition, TagDefinitionSchema } from '@fanslib/server/schemas';
 
-type TagDefinition = typeof TagDefinitionSchema.static;
+
 import { useTagDrag } from "~/contexts/TagDragContext";
 import { useDragOver } from "./useDragOver";
 

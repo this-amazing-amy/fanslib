@@ -1,4 +1,4 @@
-import type { CaptionQueueItemSchema } from "@fanslib/server/schemas";
+import type { CaptionQueueItem, CaptionQueueItemSchema } from '@fanslib/server/schemas';
 import { format } from "date-fns";
 import { useQueries } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
@@ -6,7 +6,6 @@ import { Button } from "~/components/ui/Button";
 import { MediaTileLite } from "~/features/library/components/MediaTile/MediaTileLite";
 import { eden } from "~/lib/api/eden";
 
-type CaptionQueueItem = typeof CaptionQueueItemSchema.static;
 
 type RelatedCaptionsPanelProps = {
   relatedByMedia: CaptionQueueItem["relatedByMedia"];

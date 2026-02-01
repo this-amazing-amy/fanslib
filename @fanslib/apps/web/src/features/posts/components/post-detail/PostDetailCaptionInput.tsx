@@ -1,4 +1,4 @@
-import type { PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { Check, Copy } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { HashtagButton } from '~/components/HashtagButton';
@@ -9,7 +9,7 @@ import { useCopyToClipboard } from '~/hooks/useCopyToClipboard';
 import { useDebounce } from '~/hooks/useDebounce';
 import { useUpdatePostMutation } from '~/lib/queries/posts';
 
-type Post = typeof PostWithRelationsSchema.static;
+type Post = PostWithRelations;
 
 type PostDetailCaptionInputProps = {
   post: Post;

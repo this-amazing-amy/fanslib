@@ -1,11 +1,10 @@
-import type { TagDefinitionSchema } from "@fanslib/server/schemas";
+import type { TagDefinition, TagDefinitionSchema } from '@fanslib/server/schemas';
 import { ColorPicker } from "~/components/ui/ColorPicker";
 import { Input } from "~/components/ui/Input";
 import { Label } from "~/components/ui/Label";
 import { Textarea } from "~/components/ui/Textarea";
 import { ParentTagSelector } from "./ParentTagSelector";
 
-type TagDefinition = typeof TagDefinitionSchema.static;
 
 type CategoricalValueInputProps = {
   displayName: string;

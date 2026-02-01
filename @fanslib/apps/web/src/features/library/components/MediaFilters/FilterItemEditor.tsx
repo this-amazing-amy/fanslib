@@ -1,4 +1,4 @@
-import type { MediaFilterSchema } from "@fanslib/server/schemas";
+import type { MediaFilter, MediaFilterSchema } from '@fanslib/server/schemas';
 import { CalendarDate } from "@internationalized/date";
 import { format } from "date-fns";
 import { CalendarIcon, X } from "lucide-react";
@@ -15,7 +15,7 @@ import { cn } from "~/lib/cn";
 import { useChannelsQuery } from "~/lib/queries/channels";
 import { DimensionFilterSelector } from "./DimensionFilterSelector";
 
-type MediaFilters = typeof MediaFilterSchema.static;
+type MediaFilters = MediaFilter;
 type FilterGroup = MediaFilters[number];
 type FilterItem = FilterGroup["items"][number];
 

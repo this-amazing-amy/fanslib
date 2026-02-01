@@ -1,4 +1,4 @@
-import type { ShootSummarySchema } from "@fanslib/server/schemas";
+import type { ShootSummary, ShootSummarySchema } from '@fanslib/server/schemas';
 import { Trash2 } from "lucide-react";
 import { type FC } from "react";
 import {
@@ -14,7 +14,6 @@ import { Button } from "~/components/ui/Button";
 import { useLibraryPreferences } from "~/contexts/LibraryPreferencesContext";
 import { useDeleteShootMutation } from "~/lib/queries/shoots";
 
-type ShootSummary = typeof ShootSummarySchema.static;
 
 type ShootDetailDeleteButtonProps = {
   shoot: ShootSummary;

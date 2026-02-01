@@ -1,7 +1,6 @@
-import type { MediaSchema } from "@fanslib/server/schemas";
+import type { Media, MediaSchema } from '@fanslib/server/schemas';
 import { createContext, useContext, useState, type FC, type ReactNode } from "react";
 
-type Media = typeof MediaSchema.static;
 
 type MediaDragContextType = {
   draggedMedias: Media[];

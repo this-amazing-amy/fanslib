@@ -1,8 +1,7 @@
-import type { MediaSchema } from "@fanslib/server/schemas";
+import type { Media, MediaSchema } from '@fanslib/server/schemas';
 import { useMediaTagsQuery } from "~/lib/queries/tags";
 import { TagBadge } from "../MediaTagEditor/DimensionTagSelector/TagBadge";
 
-type Media = typeof MediaSchema.static;
 
 type MediaTileTagBadgesProps = {
   media: Media;

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { eden } from "../api/eden";
+import { api } from "../api/hono-client";
 import type { LoginStatus, SessionStatus } from "../reddit/auth-status-utils";
 
 // Login to Reddit
@@ -8,10 +8,10 @@ export const useRedditLoginMutation = () => {
 
   return useMutation({
     mutationFn: async (userId?: string) => {
-      const response = await eden.api["reddit-automation"].login.post({
-        userId,
+      const result = await api.api["reddit-automation"].login.$post({
+        json: { userId }
       });
-      return response.data;
+      return result.json();
     },
     onSuccess: () => {
       // Invalidate both login and session status queries
@@ -25,10 +25,10 @@ export const useRedditLoginMutation = () => {
 export const useRedditLoginStatusQuery = (userId?: string) => useQuery({
     queryKey: ["reddit", "login-status", userId],
     queryFn: async (): Promise<LoginStatus> => {
-      const response = await eden.api["reddit-automation"]["check-login"].post({
-        userId,
+      const result = await api.api["reddit-automation"]["check-login"].$post({
+        json: { userId }
       });
-      return response.data as LoginStatus;
+      return result.json() as Promise<LoginStatus>;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -37,10 +37,10 @@ export const useRedditLoginStatusQuery = (userId?: string) => useQuery({
 export const useRedditSessionStatusQuery = (userId?: string) => useQuery({
     queryKey: ["reddit", "session-status", userId],
     queryFn: async (): Promise<SessionStatus> => {
-      const response = await eden.api["reddit-automation"].session.status.post({
-        userId,
+      const result = await api.api["reddit-automation"].session.status.$post({
+        json: { userId }
       });
-      return response.data as SessionStatus;
+      return result.json() as Promise<SessionStatus>;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -51,10 +51,10 @@ export const useClearRedditSessionMutation = () => {
 
   return useMutation({
     mutationFn: async (userId?: string) => {
-      const response = await eden.api["reddit-automation"].session.delete({
-        userId,
+      const result = await api.api["reddit-automation"].session.$delete({
+        json: { userId }
       });
-      return response.data;
+      return result.json();
     },
     onSuccess: () => {
       // Invalidate both login and session status queries

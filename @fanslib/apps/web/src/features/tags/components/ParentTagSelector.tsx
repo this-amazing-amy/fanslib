@@ -1,8 +1,7 @@
-import type { TagDefinitionSchema } from "@fanslib/server/schemas";
+import type { TagDefinition, TagDefinitionSchema } from '@fanslib/server/schemas';
 import { useMemo } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/Select";
 
-type TagDefinition = typeof TagDefinitionSchema.static;
 
 type ParentTagSelectorProps = {
   tags: TagDefinition[];

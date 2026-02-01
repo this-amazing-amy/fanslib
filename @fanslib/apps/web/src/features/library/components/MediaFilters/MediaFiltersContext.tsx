@@ -1,4 +1,4 @@
-import type { MediaFilterSchema } from "@fanslib/server/schemas";
+import type { MediaFilter, MediaFilterSchema } from '@fanslib/server/schemas';
 import type { ReactNode } from "react";
 import { createContext, useContext } from "react";
 import {
@@ -8,7 +8,7 @@ import {
   updateFilterItemInGroup,
 } from "~/features/library/filter-helpers";
 
-type MediaFilters = typeof MediaFilterSchema.static;
+type MediaFilters = MediaFilter;
 type FilterGroup = MediaFilters[number];
 type FilterItem = FilterGroup["items"][number];
 

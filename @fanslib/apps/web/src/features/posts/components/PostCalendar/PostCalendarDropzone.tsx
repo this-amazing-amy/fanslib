@@ -1,4 +1,4 @@
-import type { MediaSchema, PostWithRelationsSchema } from "@fanslib/server/schemas";
+import type { Media, MediaSchema, PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
@@ -11,8 +11,8 @@ import { useAddMediaToPostMutation } from "~/lib/queries/posts";
 import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
 import { useCreatePostFromVirtualSlot } from "../../hooks/useCreatePostFromVirtualSlot";
 
-type Media = typeof MediaSchema.static;
-type Post = typeof PostWithRelationsSchema.static;
+
+type Post = PostWithRelations;
 
 type PostCalendarDropzoneProps = {
   post: Post | VirtualPost;

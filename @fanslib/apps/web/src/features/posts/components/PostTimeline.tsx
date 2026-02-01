@@ -1,4 +1,4 @@
-import type { MediaSchema, PostWithRelationsSchema } from "@fanslib/server/schemas";
+import type { Media, MediaSchema, PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { CalendarDays } from "lucide-react";
 import { useState } from "react";
 import { ScrollArea } from "~/components/ui/ScrollArea";
@@ -11,8 +11,8 @@ import { type VirtualPost } from "~/lib/virtual-posts";
 import { PostPreview } from "./PostPreview/PostPreview";
 import { usePostTimelineVirtualizer } from "./usePostTimelineVirtualizer";
 
-type Media = typeof MediaSchema.static;
-type Post = typeof PostWithRelationsSchema.static;
+
+type Post = PostWithRelations;
 type TimelineVirtualizer = ReturnType<typeof usePostTimelineVirtualizer>["virtualizer"];
 type TimelineVirtualItem = ReturnType<TimelineVirtualizer["getVirtualItems"]>[number];
 

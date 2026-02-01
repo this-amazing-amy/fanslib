@@ -1,5 +1,5 @@
 import { Eye, MoreHorizontal } from "lucide-react";
-import type { ChannelSchema } from "@fanslib/server/schemas";
+import type { Channel, ChannelSchema } from '@fanslib/server/schemas';
 import { Button } from "~/components/ui/Button";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import {
@@ -11,7 +11,6 @@ import {
 } from "~/components/ui/DropdownMenu";
 import { usePostPreferences } from "~/contexts/PostPreferencesContext";
 
-type Channel = typeof ChannelSchema.static;
 
 type SwimlaneHiddenChannelsDropdownProps = {
   channels: Channel[];

@@ -1,8 +1,4 @@
-import type {
-    CreateContentScheduleRequestBodySchema,
-    MediaFilterSchema,
-    ScheduleChannelSchema,
-} from "@fanslib/server/schemas";
+import type { CreateContentScheduleRequestBody, CreateContentScheduleRequestBodySchema, MediaFilter, MediaFilterSchema, ScheduleChannel, ScheduleChannelSchema } from '@fanslib/server/schemas';
 import { ChevronDown, ChevronUp, Plus, Settings2, X } from "lucide-react";
 import { useState } from "react";
 import { ChannelBadge } from "~/components/ChannelBadge";
@@ -21,9 +17,9 @@ import { useChannelsQuery } from "~/lib/queries/channels";
 import { parseMediaFilters } from "../content-schedule-helpers";
 import { SchedulePreviewCalendar } from "./SchedulePreviewCalendar";
 
-type MediaFilters = typeof MediaFilterSchema.static;
+type MediaFilters = MediaFilter;
 
-type ScheduleChannel = typeof ScheduleChannelSchema.static;
+type ScheduleChannel = ScheduleChannel;
 type ScheduleType = "daily" | "weekly" | "monthly";
 
 type ScheduleChannelInput = {
@@ -49,7 +45,7 @@ type ContentScheduleWithChannels = {
 type ContentScheduleFormProps = {
   channelId?: string;
   schedule?: ContentScheduleWithChannels;
-  onSubmit: (data: typeof CreateContentScheduleRequestBodySchema.static) => void | Promise<void>;
+  onSubmit: (data: CreateContentScheduleRequestBody) => void | Promise<void>;
   onCancel: () => void;
 };
 
@@ -137,7 +133,7 @@ export const ContentScheduleForm = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const data: typeof CreateContentScheduleRequestBodySchema.static = {
+    const data: CreateContentScheduleRequestBody = {
       scheduleChannels: scheduleChannels.map((sc, index) => ({
         ...(sc.id && { id: sc.id }),
         channelId: sc.channelId,

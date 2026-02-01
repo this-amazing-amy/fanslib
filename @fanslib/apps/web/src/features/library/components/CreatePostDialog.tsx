@@ -1,4 +1,4 @@
-import type { MediaSchema, PostStatusSchema } from "@fanslib/server/schemas";
+import type { Media, MediaSchema, PostStatus, PostStatusSchema } from '@fanslib/server/schemas';
 import { useNavigate } from "@tanstack/react-router";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -29,8 +29,7 @@ import { useChannelsQuery } from "~/lib/queries/channels";
 import { useContentScheduleQuery } from "~/lib/queries/content-schedules";
 import { useCreatePostMutation } from "~/lib/queries/posts";
 
-type Media = typeof MediaSchema.static;
-type PostStatus = typeof PostStatusSchema.static;
+
 
 type CreatePostDialogProps = {
   open: boolean;

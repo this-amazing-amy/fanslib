@@ -1,4 +1,4 @@
-import type { MediaTagSchema, TagDimensionSchema } from "@fanslib/server/schemas";
+import type { MediaTag, MediaTagSchema, TagDimension, TagDimensionSchema } from '@fanslib/server/schemas';
 import { X } from "lucide-react";
 import { useState } from "react";
 import { Switch } from "~/components/ui/Switch";
@@ -12,8 +12,6 @@ import {
     validateBooleanValue,
 } from "~/lib/tags/tagValidation";
 
-type MediaTag = typeof MediaTagSchema.static;
-type TagDimension = typeof TagDimensionSchema.static;
 
 type BooleanTagSelectorProps = {
   dimension: TagDimension;

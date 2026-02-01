@@ -1,10 +1,10 @@
-import type { MediaFilterSchema } from "@fanslib/server/schemas";
+import type { MediaFilter, MediaFilterSchema } from '@fanslib/server/schemas';
 import { Copy } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { Tooltip } from "~/components/ui/Tooltip";
 import { useChannelsQuery } from "~/lib/queries/channels";
 
-type MediaFilters = typeof MediaFilterSchema.static;
+type MediaFilters = MediaFilter;
 
 const REDDIT_CHANNEL_TYPE_ID = "reddit";
 

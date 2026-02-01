@@ -1,7 +1,6 @@
-import type { TagDefinitionSchema } from "@fanslib/server/schemas";
+import type { TagDefinition, TagDefinitionSchema } from '@fanslib/server/schemas';
 import { TagListItem } from "./TagListItem";
 
-type TagDefinition = typeof TagDefinitionSchema.static;
 
 type TagListViewProps = {
   tags: TagDefinition[];

@@ -11,20 +11,15 @@ import {
   parseBooleanSchema,
   parseNumericSchema,
 } from "~/lib/tags/tagValidation";
-import type {
-  CreateTagDimensionRequestBodySchema,
-  TagDimensionSchema,
-  UpdateTagDimensionRequestBodySchema,
-} from "@fanslib/server/schemas";
+import type { CreateTagDimensionRequestBody, CreateTagDimensionRequestBodySchema, TagDimension, TagDimensionSchema, UpdateTagDimensionRequestBody, UpdateTagDimensionRequestBodySchema } from '@fanslib/server/schemas';
 
-type TagDimension = typeof TagDimensionSchema.static;
 
 type DimensionFormProps = {
   initialData?: TagDimension;
   onSubmit: (
     data:
-      | typeof CreateTagDimensionRequestBodySchema.static
-      | typeof UpdateTagDimensionRequestBodySchema.static
+      | CreateTagDimensionRequestBody
+      | UpdateTagDimensionRequestBody
   ) => void;
   onCancel: () => void;
   isSubmitting?: boolean;

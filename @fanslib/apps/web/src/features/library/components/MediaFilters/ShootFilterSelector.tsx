@@ -1,4 +1,4 @@
-import type { ShootSchema } from "@fanslib/server/schemas";
+import type { Shoot, ShootSchema } from '@fanslib/server/schemas';
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "~/components/ui/Button";
@@ -7,7 +7,6 @@ import { Popover, PopoverTrigger } from "~/components/ui/Popover";
 import { cn } from "~/lib/cn";
 import { useShootsQuery } from "~/lib/queries/shoots";
 
-type Shoot = typeof ShootSchema.static;
 
 type ShootFilterSelectorProps = {
   value?: string;

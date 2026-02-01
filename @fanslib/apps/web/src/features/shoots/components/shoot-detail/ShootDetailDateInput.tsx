@@ -1,10 +1,9 @@
-import type { ShootSummarySchema } from "@fanslib/server/schemas";
+import type { ShootSummary, ShootSummarySchema } from '@fanslib/server/schemas';
 import { useState } from "react";
 import { DateTimePicker } from "~/components/DateTimePicker";
 import { useDebounce } from "~/hooks/useDebounce";
 import { useUpdateShootMutation } from "~/lib/queries/shoots";
 
-type ShootSummary = typeof ShootSummarySchema.static;
 
 type ShootDetailDateInputProps = {
   shoot: ShootSummary;

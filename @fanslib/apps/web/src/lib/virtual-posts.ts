@@ -1,6 +1,6 @@
-import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
+import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 
-type Post = typeof PostWithRelationsSchema.static;
+type Post = PostWithRelations;
 
 export type PostTypeFilter = "both" | "virtual" | "actual";
 

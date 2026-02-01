@@ -1,12 +1,12 @@
 import { format } from "date-fns";
 import { ImagePlus } from "lucide-react";
-import type { AssignMediaResponseSchema } from "@fanslib/server/schemas";
+import type { AssignMediaResponse, AssignMediaResponseSchema } from '@fanslib/server/schemas';
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { Button } from "~/components/ui/Button";
 import { getUnfilledSlotReasonText } from "./unfilled-slot-utils";
 
-type UnfilledSlot = typeof AssignMediaResponseSchema.static["unfilled"][number];
+type UnfilledSlot = AssignMediaResponse["unfilled"][number];
 
 type UnfilledSlotItemProps = {
   slot: UnfilledSlot;

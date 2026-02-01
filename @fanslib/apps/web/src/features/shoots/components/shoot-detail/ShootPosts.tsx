@@ -1,11 +1,11 @@
-import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
+import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { FileText } from "lucide-react";
 import { useState } from "react";
 import { EmptyState } from "~/components/ui/EmptyState";
 import { PostPreview } from "~/features/posts/components/PostPreview/PostPreview";
 import { usePostsByShootIdQuery } from "~/lib/queries/shoots";
 
-type Post = typeof PostWithRelationsSchema.static;
+type Post = PostWithRelations;
 
 type ShootPostsProps = {
   shootId: string;

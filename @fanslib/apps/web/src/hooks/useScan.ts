@@ -1,18 +1,18 @@
-import type { LibraryScanProgressSchema, LibraryScanResultSchema } from "@fanslib/server/schemas";
+import type { LibraryScanProgress, LibraryScanProgressSchema, LibraryScanResult, LibraryScanResultSchema } from '@fanslib/server/schemas';
 import { useEffect, useState } from "react";
 import { eden } from "~/lib/api/eden";
 
 type UseScanResult = {
-  scanProgress: typeof LibraryScanProgressSchema.static | null;
-  scanResult: typeof LibraryScanResultSchema.static | null;
+  scanProgress: LibraryScanProgress | null;
+  scanResult: LibraryScanResult | null;
   isScanning: boolean;
   handleScan: () => Promise<void>;
   resetScan: () => void;
 };
 
 export const useScan = (onScanComplete?: () => void): UseScanResult => {
-  const [scanProgress, setScanProgress] = useState<typeof LibraryScanProgressSchema.static | null>(null);
-  const [scanResult, setScanResult] = useState<typeof LibraryScanResultSchema.static | null>(null);
+  const [scanProgress, setScanProgress] = useState<LibraryScanProgress | null>(null);
+  const [scanResult, setScanResult] = useState<LibraryScanResult | null>(null);
   const [isScanning, setIsScanning] = useState(false);
 
   useEffect(() => {

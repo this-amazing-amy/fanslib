@@ -1,10 +1,9 @@
-import type { FypPostSchema } from "@fanslib/server/schemas";
+import type { FypPost, FypPostSchema } from '@fanslib/server/schemas';
 import { TrendingDown, TrendingUp } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { cn } from "~/lib/cn";
 import { getMediaThumbnailUrl } from "~/lib/media-urls";
 
-type FypPost = typeof FypPostSchema.static;
 
 type FypPostCardProps = {
   post: FypPost;

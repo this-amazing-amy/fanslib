@@ -1,14 +1,13 @@
 import { format } from "date-fns";
 import { ImagePlus } from "lucide-react";
-import type { AssignMediaResponseSchema, MediaSchema } from "@fanslib/server/schemas";
+import type { AssignMediaResponse, AssignMediaResponseSchema, Media, MediaSchema } from '@fanslib/server/schemas';
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
 import { useDragOver } from "~/hooks/useDragOver";
 import { cn } from "~/lib/cn";
 
-type UnfilledSlot = typeof AssignMediaResponseSchema.static["unfilled"][number];
-type Media = typeof MediaSchema.static;
+type UnfilledSlot = AssignMediaResponse["unfilled"][number];
 
 type UnfilledSlotDropzoneProps = {
   slot: UnfilledSlot;

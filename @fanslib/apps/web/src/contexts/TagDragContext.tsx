@@ -1,7 +1,6 @@
-import type { TagDefinitionSchema } from "@fanslib/server/schemas";
+import type { TagDefinition, TagDefinitionSchema } from '@fanslib/server/schemas';
 import { createContext, useContext, useState, type FC, type ReactNode } from "react";
 
-type TagDefinition = typeof TagDefinitionSchema.static;
 
 type TagDragContextType = {
   draggedTag: TagDefinition | null;

@@ -1,4 +1,4 @@
-import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
+import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { addMonths } from "date-fns";
 import { CalendarDays, Columns3, LayoutList } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -16,7 +16,7 @@ import { PostFilters } from "./PostFilters";
 import { PostSwimlane, SwimlaneHiddenChannelsDropdown } from "./PostSwimlane";
 import { PostTimeline } from "./PostTimeline";
 
-type Post = typeof PostWithRelationsSchema.static;
+type Post = PostWithRelations;
 
 export const PlanContent = () => {
   const { data: channels = [] } = useChannelsQuery();

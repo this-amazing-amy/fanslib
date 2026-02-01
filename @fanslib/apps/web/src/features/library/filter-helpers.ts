@@ -1,9 +1,8 @@
-import type { FilterPresetSchema, MediaFilterSchema } from "@fanslib/server/schemas";
+import type { FilterPreset, FilterPresetSchema, MediaFilter, MediaFilterSchema } from '@fanslib/server/schemas';
 
-type MediaFilters = typeof MediaFilterSchema.static;
+type MediaFilters = MediaFilter;
 type FilterGroup = MediaFilters[number];
 type FilterItem = FilterGroup["items"][number];
-type FilterPreset = typeof FilterPresetSchema.static;
 
 export const addFilterItemToGroup = (group: FilterGroup, item: FilterItem): FilterGroup => {
   console.log("addFilterItemToGroup", group, item);

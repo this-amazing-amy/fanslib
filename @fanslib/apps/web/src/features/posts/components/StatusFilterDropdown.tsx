@@ -1,4 +1,4 @@
-import type { PostStatusSchema } from "@fanslib/server/schemas";
+import type { PostStatus, PostStatusSchema } from '@fanslib/server/schemas';
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import {
@@ -10,7 +10,6 @@ import {
 import { cn } from "~/lib/cn";
 import { StatusBadge } from "~/components/StatusBadge";
 
-type PostStatus = typeof PostStatusSchema.static;
 
 const STATUS_OPTIONS: PostStatus[] = ["draft", "ready", "scheduled", "posted"];
 

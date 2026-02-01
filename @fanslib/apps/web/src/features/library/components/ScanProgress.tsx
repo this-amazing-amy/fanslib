@@ -1,8 +1,8 @@
-import type { LibraryScanProgressSchema, LibraryScanResultSchema } from "@fanslib/server/schemas";
+import type { LibraryScanProgress, LibraryScanProgressSchema, LibraryScanResult, LibraryScanResultSchema } from '@fanslib/server/schemas';
 import { Progress } from "~/components/ui/Progress";
 
-type LibraryScanProgress = typeof LibraryScanProgressSchema.static;
-type LibraryScanResult = typeof LibraryScanResultSchema.static;
+type LibraryScanProgress = LibraryScanProgress;
+type LibraryScanResult = LibraryScanResult;
 
 type ScanProgressProps = {
   scanProgress: LibraryScanProgress | null;

@@ -1,9 +1,4 @@
-import type {
-  CreateTagDefinitionRequestBodySchema,
-  TagDefinitionSchema,
-  TagDimensionSchema,
-  UpdateTagDefinitionRequestBodySchema,
-} from "@fanslib/server/schemas";
+import type { CreateTagDefinitionRequestBody, CreateTagDefinitionRequestBodySchema, TagDefinition, TagDefinitionSchema, TagDimension, TagDimensionSchema, UpdateTagDefinitionRequestBody, UpdateTagDefinitionRequestBodySchema } from '@fanslib/server/schemas';
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "~/components/ui/Button";
 import {
@@ -28,8 +23,7 @@ import { BooleanValueInput } from "./BooleanValueInput";
 import { CategoricalValueInput } from "./CategoricalValueInput";
 import { NumericValueInput } from "./NumericValueInput";
 
-type TagDefinition = typeof TagDefinitionSchema.static;
-type TagDimension = typeof TagDimensionSchema.static;
+
 
 export type EditingTag =
   | {
@@ -47,7 +41,7 @@ type TagDialogProps = {
   dimension?: TagDimension;
   availableTags: TagDefinition[];
   onClose: () => void;
-  onSubmit: (data: typeof CreateTagDefinitionRequestBodySchema.static | { id: number; updates: typeof UpdateTagDefinitionRequestBodySchema.static }) => void;
+  onSubmit: (data: CreateTagDefinitionRequestBody | { id: number; updates: UpdateTagDefinitionRequestBody }) => void;
   isSubmitting: boolean;
 };
 
@@ -136,7 +130,7 @@ export const TagDialog = ({ editingTag, dimension, availableTags, onClose, onSub
       onSubmit({
         ...baseData,
         dimensionId: dimension.id,
-      } as typeof CreateTagDefinitionRequestBodySchema.static);
+      } as CreateTagDefinitionRequestBody);
     }
   };
 

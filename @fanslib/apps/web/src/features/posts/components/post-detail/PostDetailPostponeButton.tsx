@@ -1,4 +1,4 @@
-import type { PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { Send } from 'lucide-react';
 import { useState } from 'react';
 import { Alert } from '~/components/ui/Alert';
@@ -6,7 +6,7 @@ import { Button } from '~/components/ui/Button';
 import { useDraftBlueskyMutation } from '~/lib/queries/postpone';
 import { useSettingsQuery } from '~/lib/queries/settings';
 
-type Post = typeof PostWithRelationsSchema.static;
+type Post = PostWithRelations;
 
 type PostDetailPostponeButtonProps = {
   post: Post;

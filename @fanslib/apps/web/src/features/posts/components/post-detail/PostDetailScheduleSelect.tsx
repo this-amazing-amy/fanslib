@@ -1,9 +1,9 @@
-import type { PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { useState } from 'react';
 import { ContentScheduleSelect } from '~/components/ContentScheduleSelect';
 import { useUpdatePostMutation } from '~/lib/queries/posts';
 
-type Post = typeof PostWithRelationsSchema.static;
+type Post = PostWithRelations;
 
 type PostDetailScheduleSelectProps = {
   post: Post;

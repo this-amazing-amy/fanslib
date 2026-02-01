@@ -1,4 +1,4 @@
-import type { ShootSummarySchema } from "@fanslib/server/schemas";
+import type { ShootSummary, ShootSummarySchema } from '@fanslib/server/schemas';
 import { Plus } from "lucide-react";
 import { type FC } from "react";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
@@ -7,7 +7,6 @@ import { cn } from "~/lib/cn";
 import { useMediaListQuery } from "~/lib/queries/library";
 import { useUpdateShootMutation } from "~/lib/queries/shoots";
 
-type ShootSummary = typeof ShootSummarySchema.static;
 
 type ShootDetailDropZoneProps = {
   shoot: ShootSummary;

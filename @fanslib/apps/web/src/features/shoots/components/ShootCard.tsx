@@ -1,4 +1,4 @@
-import type { ShootSummarySchema } from "@fanslib/server/schemas";
+import type { ShootSummary, ShootSummarySchema } from '@fanslib/server/schemas';
 import { ImageIcon, Plus, VideoIcon } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
@@ -11,7 +11,6 @@ import { cn } from "~/lib/cn";
 import { useMediaListQuery } from "~/lib/queries/library";
 import { useUpdateShootMutation } from "~/lib/queries/shoots";
 
-type ShootSummary = typeof ShootSummarySchema.static;
 
 type ShootCardProps = {
   shoot: ShootSummary;

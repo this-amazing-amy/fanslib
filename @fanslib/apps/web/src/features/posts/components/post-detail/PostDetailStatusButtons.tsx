@@ -1,4 +1,4 @@
-import type { PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { AlertTriangle, CalendarDays, Check, Undo2, Zap } from 'lucide-react';
 import { useState } from 'react';
 import { StatusBadge } from '~/components/StatusBadge';
@@ -7,7 +7,7 @@ import { Button } from '~/components/ui/Button';
 import { getPostStatusStyles } from '~/lib/colors';
 import { useUpdatePostMutation } from '~/lib/queries/posts';
 
-type Post = typeof PostWithRelationsSchema.static;
+type Post = PostWithRelations;
 
 type PostDetailStatusButtonsProps = {
   post: Post;

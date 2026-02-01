@@ -1,8 +1,6 @@
-import type { MediaSchema, SubredditSchema } from '@fanslib/server/schemas';
+import type { Media, MediaSchema, Subreddit, SubredditSchema } from '@fanslib/server/schemas';
 import { eden } from './eden';
 
-type Subreddit = typeof SubredditSchema.static;
-type Media = typeof MediaSchema.static;
 
 type GeneratedPost = {
   id: string;

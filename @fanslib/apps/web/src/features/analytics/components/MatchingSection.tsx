@@ -1,4 +1,4 @@
-import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
+import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { ErrorState } from "~/components/ui/ErrorState/ErrorState";
@@ -19,7 +19,7 @@ import { usePostsQuery } from "~/lib/queries/posts";
 import { CandidateCard } from "./CandidateCard";
 import { SelectPostMediaDialog } from "./SelectPostMediaDialog";
 
-type Post = typeof PostWithRelationsSchema.static;
+type Post = PostWithRelations;
 
 export const MatchingSection = () => {
   const [selectedStatus, setSelectedStatus] = useState<CandidateStatus>("pending");

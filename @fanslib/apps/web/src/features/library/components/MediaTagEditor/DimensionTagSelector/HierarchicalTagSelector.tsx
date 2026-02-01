@@ -1,9 +1,8 @@
-import type { TagDefinitionSchema } from "@fanslib/server/schemas";
+import type { TagDefinition, TagDefinitionSchema } from '@fanslib/server/schemas';
 import { Fragment, type ReactNode } from "react";
 import type { SelectionState } from "~/lib/tags/selection-state";
 import { TagBadge } from "./TagBadge";
 
-type TagDefinition = typeof TagDefinitionSchema.static;
 
 type HierarchicalTagSelectorProps = {
   tags: TagDefinition[];

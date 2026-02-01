@@ -1,4 +1,4 @@
-import type { SubredditSchema } from '@fanslib/server/schemas';
+import type { Subreddit, SubredditSchema } from '@fanslib/server/schemas';
 import { BarChart3, Check, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
@@ -13,7 +13,6 @@ import { formatViewCount, parseViewCount } from '~/lib/format-views';
 import { useAnalyzePostingTimesMutation, useUpdateSubredditMutation } from '~/lib/queries/subreddits';
 import { SubredditPostingTimesHeatmap } from './SubredditPostingTimesHeatmap';
 
-type Subreddit = typeof SubredditSchema.static;
 
 type EditingSubreddit = Subreddit;
 

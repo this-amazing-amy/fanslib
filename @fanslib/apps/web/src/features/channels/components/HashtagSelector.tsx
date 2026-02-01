@@ -1,4 +1,4 @@
-import type { HashtagSchema } from "@fanslib/server/schemas";
+import type { Hashtag, HashtagSchema } from '@fanslib/server/schemas';
 import { X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Badge } from "~/components/ui/Badge";
@@ -7,7 +7,6 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "
 import { Popover, PopoverTrigger } from "~/components/ui/Popover/Popover";
 import { useCreateHashtagMutation, useHashtagsQuery } from "~/lib/queries/hashtags";
 
-type Hashtag = typeof HashtagSchema.static;
 
 type HashtagSelectorProps = {
   value: Hashtag[];

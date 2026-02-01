@@ -1,10 +1,10 @@
 import { format, isToday } from "date-fns";
 import { cn } from "~/lib/cn";
-import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
+import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import type { VirtualPost } from "~/lib/virtual-posts";
 import { PostSwimlaneCell } from "./PostSwimlaneCell";
 
-type Post = typeof PostWithRelationsSchema.static;
+type Post = PostWithRelations;
 type Channel = { id: string; name: string; typeId: string };
 
 type PostSwimlaneDayRowProps = {

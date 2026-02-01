@@ -1,4 +1,4 @@
-import type { MediaFilterSchema, MediaSchema } from "@fanslib/server/schemas";
+import type { Media, MediaFilter, MediaFilterSchema, MediaSchema } from '@fanslib/server/schemas';
 import { FilterPresetProvider } from "~/contexts/FilterPresetContext";
 import { useLibraryPreferences } from "~/contexts/LibraryPreferencesContext";
 import { useScan } from "~/hooks/useScan";
@@ -14,8 +14,7 @@ import { ScanButton } from "./ScanButton";
 import { ScanProgress } from "./ScanProgress";
 import { cn } from "~/lib/cn";
 
-type MediaFilters = typeof MediaFilterSchema.static;
-type Media = typeof MediaSchema.static;
+type MediaFilters = MediaFilter;
 
 type LibraryContentProps = {
   showScan?: boolean;

@@ -1,4 +1,4 @@
-import type { PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { useNavigate } from '@tanstack/react-router';
 import { Trash2 } from 'lucide-react';
 import { useState } from 'react';
@@ -6,7 +6,7 @@ import { Button } from '~/components/ui/Button';
 import { DeleteConfirmDialog } from '~/components/ui/DeleteConfirmDialog';
 import { useDeletePostMutation } from '~/lib/queries/posts';
 
-type Post = typeof PostWithRelationsSchema.static;
+type Post = PostWithRelations;
 
 type PostDetailDeleteButtonProps = {
   post: Post;

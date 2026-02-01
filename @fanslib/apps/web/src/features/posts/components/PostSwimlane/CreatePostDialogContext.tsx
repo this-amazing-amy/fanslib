@@ -1,8 +1,7 @@
 import { createContext, useCallback, useContext, useState } from "react";
-import type { MediaSchema } from "@fanslib/server/schemas";
+import type { Media, MediaSchema } from '@fanslib/server/schemas';
 import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
 
-type Media = typeof MediaSchema.static;
 
 type CreatePostDialogData = {
   media: Media[];

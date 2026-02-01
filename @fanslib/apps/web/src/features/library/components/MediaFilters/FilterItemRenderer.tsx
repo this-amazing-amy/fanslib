@@ -1,4 +1,4 @@
-import type { MediaFilterSchema } from "@fanslib/server/schemas";
+import type { MediaFilter, MediaFilterSchema } from '@fanslib/server/schemas';
 import { CalendarDate } from "@internationalized/date";
 import { format } from "date-fns";
 import { CalendarIcon, ImageIcon, VideoIcon, X } from "lucide-react";
@@ -17,7 +17,7 @@ import { ShootFilterSelector } from "./ShootFilterSelector";
 import { SubredditFilterSelector } from "./SubredditFilterSelector";
 import { TagFilterSelector } from "./TagFilterSelector";
 
-type MediaFilters = typeof MediaFilterSchema.static;
+type MediaFilters = MediaFilter;
 type FilterGroup = MediaFilters[number];
 type FilterItem = FilterGroup["items"][number];
 

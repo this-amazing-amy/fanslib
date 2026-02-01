@@ -1,4 +1,4 @@
-import type { PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { useNavigate } from '@tanstack/react-router';
 import { ChevronLeft, ChevronRight, Copy, MoreVertical, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -13,7 +13,7 @@ import {
 import { CreatePostDialog } from '~/features/library/components/CreatePostDialog';
 import { useDeletePostMutation, usePostsQuery } from '~/lib/queries/posts';
 
-type Post = typeof PostWithRelationsSchema.static;
+type Post = PostWithRelations;
 
 type PostDetailNavigationProps = {
   post: Post;

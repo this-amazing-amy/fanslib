@@ -1,6 +1,5 @@
-import type { TagDimensionSchema } from "@fanslib/server/schemas";
+import type { TagDimension, TagDimensionSchema } from '@fanslib/server/schemas';
 
-type TagDimension = typeof TagDimensionSchema.static;
 
 // Schema type definitions
 export type NumericSchema = {

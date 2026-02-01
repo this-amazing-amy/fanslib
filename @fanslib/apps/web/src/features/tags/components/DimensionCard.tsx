@@ -1,4 +1,4 @@
-import type { TagDefinitionSchema, TagDimensionSchema } from "@fanslib/server/schemas";
+import type { TagDefinition, TagDefinitionSchema, TagDimension, TagDimensionSchema } from '@fanslib/server/schemas';
 import { MoreVertical, PenLine, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
@@ -12,8 +12,8 @@ import {
 import { DeleteDimensionDialog } from "./DeleteDimensionDialog";
 import { TagTreeView } from "./TagTreeView";
 
-type TagDefinition = typeof TagDefinitionSchema.static;
-type TagDimension = typeof TagDimensionSchema.static;
+
+
 type TagDimensionWithTags = TagDimension & { tags?: TagDefinition[] };
 
 type DimensionCardProps = {

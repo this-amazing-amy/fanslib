@@ -1,4 +1,4 @@
-import type { MediaFilterSchema } from "@fanslib/server/schemas";
+import type { MediaFilter, MediaFilterSchema } from '@fanslib/server/schemas';
 import { Calendar, Camera, FileText, Hash, Minus, Tag } from "lucide-react";
 import { useMemo } from "react";
 import { useTagFilterNames } from "~/hooks/useTagFilterNames";
@@ -8,7 +8,7 @@ import { useSubredditsQuery } from "~/lib/queries/subreddits";
 import { Badge } from "./ui/Badge/Badge";
 import { Tooltip } from "./ui/Tooltip";
 
-type MediaFilters = typeof MediaFilterSchema.static;
+type MediaFilters = MediaFilter;
 type FilterGroup = MediaFilters[number];
 type FilterItem = FilterGroup["items"][number];
 

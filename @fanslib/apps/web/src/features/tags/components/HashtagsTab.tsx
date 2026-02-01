@@ -1,4 +1,4 @@
-import type { HashtagChannelStatsSchema, HashtagSchema } from "@fanslib/server/schemas";
+import type { Hashtag, HashtagChannelStats, HashtagChannelStatsSchema, HashtagSchema } from '@fanslib/server/schemas';
 import { Plus, Trash2 } from "lucide-react";
 import type { CSSProperties } from "react";
 import { useState } from "react";
@@ -26,8 +26,8 @@ import {
   useUpdateHashtagStatsMutation,
 } from "~/lib/queries/hashtags";
 
-type Hashtag = typeof HashtagSchema.static;
-type HashtagChannelStats = typeof HashtagChannelStatsSchema.static;
+
+type HashtagChannelStats = HashtagChannelStats;
 
 type HashtagViewInputProps = {
   initialValue: number;

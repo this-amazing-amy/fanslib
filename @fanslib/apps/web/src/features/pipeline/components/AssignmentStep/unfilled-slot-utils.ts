@@ -1,6 +1,6 @@
-import type { AssignMediaResponseSchema } from "@fanslib/server/schemas";
+import type { AssignMediaResponse, AssignMediaResponseSchema } from '@fanslib/server/schemas';
 
-type UnfilledSlot = typeof AssignMediaResponseSchema.static["unfilled"][number];
+type UnfilledSlot = AssignMediaResponse["unfilled"][number];
 
 export const getUnfilledSlotReasonText = (reason: UnfilledSlot["reason"]) => {
   switch (reason) {

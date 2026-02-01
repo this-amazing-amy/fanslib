@@ -1,4 +1,4 @@
-import type { AssignMediaResponseSchema } from "@fanslib/server/schemas";
+import type { AssignMediaResponse, AssignMediaResponseSchema } from '@fanslib/server/schemas';
 import { useQuery } from "@tanstack/react-query";
 import { isSameMinute } from "date-fns";
 import { Loader2, Sparkles } from "lucide-react";
@@ -27,7 +27,7 @@ type AssignmentStepProps = {
   onAssignmentComplete: () => void;
 };
 
-type AssignmentResult = typeof AssignMediaResponseSchema.static;
+type AssignmentResult = AssignMediaResponse;
 export const AssignmentStep = ({
   selectedChannelIds,
   onSelectedChannelIdsChange,

@@ -6,14 +6,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/Dialog";
-import type {
-  CreateTagDimensionRequestBodySchema,
-  TagDimensionSchema,
-  UpdateTagDimensionRequestBodySchema,
-} from "@fanslib/server/schemas";
+import type { CreateTagDimensionRequestBody, CreateTagDimensionRequestBodySchema, TagDimension, TagDimensionSchema, UpdateTagDimensionRequestBody, UpdateTagDimensionRequestBodySchema } from '@fanslib/server/schemas';
 import { DimensionForm } from "./DimensionForm";
 
-type TagDimension = typeof TagDimensionSchema.static;
 
 export type EditingDimension =
   | {
@@ -29,8 +24,8 @@ type DimensionDialogProps = {
   onClose: () => void;
   onSubmit: (
     data:
-      | typeof CreateTagDimensionRequestBodySchema.static
-      | { id: number; updates: typeof UpdateTagDimensionRequestBodySchema.static }
+      | CreateTagDimensionRequestBody
+      | { id: number; updates: UpdateTagDimensionRequestBody }
   ) => void;
   isSubmitting: boolean;
 };
@@ -52,15 +47,15 @@ export const DimensionDialog = ({
   };
 
   const handleFormSubmit = (
-    data: typeof CreateTagDimensionRequestBodySchema.static | typeof UpdateTagDimensionRequestBodySchema.static
+    data: CreateTagDimensionRequestBody | UpdateTagDimensionRequestBody
   ) => {
     if (editingDimension?.mode === "edit") {
       onSubmit({
         id: editingDimension.dimension.id,
-        updates: data as typeof UpdateTagDimensionRequestBodySchema.static,
+        updates: data as UpdateTagDimensionRequestBody,
       });
     } else {
-      onSubmit(data as typeof CreateTagDimensionRequestBodySchema.static);
+      onSubmit(data as CreateTagDimensionRequestBody);
     }
   };
 

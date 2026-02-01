@@ -1,10 +1,10 @@
-import type { PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { useState } from 'react';
 import { Input } from '~/components/ui/Input';
 import { useDebounce } from '~/hooks/useDebounce';
 import { useUpdatePostMutation } from '~/lib/queries/posts';
 
-type Post = typeof PostWithRelationsSchema.static;
+type Post = PostWithRelations;
 
 type PostDetailUrlInputProps = {
   post: Post;

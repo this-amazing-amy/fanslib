@@ -1,4 +1,4 @@
-import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
+import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { eachDayOfInterval, isSameDay } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
 import { ScrollArea } from "~/components/ui/ScrollArea";
@@ -10,7 +10,7 @@ import { CreatePostDialogProvider } from "./CreatePostDialogContext";
 import { PostSwimlaneDayRow } from "./PostSwimlaneDayRow";
 import { PostSwimlaneHeader } from "./PostSwimlaneHeader";
 
-type Post = typeof PostWithRelationsSchema.static;
+type Post = PostWithRelations;
 
 type PostSwimlaneProps = {
   posts: (Post | VirtualPost)[];

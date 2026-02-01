@@ -1,6 +1,5 @@
-import type { MediaSchema } from "@fanslib/server/schemas";
+import type { Media, MediaSchema } from '@fanslib/server/schemas';
 
-type Media = typeof MediaSchema.static;
 
 export type MediaTileProps = {
   media: Media;

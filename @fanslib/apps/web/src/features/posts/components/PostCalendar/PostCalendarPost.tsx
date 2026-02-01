@@ -1,4 +1,4 @@
-import type { MediaSchema, PostWithRelationsSchema } from "@fanslib/server/schemas";
+import type { Media, MediaSchema, PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { Link } from "@tanstack/react-router";
 import { Trash2, X } from "lucide-react";
 import { useState } from "react";
@@ -15,8 +15,7 @@ import { PostCalendarDropzone } from "./PostCalendarDropzone";
 import { PostCalendarPostMedia } from "./PostCalendarPostMedia";
 import { PostCalendarPostView } from "./PostCalendarPostView";
 
-type Post = typeof PostWithRelationsSchema.static;
-type Media = typeof MediaSchema.static;
+type Post = PostWithRelations;
 
 type PostCalendarPostProps = {
   post: Post | VirtualPost;

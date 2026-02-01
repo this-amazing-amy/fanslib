@@ -1,4 +1,4 @@
-import type { MediaSchema } from "@fanslib/server/schemas";
+import type { Media, MediaSchema } from '@fanslib/server/schemas';
 import { Image as ImageIcon, Video } from "lucide-react";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "~/lib/cn";
@@ -6,7 +6,7 @@ import { getMediaFileUrl, getMediaThumbnailUrl } from "~/lib/media-urls";
 import { useMediaTagsQuery } from "~/lib/queries/tags";
 import { formatDuration } from "~/lib/video";
 
-type Media = typeof MediaSchema.static;
+
 type MediaPreview = Pick<Media, "id" | "name" | "type" | "duration">;
 
 export type MediaTileLiteProps = {

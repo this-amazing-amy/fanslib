@@ -1,10 +1,9 @@
-import type { PostMediaWithMediaSchema } from "@fanslib/server/schemas";
+import type { PostMediaWithMedia, PostMediaWithMediaSchema } from '@fanslib/server/schemas';
 import { memo, useMemo } from "react";
 import { groupBy } from "remeda";
 import { useTagsForMediasQuery } from "~/lib/queries/tags";
 import { Sticker } from "./ui/Sticker";
 
-type PostMediaWithMedia = typeof PostMediaWithMediaSchema.static;
 
 type PostTagStickersProps = {
   postMedia: PostMediaWithMedia[];

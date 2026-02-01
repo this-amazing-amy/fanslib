@@ -1,4 +1,4 @@
-import type { MediaFilterSchema, MediaSchema } from "@fanslib/server/schemas";
+import type { Media, MediaFilter, MediaFilterSchema, MediaSchema } from '@fanslib/server/schemas';
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/Button";
@@ -11,8 +11,8 @@ import { MediaFilters } from "./MediaFilters/MediaFilters";
 import { MediaFiltersProvider } from "./MediaFilters/MediaFiltersContext";
 import { MediaTileLite } from "./MediaTile/MediaTileLite";
 
-type Media = typeof MediaSchema.static;
-type MediaFilterType = typeof MediaFilterSchema.static;
+
+type MediaFilterType = MediaFilter;
 
 type MediaSelectionProps = {
   selectedMedia: Media[];

@@ -1,10 +1,4 @@
-import type {
-    ChannelSchema,
-    ContentScheduleWithChannelSchema,
-    CreateContentScheduleRequestBodySchema,
-    HashtagSchema,
-    MediaFilterSchema,
-} from "@fanslib/server/schemas";
+import type { Channel, ChannelSchema, ContentScheduleWithChannel, ContentScheduleWithChannelSchema, CreateContentScheduleRequestBody, CreateContentScheduleRequestBodySchema, Hashtag, HashtagSchema, MediaFilter, MediaFilterSchema } from '@fanslib/server/schemas';
 import { Edit2, Plus, Save, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/Button/Button";
@@ -29,16 +23,15 @@ import { ContentScheduleForm } from "./ContentScheduleForm";
 import { ContentScheduleList } from "./ContentScheduleList";
 import { HashtagSelector } from "./HashtagSelector";
 
-type Channel = typeof ChannelSchema.static;
-type MediaFilters = typeof MediaFilterSchema.static;
-type Hashtag = typeof HashtagSchema.static;
+
+type MediaFilters = MediaFilter;
 
 type ChannelViewProps = {
   channel: Channel;
   onDelete?: () => void;
 };
 
-type ContentSchedule = typeof ContentScheduleWithChannelSchema.static;
+type ContentSchedule = ContentScheduleWithChannel;
 
 export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -102,7 +95,7 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
     }
   };
 
-  const handleCreateSchedule = async (data: typeof CreateContentScheduleRequestBodySchema.static) => {
+  const handleCreateSchedule = async (data: CreateContentScheduleRequestBody) => {
     try {
       await createSchedule.mutateAsync(data);
       setShowScheduleForm(false);
@@ -111,7 +104,7 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
     }
   };
 
-  const handleUpdateSchedule = async (data: typeof CreateContentScheduleRequestBodySchema.static) => {
+  const handleUpdateSchedule = async (data: CreateContentScheduleRequestBody) => {
     if (!editingSchedule) return;
 
     try {

@@ -1,4 +1,4 @@
-import type { PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { useState } from 'react';
 import { MediaPreview } from '~/components/MediaPreview';
 import { Button } from '~/components/ui/Button';
@@ -12,7 +12,7 @@ import {
 } from '~/components/ui/Dialog';
 import { cn } from '~/lib/cn';
 
-type Post = typeof PostWithRelationsSchema.static;
+type Post = PostWithRelations;
 
 type SelectPostMediaDialogProps = {
   isOpen: boolean;

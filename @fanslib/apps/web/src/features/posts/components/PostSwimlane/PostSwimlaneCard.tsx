@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { Link } from "@tanstack/react-router";
-import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
+import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { Camera } from "lucide-react";
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
 import { MediaSelectionProvider } from "~/contexts/MediaSelectionContext";
@@ -13,7 +13,7 @@ import { cn } from "~/lib/cn";
 import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
 import { useCreatePostDialog } from "./CreatePostDialogContext";
 
-type Post = typeof PostWithRelationsSchema.static;
+type Post = PostWithRelations;
 
 type PostSwimlaneCardProps = {
   post: Post | VirtualPost;

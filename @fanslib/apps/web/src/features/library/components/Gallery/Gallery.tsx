@@ -1,6 +1,6 @@
-import type { MediaSchema } from "@fanslib/server/schemas";
+import type { Media, MediaSchema } from '@fanslib/server/schemas';
 
-type Media = typeof MediaSchema.static;
+
 import { useEffect, useRef } from "react";
 import { ScrollArea } from "~/components/ui/ScrollArea";
 import { useLibraryPreferences } from "~/contexts/LibraryPreferencesContext";

@@ -1,6 +1,6 @@
-import type { MediaSchema } from "@fanslib/server/schemas";
+import type { Media, MediaSchema } from '@fanslib/server/schemas';
 
-type Media = typeof MediaSchema.static;
+
 import { memo, useCallback, useState } from "react";
 import { cn } from "~/lib/cn";
 import { useSfwMode } from "~/hooks/useSfwMode";

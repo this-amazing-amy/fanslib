@@ -1,8 +1,8 @@
-import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
+import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { PostCard } from "~/components/PostCard";
 import { usePostsByMediaIdQuery } from "~/lib/queries/posts";
 
-type Post = typeof PostWithRelationsSchema.static;
+type Post = PostWithRelations;
 
 type MediaPostsProps = {
   mediaId: string;

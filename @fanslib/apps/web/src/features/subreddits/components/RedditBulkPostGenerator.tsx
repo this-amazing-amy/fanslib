@@ -1,4 +1,4 @@
-import type { SubredditSchema } from "@fanslib/server/schemas";
+import type { Subreddit, SubredditSchema } from '@fanslib/server/schemas';
 import { ChevronRight, Clock, Loader2, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
@@ -9,7 +9,6 @@ import { getAuthenticationStatus, isStatusStale, loadCachedStatus } from "~/lib/
 import { PostGenerationGrid } from "./PostGenerationGrid";
 import { ScheduledPostsList } from "./ScheduledPostsList";
 
-type Subreddit = typeof SubredditSchema.static;
 
 type GeneratedPost = {
   id: string;

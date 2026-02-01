@@ -1,4 +1,4 @@
-import type { MediaFilterSchema } from "@fanslib/server/schemas";
+import type { MediaFilter, MediaFilterSchema } from '@fanslib/server/schemas';
 import { Filter, FilterX, X } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { Tooltip } from "~/components/ui/Tooltip";
@@ -6,7 +6,7 @@ import { FilterDropdown } from "./FilterDropdown";
 import { FilterItemRenderer } from "./FilterItemRenderer";
 import { useMediaFilters } from "./MediaFiltersContext";
 
-type FilterItem = typeof MediaFilterSchema.static[number]["items"][number];
+type FilterItem = MediaFilter[number]["items"][number];
 
 const getFilterItemKey = (item: FilterItem, index: number): string => {
   if ("id" in item) return `${item.type}-${item.id}`;

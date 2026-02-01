@@ -1,9 +1,9 @@
-import type { MediaSchema } from "@fanslib/server/schemas";
+import type { Media, MediaSchema } from '@fanslib/server/schemas';
 import { format, isSameDay, parse } from "date-fns";
 import { useEffect, useRef, useState } from "react";
 import { DateTimePicker } from "~/components/DateTimePicker";
 
-type Media = typeof MediaSchema.static;
+
 import { Button } from "~/components/ui/Button";
 import {
   Dialog,

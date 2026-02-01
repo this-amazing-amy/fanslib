@@ -1,4 +1,4 @@
-import type { SubredditSchema } from '@fanslib/server/schemas';
+import type { Subreddit, SubredditSchema } from '@fanslib/server/schemas';
 import { BarChart3, ExternalLink, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '~/components/ui/Button';
 import { VerificationStatus } from '~/components/VerificationStatus';
@@ -6,7 +6,6 @@ import { usePostFrequencyStatus } from '~/hooks/usePostFrequencyStatus';
 import { formatViewCount } from '~/lib/format-views';
 import { PostFrequencyStatus } from './PostFrequencyStatus';
 
-type Subreddit = typeof SubredditSchema.static;
 
 type SubredditRowProps = {
   subreddit: Subreddit;

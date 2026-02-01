@@ -1,4 +1,4 @@
-import type { SubredditSchema } from '@fanslib/server/schemas';
+import type { Subreddit, SubredditSchema } from '@fanslib/server/schemas';
 import { ArrowDown, ArrowUp } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
@@ -10,7 +10,6 @@ import {
 import { EditingSubredditRow } from './EditingSubredditRow';
 import { SubredditRow } from './SubredditRow';
 
-type Subreddit = typeof SubredditSchema.static;
 
 type SubredditTableProps = {
   subreddits: Subreddit[];

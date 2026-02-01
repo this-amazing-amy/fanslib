@@ -1,10 +1,9 @@
-import type { MediaSchema, SubredditSchema } from "@fanslib/server/schemas";
+import type { Media, MediaSchema, Subreddit, SubredditSchema } from '@fanslib/server/schemas';
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { useChannelsQuery } from "~/lib/queries/channels";
 import { useCreatePostMutation, useUpdatePostMutation } from "~/lib/queries/posts";
 
-type Media = typeof MediaSchema.static;
-type Subreddit = typeof SubredditSchema.static;
+
 
 export type SubredditPostDraft = {
   subreddit: Subreddit;

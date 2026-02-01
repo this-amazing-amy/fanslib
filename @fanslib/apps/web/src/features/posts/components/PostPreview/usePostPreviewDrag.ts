@@ -1,4 +1,4 @@
-import type { CreatePostRequestBodySchema, MediaSchema, PostWithRelationsSchema } from "@fanslib/server/schemas";
+import type { CreatePostRequestBody, CreatePostRequestBodySchema, Media, MediaSchema, PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { useRef, useState } from "react";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
 import { usePostPreferences } from "~/contexts/PostPreferencesContext";
@@ -6,8 +6,7 @@ import { useMediaListQuery } from "~/lib/queries/library";
 import { useAddMediaToPostMutation, useCreatePostMutation } from "~/lib/queries/posts";
 import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
 
-type Post = typeof PostWithRelationsSchema.static;
-type Media = typeof MediaSchema.static;
+type Post = PostWithRelations;
 
 type CreatePostDialogData = {
   media: Media[];
@@ -100,7 +99,7 @@ export const usePostPreviewDrag = ({
           endMediaDrag();
         } else {
           // Create post directly
-          const createPostData: typeof CreatePostRequestBodySchema.static = {
+          const createPostData: CreatePostRequestBody = {
             date: post.date,
             channelId: post.channelId,
             status: "draft",

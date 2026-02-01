@@ -1,4 +1,4 @@
-import type { TagDefinitionSchema } from "@fanslib/server/schemas";
+import type { TagDefinition, TagDefinitionSchema } from '@fanslib/server/schemas';
 import { ChevronDown, ChevronRight, Edit, GripVertical, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
@@ -7,7 +7,6 @@ import { useTagDropZone } from "~/hooks/useTagDropZone";
 import { cn } from "~/lib/cn";
 import { TagBadge } from "~/features/library/components/MediaTagEditor/DimensionTagSelector/TagBadge";
 
-type TagDefinition = typeof TagDefinitionSchema.static;
 
 export type TreeNode = {
   id: number;

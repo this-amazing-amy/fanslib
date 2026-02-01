@@ -1,28 +1,24 @@
-import type {
-  AssignMediaRequestBodySchema,
-  FetchCaptionQueueRequestQuerySchema,
-} from "@fanslib/server/schemas";
+import type { AssignMediaRequestBody, AssignMediaRequestBodySchema, FetchCaptionQueueRequestQuery, FetchCaptionQueueRequestQuerySchema } from '@fanslib/server/schemas';
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { eden } from "../api/eden";
+import { api } from "../api/hono-client";
 
 export const useAssignMediaMutation = () =>
   useMutation({
-    mutationFn: async (data: typeof AssignMediaRequestBodySchema.static) => {
-      const result = await eden.api.pipeline.assign.post(data);
-      return result.data;
+    mutationFn: async (data: AssignMediaRequestBody) => {
+      const result = await api.api.pipeline.assign.$post({ json: data });
+      return result.json();
     },
   });
 
 export const useCaptionQueueQuery = (
-  params: typeof FetchCaptionQueueRequestQuerySchema.static,
+  params: FetchCaptionQueueRequestQuery,
   refreshKey: number
 ) =>
   useQuery({
     queryKey: ["pipeline", "caption-queue", params, refreshKey],
     queryFn: async () => {
-      const result = await eden.api.pipeline["caption-queue"].get({
-        query: params,
-      });
-      return result.data ?? [];
+      const result = await api.api.pipeline["caption-queue"].$get(params);
+      const data = await result.json();
+      return data ?? [];
     },
   });

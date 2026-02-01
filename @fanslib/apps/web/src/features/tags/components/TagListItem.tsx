@@ -1,9 +1,8 @@
-import type { TagDefinitionSchema } from "@fanslib/server/schemas";
+import type { TagDefinition, TagDefinitionSchema } from '@fanslib/server/schemas';
 import { Edit, Trash2 } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { cn } from "~/lib/cn";
 
-type TagDefinition = typeof TagDefinitionSchema.static;
 
 type TagListItemProps = {
   tag: TagDefinition;

@@ -1,8 +1,7 @@
-import type { SubredditSchema } from '@fanslib/server/schemas';
+import type { Subreddit, SubredditSchema } from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { eden } from '../api/eden';
+import { api } from '../api/hono-client';
 
-type Subreddit = typeof SubredditSchema.static;
 
 export const useGenerateRandomPost = () => useMutation({
     mutationFn: async ({
@@ -12,11 +11,10 @@ export const useGenerateRandomPost = () => useMutation({
       subreddits: Subreddit[];
       channelId: string;
     }) => {
-      const response = await eden.api['reddit-automation']['generate-random-post'].post({
-        subreddits,
-        channelId,
+      const result = await api.api['reddit-automation']['generate-random-post'].$post({
+        json: { subreddits, channelId }
       });
-      return response.data;
+      return result.json();
     },
   });
 
@@ -30,12 +28,10 @@ export const useGeneratePosts = () => useMutation({
       subreddits: Subreddit[];
       channelId: string;
     }) => {
-      const response = await eden.api['reddit-automation']['generate-posts'].post({
-        count,
-        subreddits,
-        channelId,
+      const result = await api.api['reddit-automation']['generate-posts'].$post({
+        json: { count, subreddits, channelId }
       });
-      return response.data;
+      return result.json();
     },
   });
 
@@ -47,11 +43,10 @@ export const useRegenerateMedia = () => useMutation({
       subredditId: string;
       channelId: string;
     }) => {
-      const response = await eden.api['reddit-automation']['regenerate-media'].post({
-        subredditId,
-        channelId,
+      const result = await api.api['reddit-automation']['regenerate-media'].$post({
+        json: { subredditId, channelId }
       });
-      return response.data;
+      return result.json();
     },
   });
 
@@ -60,10 +55,10 @@ export const useSchedulePosts = () => {
 
   return useMutation({
     mutationFn: async (posts: Array<unknown>) => {
-      const response = await eden.api['reddit-automation']['schedule-posts'].post({
-        posts,
+      const result = await api.api['reddit-automation']['schedule-posts'].$post({
+        json: { posts }
       });
-      return response.data;
+      return result.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reddit-automation', 'scheduled-posts'] });
@@ -75,8 +70,8 @@ export const useSchedulePosts = () => {
 export const useScheduledPosts = () => useQuery({
     queryKey: ['reddit-automation', 'scheduled-posts'],
     queryFn: async () => {
-      const response = await eden.api['reddit-automation']['scheduled-posts'].get();
-      return response.data;
+      const result = await api.api['reddit-automation']['scheduled-posts'].$get();
+      return result.json();
     },
   });
 

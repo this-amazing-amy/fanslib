@@ -1,4 +1,4 @@
-import type { CaptionQueueItemSchema, PostStatusSchema } from "@fanslib/server/schemas";
+import type { CaptionQueueItem, CaptionQueueItemSchema, PostStatus, PostStatusSchema } from '@fanslib/server/schemas';
 import type { Key } from "@react-types/shared";
 import { format } from "date-fns";
 import { Circle, CheckCircle2, ExternalLink, Link2, MoreVertical, Trash2 } from "lucide-react";
@@ -30,8 +30,6 @@ import { CaptionSyncControl } from "~/features/pipeline/components/CaptionSyncCo
 import { RelatedCaptionsPanel } from "~/features/pipeline/components/RelatedCaptionsPanel";
 import { useLinkedPostsContext } from "./LinkedPostsContext";
 
-type CaptionQueueItem = typeof CaptionQueueItemSchema.static;
-type PostStatus = typeof PostStatusSchema.static;
 
 const getCompletionStatus = (channelTypeId: string): PostStatus =>
   ["bluesky", "reddit"].includes(channelTypeId) ? "scheduled" : "ready";

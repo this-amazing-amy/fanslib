@@ -1,49 +1,41 @@
-import type {
-  DeleteMediaRequestParamsSchema,
-  FetchAllMediaRequestBodySchema,
-  FetchMediaByIdRequestParamsSchema,
-  FindAdjacentMediaBodySchema,
-  FindAdjacentMediaRequestParamsSchema,
-  UpdateMediaRequestBodySchema,
-  UpdateMediaRequestParamsSchema,
-} from '@fanslib/server/schemas';
+import type { DeleteMediaRequestParams, DeleteMediaRequestParamsSchema, FetchAllMediaRequestBody, FetchAllMediaRequestBodySchema, FetchMediaByIdRequestParams, FetchMediaByIdRequestParamsSchema, FindAdjacentMediaBody, FindAdjacentMediaBodySchema, FindAdjacentMediaRequestParams, FindAdjacentMediaRequestParamsSchema, UpdateMediaRequestBody, UpdateMediaRequestBodySchema, UpdateMediaRequestParams, UpdateMediaRequestParamsSchema } from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { eden } from '../api/eden';
+import { api } from '../api/hono-client';
 
-export const useMediaListQuery = (params?: typeof FetchAllMediaRequestBodySchema.static) =>
+export const useMediaListQuery = (params?: FetchAllMediaRequestBody) =>
   useQuery({
     queryKey: ['media', 'list', params],
     queryFn: async () => {
-      const result = await eden.api.media.all.post(params);
-      return result.data;
+      const result = await api.api.media.all.$post({ json: params });
+      return result.json();
     },
   });
 
-export const useMediaQuery = (params: typeof FetchMediaByIdRequestParamsSchema.static) =>
+export const useMediaQuery = (params: FetchMediaByIdRequestParams) =>
   useQuery({
     queryKey: ['media', params.id],
     queryFn: async () => {
-      const result = await eden.api.media['by-id']({ id: params.id }).get();
-      return result.data;
+      const result = await api.api.media[':id'].$get({ param: { id: params.id } });
+      return result.json();
     },
     enabled: !!params.id,
   });
 
 export const useMediaAdjacentQuery = (
-  params: typeof FindAdjacentMediaRequestParamsSchema.static,
-  body?: typeof FindAdjacentMediaBodySchema.static
+  params: FindAdjacentMediaRequestParams,
+  body?: FindAdjacentMediaBody
 ) =>
   useQuery({
     queryKey: ['media', params.id, 'adjacent', body],
     queryFn: async () => {
-      const result = await eden.api.media['by-id']({ id: params.id }).adjacent.post(body);
-      return result.data;
+      const result = await api.api.media[':id'].adjacent.$post({ param: { id: params.id }, json: body });
+      return result.json();
     },
     enabled: !!params.id,
   });
 
-type UpdateMediaParams = typeof UpdateMediaRequestParamsSchema.static & {
-  updates: typeof UpdateMediaRequestBodySchema.static;
+type UpdateMediaParams = UpdateMediaRequestParams & {
+  updates: UpdateMediaRequestBody;
 };
 
 export const useUpdateMediaMutation = () => {
@@ -51,8 +43,8 @@ export const useUpdateMediaMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdateMediaParams) => {
-      const result = await eden.api.media['by-id']({ id }).patch(updates);
-      return result.data;
+      const result = await api.api.media[':id'].$patch({ param: { id }, json: updates });
+      return result.json();
     },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['media', 'list'] });
@@ -61,7 +53,7 @@ export const useUpdateMediaMutation = () => {
   });
 };
 
-type DeleteMediaParams = typeof DeleteMediaRequestParamsSchema.static & {
+type DeleteMediaParams = DeleteMediaRequestParams & {
   deleteFile?: boolean;
 };
 
@@ -70,8 +62,11 @@ export const useDeleteMediaMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, deleteFile = false }: DeleteMediaParams) => {
-      const result = await eden.api.media['by-id']({ id }).delete({ query: { deleteFile: deleteFile ? 'true' : undefined } });
-      return result.data;
+      const result = await api.api.media[':id'].$delete({ 
+        param: { id }, 
+        query: { deleteFile: deleteFile ? 'true' : undefined } 
+      });
+      return result.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['media', 'list'] });

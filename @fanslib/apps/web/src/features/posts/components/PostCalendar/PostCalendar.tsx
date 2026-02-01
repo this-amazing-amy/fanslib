@@ -1,4 +1,4 @@
-import type { PostWithRelationsSchema } from "@fanslib/server/schemas";
+import type { PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import {
     add,
     eachDayOfInterval,
@@ -20,7 +20,7 @@ import { cn } from "~/lib/cn";
 import { PostCalendarDayDropzone } from "./PostCalendarDayDropzone";
 import { PostCalendarPost } from "./PostCalendarPost";
 
-type Post = typeof PostWithRelationsSchema.static;
+type Post = PostWithRelations;
 
 type PostCalendarProps = {
   className?: string;

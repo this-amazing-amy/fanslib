@@ -1,9 +1,4 @@
-import type {
-  CreateShootRequestBodySchema,
-  FetchAllShootsRequestBodySchema,
-  ShootSummarySchema,
-  ShootFiltersSchema,
-} from "@fanslib/server/schemas";
+import type { CreateShootRequestBody, CreateShootRequestBodySchema, FetchAllShootsRequestBody, FetchAllShootsRequestBodySchema, ShootFilters, ShootFiltersSchema, ShootSummary, ShootSummarySchema } from '@fanslib/server/schemas';
 import { createContext, useCallback, useContext, useState } from "react";
 import {
   useCreateShootMutation,
@@ -11,10 +6,9 @@ import {
   useUpdateShootMutation,
 } from "~/lib/queries/shoots";
 
-type CreateShootRequest = typeof CreateShootRequestBodySchema.static;
-type FetchAllShootsRequest = typeof FetchAllShootsRequestBodySchema.static;
-type ShootFilter = typeof ShootFiltersSchema.static;
-type ShootSummary = typeof ShootSummarySchema.static;
+type CreateShootRequest = CreateShootRequestBody;
+type FetchAllShootsRequest = FetchAllShootsRequestBody;
+type ShootFilter = ShootFilters;
 
 type ShootContextType = {
   shoots: ShootSummary[];

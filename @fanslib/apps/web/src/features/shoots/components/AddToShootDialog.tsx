@@ -1,4 +1,4 @@
-import type { FetchShootByIdResponseSchema, MediaSchema, ShootSchema } from "@fanslib/server/schemas";
+import type { FetchShootByIdResponse, FetchShootByIdResponseSchema, Media, MediaSchema, Shoot, ShootSchema } from '@fanslib/server/schemas';
 import { format } from "date-fns";
 import { Check, Search } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -17,9 +17,9 @@ import { cn } from "~/lib/cn";
 import { useMediaListQuery } from "~/lib/queries/library";
 import { useShootQuery, useShootsQuery, useUpdateShootMutation } from "~/lib/queries/shoots";
 
-type Media = typeof MediaSchema.static;
-type Shoot = typeof ShootSchema.static;
-type ShootWithMedia = typeof FetchShootByIdResponseSchema.static;
+
+
+type ShootWithMedia = FetchShootByIdResponse;
 
 type AddToShootDialogProps = {
   open: boolean;

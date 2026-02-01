@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import type { ShootFiltersSchema } from "@fanslib/server/schemas";
+import type { ShootFilters, ShootFiltersSchema } from '@fanslib/server/schemas';
 
-type ShootFilter = typeof ShootFiltersSchema.static;
+type ShootFilter = ShootFilters;
 
 export type ShootFilterItem =
   | { type: "search"; value: string }

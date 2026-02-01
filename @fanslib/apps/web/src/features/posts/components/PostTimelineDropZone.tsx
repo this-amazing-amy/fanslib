@@ -1,4 +1,4 @@
-import type { MediaSchema, PostWithRelationsSchema } from "@fanslib/server/schemas";
+import type { Media, MediaSchema, PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { Plus } from "lucide-react";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
 import { usePostDrag } from "~/contexts/PostDragContext";
@@ -6,8 +6,8 @@ import { useDragOver } from "~/hooks/useDragOver";
 import { cn } from "~/lib/cn";
 import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
 
-type Media = typeof MediaSchema.static;
-type Post = typeof PostWithRelationsSchema.static;
+
+type Post = PostWithRelations;
 
 type CreatePostDialogData = {
   media: Media[];

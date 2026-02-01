@@ -1,10 +1,9 @@
-import type { MediaSchema } from "@fanslib/server/schemas";
+import type { Media, MediaSchema } from '@fanslib/server/schemas';
 import { useMemo } from "react";
 import { groupBy } from "remeda";
 import { useBulkMediaTagsQuery } from "~/lib/queries/tags";
 import type { SelectionState } from "~/lib/selection-state";
 
-type Media = typeof MediaSchema.static;
 
 export type TagStates = Record<number, SelectionState>;
 

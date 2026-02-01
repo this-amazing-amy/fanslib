@@ -1,4 +1,4 @@
-import type { MediaSchema, ShootSummarySchema } from "@fanslib/server/schemas";
+import type { Media, MediaSchema, ShootSummary, ShootSummarySchema } from '@fanslib/server/schemas';
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { useCallback, useState } from "react";
@@ -25,8 +25,6 @@ import { ShootDetailTitleInput } from "~/features/shoots/components/shoot-detail
 import { ShootPosts } from "~/features/shoots/components/shoot-detail/ShootPosts";
 import { useShootQuery, useUpdateShootMutation } from "~/lib/queries/shoots";
 
-type ShootSummary = typeof ShootSummarySchema.static;
-type Media = typeof MediaSchema.static;
 
 const ShootDetailRoute = () => {
   const { shootId } = Route.useParams();

@@ -1,4 +1,4 @@
-import type { MediaSchema, PostWithRelationsSchema } from "@fanslib/server/schemas";
+import type { Media, MediaSchema, PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Camera, Plus, Trash2, X } from "lucide-react";
@@ -20,8 +20,7 @@ import { PostTimelineDropZone } from "../PostTimelineDropZone";
 import { VirtualPostOverlay } from "../VirtualPostOverlay";
 import { usePostPreviewDrag } from "./usePostPreviewDrag";
 
-type Post = typeof PostWithRelationsSchema.static;
-type Media = typeof MediaSchema.static;
+type Post = PostWithRelations;
 
 type CreatePostDialogData = {
   media: Media[];

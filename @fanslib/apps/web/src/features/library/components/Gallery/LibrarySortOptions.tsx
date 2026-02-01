@@ -1,4 +1,4 @@
-import type { MediaSortSchema, SortFieldSchema } from "@fanslib/server/schemas";
+import type { MediaSort, MediaSortSchema, SortField, SortFieldSchema } from '@fanslib/server/schemas';
 import { ArrowUpDown } from "lucide-react";
 import {
   Select,
@@ -7,8 +7,8 @@ import {
   SelectTrigger,
 } from "~/components/ui/Select";
 
-type MediaSort = typeof MediaSortSchema.static;
-type SortField = typeof SortFieldSchema.static;
+
+type SortField = SortField;
 
 export type SortOption = MediaSort;
 

@@ -1,4 +1,4 @@
-import type { MediaSchema, PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { Media, MediaSchema, PostWithRelations, PostWithRelationsSchema } from '@fanslib/server/schemas';
 import { Link } from '@tanstack/react-router';
 import { ExternalLink, Plus, Trash2Icon } from 'lucide-react';
 import { useState } from 'react';
@@ -18,9 +18,8 @@ import { CombinedMediaSelection } from '~/features/library/components/CombinedMe
 import { cn } from '~/lib/cn';
 import { useAddMediaToPostMutation, useRemoveMediaFromPostMutation } from '~/lib/queries/posts';
 
-type Media = typeof MediaSchema.static;
 
-type Post = typeof PostWithRelationsSchema.static;
+type Post = PostWithRelations;
 
 type PostDetailMediaProps = {
   post: Post;

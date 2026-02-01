@@ -1,11 +1,4 @@
-import type {
-  CreateTagDefinitionRequestBodySchema,
-  CreateTagDimensionRequestBodySchema,
-  TagDefinitionSchema,
-  TagDimensionSchema,
-  UpdateTagDefinitionRequestBodySchema,
-  UpdateTagDimensionRequestBodySchema,
-} from "@fanslib/server/schemas";
+import type { CreateTagDefinitionRequestBody, CreateTagDefinitionRequestBodySchema, CreateTagDimensionRequestBody, CreateTagDimensionRequestBodySchema, TagDefinition, TagDefinitionSchema, TagDimension, TagDimensionSchema, UpdateTagDefinitionRequestBody, UpdateTagDefinitionRequestBodySchema, UpdateTagDimensionRequestBody, UpdateTagDimensionRequestBodySchema } from '@fanslib/server/schemas';
 import { Plus, Tags } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
@@ -25,8 +18,8 @@ import { DimensionCard } from "./DimensionCard";
 import { DimensionDialog, type EditingDimension } from "./DimensionDialog";
 import { TagDialog, type EditingTag } from "./TagDialog";
 
-type TagDimensionWithTags = typeof TagDimensionSchema.static & {
-  tags?: typeof TagDefinitionSchema.static[];
+type TagDimensionWithTags = TagDimension & {
+  tags?: TagDefinition[];
 };
 
 export const TagDimensionsTab = () => {
@@ -45,8 +38,8 @@ export const TagDimensionsTab = () => {
 
   const handleDimensionSubmit = (
     data:
-      | typeof CreateTagDimensionRequestBodySchema.static
-      | { id: number; updates: typeof UpdateTagDimensionRequestBodySchema.static }
+      | CreateTagDimensionRequestBody
+      | { id: number; updates: UpdateTagDimensionRequestBody }
   ) => {
     if ("id" in data) {
       updateDimensionMutation.mutate({ id: data.id.toString(), updates: data.updates }, {
@@ -59,7 +52,7 @@ export const TagDimensionsTab = () => {
     }
   };
 
-  const handleTagSubmit = (data: typeof CreateTagDefinitionRequestBodySchema.static | { id: number; updates: typeof UpdateTagDefinitionRequestBodySchema.static }) => {
+  const handleTagSubmit = (data: CreateTagDefinitionRequestBody | { id: number; updates: UpdateTagDefinitionRequestBody }) => {
     if ("id" in data) {
       updateTagMutation.mutate({ id: data.id.toString(), updates: data.updates }, {
         onSuccess: () => setEditingTag(null),
@@ -79,7 +72,7 @@ export const TagDimensionsTab = () => {
     });
   };
 
-  const handleEditTag = (tag: typeof TagDefinitionSchema.static) => {
+  const handleEditTag = (tag: TagDefinition) => {
     setEditingTag({
       tag,
       mode: "edit",

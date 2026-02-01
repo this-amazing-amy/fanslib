@@ -1,11 +1,11 @@
-import type { MediaSchema } from "@fanslib/server/schemas";
+import type { Media, MediaSchema } from '@fanslib/server/schemas';
 import { useDragOver } from "~/hooks/useDragOver";
 import { cn } from "~/lib/cn";
 import { Plus } from "lucide-react";
 import { type FC, useState } from "react";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
 
-type Media = typeof MediaSchema.static;
+
 import { CreateShootDialog } from "./CreateShootDialog";
 
 type ShootCreateDropZoneProps = {

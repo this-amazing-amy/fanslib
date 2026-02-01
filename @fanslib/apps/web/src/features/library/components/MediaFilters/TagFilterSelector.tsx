@@ -1,4 +1,4 @@
-import type { TagDefinitionSchema, TagDimensionSchema } from "@fanslib/server/schemas";
+import type { TagDefinition, TagDefinitionSchema, TagDimension, TagDimensionSchema } from '@fanslib/server/schemas';
 import { ChevronRight, ChevronsUpDown } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "~/components/ui/Button";
@@ -8,10 +8,9 @@ import { cn } from "~/lib/cn";
 import { useTagDimensionsQuery } from "~/lib/queries/tags";
 import { TagBadge } from "../MediaTagEditor/DimensionTagSelector/TagBadge";
 
-type TagDimensionWithTags = typeof TagDimensionSchema.static & {
-  tags?: typeof TagDefinitionSchema.static[];
+type TagDimensionWithTags = TagDimension & {
+  tags?: TagDefinition[];
 };
-type TagDefinition = typeof TagDefinitionSchema.static;
 
 type TagFilterSelectorProps = {
   value?: string;

@@ -1,8 +1,8 @@
-import type { FilterItemTagSchema, MediaFilterSchema } from "@fanslib/server/schemas";
+import type { FilterItemTag, FilterItemTagSchema, MediaFilter, MediaFilterSchema } from '@fanslib/server/schemas';
 import { useTagDefinitionsByIdsQuery } from "~/lib/queries/tags";
 
-type MediaFilters = typeof MediaFilterSchema.static;
-type FilterItemTag = typeof FilterItemTagSchema.static;
+type MediaFilters = MediaFilter;
+type FilterItemTag = FilterItemTag;
 
 const extractTagIds = (filterGroups: MediaFilters): number[] => filterGroups.flatMap((group) =>
     group.items

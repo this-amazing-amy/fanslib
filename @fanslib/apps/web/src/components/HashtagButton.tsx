@@ -1,9 +1,8 @@
-import type { ChannelSchema } from "@fanslib/server/schemas";
+import type { Channel, ChannelSchema } from '@fanslib/server/schemas';
 import { Hash } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { Tooltip } from "~/components/ui/Tooltip";
 
-type Channel = typeof ChannelSchema.static;
 
 type HashtagButtonProps = {
   channel: Channel;

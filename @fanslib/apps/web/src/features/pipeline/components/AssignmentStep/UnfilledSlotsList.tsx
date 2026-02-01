@@ -1,16 +1,16 @@
 import { AlertTriangle } from "lucide-react";
-import type { AssignMediaResponseSchema } from "@fanslib/server/schemas";
+import type { AssignMediaResponse, AssignMediaResponseSchema, Media } from '@fanslib/server/schemas';
 import type { MediaSchema } from "@fanslib/server/schemas";
 import { UnfilledSlotDropzone } from "./UnfilledSlotDropzone";
 import { UnfilledSlotsLibrary } from "./UnfilledSlotsLibrary";
 
 type UnfilledSlotsListProps = {
-  slots: typeof AssignMediaResponseSchema.static["unfilled"];
+  slots: AssignMediaResponse["unfilled"];
   schedules: Array<{ id: string; name: string; emoji: string | null; color: string | null }>;
   channels: Array<{ id: string; name: string; typeId: string; type?: { id: string } }>;
   onSlotAssign: (
-    slot: typeof AssignMediaResponseSchema.static["unfilled"][number],
-    medias: typeof MediaSchema.static[]
+    slot: AssignMediaResponse["unfilled"][number],
+    medias: Media[]
   ) => void;
 };
 
