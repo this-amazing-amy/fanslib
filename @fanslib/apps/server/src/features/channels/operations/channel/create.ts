@@ -1,12 +1,12 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { Channel, ChannelSchema } from "../../entity";
 
-export const CreateChannelRequestBodySchema = t.Object({
-  name: t.String(),
-  typeId: t.String(),
-  description: t.Optional(t.String()),
-  eligibleMediaFilter: t.Optional(t.Any()),
+export const CreateChannelRequestBodySchema = z.object({
+  name: z.string(),
+  typeId: z.string(),
+  description: z.string().optional(),
+  eligibleMediaFilter: z.unknown().optional(),
 });
 
 export const CreateChannelResponseSchema = ChannelSchema;
@@ -16,7 +16,7 @@ export const createChannel = async ({
   typeId,
   description,
   eligibleMediaFilter,
-}: typeof CreateChannelRequestBodySchema.static): Promise<Channel> => {
+}: z.infer<typeof CreateChannelRequestBodySchema>): Promise<Channel> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Channel);
 

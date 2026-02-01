@@ -1,7 +1,6 @@
 import { t } from "elysia";
 import { IsNull } from "typeorm";
 import { db } from "../../../../lib/db";
-import { ChannelSchema } from "../../../channels/entity";
 import { CaptionSnippet, CaptionSnippetSchema } from "../../entity";
 
 // Schemas
@@ -9,7 +8,7 @@ export const FetchGlobalSnippetsResponseSchema = t.Array(
   t.Composite([
     t.Omit(CaptionSnippetSchema, ["channelId"]),
     t.Object({
-      channel: t.Union([ChannelSchema, t.Null()]),
+      channel: t.Union([t.Any(), t.Null()]), // Channel is now Zod
     }),
   ])
 );
@@ -25,4 +24,3 @@ export const fetchGlobalSnippets = async (): Promise<typeof FetchGlobalSnippetsR
   
   return snippets.map(({ channelId: _, ...snippet }) => snippet);
 };
-

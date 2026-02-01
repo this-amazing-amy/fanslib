@@ -1,13 +1,15 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { getBlueskyAgent } from "../client";
 import { clearSessionCache } from "../client";
 
-export const TestCredentialsResponseSchema = t.Object({
-  success: t.Boolean(),
-  error: t.Optional(t.String()),
+export const TestCredentialsResponseSchema = z.object({
+  success: z.boolean(),
+  error: z.string().optional(),
 });
 
-export const testCredentials = async (): Promise<typeof TestCredentialsResponseSchema.static> => {
+export type TestCredentialsResponse = z.infer<typeof TestCredentialsResponseSchema>;
+
+export const testCredentials = async (): Promise<TestCredentialsResponse> => {
   try {
     clearSessionCache();
     await getBlueskyAgent();

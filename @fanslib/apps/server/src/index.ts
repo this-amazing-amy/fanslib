@@ -1,32 +1,15 @@
-import { cors } from "@elysiajs/cors";
-import { cron } from "@elysiajs/cron";
-import { swagger } from "@elysiajs/swagger";
-import { Elysia } from "elysia";
+import { Hono } from "hono";
+import { cors } from "hono/cors";
 import "reflect-metadata";
-import { analyticsRoutes } from "./features/analytics/routes";
 import { blueskyRoutes } from "./features/api-bluesky/routes";
-import { postponeRoutes } from "./features/api-postpone/routes";
-import { channelsRoutes } from "./features/channels/routes";
-import { contentSchedulesRoutes } from "./features/content-schedules/routes";
-import { filterPresetsRoutes } from "./features/filter-presets/routes";
-import { hashtagsRoutes } from "./features/hashtags/routes";
-import { libraryRoutes } from "./features/library/routes";
-import { pipelineRoutes } from "./features/pipeline/routes";
-import { postsRoutes } from "./features/posts/routes";
 import { runScheduledPostsCronTick } from "./features/posts/scheduled-posts-cron";
-import { redditAutomationRoutes } from "./features/reddit-automation/routes";
 import { settingsRoutes } from "./features/settings/routes";
-import { shootsRoutes } from "./features/shoots/routes";
-import { snippetsRoutes } from "./features/snippets/routes";
-import { subredditsRoutes } from "./features/subreddits/routes";
-import { tagsRoutes } from "./features/tags/routes";
 import { db } from "./lib/db";
+import { devalueMiddleware } from "./lib/devalue-middleware";
 import { env } from "./lib/env";
 import { migrateColorsToPresets } from "./lib/migrate-colors-to-presets";
 import { seedDatabase } from "./lib/seed";
-import { mapResponse } from "./lib/serialization";
 import { walkDirectory } from "./lib/walkDirectory";
-
 
 const logStartupEnvironment = async (): Promise<void> => {
   const { appdataPath, libraryPath, ffprobePath } = env();
@@ -58,56 +41,49 @@ const isCronDisabled = process.env.DISABLE_CRON === "true";
 const isTestEnvironment = process.env.NODE_ENV === "test";
 const isScheduledPostsCronEnabled = !isCronDisabled && !isTestEnvironment;
 
-const app = new Elysia()
-  .use(cors({
-    origin: true, // Allow all origins (including chrome-extension://)
-    credentials: true,
-    exposeHeaders: ["X-Serialization", "Content-Type", "Content-Length"],
-  }))
-  .mapResponse(mapResponse)
+const app = new Hono()
   .use(
-    isScheduledPostsCronEnabled
-      ? cron({
-        name: "scheduled-posts-cron",
-        pattern: "* * * * *",
-        run: () => runScheduledPostsCronTick(),
-      })
-      : new Elysia()
+    "*",
+    cors({
+      origin: "*", // Allow all origins (including chrome-extension://)
+      credentials: true,
+      exposeHeaders: ["X-Serialization", "Content-Type", "Content-Length"],
+    }),
   )
-  .use(swagger({
-    documentation: {
-      info: {
-        title: "FansLib API",
-        version: "1.0.0",
-      },
-    },
-  }))
-  .get("/health", () => ({ status: "ok", timestamp: new Date() }))
-  .post("/migrate-colors", async () => {
+  .use("*", devalueMiddleware())
+  .get("/health", (c) => c.json({ status: "ok", timestamp: new Date() }))
+  .post("/migrate-colors", async (c) => {
     try {
       const result = await migrateColorsToPresets();
-      return { success: true, ...result };
+      return c.json({ success: true, ...result });
     } catch (error) {
-      return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+      return c.json({
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
     }
   })
-  .use(libraryRoutes)
-  .use(postsRoutes)
-  .use(channelsRoutes)
-  .use(subredditsRoutes)
-  .use(tagsRoutes)
-  .use(hashtagsRoutes)
-  .use(shootsRoutes)
-  .use(contentSchedulesRoutes)
-  .use(filterPresetsRoutes)
-  .use(snippetsRoutes)
-  .use(settingsRoutes)
-  .use(postponeRoutes)
-  .use(blueskyRoutes)
-  .use(analyticsRoutes)
-  .use(redditAutomationRoutes)
-  .use(pipelineRoutes)
-  .listen(6970);
+  .route("/", settingsRoutes)
+  .route("/", blueskyRoutes);
+
+// Set up cron job if enabled
+if (isScheduledPostsCronEnabled) {
+  setInterval(
+    () => {
+      runScheduledPostsCronTick().catch((error) => {
+        console.error("Scheduled posts cron tick failed:", error);
+      });
+    },
+    60 * 1000,
+  ); // Run every minute
+}
+
+// Start server
+const port = 6970;
+const server = Bun.serve({
+  fetch: app.fetch,
+  port,
+});
 
 db()
   .then(async () => {
@@ -116,7 +92,7 @@ db()
     if (isScheduledPostsCronEnabled) {
       await runScheduledPostsCronTick();
     }
-    console.log(`🚀 Server running at http://localhost:${app.server?.port}`);
+    console.log(`🚀 Server running at http://localhost:${port}`);
     console.log(`📊 Database initialized`);
   })
   .catch((error) => {
@@ -124,5 +100,5 @@ db()
     process.exit(1);
   });
 
-// Export app type for Eden Treaty
-export type App = typeof app;
+// Export app type for hono/client
+export type AppType = typeof app;

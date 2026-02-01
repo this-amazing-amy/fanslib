@@ -438,34 +438,42 @@ export { CaptionSnippetSchema } from './features/snippets/entity';
 
 // Settings schemas
 export {
-  LoadSettingsResponseSchema
+  LoadSettingsResponseSchema,
+  type LoadSettingsResponse,
 } from './features/settings/operations/setting/load';
 
 export {
   SaveSettingsRequestBodySchema,
-  SaveSettingsResponseSchema
+  SaveSettingsResponseSchema,
+  type SaveSettingsRequestBody,
+  type SaveSettingsResponse,
 } from './features/settings/operations/setting/save';
 
 export {
-  ToggleSfwModeResponseSchema
+  ToggleSfwModeResponseSchema,
+  type ToggleSfwModeResponse,
 } from './features/settings/operations/setting/toggle-sfw';
 
 export {
   FanslyCredentialsSchema,
-  LoadFanslyCredentialsResponseSchema
+  LoadFanslyCredentialsResponseSchema,
+  type LoadFanslyCredentialsResponse,
 } from './features/settings/operations/credentials/load';
 
 export {
   SaveFanslyCredentialsRequestBodySchema,
-  SaveFanslyCredentialsResponseSchema
+  SaveFanslyCredentialsResponseSchema,
+  type SaveFanslyCredentialsRequestBody,
+  type SaveFanslyCredentialsResponse,
 } from './features/settings/operations/credentials/save';
 
 export {
-  ClearFanslyCredentialsResponseSchema
+  ClearFanslyCredentialsResponseSchema,
+  type ClearFanslyCredentialsResponse,
 } from './features/settings/operations/credentials/clear';
 
 // Settings entities
-export { SettingsSchema } from './features/settings/schemas/settings';
+export { SettingsSchema, type Settings } from './features/settings/schemas/settings';
 
 // Postpone schemas
 export {

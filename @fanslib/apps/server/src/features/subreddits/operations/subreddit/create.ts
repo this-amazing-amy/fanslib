@@ -1,16 +1,19 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
-import { Subreddit, SubredditSchema, VERIFICATION_STATUS } from "../../entity";
+import {
+  Subreddit,
+  SubredditSchema,
+  VERIFICATION_STATUS,
+} from "../../entity";
 
-export const CreateSubredditRequestBodySchema = t.Intersect([
-  t.Required(t.Pick(t.Omit(SubredditSchema, ["id"]), ["name"])),
-  t.Partial(t.Omit(SubredditSchema, ["id", "name"])),
-]);
+export const CreateSubredditRequestBodySchema = SubredditSchema.omit({
+  id: true,
+}).required({ name: true }).partial();
 
 export const CreateSubredditResponseSchema = SubredditSchema;
 
 export const createSubreddit = async (
-  data: typeof CreateSubredditRequestBodySchema.static
+  data: z.infer<typeof CreateSubredditRequestBodySchema>,
 ): Promise<Subreddit> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Subreddit);

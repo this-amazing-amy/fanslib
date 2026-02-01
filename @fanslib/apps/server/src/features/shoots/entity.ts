@@ -1,4 +1,4 @@
-import { t } from "elysia";
+import { z } from "zod";
 import type { Relation } from "typeorm";
 import {
   Column,
@@ -12,7 +12,6 @@ import {
 import { Media } from "../library/entity";
 
 @Entity("shoot")
-// eslint-disable-next-line functional/no-classes
 export class Shoot {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
@@ -41,11 +40,13 @@ export class Shoot {
   media!: Relation<Media>[];
 }
 
-export const ShootSchema = t.Object({
-  id: t.String(),
-  name: t.String(),
-  description: t.Nullable(t.String()),
-  shootDate: t.Date(),
-  createdAt: t.Date(),
-  updatedAt: t.Date(),
+export const ShootSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string().nullable(),
+  shootDate: z.coerce.date(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
 });
+
+export type Shoot_Type = z.infer<typeof ShootSchema>;

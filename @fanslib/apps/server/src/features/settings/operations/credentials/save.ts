@@ -1,22 +1,26 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { mkdir, writeFile } from "fs/promises";
 import { dirname } from "path";
 import { fanslyCredentialsFilePath } from "../../../../lib/env";
 import { loadFanslyCredentials } from "./load";
 
-export const SaveFanslyCredentialsRequestBodySchema = t.Object({
-  fanslyAuth: t.Optional(t.String()),
-  fanslySessionId: t.Optional(t.String()),
-  fanslyClientCheck: t.Optional(t.String()),
-  fanslyClientId: t.Optional(t.String()),
-});
-export const SaveFanslyCredentialsResponseSchema = t.Object({
-  success: t.Boolean(),
+export const SaveFanslyCredentialsRequestBodySchema = z.object({
+  fanslyAuth: z.string().optional(),
+  fanslySessionId: z.string().optional(),
+  fanslyClientCheck: z.string().optional(),
+  fanslyClientId: z.string().optional(),
 });
 
+export const SaveFanslyCredentialsResponseSchema = z.object({
+  success: z.boolean(),
+});
+
+export type SaveFanslyCredentialsRequestBody = z.infer<typeof SaveFanslyCredentialsRequestBodySchema>;
+export type SaveFanslyCredentialsResponse = z.infer<typeof SaveFanslyCredentialsResponseSchema>;
+
 export const saveFanslyCredentials = async (
-  credentials: typeof SaveFanslyCredentialsRequestBodySchema.static
-): Promise<typeof SaveFanslyCredentialsResponseSchema.static> => {
+  credentials: SaveFanslyCredentialsRequestBody
+): Promise<SaveFanslyCredentialsResponse> => {
   try {
     const existingData = await loadFanslyCredentials();
     const existingCredentials = existingData?.credentials ?? {};

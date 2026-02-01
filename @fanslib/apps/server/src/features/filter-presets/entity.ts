@@ -1,4 +1,4 @@
-import { t } from "elysia";
+import { z } from "zod";
 import {
   Column,
   CreateDateColumn,
@@ -8,7 +8,6 @@ import {
 } from "typeorm";
 
 @Entity("filter_preset")
-// eslint-disable-next-line functional/no-classes
 export class FilterPreset {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
@@ -26,13 +25,12 @@ export class FilterPreset {
   updatedAt!: Date;
 }
 
-export const FilterPresetSchema = t.Object({
-  id: t.String(),
-  name: t.String(),
-  filtersJson: t.String(),
-  createdAt: t.Date(),
-  updatedAt: t.Date(),
+export const FilterPresetSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  filtersJson: z.string(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
 });
 
-
-
+export type FilterPreset_Type = z.infer<typeof FilterPresetSchema>;

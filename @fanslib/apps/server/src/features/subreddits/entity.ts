@@ -1,8 +1,5 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-import type { MediaFilterSchema } from "../library/schemas/media-filter";
-
-type MediaFilters = typeof MediaFilterSchema.static;
 
 export const VERIFICATION_STATUS = {
   UNKNOWN: "UNKNOWN",
@@ -13,10 +10,16 @@ export const VERIFICATION_STATUS = {
   VERIFIED: "VERIFIED",
 } as const;
 
-export const VerificatoinStatusSchema = t.Union([t.Literal(VERIFICATION_STATUS.UNKNOWN), t.Literal(VERIFICATION_STATUS.NOT_NEEDED), t.Literal(VERIFICATION_STATUS.NEEDED), t.Literal(VERIFICATION_STATUS.APPLIED), t.Literal(VERIFICATION_STATUS.REJECTED), t.Literal(VERIFICATION_STATUS.VERIFIED)]);
+export const VerificationStatusSchema = z.union([
+  z.literal(VERIFICATION_STATUS.UNKNOWN),
+  z.literal(VERIFICATION_STATUS.NOT_NEEDED),
+  z.literal(VERIFICATION_STATUS.NEEDED),
+  z.literal(VERIFICATION_STATUS.APPLIED),
+  z.literal(VERIFICATION_STATUS.REJECTED),
+  z.literal(VERIFICATION_STATUS.VERIFIED),
+]);
 
 @Entity("subreddit")
-// eslint-disable-next-line functional/no-classes
 export class Subreddit {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
@@ -34,10 +37,10 @@ export class Subreddit {
   memberCount: number | null = null;
 
   @Column({ type: "simple-json", nullable: true, name: "eligibleMediaFilter" })
-  eligibleMediaFilter: MediaFilters | null = null;
+  eligibleMediaFilter: unknown | null = null;
 
   @Column({ type: "varchar", default: VERIFICATION_STATUS.UNKNOWN, name: "verificationStatus" })
-  verificationStatus!: typeof VerificatoinStatusSchema.static;
+  verificationStatus!: z.infer<typeof VerificationStatusSchema>;
 
   @Column({ type: "varchar", nullable: true, name: "defaultFlair" })
   defaultFlair: string | null = null;
@@ -60,23 +63,26 @@ export class Subreddit {
   postingTimesTimezone: string | null = null;
 }
 
-export const SubredditSchema = t.Object({
-  id: t.String(),
-  name: t.String(),
-  maxPostFrequencyHours: t.Nullable(t.Number()),
-  notes: t.Nullable(t.String()),
-  memberCount: t.Nullable(t.Number()),
-  eligibleMediaFilter: t.Nullable(t.Any()),
-  verificationStatus: VerificatoinStatusSchema,
-  defaultFlair: t.Nullable(t.String()),
-  captionPrefix: t.Nullable(t.String()),
-  postingTimesData: t.Nullable(t.Array(t.Object({
-    day: t.Number(),
-    hour: t.Number(),
-    posts: t.Number(),
-    score: t.Number(),
-  }))),
-  postingTimesLastFetched: t.Nullable(t.Date()),
-  postingTimesTimezone: t.Nullable(t.String()),
+const PostingTimeSchema = z.object({
+  day: z.number(),
+  hour: z.number(),
+  posts: z.number(),
+  score: z.number(),
 });
 
+export const SubredditSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  maxPostFrequencyHours: z.number().nullable(),
+  notes: z.string().nullable(),
+  memberCount: z.number().nullable(),
+  eligibleMediaFilter: z.unknown().nullable(),
+  verificationStatus: VerificationStatusSchema,
+  defaultFlair: z.string().nullable(),
+  captionPrefix: z.string().nullable(),
+  postingTimesData: z.array(PostingTimeSchema).nullable(),
+  postingTimesLastFetched: z.coerce.date().nullable(),
+  postingTimesTimezone: z.string().nullable(),
+});
+
+export type Subreddit_Type = z.infer<typeof SubredditSchema>;

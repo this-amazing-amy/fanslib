@@ -1,17 +1,18 @@
-
+import { z } from "zod";
 import { readFile } from "fs/promises";
 import { env } from "../../../../lib/env";
 import { SettingsSchema } from "../../schemas/settings";
 import { DEFAULT_SETTINGS, ensureSettingsFile, settingsFilePath } from "./helpers";
 
-export const LoadSettingsResponseSchema = SettingsSchema
+export const LoadSettingsResponseSchema = SettingsSchema;
 
-export const loadSettings = async (): Promise<typeof LoadSettingsResponseSchema.static> => {
+export type LoadSettingsResponse = z.infer<typeof LoadSettingsResponseSchema>;
+
+export const loadSettings = async (): Promise<LoadSettingsResponse> => {
   try {
     await ensureSettingsFile();
     const data = await readFile(settingsFilePath(), "utf8");
-    const settings = JSON.parse(data) as typeof SettingsSchema.static;
-    // Include libraryPath from environment (read-only)
+    const settings = JSON.parse(data) as LoadSettingsResponse;
     return {
       ...settings,
       libraryPath: env().libraryPath,

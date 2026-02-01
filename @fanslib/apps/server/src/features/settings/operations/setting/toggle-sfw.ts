@@ -1,12 +1,14 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { loadSettings } from "./load";
 import { saveSettings } from "./save";
 
-export const ToggleSfwModeResponseSchema = t.Object({
-  sfwMode: t.Boolean(),
+export const ToggleSfwModeResponseSchema = z.object({
+  sfwMode: z.boolean(),
 });
 
-export const toggleSfwMode = async (): Promise<typeof ToggleSfwModeResponseSchema.static> => {
+export type ToggleSfwModeResponse = z.infer<typeof ToggleSfwModeResponseSchema>;
+
+export const toggleSfwMode = async (): Promise<ToggleSfwModeResponse> => {
   const currentSettings = await loadSettings();
   const saved = await saveSettings({ sfwMode: !currentSettings.sfwMode });
   return { sfwMode: saved.sfwMode };

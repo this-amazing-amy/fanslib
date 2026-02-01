@@ -1,4 +1,4 @@
-import { t } from "elysia";
+import { z } from "zod";
 import type { Relation } from "typeorm";
 import {
   Column,
@@ -14,7 +14,6 @@ import {
 import { Channel } from "../channels/entity";
 
 @Entity("hashtag")
-// eslint-disable-next-line functional/no-classes
 export class Hashtag {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -34,7 +33,6 @@ export class Hashtag {
 
 @Entity("hashtag_channel_stats")
 @Unique(["hashtag", "channel"])
-// eslint-disable-next-line functional/no-classes
 export class HashtagChannelStats {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -63,22 +61,22 @@ export class HashtagChannelStats {
   updatedAt!: Date;
 }
 
-export const HashtagChannelStatsSchema = t.Object({
-  id: t.Number(),
-  hashtagId: t.Number(),
-  channelId: t.String(),
-  views: t.Number(),
-  createdAt: t.Date(),
-  updatedAt: t.Date(),
+export const HashtagChannelStatsSchema = z.object({
+  id: z.number(),
+  hashtagId: z.number(),
+  channelId: z.string(),
+  views: z.number(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
 });
 
-export const HashtagSchema = t.Object({
-  id: t.Number(),
-  name: t.String(),
-  createdAt: t.Date(),
-  updatedAt: t.Date(),
-  channelStats: t.Optional(t.Array(HashtagChannelStatsSchema)),
+export const HashtagSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+  channelStats: z.array(HashtagChannelStatsSchema).optional(),
 });
 
-
-
+export type Hashtag_Type = z.infer<typeof HashtagSchema>;
+export type HashtagChannelStats_Type = z.infer<typeof HashtagChannelStatsSchema>;

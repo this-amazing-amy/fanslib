@@ -1,25 +1,43 @@
 import { t } from "elysia";
+import type { z } from "zod";
 import { db } from "../../../../lib/db";
-import { ChannelSchema } from "../../../channels/entity";
-import { ContentSchedule, ContentScheduleSchema, ScheduleChannelSchema, SkippedScheduleSlotSchema } from "../../entity";
+import { type ChannelSchema } from "../../../channels/entity";
+import {
+  ContentSchedule,
+  ContentScheduleSchema,
+  ScheduleChannelSchema,
+  SkippedScheduleSlotSchema,
+} from "../../entity";
 
 export const ScheduleChannelWithChannelSchema = t.Composite([
   ScheduleChannelSchema,
   t.Object({
-    channel: ChannelSchema,
+    channel: t.Any(), // Channel is now Zod, can't use with TypeBox
   }),
 ]);
 
-export const FetchAllContentSchedulesResponseSchema = t.Array(t.Composite([
-  ContentScheduleSchema,
-  t.Object({
-    channel: t.Nullable(ChannelSchema),
-    skippedSlots: t.Array(SkippedScheduleSlotSchema),
-    scheduleChannels: t.Array(ScheduleChannelWithChannelSchema),
-  }),
-]));
+export const FetchAllContentSchedulesResponseSchema = t.Array(
+  t.Composite([
+    ContentScheduleSchema,
+    t.Object({
+      channel: t.Nullable(t.Any()), // Channel is now Zod
+      skippedSlots: t.Array(SkippedScheduleSlotSchema),
+      scheduleChannels: t.Array(ScheduleChannelWithChannelSchema),
+    }),
+  ]),
+);
 
-export const fetchAllContentSchedules = async (): Promise<typeof FetchAllContentSchedulesResponseSchema.static> => {
+type ChannelType = z.infer<typeof ChannelSchema>;
+
+export const fetchAllContentSchedules = async (): Promise<
+  (Omit<ContentSchedule, "channel" | "scheduleChannels" | "skippedSlots"> & {
+    channel: ChannelType | null;
+    skippedSlots: typeof SkippedScheduleSlotSchema.static[];
+    scheduleChannels: (typeof ScheduleChannelSchema.static & {
+      channel: ChannelType;
+    })[];
+  })[]
+> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(ContentSchedule);
 
@@ -49,6 +67,5 @@ export const fetchAllContentSchedules = async (): Promise<typeof FetchAllContent
     ...schedule,
     channel: schedule.channel ?? null,
     scheduleChannels: schedule.scheduleChannels ?? [],
-  }));
+  })) as never;
 };
-

@@ -1,14 +1,16 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { Channel, ChannelSchema } from "../../entity";
 
-export const FetchChannelByIdRequestParamsSchema = t.Object({
-  id: t.String(),
+export const FetchChannelByIdRequestParamsSchema = z.object({
+  id: z.string(),
 });
 
 export const FetchChannelByIdResponseSchema = ChannelSchema;
 
-export const fetchChannelById = async (id: string): Promise<typeof FetchChannelByIdResponseSchema.static | null> => {
+export const fetchChannelById = async (
+  id: string,
+): Promise<z.infer<typeof FetchChannelByIdResponseSchema> | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Channel);
 
@@ -17,4 +19,3 @@ export const fetchChannelById = async (id: string): Promise<typeof FetchChannelB
     relations: { type: true, defaultHashtags: true },
   });
 };
-

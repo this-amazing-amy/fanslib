@@ -1,16 +1,16 @@
 import type {
-    SaveFanslyCredentialsRequestBodySchema,
-    SaveSettingsRequestBodySchema,
+    SaveFanslyCredentialsRequestBody,
+    SaveSettingsRequestBody,
 } from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { eden } from '../api/eden';
+import { api } from '../api/hono-client';
 
 export const useSettingsQuery = () =>
   useQuery({
     queryKey: ['settings'],
     queryFn: async () => {
-      const result = await eden.api.settings.get();
-      return result.data;
+      const result = await api.api.settings.$get();
+      return result.json();
     },
   });
 
@@ -18,9 +18,9 @@ export const useSaveSettingsMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (settings: typeof SaveSettingsRequestBodySchema.static) => {
-      const result = await eden.api.settings.patch(settings);
-      return result.data;
+    mutationFn: async (settings: SaveSettingsRequestBody) => {
+      const result = await api.api.settings.$patch({ json: settings });
+      return result.json();
     },
     onSuccess: (data) => {
       queryClient.setQueryData(['settings'], data);
@@ -33,8 +33,8 @@ export const useToggleSfwModeMutation = () => {
 
   return useMutation({
     mutationFn: async () => {
-      const result = await eden.api.settings['toggle-sfw'].post();
-      return result.data;
+      const result = await api.api.settings['toggle-sfw'].$post();
+      return result.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['settings'] });
@@ -46,8 +46,8 @@ export const useFanslyCredentialsQuery = () =>
   useQuery({
     queryKey: ['settings', 'fansly-credentials'],
     queryFn: async () => {
-      const result = await eden.api.settings['fansly-credentials'].get();
-      return result.data;
+      const result = await api.api.settings['fansly-credentials'].$get();
+      return result.json();
     },
   });
 
@@ -55,9 +55,9 @@ export const useSaveFanslyCredentialsMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (credentials: typeof SaveFanslyCredentialsRequestBodySchema.static) => {
-      const result = await eden.api.settings['fansly-credentials'].post(credentials);
-      return result.data;
+    mutationFn: async (credentials: SaveFanslyCredentialsRequestBody) => {
+      const result = await api.api.settings['fansly-credentials'].$post({ json: credentials });
+      return result.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['settings', 'fansly-credentials'] });
@@ -70,8 +70,8 @@ export const useClearFanslyCredentialsMutation = () => {
 
   return useMutation({
     mutationFn: async () => {
-      const result = await eden.api.settings['fansly-credentials'].delete();
-      return result.data;
+      const result = await api.api.settings['fansly-credentials'].$delete();
+      return result.json();
     },
     onSuccess: () => {
       queryClient.setQueryData(['settings', 'fansly-credentials'], null);
@@ -82,7 +82,7 @@ export const useClearFanslyCredentialsMutation = () => {
 export const useTestBlueskyCredentialsMutation = () =>
   useMutation({
     mutationFn: async () => {
-      const result = await eden.api.bluesky['test-credentials'].post();
-      return result.data;
+      const result = await api.api.bluesky['test-credentials'].$post();
+      return result.json();
     },
   });

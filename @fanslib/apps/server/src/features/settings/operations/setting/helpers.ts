@@ -1,10 +1,9 @@
 import { mkdir } from "fs/promises";
 import { dirname, join } from "path";
-import type { SettingsSchema } from "../../schemas/settings";
+import type { Settings } from "../../schemas/settings";
+import { appdataPath } from "../../../../lib/env";
 
-
-
-export const DEFAULT_SETTINGS: typeof SettingsSchema.static = {
+export const DEFAULT_SETTINGS: Settings = {
   theme: "dark",
   blueskyUsername: "",
   blueskyAppPassword: "",
@@ -16,8 +15,6 @@ export const DEFAULT_SETTINGS: typeof SettingsSchema.static = {
   sfwHoverDelay: 300,
   backgroundJobsServerUrl: "",
 };
-
-import { appdataPath } from "../../../../lib/env";
 
 export const settingsFilePath = (): string => join(appdataPath(), "settings.json");
 

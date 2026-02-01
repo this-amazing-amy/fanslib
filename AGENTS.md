@@ -1,5 +1,36 @@
 # FansLib AI coding guide (Claude / Cursor / Copilot)
 
+## Current Migration Status - ACTIONREQUIRED
+
+**Hono Migration in Progress (as of Feb 1, 2026):**
+
+### What's Been Done:
+1. ✅ Added dependencies to package.json (hono, @hono/zod-validator, zod, @hono/node-server)
+2. ✅ Created Hono server utilities (hono-utils.ts, devalue-middleware.ts)
+3. ✅ Created Hono web client (hono-client.ts)
+4. ✅ Migrated Settings feature (6 endpoints - complete)
+5. ✅ Migrated Bluesky feature (1 endpoint - complete)
+6. ✅ Converted 6 entity schemas to Zod (filter-presets, channels, hashtags, subreddits, shoots, snippets)
+
+### **REQUIRED ACTION - Run This Command:**
+```bash
+bun install
+```
+This installs the new Hono dependencies. The migration cannot proceed or be tested without this step.
+
+### What Needs to Happen Next:
+1. User runs `bun install`
+2. Continue migrating remaining entity schemas (5 files)
+3. Migrate library/media-filter schemas (many features depend on this)
+4. Update main server app (index.ts) to use Hono
+5. Migrate remaining features one by one
+6. Test after each feature
+
+### Known Issues:
+- Main server app still uses Elysia - server won't start until main app is migrated
+- Many features have cross-dependencies on schemas
+- Cannot validate changes until `bun install` is run
+
 ## Ralph Loop Operations
 
 When running in the Ralph loop (`./loop.sh`), follow these operational guidelines:

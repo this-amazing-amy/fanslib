@@ -1,8 +1,8 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { Channel, ChannelSchema } from "../../entity";
 
-export const FetchAllChannelsResponseSchema = t.Array(ChannelSchema);
+export const FetchAllChannelsResponseSchema = z.array(ChannelSchema);
 
 export const fetchAllChannels = async (): Promise<Channel[]> => {
   const dataSource = await db();
@@ -12,4 +12,3 @@ export const fetchAllChannels = async (): Promise<Channel[]> => {
     relations: { type: true, defaultHashtags: true },
   });
 };
-

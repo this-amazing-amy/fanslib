@@ -1,6 +1,5 @@
 import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { ChannelSchema } from "../../../channels/entity";
 import { CaptionSnippet, CaptionSnippetSchema } from "../../entity";
 
 export const FetchSnippetByIdRequestParamsSchema = t.Object({
@@ -10,7 +9,7 @@ export const FetchSnippetByIdRequestParamsSchema = t.Object({
 export const FetchSnippetByIdResponseSchema = t.Composite([
   t.Omit(CaptionSnippetSchema, ["channelId"]),
   t.Object({
-    channel: t.Nullable(ChannelSchema),
+    channel: t.Nullable(t.Any()), // Channel is now Zod
   }),
 ]);
 

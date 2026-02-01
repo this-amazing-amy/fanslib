@@ -1,28 +1,28 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { Channel, ChannelSchema } from "../../entity";
 import { findOrCreateHashtags } from "../../../hashtags/operations/hashtag/find-or-create";
 
-export const UpdateChannelRequestParamsSchema = t.Object({
-  id: t.String(),
+export const UpdateChannelRequestParamsSchema = z.object({
+  id: z.string(),
 });
 
-export const UpdateChannelRequestBodySchema = t.Partial(
-  t.Object({
-    name: t.String(),
-    description: t.Nullable(t.String()),
-    typeId: t.String(),
-    eligibleMediaFilter: t.Nullable(t.Any()),
-    defaultHashtags: t.Array(t.String()),
+export const UpdateChannelRequestBodySchema = z
+  .object({
+    name: z.string(),
+    description: z.string().nullable(),
+    typeId: z.string(),
+    eligibleMediaFilter: z.unknown().nullable(),
+    defaultHashtags: z.array(z.string()),
   })
-);
+  .partial();
 
 export const UpdateChannelResponseSchema = ChannelSchema;
 
 export const updateChannel = async (
   id: string,
-  updates: typeof UpdateChannelRequestBodySchema.static
-): Promise<typeof UpdateChannelResponseSchema.static | null> => {
+  updates: z.infer<typeof UpdateChannelRequestBodySchema>,
+): Promise<z.infer<typeof UpdateChannelResponseSchema> | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Channel);
 
@@ -47,7 +47,7 @@ export const updateChannel = async (
     } else {
       // Find or create hashtags by names
       const hashtags = await findOrCreateHashtags(defaultHashtags);
-      // Type assertion needed because findOrCreateHashtags returns HashtagSchema[] 
+      // Type assertion needed because findOrCreateHashtags returns HashtagSchema[]
       // which may have optional relations, but Channel expects Hashtag[]
       channel.defaultHashtags = hashtags as typeof channel.defaultHashtags;
     }
@@ -60,4 +60,3 @@ export const updateChannel = async (
     relations: { type: true, defaultHashtags: true },
   });
 };
-

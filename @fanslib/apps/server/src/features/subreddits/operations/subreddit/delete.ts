@@ -1,13 +1,13 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { Subreddit } from "../../entity";
 
-export const DeleteSubredditParamsSchema = t.Object({
-  id: t.String(),
+export const DeleteSubredditParamsSchema = z.object({
+  id: z.string(),
 });
 
-export const DeleteSubredditResponseSchema = t.Object({
-  success: t.Boolean(),
+export const DeleteSubredditResponseSchema = z.object({
+  success: z.boolean(),
 });
 
 export const deleteSubreddit = async (id: string): Promise<boolean> => {
@@ -20,4 +20,3 @@ export const deleteSubreddit = async (id: string): Promise<boolean> => {
   await repository.delete({ id });
   return true;
 };
-

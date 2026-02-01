@@ -1,17 +1,17 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { Subreddit, SubredditSchema } from "../../entity";
 
-export const UpdateSubredditRequestParamsSchema = t.Object({
-  id: t.String(),
+export const UpdateSubredditRequestParamsSchema = z.object({
+  id: z.string(),
 });
 
-export const UpdateSubredditRequestBodySchema = t.Partial(SubredditSchema);
+export const UpdateSubredditRequestBodySchema = SubredditSchema.partial();
 export const UpdateSubredditResponseSchema = SubredditSchema;
 
 export const updateSubreddit = async (
   id: string,
-  updates: typeof UpdateSubredditRequestBodySchema.static
+  updates: z.infer<typeof UpdateSubredditRequestBodySchema>,
 ): Promise<Subreddit | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Subreddit);

@@ -1,21 +1,24 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { readFile, stat } from "fs/promises";
 import { fanslyCredentialsFilePath } from "../../../../lib/env";
 
-export const FanslyCredentialsSchema = t.Record(t.String(), t.Any());
-export const LoadFanslyCredentialsResponseSchema = t.Union([
-  t.Object({
+export const FanslyCredentialsSchema = z.record(z.string(), z.unknown());
+
+export const LoadFanslyCredentialsResponseSchema = z.union([
+  z.object({
     credentials: FanslyCredentialsSchema,
-    lastUpdated: t.Union([t.Number(), t.Null()]),
+    lastUpdated: z.union([z.number(), z.null()]),
   }),
-  t.Null(),
+  z.null(),
 ]);
 
-export const loadFanslyCredentials = async (): Promise<typeof LoadFanslyCredentialsResponseSchema.static> => {
+export type LoadFanslyCredentialsResponse = z.infer<typeof LoadFanslyCredentialsResponseSchema>;
+
+export const loadFanslyCredentials = async (): Promise<LoadFanslyCredentialsResponse> => {
   try {
     const filePath = fanslyCredentialsFilePath();
     const data = await readFile(filePath, "utf8");
-    const credentials = JSON.parse(data) as typeof FanslyCredentialsSchema.static;
+    const credentials = JSON.parse(data) as Record<string, unknown>;
     
     const lastUpdated =
       credentials._lastUpdated && typeof credentials._lastUpdated === "number"

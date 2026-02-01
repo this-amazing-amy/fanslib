@@ -95,10 +95,11 @@ while true; do
     echo -e "\n======================== ITERATION $ITERATION ========================\n"
 
     # For plan-work mode, substitute ${WORK_SCOPE} in prompt
+    # stream-json emits NDJSON events (tool_call, assistant messages) so you can watch progress
     if [ "$MODE" = "plan-work" ]; then
-        WORK_SCOPE="$WORK_DESCRIPTION" envsubst < "$PROMPT_FILE" | agent -p --model "$MODEL" --output-format json
+        WORK_SCOPE="$WORK_DESCRIPTION" envsubst < "$PROMPT_FILE" | agent -p --model "$MODEL" --output-format stream-json --approve-mcps
     else
-        agent -p "$(cat "$PROMPT_FILE")" --model "$MODEL" --output-format json
+        agent -p "$(cat "$PROMPT_FILE")" --model "$MODEL" --output-format stream-json --approve-mcps
     fi
 
     # Push changes after each iteration

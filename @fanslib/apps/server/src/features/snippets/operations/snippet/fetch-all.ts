@@ -1,13 +1,12 @@
 import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { ChannelSchema } from "../../../channels/entity";
 import { CaptionSnippet, CaptionSnippetSchema } from "../../entity";
 
 export const FetchAllSnippetsResponseSchema = t.Array(
   t.Composite([
     t.Omit(CaptionSnippetSchema, ["channelId"]),
     t.Object({
-      channel: t.Union([ChannelSchema, t.Null()]),
+      channel: t.Union([t.Any(), t.Null()]), // Channel is now Zod
     }),
   ])
 );
@@ -22,4 +21,3 @@ export const fetchAllSnippets = async (): Promise<typeof FetchAllSnippetsRespons
   
   return snippets.map(({ channelId: _, ...snippet }) => snippet);
 };
-

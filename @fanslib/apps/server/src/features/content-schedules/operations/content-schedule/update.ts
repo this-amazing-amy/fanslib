@@ -1,7 +1,6 @@
 import { t } from "elysia";
 import { In } from "typeorm";
 import { db } from "../../../../lib/db";
-import { ChannelSchema } from "../../../channels/entity";
 import { MediaFilterSchema } from "../../../library/schemas/media-filter";
 import { ContentSchedule, ContentScheduleSchema, ContentScheduleTypeSchema, ScheduleChannel, ScheduleChannelSchema } from "../../entity";
 
@@ -32,14 +31,14 @@ export const UpdateContentScheduleRequestBodySchema = t.Object({
 export const ScheduleChannelWithChannelSchema = t.Composite([
   ScheduleChannelSchema,
   t.Object({
-    channel: ChannelSchema,
+    channel: t.Any(), // Channel is now Zod, can't use with TypeBox
   }),
 ]);
 
 export const UpdateContentScheduleResponseSchema = t.Composite([
   ContentScheduleSchema,
   t.Object({
-    channel: t.Nullable(ChannelSchema),
+    channel: t.Nullable(t.Any()), // Channel is now Zod
     scheduleChannels: t.Array(ScheduleChannelWithChannelSchema),
   }),
 ]);

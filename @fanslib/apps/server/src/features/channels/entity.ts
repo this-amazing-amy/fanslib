@@ -1,4 +1,4 @@
-import { t } from "elysia";
+import { z } from "zod";
 import {
   Column,
   Entity,
@@ -10,10 +10,8 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Hashtag } from "../hashtags/entity";
-import type { MediaFilterSchema } from "../library/schemas/media-filter";
 
 @Entity("channel_type")
-// eslint-disable-next-line functional/no-classes
 export class ChannelType {
   @PrimaryColumn("varchar")
   id!: string;
@@ -26,7 +24,6 @@ export class ChannelType {
 }
 
 @Entity("channel")
-// eslint-disable-next-line functional/no-classes
 export class Channel {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
@@ -41,7 +38,7 @@ export class Channel {
   typeId!: string;
 
   @Column({ type: "simple-json", nullable: true, name: "eligibleMediaFilter" })
-  eligibleMediaFilter: typeof MediaFilterSchema.static | null = null;
+  eligibleMediaFilter: unknown | null = null;
 
   @ManyToOne(() => ChannelType)
   @JoinColumn({ name: "typeId" })
@@ -58,18 +55,21 @@ export class Channel {
 
 export type ChannelWithoutRelations = Omit<Channel, "type">;
 
-export const ChannelTypeSchema = t.Object({
-  id: t.String(),
-  name: t.String(),
-  color: t.Nullable(t.String()),
+export const ChannelTypeSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  color: z.string().nullable(),
 });
 
-export const ChannelSchema = t.Object({
-  id: t.String(),
-  name: t.String(),
-  description: t.Nullable(t.String()),
-  typeId: t.String(),
-  eligibleMediaFilter: t.Nullable(t.Any()), // MediaFilters - complex type, using Any for now
-  defaultHashtags: t.Any(), // TODO: Fix HashtagSchema validation issue with Elysia
+export const ChannelSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string().nullable(),
+  typeId: z.string(),
+  eligibleMediaFilter: z.unknown().nullable(),
+  defaultHashtags: z.unknown(),
   type: ChannelTypeSchema,
 });
+
+export type Channel_Type = z.infer<typeof ChannelSchema>;
+export type ChannelType_Type = z.infer<typeof ChannelTypeSchema>;

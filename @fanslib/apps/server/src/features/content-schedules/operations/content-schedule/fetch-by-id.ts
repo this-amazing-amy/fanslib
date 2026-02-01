@@ -1,6 +1,5 @@
 import { t } from "elysia";
 import { db } from "../../../../lib/db";
-import { ChannelSchema } from "../../../channels/entity";
 import { ContentSchedule, ContentScheduleSchema, ScheduleChannelSchema, SkippedScheduleSlotSchema } from "../../entity";
 
 export const FetchContentScheduleByIdRequestParamsSchema = t.Object({
@@ -10,14 +9,14 @@ export const FetchContentScheduleByIdRequestParamsSchema = t.Object({
 export const ScheduleChannelWithChannelSchema = t.Composite([
   ScheduleChannelSchema,
   t.Object({
-    channel: ChannelSchema,
+    channel: t.Any(), // Channel is now Zod, can't use with TypeBox
   }),
 ]);
 
 export const FetchContentScheduleByIdResponseSchema = t.Composite([
   ContentScheduleSchema,
   t.Object({
-    channel: t.Nullable(ChannelSchema),
+    channel: t.Nullable(t.Any()), // Channel is now Zod
     skippedSlots: t.Array(SkippedScheduleSlotSchema),
     scheduleChannels: t.Array(ScheduleChannelWithChannelSchema),
   }),

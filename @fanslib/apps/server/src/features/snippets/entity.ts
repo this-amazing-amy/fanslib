@@ -1,4 +1,4 @@
-import { t } from "elysia";
+import { z } from "zod";
 import type { Relation } from "typeorm";
 import {
   Column,
@@ -12,7 +12,6 @@ import {
 import { Channel } from "../channels/entity";
 
 @Entity("caption_snippet")
-// eslint-disable-next-line functional/no-classes
 export class CaptionSnippet {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
@@ -37,14 +36,13 @@ export class CaptionSnippet {
   updatedAt!: Date;
 }
 
-export const CaptionSnippetSchema = t.Object({
-  id: t.String(),
-  name: t.String(),
-  content: t.String(),
-  channelId: t.Union([t.String(), t.Null()]),
-  createdAt: t.Date(),
-  updatedAt: t.Date(),
+export const CaptionSnippetSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  content: z.string(),
+  channelId: z.union([z.string(), z.null()]),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
 });
 
-
-
+export type CaptionSnippet_Type = z.infer<typeof CaptionSnippetSchema>;

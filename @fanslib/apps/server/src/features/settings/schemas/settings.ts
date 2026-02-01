@@ -1,15 +1,21 @@
-import { t } from "elysia";
+import { z } from "zod";
 
-export const SettingsSchema = t.Object({
-  theme: t.Union([t.Literal("light"), t.Literal("dark")]),
-  blueskyUsername: t.Optional(t.String()),
-  blueskyAppPassword: t.Optional(t.String()),
-  postponeToken: t.Optional(t.String()),
-  blueskyDefaultExpiryDays: t.Optional(t.Number()),
-  sfwMode: t.Boolean(),
-  sfwBlurIntensity: t.Number(),
-  sfwDefaultMode: t.Union([t.Literal("off"), t.Literal("on"), t.Literal("remember")]),
-  sfwHoverDelay: t.Number(),
-  backgroundJobsServerUrl: t.Optional(t.String()),
-  libraryPath: t.Optional(t.String()),
+export const SettingsSchema = z.object({
+  theme: z.union([z.literal("light"), z.literal("dark")]),
+  blueskyUsername: z.string().optional(),
+  blueskyAppPassword: z.string().optional(),
+  postponeToken: z.string().optional(),
+  blueskyDefaultExpiryDays: z.number().optional(),
+  sfwMode: z.boolean(),
+  sfwBlurIntensity: z.number(),
+  sfwDefaultMode: z.union([
+    z.literal("off"),
+    z.literal("on"),
+    z.literal("remember"),
+  ]),
+  sfwHoverDelay: z.number(),
+  backgroundJobsServerUrl: z.string().optional(),
+  libraryPath: z.string().optional(),
 });
+
+export type Settings = z.infer<typeof SettingsSchema>;

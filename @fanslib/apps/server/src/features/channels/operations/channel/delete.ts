@@ -1,13 +1,13 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { Channel } from "../../entity";
 
-export const DeleteChannelRequestParamsSchema = t.Object({
-  id: t.String(),
+export const DeleteChannelRequestParamsSchema = z.object({
+  id: z.string(),
 });
 
-export const DeleteChannelResponseSchema = t.Object({
-  success: t.Boolean(),
+export const DeleteChannelResponseSchema = z.object({
+  success: z.boolean(),
 });
 
 export const deleteChannel = async (id: string): Promise<boolean> => {
@@ -20,4 +20,3 @@ export const deleteChannel = async (id: string): Promise<boolean> => {
   await repository.delete({ id });
   return true;
 };
-

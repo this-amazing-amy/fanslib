@@ -1,12 +1,14 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { unlink } from "fs/promises";
 import { fanslyCredentialsFilePath } from "../../../../lib/env";
 
-export const ClearFanslyCredentialsResponseSchema = t.Object({
-  success: t.Boolean(),
+export const ClearFanslyCredentialsResponseSchema = z.object({
+  success: z.boolean(),
 });
 
-export const clearFanslyCredentials = async (): Promise<typeof ClearFanslyCredentialsResponseSchema.static> => {
+export type ClearFanslyCredentialsResponse = z.infer<typeof ClearFanslyCredentialsResponseSchema>;
+
+export const clearFanslyCredentials = async (): Promise<ClearFanslyCredentialsResponse> => {
   try {
     await unlink(fanslyCredentialsFilePath());
   } catch (error) {

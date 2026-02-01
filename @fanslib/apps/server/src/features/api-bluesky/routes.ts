@@ -1,7 +1,9 @@
-import { Elysia } from "elysia";
+import { Hono } from "hono";
 import { TestCredentialsResponseSchema, testCredentials } from "./operations/test-credentials";
 
-export const blueskyRoutes = new Elysia({ prefix: "/api/bluesky" })
-  .post("/test-credentials", async () => testCredentials(), {
-    response: TestCredentialsResponseSchema,
+export const blueskyRoutes = new Hono()
+  .basePath("/api/bluesky")
+  .post("/test-credentials", async (c) => {
+    const result = await testCredentials();
+    return c.json(result);
   });

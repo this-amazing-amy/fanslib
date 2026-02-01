@@ -1,7 +1,7 @@
 import { t } from "elysia";
 import { IsNull } from "typeorm";
 import { db } from "../../../../lib/db";
-import { Channel, ChannelSchema } from "../../../channels/entity";
+import { Channel } from "../../../channels/entity";
 import { CaptionSnippet, CaptionSnippetSchema } from "../../entity";
 
 export const CreateSnippetRequestBodySchema = t.Object({
@@ -13,7 +13,7 @@ export const CreateSnippetRequestBodySchema = t.Object({
 export const CreateSnippetResponseSchema = t.Composite([
   t.Omit(CaptionSnippetSchema, ["channelId"]),
   t.Object({
-    channel: t.Nullable(ChannelSchema)
+    channel: t.Nullable(t.Any()) // Channel is now Zod
   }),
 ]);
 
