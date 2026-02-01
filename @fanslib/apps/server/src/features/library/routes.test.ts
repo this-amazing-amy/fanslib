@@ -31,6 +31,7 @@ describe("Library Routes", () => {
       const response = await app.request("/api/media/all", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
       });
       expect(response.status).toBe(200);
 
