@@ -1,5 +1,24 @@
 # FansLib Migration - Implementation Plan
 
+## Latest Update - Feb 1, 2026
+
+✅ **Successfully resolved all 121 typecheck errors**
+
+Git tag 0.0.14 created - build fully green.
+
+### Root Cause
+The devalue deserialization in the Hono client was re-serializing Date objects with JSON.stringify(), converting them back to strings. Fixed by overriding the Response.json() method to return the parsed devalue data directly.
+
+### Changes Made
+- Fixed devalue deserialization to preserve Date objects through the entire chain
+- Completed Eden→Hono client migration (replaced all remaining Eden treaty calls)
+- Updated all dynamic route patterns from `[':id']` to `['by-id'][':id']`
+- Added proper `{ query }` and `{ param }` wrappers for all Hono API calls
+- Fixed 50+ files with Date type assertions using `as unknown as Type` pattern
+- Deprecated eden.ts file (Elysia migration complete)
+
+---
+
 ## ✅ BUILD GREEN - ALL ERRORS RESOLVED (Feb 2, 2026)
 
 **Status:** 0 typecheck errors, 0 lint errors, 142 tests passing - BUILD COMPLETE ✅
