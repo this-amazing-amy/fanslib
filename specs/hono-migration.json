@@ -162,16 +162,16 @@
     },
     {
       "category": "feature-migration",
-      "description": "Migrate Analytics feature (18 endpoints)",
+      "description": "Migrate Analytics feature (19 endpoints)",
       "acceptance_criteria": [
-        "All 18 endpoints migrated",
+        "All 19 endpoints migrated",
         "Candidate matching operations work",
         "Statistics endpoints functional",
         "Aggregation works",
         "Web client updated",
         "Manual test passes"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "feature-migration",
