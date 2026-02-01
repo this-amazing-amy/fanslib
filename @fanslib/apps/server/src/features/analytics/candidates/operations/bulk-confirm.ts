@@ -1,20 +1,12 @@
-import { t } from "elysia";
+import type { z } from "zod";
 import { db } from "../../../../lib/db";
 import { FanslyMediaCandidate } from "../../candidate-entity";
 import { confirmMatch } from "./match";
-
-export const BulkConfirmCandidatesRequestBodySchema = t.Object({
-  threshold: t.Number(),
-});
-
-export const BulkConfirmCandidatesResponseSchema = t.Object({
-  confirmed: t.Number(),
-  failed: t.Number(),
-});
+import type { BulkConfirmCandidatesRequestBodySchema, BulkConfirmCandidatesResponseSchema } from "../schema";
 
 export const bulkConfirmCandidates = async (
-  body: typeof BulkConfirmCandidatesRequestBodySchema.static
-): Promise<typeof BulkConfirmCandidatesResponseSchema.static> => {
+  body: z.infer<typeof BulkConfirmCandidatesRequestBodySchema>
+): Promise<z.infer<typeof BulkConfirmCandidatesResponseSchema>> => {
   const dataSource = await db();
   const candidateRepository = dataSource.getRepository(FanslyMediaCandidate);
 

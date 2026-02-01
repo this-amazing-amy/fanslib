@@ -1,5 +1,4 @@
 import { Elysia, t } from "elysia";
-import { candidatesRoutes } from "./candidates/routes";
 import { FetchAnalyticsDataRequestBodySchema, FetchAnalyticsDataRequestParamsSchema, fetchFanslyAnalyticsData } from "./fetch-fansly-data";
 import { UpdateCredentialsFromFetchRequestBodySchema, updateFanslyCredentialsFromFetch } from "./operations/credentials";
 import { fetchFypActionItems } from "./operations/fyp/fetch-actions";
@@ -72,8 +71,4 @@ export const analyticsRoutes = new Elysia({ prefix: "/api/analytics" })
   .get("/fyp-actions", async ({ query }) => fetchFypActionItems(query), {
     query: FypActionsQuerySchema,
     response: FypActionsResponseSchema,
-  })
-  .use(candidatesRoutes);
-
-
-
+  });

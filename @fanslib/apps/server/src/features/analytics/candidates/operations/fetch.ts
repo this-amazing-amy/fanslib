@@ -1,21 +1,11 @@
-import { t } from "elysia";
+import type { z } from "zod";
 import { db } from "../../../../lib/db";
-import { CandidateStatusSchema, FanslyMediaCandidate, FanslyMediaCandidateSchema } from "../../candidate-entity";
-
-export const FetchAllCandidatesRequestQuerySchema = t.Object({
-  status: t.Optional(CandidateStatusSchema),
-  limit: t.Optional(t.Numeric()),
-  offset: t.Optional(t.Numeric()),
-});
-
-export const FetchAllCandidatesResponseSchema = t.Object({
-  items: t.Array(FanslyMediaCandidateSchema),
-  total: t.Number(),
-});
+import { FanslyMediaCandidate } from "../../candidate-entity";
+import type { FetchAllCandidatesRequestQuerySchema, FetchAllCandidatesResponseSchema } from "../schema";
 
 export const fetchAllCandidates = async (
-  params?: typeof FetchAllCandidatesRequestQuerySchema.static
-): Promise<typeof FetchAllCandidatesResponseSchema.static> => {
+  params?: z.infer<typeof FetchAllCandidatesRequestQuerySchema>
+): Promise<z.infer<typeof FetchAllCandidatesResponseSchema>> => {
   const status = params?.status;
   const limit = params?.limit ?? 50;
   const offset = params?.offset ?? 0;

@@ -1,22 +1,13 @@
-import { t } from "elysia";
+import type { z } from "zod";
 import { db } from "../../../../lib/db";
 import { PostMedia } from "../../../posts/entity";
-import { FanslyMediaCandidate, FanslyMediaCandidateSchema } from "../../candidate-entity";
-
-export const ConfirmMatchRequestParamsSchema = t.Object({
-  id: t.String(),
-});
-
-export const ConfirmMatchRequestBodySchema = t.Object({
-  postMediaId: t.String(),
-});
-
-export const ConfirmMatchResponseSchema = FanslyMediaCandidateSchema;
+import { FanslyMediaCandidate } from "../../candidate-entity";
+import type { ConfirmMatchRequestBodySchema, ConfirmMatchResponseSchema } from "../schema";
 
 export const confirmMatch = async (
   id: string,
-  body: typeof ConfirmMatchRequestBodySchema.static
-): Promise<typeof ConfirmMatchResponseSchema.static> => {
+  body: z.infer<typeof ConfirmMatchRequestBodySchema>
+): Promise<z.infer<typeof ConfirmMatchResponseSchema>> => {
   const dataSource = await db();
   const candidateRepository = dataSource.getRepository(FanslyMediaCandidate);
   const postMediaRepository = dataSource.getRepository(PostMedia);

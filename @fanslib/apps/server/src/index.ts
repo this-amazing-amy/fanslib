@@ -3,6 +3,7 @@ import { cors } from "hono/cors";
 import "reflect-metadata";
 import { blueskyRoutes } from "./features/api-bluesky/routes";
 import { postponeRoutes } from "./features/api-postpone/routes";
+import { candidatesRoutes } from "./features/analytics/candidates/routes";
 import { channelsRoutes } from "./features/channels/routes";
 import { contentSchedulesRoutes } from "./features/content-schedules/routes";
 import { filterPresetsRoutes } from "./features/filter-presets/routes";
@@ -11,6 +12,7 @@ import { libraryRoutes } from "./features/library/routes";
 import { pipelineRoutes } from "./features/pipeline/routes";
 import { postsRoutes } from "./features/posts/routes";
 import { runScheduledPostsCronTick } from "./features/posts/scheduled-posts-cron";
+import { redditAutomationRoutes } from "./features/reddit-automation/routes";
 import { settingsRoutes } from "./features/settings/routes";
 import { shootsRoutes } from "./features/shoots/routes";
 import { snippetsRoutes } from "./features/snippets/routes";
@@ -86,7 +88,9 @@ const app = new Hono()
   .route("/", contentSchedulesRoutes)
   .route("/", libraryRoutes)
   .route("/", pipelineRoutes)
-  .route("/", postsRoutes);
+  .route("/", postsRoutes)
+  .route("/", redditAutomationRoutes)
+  .route("/", candidatesRoutes);
 
 // Set up cron job if enabled
 if (isScheduledPostsCronEnabled) {

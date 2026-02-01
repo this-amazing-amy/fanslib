@@ -1,29 +1,15 @@
-import { t } from "elysia";
+import type { z } from "zod";
 import { db } from "../../../../lib/db";
-import { CreateCandidateSchema, FanslyMediaCandidate, FanslyMediaCandidateSchema } from "../../candidate-entity";
+import { FanslyMediaCandidate } from "../../candidate-entity";
 import { PostMedia } from "../../../posts/entity";
 import { computeMatchSuggestions } from "../matching";
+import type { CreateCandidateSchema, CreateCandidatesRequestBodySchema, CreateCandidatesResponseSchema } from "../schema";
 
-export const CreateCandidatesRequestBodySchema = t.Object({
-  items: t.Array(CreateCandidateSchema),
-});
-
-export const CandidateCreationResultSchema = t.Object({
-  candidate: FanslyMediaCandidateSchema,
-  status: t.Union([
-    t.Literal("created"),
-    t.Literal("existing"),
-    t.Literal("already_matched"),
-  ]),
-});
-
-export const CreateCandidatesResponseSchema = t.Array(CandidateCreationResultSchema);
-
-type CandidateItem = typeof CreateCandidateSchema.static;
+type CandidateItem = z.infer<typeof CreateCandidateSchema>;
 
 export const createCandidates = async (
-  body: typeof CreateCandidatesRequestBodySchema.static
-): Promise<typeof CreateCandidatesResponseSchema.static> => {
+  body: z.infer<typeof CreateCandidatesRequestBodySchema>
+): Promise<z.infer<typeof CreateCandidatesResponseSchema>> => {
   const dataSource = await db();
   const candidateRepository = dataSource.getRepository(FanslyMediaCandidate);
   const postMediaRepository = dataSource.getRepository(PostMedia);

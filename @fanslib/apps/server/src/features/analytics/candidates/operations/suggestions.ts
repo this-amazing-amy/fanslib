@@ -1,17 +1,12 @@
-import { t } from "elysia";
+import type { z } from "zod";
 import { db } from "../../../../lib/db";
-import { FanslyMediaCandidate, MatchSuggestionSchema } from "../../candidate-entity";
+import { FanslyMediaCandidate } from "../../candidate-entity";
 import { computeMatchSuggestions } from "../matching";
-
-export const FetchCandidateSuggestionsRequestParamsSchema = t.Object({
-  id: t.String(),
-});
-
-export const FetchCandidateSuggestionsResponseSchema = t.Array(MatchSuggestionSchema);
+import type { FetchCandidateSuggestionsResponseSchema } from "../schema";
 
 export const fetchCandidateSuggestions = async (
   id: string
-): Promise<typeof FetchCandidateSuggestionsResponseSchema.static | null> => {
+): Promise<z.infer<typeof FetchCandidateSuggestionsResponseSchema> | null> => {
   const dataSource = await db();
   const candidateRepository = dataSource.getRepository(FanslyMediaCandidate);
 

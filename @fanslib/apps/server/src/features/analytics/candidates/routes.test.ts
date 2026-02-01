@@ -1,25 +1,22 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
-import { Elysia } from "elysia";
+import { Hono } from "hono";
 import "reflect-metadata";
 import { getTestDataSource, resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../../lib/db.test";
-import { mapResponse } from "../../../lib/serialization";
-import { logError, parseResponse, createTestPost, createTestMedia } from "../../../test-utils/setup";
+import { devalueMiddleware } from "../../../lib/devalue-middleware";
+import { parseResponse, createTestPost, createTestMedia } from "../../../test-utils/setup";
 import { PostMedia } from "../../posts/entity";
 import type { FanslyMediaCandidate } from "../candidate-entity";
 import { FanslyMediaCandidate as FanslyMediaCandidateEntity } from "../candidate-entity";
-import { analyticsRoutes } from "../routes";
+import { candidatesRoutes } from "./routes";
 
 describe("Analytics Candidates Routes", () => {
   // eslint-disable-next-line functional/no-let
-  let app: Elysia;
+  let app: Hono;
 
   beforeAll(async () => {
     await setupTestDatabase();
     await resetAllFixtures();
-    app = new Elysia()
-      .onError(logError())
-      .mapResponse(mapResponse)
-      .use(analyticsRoutes);
+    app = new Hono().use("*", devalueMiddleware()).route("/", candidatesRoutes);
   });
 
   afterAll(async () => {
@@ -55,13 +52,11 @@ describe("Analytics Candidates Routes", () => {
         ],
       };
 
-      const response = await app.handle(
-        new Request("http://localhost/api/analytics/candidates", {
+      const response = await app.request("/api/analytics/candidates", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(candidateData),
-        })
-      );
+        });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<FanslyMediaCandidate[]>(response);
@@ -102,13 +97,11 @@ describe("Analytics Candidates Routes", () => {
         ],
       };
 
-      const response = await app.handle(
-        new Request("http://localhost/api/analytics/candidates", {
+      const response = await app.request("/api/analytics/candidates", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(candidateData),
-        })
-      );
+        });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<FanslyMediaCandidate[]>(response);
@@ -145,9 +138,7 @@ describe("Analytics Candidates Routes", () => {
       });
       await candidateRepository.save([candidate1, candidate2]);
 
-      const response = await app.handle(
-        new Request("http://localhost/api/analytics/candidates")
-      );
+      const response = await app.request("/api/analytics/candidates");
       expect(response.status).toBe(200);
 
       const data = await parseResponse<{ items: FanslyMediaCandidate[]; total: number }>(response);
@@ -183,9 +174,7 @@ describe("Analytics Candidates Routes", () => {
       });
       await candidateRepository.save([pendingCandidate, matchedCandidate]);
 
-      const response = await app.handle(
-        new Request("http://localhost/api/analytics/candidates?status=pending")
-      );
+      const response = await app.request("/api/analytics/candidates?status=pending");
       expect(response.status).toBe(200);
 
       const data = await parseResponse<{ items: FanslyMediaCandidate[]; total: number }>(response);
@@ -214,9 +203,7 @@ describe("Analytics Candidates Routes", () => {
       );
       await candidateRepository.save(candidates);
 
-      const response = await app.handle(
-        new Request("http://localhost/api/analytics/candidates?limit=2&offset=1")
-      );
+      const response = await app.request("/api/analytics/candidates?limit=2&offset=1");
       expect(response.status).toBe(200);
 
       const data = await parseResponse<{ items: FanslyMediaCandidate[]; total: number }>(response);
@@ -254,9 +241,7 @@ describe("Analytics Candidates Routes", () => {
       });
       const savedCandidate = await candidateRepository.save(candidate);
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/analytics/candidates/by-id/${savedCandidate.id}/suggestions`)
-      );
+      const response = await app.request(`/api/analytics/candidates/by-id/${savedCandidate.id}/suggestions`);
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Array<{ postMediaId: string; confidence: number; method: string; filename: string }>>(response);
@@ -271,9 +256,7 @@ describe("Analytics Candidates Routes", () => {
     });
 
     test("returns 404 for non-existent candidate", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/analytics/candidates/by-id/non-existent-id/suggestions")
-      );
+      const response = await app.request("/api/analytics/candidates/by-id/non-existent-id/suggestions");
       expect(response.status).toBe(404);
       const data = await parseResponse<{ error: string }>(response);
       expect(data?.error).toBe("Candidate not found");
@@ -308,13 +291,11 @@ describe("Analytics Candidates Routes", () => {
       });
       const savedCandidate = await candidateRepository.save(candidate);
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/analytics/candidates/by-id/${savedCandidate.id}/match`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ postMediaId: postMedia.id }),
-        })
-      );
+      const response = await app.request(`/api/analytics/candidates/by-id/${savedCandidate.id}/match`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postMediaId: postMedia.id }),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<FanslyMediaCandidate>(response);
@@ -340,13 +321,11 @@ describe("Analytics Candidates Routes", () => {
       });
       await postMediaRepository.save(postMedia);
 
-      const response = await app.handle(
-        new Request("http://localhost/api/analytics/candidates/by-id/non-existent-id/match", {
+      const response = await app.request("/api/analytics/candidates/by-id/non-existent-id/match", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ postMediaId: postMedia.id }),
-        })
-      );
+        });
       expect(response.status).toBe(404);
       const data = await parseResponse<{ error: string }>(response);
       expect(data?.error).toBe("Candidate or post media not found");
@@ -368,13 +347,11 @@ describe("Analytics Candidates Routes", () => {
       });
       const savedCandidate = await candidateRepository.save(candidate);
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/analytics/candidates/by-id/${savedCandidate.id}/match`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ postMediaId: "non-existent-post-media-id" }),
-        })
-      );
+      const response = await app.request(`/api/analytics/candidates/by-id/${savedCandidate.id}/match`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postMediaId: "non-existent-post-media-id" }),
+      });
       expect(response.status).toBe(404);
       const data = await parseResponse<{ error: string }>(response);
       expect(data?.error).toBe("Candidate or post media not found");
@@ -398,11 +375,9 @@ describe("Analytics Candidates Routes", () => {
       });
       const savedCandidate = await candidateRepository.save(candidate);
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/analytics/candidates/by-id/${savedCandidate.id}/ignore`, {
-          method: "POST",
-        })
-      );
+      const response = await app.request(`/api/analytics/candidates/by-id/${savedCandidate.id}/ignore`, {
+        method: "POST",
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<FanslyMediaCandidate>(response);
@@ -410,11 +385,9 @@ describe("Analytics Candidates Routes", () => {
     });
 
     test("returns 404 for non-existent candidate", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/analytics/candidates/by-id/non-existent-id/ignore", {
+      const response = await app.request("/api/analytics/candidates/by-id/non-existent-id/ignore", {
           method: "POST",
-        })
-      );
+        });
       expect(response.status).toBe(404);
       const data = await parseResponse<{ error: string }>(response);
       expect(data?.error).toBe("Candidate not found");
@@ -471,13 +444,11 @@ describe("Analytics Candidates Routes", () => {
       });
       await candidateRepository.save([candidate1, candidate2]);
 
-      const response = await app.handle(
-        new Request("http://localhost/api/analytics/candidates/bulk-confirm", {
+      const response = await app.request("/api/analytics/candidates/bulk-confirm", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ threshold: 0.7 }),
-        })
-      );
+        });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<{ confirmed: number; failed: number }>(response);
@@ -505,13 +476,11 @@ describe("Analytics Candidates Routes", () => {
       });
       await candidateRepository.save(candidate);
 
-      const response = await app.handle(
-        new Request("http://localhost/api/analytics/candidates/bulk-confirm", {
+      const response = await app.request("/api/analytics/candidates/bulk-confirm", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ threshold: 0.9 }),
-        })
-      );
+        });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<{ confirmed: number; failed: number }>(response);

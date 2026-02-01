@@ -530,54 +530,29 @@ export {
 // Analytics Candidates schemas
 export {
   FetchAllCandidatesRequestQuerySchema,
-  FetchAllCandidatesResponseSchema
-} from './features/analytics/candidates/operations/fetch';
-
-export {
+  FetchAllCandidatesResponseSchema,
   CreateCandidatesRequestBodySchema,
-  CreateCandidatesResponseSchema
-} from './features/analytics/candidates/operations/create';
-
-export {
+  CreateCandidatesResponseSchema,
   ConfirmMatchRequestBodySchema,
   ConfirmMatchRequestParamsSchema,
-  ConfirmMatchResponseSchema
-} from './features/analytics/candidates/operations/match';
-
-export {
+  ConfirmMatchResponseSchema,
   IgnoreCandidateRequestParamsSchema,
-  IgnoreCandidateResponseSchema
-} from './features/analytics/candidates/operations/ignore';
-
-export {
+  IgnoreCandidateResponseSchema,
   UnmatchCandidateRequestParamsSchema,
-  UnmatchCandidateResponseSchema
-} from './features/analytics/candidates/operations/unmatch';
-
-export {
+  UnmatchCandidateResponseSchema,
   UnignoreCandidateRequestParamsSchema,
-  UnignoreCandidateResponseSchema
-} from './features/analytics/candidates/operations/unignore';
-
-export {
+  UnignoreCandidateResponseSchema,
   BulkConfirmCandidatesRequestBodySchema,
-  BulkConfirmCandidatesResponseSchema
-} from './features/analytics/candidates/operations/bulk-confirm';
-
-export {
+  BulkConfirmCandidatesResponseSchema,
   FetchCandidateSuggestionsRequestParamsSchema,
-  FetchCandidateSuggestionsResponseSchema
-} from './features/analytics/candidates/operations/suggestions';
-
-// Analytics Candidates entities
-export {
-  CandidateStatusSchema,
-  CreateCandidateSchema,
+  FetchCandidateSuggestionsResponseSchema,
   FanslyMediaCandidateSchema,
-  FanslyMediaTypeSchema,
+  CreateCandidateSchema,
+  MatchSuggestionSchema,
+  CandidateStatusSchema,
   MatchMethodSchema,
-  MatchSuggestionSchema
-} from './features/analytics/candidate-entity';
+  FanslyMediaTypeSchema,
+} from './features/analytics/candidates/schema';
 
 // Reddit Automation schemas
 export {

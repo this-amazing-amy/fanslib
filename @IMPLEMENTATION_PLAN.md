@@ -2,7 +2,7 @@
 
 ## Current Status (Last Updated: Feb 1, 2026)
 
-### Migration Progress: 11/~22 Features Complete (50%)
+### Migration Progress: 11.5/~22 Features Complete (52%)
 
 **✅ Fully Migrated Features (11):**
 1. Settings (6 endpoints)
@@ -15,20 +15,26 @@
 8. Channels (6 endpoints)
 9. Content-Schedules (9 endpoints)
 10. Posts (10 endpoints)
-11. Reddit Automation (11 endpoints) ⭐ NEW
+11. Reddit Automation (11 endpoints)
 
-**⏳ Remaining Features (~11):**
+**🔄 Partially Migrated Features:**
+1. **Analytics** - Candidates sub-feature complete (8 endpoints) ⭐ MAJOR PROGRESS
+   - ✅ Migrated: /candidates routes (8 endpoints)
+   - ⏳ Remaining: ~10 other analytics endpoints
+
+**⏳ Remaining Features (~10):**
 1. Library/Media (~11 endpoints)
 2. Pipeline (3 endpoints)
 3. Postpone (4 endpoints)
 4. Tags (17 endpoints) - Major feature
-5. Analytics (18 endpoints) - Major feature
+5. Analytics - remaining ~10 endpoints (see above for progress)
 6. Infrastructure
-7. ~5 other features (to be identified)
+7. ~4 other features (to be identified)
 
 **Total Progress:**
-- Features migrated: 11 of ~22 (50%)
-- Major remaining work: Tags and Analytics
+- Features migrated: 11.5 of ~22 (52%)
+- Analytics in progress: 8 of ~18 endpoints complete (44%)
+- Major remaining work: Tags (full) and Analytics (partial)
 
 **All entity schemas migrated to Zod ✅**
 
@@ -39,6 +45,31 @@
 - ⚠️ **bun typecheck (web)**: Expected errors related to Elysia TypeBox `.static` to Zod `z.infer<typeof Schema>` migration
 
 ## Recent Session Updates
+
+### Feb 1, 2026 - Analytics Candidates Sub-Feature Migration Complete ✅
+**Completed:**
+- Successfully migrated analytics/candidates sub-feature (8 endpoints) from Elysia + TypeBox to Hono + Zod
+- All candidate-related routes now use Hono patterns with proper Zod validation
+- Complex filtering and matching logic preserved during migration
+- Significant progress on Analytics feature overall (44% complete)
+- Progress: 11.5 of ~22 features complete (52%)
+
+**Endpoints Migrated:**
+- GET /api/analytics/candidates/fetch-all
+- GET /api/analytics/candidates/find-match
+- GET /api/analytics/candidates/match-media
+- POST /api/analytics/candidates/match-media-batch
+- GET /api/analytics/candidates/suggested-titles
+- GET /api/analytics/candidates/by-id/:id
+- POST /api/analytics/candidates/confirm
+- DELETE /api/analytics/candidates/:id
+
+**Status:**
+- ✅ Analytics candidates fully migrated to Hono + Zod
+- 🔄 Analytics feature 44% complete (8 of ~18 endpoints)
+- ⏭️ Continue with remaining analytics endpoints or tackle Tags/Library features
+
+---
 
 ### Feb 1, 2026 - Reddit Automation Migration Complete ✅
 **Completed:**

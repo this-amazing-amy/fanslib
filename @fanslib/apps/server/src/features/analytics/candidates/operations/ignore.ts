@@ -1,16 +1,11 @@
-import { t } from "elysia";
+import type { z } from "zod";
 import { db } from "../../../../lib/db";
-import { FanslyMediaCandidate, FanslyMediaCandidateSchema } from "../../candidate-entity";
-
-export const IgnoreCandidateRequestParamsSchema = t.Object({
-  id: t.String(),
-});
-
-export const IgnoreCandidateResponseSchema = FanslyMediaCandidateSchema;
+import { FanslyMediaCandidate } from "../../candidate-entity";
+import type { IgnoreCandidateResponseSchema } from "../schema";
 
 export const ignoreCandidate = async (
   id: string
-): Promise<typeof IgnoreCandidateResponseSchema.static> => {
+): Promise<z.infer<typeof IgnoreCandidateResponseSchema>> => {
   const dataSource = await db();
   const candidateRepository = dataSource.getRepository(FanslyMediaCandidate);
 
