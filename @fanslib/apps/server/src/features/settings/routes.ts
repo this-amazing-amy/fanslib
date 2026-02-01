@@ -1,11 +1,11 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import { clearFanslyCredentials, ClearFanslyCredentialsResponseSchema } from "./operations/credentials/clear";
-import { loadFanslyCredentials, LoadFanslyCredentialsResponseSchema } from "./operations/credentials/load";
-import { saveFanslyCredentials, SaveFanslyCredentialsRequestBodySchema, SaveFanslyCredentialsResponseSchema } from "./operations/credentials/save";
-import { loadSettings, LoadSettingsResponseSchema } from "./operations/setting/load";
-import { saveSettings, SaveSettingsRequestBodySchema, SaveSettingsResponseSchema } from "./operations/setting/save";
-import { toggleSfwMode, ToggleSfwModeResponseSchema } from "./operations/setting/toggle-sfw";
+import { clearFanslyCredentials } from "./operations/credentials/clear";
+import { loadFanslyCredentials } from "./operations/credentials/load";
+import { saveFanslyCredentials, SaveFanslyCredentialsRequestBodySchema } from "./operations/credentials/save";
+import { loadSettings } from "./operations/setting/load";
+import { saveSettings, SaveSettingsRequestBodySchema } from "./operations/setting/save";
+import { toggleSfwMode } from "./operations/setting/toggle-sfw";
 import { validationError } from "../../lib/hono-utils";
 
 export const settingsRoutes = new Hono()

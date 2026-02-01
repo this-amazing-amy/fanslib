@@ -17,7 +17,6 @@ export const STICKER_DISPLAY_MODES = ["none", "color", "short"] as const;
 export type StickerDisplayMode = (typeof STICKER_DISPLAY_MODES)[number];
 
 @Entity("tag_dimension")
-// eslint-disable-next-line functional/no-classes
 export class TagDimension {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -54,7 +53,6 @@ export class TagDimension {
 }
 
 @Entity("tag_definition")
-// eslint-disable-next-line functional/no-classes
 export class TagDefinition {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -111,7 +109,6 @@ export class TagDefinition {
 @Index(["dimensionName", "tagValue"])
 @Index(["mediaId", "dimensionName"])
 @Index(["dimensionName", "numericValue"])
-// eslint-disable-next-line functional/no-classes
 export class MediaTag {
   @PrimaryGeneratedColumn()
   id!: number;

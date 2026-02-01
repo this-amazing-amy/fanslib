@@ -311,7 +311,7 @@ const SnippetSettings = () => {
               );
             })}
 
-            {(!snippets || snippets.length === 0) && (
+            {(snippets?.length === 0) && (
               <div className="text-center py-8 text-base-content/60">
                 <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No snippets created yet.</p>

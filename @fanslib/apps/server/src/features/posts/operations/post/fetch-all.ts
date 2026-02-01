@@ -1,7 +1,6 @@
 import { t } from "elysia";
 import { db } from "../../../../lib/db";
 import { ChannelSchema } from "../../../channels/entity";
-import { ContentScheduleSchema } from "../../../content-schedules/entity";
 import { SubredditSchema } from "../../../subreddits/entity";
 import { Post } from "../../entity";
 import { PostMediaWithMediaSchema, PostSchema } from "../../schema";

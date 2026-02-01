@@ -112,7 +112,7 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
   const saveAndAdvance = async () => {
     const status = getCompletionStatus(item.post.channel.type.id);
     const updates = {
-      caption: localCaption.trim() || null,
+      caption: localCaption.trim() ? localCaption.trim() : null,
       status,
       syncToPostIds: selectedLinkedPostIds.length > 0 ? selectedLinkedPostIds : undefined,
     };

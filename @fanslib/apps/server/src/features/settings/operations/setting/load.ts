@@ -1,4 +1,4 @@
-import { z } from "zod";
+import type { z } from "zod";
 import { readFile } from "fs/promises";
 import { env } from "../../../../lib/env";
 import { SettingsSchema } from "../../schemas/settings";

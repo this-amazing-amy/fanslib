@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { z } from 'zod';
 import { api } from '../api/hono-client';
 
 type FetchAllShootsParams = {
@@ -16,7 +15,7 @@ export const useShootsQuery = (params?: FetchAllShootsParams) =>
   useQuery({
     queryKey: ['shoots', 'list', params],
     queryFn: async () => {
-      const result = await api.api.shoots.all.$post({ json: params || {} });
+      const result = await api.api.shoots.all.$post({ json: params ?? {} });
       return result.json();
     },
   });

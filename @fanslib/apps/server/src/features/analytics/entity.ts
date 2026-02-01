@@ -1,4 +1,3 @@
-/* eslint-disable functional/no-classes */
 import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import type { Relation } from "typeorm";
 import type { PostMedia } from "../posts/entity";

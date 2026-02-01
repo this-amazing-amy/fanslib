@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { TestCredentialsResponseSchema, testCredentials } from "./operations/test-credentials";
+import { testCredentials } from "./operations/test-credentials";
 
 export const blueskyRoutes = new Hono()
   .basePath("/api/bluesky")

@@ -16,7 +16,6 @@ import { Channel } from "../channels/entity";
 import type { MediaFilterSchema } from "../library/schemas/media-filter";
 
 @Entity("content_schedule")
-// eslint-disable-next-line functional/no-classes
 export class ContentSchedule {
   @PrimaryColumn("varchar")
   id!: string;
@@ -71,7 +70,6 @@ export class ContentSchedule {
 
 @Entity("schedule_channel")
 @Index(["scheduleId", "channelId"], { unique: true })
-// eslint-disable-next-line functional/no-classes
 export class ScheduleChannel {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
@@ -104,7 +102,6 @@ export class ScheduleChannel {
 }
 
 @Entity("skipped_schedule_slot")
-// eslint-disable-next-line functional/no-classes
 export class SkippedScheduleSlot {
   @PrimaryGeneratedColumn("uuid")
   id!: string;

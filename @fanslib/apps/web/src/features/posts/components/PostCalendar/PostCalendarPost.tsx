@@ -54,7 +54,7 @@ export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
   const virtual = isVirtualPost(post);
 
   // Extract channel typeId safely
-  const channelTypeId = post.channel.type?.id || post.channel.typeId || 'onlyfans';
+  const channelTypeId = post.channel.type?.id ?? post.channel.typeId ?? 'onlyfans';
 
   const handleSkipClick = async (e: React.MouseEvent) => {
     e.preventDefault();

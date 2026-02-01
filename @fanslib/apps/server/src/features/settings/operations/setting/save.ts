@@ -1,4 +1,4 @@
-import { z } from "zod";
+import type { z } from "zod";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { dirname } from "path";
 import { SettingsSchema } from "../../schemas/settings";

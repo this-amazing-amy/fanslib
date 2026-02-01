@@ -20,7 +20,6 @@ import { Subreddit } from "../subreddits/entity";
 export type PostStatus = "draft" | "ready" | "scheduled" | "posted";
 
 @Entity("post")
-// eslint-disable-next-line functional/no-classes
 export class Post {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
@@ -92,7 +91,6 @@ export class Post {
 }
 
 @Entity("post_media")
-// eslint-disable-next-line functional/no-classes
 export class PostMedia {
   @PrimaryGeneratedColumn("uuid")
   id!: string;

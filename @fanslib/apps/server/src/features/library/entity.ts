@@ -17,7 +17,6 @@ import { MediaTag } from "../tags/entity";
 export type MediaType = "image" | "video";
 
 @Entity("media")
-// eslint-disable-next-line functional/no-classes
 export class Media {
   @PrimaryGeneratedColumn("uuid")
   id!: string;

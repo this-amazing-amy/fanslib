@@ -38,7 +38,7 @@ export const ChannelSelect = ({
 
   return (
     <div className={cn("flex flex-wrap gap-2", className)}>
-      {(!channels || channels.length === 0) && (
+      {(channels?.length === 0) && (
         <>
           <div className="text-sm text-base-content/60">No channels found.</div>
           <Link to="/content/channels" className="text-sm hover:underline">

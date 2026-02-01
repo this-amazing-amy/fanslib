@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { z } from 'zod';
 import { api } from '../api/hono-client';
 
 export const useHashtagsQuery = () =>

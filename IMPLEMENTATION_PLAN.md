@@ -44,6 +44,30 @@ Successfully pushed to feature/hono-migration branch.
 
 **Current Status (Feb 1, 2026 - Major Progress):**
 
+---
+## 🚨 **CRITICAL BUG - FIX IMMEDIATELY BEFORE CONTINUING** 🚨
+
+**ISSUE:** Zod version mismatch between server and web packages causing 160+ TypeScript errors
+
+**ROOT CAUSE:**
+- Server `package.json`: `zod: ^3.24.1`
+- Web `package.json`: `zod: 4`
+- Zod v4 has breaking changes in type system (ZodObject structure changed)
+- `@hono/zod-validator` expects Zod v3 types
+- Type incompatibilities cascade throughout the codebase
+
+**SOLUTION:**
+Align both packages to use the same Zod version (recommend v3 for @hono/zod-validator compatibility):
+```bash
+# Update web package to match server
+cd @fanslib/apps/web
+bun add zod@^3.24.1
+```
+
+**PRIORITY:** Block all migration work until this is resolved. TypeScript errors mask real issues.
+
+---
+
 ✅ Server migrated to Hono with devalue middleware
 ✅ 9 features fully working with Hono (45 endpoints migrated)
 ✅ Post and Media entity schemas already using Zod
@@ -85,6 +109,30 @@ Given the cross-dependencies between features, the most efficient approach is:
 2. Continue entity schema migrations (5 remaining)
 3. Migrate library/media-filter schemas (required by many features)
 4. Then systematically migrate features one by one with validation after each
+
+---
+
+**Session Update (Feb 1, 2026 - Evening):**
+
+**CRITICAL BUG FIXED:**
+- ✅ Zod version mismatch resolved (web v4 → v3.24.1)
+- ✅ validationError Hook signature fixed for @hono/zod-validator compatibility
+- ✅ ESLint config updated to allow TypeORM entity classes
+- ✅ All lint errors fixed (0 errors)
+
+**Current Validation Status:**
+- ✅ `bun lint`: PASSING
+- ⚠️ `bun typecheck`: 145 errors (down from 163) - expected during migration
+- ⚠️ `bun test`: 34 failures - test infrastructure needs Hono adapter updates
+
+**Root Cause of Type Errors:**
+The remaining 145 type errors are primarily in:
+1. Features not yet migrated (still using TypeBox)
+2. Tests using Elysia.use() with Hono routes (incompatible)
+3. Mixed Zod/TypeBox schema usage in content-schedules and analytics
+
+**Next Priority:**
+Continue with schema migrations and feature conversions per the original plan. Do NOT try to fix tests until features are fully migrated.
 
 **Files Modified:**
 

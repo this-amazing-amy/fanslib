@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import { z } from "zod";
 import { validationError, notFound } from "../../lib/hono-utils";
 import { fetchHashtagStats } from "./operations/hashtag-stats/fetch-stats";
 import { UpdateHashtagStatsRequestBodySchema, updateHashtagStats } from "./operations/hashtag-stats/update";

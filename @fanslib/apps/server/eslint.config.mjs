@@ -92,4 +92,12 @@ export default [
   {
     ignores: ['dist', 'node_modules'],
   },
+  {
+    // TypeORM entities are an exception to no-classes rule
+    files: ['**/entity.ts', '**/entities.ts'],
+    rules: {
+      'functional/no-classes': 'off',
+      'functional/no-this-expressions': 'off',
+    },
+  },
 ];

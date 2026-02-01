@@ -1,12 +1,18 @@
 import type { Context } from "hono";
-import { type ZodError } from "zod";
+import type { ZodError } from "zod";
+
+type ValidationResult<T> =
+  | { success: true; data: T }
+  | { success: false; error: ZodError; data: T };
 
 /**
  * Standard validation error handler for Zod validation failures.
  * Returns a 422 Unprocessable Entity response with error details.
  */
-export const validationError = (result: ZodError, c: Context) => {
-  const errors = result.issues.map((err) => ({
+export const validationError = <T>(result: ValidationResult<T> & { target: string }, c: Context) => {
+  if (result.success) return;
+
+  const errors = result.error.issues.map((err) => ({
     path: err.path.join("."),
     message: err.message,
     code: err.code,
