@@ -1,36 +1,4 @@
-# FansLib AI coding guide (Claude / Cursor / Copilot)
-
-## Current Migration Status - IN PROGRESS
-
-**Hono Migration (as of Feb 1, 2026 - Commit c572a14):**
-
-The server is being migrated from Elysia + Eden + TypeBox to Hono + hc client + Zod. This is an **in-progress migration**.
-
-### Current State:
-
-- ✅ Dependencies installed (hono, @hono/zod-validator, zod)
-- ✅ Infrastructure complete (hono-utils.ts, devalue-middleware.ts, hono-client.ts)
-- ✅ Main server app migrated to Hono (index.ts)
-- ✅ 2 features fully migrated (Settings, Bluesky)
-- ⚠️ **Server does NOT fully typecheck** - ~70 type errors remaining
-- ⚠️ Many features still use Elysia routes with TypeBox schemas
-
-### What Works:
-
-- `bun dev` - Server starts and runs
-- Settings endpoints (Hono)
-- Bluesky endpoints (Hono)
-- All Elysia endpoints still function
-
-### What Doesn't Work Yet:
-
-- `bun typecheck` fails with ~70 errors (expected during migration)
-- Features with mixed Zod/TypeBox schemas have type issues
-- Some cross-dependencies between features cause type conflicts
-
-### For Developers:
-
-See `IMPLEMENTATION_PLAN.md` for detailed migration status, strategy, and next steps. Do NOT try to run full validation until migration is complete.
+# FansLib AI coding guide
 
 ## Ralph Loop Operations
 
@@ -53,9 +21,10 @@ Specifications live in `specs/*.json` and use the Anthropic agent-first format:
 2. Choose the next feature with `passes: false`
 3. Implement the feature
 4. Test acceptance criteria
-5. Update spec: change `passes: false` → `passes: true`
-6. Commit with descriptive message
-7. Repeat until all features pass
+5. Validate (see below)
+6. Update spec: change `passes: false` → `passes: true`
+7. Commit with descriptive message
+8. Repeat until all features pass
 
 **Validation (Backpressure)**
 
@@ -71,9 +40,8 @@ bun lint && bun typecheck && bun test
 **File Updates**
 
 - Keep `@IMPLEMENTATION_PLAN.md` current with progress, discoveries, and bugs
-- Update `@AGENTS.md` only for operational learnings (how to build/run)
 - Update spec JSON files to mark features as passing
-- Do NOT put status updates or progress notes in AGENTS.md
+- NEVER put status updates or progress notes in AGENTS.md
 
 ---
 
