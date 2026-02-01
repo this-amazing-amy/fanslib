@@ -1,127 +1,98 @@
-import { Elysia, t } from "elysia";
-import { AddMediaToPostRequestBodySchema, AddMediaToPostRequestParamsSchema, AddMediaToPostResponseSchema, addMediaToPost } from "./operations/post-media/add";
-import { RemoveMediaFromPostRequestBodySchema, RemoveMediaFromPostRequestParamsSchema, RemoveMediaFromPostResponseSchema, removeMediaFromPost } from "./operations/post-media/remove";
-import { UpdatePostMediaRequestBodySchema, UpdatePostMediaRequestParamsSchema, UpdatePostMediaResponseSchema, updatePostMedia } from "./operations/post-media/update";
-import { CreatePostRequestBodySchema, CreatePostResponseSchema, createPost } from "./operations/post/create";
-import { DeletePostRequestParamsSchema, DeletePostResponseSchema, deletePost } from "./operations/post/delete";
-import { FetchAllPostsRequestQuerySchema, FetchAllPostsResponseSchema, fetchAllPosts } from "./operations/post/fetch-all";
-import { FetchPostsByChannelResponseSchema, fetchPostsByChannel } from "./operations/post/fetch-by-channel";
-import { FetchPostByIdRequestParamsSchema, FetchPostByIdResponseSchema, fetchPostById } from "./operations/post/fetch-by-id";
-import { FetchPostsByMediaIdRequestParamsSchema, FetchPostsByMediaIdResponseSchema, fetchPostsByMediaId } from "./operations/post/fetch-by-media-id";
-import { UpdatePostRequestBodySchema, UpdatePostRequestParamsSchema, UpdatePostResponseSchema, updatePost } from "./operations/post/update";
+import { Hono } from "hono";
+import { zValidator } from "@hono/zod-validator";
+import { z } from "zod";
+import { validationError, notFound } from "../../lib/hono-utils";
+import { AddMediaToPostRequestBodySchema, addMediaToPost } from "./operations/post-media/add";
+import { RemoveMediaFromPostRequestBodySchema, removeMediaFromPost } from "./operations/post-media/remove";
+import { UpdatePostMediaRequestBodySchema, updatePostMedia } from "./operations/post-media/update";
+import { CreatePostRequestBodySchema, createPost } from "./operations/post/create";
+import { deletePost } from "./operations/post/delete";
+import { fetchAllPosts } from "./operations/post/fetch-all";
+import { fetchPostsByChannel } from "./operations/post/fetch-by-channel";
+import { fetchPostById } from "./operations/post/fetch-by-id";
+import { fetchPostsByMediaId } from "./operations/post/fetch-by-media-id";
+import { UpdatePostRequestBodySchema, updatePost } from "./operations/post/update";
+import { PostFiltersSchema } from "./schemas/post-filters";
 
-export const postsRoutes = new Elysia({ prefix: "/api/posts" })
-  .get("/all", async ({ query }) => {
-    const filters = query.filters ? JSON.parse(query.filters as string) : undefined;
-    return fetchAllPosts(filters);
-  }, {
-    query: FetchAllPostsRequestQuerySchema,
-    response: FetchAllPostsResponseSchema,
+const FetchAllPostsQuerySchema = z.object({
+  filters: z.string().optional(),
+});
+
+export const postsRoutes = new Hono()
+  .basePath("/api/posts")
+  .get("/all", zValidator("query", FetchAllPostsQuerySchema, validationError), async (c) => {
+    const { filters: filtersString } = c.req.valid("query");
+    const filters = filtersString ? PostFiltersSchema.parse(JSON.parse(filtersString)) : undefined;
+    const result = await fetchAllPosts(filters);
+    return c.json(result);
   })
-  .get("/by-id/:id", async ({ params: { id }, set }) => {
+  .get("/by-id/:id", async (c) => {
+    const id = c.req.param("id");
     const post = await fetchPostById(id);
     if (!post) {
-      set.status = 404;
-      return { error: "Post not found" };
+      return notFound(c, "Post not found");
     }
-    return post;
-  }, {
-    params: FetchPostByIdRequestParamsSchema,
-    response: {
-      200: FetchPostByIdResponseSchema,
-      404: t.Object({ error: t.String() }),
-    },
+    return c.json(post);
   })
-  .get("/by-channel-id/:channelId", async ({ params: { channelId } }) =>
-    fetchPostsByChannel(channelId)
-  , {
-    response: FetchPostsByChannelResponseSchema,
+  .get("/by-channel-id/:channelId", async (c) => {
+    const channelId = c.req.param("channelId");
+    const posts = await fetchPostsByChannel(channelId);
+    return c.json(posts);
   })
-  .get("/by-media-id/:mediaId", async ({ params: { mediaId } }) =>
-    fetchPostsByMediaId(mediaId)
-  , {
-    params: FetchPostsByMediaIdRequestParamsSchema,
-    response: FetchPostsByMediaIdResponseSchema,
+  .get("/by-media-id/:mediaId", async (c) => {
+    const mediaId = c.req.param("mediaId");
+    const posts = await fetchPostsByMediaId(mediaId);
+    return c.json(posts);
   })
-  .post("/", async ({ body }) => {
+  .post("/", zValidator("json", CreatePostRequestBodySchema, validationError), async (c) => {
+    const body = c.req.valid("json");
     const { mediaIds, ...postData } = body;
-    return createPost(postData as Omit<typeof body, 'mediaIds'>, mediaIds ?? []);
-  }, {
-    body: CreatePostRequestBodySchema,
-    response: CreatePostResponseSchema,
+    const result = await createPost(postData, mediaIds ?? []);
+    return c.json(result);
   })
-  .patch("/by-id/:id", async ({ params: { id }, body, set }) => {
+  .patch("/by-id/:id", zValidator("json", UpdatePostRequestBodySchema, validationError), async (c) => {
+    const id = c.req.param("id");
+    const body = c.req.valid("json");
     const post = await updatePost(id, body);
     if (!post) {
-      set.status = 404;
-      return { error: "Post not found" };
+      return notFound(c, "Post not found");
     }
-    return post;
-  }, {
-    params: UpdatePostRequestParamsSchema,
-    body: UpdatePostRequestBodySchema,
-    response: {
-      200: UpdatePostResponseSchema,
-      404: t.Object({ error: t.String() }),
-    },
+    return c.json(post);
   })
-  .delete("/by-id/:id", async ({ params: { id }, set }) => {
+  .delete("/by-id/:id", async (c) => {
+    const id = c.req.param("id");
     const success = await deletePost(id);
     if (!success) {
-      set.status = 404;
-      return { error: "Post not found" };
+      return notFound(c, "Post not found");
     }
-    return { success: true };
-  }, {
-    params: DeletePostRequestParamsSchema,
-    response: {
-      200: DeletePostResponseSchema,
-      404: t.Object({ error: t.String() }),
-    },
+    return c.json({ success: true });
   })
-  .post("/by-id/:id/media", async ({ params: { id }, body, set }) => {
+  .post("/by-id/:id/media", zValidator("json", AddMediaToPostRequestBodySchema, validationError), async (c) => {
+    const id = c.req.param("id");
+    const body = c.req.valid("json");
     const post = await addMediaToPost(id, body.mediaIds);
     if (!post) {
-      set.status = 404;
-      return { error: "Post not found" };
+      return notFound(c, "Post not found");
     }
-    return post;
-  }, {
-    params: AddMediaToPostRequestParamsSchema,
-    body: AddMediaToPostRequestBodySchema,
-    response: {
-      200: AddMediaToPostResponseSchema,
-      404: t.Object({ error: t.String() }),
-    },
+    return c.json(post);
   })
-  .delete("/by-id/:id/media", async ({ params: { id }, body, set }) => {
+  .delete("/by-id/:id/media", zValidator("json", RemoveMediaFromPostRequestBodySchema, validationError), async (c) => {
+    const id = c.req.param("id");
+    const body = c.req.valid("json");
     const post = await removeMediaFromPost(id, body.mediaIds);
     if (!post) {
-      set.status = 404;
-      return { error: "Post not found" };
+      return notFound(c, "Post not found");
     }
-    return post;
-  }, {
-    params: RemoveMediaFromPostRequestParamsSchema,
-    body: RemoveMediaFromPostRequestBodySchema,
-    response: {
-      200: RemoveMediaFromPostResponseSchema,
-      404: t.Object({ error: t.String() }),
-    },
+    return c.json(post);
   })
-  .patch("/by-id/:id/media/:postMediaId", async ({ params: { id, postMediaId }, body, set }) => {
+  .patch("/by-id/:id/media/:postMediaId", zValidator("json", UpdatePostMediaRequestBodySchema, validationError), async (c) => {
+    const id = c.req.param("id");
+    const postMediaId = c.req.param("postMediaId");
+    const body = c.req.valid("json");
     const postMedia = await updatePostMedia(id, postMediaId, body);
     if (!postMedia) {
-      set.status = 404;
-      return { error: "PostMedia not found" };
+      return notFound(c, "PostMedia not found");
     }
-    return postMedia;
-  }, {
-    params: UpdatePostMediaRequestParamsSchema,
-    body: UpdatePostMediaRequestBodySchema,
-    response: {
-      200: UpdatePostMediaResponseSchema,
-      404: t.Object({ error: t.String() }),
-    },
+    return c.json(postMedia);
   });
 

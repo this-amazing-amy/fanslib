@@ -1,10 +1,11 @@
+import type { z } from "zod";
 import { db } from "../../lib/db";
 import { Channel } from "../channels/entity";
 import type { MediaFilterSchema } from "../library/schemas/media-filter";
 import { Shoot } from "../shoots/entity";
 import { TagDefinition } from "../tags/entity";
 
-type MediaFilters = typeof MediaFilterSchema.static;
+type MediaFilters = z.infer<typeof MediaFilterSchema>;
 type FilterGroup = MediaFilters[number];
 type FilterItem = FilterGroup['items'][number];
 

@@ -1,16 +1,16 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
-import { Elysia } from "elysia";
+import { Hono } from "hono";
 import "reflect-metadata";
 import { getTestDataSource, resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
-import { mapResponse } from "../../lib/serialization";
-import { logError, parseResponse } from "../../test-utils/setup";
+import { devalueMiddleware } from "../../lib/devalue-middleware";
+import { parseResponse } from "../../test-utils/setup";
 import { Shoot } from "./entity";
 import { SHOOT_FIXTURES } from "./fixtures";
 import { shootsRoutes } from "./routes";
 
 describe("Shoots Routes", () => {
   // eslint-disable-next-line functional/no-let
-  let app: Elysia;
+  let app: Hono;
   // eslint-disable-next-line functional/no-let
   let fixtures: Awaited<ReturnType<typeof resetAllFixtures>>;
 
@@ -18,7 +18,9 @@ describe("Shoots Routes", () => {
     await setupTestDatabase();
     fixtures = await resetAllFixtures();
     void fixtures;
-    app = new Elysia().onError(logError()).mapResponse(mapResponse).use(shootsRoutes);
+    app = new Hono()
+      .use("*", devalueMiddleware())
+      .route("/", shootsRoutes);
   });
 
   afterAll(async () => {
@@ -31,10 +33,11 @@ describe("Shoots Routes", () => {
 
   describe("POST /api/shoots/all", () => {
     test("returns all shoots", async () => {
-      const response = await app.handle(new Request("http://localhost/api/shoots/all", {
+      const response = await app.request("/api/shoots/all", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-      }));
+        body: JSON.stringify({}),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<{ items: Shoot[]; total: number; page: number; limit: number }>(response);
@@ -49,16 +52,14 @@ describe("Shoots Routes", () => {
     });
 
     test("supports pagination", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/shoots/all", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            page: 1,
-            limit: 2,
-          }),
-        })
-      );
+      const response = await app.request("/api/shoots/all", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          page: 1,
+          limit: 2,
+        }),
+      });
       const data = await parseResponse<{ items: Shoot[]; total: number; page: number; limit: number }>(response);
 
       expect(data?.items).toHaveLength(2);
@@ -75,9 +76,7 @@ describe("Shoots Routes", () => {
         throw new Error("No shoot fixtures available");
       }
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/shoots/by-id/${fixtureShoot.id}`)
-      );
+      const response = await app.request(`/api/shoots/by-id/${fixtureShoot.id}`);
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Shoot>(response);
@@ -86,9 +85,7 @@ describe("Shoots Routes", () => {
     });
 
     test("returns error for non-existent shoot", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/shoots/by-id/non-existent-id")
-      );
+      const response = await app.request("/api/shoots/by-id/non-existent-id");
 
       const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
@@ -103,13 +100,11 @@ describe("Shoots Routes", () => {
         shootDate: new Date().toISOString(),
       };
 
-      const response = await app.handle(
-        new Request("http://localhost/api/shoots", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(shootData),
-        })
-      );
+      const response = await app.request("/api/shoots", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(shootData),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Shoot>(response);
@@ -128,13 +123,11 @@ describe("Shoots Routes", () => {
         name: "Updated Name",
       };
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/shoots/by-id/${fixtureShoot.id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updateData),
-        })
-      );
+      const response = await app.request(`/api/shoots/by-id/${fixtureShoot.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updateData),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Shoot>(response);
@@ -150,11 +143,9 @@ describe("Shoots Routes", () => {
         throw new Error("No shoot fixtures available");
       }
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/shoots/by-id/${fixtureShoot.id}`, {
-          method: "DELETE",
-        })
-      );
+      const response = await app.request(`/api/shoots/by-id/${fixtureShoot.id}`, {
+        method: "DELETE",
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<{ success: boolean }>(response);
@@ -167,11 +158,9 @@ describe("Shoots Routes", () => {
     });
 
     test("returns 404 when shoot not found", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/shoots/by-id/non-existent-id", {
-          method: "DELETE",
-        })
-      );
+      const response = await app.request("/api/shoots/by-id/non-existent-id", {
+        method: "DELETE",
+      });
       expect(response.status).toBe(404);
 
       const data = await parseResponse<{ error: string }>(response);

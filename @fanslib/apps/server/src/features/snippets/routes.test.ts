@@ -1,9 +1,10 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
-import { Elysia } from "elysia";
+import { Hono } from "hono";
+import type { z } from "zod";
 import "reflect-metadata";
 import { getTestDataSource, resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
-import { mapResponse } from "../../lib/serialization";
-import { logError, parseResponse } from "../../test-utils/setup";
+import { devalueMiddleware } from "../../lib/devalue-middleware";
+import { parseResponse } from "../../test-utils/setup";
 import { CaptionSnippet } from "./entity";
 import { CAPTION_SNIPPET_FIXTURES } from "./fixtures";
 import type { CreateSnippetResponseSchema } from "./operations/snippet/create";
@@ -11,14 +12,16 @@ import { snippetsRoutes } from "./routes";
 
 describe("Snippets Routes", () => {
   // eslint-disable-next-line functional/no-let
-  let app: Elysia;
+  let app: Hono;
   // eslint-disable-next-line functional/no-let
   let fixtures: Awaited<ReturnType<typeof resetAllFixtures>>;
 
   beforeAll(async () => {
     await setupTestDatabase();
     fixtures = await resetAllFixtures();
-    app = new Elysia().onError(logError()).mapResponse(mapResponse).use(snippetsRoutes);
+    app = new Hono()
+      .use("*", devalueMiddleware())
+      .route("/", snippetsRoutes);
   });
 
   afterAll(async () => {
@@ -31,7 +34,7 @@ describe("Snippets Routes", () => {
 
   describe("GET /api/snippets/all", () => {
     test("returns all snippets", async () => {
-      const response = await app.handle(new Request("http://localhost/api/snippets/all"));
+      const response = await app.request("/api/snippets/all");
       expect(response.status).toBe(200);
       
       const data = await parseResponse<CaptionSnippet[]>(response);
@@ -49,7 +52,7 @@ describe("Snippets Routes", () => {
 
   describe("GET /api/snippets/global", () => {
     test("returns only global snippets", async () => {
-      const response = await app.handle(new Request("http://localhost/api/snippets/global"));
+      const response = await app.request("/api/snippets/global");
       const data = await parseResponse<CaptionSnippet[]>(response);
 
       expect(Array.isArray(data)).toBe(true);
@@ -66,9 +69,7 @@ describe("Snippets Routes", () => {
         throw new Error("No channel fixtures available");
       }
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/snippets/by-channel-id/${fixtureChannel.id}`)
-      );
+      const response = await app.request(`/api/snippets/by-channel-id/${fixtureChannel.id}`);
       const data = await parseResponse<CaptionSnippet[]>(response);
 
       expect(Array.isArray(data)).toBe(true);
@@ -85,9 +86,7 @@ describe("Snippets Routes", () => {
         throw new Error("No snippet fixtures available");
       }
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/snippets/by-id/${fixtureSnippet.id}`)
-      );
+      const response = await app.request(`/api/snippets/by-id/${fixtureSnippet.id}`);
       expect(response.status).toBe(200);
 
       const data = await parseResponse<CaptionSnippet>(response);
@@ -96,9 +95,7 @@ describe("Snippets Routes", () => {
     });
 
     test("returns error for non-existent snippet", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/snippets/by-id/non-existent-id")
-      );
+      const response = await app.request("/api/snippets/by-id/non-existent-id");
 
       const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
@@ -113,13 +110,11 @@ describe("Snippets Routes", () => {
         content: "This is a new snippet",
       };
 
-      const response = await app.handle(
-        new Request("http://localhost/api/snippets", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(snippetData),
-        })
-      );
+      const response = await app.request("/api/snippets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(snippetData),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<CaptionSnippet>(response);
@@ -139,15 +134,13 @@ describe("Snippets Routes", () => {
         channelId: channel.id,
       };
 
-      const response = await app.handle(
-        new Request("http://localhost/api/snippets", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(snippetData),
-        })
-      );
+      const response = await app.request("/api/snippets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(snippetData),
+      });
 
-      const data = await parseResponse<typeof CreateSnippetResponseSchema.static>(response);
+      const data = await parseResponse<z.infer<typeof CreateSnippetResponseSchema>>(response);
       expect(data?.channel?.id).toBe(channel.id);
     });
   });
@@ -164,13 +157,11 @@ describe("Snippets Routes", () => {
         content: "Updated content",
       };
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/snippets/by-id/${fixtureSnippet.id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updateData),
-        })
-      );
+      const response = await app.request(`/api/snippets/by-id/${fixtureSnippet.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updateData),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<CaptionSnippet>(response);
@@ -187,11 +178,9 @@ describe("Snippets Routes", () => {
         throw new Error("No snippet fixtures available");
       }
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/snippets/by-id/${fixtureSnippet.id}`, {
-          method: "DELETE",
-        })
-      );
+      const response = await app.request(`/api/snippets/by-id/${fixtureSnippet.id}`, {
+        method: "DELETE",
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<{ success: boolean }>(response);
@@ -204,11 +193,9 @@ describe("Snippets Routes", () => {
     });
 
     test("returns 404 when snippet not found", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/snippets/by-id/non-existent-id", {
-          method: "DELETE",
-        })
-      );
+      const response = await app.request("/api/snippets/by-id/non-existent-id", {
+        method: "DELETE",
+      });
       expect(response.status).toBe(404);
 
       const data = await parseResponse<{ error: string }>(response);

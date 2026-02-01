@@ -1,9 +1,9 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
-import { Elysia } from "elysia";
+import { Hono } from "hono";
 import "reflect-metadata";
 import { getTestDataSource, resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
-import { mapResponse } from "../../lib/serialization";
-import { logError, parseResponse } from "../../test-utils/setup";
+import { devalueMiddleware } from "../../lib/devalue-middleware";
+import { parseResponse } from "../../test-utils/setup";
 import { Hashtag as HashtagEntity } from "./entity";
 import { HASHTAG_FIXTURES } from "./fixtures";
 import { normalizeHashtagName } from "./operations/hashtag/helpers";
@@ -13,14 +13,16 @@ type Hashtag = HashtagEntity;
 
 describe("Hashtags Routes", () => {
   // eslint-disable-next-line functional/no-let
-  let app: Elysia;
+  let app: Hono;
   // eslint-disable-next-line functional/no-let
   let fixtures: Awaited<ReturnType<typeof resetAllFixtures>>;
 
   beforeAll(async () => {
     await setupTestDatabase();
     fixtures = await resetAllFixtures();
-    app = new Elysia().onError(logError()).mapResponse(mapResponse).use(hashtagsRoutes);
+    app = new Hono()
+      .use("*", devalueMiddleware())
+      .route("/", hashtagsRoutes);
   });
 
   afterAll(async () => {
@@ -33,7 +35,7 @@ describe("Hashtags Routes", () => {
 
   describe("GET /api/hashtags/all", () => {
     test("returns all hashtags", async () => {
-      const response = await app.handle(new Request("http://localhost/api/hashtags/all"));
+      const response = await app.request("/api/hashtags/all");
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Hashtag[]>(response);
@@ -56,9 +58,7 @@ describe("Hashtags Routes", () => {
         throw new Error("No hashtag fixtures available");
       }
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/hashtags/by-id/${fixtureHashtag.id}`)
-      );
+      const response = await app.request(`/api/hashtags/by-id/${fixtureHashtag.id}`);
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Hashtag>(response);
@@ -67,9 +67,7 @@ describe("Hashtags Routes", () => {
     });
 
     test("returns error for non-existent hashtag", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/hashtags/by-id/999999")
-      );
+      const response = await app.request("/api/hashtags/by-id/999999");
 
       const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
@@ -83,13 +81,11 @@ describe("Hashtags Routes", () => {
         name: "newhash",
       };
 
-      const response = await app.handle(
-        new Request("http://localhost/api/hashtags", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(hashtagData),
-        })
-      );
+      const response = await app.request("/api/hashtags", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(hashtagData),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Hashtag>(response);
@@ -102,13 +98,11 @@ describe("Hashtags Routes", () => {
         throw new Error("No hashtag fixtures available");
       }
 
-      const response = await app.handle(
-        new Request("http://localhost/api/hashtags", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: existing.name }),
-        })
-      );
+      const response = await app.request("/api/hashtags", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: existing.name }),
+      });
 
       const data = await parseResponse<Hashtag>(response);
       expect(data?.id).toBe(existing.id);
@@ -118,13 +112,11 @@ describe("Hashtags Routes", () => {
 
   describe("POST /api/hashtags/by-ids", () => {
     test("creates multiple hashtags", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/hashtags/by-ids", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ names: ["hash1", "hash2", "hash3"] }),
-        })
-      );
+      const response = await app.request("/api/hashtags/by-ids", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ names: ["hash1", "hash2", "hash3"] }),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Hashtag[]>(response);
@@ -140,13 +132,11 @@ describe("Hashtags Routes", () => {
         throw new Error("No hashtag fixtures available");
       }
 
-      const response = await app.handle(
-        new Request("http://localhost/api/hashtags/by-ids", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ names: [existing.name, "#newhash"] }),
-        })
-      );
+      const response = await app.request("/api/hashtags/by-ids", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ names: [existing.name, "#newhash"] }),
+      });
 
       const data = await parseResponse<Hashtag[]>(response);
       expect(data).toHaveLength(2);
@@ -160,11 +150,9 @@ describe("Hashtags Routes", () => {
         throw new Error("No hashtag fixtures available");
       }
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/hashtags/by-id/${fixtureHashtag.id}`, {
-          method: "DELETE",
-        })
-      );
+      const response = await app.request(`/api/hashtags/by-id/${fixtureHashtag.id}`, {
+        method: "DELETE",
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<{ success: boolean }>(response);
@@ -184,9 +172,7 @@ describe("Hashtags Routes", () => {
         throw new Error("No hashtag fixtures available");
       }
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/hashtags/by-id/${fixtureHashtag.id}/stats`)
-      );
+      const response = await app.request(`/api/hashtags/by-id/${fixtureHashtag.id}/stats`);
       expect(response.status).toBe(200);
 
       const data = await parseResponse<unknown[]>(response);
@@ -207,13 +193,11 @@ describe("Hashtags Routes", () => {
         views: 1000,
       };
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/hashtags/by-id/${fixtureHashtag.id}/stats`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(statsData),
-        })
-      );
+      const response = await app.request(`/api/hashtags/by-id/${fixtureHashtag.id}/stats`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(statsData),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<{ hashtagId: number; channelId: string }>(response);
@@ -231,18 +215,14 @@ describe("Hashtags Routes", () => {
       }
 
       const ids = JSON.stringify([hash1.id, hash2.id]);
-      const response = await app.handle(
-        new Request(`http://localhost/api/hashtags/by-ids?ids=${encodeURIComponent(ids)}`)
-      );
+      const response = await app.request(`/api/hashtags/by-ids?ids=${encodeURIComponent(ids)}`);
       const data = await parseResponse<Hashtag[]>(response);
 
       expect(data).toHaveLength(2);
     });
 
     test("handles empty ids array", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/hashtags/by-ids?ids=[]")
-      );
+      const response = await app.request("/api/hashtags/by-ids?ids=[]");
       const data = await parseResponse<Hashtag[]>(response);
 
       expect(data).toEqual([]);

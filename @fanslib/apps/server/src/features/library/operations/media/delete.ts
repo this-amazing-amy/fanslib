@@ -1,20 +1,20 @@
-import { t } from "elysia";
+import { z } from "zod";
 import * as fs from "fs/promises";
 import { db } from "../../../../lib/db";
 import { env } from "../../../../lib/env";
 import { Media } from "../../entity";
 
-export const DeleteMediaRequestParamsSchema = t.Object({
-  id: t.String(),
+export const DeleteMediaRequestParamsSchema = z.object({
+  id: z.string(),
 });
 
-export const DeleteMediaQuerySchema = t.Object({
-  deleteFile: t.Optional(t.String()), // "true" or undefined
+export const DeleteMediaQuerySchema = z.object({
+  deleteFile: z.string().optional(), // "true" or undefined
 });
 
-export const DeleteMediaResponseSchema = t.Object({
-  success: t.Boolean(),
-  error: t.Optional(t.String()),
+export const DeleteMediaResponseSchema = z.object({
+  success: z.boolean(),
+  error: z.string().optional(),
 });
 
 export const deleteMedia = async (id: string, deleteFile = false): Promise<boolean> => {

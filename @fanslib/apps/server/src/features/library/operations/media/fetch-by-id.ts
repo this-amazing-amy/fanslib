@@ -1,4 +1,4 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { ChannelSchema } from "../../../channels/entity";
 import { PostMediaSchema, PostSchema } from "../../../posts/schema";
@@ -6,29 +6,20 @@ import { SubredditSchema } from "../../../subreddits/entity";
 import { Media } from "../../entity";
 import { MediaSchema } from "../../schema";
 
-export const FetchMediaByIdRequestParamsSchema = t.Object({
-  id: t.String(),
+export const FetchMediaByIdRequestParamsSchema = z.object({
+  id: z.string(),
 });
 
-export const FetchMediaByIdResponseSchema = t.Composite([
-  MediaSchema,
-  t.Object({
-    postMedia: t.Array(t.Composite([
-      PostMediaSchema,
-      t.Object({
-        post: t.Composite([
-          PostSchema,
-          t.Object({
-            channel: ChannelSchema,
-            subreddit: t.Optional(t.Nullable(SubredditSchema)),
-          }),
-        ]),
-      }),
-    ])),
-  }),
-]);
+export const FetchMediaByIdResponseSchema = MediaSchema.extend({
+  postMedia: z.array(PostMediaSchema.extend({
+    post: PostSchema.extend({
+      channel: ChannelSchema,
+      subreddit: SubredditSchema.nullable().optional(),
+    }),
+  })),
+});
 
-export const fetchMediaById = async (id: string): Promise<typeof FetchMediaByIdResponseSchema.static | null> => {
+export const fetchMediaById = async (id: string): Promise<z.infer<typeof FetchMediaByIdResponseSchema> | null> => {
   const database = await db();
 
   const media = await database.manager.findOne(Media, {

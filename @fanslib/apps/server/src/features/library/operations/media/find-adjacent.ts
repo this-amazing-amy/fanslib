@@ -1,4 +1,4 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { Media } from "../../entity";
 import { MediaSchema } from "../../schema";
@@ -6,25 +6,25 @@ import { buildFilterGroupQuery } from "../../filter-helpers";
 import { MediaFilterSchema } from "../../schemas/media-filter";
 import { MediaSortSchema } from "../../schemas/media-sort";
 
-export const FindAdjacentMediaRequestParamsSchema = t.Object({
-  id: t.String(),
+export const FindAdjacentMediaRequestParamsSchema = z.object({
+  id: z.string(),
 });
 
-export const FindAdjacentMediaBodySchema = t.Object({
-  filters: t.Optional(MediaFilterSchema),
-  sort: t.Optional(MediaSortSchema),
+export const FindAdjacentMediaBodySchema = z.object({
+  filters: MediaFilterSchema.optional(),
+  sort: MediaSortSchema.optional(),
 });
 
-export const FindAdjacentMediaResponseSchema = t.Object({
-  previous: t.Union([MediaSchema, t.Null()]),
-  next: t.Union([MediaSchema, t.Null()]),
+export const FindAdjacentMediaResponseSchema = z.object({
+  previous: MediaSchema.nullable(),
+  next: MediaSchema.nullable(),
 });
 
 
 export const findAdjacentMedia = async (
   mediaId: string,
-  params?: typeof FindAdjacentMediaBodySchema.static
-): Promise<typeof FindAdjacentMediaResponseSchema.static> => {
+  params?: z.infer<typeof FindAdjacentMediaBodySchema>
+): Promise<z.infer<typeof FindAdjacentMediaResponseSchema>> => {
   const database = await db();
 
   const currentMedia = await database.manager.findOne(Media, {

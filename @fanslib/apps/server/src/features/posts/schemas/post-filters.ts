@@ -1,13 +1,13 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { PostStatusSchema } from "../schema";
 
-export const PostFiltersSchema = t.Object({
-  search: t.Optional(t.String()),
-  channels: t.Optional(t.Array(t.String())),
-  channelTypes: t.Optional(t.Array(t.String())),
-  statuses: t.Optional(t.Array(PostStatusSchema)),
-  dateRange: t.Optional(t.Object({
-    startDate: t.String(),
-    endDate: t.String(),
-  })),
+export const PostFiltersSchema = z.object({
+  search: z.string().optional(),
+  channels: z.array(z.string()).optional(),
+  channelTypes: z.array(z.string()).optional(),
+  statuses: z.array(PostStatusSchema).optional(),
+  dateRange: z.object({
+    startDate: z.string(),
+    endDate: z.string(),
+  }).optional(),
 });

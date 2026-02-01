@@ -1,4 +1,4 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { ChannelSchema } from "../../../channels/entity";
 import { PostMediaSchema, PostSchema } from "../../../posts/schema";
@@ -6,40 +6,31 @@ import { SubredditSchema } from "../../../subreddits/entity";
 import { Media } from "../../entity";
 import { MediaSchema, MediaTypeSchema } from "../../schema";
 
-export const UpdateMediaRequestParamsSchema = t.Object({
-  id: t.String(),
+export const UpdateMediaRequestParamsSchema = z.object({
+  id: z.string(),
 });
 
-export const UpdateMediaRequestBodySchema = t.Partial(t.Object({
-  relativePath: t.String(),
-  type: MediaTypeSchema,
-  name: t.String(),
-  size: t.Number(),
-  duration: t.Optional(t.Number()),
-  redgifsUrl: t.Union([t.String(), t.Null()]),
-  fileCreationDate: t.Date(),
-  fileModificationDate: t.Date(),
-}));
+export const UpdateMediaRequestBodySchema = z.object({
+  relativePath: z.string().optional(),
+  type: MediaTypeSchema.optional(),
+  name: z.string().optional(),
+  size: z.number().optional(),
+  duration: z.number().optional(),
+  redgifsUrl: z.string().nullable().optional(),
+  fileCreationDate: z.coerce.date().optional(),
+  fileModificationDate: z.coerce.date().optional(),
+});
 
-export const UpdateMediaResponseSchema = t.Composite([
-  MediaSchema,
-  t.Object({
-    postMedia: t.Array(t.Composite([
-      PostMediaSchema,
-      t.Object({
-        post: t.Composite([
-          PostSchema,
-          t.Object({
-            channel: ChannelSchema,
-            subreddit: t.Optional(t.Nullable(SubredditSchema)),
-          }),
-        ]),
-      }),
-    ])),
-  }),
-]);
+export const UpdateMediaResponseSchema = MediaSchema.extend({
+  postMedia: z.array(PostMediaSchema.extend({
+    post: PostSchema.extend({
+      channel: ChannelSchema,
+      subreddit: SubredditSchema.nullable().optional(),
+    }),
+  })),
+});
 
-export const updateMedia = async (id: string, updates: typeof UpdateMediaRequestBodySchema.static): Promise<typeof UpdateMediaResponseSchema.static | null> => {
+export const updateMedia = async (id: string, updates: z.infer<typeof UpdateMediaRequestBodySchema>): Promise<z.infer<typeof UpdateMediaResponseSchema> | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Media);
 

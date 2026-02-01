@@ -1,15 +1,53 @@
-import { Elysia, t } from 'elysia';
+import { Hono } from 'hono';
+import { zValidator } from '@hono/zod-validator';
+import { z } from 'zod';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { DeleteMediaQuerySchema, DeleteMediaRequestParamsSchema, DeleteMediaResponseSchema, deleteMedia } from './operations/media/delete';
-import { FetchAllMediaRequestBodySchema, FetchAllMediaResponseSchema, fetchAllMedia } from './operations/media/fetch-all';
-import { FetchMediaByIdRequestParamsSchema, FetchMediaByIdResponseSchema, fetchMediaById } from './operations/media/fetch-by-id';
-import { FetchMediaByPathRequestParamsSchema, FetchMediaByPathResponseSchema, fetchMediaByPath } from './operations/media/fetch-by-path';
-import { FindAdjacentMediaBodySchema, FindAdjacentMediaRequestParamsSchema, FindAdjacentMediaResponseSchema, findAdjacentMedia } from './operations/media/find-adjacent';
-import { UpdateMediaRequestBodySchema, UpdateMediaRequestParamsSchema, UpdateMediaResponseSchema, updateMedia } from './operations/media/update';
-import { FileScanResultSchema, ScanFileRequestBodySchema, ScanLibraryResponseSchema, ScanStatusResponseSchema, getScanStatus, scanFile, scanLibrary } from './operations/scan/scan';
+import { validationError, notFound } from '../../lib/hono-utils';
+import { deleteMedia } from './operations/media/delete';
+import { fetchAllMedia } from './operations/media/fetch-all';
+import { fetchMediaById } from './operations/media/fetch-by-id';
+import { fetchMediaByPath } from './operations/media/fetch-by-path';
+import { findAdjacentMedia } from './operations/media/find-adjacent';
+import { updateMedia } from './operations/media/update';
+import { getScanStatus, scanFile, scanLibrary } from './operations/scan/scan';
 import { getThumbnailPath } from './operations/scan/thumbnail';
 import { resolveMediaPath } from './path-utils';
+import { MediaFilterSchema } from './schemas/media-filter';
+import { MediaSortSchema } from './schemas/media-sort';
+import { MediaTypeSchema } from './schema';
+
+// Zod Schemas for request/response validation
+const FetchAllMediaRequestBodySchema = z.object({
+  page: z.number().optional().default(1),
+  limit: z.number().optional().default(50),
+  filters: MediaFilterSchema.optional(),
+  sort: MediaSortSchema.optional(),
+});
+
+const DeleteMediaQuerySchema = z.object({
+  deleteFile: z.string().optional(),
+});
+
+const UpdateMediaRequestBodySchema = z.object({
+  relativePath: z.string().optional(),
+  type: MediaTypeSchema.optional(),
+  name: z.string().optional(),
+  size: z.number().optional(),
+  duration: z.number().optional(),
+  redgifsUrl: z.string().nullable().optional(),
+  fileCreationDate: z.coerce.date().optional(),
+  fileModificationDate: z.coerce.date().optional(),
+});
+
+const FindAdjacentMediaBodySchema = z.object({
+  filters: MediaFilterSchema.optional(),
+  sort: MediaSortSchema.optional(),
+});
+
+const ScanFileRequestBodySchema = z.object({
+  filePath: z.string(),
+});
 
 const getMimeType = (filePath: string): string => {
   const ext = path.extname(filePath).toLowerCase();
@@ -51,102 +89,80 @@ const parseRangeHeader = (rangeHeader: string | null, fileSize: number): ParsedR
   return { start, end };
 };
 
-export const libraryRoutes = new Elysia({ prefix: '/api/media' })
-  .post('/all', async ({ body }) => fetchAllMedia({
+export const libraryRoutes = new Hono()
+  .basePath('/api/media')
+  .post('/all', zValidator('json', FetchAllMediaRequestBodySchema, validationError), async (c) => {
+    const body = c.req.valid('json');
+    const result = await fetchAllMedia({
       page: body.page,
       limit: body.limit,
       filters: body.filters,
       sort: body.sort,
-    }), {
-    body: FetchAllMediaRequestBodySchema,
-    response: FetchAllMediaResponseSchema,
+    });
+    return c.json(result);
   })
-  .get('/by-id/:id', async ({ params: { id }, set }) => {
+  .get('/by-id/:id', async (c) => {
+    const id = c.req.param('id');
     const media = await fetchMediaById(id);
     if (!media) {
-      set.status = 404;
-      return { error: 'Media not found' };
+      return notFound(c, 'Media not found');
     }
-
-    return media;
-  }, {
-    params: FetchMediaByIdRequestParamsSchema,
-    response: {
-      200: FetchMediaByIdResponseSchema,
-      404: t.Object({ error: t.String() }),
-    }
+    return c.json(media);
   })
-  .get('/by-path/:path', async ({ params: { path }, set }) => {
+  .get('/by-path/:path', async (c) => {
+    const path = c.req.param('path');
     const media = await fetchMediaByPath(path);
     if (!media) {
-      set.status = 404;
-      return { error: 'Media not found' };
+      return notFound(c, 'Media not found');
     }
-    return media;
-  }, {
-    params: FetchMediaByPathRequestParamsSchema,
-    response: {
-      200: FetchMediaByPathResponseSchema,
-      404: t.Object({ error: t.String() }),
-    }
+    return c.json(media);
   })
-    .patch('/by-id/:id', async ({ params: { id }, body, set }) => {
-      const media = await updateMedia(id, body);
-      if (!media) {
-        set.status = 404;
-        return { error: 'Media not found' };
-      }
-      return media;
-    },{
-    params: UpdateMediaRequestParamsSchema,
-    body: UpdateMediaRequestBodySchema,
-    response: {
-      200: UpdateMediaResponseSchema,
-      404: t.Object({ error: t.String() }),
+  .patch('/by-id/:id', zValidator('json', UpdateMediaRequestBodySchema, validationError), async (c) => {
+    const id = c.req.param('id');
+    const body = c.req.valid('json');
+    const media = await updateMedia(id, body);
+    if (!media) {
+      return notFound(c, 'Media not found');
     }
+    return c.json(media);
   })
-  .delete('/by-id/:id', async ({ params: { id }, query, set }) => {
+  .delete('/by-id/:id', zValidator('query', DeleteMediaQuerySchema, validationError), async (c) => {
+    const id = c.req.param('id');
+    const query = c.req.valid('query');
     const deleteFile = query.deleteFile === 'true';
     const success = await deleteMedia(id, deleteFile);
     if (!success) {
-      set.status = 404;
-      return { error: 'Media not found' };
+      return notFound(c, 'Media not found');
     }
-    return { success: true };
-  }, {
-    params: DeleteMediaRequestParamsSchema,
-    query: DeleteMediaQuerySchema,
-    response: {
-      200: DeleteMediaResponseSchema,
-      404: t.Object({ error: t.String() }),
-    },
+    return c.json({ success: true });
   })
-  .post('/by-id/:id/adjacent', async ({ params: { id }, body }) => findAdjacentMedia(id, body), {
-    params: FindAdjacentMediaRequestParamsSchema,
-    body: FindAdjacentMediaBodySchema,
-    response: FindAdjacentMediaResponseSchema,
+  .post('/by-id/:id/adjacent', zValidator('json', FindAdjacentMediaBodySchema, validationError), async (c) => {
+    const id = c.req.param('id');
+    const body = c.req.valid('json');
+    const result = await findAdjacentMedia(id, body);
+    return c.json(result);
   })
-  .post('/scan', async () => {
+  .post('/scan', async (c) => {
     await scanLibrary();
-    return {
+    return c.json({
       message: 'Scan started',
       started: true,
-    };
-  }, {
-    response: ScanLibraryResponseSchema,
+    });
   })
-  .post('/scan/file', async ({ body }) => scanFile(body.filePath), {
-    body: ScanFileRequestBodySchema,
-    response: FileScanResultSchema,
+  .post('/scan/file', zValidator('json', ScanFileRequestBodySchema, validationError), async (c) => {
+    const body = c.req.valid('json');
+    const result = await scanFile(body.filePath);
+    return c.json(result);
   })
-  .get('/scan/status', async () => getScanStatus(), {
-    response: ScanStatusResponseSchema,
+  .get('/scan/status', async (c) => {
+    const result = await getScanStatus();
+    return c.json(result);
   })
-  .get('/:id/file', async ({ params: { id }, set, request }) => {
+  .get('/:id/file', async (c) => {
+    const id = c.req.param('id');
     const media = await fetchMediaById(id);
     if (!media) {
-      set.status = 404;
-      return { error: 'Media not found' };
+      return c.json({ error: 'Media not found' }, 404);
     }
 
     const filePath = resolveMediaPath(media.relativePath);
@@ -154,8 +170,7 @@ export const libraryRoutes = new Elysia({ prefix: '/api/media' })
     try {
       await fs.access(filePath);
     } catch {
-      set.status = 404;
-      return { error: 'File not found' };
+      return c.json({ error: 'File not found' }, 404);
     }
 
     const file = Bun.file(filePath);
@@ -163,57 +178,44 @@ export const libraryRoutes = new Elysia({ prefix: '/api/media' })
     const fileSize = file.size;
     
     // Check for Range header
-    const rangeHeader = request.headers.get('Range');
-    const range = parseRangeHeader(rangeHeader, fileSize);
-
-    // Set common headers
-    set.headers['Content-Type'] = mimeType;
-    set.headers['Accept-Ranges'] = 'bytes';
+    const rangeHeader = c.req.header('Range');
+    const range = parseRangeHeader(rangeHeader ?? null, fileSize);
 
     // If no range or invalid range, serve the full file
     if (!range) {
-      set.headers['Content-Length'] = fileSize.toString();
-      return file;
+      return c.body(file.stream(), 200, {
+        'Content-Type': mimeType,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': fileSize.toString(),
+      });
     }
 
     // Serve partial content
     const { start, end } = range;
     const chunkSize = end - start + 1;
 
-    set.status = 206; // Partial Content
-    set.headers['Content-Range'] = `bytes ${start}-${end}/${fileSize}`;
-    set.headers['Content-Length'] = chunkSize.toString();
-
-    return file.slice(start, end + 1);
-  }, {
-    params: FetchMediaByIdRequestParamsSchema,
-    response: {
-      200: t.Any(),
-      206: t.Any(),
-      404: t.Object({ error: t.String() }),
-    },
+    return c.body(file.slice(start, end + 1).stream(), 206, {
+      'Content-Type': mimeType,
+      'Accept-Ranges': 'bytes',
+      'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+      'Content-Length': chunkSize.toString(),
+    });
   })
-  .get('/:id/thumbnail', async ({ params: { id }, set }) => {
+  .get('/:id/thumbnail', async (c) => {
+    const id = c.req.param('id');
     const thumbnailPath = getThumbnailPath(id);
     
     try {
       await fs.access(thumbnailPath);
     } catch {
-      set.status = 404;
-      return { error: 'Thumbnail not found' };
+      return c.json({ error: 'Thumbnail not found' }, 404);
     }
 
     const file = Bun.file(thumbnailPath);
     
-    set.headers['Content-Type'] = 'image/jpeg';
-    set.headers['Cache-Control'] = 'public, max-age=31536000';
-    
-    return file;
-  }, {
-    params: FetchMediaByIdRequestParamsSchema,
-    response: {
-      200: t.Any(),
-      404: t.Object({ error: t.String() }),
-    },
+    return c.body(file.stream(), 200, {
+      'Content-Type': 'image/jpeg',
+      'Cache-Control': 'public, max-age=31536000',
+    });
   });
 

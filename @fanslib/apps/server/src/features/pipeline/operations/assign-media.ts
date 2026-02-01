@@ -1,4 +1,5 @@
 import { t } from "elysia";
+import type { z } from "zod";
 import { Between, In } from "typeorm";
 import { isSameMinute } from "date-fns";
 import { db } from "../../../lib/db";
@@ -12,7 +13,7 @@ import { createPost } from "../../posts/operations/post/create";
 import { Subreddit } from "../../subreddits/entity";
 import { getUsedMediaForSubreddit, selectRandomMedia } from "../../reddit-automation/operations/generation/utils";
 
-type MediaFilters = typeof MediaFilterSchema.static;
+type MediaFilters = z.infer<typeof MediaFilterSchema>;
 
 export const AssignMediaRequestBodySchema = t.Object({
   channelIds: t.Array(t.String()),

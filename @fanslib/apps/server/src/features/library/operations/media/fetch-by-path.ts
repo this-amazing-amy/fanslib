@@ -1,4 +1,4 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { ChannelSchema } from "../../../channels/entity";
 import { PostMediaSchema, PostSchema } from "../../../posts/schema";
@@ -6,29 +6,20 @@ import { SubredditSchema } from "../../../subreddits/entity";
 import { Media } from "../../entity";
 import { MediaSchema } from "../../schema";
 
-export const FetchMediaByPathRequestParamsSchema = t.Object({
-  path: t.String(),
+export const FetchMediaByPathRequestParamsSchema = z.object({
+  path: z.string(),
 });
 
-export const FetchMediaByPathResponseSchema = t.Composite([
-  MediaSchema,
-  t.Object({
-    postMedia: t.Array(t.Composite([
-      PostMediaSchema,
-      t.Object({
-        post: t.Composite([
-          PostSchema,
-          t.Object({
-            channel: ChannelSchema,
-            subreddit: t.Optional(t.Nullable(SubredditSchema)),
-          }),
-        ]),
-      }),
-    ])),
-  }),
-]);
+export const FetchMediaByPathResponseSchema = MediaSchema.extend({
+  postMedia: z.array(PostMediaSchema.extend({
+    post: PostSchema.extend({
+      channel: ChannelSchema,
+      subreddit: SubredditSchema.nullable().optional(),
+    }),
+  })),
+});
 
-export const fetchMediaByPath = async (relativePath: string): Promise<typeof FetchMediaByPathResponseSchema.static | null> => {
+export const fetchMediaByPath = async (relativePath: string): Promise<z.infer<typeof FetchMediaByPathResponseSchema> | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Media);
 

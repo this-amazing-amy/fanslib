@@ -53,34 +53,28 @@ export { MediaSortSchema, SortDirectionSchema, SortFieldSchema } from './feature
 
 // Posts schemas
 export {
-  ChannelWithTypeSchema,
-  FetchAllPostsRequestQuerySchema,
   FetchAllPostsResponseSchema,
   PostWithRelationsSchema
 } from './features/posts/operations/post/fetch-all';
 
 export {
-  FetchPostByIdRequestParamsSchema,
-  FetchPostByIdResponseSchema
+  PostWithRelationsSchema as FetchPostByIdResponseSchema
 } from './features/posts/operations/post/fetch-by-id';
 
 export {
-  FetchPostsByChannelRequestParamsSchema,
-  FetchPostsByChannelResponseSchema
+  PostWithChannelAndMediaSchema
 } from './features/posts/operations/post/fetch-by-channel';
 
 export {
-  FetchPostsByMediaIdRequestParamsSchema,
-  FetchPostsByMediaIdResponseSchema
+  PostWithChannelAndMediaSchema as FetchPostsByMediaIdResponseSchema
 } from './features/posts/operations/post/fetch-by-media-id';
 
 export {
-  CreatePostRequestBodySchema,
-  CreatePostResponseSchema
+  CreatePostRequestBodySchema
 } from './features/posts/operations/post/create';
 
 export {
-  UpdatePostRequestBodySchema, UpdatePostRequestParamsSchema, UpdatePostResponseSchema
+  UpdatePostRequestBodySchema
 } from './features/posts/operations/post/update';
 
 // Pipeline schemas
@@ -98,17 +92,16 @@ export {
 export { type PostStatus } from './features/posts/entity';
 
 export {
-  DeletePostRequestParamsSchema,
-  DeletePostResponseSchema
-} from './features/posts/operations/post/delete';
-
-export {
-  AddMediaToPostRequestBodySchema, AddMediaToPostRequestParamsSchema, AddMediaToPostResponseSchema
+  AddMediaToPostRequestBodySchema
 } from './features/posts/operations/post-media/add';
 
 export {
-  RemoveMediaFromPostRequestBodySchema, RemoveMediaFromPostRequestParamsSchema, RemoveMediaFromPostResponseSchema
+  RemoveMediaFromPostRequestBodySchema
 } from './features/posts/operations/post-media/remove';
+
+export {
+  UpdatePostMediaRequestBodySchema
+} from './features/posts/operations/post-media/update';
 
 // Posts entities
 export { PostMediaSchema, PostMediaWithMediaSchema, PostSchema, PostStatusSchema } from './features/posts/schema';

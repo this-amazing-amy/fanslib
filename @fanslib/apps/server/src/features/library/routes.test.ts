@@ -1,21 +1,21 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
-import { Elysia } from "elysia";
+import { Hono } from "hono";
 import "reflect-metadata";
 import { getTestDataSource, resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
-import { mapResponse } from "../../lib/serialization";
-import { logError, parseResponse } from "../../test-utils/setup";
+import { devalueMiddleware } from "../../lib/devalue-middleware";
+import { parseResponse } from "../../test-utils/setup";
 import { Media } from "./entity";
 import { MEDIA_FIXTURES } from "./fixtures";
 import { libraryRoutes } from "./routes";
 
 describe("Library Routes", () => {
   // eslint-disable-next-line functional/no-let
-  let app: Elysia;
+  let app: Hono;
 
   beforeAll(async () => {
     await setupTestDatabase();
     await resetAllFixtures();
-    app = new Elysia().onError(logError()).mapResponse(mapResponse).use(libraryRoutes);
+    app = new Hono().use("*", devalueMiddleware()).route("/", libraryRoutes);
   });
 
   afterAll(async () => {
@@ -28,10 +28,10 @@ describe("Library Routes", () => {
 
   describe("POST /api/media/all", () => {
     test("returns all media", async () => {
-      const response = await app.handle(new Request("http://localhost/api/media/all", {
+      const response = await app.request("/api/media/all", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-      }));
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<{ items: Media[]; total: number; page: number; limit: number }>(response);
@@ -47,16 +47,14 @@ describe("Library Routes", () => {
     });
 
     test("supports pagination", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/media/all", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            page: 1,
-            limit: 2,
-          }),
-        })
-      );
+      const response = await app.request("/api/media/all", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          page: 1,
+          limit: 2,
+        }),
+      });
       const data = await parseResponse<{ items: Media[]; total: number; page: number; limit: number }>(response);
 
       expect(data?.items).toHaveLength(2);
@@ -73,9 +71,7 @@ describe("Library Routes", () => {
         throw new Error("No media fixtures available");
       }
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/media/by-id/${fixtureMedia.id}`)
-      );
+      const response = await app.request(`/api/media/by-id/${fixtureMedia.id}`);
 
       expect(response.status).toBe(200);
 
@@ -85,9 +81,7 @@ describe("Library Routes", () => {
     });
 
     test("returns error for non-existent media", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/media/by-id/non-existent-id")
-      );
+      const response = await app.request("/api/media/by-id/non-existent-id");
 
       expect(response.status).toBe(404);
       const data = await parseResponse<{ error: string }>(response);
@@ -103,9 +97,7 @@ describe("Library Routes", () => {
         throw new Error("No media fixtures available");
       }
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/media/by-path/${encodeURIComponent(fixtureMedia.relativePath)}`)
-      );
+      const response = await app.request(`/api/media/by-path/${encodeURIComponent(fixtureMedia.relativePath)}`);
       expect(response.status).toBe(200);
       const data = await parseResponse<Media>(response);
       expect(data?.id).toBe(fixtureMedia.id);
@@ -113,9 +105,7 @@ describe("Library Routes", () => {
     });
 
     test("returns error for non-existent media", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/media/by-path/non-existent-path")
-      );
+      const response = await app.request("/api/media/by-path/non-existent-path");
       expect(response.status).toBe(404);
       const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
@@ -134,13 +124,11 @@ describe("Library Routes", () => {
         redgifsUrl: "https://redgifs.com/watch/example",
       };
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/media/by-id/${fixtureMedia.id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updateData),
-        })
-      );
+      const response = await app.request(`/api/media/by-id/${fixtureMedia.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updateData),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Media>(response);
@@ -149,13 +137,11 @@ describe("Library Routes", () => {
     });
 
     test("returns error for non-existent media", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/media/by-id/non-existent-id", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ redgifsUrl: "https://example.com" }),
-        })
-      );
+      const response = await app.request("/api/media/by-id/non-existent-id", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ redgifsUrl: "https://example.com" }),
+      });
 
       const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
@@ -170,11 +156,9 @@ describe("Library Routes", () => {
         throw new Error("No media fixtures available");
       }
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/media/by-id/${fixtureMedia.id}`, {
-          method: "DELETE",
-        })
-      );
+      const response = await app.request(`/api/media/by-id/${fixtureMedia.id}`, {
+        method: "DELETE",
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<{ success: boolean }>(response);
@@ -187,11 +171,9 @@ describe("Library Routes", () => {
     });
 
     test("returns 404 when media not found", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/media/by-id/non-existent-id", {
-          method: "DELETE",
-        })
-      );
+      const response = await app.request("/api/media/by-id/non-existent-id", {
+        method: "DELETE",
+      });
       expect(response.status).toBe(404);
 
       const data = await parseResponse<{ error: string }>(response);
@@ -206,13 +188,11 @@ describe("Library Routes", () => {
         throw new Error("No media fixtures available");
       }
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/media/by-id/${fixtureMedia.id}/adjacent`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({}),
-        })
-      );
+      const response = await app.request(`/api/media/by-id/${fixtureMedia.id}/adjacent`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<{ previous: Media | null; next: Media | null }>(response);

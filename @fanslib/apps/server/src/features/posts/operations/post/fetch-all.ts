@@ -1,32 +1,24 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { ChannelSchema } from "../../../channels/entity";
 import { SubredditSchema } from "../../../subreddits/entity";
+import { ContentScheduleSchema } from "../../../content-schedules/entity";
 import { Post } from "../../entity";
 import { PostMediaWithMediaSchema, PostSchema } from "../../schema";
 import type { PostFiltersSchema } from "../../schemas/post-filters";
 
-export const FetchAllPostsRequestQuerySchema = t.Object({
-  filters: t.Optional(t.String()), // JSON stringified PostFilters
+export const PostWithRelationsSchema = PostSchema.extend({
+  postMedia: z.array(PostMediaWithMediaSchema),
+  channel: ChannelSchema,
+  subreddit: SubredditSchema.nullable(),
+  schedule: ContentScheduleSchema.nullable(),
 });
 
-export const ChannelWithTypeSchema = ChannelSchema;
-
-export const PostWithRelationsSchema = t.Composite([
-  PostSchema,
-  t.Object({
-    postMedia: t.Array(PostMediaWithMediaSchema),
-    channel: ChannelWithTypeSchema,
-    subreddit: t.Union([SubredditSchema, t.Null()]),
-    schedule: t.Any(), // TODO: Investigate ContentScheduleSchema validation issue
-  }),
-]);
-
-export const FetchAllPostsResponseSchema = t.Object({
-  posts: t.Array(PostWithRelationsSchema),
+export const FetchAllPostsResponseSchema = z.object({
+  posts: z.array(PostWithRelationsSchema),
 });
 
-export const fetchAllPosts = async (filters?: typeof PostFiltersSchema.static): Promise<typeof FetchAllPostsResponseSchema.static> => {
+export const fetchAllPosts = async (filters?: z.infer<typeof PostFiltersSchema>): Promise<z.infer<typeof FetchAllPostsResponseSchema>> => {
   const dataSource = await db();
   const queryBuilder = dataSource
     .getRepository(Post)

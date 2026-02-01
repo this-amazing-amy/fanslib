@@ -1,14 +1,14 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
-import { Elysia } from "elysia";
+import { Hono } from "hono";
 import "reflect-metadata";
 import { resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
-import { mapResponse } from "../../lib/serialization";
-import { logError, parseResponse } from "../../test-utils/setup";
+import { devalueMiddleware } from "../../lib/devalue-middleware";
+import { parseResponse } from "../../test-utils/setup";
 import { settingsRoutes } from "./routes";
 
 describe("Settings Routes", () => {
   // eslint-disable-next-line functional/no-let
-  let app: Elysia;
+  let app: Hono;
   // eslint-disable-next-line functional/no-let
   let fixtures: Awaited<ReturnType<typeof resetAllFixtures>>;
 
@@ -16,7 +16,9 @@ describe("Settings Routes", () => {
     await setupTestDatabase();
     fixtures = await resetAllFixtures();
     void fixtures;
-    app = new Elysia().onError(logError()).mapResponse(mapResponse).use(settingsRoutes);
+    app = new Hono()
+      .use("*", devalueMiddleware())
+      .route("/", settingsRoutes);
   });
 
   afterAll(async () => {
@@ -29,7 +31,7 @@ describe("Settings Routes", () => {
 
   describe("GET /api/settings", () => {
     test("returns settings object", async () => {
-      const response = await app.handle(new Request("http://localhost/api/settings"));
+      const response = await app.request("/api/settings");
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Record<string, unknown>>(response);
@@ -44,13 +46,11 @@ describe("Settings Routes", () => {
         sfwMode: false,
       };
 
-      const response = await app.handle(
-        new Request("http://localhost/api/settings", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(settingsData),
-        })
-      );
+      const response = await app.request("/api/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settingsData),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Record<string, unknown>>(response);
@@ -60,11 +60,9 @@ describe("Settings Routes", () => {
 
   describe("POST /api/settings/toggle-sfw", () => {
     test("toggles SFW mode", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/settings/toggle-sfw", {
-          method: "POST",
-        })
-      );
+      const response = await app.request("/api/settings/toggle-sfw", {
+        method: "POST",
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<{ sfwMode: boolean }>(response);
@@ -76,9 +74,7 @@ describe("Settings Routes", () => {
   describe("Fansly Credentials", () => {
     describe("GET /api/settings/fansly-credentials", () => {
       test("returns fansly credentials", async () => {
-        const response = await app.handle(
-          new Request("http://localhost/api/settings/fansly-credentials")
-        );
+        const response = await app.request("/api/settings/fansly-credentials");
         expect(response.status).toBe(200);
 
         const data = await parseResponse<{ credentials: Record<string, unknown>; lastUpdated: number | null } | null>(response);
@@ -97,13 +93,11 @@ describe("Settings Routes", () => {
           userId: "test-user-id",
         };
 
-        const response = await app.handle(
-          new Request("http://localhost/api/settings/fansly-credentials", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(credentials),
-          })
-        );
+        const response = await app.request("/api/settings/fansly-credentials", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(credentials),
+        });
         expect(response.status).toBe(200);
 
         const data = await parseResponse<{ success: boolean }>(response);
@@ -113,11 +107,9 @@ describe("Settings Routes", () => {
 
     describe("DELETE /api/settings/fansly-credentials", () => {
       test("clears fansly credentials", async () => {
-        const response = await app.handle(
-          new Request("http://localhost/api/settings/fansly-credentials", {
-            method: "DELETE",
-          })
-        );
+        const response = await app.request("/api/settings/fansly-credentials", {
+          method: "DELETE",
+        });
         expect(response.status).toBe(200);
 
         const data = await parseResponse<{ success: boolean }>(response);

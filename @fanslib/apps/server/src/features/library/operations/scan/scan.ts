@@ -2,7 +2,7 @@
 /* eslint-disable functional/no-loop-statements */
 /* eslint-disable functional/no-this-expressions */
 import { isSameSecond } from "date-fns";
-import { t } from "elysia";
+import { z } from "zod";
 import { promises as fs } from "fs";
 import path from "path";
 import { db } from "../../../../lib/db";
@@ -20,50 +20,49 @@ import { findMediaByStats } from "./find-by-stats";
 import { generateThumbnail, thumbnailExists } from "./thumbnail";
 import { repairUppercaseExtension } from "./uppercase-extensions";
 
-export const ScanFileRequestBodySchema = t.Object({
-  filePath: t.String(),
+export const ScanFileRequestBodySchema = z.object({
+  filePath: z.string(),
 });
 
-export const ScanLibraryResponseSchema = t.Object({
-  message: t.String(),
-  started: t.Boolean(),
+export const ScanLibraryResponseSchema = z.object({
+  message: z.string(),
+  started: z.boolean(),
 });
 
-export const FileScanResultSchema = t.Object({
-  action: t.Union([t.Literal('added'), t.Literal('updated'), t.Literal('unchanged')]),
+export const FileScanResultSchema = z.object({
+  action: z.enum(['added', 'updated', 'unchanged']),
   media: MediaSchema,
 });
 
-export const LibraryScanResultSchema = t.Object({
-  added: t.Number(),
-  updated: t.Number(),
-  removed: t.Number(),
-  total: t.Number(),
+export const LibraryScanResultSchema = z.object({
+  added: z.number(),
+  updated: z.number(),
+  removed: z.number(),
+  total: z.number(),
 });
 
-export const LibraryScanProgressSchema = t.Object({
-  current: t.Number(),
-  total: t.Number(),
+export const LibraryScanProgressSchema = z.object({
+  current: z.number(),
+  total: z.number(),
 });
 
-export const ScanStatusResponseSchema = t.Union([
-  t.Object({
-    isScanning: t.Literal(true),
-    progress: t.Union([LibraryScanProgressSchema, t.Null()]),
+export const ScanStatusResponseSchema = z.discriminatedUnion('isScanning', [
+  z.object({
+    isScanning: z.literal(true),
+    progress: LibraryScanProgressSchema.nullable(),
   }),
-  t.Object({
-    isScanning: t.Literal(false),
-    result: t.Union([LibraryScanResultSchema, t.Null()]),
+  z.object({
+    isScanning: z.literal(false),
+    result: LibraryScanResultSchema.nullable(),
   }),
-  t.Null(),
 ]);
 
 const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif"]);
 const VIDEO_EXTENSIONS = new Set([".mp4", ".webm", ".mov", ".avi", ".mkv"]);
 
 // Module-level state for scan progress and results
-let currentScanProgress: typeof LibraryScanProgressSchema.static | null = null;
-let currentScanResult: typeof LibraryScanResultSchema.static | null = null;
+let currentScanProgress: z.infer<typeof LibraryScanProgressSchema> | null = null;
+let currentScanResult: z.infer<typeof LibraryScanResultSchema> | null = null;
 
 const convertToRelativePath = (absolutePath: string, libraryPath: string): string => {
   if (!path.isAbsolute(absolutePath)) {
@@ -85,7 +84,7 @@ const isMediaFile = (
   return { isSupported: false, type: null };
 };
 
-export const scanFile = async (filePath: string): Promise<typeof FileScanResultSchema.static> => {
+export const scanFile = async (filePath: string): Promise<z.infer<typeof FileScanResultSchema>> => {
   const { isSupported, type } = isMediaFile(filePath);
 
   if (!isSupported || !type) {
@@ -168,12 +167,12 @@ class LibraryScanner {
     return this.isScanning;
   }
 
-  public onProgress(progress: typeof LibraryScanProgressSchema.static): void {
+  public onProgress(progress: z.infer<typeof LibraryScanProgressSchema>): void {
     // Store progress in module-level state instead of sending IPC events
     currentScanProgress = progress;
   }
 
-  public onComplete(result: typeof LibraryScanResultSchema.static): void {
+  public onComplete(result: z.infer<typeof LibraryScanResultSchema>): void {
     // Store result in module-level state instead of sending IPC events
     currentScanResult = result;
     // Delay clearing progress slightly to ensure it's visible for status checks
@@ -220,7 +219,7 @@ class LibraryScanner {
       const processedPaths = new Set<string>();
       const processedMediaIds = new Set<string>(); // Track which media entries we've processed
 
-      const result: typeof LibraryScanResultSchema.static = {
+      const result: z.infer<typeof LibraryScanResultSchema> = {
         added: 0,
         updated: 0,
         removed: 0,
@@ -293,7 +292,7 @@ class LibraryScanner {
   }
 }
 
-export const scanLibrary = async (): Promise<typeof LibraryScanResultSchema.static> => {
+export const scanLibrary = async (): Promise<z.infer<typeof LibraryScanResultSchema>> => {
   const scanner = LibraryScanner.getInstance();
 
   scanner.startScan().catch((error) => {
@@ -308,7 +307,7 @@ export const scanLibrary = async (): Promise<typeof LibraryScanResultSchema.stat
   };
 };
 
-export const getScanStatus = (): typeof ScanStatusResponseSchema.static => {
+export const getScanStatus = (): z.infer<typeof ScanStatusResponseSchema> => {
   const scanner = LibraryScanner.getInstance();
   const isScanning = scanner.isCurrentlyScanning();
 

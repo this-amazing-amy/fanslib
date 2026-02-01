@@ -1,24 +1,17 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { PostMedia } from "../../entity";
-import { PostMediaSchema } from "../../schema";
+import type { PostMediaSchema } from "../../schema";
 
-export const UpdatePostMediaRequestParamsSchema = t.Object({
-  id: t.String(),
-  postMediaId: t.String(),
+export const UpdatePostMediaRequestBodySchema = z.object({
+  fanslyStatisticsId: z.string().nullable(),
 });
-
-export const UpdatePostMediaRequestBodySchema = t.Object({
-  fanslyStatisticsId: t.Nullable(t.String()),
-});
-
-export const UpdatePostMediaResponseSchema = PostMediaSchema;
 
 export const updatePostMedia = async (
   postId: string,
   postMediaId: string,
-  updates: typeof UpdatePostMediaRequestBodySchema.static
-): Promise<typeof UpdatePostMediaResponseSchema.static | null> => {
+  updates: z.infer<typeof UpdatePostMediaRequestBodySchema>
+): Promise<z.infer<typeof PostMediaSchema> | null> => {
   const dataSource = await db();
   const postMediaRepository = dataSource.getRepository(PostMedia);
 

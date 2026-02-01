@@ -1,3 +1,4 @@
+import type { z } from "zod";
 import { db } from "../../../../lib/db";
 import { Hashtag, HashtagChannelStats, HashtagChannelStatsSchema } from "../../entity";
 
@@ -7,7 +8,7 @@ export const incrementHashtagViews = async (
   hashtagId: number,
   channelId: string,
   viewCount: number
-): Promise<typeof IncrementHashtagViewsResponseSchema.static> => {
+): Promise<z.infer<typeof IncrementHashtagViewsResponseSchema>> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(HashtagChannelStats);
   const hashtagRepository = dataSource.getRepository(Hashtag);

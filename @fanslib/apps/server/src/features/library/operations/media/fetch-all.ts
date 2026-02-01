@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { paginatedResponseSchema } from "../../../../lib/pagination";
 import { Media } from "../../entity";
@@ -8,18 +8,18 @@ import { buildFilterGroupQuery } from "../../filter-helpers";
 import { MediaFilterSchema } from "../../schemas/media-filter";
 import { MediaSortSchema } from "../../schemas/media-sort";
 
-export const FetchAllMediaRequestBodySchema = t.Object({
-  page: t.Optional(t.Numeric({default: 1})),
-  limit: t.Optional(t.Numeric({default: 50})),
-  filters: t.Optional(MediaFilterSchema),
-  sort: t.Optional(MediaSortSchema),
+export const FetchAllMediaRequestBodySchema = z.object({
+  page: z.number().optional(),
+  limit: z.number().optional(),
+  filters: MediaFilterSchema.optional(),
+  sort: MediaSortSchema.optional(),
 });
 
 export const FetchAllMediaResponseSchema = paginatedResponseSchema(MediaSchema);
 
 export const fetchAllMedia = async (
-  params?: typeof FetchAllMediaRequestBodySchema.static,
-): Promise<typeof FetchAllMediaResponseSchema.static> => {
+  params?: z.infer<typeof FetchAllMediaRequestBodySchema>,
+): Promise<z.infer<typeof FetchAllMediaResponseSchema>> => {
   const page = params?.page || 1;
   const limit = params?.limit || 50;
   const skip = (page - 1) * limit;

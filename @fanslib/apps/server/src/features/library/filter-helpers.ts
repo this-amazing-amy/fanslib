@@ -1,8 +1,9 @@
+import type { z } from "zod";
 import type { SelectQueryBuilder } from "typeorm";
 import type { Media } from "./entity";
 import type { MediaFilterSchema } from "./schemas/media-filter";
 
-type MediaFilters = typeof MediaFilterSchema.static;
+type MediaFilters = z.infer<typeof MediaFilterSchema>;
 type FilterGroup = MediaFilters[number];
 type FilterItem = FilterGroup['items'][number];
 

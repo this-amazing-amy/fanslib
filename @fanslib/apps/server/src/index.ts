@@ -6,6 +6,8 @@ import { channelsRoutes } from "./features/channels/routes";
 import { contentSchedulesRoutes } from "./features/content-schedules/routes";
 import { filterPresetsRoutes } from "./features/filter-presets/routes";
 import { hashtagsRoutes } from "./features/hashtags/routes";
+import { libraryRoutes } from "./features/library/routes";
+import { postsRoutes } from "./features/posts/routes";
 import { runScheduledPostsCronTick } from "./features/posts/scheduled-posts-cron";
 import { settingsRoutes } from "./features/settings/routes";
 import { shootsRoutes } from "./features/shoots/routes";
@@ -78,7 +80,9 @@ const app = new Hono()
   .route("/", snippetsRoutes)
   .route("/", subredditsRoutes)
   .route("/", channelsRoutes)
-  .route("/", contentSchedulesRoutes);
+  .route("/", contentSchedulesRoutes)
+  .route("/", libraryRoutes)
+  .route("/", postsRoutes);
 
 // Set up cron job if enabled
 if (isScheduledPostsCronEnabled) {

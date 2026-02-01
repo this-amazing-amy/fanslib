@@ -1,28 +1,20 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { ChannelSchema } from "../../../channels/entity";
 import { MediaSchema } from "../../../library/schema";
 import { Post } from "../../entity";
 import { PostMediaSchema, PostSchema } from "../../schema";
 
-export const FetchPostsByChannelRequestParamsSchema = t.Object({
-  channelId: t.String(),
+export const PostMediaWithMediaSchema = PostMediaSchema.extend({
+  media: MediaSchema,
 });
 
-export const FetchPostsByChannelResponseSchema = t.Array(t.Composite([
-  PostSchema,
-  t.Object({
-    postMedia: t.Array(t.Composite([
-      PostMediaSchema,
-      t.Object({
-        media: MediaSchema,
-      }),
-    ])),
-    channel: ChannelSchema,
-  }),
-]));
+export const PostWithChannelAndMediaSchema = PostSchema.extend({
+  postMedia: z.array(PostMediaWithMediaSchema),
+  channel: ChannelSchema,
+});
 
-export const fetchPostsByChannel = async (channelId: string): Promise<typeof FetchPostsByChannelResponseSchema.static> => {
+export const fetchPostsByChannel = async (channelId: string): Promise<z.infer<typeof PostWithChannelAndMediaSchema>[]> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Post);
 

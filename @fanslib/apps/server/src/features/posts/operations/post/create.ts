@@ -1,27 +1,31 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { In } from "typeorm";
 import { db } from "../../../../lib/db";
 import { CHANNEL_TYPES } from "../../../channels/channelTypes";
 import { Channel } from "../../../channels/entity";
 import { Media } from "../../../library/entity";
 import { Post, PostMedia } from "../../entity";
-import { PostSchema } from "../../schema";
-import { fetchPostById, FetchPostByIdResponseSchema } from "./fetch-by-id";
+import { PostStatusSchema } from "../../schema";
+import type { PostWithRelations } from "./fetch-by-id";
+import { fetchPostById } from "./fetch-by-id";
 
-export const CreatePostRequestBodySchema = t.Intersect([
-  t.Required(t.Pick(PostSchema, ["date", "channelId", "status"])),
-  t.Partial(t.Pick(PostSchema, ["scheduleId", "caption", "url", "fypRemovedAt", "subredditId", "postGroupId"])),
-  t.Object({
-    mediaIds: t.Optional(t.Array(t.String())),
-  }),
-]);
-
-export const CreatePostResponseSchema = FetchPostByIdResponseSchema;
+export const CreatePostRequestBodySchema = z.object({
+  date: z.coerce.date(),
+  channelId: z.string(),
+  status: PostStatusSchema,
+  scheduleId: z.string().nullable().optional(),
+  caption: z.string().nullable().optional(),
+  url: z.string().nullable().optional(),
+  fypRemovedAt: z.coerce.date().nullable().optional(),
+  subredditId: z.string().nullable().optional(),
+  postGroupId: z.string().nullable().optional(),
+  mediaIds: z.array(z.string()).optional(),
+});
 
 export const createPost = async (
-  postData: Omit<typeof CreatePostRequestBodySchema.static, 'mediaIds'>,
+  postData: Omit<z.infer<typeof CreatePostRequestBodySchema>, 'mediaIds'>,
   mediaIds: string[]
-): Promise<typeof CreatePostResponseSchema.static> => {
+): Promise<PostWithRelations> => {
   const dataSource = await db();
   const postRepo = dataSource.getRepository(Post);
   const mediaRepo = dataSource.getRepository(Media);

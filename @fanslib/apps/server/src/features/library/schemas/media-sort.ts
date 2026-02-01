@@ -1,15 +1,15 @@
-import { t } from "elysia";
+import { z } from "zod";
 
-export const SortFieldSchema = t.Union([
-    t.Literal('fileModificationDate'),
-    t.Literal('fileCreationDate'),
-    t.Literal('lastPosted'),
-    t.Literal('random'),
-  ]);
-  
-  export const SortDirectionSchema = t.Union([t.Literal('ASC'), t.Literal('DESC')]);
-  
-  export const MediaSortSchema = t.Object({
-    field: SortFieldSchema,
-    direction: SortDirectionSchema,
-  });
+export const SortFieldSchema = z.enum([
+  'fileModificationDate',
+  'fileCreationDate',
+  'lastPosted',
+  'random',
+]);
+
+export const SortDirectionSchema = z.enum(['ASC', 'DESC']);
+
+export const MediaSortSchema = z.object({
+  field: SortFieldSchema,
+  direction: SortDirectionSchema,
+});

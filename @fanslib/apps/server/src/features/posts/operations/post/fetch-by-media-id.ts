@@ -1,4 +1,4 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { In } from "typeorm";
 import { db } from "../../../../lib/db";
 import { ChannelSchema, ChannelTypeSchema } from "../../../channels/entity";
@@ -6,31 +6,22 @@ import { MediaSchema } from "../../../library/schema";
 import { Post } from "../../entity";
 import { PostMediaSchema, PostSchema } from "../../schema";
 
-export const FetchPostsByMediaIdRequestParamsSchema = t.Object({
-  mediaId: t.String(),
+export const PostMediaWithMediaSchema = PostMediaSchema.extend({
+  media: MediaSchema,
 });
 
-export const FetchPostsByMediaIdResponseSchema = t.Array(t.Composite([
-  PostSchema,
-  t.Object({
-    postMedia: t.Array(t.Composite([
-      PostMediaSchema,
-      t.Object({
-        media: MediaSchema,
-      }),
-    ])),
-    channel: t.Composite([
-      ChannelSchema,
-      t.Object({
-        type: ChannelTypeSchema,
-      }),
-    ]),
-  }),
-]));
+export const ChannelWithTypeSchema = ChannelSchema.extend({
+  type: ChannelTypeSchema,
+});
+
+export const PostWithChannelAndMediaSchema = PostSchema.extend({
+  postMedia: z.array(PostMediaWithMediaSchema),
+  channel: ChannelWithTypeSchema,
+});
 
 export const fetchPostsByMediaId = async (
   mediaId: string
-): Promise<typeof FetchPostsByMediaIdResponseSchema.static> => {
+): Promise<z.infer<typeof PostWithChannelAndMediaSchema>[]> => {
   const repository = (await db()).getRepository(Post);
 
   const postsWithMedia = await repository

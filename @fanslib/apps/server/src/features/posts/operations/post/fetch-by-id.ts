@@ -1,4 +1,4 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { ChannelSchema } from "../../../channels/entity";
 import { ContentScheduleSchema } from "../../../content-schedules/entity";
@@ -7,26 +7,20 @@ import { SubredditSchema } from "../../../subreddits/entity";
 import { Post } from "../../entity";
 import { PostMediaSchema, PostSchema } from "../../schema";
 
-export const FetchPostByIdRequestParamsSchema = t.Object({
-  id: t.String(),
+export const PostMediaWithMediaSchema = PostMediaSchema.extend({
+  media: MediaSchema,
 });
 
-export const FetchPostByIdResponseSchema = t.Composite([
-  PostSchema,
-  t.Object({
-    postMedia: t.Array(t.Composite([
-      PostMediaSchema,
-      t.Object({
-        media: MediaSchema,
-      }),
-    ])),
-    channel: ChannelSchema,
-    subreddit: t.Union([SubredditSchema, t.Null()]),
-    schedule: t.Union([ContentScheduleSchema, t.Null()]),
-  }),
-]);
+export const PostWithRelationsSchema = PostSchema.extend({
+  postMedia: z.array(PostMediaWithMediaSchema),
+  channel: ChannelSchema,
+  subreddit: SubredditSchema.nullable(),
+  schedule: ContentScheduleSchema.nullable(),
+});
 
-export const fetchPostById = async (id: string): Promise<typeof FetchPostByIdResponseSchema.static | null> => {
+export type PostWithRelations = z.infer<typeof PostWithRelationsSchema>;
+
+export const fetchPostById = async (id: string): Promise<PostWithRelations | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Post);
 

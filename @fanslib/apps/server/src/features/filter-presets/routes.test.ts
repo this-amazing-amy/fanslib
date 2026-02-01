@@ -1,9 +1,10 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
-import { Elysia } from "elysia";
+import { Hono } from "hono";
 import "reflect-metadata";
+import type { z } from "zod";
 import { getTestDataSource, resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
-import { mapResponse } from "../../lib/serialization";
-import { logError, parseResponse } from "../../test-utils/setup";
+import { devalueMiddleware } from "../../lib/devalue-middleware";
+import { parseResponse } from "../../test-utils/setup";
 import { FilterPreset } from "./entity";
 import { FILTER_PRESET_FIXTURES } from "./fixtures";
 import type { CreateFilterPresetRequestBodySchema } from "./operations/filter-preset/create";
@@ -12,7 +13,7 @@ import { filterPresetsRoutes } from "./routes";
 
 describe("Filter Presets Routes", () => {
   // eslint-disable-next-line functional/no-let
-  let app: Elysia;
+  let app: Hono;
   // eslint-disable-next-line functional/no-let
   let fixtures: Awaited<ReturnType<typeof resetAllFixtures>>;
 
@@ -20,7 +21,9 @@ describe("Filter Presets Routes", () => {
     await setupTestDatabase();
     fixtures = await resetAllFixtures();
     void fixtures;
-    app = new Elysia().onError(logError()).mapResponse(mapResponse).use(filterPresetsRoutes);
+    app = new Hono()
+      .use("*", devalueMiddleware())
+      .route("/", filterPresetsRoutes);
   });
 
   afterAll(async () => {
@@ -33,7 +36,7 @@ describe("Filter Presets Routes", () => {
 
   describe("GET /api/filter-presets/all", () => {
     test("returns all filter presets", async () => {
-      const response = await app.handle(new Request("http://localhost/api/filter-presets/all"));
+      const response = await app.request("/api/filter-presets/all");
       expect(response.status).toBe(200);
 
       const data = await parseResponse<FilterPreset[]>(response);
@@ -55,9 +58,7 @@ describe("Filter Presets Routes", () => {
         throw new Error("No filter preset fixtures available");
       }
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/filter-presets/by-id/${fixturePreset.id}`)
-      );
+      const response = await app.request(`/api/filter-presets/by-id/${fixturePreset.id}`);
 
       expect(response.status).toBe(200);
 
@@ -67,9 +68,7 @@ describe("Filter Presets Routes", () => {
     });
 
     test("returns error for non-existent preset", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/filter-presets/by-id/non-existent-id")
-      );
+      const response = await app.request("/api/filter-presets/by-id/non-existent-id");
 
       const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
@@ -83,7 +82,7 @@ describe("Filter Presets Routes", () => {
       if (!fixtureChannel) {
         throw new Error("No channel fixtures available");
       }
-      const presetData: typeof CreateFilterPresetRequestBodySchema.static = {
+      const presetData: z.infer<typeof CreateFilterPresetRequestBodySchema> = {
         name: "New Preset",
         filters: [    {
           include: true,
@@ -93,13 +92,11 @@ describe("Filter Presets Routes", () => {
         }],
       };
 
-      const response = await app.handle(
-        new Request("http://localhost/api/filter-presets", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(presetData),
-        })
-      );
+      const response = await app.request("/api/filter-presets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(presetData),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Omit<FilterPreset, 'filtersJson'> & { filters: unknown }>(response);
@@ -120,7 +117,7 @@ describe("Filter Presets Routes", () => {
         throw new Error("No filter preset fixtures available");
       }
 
-      const updateData: typeof UpdateFilterPresetRequestBodySchema.static = {
+      const updateData: z.infer<typeof UpdateFilterPresetRequestBodySchema> = {
         name: "Updated Preset",
         filters: [{
           include: true,
@@ -130,13 +127,11 @@ describe("Filter Presets Routes", () => {
         }],
       };
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/filter-presets/by-id/${fixturePreset.id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updateData),
-        })
-      );
+      const response = await app.request(`/api/filter-presets/by-id/${fixturePreset.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updateData),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<FilterPreset>(response);
@@ -145,13 +140,11 @@ describe("Filter Presets Routes", () => {
     });
 
     test("returns error for non-existent preset", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/filter-presets/by-id/non-existent-id", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: "Updated" }),
-        })
-      );
+      const response = await app.request("/api/filter-presets/by-id/non-existent-id", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: "Updated" }),
+      });
 
       const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
@@ -165,11 +158,9 @@ describe("Filter Presets Routes", () => {
         throw new Error("No filter preset fixtures available");
       }
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/filter-presets/by-id/${fixturePreset.id}`, {
-          method: "DELETE",
-        })
-      );
+      const response = await app.request(`/api/filter-presets/by-id/${fixturePreset.id}`, {
+        method: "DELETE",
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<{ success: boolean }>(response);
@@ -182,11 +173,9 @@ describe("Filter Presets Routes", () => {
     });
 
     test("returns 404 when filter preset not found", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/filter-presets/by-id/non-existent-id", {
-          method: "DELETE",
-        })
-      );
+      const response = await app.request("/api/filter-presets/by-id/non-existent-id", {
+        method: "DELETE",
+      });
       expect(response.status).toBe(404);
 
       const data = await parseResponse<{ error: string }>(response);

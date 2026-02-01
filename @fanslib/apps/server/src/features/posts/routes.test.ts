@@ -1,9 +1,9 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
-import { Elysia } from "elysia";
+import { Hono } from "hono";
 import "reflect-metadata";
 import { getTestDataSource, resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
-import { mapResponse } from "../../lib/serialization";
-import { logError, parseResponse } from "../../test-utils/setup";
+import { devalueMiddleware } from "../../lib/devalue-middleware";
+import { parseResponse } from "../../test-utils/setup";
 import { CHANNEL_TYPES } from "../channels/channelTypes";
 import { Post } from "./entity";
 import { POST_FIXTURES } from "./fixtures";
@@ -11,14 +11,14 @@ import { postsRoutes } from "./routes";
 
 describe("Posts Routes", () => {
   // eslint-disable-next-line functional/no-let
-  let app: Elysia;
+  let app: Hono;
   // eslint-disable-next-line functional/no-let
   let fixtures: Awaited<ReturnType<typeof resetAllFixtures>>;
 
   beforeAll(async () => {
     await setupTestDatabase();
     fixtures = await resetAllFixtures();
-    app = new Elysia().onError(logError()).mapResponse(mapResponse).use(postsRoutes);
+    app = new Hono().use("*", devalueMiddleware()).route("/", postsRoutes);
   });
 
   afterAll(async () => {
@@ -31,7 +31,7 @@ describe("Posts Routes", () => {
 
   describe("GET /api/posts/all", () => {
     test("returns all posts", async () => {
-      const response = await app.handle(new Request("http://localhost/api/posts/all"));
+      const response = await app.request("/api/posts/all");
       expect(response.status).toBe(200);
 
       const data = await parseResponse<{ posts: Post[] }>(response);
@@ -53,8 +53,8 @@ describe("Posts Routes", () => {
 
     test("supports filters", async () => {
       const filters = JSON.stringify({ statuses: ["draft"] });
-      const response = await app.handle(
-        new Request(`http://localhost/api/posts/all?filters=${encodeURIComponent(filters)}`)
+      const response = await app.request(
+        `/api/posts/all?filters=${encodeURIComponent(filters)}`
       );
       const data = await parseResponse<{ posts: Post[] }>(response);
 
@@ -72,8 +72,8 @@ describe("Posts Routes", () => {
         throw new Error("No post fixtures available");
       }
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/posts/by-id/${fixturePost.id}`)
+      const response = await app.request(
+        `/api/posts/by-id/${fixturePost.id}`
       );
       
       // Log response body for debugging if status is not 200
@@ -101,26 +101,24 @@ describe("Posts Routes", () => {
       }
 
       // Create a post with media
-      const createResponse = await app.handle(
-        new Request("http://localhost/api/posts", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            caption: "Test post with media",
-            status: "draft" as const,
-            channelId: channel.id,
-            date: new Date().toISOString(),
-            mediaIds: [media.id],
-          }),
-        })
-      );
+      const createResponse = await app.request("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          caption: "Test post with media",
+          status: "draft" as const,
+          channelId: channel.id,
+          date: new Date().toISOString(),
+          mediaIds: [media.id],
+        }),
+      });
       expect(createResponse.status).toBe(200);
       const createdPost = await parseResponse<Post>(createResponse);
       expect(createdPost?.id).toBeDefined();
 
       // Fetch the post and check for validation errors
-      const response = await app.handle(
-        new Request(`http://localhost/api/posts/by-id/${createdPost?.id}`)
+      const response = await app.request(
+        `/api/posts/by-id/${createdPost?.id}`
       );
 
       // Log if we get a validation error (422)
@@ -137,8 +135,8 @@ describe("Posts Routes", () => {
     });
 
     test("returns error for non-existent post", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/posts/by-id/non-existent-id")
+      const response = await app.request(
+        "/api/posts/by-id/non-existent-id"
       );
 
       const data = await parseResponse<{ error: string }>(response);
@@ -154,8 +152,8 @@ describe("Posts Routes", () => {
         throw new Error("No channel fixtures available");
       }
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/posts/by-channel-id/${fixtureChannel.id}`)
+      const response = await app.request(
+        `/api/posts/by-channel-id/${fixtureChannel.id}`
       );
       const data = await parseResponse<Post[]>(response);
 
@@ -183,13 +181,11 @@ describe("Posts Routes", () => {
         mediaIds: [],
       };
 
-      const response = await app.handle(
-        new Request("http://localhost/api/posts", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(postData),
-        })
-      );
+      const response = await app.request("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(postData),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Post>(response);
@@ -216,13 +212,11 @@ describe("Posts Routes", () => {
         mediaIds: [media1.id, media2.id],
       };
 
-      const response = await app.handle(
-        new Request("http://localhost/api/posts", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(postData),
-        })
-      );
+      const response = await app.request("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(postData),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Post>(response);
@@ -242,13 +236,11 @@ describe("Posts Routes", () => {
         status: "posted",
       };
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/posts/by-id/${fixturePost.id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updateData),
-        })
-      );
+      const response = await app.request(`/api/posts/by-id/${fixturePost.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updateData),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Post>(response);
@@ -258,13 +250,11 @@ describe("Posts Routes", () => {
     });
 
     test("returns error for non-existent post", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/posts/by-id/non-existent-id", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ caption: "Updated" }),
-        })
-      );
+      const response = await app.request("/api/posts/by-id/non-existent-id", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ caption: "Updated" }),
+      });
 
       const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
@@ -279,11 +269,9 @@ describe("Posts Routes", () => {
         throw new Error("No post fixtures available");
       }
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/posts/by-id/${fixturePost.id}`, {
-          method: "DELETE",
-        })
-      );
+      const response = await app.request(`/api/posts/by-id/${fixturePost.id}`, {
+        method: "DELETE",
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<{ success: boolean }>(response);
@@ -296,11 +284,9 @@ describe("Posts Routes", () => {
     });
 
     test("returns 404 when post not found", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/posts/by-id/non-existent-id", {
-          method: "DELETE",
-        })
-      );
+      const response = await app.request("/api/posts/by-id/non-existent-id", {
+        method: "DELETE",
+      });
       expect(response.status).toBe(404);
 
       const data = await parseResponse<{ error: string }>(response);
@@ -316,13 +302,11 @@ describe("Posts Routes", () => {
         throw new Error("No post or media fixtures available");
       }
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/posts/by-id/${fixturePost.id}/media`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ mediaIds: [media.id] }),
-        })
-      );
+      const response = await app.request(`/api/posts/by-id/${fixturePost.id}/media`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mediaIds: [media.id] }),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Post>(response);
@@ -331,13 +315,11 @@ describe("Posts Routes", () => {
     });
 
     test("returns error for non-existent post", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/posts/by-id/non-existent-id/media", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ mediaIds: [] }),
-        })
-      );
+      const response = await app.request("/api/posts/by-id/non-existent-id/media", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mediaIds: [] }),
+      });
 
       const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
@@ -353,13 +335,11 @@ describe("Posts Routes", () => {
         throw new Error("No post or media fixtures available");
       }
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/posts/by-id/${fixturePost.id}/media`, {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ mediaIds: [media1.id] }),
-        })
-      );
+      const response = await app.request(`/api/posts/by-id/${fixturePost.id}/media`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mediaIds: [media1.id] }),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Post>(response);
@@ -368,13 +348,11 @@ describe("Posts Routes", () => {
     });
 
     test("returns error for non-existent post", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/posts/by-id/non-existent-id/media", {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ mediaIds: [] }),
-        })
-      );
+      const response = await app.request("/api/posts/by-id/non-existent-id/media", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mediaIds: [] }),
+      });
 
       const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");

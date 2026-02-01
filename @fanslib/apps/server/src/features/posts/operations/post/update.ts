@@ -1,28 +1,21 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { In } from "typeorm";
 import { db } from "../../../../lib/db";
 import { CHANNEL_TYPES } from "../../../channels/channelTypes";
 import { Post } from "../../entity";
 import { PostSchema } from "../../schema";
 import { validatePost } from "../../../api-bluesky/operations/validate-post";
-import { fetchPostById, FetchPostByIdResponseSchema } from "./fetch-by-id";
+import type { PostWithRelations } from "./fetch-by-id";
+import { fetchPostById } from "./fetch-by-id";
 
-export const UpdatePostRequestParamsSchema = t.Object({
-  id: t.String(),
+export const UpdatePostRequestBodySchema = PostSchema.partial().extend({
+  syncToPostIds: z.array(z.string()).optional(),
 });
-
-export const UpdatePostRequestBodySchema = t.Intersect([
-  t.Partial(PostSchema),
-  t.Object({
-    syncToPostIds: t.Optional(t.Array(t.String())),
-  }),
-]);
-export const UpdatePostResponseSchema = FetchPostByIdResponseSchema;
 
 export const updatePost = async (
   id: string,
-  updates: Partial<Post> & { syncToPostIds?: string[] }
-): Promise<typeof UpdatePostResponseSchema.static | null> => {
+  updates: z.infer<typeof UpdatePostRequestBodySchema>
+): Promise<PostWithRelations | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Post);
 

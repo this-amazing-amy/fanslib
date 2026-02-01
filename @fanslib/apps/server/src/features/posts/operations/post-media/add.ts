@@ -1,25 +1,20 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { In } from "typeorm";
 import { db } from "../../../../lib/db";
 import { Media } from "../../../library/entity";
 import type { Post } from "../../entity";
 import { PostMedia } from "../../entity";
-import { fetchPostById, FetchPostByIdResponseSchema } from "../post/fetch-by-id";
+import type { PostWithRelations } from "../post/fetch-by-id";
+import { fetchPostById } from "../post/fetch-by-id";
 
-export const AddMediaToPostRequestParamsSchema = t.Object({
-  id: t.String(),
+export const AddMediaToPostRequestBodySchema = z.object({
+  mediaIds: z.array(z.string()),
 });
-
-export const AddMediaToPostRequestBodySchema = t.Object({
-  mediaIds: t.Array(t.String()),
-});
-
-export const AddMediaToPostResponseSchema = FetchPostByIdResponseSchema;
 
 export const addMediaToPost = async (
   postId: string,
   mediaIds: string[]
-): Promise<typeof AddMediaToPostResponseSchema.static | null> => {
+): Promise<PostWithRelations | null> => {
   const dataSource = await db();
   const postMediaRepo = dataSource.getRepository(PostMedia);
   const mediaRepo = dataSource.getRepository(Media);

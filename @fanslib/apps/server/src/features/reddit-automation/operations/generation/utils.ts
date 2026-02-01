@@ -1,3 +1,4 @@
+import type { z } from "zod";
 import { db } from "../../../../lib/db";
 import { Media } from "../../../library/entity";
 import { buildFilterGroupQuery } from "../../../library/filter-helpers";
@@ -6,7 +7,7 @@ import { PostMedia } from "../../../posts/entity";
 import { fetchPostsByMediaId } from "../../../posts/operations/post/fetch-by-media-id";
 import type { Subreddit } from "../../../subreddits/entity";
 
-type MediaFilters = typeof MediaFilterSchema.static;
+type MediaFilters = z.infer<typeof MediaFilterSchema>;
 
 const MEDIA_REUSE_RESTRICTION_DAYS = 30;
 
