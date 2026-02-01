@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-# Ralph Wiggum Loop Script for Cursor CLI
+# Ralph Wiggum Loop Script for Cursor CLI / GitHub Copilot CLI
 # Usage:
 #   ./loop.sh [plan] [max_iterations]       # Plan/build on current branch
 #   ./loop.sh plan-work "work description"  # Create scoped plan on current branch
@@ -13,10 +13,15 @@ set -euo pipefail
 #   ./loop.sh plan-work "user auth"         # Scoped planning for specific work
 #
 # Environment variables:
-#   PLAN_MODEL  - Model for planning mode (default: claude-4.5-opus)
-#   BUILD_MODEL - Model for building mode (default: claude-4.5-sonnet)
+#   CLI         - Which CLI to use: "cursor" (default) or "copilot"
+#   PLAN_MODEL  - Model for planning mode (default: claude-4.5-opus for cursor, N/A for copilot)
+#   BUILD_MODEL - Model for building mode (default: claude-4.5-sonnet for cursor, N/A for copilot)
+
+# CLI selection (cursor or copilot)
+CLI="${CLI:-cursor}"
 
 # Default models (can be overridden via environment variables)
+# Note: Copilot CLI doesn't support direct model selection via CLI flag
 PLAN_MODEL="${PLAN_MODEL:-claude-4.5-opus}"
 BUILD_MODEL="${BUILD_MODEL:-claude-4.5-sonnet}"
 
@@ -59,9 +64,38 @@ if [ "$MODE" = "plan-work" ]; then
     fi
 fi
 
+# Validate CLI selection
+if [ "$CLI" != "cursor" ] && [ "$CLI" != "copilot" ]; then
+    echo "Error: CLI must be 'cursor' or 'copilot', got: $CLI"
+    exit 1
+fi
+
+# Build CLI command based on selection
+build_cli_command() {
+    local prompt="$1"
+
+    if [ "$CLI" = "cursor" ]; then
+        # Cursor CLI: agent command
+        # -p: print mode (non-interactive)
+        # --model: select model
+        # --output-format stream-json: NDJSON streaming output
+        # --approve-mcps: auto-approve MCP tool calls
+        echo "agent -p \"$prompt\" --model \"$MODEL\" --output-format stream-json --approve-mcps"
+    else
+        # GitHub Copilot CLI: copilot command
+        # -p: non-interactive prompt mode
+        # --allow-all-paths: approve all filesystem paths (required for -p mode)
+        # --allow-all (or --yolo): auto-approve all tool permissions
+        # --stream on: enable streaming output
+        # Note: Copilot CLI doesn't support direct model selection or JSON output format
+        echo "copilot -p \"$prompt\" --allow-all-paths --allow-all --stream on"
+    fi
+}
+
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "CLI:    $CLI"
 echo "Mode:   $MODE"
-echo "Model:  $MODEL"
+[ "$CLI" = "cursor" ] && echo "Model:  $MODEL"
 echo "Prompt: $PROMPT_FILE"
 echo "Branch: $CURRENT_BRANCH"
 [ "$MAX_ITERATIONS" -gt 0 ] && echo "Max:    $MAX_ITERATIONS iterations"
@@ -95,11 +129,19 @@ while true; do
     echo -e "\n======================== ITERATION $ITERATION ========================\n"
 
     # For plan-work mode, substitute ${WORK_SCOPE} in prompt
-    # stream-json emits NDJSON events (tool_call, assistant messages) so you can watch progress
     if [ "$MODE" = "plan-work" ]; then
-        WORK_SCOPE="$WORK_DESCRIPTION" envsubst < "$PROMPT_FILE" | agent -p --model "$MODEL" --output-format stream-json --approve-mcps
+        PROMPT_CONTENT=$(WORK_SCOPE="$WORK_DESCRIPTION" envsubst < "$PROMPT_FILE")
     else
-        agent -p "$(cat "$PROMPT_FILE")" --model "$MODEL" --output-format stream-json --approve-mcps
+        PROMPT_CONTENT=$(cat "$PROMPT_FILE")
+    fi
+
+    # Execute the appropriate CLI command
+    if [ "$CLI" = "cursor" ]; then
+        # Cursor CLI with streaming JSON output
+        agent -p "$PROMPT_CONTENT" --model "$MODEL" --output-format stream-json --approve-mcps
+    else
+        # GitHub Copilot CLI
+        copilot -p "$PROMPT_CONTENT" --allow-all-paths --allow-all --stream on
     fi
 
     # Push changes after each iteration

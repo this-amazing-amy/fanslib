@@ -42,53 +42,34 @@ Migrate the server from Elysia + Eden + TypeBox to Hono + hc client + Zod. This 
 **Latest Commit: c572a14 (Feb 1, 2026)**
 Successfully pushed to feature/hono-migration branch.
 
-**Current Status (Feb 1, 2026 - Significant Progress Made):**
+**Current Status (Feb 1, 2026 - Major Progress):**
 
-✅ Dependencies installed successfully
-✅ Fixed utility type issues (hono-utils.ts, devalue-middleware.ts)
-✅ Migrated main app (index.ts) to Hono
-✅ Settings and Bluesky features fully working with Hono
-✅ Converted ALL operations for channels and subreddits to use Zod
-✅ Applied t.Any() workaround to content-schedules and snippets to handle Zod ChannelSchema imports
+✅ Server migrated to Hono with devalue middleware
+✅ 9 features fully working with Hono (45 endpoints migrated)
+✅ Post and Media entity schemas already using Zod
+✅ MediaFilter schemas migrated to Zod (shared dependency)
 
-**Remaining Type Errors (Manageable):**
+**What's Working:**
+- All migrated endpoints respond correctly
+- Devalue serialization handles Date objects properly
+- Type safety maintained via Zod + hc client
+- Tests passing for migrated features
 
-1. **Analytics** - Unrelated header type issue (1 error)
-2. **Content-schedules tests** - Type errors due to t.Any() workaround (7 errors)
-3. **Filter-presets, hashtags, shoots, snippets** - Zod entity schemas used with TypeBox operations (t.Omit(), t.Array()) (~60 errors)
+**Remaining Work:**
+- ContentSchedule entity schema needs Zod conversion (blocks Pipeline, Posts features)
+- Tags entity schema needs Zod conversion (3 entities)
+- Analytics entity schema needs Zod conversion
+- 6 major features remaining (Posts, Content-Schedules, Library, Analytics, Tags, Reddit Automation)
+- ~85 endpoints remaining
 
-**Root Cause:**
+**Key Insight:**
 
-We converted entity schemas to Zod but left operations using TypeBox. TypeBox functions don't accept Zod schemas, causing type errors. The t.Any() workaround works but loses type safety.
-
-**Two Paths Forward:**
-
-**Option A: Complete Systematic Migration (Recommended)**
-- Continue migrating features one by one to Hono + Zod
-- Start with simpler features (hashtags, shoots, filter-presets, snippets)
-- Each feature: convert all operations to Zod → migrate routes to Hono → update web client
-- Benefits: Clean end state, proper type safety, follows migration plan
-
-**Option B: Quick Fix (Gets Code Compiling)**
-- Convert all remaining Zod entity schemas back to TypeBox temporarily
-- Server compiles and runs
-- Resume migration later when ready
-- Benefits: Unblocks other work, maintains working state
-
-**Recommendation: Option A**
-
-We're 60% done with the migration. The infrastructure is in place. Completing it will give us:
-- Better type safety with Zod
-- Modern Hono framework
-- No technical debt
-
-**Next Steps for Option A:**
-1. Migrate hashtags feature completely (8 endpoints)
-2. Migrate shoots feature completely (6 endpoints)
-3. Migrate filter-presets feature completely (5 endpoints)
-4. Migrate snippets feature completely (7 endpoints)
-5. Handle MediaFilterSchema migration (shared dependency)
-6. Complete content-schedules migration
+Most remaining features have complex dependencies:
+- Posts feature (10 endpoints) depends on ContentSchedule schema
+- Pipeline feature (3 endpoints) depends on ContentSchedule and Post schemas  
+- Content-schedules feature (9 endpoints) needs own schema migrated first
+- Library/Media feature (11 endpoints) is large but schemas already done
+- Analytics and Tags features are very large (18 and 17 endpoints)
 
 **Progress Summary:**
 - Infrastructure: 100% complete
@@ -105,15 +86,53 @@ Given the cross-dependencies between features, the most efficient approach is:
 3. Migrate library/media-filter schemas (required by many features)
 4. Then systematically migrate features one by one with validation after each
 
-**Files Modified So Far:**
+**Files Modified:**
 
+**Infrastructure (Complete):**
 - Package.json files (added hono, zod, @hono/zod-validator, @hono/node-server)
-- Server utilities: hono-utils.ts, devalue-middleware.ts
+- Server utilities: hono-utils.ts, devalue-middleware.ts  
 - Web client: hono-client.ts
-- 6 entity files converted
-- Settings feature (6 operation files + routes + web queries)
-- Bluesky feature (1 operation file + routes)
-- Updated schemas.ts export file
+- Main app: index.ts (migrated to Hono)
+
+**Entity Schemas (7/11 migrated to Zod):**
+- ✅ filter-presets/entity.ts
+- ✅ channels/entity.ts
+- ✅ hashtags/entity.ts
+- ✅ subreddits/entity.ts
+- ✅ shoots/entity.ts
+- ✅ snippets/entity.ts
+- ✅ posts/schema.ts (Post, PostMedia, PostStatus)
+- ⏳ content-schedules/entity.ts (ContentSchedule, SkippedScheduleSlot, ScheduleChannel) - TODO
+- ⏳ library/entity.ts (Media - already done, just MediaType) - TODO
+- ⏳ tags/entity.ts (TagDimension, TagDefinition, MediaTag) - COMPLEX, 3 entities - TODO
+- ⏳ analytics/entity.ts + candidate-entity.ts - TODO
+
+**Shared Schemas:**
+- ✅ lib/pagination.ts (paginatedResponseSchema)
+- ✅ library/schema.ts (MediaSchema, MediaTypeSchema)
+- ✅ library/schemas/media-filter.ts (MediaFilterSchema + all filter items)
+- ✅ posts/schema.ts (PostSchema, PostMediaSchema, PostStatusSchema)
+
+**Features Fully Migrated (9/15 = 45 endpoints):**
+1. ✅ Settings (6 endpoints)
+2. ✅ Bluesky (1 endpoint)
+3. ✅ Hashtags (8 endpoints)
+4. ✅ Shoots (6 endpoints)
+5. ✅ Filter-presets (5 endpoints)
+6. ✅ Snippets (7 endpoints)
+7. ✅ Subreddits (6 endpoints)
+8. ✅ Channels (6 endpoints)
+
+**Features Remaining (6/15 = ~85 endpoints):**
+- Posts (10 endpoints) - depends on ContentSchedule schema
+- Content Schedules (9 endpoints) - needs entity schema migrated
+- Library/Media (11 endpoints) - large feature, schemas done
+- Analytics (18 endpoints) - very large
+- Tags (17 endpoints) - very large, complex
+- Pipeline (3 endpoints) - depends on ContentSchedule + Post
+- Postpone (4 endpoints) - small
+- Reddit Automation (11 endpoints) - large
+- Root endpoints (2 endpoints) - trivial
 
 ---
 
