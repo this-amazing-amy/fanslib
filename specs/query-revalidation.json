@@ -1,0 +1,143 @@
+{
+  "name": "Query Revalidation After User Interactions",
+  "description": "Ensure the UI always reflects current server state by properly invalidating TanStack Query caches after all mutations",
+  "context": {
+    "problem": "When users perform actions (update posts, assign media, delete items), related queries don't refresh, causing the UI to show stale data",
+    "impact": "Users see incorrect data - e.g., 'unused' media still appears after assignment, timeline doesn't reflect post updates, deleted items remain visible",
+    "user_need": "Instant visual feedback that actions succeeded - the UI should feel reactive and trustworthy",
+    "data_ready": true
+  },
+  "scope": {
+    "in_scope": [
+      "Adding onSuccess handlers to mutations missing query invalidation",
+      "Expanding existing invalidations to include related queries",
+      "Creating a centralized query key registry for consistency",
+      "Removing manual queryClient.invalidateQueries calls from components"
+    ],
+    "out_of_scope": [
+      "Optimistic updates (nice-to-have, separate spec)",
+      "Real-time subscriptions/WebSocket updates",
+      "Refactoring query hook implementations"
+    ]
+  },
+  "reference_patterns": {
+    "proper_invalidation": "useCreatePostMutation in posts.ts invalidates ['posts', 'list'], ['posts', 'timeline'] - this pattern should be applied everywhere",
+    "conditional_invalidation": "useUpdateShootMutation conditionally invalidates ['media', 'list'] only when mediaIds changes",
+    "manual_workaround": "CaptionItem.tsx manually calls queryClient.invalidateQueries as a workaround for missing mutation invalidation"
+  },
+  "features": [
+    {
+      "category": "functional",
+      "description": "Pipeline assignment mutation invalidates all affected queries",
+      "acceptance_criteria": [
+        "useAssignMediaMutation invalidates ['posts'], ['posts', 'list'], ['posts', 'timeline']",
+        "useAssignMediaMutation invalidates ['media', 'list'] so assigned media disappears from 'unused' filters",
+        "useAssignMediaMutation invalidates ['pipeline', 'caption-queue']",
+        "useAssignMediaMutation invalidates ['content-schedules', 'virtual-posts']",
+        "After drag-drop onto virtual post, library panel refreshes automatically"
+      ],
+      "passes": false
+    },
+    {
+      "category": "functional",
+      "description": "Analytics candidate mutations invalidate related queries",
+      "acceptance_criteria": [
+        "useConfirmMatchMutation invalidates ['analytics', 'candidates'], ['posts'], ['analytics', 'posts']",
+        "useIgnoreCandidateMutation invalidates ['analytics', 'candidates']",
+        "useBulkConfirmCandidatesMutation invalidates ['analytics', 'candidates'], ['posts'], ['analytics', 'posts']",
+        "useUnmatchCandidateMutation invalidates ['analytics', 'candidates'], ['posts'], ['analytics', 'posts']",
+        "useUnignoreCandidateMutation invalidates ['analytics', 'candidates']",
+        "Candidate list updates immediately after match/ignore actions"
+      ],
+      "passes": false
+    },
+    {
+      "category": "functional",
+      "description": "Post mutations invalidate all related queries including timeline and media",
+      "acceptance_criteria": [
+        "useUpdatePostMutation invalidates ['posts', 'timeline'] (currently missing)",
+        "useDeletePostMutation invalidates ['posts', 'timeline']",
+        "useDeletePostMutation invalidates ['media', 'list'] (media becomes unassigned)",
+        "useDeletePostMutation invalidates ['content-schedules', 'virtual-posts']",
+        "Post timeline component updates when editing a post on detail page"
+      ],
+      "passes": false
+    },
+    {
+      "category": "functional",
+      "description": "Media mutations invalidate related queries",
+      "acceptance_criteria": [
+        "useUpdateMediaMutation invalidates ['posts'] (media details may affect post display)",
+        "useDeleteMediaMutation invalidates ['posts', 'list'] and ['posts', 'timeline']",
+        "useDeleteMediaMutation invalidates ['shoots', 'list']",
+        "Library grid updates when media metadata changes"
+      ],
+      "passes": false
+    },
+    {
+      "category": "functional",
+      "description": "Shoot mutations invalidate media queries",
+      "acceptance_criteria": [
+        "useDeleteShootMutation invalidates ['media', 'list']",
+        "useDeleteShootMutation invalidates ['media'] for affected media items",
+        "After removing media from shoot, library reflects the change"
+      ],
+      "passes": false
+    },
+    {
+      "category": "functional",
+      "description": "Channel and Subreddit deletions cascade to related queries",
+      "acceptance_criteria": [
+        "useDeleteChannelMutation invalidates ['posts', 'list'], ['posts', 'timeline']",
+        "useDeleteChannelMutation invalidates ['content-schedules']",
+        "useDeleteChannelMutation invalidates ['snippets']",
+        "useDeleteSubredditMutation invalidates ['posts', 'list']"
+      ],
+      "passes": false
+    },
+    {
+      "category": "ux",
+      "description": "Remove manual queryClient calls from components",
+      "acceptance_criteria": [
+        "CaptionItem.tsx no longer manually invalidates queries",
+        "All invalidation logic lives in mutation hooks, not components",
+        "Components only call mutate/mutateAsync without post-processing"
+      ],
+      "passes": false
+    },
+    {
+      "category": "validation",
+      "description": "Query key registry for consistency",
+      "acceptance_criteria": [
+        "QUERY_KEYS constant object exists with all query key patterns",
+        "All query hooks use QUERY_KEYS instead of inline string arrays",
+        "All mutation invalidations use QUERY_KEYS",
+        "TypeScript ensures query key consistency (no typos possible)"
+      ],
+      "passes": false
+    },
+    {
+      "category": "validation",
+      "description": "Code passes all checks",
+      "acceptance_criteria": [
+        "bun lint passes",
+        "bun typecheck passes (within migration context)",
+        "No console warnings about missing query keys"
+      ],
+      "passes": false
+    }
+  ],
+  "technical_notes": {
+    "implementation_approach": "Create a QUERY_KEYS registry, then systematically add onSuccess handlers to each mutation category. Work through mutations in order of user impact: pipeline → analytics → posts → media → shoots → channels",
+    "key_files": [
+      "@fanslib/apps/web/src/lib/queries/pipeline.ts",
+      "@fanslib/apps/web/src/lib/queries/analytics.ts",
+      "@fanslib/apps/web/src/lib/queries/posts.ts",
+      "@fanslib/apps/web/src/lib/queries/library.ts",
+      "@fanslib/apps/web/src/lib/queries/shoots.ts",
+      "@fanslib/apps/web/src/lib/queries/channels.ts",
+      "@fanslib/apps/web/src/lib/queries/subreddits.ts"
+    ],
+    "completion_criteria": "All 9 features passing, UI feels reactive after all user interactions"
+  }
+}
