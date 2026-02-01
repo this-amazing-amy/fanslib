@@ -1,61 +1,61 @@
-import { t } from "elysia";
+import { z } from "zod";
 
-export const FilterItemChannelSchema = t.Object({
-  type: t.Literal('channel'),
-  id: t.String(),
+export const FilterItemChannelSchema = z.object({
+  type: z.literal('channel'),
+  id: z.string(),
 });
 
-export const FilterItemSubredditSchema = t.Object({
-  type: t.Literal('subreddit'),
-  id: t.String(),
+export const FilterItemSubredditSchema = z.object({
+  type: z.literal('subreddit'),
+  id: z.string(),
 });
 
-export const FilterItemTagSchema = t.Object({
-  type: t.Literal('tag'),
-  id: t.String(),
+export const FilterItemTagSchema = z.object({
+  type: z.literal('tag'),
+  id: z.string(),
 });
 
-export const FilterItemShootSchema = t.Object({
-  type: t.Literal('shoot'),
-  id: t.String(),
+export const FilterItemShootSchema = z.object({
+  type: z.literal('shoot'),
+  id: z.string(),
 });
 
-export const FilterItemFilenameSchema = t.Object({
-  type: t.Literal('filename'),
-  value: t.String(),
+export const FilterItemFilenameSchema = z.object({
+  type: z.literal('filename'),
+  value: z.string(),
 });
 
-export const FilterItemCaptionSchema = t.Object({
-  type: t.Literal('caption'),
-  value: t.String(),
+export const FilterItemCaptionSchema = z.object({
+  type: z.literal('caption'),
+  value: z.string(),
 });
 
-export const FilterItemPostedSchema = t.Object({
-  type: t.Literal('posted'),
-  value: t.Boolean(),
+export const FilterItemPostedSchema = z.object({
+  type: z.literal('posted'),
+  value: z.boolean(),
 });
 
-export const FilterItemCreatedDateStartSchema = t.Object({
-  type: t.Literal('createdDateStart'),
-  value: t.Date(),
+export const FilterItemCreatedDateStartSchema = z.object({
+  type: z.literal('createdDateStart'),
+  value: z.coerce.date(),
 });
 
-export const FilterItemCreatedDateEndSchema = t.Object({
-  type: t.Literal('createdDateEnd'),
-  value: t.Date(),
+export const FilterItemCreatedDateEndSchema = z.object({
+  type: z.literal('createdDateEnd'),
+  value: z.coerce.date(),
 });
 
-export const FilterItemMediaTypeSchema = t.Object({
-  type: t.Literal('mediaType'),
-  value: t.Union([t.Literal('image'), t.Literal('video')]),
+export const FilterItemMediaTypeSchema = z.object({
+  type: z.literal('mediaType'),
+  value: z.enum(['image', 'video']),
 });
 
-export const FilterItemDimensionEmptySchema = t.Object({
-  type: t.Literal('dimensionEmpty'),
-  dimensionId: t.Number(),
+export const FilterItemDimensionEmptySchema = z.object({
+  type: z.literal('dimensionEmpty'),
+  dimensionId: z.number(),
 });
 
-export const FilterItemSchema = t.Union([
+export const FilterItemSchema = z.discriminatedUnion('type', [
   FilterItemChannelSchema,
   FilterItemSubredditSchema,
   FilterItemTagSchema,
@@ -69,9 +69,9 @@ export const FilterItemSchema = t.Union([
   FilterItemDimensionEmptySchema,
 ]);
 
-export const FilterGroupSchema = t.Object({
-  include: t.Boolean(),
-  items: t.Array(FilterItemSchema),
+export const FilterGroupSchema = z.object({
+  include: z.boolean(),
+  items: z.array(FilterItemSchema),
 });
 
-export const MediaFilterSchema = t.Array(FilterGroupSchema);
+export const MediaFilterSchema = z.array(FilterGroupSchema);

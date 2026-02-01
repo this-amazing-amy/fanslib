@@ -1,0 +1,151 @@
+{
+  "name": "Captioning Page: Display All Media Items",
+  "description": "Enable captioning workflow to display ALL media items in a post, not just the first one, so users can write accurate captions with full visual context.",
+  "context": {
+    "problem": "The CaptionItem component only shows the first media item (postMedia[0]) when posts can have multiple media items. This makes it difficult for users to write accurate captions that reference all content in the post.",
+    "impact": "Content creators cannot see all media while writing captions, leading to incomplete or inaccurate captions. The behavior is inconsistent with PostDetailPage and PostPreview which show all media.",
+    "user_need": "Users need to see all images/videos in a post to write comprehensive captions that reference the complete visual context.",
+    "data_ready": "Backend already provides ALL media via CaptionQueueItemSchema - this is purely a frontend display issue."
+  },
+  "scope": {
+    "in_scope": [
+      "Display all media items in caption interface",
+      "Maintain media order as defined by PostMedia.order field",
+      "Support both images and videos with appropriate controls",
+      "Responsive grid layout (1 column mobile, 2 columns desktop)"
+    ],
+    "out_of_scope": [
+      "Reordering media in caption interface",
+      "Adding/removing media from posts",
+      "Per-media captions (this is post-level only)",
+      "Media editing (cropping, filters)",
+      "Per-media tag editing",
+      "Enhanced tag aggregation across all media (future phase)"
+    ]
+  },
+  "reference_patterns": {
+    "PostDetailMedia": "Displays all media in responsive 2-column grid with hover actions",
+    "PostPreview": "Shows all media as horizontal thumbnail tiles",
+    "current_file": "@fanslib/apps/web/src/features/pipeline/components/CaptioningStep/CaptionItem.tsx"
+  },
+  "features": [
+    {
+      "category": "functional",
+      "description": "Display all media items in a responsive grid layout",
+      "acceptance_criteria": [
+        "Posts with 1 media item show single media (existing behavior preserved)",
+        "Posts with 2+ media items show all items in grid layout",
+        "Grid is responsive: 1 column on mobile (<640px), 2 columns on desktop",
+        "Each media item has consistent aspect-square sizing",
+        "Media items appear in correct order by PostMedia.order field"
+      ],
+      "passes": false
+    },
+    {
+      "category": "functional",
+      "description": "Video playback controls work for all video items",
+      "acceptance_criteria": [
+        "Videos render with MediaView component and show controls",
+        "Play/pause/seek controls are functional for each video",
+        "Video thumbnails load correctly",
+        "Multiple videos on same page don't interfere with each other"
+      ],
+      "passes": false
+    },
+    {
+      "category": "functional",
+      "description": "Image previews display correctly for all image items",
+      "acceptance_criteria": [
+        "Images render with MediaTileLite component",
+        "Images maintain aspect ratio within grid cells",
+        "Image quality is sufficient for captioning context",
+        "All images load without errors"
+      ],
+      "passes": false
+    },
+    {
+      "category": "functional",
+      "description": "Media tags display appropriately without cluttering interface",
+      "acceptance_criteria": [
+        "Tags for first media item display below media grid",
+        "Tags maintain current badge styling with colors",
+        "Tag display does not create excessive visual clutter",
+        "Tags with stickerDisplay='none' are filtered out"
+      ],
+      "passes": false
+    },
+    {
+      "category": "functional",
+      "description": "Caption textarea remains easily accessible",
+      "acceptance_criteria": [
+        "Caption textarea is prominent and easy to locate",
+        "Textarea doesn't require excessive scrolling to reach",
+        "Media grid doesn't push caption controls off screen",
+        "Snippet selector and hashtag buttons remain visible"
+      ],
+      "passes": false
+    },
+    {
+      "category": "functional",
+      "description": "Link to media detail page available for each item",
+      "acceptance_criteria": [
+        "Each media item shows link icon on hover",
+        "Clicking link navigates to /content/library/media/$mediaId",
+        "Link works for both images and videos",
+        "Hover state is visually clear"
+      ],
+      "passes": false
+    },
+    {
+      "category": "functional",
+      "description": "Reveal in Finder button works for each media item",
+      "acceptance_criteria": [
+        "Each media shows RevealInFinderButton on hover",
+        "Button successfully reveals file in system file browser",
+        "Button is disabled/hidden when not applicable",
+        "Works for all media types"
+      ],
+      "passes": false
+    },
+    {
+      "category": "performance",
+      "description": "Multiple media items load efficiently without degradation",
+      "acceptance_criteria": [
+        "Page remains responsive with 2-5 media items",
+        "No noticeable lag when scrolling or interacting",
+        "Thumbnails load progressively without blocking UI",
+        "Tag queries don't block media rendering"
+      ],
+      "passes": false
+    },
+    {
+      "category": "ux",
+      "description": "Visual hierarchy maintains focus on caption workflow",
+      "acceptance_criteria": [
+        "Media grid is prominent but doesn't dominate entire interface",
+        "Caption textarea remains primary interaction area",
+        "Action buttons (Skip, Save & Next) are always visible",
+        "Related captions panel visible on large screens (1024px+)"
+      ],
+      "passes": false
+    },
+    {
+      "category": "edge-case",
+      "description": "Error states handled gracefully",
+      "acceptance_criteria": [
+        "Failed media loads show placeholder with error indicator",
+        "Page remains functional if some media fails to load",
+        "Empty media array shows appropriate message (shouldn't happen but handled)",
+        "Invalid media types degrade gracefully"
+      ],
+      "passes": false
+    }
+  ],
+  "technical_notes": {
+    "implementation_approach": "Replace single media display with grid that maps over all item.post.postMedia items. Use MediaView for videos, MediaTileLite for images. Keep existing tag query (first media only) to minimize scope.",
+    "key_change": "Lines 253-278 in CaptionItem.tsx - replace single media container with: grid grid-cols-1 sm:grid-cols-2 gap-4",
+    "components_to_reuse": ["MediaView", "MediaTileLite", "TagBadge", "RevealInFinderButton"],
+    "no_backend_changes": true,
+    "phase_1_complete": "All 10 features passing = MVP ready"
+  }
+}

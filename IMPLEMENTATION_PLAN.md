@@ -258,11 +258,14 @@ Each feature requires: (1) convert TypeBox schemas to Zod, (2) migrate routes to
 
 ### Filter Presets Feature (5 endpoints)
 
-- [ ] Convert filter-presets schemas to Zod
-  - `entity.ts` (FilterPresetSchema)
-  - `operations/filter-preset/*.ts`
-- [ ] Migrate filter-presets routes in `features/filter-presets/routes.ts`
-- [ ] Update `@fanslib/apps/web/src/lib/queries/filter-presets.ts` to use hc client
+- [x] Convert filter-presets schemas to Zod
+  - `entity.ts` (FilterPresetSchema) - ALREADY DONE
+  - `operations/filter-preset/*.ts` - CONVERTED ALL
+- [x] Migrate filter-presets routes in `features/filter-presets/routes.ts` - DONE
+- [x] Update `@fanslib/apps/web/src/lib/queries/filter-presets.ts` to use hc client - DONE
+- [x] Register routes in main index.ts - DONE
+
+**Note:** Also migrated `features/library/schemas/media-filter.ts` - MediaFilterSchema and all related filter item schemas converted to Zod (uses discriminated union)
 
 ### Settings Feature (6 endpoints)
 

@@ -1,30 +1,27 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { MediaFilterSchema } from "../../../library/schemas/media-filter";
 import { FilterPreset, FilterPresetSchema } from "../../entity";
 import { validateAndCleanFilters } from "../../validation";
 
-export const UpdateFilterPresetRequestParamsSchema = t.Object({
-  id: t.String(),
+export const UpdateFilterPresetRequestParamsSchema = z.object({
+  id: z.string(),
 });
 
-export const UpdateFilterPresetRequestBodySchema = t.Object({
-  name: t.Optional(t.String()),
-  filters: t.Optional(MediaFilterSchema),
+export const UpdateFilterPresetRequestBodySchema = z.object({
+  name: z.string().optional(),
+  filters: MediaFilterSchema.optional(),
 });
 
-export const UpdateFilterPresetResponseSchema = t.Composite([
-  t.Omit(FilterPresetSchema, ["filtersJson"]),
-  t.Object({
-    filters: MediaFilterSchema,
-  }),
-]);
+export const UpdateFilterPresetResponseSchema = FilterPresetSchema.omit({ filtersJson: true }).extend({
+  filters: MediaFilterSchema,
+});
 
 
 export const updateFilterPreset = async (
   id: string,
-  payload: typeof UpdateFilterPresetRequestBodySchema.static
-): Promise<typeof UpdateFilterPresetResponseSchema.static | null> => {
+  payload: z.infer<typeof UpdateFilterPresetRequestBodySchema>
+): Promise<z.infer<typeof UpdateFilterPresetResponseSchema> | null> => {
   const database = await db();
   const repository = database.getRepository(FilterPreset);
 

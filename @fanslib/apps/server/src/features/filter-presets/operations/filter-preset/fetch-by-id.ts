@@ -1,15 +1,15 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { FilterPreset, FilterPresetSchema } from "../../entity";
 import { validateAndCleanFilters } from "../../validation";
 
-export const FetchFilterPresetByIdRequestParamsSchema = t.Object({
-  id: t.String(),
+export const FetchFilterPresetByIdRequestParamsSchema = z.object({
+  id: z.string(),
 });
 
 export const FetchFilterPresetByIdResponseSchema = FilterPresetSchema
 
-export const fetchFilterPresetById = async (id: string): Promise<typeof FetchFilterPresetByIdResponseSchema.static | null> => {
+export const fetchFilterPresetById = async (id: string): Promise<z.infer<typeof FetchFilterPresetByIdResponseSchema> | null> => {
   const database = await db();
   const repository = database.getRepository(FilterPreset);
 

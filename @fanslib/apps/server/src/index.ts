@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import "reflect-metadata";
 import { blueskyRoutes } from "./features/api-bluesky/routes";
+import { filterPresetsRoutes } from "./features/filter-presets/routes";
 import { hashtagsRoutes } from "./features/hashtags/routes";
 import { runScheduledPostsCronTick } from "./features/posts/scheduled-posts-cron";
 import { settingsRoutes } from "./features/settings/routes";
@@ -68,7 +69,8 @@ const app = new Hono()
   .route("/", settingsRoutes)
   .route("/", blueskyRoutes)
   .route("/", hashtagsRoutes)
-  .route("/", shootsRoutes);
+  .route("/", shootsRoutes)
+  .route("/", filterPresetsRoutes);
 
 // Set up cron job if enabled
 if (isScheduledPostsCronEnabled) {

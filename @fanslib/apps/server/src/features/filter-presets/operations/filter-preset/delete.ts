@@ -1,13 +1,13 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { FilterPreset } from "../../entity";
 
-export const DeleteFilterPresetRequestParamsSchema = t.Object({
-  id: t.String(),
+export const DeleteFilterPresetRequestParamsSchema = z.object({
+  id: z.string(),
 });
 
-export const DeleteFilterPresetResponseSchema = t.Object({
-  success: t.Boolean(),
+export const DeleteFilterPresetResponseSchema = z.object({
+  success: z.boolean(),
 });
 
 export const deleteFilterPreset = async (id: string): Promise<boolean> => {

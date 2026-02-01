@@ -1,0 +1,348 @@
+{
+  "name": "Hono Migration: Elysia → Hono + Zod",
+  "description": "Migrate server from Elysia + Eden + TypeBox to Hono + hc client + Zod to fix persistent 422 validation errors caused by incompatible serialization.",
+  "context": {
+    "problem": "Elysia validation returns raw JSON errors, but Eden client expects devalue-serialized responses. This causes validation error messages to be lost, making debugging extremely difficult.",
+    "root_cause": "Incompatible serialization layers: validation layer uses JSON, transport layer uses devalue",
+    "impact": "Developers cannot see validation errors, leading to wasted debugging time and poor DX",
+    "solution_approach": "Hono's simpler architecture allows consistent devalue serialization for all responses including validation errors"
+  },
+  "scope": {
+    "in_scope": [
+      "Migrate all 130+ API endpoints to Hono",
+      "Convert all TypeBox schemas to Zod",
+      "Create Hono devalue middleware",
+      "Create hc client with devalue deserialization",
+      "Update all TanStack Query hooks to use hc client",
+      "Maintain end-to-end type safety"
+    ],
+    "out_of_scope": [
+      "Database schema changes",
+      "Business logic changes",
+      "UI/UX changes",
+      "New features during migration",
+      "Performance optimization (unless regression)"
+    ]
+  },
+  "migration_order": [
+    "Infrastructure setup (utilities, middleware, client)",
+    "Entity schemas (TypeBox → Zod)",
+    "Settings feature (6 endpoints) - DONE",
+    "Bluesky feature (1 endpoint) - DONE", 
+    "Remaining features one by one",
+    "Remove Elysia dependencies"
+  ],
+  "features": [
+    {
+      "category": "infrastructure",
+      "description": "Hono app with devalue middleware and utilities",
+      "acceptance_criteria": [
+        "Hono app instance created in index.ts",
+        "CORS middleware configured",
+        "Devalue middleware serializes all responses",
+        "Devalue middleware skips swagger/file/binary endpoints",
+        "X-Serialization: devalue header set on serialized responses",
+        "validationError() helper returns 422 with Zod error details",
+        "notFound() helper returns 404 responses",
+        "AppType exported for client inference"
+      ],
+      "passes": false
+    },
+    {
+      "category": "infrastructure",
+      "description": "Hono client (hc) with devalue deserialization",
+      "acceptance_criteria": [
+        "hc<AppType> client created in web/src/lib/api/client.ts",
+        "Custom fetch wrapper checks X-Serialization header",
+        "Responses with devalue header are parsed with devalue",
+        "Error responses handled appropriately",
+        "Type safety maintained via AppType inference"
+      ],
+      "passes": false
+    },
+    {
+      "category": "schema-migration",
+      "description": "Convert all entity schemas from TypeBox to Zod",
+      "acceptance_criteria": [
+        "FilterPresets schema converted - DONE",
+        "Channels schema converted - DONE",
+        "Hashtags schema converted - DONE",
+        "Subreddits schema converted - DONE",
+        "Shoots schema converted - DONE",
+        "Snippets schema converted - DONE",
+        "Posts schema converted",
+        "ContentSchedules schema converted",
+        "Media schema converted",
+        "Tags schema converted",
+        "Analytics schema converted",
+        "All validation rules maintained",
+        "Date fields use z.coerce.date()"
+      ],
+      "passes": false
+    },
+    {
+      "category": "feature-migration",
+      "description": "Migrate Settings feature (6 endpoints)",
+      "acceptance_criteria": [
+        "GET /api/settings/ migrated",
+        "PATCH /api/settings/ migrated",
+        "POST /api/settings/toggle-sfw migrated",
+        "GET /api/settings/fansly-credentials migrated",
+        "POST /api/settings/fansly-credentials migrated",
+        "DELETE /api/settings/fansly-credentials migrated",
+        "All endpoints return correct data",
+        "Validation errors return 422 with error details",
+        "Web client hooks updated to use hc client",
+        "Manual smoke test passes"
+      ],
+      "passes": true
+    },
+    {
+      "category": "feature-migration",
+      "description": "Migrate Bluesky feature (1 endpoint)",
+      "acceptance_criteria": [
+        "POST /api/bluesky/test-credentials migrated",
+        "Validation works correctly",
+        "Web client updated",
+        "Manual test passes"
+      ],
+      "passes": true
+    },
+    {
+      "category": "feature-migration",
+      "description": "Migrate Posts feature (10 endpoints)",
+      "acceptance_criteria": [
+        "All 10 endpoints migrated to Hono with zValidator",
+        "Schemas converted to Zod",
+        "Web client hooks updated",
+        "Create/update/delete operations work",
+        "Media association endpoints work",
+        "Filtering and pagination work",
+        "Manual smoke test passes"
+      ],
+      "passes": false
+    },
+    {
+      "category": "feature-migration",
+      "description": "Migrate Channels feature (6 endpoints)",
+      "acceptance_criteria": [
+        "All 6 endpoints migrated",
+        "Channel types endpoint works",
+        "CRUD operations functional",
+        "Web client updated",
+        "Manual test passes"
+      ],
+      "passes": false
+    },
+    {
+      "category": "feature-migration",
+      "description": "Migrate Content Schedules feature (9 endpoints)",
+      "acceptance_criteria": [
+        "All 9 endpoints migrated",
+        "Virtual posts generation works",
+        "Skipped slots CRUD works",
+        "Web client updated",
+        "Manual test passes"
+      ],
+      "passes": false
+    },
+    {
+      "category": "feature-migration",
+      "description": "Migrate Library/Media feature (11 endpoints)",
+      "acceptance_criteria": [
+        "All 11 endpoints migrated",
+        "File serving endpoints work (file, thumbnail)",
+        "Scan operations functional",
+        "Media CRUD works",
+        "Adjacent media lookup works",
+        "Web client updated",
+        "Manual test passes"
+      ],
+      "passes": false
+    },
+    {
+      "category": "feature-migration",
+      "description": "Migrate Analytics feature (18 endpoints)",
+      "acceptance_criteria": [
+        "All 18 endpoints migrated",
+        "Candidate matching operations work",
+        "Statistics endpoints functional",
+        "Aggregation works",
+        "Web client updated",
+        "Manual test passes"
+      ],
+      "passes": false
+    },
+    {
+      "category": "feature-migration",
+      "description": "Migrate Tags feature (17 endpoints)",
+      "acceptance_criteria": [
+        "All 17 endpoints migrated",
+        "Dimensions CRUD works",
+        "Definitions CRUD works",
+        "Media tag assignment works",
+        "Bulk operations functional",
+        "Drift prevention works",
+        "Web client updated",
+        "Manual test passes"
+      ],
+      "passes": false
+    },
+    {
+      "category": "feature-migration",
+      "description": "Migrate Hashtags feature (8 endpoints)",
+      "acceptance_criteria": [
+        "All 8 endpoints migrated",
+        "CRUD operations work",
+        "Statistics endpoints functional",
+        "Bulk operations work",
+        "Web client updated",
+        "Manual test passes"
+      ],
+      "passes": false
+    },
+    {
+      "category": "feature-migration",
+      "description": "Migrate Shoots feature (6 endpoints)",
+      "acceptance_criteria": [
+        "All 6 endpoints migrated",
+        "CRUD operations work",
+        "Posts by shoot lookup works",
+        "Web client updated",
+        "Manual test passes"
+      ],
+      "passes": false
+    },
+    {
+      "category": "feature-migration",
+      "description": "Migrate Subreddits feature (6 endpoints)",
+      "acceptance_criteria": [
+        "All 6 endpoints migrated",
+        "CRUD operations work",
+        "Last post dates endpoint works",
+        "Web client updated",
+        "Manual test passes"
+      ],
+      "passes": false
+    },
+    {
+      "category": "feature-migration",
+      "description": "Migrate Snippets feature (7 endpoints)",
+      "acceptance_criteria": [
+        "All 7 endpoints migrated",
+        "Global snippets endpoint works",
+        "Channel-specific snippets work",
+        "CRUD operations functional",
+        "Web client updated",
+        "Manual test passes"
+      ],
+      "passes": false
+    },
+    {
+      "category": "feature-migration",
+      "description": "Migrate Filter Presets feature (5 endpoints)",
+      "acceptance_criteria": [
+        "All 5 endpoints migrated",
+        "CRUD operations work",
+        "Web client updated",
+        "Manual test passes"
+      ],
+      "passes": false
+    },
+    {
+      "category": "feature-migration",
+      "description": "Migrate Pipeline feature (3 endpoints)",
+      "acceptance_criteria": [
+        "All 3 endpoints migrated",
+        "Caption queue works",
+        "Assignment works",
+        "Health check works",
+        "Web client updated",
+        "Manual test passes"
+      ],
+      "passes": false
+    },
+    {
+      "category": "feature-migration",
+      "description": "Migrate Postpone feature (4 endpoints)",
+      "acceptance_criteria": [
+        "All 4 endpoints migrated",
+        "Bluesky draft works",
+        "RedGIFs operations work",
+        "Subreddit timing lookup works",
+        "Web client updated",
+        "Manual test passes"
+      ],
+      "passes": false
+    },
+    {
+      "category": "feature-migration",
+      "description": "Migrate Reddit Automation feature (11 endpoints)",
+      "acceptance_criteria": [
+        "All 11 endpoints migrated",
+        "Post generation works",
+        "Scheduling works",
+        "Login/session management works",
+        "Reddit posting works",
+        "Web client updated",
+        "Manual test passes"
+      ],
+      "passes": false
+    },
+    {
+      "category": "feature-migration",
+      "description": "Migrate root endpoints (2 endpoints)",
+      "acceptance_criteria": [
+        "GET /health migrated",
+        "POST /migrate-colors migrated",
+        "Both work correctly"
+      ],
+      "passes": false
+    },
+    {
+      "category": "validation",
+      "description": "All validation checks pass",
+      "acceptance_criteria": [
+        "bun typecheck passes with no errors",
+        "bun lint passes with no errors",
+        "All existing tests pass",
+        "No TypeScript errors in IDE"
+      ],
+      "passes": false
+    },
+    {
+      "category": "cleanup",
+      "description": "Remove Elysia dependencies and old code",
+      "acceptance_criteria": [
+        "Remove elysia from server package.json",
+        "Remove @elysiajs/cors from server package.json",
+        "Remove @elysiajs/cron from server package.json",
+        "Remove @elysiajs/swagger from server package.json",
+        "Remove @elysiajs/eden from web package.json",
+        "Remove old eden.ts client file",
+        "bun install cleans up lock file",
+        "No Elysia imports remain in codebase"
+      ],
+      "passes": false
+    }
+  ],
+  "technical_notes": {
+    "dependencies_to_add": {
+      "server": ["hono", "@hono/zod-validator", "zod"],
+      "web": ["hono"]
+    },
+    "dependencies_to_remove": {
+      "server": ["elysia", "@elysiajs/cors", "@elysiajs/cron", "@elysiajs/swagger"],
+      "web": ["@elysiajs/eden"]
+    },
+    "files_to_create": [
+      "@fanslib/apps/server/src/lib/devalue-middleware.ts",
+      "@fanslib/apps/server/src/lib/hono-utils.ts",
+      "@fanslib/apps/web/src/lib/api/hono-client.ts"
+    ],
+    "migration_strategy": "One feature at a time. After each feature: run bun typecheck, bun lint, manual smoke test. Don't move to next feature until current one works.",
+    "testing_approach": "Manual smoke tests after each feature. Use dev server + web client to verify endpoints work correctly.",
+    "rollback_plan": "Git commits after each feature. Can revert individual feature if needed.",
+    "completion_criteria": "All 22 feature groups passing + validation passing + cleanup passing = migration complete"
+  }
+}

@@ -1,59 +1,46 @@
-import { Elysia, t } from "elysia";
-import { CreateFilterPresetRequestBodySchema, CreateFilterPresetResponseSchema, createFilterPreset } from "./operations/filter-preset/create";
-import { DeleteFilterPresetRequestParamsSchema, DeleteFilterPresetResponseSchema, deleteFilterPreset } from "./operations/filter-preset/delete";
-import { FetchAllFilterPresetsResponseSchema, fetchAllFilterPresets } from "./operations/filter-preset/fetch-all";
-import { FetchFilterPresetByIdRequestParamsSchema, FetchFilterPresetByIdResponseSchema, fetchFilterPresetById } from "./operations/filter-preset/fetch-by-id";
-import { UpdateFilterPresetRequestBodySchema, UpdateFilterPresetRequestParamsSchema, UpdateFilterPresetResponseSchema, updateFilterPreset } from "./operations/filter-preset/update";
+import { Hono } from "hono";
+import { zValidator } from "@hono/zod-validator";
+import { validationError, notFound } from "../../lib/hono-utils";
+import { CreateFilterPresetRequestBodySchema, createFilterPreset } from "./operations/filter-preset/create";
+import { deleteFilterPreset } from "./operations/filter-preset/delete";
+import { fetchAllFilterPresets } from "./operations/filter-preset/fetch-all";
+import { fetchFilterPresetById } from "./operations/filter-preset/fetch-by-id";
+import { UpdateFilterPresetRequestBodySchema, updateFilterPreset } from "./operations/filter-preset/update";
 
-export const filterPresetsRoutes = new Elysia({ prefix: "/api/filter-presets" })
-  .get("/all", async () => fetchAllFilterPresets(), {
-    response: FetchAllFilterPresetsResponseSchema,
+export const filterPresetsRoutes = new Hono()
+  .basePath("/api/filter-presets")
+  .get("/all", async (c) => {
+    const result = await fetchAllFilterPresets();
+    return c.json(result);
   })
-  .get("/by-id/:id", async ({ params: { id }, set }) => {
+  .get("/by-id/:id", async (c) => {
+    const id = c.req.param("id");
     const preset = await fetchFilterPresetById(id);
     if (!preset) {
-      set.status = 404;
-      return { error: "Filter preset not found" };
+      return notFound(c, "Filter preset not found");
     }
-    return preset;  
-  }, {
-    params: FetchFilterPresetByIdRequestParamsSchema,
-    response: {
-      200: FetchFilterPresetByIdResponseSchema,
-      404: t.Object({ error: t.String() }),
-    },
+    return c.json(preset);  
   })
-  .post("/", async ({ body }) => createFilterPreset(body), {
-    body: CreateFilterPresetRequestBodySchema,
-    response: CreateFilterPresetResponseSchema,
+  .post("/", zValidator("json", CreateFilterPresetRequestBodySchema, validationError), async (c) => {
+    const body = c.req.valid("json");
+    const result = await createFilterPreset(body);
+    return c.json(result);
   })
-  .patch("/by-id/:id", async ({ params: { id }, body, set }) => {
+  .patch("/by-id/:id", zValidator("json", UpdateFilterPresetRequestBodySchema, validationError), async (c) => {
+    const id = c.req.param("id");
+    const body = c.req.valid("json");
     const preset = await updateFilterPreset(id, body);
     if (!preset) {
-      set.status = 404;
-      return { error: "Filter preset not found" };
+      return notFound(c, "Filter preset not found");
     }
-    return preset;
-  }, {
-    params: UpdateFilterPresetRequestParamsSchema,
-    body: UpdateFilterPresetRequestBodySchema,
-    response: {
-      200: UpdateFilterPresetResponseSchema,
-      404: t.Object({ error: t.String() }),
-    },
+    return c.json(preset);
   })
-  .delete("/by-id/:id", async ({ params: { id }, set }) => {
+  .delete("/by-id/:id", async (c) => {
+    const id = c.req.param("id");
     const success = await deleteFilterPreset(id);
     if (!success) {
-      set.status = 404;
-      return { error: "Filter preset not found" };
+      return notFound(c, "Filter preset not found");
     }
-    return { success: true };
-  }, {
-    params: DeleteFilterPresetRequestParamsSchema,
-    response: {
-      200: DeleteFilterPresetResponseSchema,
-      404: t.Object({ error: t.String() }),
-    },
+    return c.json({ success: true });
   });
 
