@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import "reflect-metadata";
 import { blueskyRoutes } from "./features/api-bluesky/routes";
+import { postponeRoutes } from "./features/api-postpone/routes";
 import { channelsRoutes } from "./features/channels/routes";
 import { contentSchedulesRoutes } from "./features/content-schedules/routes";
 import { filterPresetsRoutes } from "./features/filter-presets/routes";
@@ -74,6 +75,7 @@ const app = new Hono()
   })
   .route("/", settingsRoutes)
   .route("/", blueskyRoutes)
+  .route("/", postponeRoutes)
   .route("/", hashtagsRoutes)
   .route("/", shootsRoutes)
   .route("/", filterPresetsRoutes)

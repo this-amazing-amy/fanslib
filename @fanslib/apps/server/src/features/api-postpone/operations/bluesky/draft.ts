@@ -1,4 +1,4 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { CHANNEL_TYPES } from "../../../channels/channelTypes";
 import { Post } from "../../../posts/entity";
@@ -6,12 +6,12 @@ import { loadSettings } from "../../../settings/operations/setting/load";
 import { SCHEDULE_BLUESKY_POST } from "../../queries";
 import { fetchPostpone } from "../helpers";
 
-export const DraftBlueskyPostRequestBodySchema = t.Object({
-  postId: t.String(),
+export const DraftBlueskyPostRequestBodySchema = z.object({
+  postId: z.string(),
 });
 
-export const DraftBlueskyPostResponseSchema = t.Object({
-  success: t.Boolean(),
+export const DraftBlueskyPostResponseSchema = z.object({
+  success: z.boolean(),
 });
 
 type ScheduleBlueskyPostMutationResult = {
@@ -38,7 +38,7 @@ type ScheduleBlueskyPostMutationVariables = {
   };
 };
 
-export const draftBlueskyPost = async (data: typeof DraftBlueskyPostRequestBodySchema.static): Promise<typeof DraftBlueskyPostResponseSchema.static> => {
+export const draftBlueskyPost = async (data: z.infer<typeof DraftBlueskyPostRequestBodySchema>): Promise<z.infer<typeof DraftBlueskyPostResponseSchema>> => {
   const dataSource = await db();
   const postRepository = dataSource.getRepository(Post);
 

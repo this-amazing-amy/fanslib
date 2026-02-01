@@ -1,8 +1,8 @@
-import { t } from "elysia";
+import { z } from "zod";
 
-export const SubredditPostingTimeSchema = t.Object({
-  day: t.Number(),
-  hour: t.Number(),
-  posts: t.Number(),
-  score: t.Number(),
+export const SubredditPostingTimeSchema = z.object({
+  day: z.number(),
+  hour: z.number(),
+  posts: z.number(),
+  score: z.number(),
 });

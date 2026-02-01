@@ -1,15 +1,15 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { Media } from "../../../library/entity";
 import { FIND_REDGIFS_URL } from "../../queries";
 import { fetchPostpone } from "../helpers";
 
-export const RefreshRedgifsURLRequestBodySchema = t.Object({
-  mediaId: t.String(),
+export const RefreshRedgifsURLRequestBodySchema = z.object({
+  mediaId: z.string(),
 });
 
-export const RefreshRedgifsURLResponseSchema = t.Object({
-  url: t.Union([t.String(), t.Null()]),
+export const RefreshRedgifsURLResponseSchema = z.object({
+  url: z.string().nullable(),
 });
 
 type FindRedgifsUrlQueryResult = {
@@ -25,7 +25,7 @@ type FindRedgifsUrlQueryVariables = {
   filename: string;
 };
 
-export const refreshRedgifsURL = async (data: typeof RefreshRedgifsURLRequestBodySchema.static): Promise<typeof RefreshRedgifsURLResponseSchema.static> => {
+export const refreshRedgifsURL = async (data: z.infer<typeof RefreshRedgifsURLRequestBodySchema>): Promise<z.infer<typeof RefreshRedgifsURLResponseSchema>> => {
   const dataSource = await db();
   const mediaRepository = dataSource.getRepository(Media);
   const media = await mediaRepository.findOne({ where: { id: data.mediaId } });

@@ -1,17 +1,17 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { SubredditPostingTimeSchema } from "../../schemas/subreddit-posting-time";
 import { FIND_SUBREDDIT_POSTING_TIMES } from "../../queries";
 import { fetchPostpone } from "../helpers";
 
-export const FindSubredditPostingTimesRequestBodySchema = t.Object({
-  subreddit: t.String(),
-  timezone: t.Optional(t.String()),
+export const FindSubredditPostingTimesRequestBodySchema = z.object({
+  subreddit: z.string(),
+  timezone: z.string().optional(),
 });
 
-export const FindSubredditPostingTimesResponseSchema = t.Object({
-  postingTimes: t.Array(SubredditPostingTimeSchema),
-  subreddit: t.String(),
-  timezone: t.String(),
+export const FindSubredditPostingTimesResponseSchema = z.object({
+  postingTimes: z.array(SubredditPostingTimeSchema),
+  subreddit: z.string(),
+  timezone: z.string(),
 });
 
 type FindSubredditPostingTimesQueryResult = {
@@ -31,7 +31,7 @@ type FindSubredditPostingTimesQueryVariables = {
   timezone: string;
 };
 
-export const findSubredditPostingTimes = async (data: typeof FindSubredditPostingTimesRequestBodySchema.static): Promise<typeof FindSubredditPostingTimesResponseSchema.static> => {
+export const findSubredditPostingTimes = async (data: z.infer<typeof FindSubredditPostingTimesRequestBodySchema>): Promise<z.infer<typeof FindSubredditPostingTimesResponseSchema>> => {
   const timezone = data.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   const result = await fetchPostpone<

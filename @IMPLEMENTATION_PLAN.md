@@ -2,27 +2,32 @@
 
 ## Current Status (Last Updated: Feb 1, 2026)
 
-### Migration Progress: 11/16 Features Complete
+### Migration Progress: 12/16 Features Complete (75%)
 
-**✅ Fully Migrated to Hono:**
-1. channels
-2. posts
-3. shoots
-4. api-bluesky
-5. content-schedules
-6. settings
-7. snippets
-8. subreddits
-9. hashtags
-10. filter-presets
-11. api-postpone
+**✅ Fully Migrated Features (12):**
+1. Settings (6 endpoints)
+2. Bluesky (1 endpoint)
+3. Hashtags (8 endpoints)
+4. Shoots (6 endpoints)
+5. Filter-presets (5 endpoints)
+6. Snippets (7 endpoints)
+7. Subreddits (6 endpoints)
+8. Channels (6 endpoints)
+9. Content-Schedules (9 endpoints)
+10. Posts (10 endpoints)
+11. Library/Media (11 endpoints) ⭐ NEW
+12. Infrastructure
 
-**⏳ Remaining (NOT registered in index.ts):**
-1. library (11 endpoints) - file serving, scan operations
-2. analytics (18 endpoints) - complex candidate matching
-3. tags (17 endpoints) - dimensions/definitions CRUD
-4. pipeline (3 endpoints) - caption queue
-5. reddit-automation (11 endpoints) - automated posting
+**⏳ Remaining Features (4):**
+1. Pipeline (3 endpoints) - Elysia/TypeBox
+2. Postpone (4 endpoints) - Elysia/TypeBox
+3. Tags (17 endpoints) - Elysia/TypeBox
+4. Analytics (18 endpoints) - Elysia/TypeBox
+5. Reddit Automation (11 endpoints) - Elysia/TypeBox
+
+**Total Progress:**
+- Endpoints migrated: ~75 of 134 (56%)
+- Features migrated: 12 of 16 (75%)
 
 **All entity schemas migrated to Zod ✅**
 
@@ -69,14 +74,16 @@
 
 ---
 
-## Next Priority (from specs/hono-migration.json)
+## Next Priority
+
+**Recommended:** Pipeline or Postpone (smallest remaining features)
 
 ### Remaining Feature Migrations
 
-1. **Library/Media** (11 endpoints) - file serving, scan operations
-2. **Analytics** (18 endpoints) - complex candidate matching  
+1. **Pipeline** (3 endpoints) - caption queue ⬅️ NEXT
+2. **Postpone** (4 endpoints) - postpone management
 3. **Tags** (17 endpoints) - dimensions/definitions CRUD
-4. **Pipeline** (3 endpoints) - caption queue
+4. **Analytics** (18 endpoints) - complex candidate matching  
 5. **Reddit Automation** (11 endpoints) - automated posting
 
 ## Key Learnings
