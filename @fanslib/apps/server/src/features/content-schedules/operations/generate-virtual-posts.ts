@@ -61,6 +61,7 @@ const toVirtualPost = (
   date: slotDate,
   url: null,
   fypRemovedAt: null,
+  fypManuallyRemoved: false,
   postponeBlueskyDraftedAt: null,
   blueskyPostUri: null,
   blueskyPostError: null,

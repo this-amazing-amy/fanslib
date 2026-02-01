@@ -2,12 +2,16 @@ import { Elysia, t } from "elysia";
 import { candidatesRoutes } from "./candidates/routes";
 import { FetchAnalyticsDataRequestBodySchema, FetchAnalyticsDataRequestParamsSchema, fetchFanslyAnalyticsData } from "./fetch-fansly-data";
 import { UpdateCredentialsFromFetchRequestBodySchema, updateFanslyCredentialsFromFetch } from "./operations/credentials";
+import { fetchFypActionItems } from "./operations/fyp/fetch-actions";
+import { fetchAnalyticsHealth } from "./operations/health/fetch-health";
 import { GenerateInsightsResponseSchema, generateInsights } from "./operations/insights";
 import { FetchDatapointsRequestParamsSchema, FetchDatapointsResponseSchema, fetchDatapoints } from "./operations/post-analytics/fetch-datapoints";
 import { GetHashtagAnalyticsResponseSchema, getHashtagAnalytics } from "./operations/post-analytics/fetch-hashtag-analytics";
 import { GetFanslyPostsWithAnalyticsQuerySchema, GetFanslyPostsWithAnalyticsResponseSchema, getFanslyPostsWithAnalytics } from "./operations/post-analytics/fetch-posts-with-analytics";
 import { GetTimeAnalyticsResponseSchema, getTimeAnalytics } from "./operations/post-analytics/fetch-time-analytics";
 import { initializeAnalyticsAggregates } from "./operations/post-analytics/initialize-aggregates";
+import { FypActionsQuerySchema, FypActionsResponseSchema } from "./schemas/fyp-actions";
+import { AnalyticsHealthResponseSchema } from "./schemas/health";
 
 export const analyticsRoutes = new Elysia({ prefix: "/api/analytics" })
   .post("/credentials/update-from-fetch", async ({ body }) => {
@@ -61,6 +65,13 @@ export const analyticsRoutes = new Elysia({ prefix: "/api/analytics" })
     return { success: true };
   }, {
     response: t.Object({ success: t.Boolean() }),
+  })
+  .get("/health", async () => fetchAnalyticsHealth(), {
+    response: AnalyticsHealthResponseSchema,
+  })
+  .get("/fyp-actions", async ({ query }) => fetchFypActionItems(query), {
+    query: FypActionsQuerySchema,
+    response: FypActionsResponseSchema,
   })
   .use(candidatesRoutes);
 

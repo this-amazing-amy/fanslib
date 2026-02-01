@@ -518,6 +518,17 @@ export {
   ActionableInsightSchema, ActionableInsightTypeSchema, ContentThemeInsightSchema, HashtagInsightSchema, PostTimingInsightSchema, VideoLengthInsightSchema
 } from './features/analytics/schemas/insights';
 
+export {
+  AnalyticsHealthResponseSchema,
+  StalePostSchema
+} from './features/analytics/schemas/health';
+
+export {
+  FypActionsQuerySchema,
+  FypActionsResponseSchema,
+  FypPostSchema
+} from './features/analytics/schemas/fyp-actions';
+
 // Analytics Candidates schemas
 export {
   FetchAllCandidatesRequestQuerySchema,

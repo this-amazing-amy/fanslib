@@ -38,12 +38,12 @@ const calculateSustainedGrowth = (datapoints: FanslyAnalyticsDatapoint[]): numbe
   return Math.max(0, averageGrowthRate);
 };
 
-const calculateUserPerformanceThreshold = async (
+export const calculateUserPerformanceThreshold = async (
   channelId: string
 ): Promise<{
   averageViews: number;
   averageVelocity: number;
-  averageEngagement: number;
+  averageEngagementSeconds: number;
 }> => {
   const dataSource = await db();
   const postMediaRepository = dataSource.getRepository("PostMedia");
@@ -65,7 +65,7 @@ const calculateUserPerformanceThreshold = async (
     return {
       averageViews: 100,
       averageVelocity: 10,
-      averageEngagement: 30,
+      averageEngagementSeconds: 30,
     };
   }
 
@@ -91,7 +91,7 @@ const calculateUserPerformanceThreshold = async (
   return {
     averageViews,
     averageVelocity,
-    averageEngagement,
+    averageEngagementSeconds: averageEngagement,
   };
 };
 
@@ -121,7 +121,7 @@ export const calculateFypPerformanceScore = async (
   );
   const engagementScore = Math.min(
     100,
-    (averageEngagementTime / Math.max(userThreshold.averageEngagement, 1)) * 20
+    (averageEngagementTime / Math.max(userThreshold.averageEngagementSeconds, 1)) * 20
   );
 
   const performanceScore = viewScore + velocityScore + engagementScore;

@@ -1,8 +1,32 @@
-import type { GetFanslyPostsWithAnalyticsQuerySchema } from '@fanslib/server/schemas';
+import type { FypActionsQuerySchema, GetFanslyPostsWithAnalyticsQuerySchema } from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { eden } from '../api/eden';
 
 export type CandidateStatus = 'pending' | 'matched' | 'ignored';
+
+export const useAnalyticsHealthQuery = () =>
+  useQuery({
+    queryKey: ['analytics', 'health'],
+    queryFn: async () => {
+      const { data, error } = await eden.api.analytics.health.get();
+      if (error) throw error;
+      return data;
+    },
+    staleTime: 60_000,
+  });
+
+export const useFypActionsQuery = (params?: typeof FypActionsQuerySchema.static) =>
+  useQuery({
+    queryKey: ['analytics', 'fyp-actions', params],
+    queryFn: async () => {
+      const { data, error } = await eden.api.analytics['fyp-actions'].get({
+        query: params,
+      });
+      if (error) throw error;
+      return data;
+    },
+    staleTime: 60_000,
+  });
 
 export const useAnalyticsPostsQuery = (params?: typeof GetFanslyPostsWithAnalyticsQuerySchema.static) =>
   useQuery({

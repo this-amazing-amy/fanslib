@@ -53,6 +53,9 @@ export class Post {
   @Column({ type: "datetime", nullable: true, name: "fypRemovedAt" })
   fypRemovedAt!: Date | null;
 
+  @Column({ type: "boolean", default: false, name: "fypManuallyRemoved" })
+  fypManuallyRemoved!: boolean;
+
   @Column({ type: "datetime", nullable: true, name: "postponeBlueskyDraftedAt" })
   postponeBlueskyDraftedAt!: Date | null;
 

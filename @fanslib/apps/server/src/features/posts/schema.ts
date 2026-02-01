@@ -34,6 +34,7 @@ export const PostSchema = t.Object({
   date: t.Date(),
   url: t.Nullable(t.String()),
   fypRemovedAt: t.Nullable(t.Date()),
+  fypManuallyRemoved: t.Boolean(),
   postponeBlueskyDraftedAt: t.Nullable(t.Date()),
   blueskyPostUri: t.Nullable(t.String()),
   blueskyPostError: t.Nullable(t.String()),

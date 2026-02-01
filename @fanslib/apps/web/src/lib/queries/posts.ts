@@ -140,6 +140,25 @@ export const usePostsByMediaIdQuery = (mediaId: string) =>
     enabled: !!mediaId,
   });
 
+export const useRemoveFromFypMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (postId: string) => {
+      const { data, error } = await eden.api.posts['by-id']({ id: postId }).patch({
+        fypRemovedAt: new Date(),
+        fypManuallyRemoved: true,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['analytics', 'fyp-actions'] });
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+    },
+  });
+};
+
 export const useTemporalContextPostsQuery = (centerDate: Date, channelId?: string) => {
   const startDate = new Date(centerDate);
   startDate.setDate(startDate.getDate() - 3);
