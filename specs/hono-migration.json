@@ -144,7 +144,7 @@
         "Web client updated",
         "Manual test passes"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "feature-migration",
@@ -199,7 +199,7 @@
         "Web client updated",
         "Manual test passes"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "feature-migration",
@@ -211,7 +211,7 @@
         "Web client updated",
         "Manual test passes"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "feature-migration",
@@ -236,7 +236,7 @@
         "Web client updated",
         "Manual test passes"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "feature-migration",
@@ -247,7 +247,7 @@
         "Web client updated",
         "Manual test passes"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "feature-migration",
