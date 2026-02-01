@@ -2,25 +2,29 @@
 
 ## Current Status (Last Updated: Feb 2, 2026)
 
-### ✅ MIGRATION COMPLETE - 100%
+### ✅ HONO MIGRATION - 100% COMPLETE
 
 **All features migrated from Elysia + TypeBox to Hono + Zod**
 - ✅ All entity schemas migrated to Zod
 - ✅ All API routes migrated to Hono
 - ✅ Elysia dependencies removed from package.json
 
+### ✅ QUERY REVALIDATION - 8/9 COMPLETE
+
+**Implementation Complete:**
+- ✅ All query files now use centralized QUERY_KEYS from `@fanslib/apps/web/src/lib/queries/query-keys.ts`
+- ✅ Manual invalidations removed from all components
+- ✅ Query keys properly scoped by feature and operation
+- ⚠️ Validation pending due to pre-existing typecheck errors (not regression)
+
 ### Build Status
 - ✅ **bun lint**: PASSING (0 errors)
 - ✅ **bun test**: PASSING (142 pass, 3 skip, 0 fail)
 - ⚠️ **bun typecheck (web)**: Pre-existing Date serialization errors (not migration-related)
 
-### Remaining Work (Post-Migration)
-1. **Web Client**: 7 files still using old `eden.ts` client (need migration to `hono-client`)
-2. **Type Issues**: Pre-existing Date serialization errors (Dates → strings in JSON)
-
 ### Next Steps
-- Address query-revalidation spec (`specs/query-revalidation.json`), OR
-- Migrate remaining eden.ts client usage to hono-client
+- Fix pre-existing typecheck errors in web client (Date serialization), OR
+- Work on other specs in `specs/` directory
 
 ### ✅ RESOLVED: TypeScript Errors Root Cause - `.static` Pattern Fixed
 

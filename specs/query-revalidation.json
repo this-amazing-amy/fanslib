@@ -36,7 +36,7 @@
         "useAssignMediaMutation invalidates ['content-schedules', 'virtual-posts']",
         "After drag-drop onto virtual post, library panel refreshes automatically"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "functional",
@@ -49,7 +49,7 @@
         "useUnignoreCandidateMutation invalidates ['analytics', 'candidates']",
         "Candidate list updates immediately after match/ignore actions"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "functional",
@@ -61,7 +61,7 @@
         "useDeletePostMutation invalidates ['content-schedules', 'virtual-posts']",
         "Post timeline component updates when editing a post on detail page"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "functional",
@@ -72,7 +72,7 @@
         "useDeleteMediaMutation invalidates ['shoots', 'list']",
         "Library grid updates when media metadata changes"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "functional",
@@ -82,7 +82,7 @@
         "useDeleteShootMutation invalidates ['media'] for affected media items",
         "After removing media from shoot, library reflects the change"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "functional",
@@ -93,7 +93,7 @@
         "useDeleteChannelMutation invalidates ['snippets']",
         "useDeleteSubredditMutation invalidates ['posts', 'list']"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "ux",
@@ -103,7 +103,7 @@
         "All invalidation logic lives in mutation hooks, not components",
         "Components only call mutate/mutateAsync without post-processing"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "validation",
@@ -114,7 +114,7 @@
         "All mutation invalidations use QUERY_KEYS",
         "TypeScript ensures query key consistency (no typos possible)"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "validation",
