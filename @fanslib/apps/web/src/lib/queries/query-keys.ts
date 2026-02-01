@@ -148,6 +148,7 @@ export const QUERY_KEYS = {
   },
 
   pipeline: {
+    all: ['pipeline'] as const,
     captionQueue: (params: FetchCaptionQueueRequestQuery, refreshKey: number) =>
       ['pipeline', 'caption-queue', params, refreshKey] as const,
   },

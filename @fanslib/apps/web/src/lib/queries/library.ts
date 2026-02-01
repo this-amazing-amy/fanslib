@@ -1,10 +1,11 @@
 import type { DeleteMediaRequestParams, FetchAllMediaRequestBody, FetchMediaByIdRequestParams, FindAdjacentMediaBody, FindAdjacentMediaRequestParams, UpdateMediaRequestBody, UpdateMediaRequestParams } from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/hono-client';
+import { QUERY_KEYS } from './query-keys';
 
 export const useMediaListQuery = (params?: FetchAllMediaRequestBody) =>
   useQuery({
-    queryKey: ['media', 'list', params],
+    queryKey: QUERY_KEYS.media.list(params),
     queryFn: async () => {
       const result = await api.api.media.all.$post({ json: params });
       return result.json();
@@ -13,7 +14,7 @@ export const useMediaListQuery = (params?: FetchAllMediaRequestBody) =>
 
 export const useMediaQuery = (params: FetchMediaByIdRequestParams) =>
   useQuery({
-    queryKey: ['media', params.id],
+    queryKey: QUERY_KEYS.media.byId(params.id),
     queryFn: async () => {
       const result = await api.api.media[':id'].$get({ param: { id: params.id } });
       return result.json();
@@ -26,7 +27,7 @@ export const useMediaAdjacentQuery = (
   body?: FindAdjacentMediaBody
 ) =>
   useQuery({
-    queryKey: ['media', params.id, 'adjacent', body],
+    queryKey: QUERY_KEYS.media.adjacent(params.id, body),
     queryFn: async () => {
       const result = await api.api.media[':id'].adjacent.$post({ param: { id: params.id }, json: body });
       return result.json();
@@ -47,8 +48,9 @@ export const useUpdateMediaMutation = () => {
       return result.json();
     },
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['media', 'list'] });
-      queryClient.setQueryData(['media', variables.id], data);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.media.all });
+      queryClient.setQueryData(QUERY_KEYS.media.byId(variables.id), data);
     },
   });
 };
@@ -69,7 +71,9 @@ export const useDeleteMediaMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['media', 'list'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.shoots.all });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.media.all });
     },
   });
 };

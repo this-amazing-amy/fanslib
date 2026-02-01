@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/hono-client';
+import { QUERY_KEYS } from './query-keys';
 
 type FetchAllShootsParams = {
   page?: number;
@@ -13,7 +14,7 @@ type FetchAllShootsParams = {
 
 export const useShootsQuery = (params?: FetchAllShootsParams) =>
   useQuery({
-    queryKey: ['shoots', 'list', params],
+    queryKey: QUERY_KEYS.shoots.list(params),
     queryFn: async () => {
       const result = await api.api.shoots.all.$post({ json: params ?? {} });
       return result.json();
@@ -22,7 +23,7 @@ export const useShootsQuery = (params?: FetchAllShootsParams) =>
 
 export const useShootQuery = (params: { id: string }) =>
   useQuery({
-    queryKey: ['shoots', params.id],
+    queryKey: QUERY_KEYS.shoots.byId(params.id),
     queryFn: async () => {
       const result = await api.api.shoots['by-id'][':id'].$get({ param: { id: params.id } });
       return result.json();
@@ -44,7 +45,7 @@ export const useCreateShootMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['shoots', 'list'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.shoots.all() });
     },
   });
 };
@@ -71,11 +72,11 @@ export const useUpdateShootMutation = () => {
       return result.json();
     },
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['shoots', 'list'] });
-      queryClient.setQueryData(['shoots', variables.id], data);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.shoots.all() });
+      queryClient.setQueryData(QUERY_KEYS.shoots.byId(variables.id), data);
       // Invalidate media list query when media is added/removed from shoot
       if (variables.updates.mediaIds !== undefined) {
-        queryClient.invalidateQueries({ queryKey: ['media', 'list'] });
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.media.all });
       }
     },
   });
@@ -90,14 +91,15 @@ export const useDeleteShootMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['shoots', 'list'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.shoots.all() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.media.all });
     },
   });
 };
 
 export const usePostsByShootIdQuery = (shootId: string) =>
   useQuery({
-    queryKey: ['shoots', 'posts', shootId],
+    queryKey: QUERY_KEYS.shoots.posts(shootId),
     queryFn: async () => {
       const result = await api.api.shoots['by-id'][':id'].posts.$get({ param: { id: shootId } });
       return result.json();

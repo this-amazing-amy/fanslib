@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/hono-client';
+import { QUERY_KEYS } from './query-keys';
 
 export const useChannelsQuery = () =>
   useQuery({
-    queryKey: ['channels', 'list'],
+    queryKey: QUERY_KEYS.channels.all(),
     queryFn: async () => {
       const result = await api.api.channels.all.$get();
       return result.json();
@@ -12,7 +13,7 @@ export const useChannelsQuery = () =>
 
 export const useChannelQuery = (params: { id: string }) =>
   useQuery({
-    queryKey: ['channels', params.id],
+    queryKey: QUERY_KEYS.channels.byId(params.id),
     queryFn: async () => {
       const result = await api.api.channels['by-id'][':id'].$get({ param: { id: params.id } });
       return result.json();
@@ -22,7 +23,7 @@ export const useChannelQuery = (params: { id: string }) =>
 
 export const useChannelTypesQuery = () =>
   useQuery({
-    queryKey: ['channels', 'types'],
+    queryKey: QUERY_KEYS.channels.types(),
     queryFn: async () => {
       const result = await api.api.channels.types.$get();
       return result.json();
@@ -43,7 +44,7 @@ export const useCreateChannelMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['channels', 'list'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.channels.all() });
     },
   });
 };
@@ -68,11 +69,11 @@ export const useUpdateChannelMutation = () => {
       return result.json();
     },
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['channels', 'list'] });
-      queryClient.setQueryData(['channels', variables.id], data);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.channels.all() });
+      queryClient.setQueryData(QUERY_KEYS.channels.byId(variables.id), data);
       // Invalidate hashtags in case new ones were created on the backend
       if (variables.updates.defaultHashtags) {
-        queryClient.invalidateQueries({ queryKey: ['hashtags', 'list'] });
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.hashtags.all() });
       }
     },
   });
@@ -87,7 +88,10 @@ export const useDeleteChannelMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['channels', 'list'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.channels.all() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contentSchedules.all() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.snippets.all() });
     },
   });
 };

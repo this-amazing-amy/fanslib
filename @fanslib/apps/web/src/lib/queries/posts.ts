@@ -1,10 +1,11 @@
 import type { AddMediaToPostRequestBody, AddMediaToPostRequestParams, CreatePostRequestBody, DeletePostRequestParams, FetchAllPostsRequestQuery, FetchPostByIdRequestParams, FetchPostsByChannelRequestParams, RemoveMediaFromPostRequestBody, RemoveMediaFromPostRequestParams, UpdatePostRequestBody, UpdatePostRequestParams } from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/hono-client';
+import { QUERY_KEYS } from './query-keys';
 
 export const usePostsQuery = (params?: FetchAllPostsRequestQuery) =>
   useQuery({
-    queryKey: ['posts', 'list', params],
+    queryKey: QUERY_KEYS.posts.list(params),
     queryFn: async () => {
       const result = await api.api.posts.all.$get(params);
       const data = await result.json();
@@ -14,7 +15,7 @@ export const usePostsQuery = (params?: FetchAllPostsRequestQuery) =>
 
 export const usePostQuery = (params: FetchPostByIdRequestParams) =>
   useQuery({
-    queryKey: ['posts', params.id],
+    queryKey: QUERY_KEYS.posts.byId(params.id),
     queryFn: async () => {
       const result = await api.api.posts[':id'].$get({ param: { id: params.id } });
       return result.json();
@@ -24,7 +25,7 @@ export const usePostQuery = (params: FetchPostByIdRequestParams) =>
 
 export const usePostsByChannelQuery = (params: FetchPostsByChannelRequestParams) =>
   useQuery({
-    queryKey: ['posts', 'by-channel', params.channelId],
+    queryKey: QUERY_KEYS.posts.byChannel(params.channelId),
     queryFn: async () => {
       const result = await api.api.posts['by-channel-id'][':channelId'].$get({ param: { channelId: params.channelId } });
       return result.json();
@@ -41,8 +42,7 @@ export const useCreatePostMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts', 'list'] });
-      queryClient.invalidateQueries({ queryKey: ['posts', 'by-channel'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all });
     },
   });
 };
@@ -60,8 +60,8 @@ export const useUpdatePostMutation = () => {
       return result.json();
     },
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['posts', 'list'] });
-      queryClient.setQueryData(['posts', variables.id], data);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all });
+      queryClient.setQueryData(QUERY_KEYS.posts.byId(variables.id), data);
     },
   });
 };
@@ -75,7 +75,9 @@ export const useDeletePostMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts', 'list'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.media.all });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contentSchedules.all() });
     },
   });
 };
@@ -93,8 +95,8 @@ export const useAddMediaToPostMutation = () => {
       return result.json();
     },
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['posts', variables.id] });
-      queryClient.invalidateQueries({ queryKey: ['posts', 'list'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.byId(variables.id) });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all });
     },
   });
 };
@@ -112,15 +114,15 @@ export const useRemoveMediaFromPostMutation = () => {
       return result.json();
     },
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['posts', variables.id] });
-      queryClient.invalidateQueries({ queryKey: ['posts', 'list'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.byId(variables.id) });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all });
     },
   });
 };
 
 export const usePostsByMediaIdQuery = (mediaId: string) =>
   useQuery({
-    queryKey: ['posts', 'by-media', mediaId],
+    queryKey: QUERY_KEYS.posts.byMedia(mediaId),
     queryFn: async () => {
       const result = await api.api.posts['by-media-id'][':mediaId'].$get({ param: { mediaId } });
       return result.json();
@@ -143,8 +145,8 @@ export const useRemoveFromFypMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['analytics', 'fyp-actions'] });
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.analytics.all });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all });
     },
   });
 };
@@ -156,7 +158,7 @@ export const useTemporalContextPostsQuery = (centerDate: Date, channelId?: strin
   endDate.setDate(endDate.getDate() + 3);
 
   return useQuery({
-    queryKey: ['posts', 'temporal-context', channelId ?? 'all', centerDate.toISOString()],
+    queryKey: QUERY_KEYS.posts.temporalContext(channelId ?? 'all', centerDate.toISOString()),
     queryFn: async () => {
       const result = await api.api.posts.all.$get({
         filters: JSON.stringify({
@@ -192,7 +194,7 @@ export const useUpdatePostMediaMutation = () => {
       return result.json();
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['posts', variables.postId] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.byId(variables.postId) });
     },
   });
 };

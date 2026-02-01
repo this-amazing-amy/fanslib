@@ -1,10 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/hono-client';
 import { useFindSubredditPostingTimesMutation } from './postpone';
+import { QUERY_KEYS } from './query-keys';
 
 export const useSubredditsQuery = () =>
   useQuery({
-    queryKey: ['subreddits', 'list'],
+    queryKey: QUERY_KEYS.subreddits.all(),
     queryFn: async () => {
       const result = await api.api.subreddits.all.$get();
       return result.json();
@@ -13,7 +14,7 @@ export const useSubredditsQuery = () =>
 
 export const useSubredditQuery = (params: { id: string }) =>
   useQuery({
-    queryKey: ['subreddits', params.id],
+    queryKey: QUERY_KEYS.subreddits.byId(params.id),
     queryFn: async () => {
       const result = await api.api.subreddits['by-id'][':id'].$get({ param: { id: params.id } });
       return result.json();
@@ -23,7 +24,7 @@ export const useSubredditQuery = (params: { id: string }) =>
 
 export const useLastPostDatesQuery = (params: { subredditIds: string[] }) =>
   useQuery({
-    queryKey: ['subreddits', 'last-post-dates', params.subredditIds],
+    queryKey: QUERY_KEYS.subreddits.lastPostDates(params.subredditIds),
     queryFn: async () => {
       const result = await api.api.subreddits['last-post-dates'].$post({ json: { subredditIds: params.subredditIds } });
       return result.json();
@@ -40,7 +41,7 @@ export const useCreateSubredditMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subreddits', 'list'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.subreddits.all() });
     },
   });
 };
@@ -76,8 +77,8 @@ export const useUpdateSubredditMutation = () => {
       return result.json();
     },
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['subreddits', 'list'] });
-      queryClient.setQueryData(['subreddits', variables.id], data);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.subreddits.all() });
+      queryClient.setQueryData(QUERY_KEYS.subreddits.byId(variables.id), data);
     },
   });
 };
@@ -91,7 +92,8 @@ export const useDeleteSubredditMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subreddits', 'list'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.subreddits.all() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all });
     },
   });
 };
@@ -129,7 +131,7 @@ export const useAnalyzePostingTimesMutation = () => {
       return result;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subreddits', 'list'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.subreddits.all() });
     },
   });
 };
