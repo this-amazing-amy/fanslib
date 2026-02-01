@@ -80,14 +80,11 @@ export {
 // Pipeline schemas
 export {
   AssignMediaRequestBodySchema,
-  AssignMediaResponseSchema
-} from './features/pipeline/operations/assign-media';
-
-export {
+  AssignMediaResponseSchema,
   FetchCaptionQueueRequestQuerySchema,
   FetchCaptionQueueResponseSchema,
   CaptionQueueItemSchema
-} from './features/pipeline/operations/fetch-caption-queue';
+} from './features/pipeline/schema';
 
 export { type PostStatus } from './features/posts/entity';
 

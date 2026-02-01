@@ -1,22 +1,23 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
-import { Elysia } from "elysia";
+import { Hono } from "hono";
 import "reflect-metadata";
+import type { z } from "zod";
 import { resetAllFixtures, setupTestDatabase, teardownTestDatabase } from "../../lib/db.test";
-import { mapResponse } from "../../lib/serialization";
-import { logError, parseResponse } from "../../test-utils/setup";
-import type { FetchCaptionQueueResponseSchema } from "./operations/fetch-caption-queue";
+import { devalueMiddleware } from "../../lib/devalue-middleware";
+import { parseResponse } from "../../test-utils/setup";
+import type { FetchCaptionQueueResponseSchema } from "./schema";
 import { pipelineRoutes } from "./routes";
 
 describe("Pipeline Routes", () => {
   // eslint-disable-next-line functional/no-let
-  let app: Elysia;
+  let app: Hono;
   // eslint-disable-next-line functional/no-let
   let fixtures: Awaited<ReturnType<typeof resetAllFixtures>>;
 
   beforeAll(async () => {
     await setupTestDatabase();
     fixtures = await resetAllFixtures();
-    app = new Elysia().onError(logError()).mapResponse(mapResponse).use(pipelineRoutes);
+    app = new Hono().use("*", devalueMiddleware()).route("/", pipelineRoutes);
   });
 
   afterAll(async () => {
@@ -35,9 +36,7 @@ describe("Pipeline Routes", () => {
         throw new Error("No channels in fixtures");
       }
 
-      const response = await app.handle(
-        new Request(`http://localhost/api/pipeline/caption-queue?channelIds=${channelId}`)
-      );
+      const response = await app.request(`/api/pipeline/caption-queue?channelIds=${channelId}`);
 
       console.log("Response status:", response.status);
       
@@ -59,7 +58,7 @@ describe("Pipeline Routes", () => {
 
       expect(response.status).toBe(200);
 
-      const data = await parseResponse<typeof FetchCaptionQueueResponseSchema.static>(response);
+      const data = await parseResponse<z.infer<typeof FetchCaptionQueueResponseSchema>>(response);
       expect(Array.isArray(data)).toBe(true);
       
       // Validate Date types are preserved
@@ -78,9 +77,7 @@ describe("Pipeline Routes", () => {
     });
 
     test("returns all draft posts when no channelIds provided (tests 422 error reproduction)", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/pipeline/caption-queue?channelIds=")
-      );
+      const response = await app.request("/api/pipeline/caption-queue?channelIds=");
 
       console.log("\n=== CAPTION QUEUE TEST ===");
       console.log("Response status:", response.status);
@@ -100,16 +97,14 @@ describe("Pipeline Routes", () => {
 
       expect(response.status).toBe(200);
 
-      const data = await parseResponse<typeof FetchCaptionQueueResponseSchema.static>(response);
+      const data = await parseResponse<z.infer<typeof FetchCaptionQueueResponseSchema>>(response);
       expect(Array.isArray(data)).toBe(true);
     });
   });
 
   describe("GET /api/pipeline/caption-queue with pagination", () => {
     test("supports limit parameter to get only first post", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/pipeline/caption-queue?channelIds=&limit=1")
-      );
+      const response = await app.request("/api/pipeline/caption-queue?channelIds=&limit=1");
 
       console.log("\n=== LIMIT TEST ===");
       console.log("Response status:", response.status);
@@ -130,7 +125,7 @@ describe("Pipeline Routes", () => {
 
       expect(response.status).toBe(200);
 
-      const data = await parseResponse<typeof FetchCaptionQueueResponseSchema.static>(response);
+      const data = await parseResponse<z.infer<typeof FetchCaptionQueueResponseSchema>>(response);
       expect(Array.isArray(data)).toBe(true);
       expect(data?.length).toBeLessThanOrEqual(1);
       
@@ -141,9 +136,7 @@ describe("Pipeline Routes", () => {
     });
 
     test("supports skip parameter", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/pipeline/caption-queue?channelIds=&limit=1&skip=1")
-      );
+      const response = await app.request("/api/pipeline/caption-queue?channelIds=&limit=1&skip=1");
 
       console.log("\n=== SKIP TEST (second post) ===");
       console.log("Response status:", response.status);
@@ -156,16 +149,14 @@ describe("Pipeline Routes", () => {
 
       expect(response.status).toBe(200);
 
-      const data = await parseResponse<typeof FetchCaptionQueueResponseSchema.static>(response);
+      const data = await parseResponse<z.infer<typeof FetchCaptionQueueResponseSchema>>(response);
       expect(Array.isArray(data)).toBe(true);
     });
   });
 
   describe("GET /api/pipeline/health", () => {
     test("returns health status", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/pipeline/health")
-      );
+      const response = await app.request("/api/pipeline/health");
       expect(response.status).toBe(200);
 
       const data = await parseResponse<{ status: string }>(response);

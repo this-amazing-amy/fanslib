@@ -1,4 +1,3 @@
-import { t } from "elysia";
 import type { z } from "zod";
 import { Between, In } from "typeorm";
 import { isSameMinute } from "date-fns";
@@ -12,38 +11,10 @@ import { Post } from "../../posts/entity";
 import { createPost } from "../../posts/operations/post/create";
 import { Subreddit } from "../../subreddits/entity";
 import { getUsedMediaForSubreddit, selectRandomMedia } from "../../reddit-automation/operations/generation/utils";
+import type { AssignMediaRequestBodySchema, AssignMediaResponseSchema } from "../schema";
 
 type MediaFilters = z.infer<typeof MediaFilterSchema>;
-
-export const AssignMediaRequestBodySchema = t.Object({
-  channelIds: t.Array(t.String()),
-  fromDate: t.String(),
-  toDate: t.String(),
-});
-
-const UnfilledReasonSchema = t.Union([t.Literal("no_eligible_media"), t.Literal("no_subreddits")]);
-
-export const AssignMediaResponseSchema = t.Object({
-  created: t.Number(),
-  unfilled: t.Array(
-    t.Object({
-      scheduleId: t.String(),
-      channelId: t.String(),
-      date: t.Date(),
-      reason: UnfilledReasonSchema,
-    })
-  ),
-  summary: t.Array(
-    t.Object({
-      channelId: t.String(),
-      channelName: t.String(),
-      draftsCreated: t.Number(),
-      uniqueMediaUsed: t.Number(),
-    })
-  ),
-});
-
-type AssignMediaResult = typeof AssignMediaResponseSchema.static;
+type AssignMediaResult = z.infer<typeof AssignMediaResponseSchema>;
 
 const parseMediaFilters = (mediaFilters?: string | null): MediaFilters | null => {
   if (!mediaFilters) return null;
@@ -68,6 +39,7 @@ const combineFilters = (baseFilters: MediaFilters | null, overrides: MediaFilter
   if (!baseFilters && !overrides) return null;
   if (!baseFilters) return overrides;
   if (!overrides) return baseFilters;
+  // Both filters exist, combine them
   return [...baseFilters, ...overrides];
 };
 
@@ -76,13 +48,14 @@ const getChannelFilter = (
   channel: Channel,
   scheduleChannel?: ScheduleChannel
 ): MediaFilters | null => {
-  const baseFilters = parseMediaFilters(schedule.mediaFilters) ?? channel.eligibleMediaFilter ?? null;
-  const overrides = scheduleChannel?.mediaFilterOverrides ?? null;
+  const parsedScheduleFilters = parseMediaFilters(schedule.mediaFilters);
+  const baseFilters = parsedScheduleFilters ?? (channel.eligibleMediaFilter as MediaFilters | null) ?? null;
+  const overrides = (scheduleChannel?.mediaFilterOverrides as MediaFilters | null) ?? null;
   return combineFilters(baseFilters, overrides);
 };
 
 const getSubredditFilter = (subreddit: Subreddit, channel: Channel): MediaFilters | null =>
-  subreddit.eligibleMediaFilter ?? channel.eligibleMediaFilter ?? null;
+  (subreddit.eligibleMediaFilter as MediaFilters | null) ?? (channel.eligibleMediaFilter as MediaFilters | null) ?? null;
 
 type ScheduleAssignmentResult = {
   createdPosts: AssignedPost[];
@@ -269,7 +242,7 @@ const assignRedditScheduleSlots = async (
 };
 
 export const assignMediaToSchedules = async (
-  payload: typeof AssignMediaRequestBodySchema.static
+  payload: z.infer<typeof AssignMediaRequestBodySchema>
 ): Promise<AssignMediaResult> => {
   const dataSource = await db();
   const scheduleRepo = dataSource.getRepository(ContentSchedule);

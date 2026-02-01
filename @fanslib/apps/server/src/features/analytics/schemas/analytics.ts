@@ -1,5 +1,4 @@
 import { t } from "elysia";
-import { MediaSchema } from "../../library/schema";
 
 // FanslyPostWithAnalytics
 export const FanslyPostWithAnalyticsSchema = t.Object({
@@ -14,7 +13,19 @@ export const FanslyPostWithAnalyticsSchema = t.Object({
   averageEngagementPercent: t.Number(),
   hashtags: t.Array(t.String()),
   videoLength: t.Number(),
-  media: t.Optional(MediaSchema),
+  media: t.Optional(t.Object({
+    id: t.String(),
+    relativePath: t.String(),
+    type: t.Union([t.Literal("image"), t.Literal("video")]),
+    name: t.String(),
+    size: t.Number(),
+    duration: t.Nullable(t.Number()),
+    redgifsUrl: t.Nullable(t.String()),
+    createdAt: t.Date(),
+    updatedAt: t.Date(),
+    fileCreationDate: t.Date(),
+    fileModificationDate: t.Date(),
+  })),
 });
 
 // HashtagAnalytics - single item schema

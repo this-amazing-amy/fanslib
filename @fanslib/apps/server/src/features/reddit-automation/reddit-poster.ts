@@ -1,4 +1,5 @@
 import type { DataSource } from "typeorm";
+import type { z } from "zod";
 import { db } from "../../lib/db";
 import { browserDataPath } from "../../lib/env";
 import { RedditLoginHandler } from "../../lib/reddit-poster/login-handler";
@@ -6,6 +7,7 @@ import { createFileSessionStorage } from "../../lib/reddit-poster/session-storag
 import type { RedditPostProgress } from "../../lib/reddit-poster/types";
 import { Channel } from "../channels/entity";
 import { Media, } from "../library/entity";
+import type { MediaFilterSchema } from "../library/schemas/media-filter";
 import type { Post } from "../posts/entity";
 import { createPost } from "../posts/operations/post/create";
 import { fetchPostsByChannel } from "../posts/operations/post/fetch-by-channel";
@@ -18,6 +20,8 @@ import {
     selectRandomMediaWithConflictChecking,
     selectSubreddit,
 } from "./operations/generation/utils";
+
+type MediaFilters = z.infer<typeof MediaFilterSchema>;
 
 type SubredditType = Subreddit;
 
@@ -142,7 +146,7 @@ export const regenerateMedia = async (
     throw new Error("Subreddit not found");
   }
 
-  const filters = targetSubreddit.eligibleMediaFilter;
+  const filters = targetSubreddit.eligibleMediaFilter as MediaFilters | null;
 
   const { media } = await selectRandomMedia(filters);
   if (!media) {

@@ -8,6 +8,7 @@ import { contentSchedulesRoutes } from "./features/content-schedules/routes";
 import { filterPresetsRoutes } from "./features/filter-presets/routes";
 import { hashtagsRoutes } from "./features/hashtags/routes";
 import { libraryRoutes } from "./features/library/routes";
+import { pipelineRoutes } from "./features/pipeline/routes";
 import { postsRoutes } from "./features/posts/routes";
 import { runScheduledPostsCronTick } from "./features/posts/scheduled-posts-cron";
 import { settingsRoutes } from "./features/settings/routes";
@@ -84,6 +85,7 @@ const app = new Hono()
   .route("/", channelsRoutes)
   .route("/", contentSchedulesRoutes)
   .route("/", libraryRoutes)
+  .route("/", pipelineRoutes)
   .route("/", postsRoutes);
 
 // Set up cron job if enabled

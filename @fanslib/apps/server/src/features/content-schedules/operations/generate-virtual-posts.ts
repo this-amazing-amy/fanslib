@@ -15,13 +15,47 @@ export const FetchVirtualPostsRequestQuerySchema = z.object({
   toDate: z.string(),
 });
 
-// TODO: Replace z.unknown() with PostWithRelationsSchema once the posts feature is migrated to Zod
-export const VirtualPostSchema = z.unknown().and(
-  z.object({
-    isVirtual: z.literal(true),
-    targetChannelIds: z.array(z.string()).optional(),
-  })
-);
+// Virtual post extends Post schema with additional properties
+export const VirtualPostScheduleSchema = z.object({
+  id: z.string(),
+  channelId: z.string().nullable(),
+  name: z.string(),
+  emoji: z.string().nullable(),
+  color: z.string().nullable(),
+  type: z.string(),
+  postsPerTimeframe: z.number().nullable(),
+  preferredDays: z.array(z.string()).nullable(),
+  preferredTimes: z.array(z.string()).nullable(),
+  updatedAt: z.coerce.date(),
+  createdAt: z.coerce.date(),
+  mediaFilters: z.unknown().nullable(),
+});
+
+export const VirtualPostSchema = z.object({
+  id: z.string(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+  postGroupId: z.string().nullable(),
+  scheduleId: z.string().nullable(),
+  caption: z.string().nullable(),
+  date: z.coerce.date(),
+  url: z.string().nullable(),
+  fypRemovedAt: z.coerce.date().nullable(),
+  fypManuallyRemoved: z.boolean(),
+  postponeBlueskyDraftedAt: z.coerce.date().nullable(),
+  blueskyPostUri: z.string().nullable(),
+  blueskyPostError: z.string().nullable(),
+  blueskyRetryCount: z.number(),
+  status: z.enum(['draft', 'ready', 'scheduled', 'posted']),
+  channelId: z.string(),
+  subredditId: z.string().nullable(),
+  postMedia: z.array(z.unknown()),
+  channel: z.unknown(),
+  subreddit: z.unknown().nullable(),
+  schedule: VirtualPostScheduleSchema,
+  isVirtual: z.literal(true),
+  targetChannelIds: z.array(z.string()).optional(),
+});
 
 export const FetchVirtualPostsResponseSchema = z.array(VirtualPostSchema);
 

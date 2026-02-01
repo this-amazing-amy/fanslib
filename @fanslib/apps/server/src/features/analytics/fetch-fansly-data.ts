@@ -71,10 +71,10 @@ export const fetchFanslyAnalyticsData = async (
   const headers = {
     accept: "application/json, text/plain, */*",
     "accept-language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7",
-    authorization: credentials.fanslyAuth,
-    "fansly-client-check": credentials.fanslyClientCheck ?? "159208de0e5574",
-    "fansly-client-id": credentials.fanslyClientId ?? "715651835356000256",
-    "fansly-session-id": credentials.fanslySessionId,
+    authorization: String(credentials.fanslyAuth),
+    "fansly-client-check": String(credentials.fanslyClientCheck ?? "159208de0e5574"),
+    "fansly-client-id": String(credentials.fanslyClientId ?? "715651835356000256"),
+    "fansly-session-id": String(credentials.fanslySessionId),
     "fansly-client-ts": Date.now().toString(),
     priority: "u=1, i",
     "sec-ch-ua": '"Chromium";v="135", "Not-A.Brand";v="8"',
@@ -85,29 +85,29 @@ export const fetchFanslyAnalyticsData = async (
     "sec-fetch-site": "same-site",
   };
 
-    const response = await fetch(url.toString(), {
-      method: "GET",
-      headers,
-    });
+  const response = await fetch(url.toString(), {
+    method: "GET",
+    headers,
+  });
 
-    if (!response.ok) {
-      if (response.status === 401 || response.status === 403) {
-        throw new Error(
-          "Fansly authentication failed. Please update your credentials in settings."
-        );
-      }
-      throw new Error(`Fansly API returned ${response.status}: ${response.statusText}`);
+  if (!response.ok) {
+    if (response.status === 401 || response.status === 403) {
+      throw new Error(
+        "Fansly authentication failed. Please update your credentials in settings."
+      );
     }
+    throw new Error(`Fansly API returned ${response.status}: ${response.statusText}`);
+  }
 
-    const data: FanslyAnalyticsResponse = await response.json();
+  const data: FanslyAnalyticsResponse = await response.json();
 
-    await addDatapointsToPostMedia(postMediaId, data);
+  await addDatapointsToPostMedia(postMediaId, data);
 
-    return {
-      success: true,
-      postMediaId,
-      datapoints: data.response.dataset.datapoints.length,
-    };
+  return {
+    success: true,
+    postMediaId,
+    datapoints: data.response.dataset.datapoints.length,
+  };
 };
 
 
