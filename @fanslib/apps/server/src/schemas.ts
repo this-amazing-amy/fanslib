@@ -578,3 +578,27 @@ export {
   MatchMethodSchema,
   MatchSuggestionSchema
 } from './features/analytics/candidate-entity';
+
+// Reddit Automation schemas
+export {
+  IsRunningResponseSchema,
+  GenerateRandomPostRequestBodySchema,
+  GenerateRandomPostResponseSchema,
+  GeneratePostsRequestBodySchema,
+  GeneratePostsResponseSchema,
+  RegenerateMediaRequestBodySchema,
+  RegenerateMediaResponseSchema,
+  SchedulePostsRequestBodySchema,
+  SchedulePostsResponseSchema,
+  GetScheduledPostsResponseSchema,
+  PostToRedditRequestBodySchema,
+  PostToRedditResponseSchema,
+  LoginRequestBodySchema,
+  LoginResponseSchema,
+  CheckLoginRequestBodySchema,
+  CheckLoginResponseSchema,
+  SessionStatusRequestBodySchema,
+  SessionStatusResponseSchema,
+  ClearSessionRequestBodySchema,
+  ClearSessionResponseSchema
+} from './features/reddit-automation/schema';
