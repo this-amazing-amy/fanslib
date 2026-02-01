@@ -10,7 +10,6 @@ import { useChannelsQuery } from "~/lib/queries/channels";
 const CaptionRoute = () => {
   const { data: channelsData } = useChannelsQuery();
   const channels = useMemo(() => channelsData ?? [], [channelsData]);
-  const captionRefreshKey = 0;
 
   const allChannelIds = useMemo(
     () => channels.map((channel) => channel.id),
@@ -29,7 +28,6 @@ const CaptionRoute = () => {
                 channelIds={channelIds}
                 fromDate={new Date()}
                 toDate={new Date()}
-                refreshKey={captionRefreshKey}
               />
             </CardBody>
           </Card>

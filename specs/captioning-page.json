@@ -72,7 +72,7 @@
         "Cmd/Ctrl+Enter triggers Save & Next action",
         "Saving indicator appears while save is in progress"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "functional",
@@ -83,7 +83,7 @@
         "Post disappears from queue after saving",
         "Next item in queue auto-expands"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "functional",
@@ -105,7 +105,7 @@
         "Media tags with sticker display appear as badges on the media tile, just like in the library",
         "Multiple media items arranged in a scrollable or grid layout"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "functional",
@@ -118,7 +118,7 @@
         "'Use' button copies caption to current post textarea",
         "Empty state shown when no related captions exist"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "functional",

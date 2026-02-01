@@ -5,6 +5,7 @@ import { Circle, CheckCircle2, ExternalLink, Link2, MoreVertical, Trash2 } from 
 import { Link } from "@tanstack/react-router";
 import type { KeyboardEvent } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useQueries } from "@tanstack/react-query";
 import { SnippetSelector } from "~/components/SnippetSelector";
 import { HashtagButton } from "~/components/HashtagButton";
 import { MediaView } from "~/components/MediaView";
@@ -21,8 +22,8 @@ import {
 } from "~/components/ui/DropdownMenu";
 import { useDebounce } from "~/hooks/useDebounce";
 import { cn } from "~/lib/cn";
+import { api } from "~/lib/api/hono-client";
 import { useDeletePostMutation, useUpdatePostMutation } from "~/lib/queries/posts";
-import { useMediaTagsQuery } from "~/lib/queries/tags";
 import { MediaTileLite } from "~/features/library/components/MediaTile/MediaTileLite";
 import { TagBadge } from "~/features/library/components/MediaTagEditor/DimensionTagSelector/TagBadge";
 import { CaptionSyncControl } from "~/features/pipeline/components/CaptionSyncControl";
@@ -47,11 +48,22 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
   const [localCaption, setLocalCaption] = useState(item.post.caption ?? "");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   
-  const firstMedia = item.post.postMedia?.[0]?.media;
-  const { data: mediaTagsData } = useMediaTagsQuery({ 
-    mediaId: firstMedia?.id ?? "" 
+  const postMedia = item.post.postMedia ?? [];
+  
+  // Fetch tags for all media items using useQueries
+  const mediaTagQueries = useQueries({
+    queries: postMedia.map((pm) => ({
+      queryKey: ["tags", "media", pm.media.id],
+      queryFn: async () => {
+        const result = await api.api.tags.media['by-media-id'][':mediaId'].$get({ 
+          param: { mediaId: pm.media.id },
+          query: {}
+        });
+        return result.json();
+      },
+      enabled: !!pm.media.id,
+    })),
   });
-  const mediaTags = mediaTagsData ?? [];
 
   const linkedPostIds = useMemo(
     () => item.linkedPosts.map((linked) => linked.postId),
@@ -113,14 +125,11 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
       syncToPostIds: selectedLinkedPostIds.length > 0 ? selectedLinkedPostIds : undefined,
     };
     
-    console.log('Saving with updates:', updates);
-    
     try {
-      const result = await updatePostMutation.mutateAsync({
+      await updatePostMutation.mutateAsync({
         id: item.post.id,
         updates,
       });
-      console.log('Update result:', result);
       onAdvance();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
@@ -244,31 +253,40 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
         <div className="border-t border-base-300 p-4 space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="space-y-3">
-              {firstMedia && (
-                <div className="flex gap-4 items-start">
-                  <div className="w-full aspect-square max-w-xs flex-shrink-0">
-                    {firstMedia.type === "video" ? (
-                      <MediaView media={firstMedia as unknown as Media} controls />
-                    ) : (
-                      <MediaTileLite media={firstMedia as unknown as Media} />
-                    )}
-                  </div>
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    {mediaTags
-                      .filter((tag) => tag.stickerDisplay && tag.stickerDisplay !== "none")
-                      .map((tag) => (
-                        <TagBadge
-                          key={tag.id}
-                          tag={{
-                            id: tag.tagDefinitionId,
-                            color: tag.color,
-                            displayName: tag.shortRepresentation ?? tag.tagDisplayName,
-                          }}
-                          size="md"
-                          selectionMode="radio"
-                        />
-                      ))}
-                  </div>
+              {postMedia.length > 0 && (
+                <div className="space-y-3">
+                  {postMedia.map((pm, index) => {
+                    const media = pm.media;
+                    const mediaTags = mediaTagQueries[index]?.data ?? [];
+                    
+                    return (
+                      <div key={pm.id} className="flex gap-4 items-start">
+                        <div className="w-full aspect-square max-w-xs flex-shrink-0">
+                          {media.type === "video" ? (
+                            <MediaView media={media as unknown as Media} controls />
+                          ) : (
+                            <MediaTileLite media={media as unknown as Media} />
+                          )}
+                        </div>
+                        <div className="flex flex-wrap gap-2 pt-2">
+                          {mediaTags
+                            .filter((tag) => tag.stickerDisplay && tag.stickerDisplay !== "none")
+                            .map((tag) => (
+                              <TagBadge
+                                key={tag.id}
+                                tag={{
+                                  id: tag.tagDefinitionId,
+                                  color: tag.color,
+                                  displayName: tag.shortRepresentation ?? tag.tagDisplayName,
+                                }}
+                                size="md"
+                                selectionMode="radio"
+                              />
+                            ))}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
               {updatePostMutation.isPending && (

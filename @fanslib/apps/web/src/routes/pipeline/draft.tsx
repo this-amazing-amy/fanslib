@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { addDays } from "date-fns";
 import { useState } from "react";
 import { Card, CardBody } from "~/components/ui/Card";
@@ -8,7 +8,6 @@ import { PostPreferencesProvider } from "~/contexts/PostPreferencesContext";
 import { AssignmentStep } from "~/features/pipeline/components/AssignmentStep";
 
 const DraftRoute = () => {
-  const navigate = useNavigate();
   const [selectedChannelIds, setSelectedChannelIds] = useState<string[]>([]);
   const [fromDate, setFromDate] = useState<Date>(() => {
     const date = new Date();
@@ -16,9 +15,6 @@ const DraftRoute = () => {
     return date;
   });
   const [toDate, setToDate] = useState<Date>(() => addDays(new Date(), 21));
-  const refreshCaptioning = () => {
-    navigate({ to: "/pipeline/caption" });
-  };
 
   return (
     <PostPreferencesProvider>
@@ -33,7 +29,6 @@ const DraftRoute = () => {
                 toDate={toDate}
                 onFromDateChange={setFromDate}
                 onToDateChange={setToDate}
-                onAssignmentComplete={refreshCaptioning}
               />
             </CardBody>
           </Card>

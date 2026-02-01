@@ -16,7 +16,6 @@ export const PipelinePage = () => {
     return date;
   });
   const [toDate, setToDate] = useState<Date>(() => addDays(new Date(), 21));
-  const [captionRefreshKey, setCaptionRefreshKey] = useState(0);
 
   const selectionState = useMemo(
     () => ({
@@ -26,10 +25,6 @@ export const PipelinePage = () => {
     }),
     [selectedChannelIds, fromDate, toDate]
   );
-
-  const refreshCaptioning = () => {
-    setCaptionRefreshKey((value) => value + 1);
-  };
 
   const tabs = [
     { id: "assignment" as PipelineTab, label: "Draft" },
@@ -49,7 +44,6 @@ export const PipelinePage = () => {
               toDate={selectionState.toDate}
               onFromDateChange={setFromDate}
               onToDateChange={setToDate}
-              onAssignmentComplete={refreshCaptioning}
             />
           )}
           {activeTab === "captioning" && (
@@ -57,7 +51,6 @@ export const PipelinePage = () => {
               channelIds={selectionState.selectedChannelIds}
               fromDate={selectionState.fromDate}
               toDate={selectionState.toDate}
-              refreshKey={captionRefreshKey}
             />
           )}
         </CardBody>

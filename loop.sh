@@ -108,6 +108,13 @@ if [ ! -f "$PROMPT_FILE" ]; then
     exit 1
 fi
 
+ALL_DONE_MARKER="<result>ALL DONE!</result>"
+OUTPUT_FILE=""
+cleanup_output_file() {
+    [ -n "$OUTPUT_FILE" ] && [ -f "$OUTPUT_FILE" ] && rm -f "$OUTPUT_FILE"
+}
+trap cleanup_output_file EXIT
+
 # Main loop
 while true; do
     if [ "$MAX_ITERATIONS" -gt 0 ] && [ "$ITERATION" -ge "$MAX_ITERATIONS" ]; then
@@ -135,13 +142,32 @@ while true; do
         PROMPT_CONTENT=$(cat "$PROMPT_FILE")
     fi
 
+    if [ "$MODE" = "build" ]; then
+        OUTPUT_FILE=$(mktemp)
+    fi
+
     # Execute the appropriate CLI command
     if [ "$CLI" = "cursor" ]; then
-        # Cursor CLI with streaming JSON output
-        agent -p "$PROMPT_CONTENT" --model "$MODEL" --output-format stream-json --approve-mcps
+        if [ "$MODE" = "build" ]; then
+            agent -p "$PROMPT_CONTENT" --model "$MODEL" --output-format stream-json --approve-mcps 2>&1 | tee "$OUTPUT_FILE"
+        else
+            agent -p "$PROMPT_CONTENT" --model "$MODEL" --output-format stream-json --approve-mcps
+        fi
     else
-        # GitHub Copilot CLI
-        copilot -p "$PROMPT_CONTENT" --allow-all-paths --allow-all --stream on
+        if [ "$MODE" = "build" ]; then
+            copilot -p "$PROMPT_CONTENT" --allow-all-paths --allow-all --stream on 2>&1 | tee "$OUTPUT_FILE"
+        else
+            copilot -p "$PROMPT_CONTENT" --allow-all-paths --allow-all --stream on
+        fi
+    fi
+
+    if [ "$MODE" = "build" ] && [ -f "$OUTPUT_FILE" ] && grep -q "$ALL_DONE_MARKER" "$OUTPUT_FILE"; then
+        echo ""
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "Agent reported: $ALL_DONE_MARKER"
+        echo "Exiting loop."
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        break
     fi
 
     # Push changes after each iteration

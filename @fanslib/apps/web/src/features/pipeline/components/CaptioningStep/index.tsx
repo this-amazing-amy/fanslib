@@ -10,14 +10,12 @@ type CaptioningStepProps = {
   channelIds: string[];
   fromDate: Date;
   toDate: Date;
-  refreshKey: number;
 };
 
 export const CaptioningStep = ({
   channelIds,
   fromDate: _fromDate,
   toDate: _toDate,
-  refreshKey,
 }: CaptioningStepProps) => {
   const queryParams = useMemo(
     () => ({
@@ -27,7 +25,7 @@ export const CaptioningStep = ({
     [channelIds]
   );
 
-  const { data: queue = [], isLoading } = useCaptionQueueQuery(queryParams, refreshKey);
+  const { data: queue = [], isLoading } = useCaptionQueueQuery(queryParams);
   const [expandedPostId, setExpandedPostId] = useState<string | null>(null);
   const [shouldAutoExpand, setShouldAutoExpand] = useState(false);
 

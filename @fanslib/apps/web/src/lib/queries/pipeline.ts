@@ -21,11 +21,10 @@ export const useAssignMediaMutation = () => {
 };
 
 export const useCaptionQueueQuery = (
-  params: FetchCaptionQueueRequestQuery,
-  refreshKey: number
+  params: FetchCaptionQueueRequestQuery
 ) =>
   useQuery({
-    queryKey: QUERY_KEYS.pipeline.captionQueue(params, refreshKey),
+    queryKey: QUERY_KEYS.pipeline.captionQueue(params),
     queryFn: async () => {
       const result = await api.api.pipeline["caption-queue"].$get({ query: params });
       const data = await result.json();

@@ -29,7 +29,6 @@ const DraftRoute = () => {
                 toDate={toDate}
                 onFromDateChange={setFromDate}
                 onToDateChange={setToDate}
-                onAssignmentComplete={() => {}}
               />
             </CardBody>
           </Card>

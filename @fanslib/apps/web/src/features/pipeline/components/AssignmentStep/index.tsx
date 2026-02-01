@@ -24,7 +24,6 @@ type AssignmentStepProps = {
   toDate: Date;
   onFromDateChange: (date: Date) => void;
   onToDateChange: (date: Date) => void;
-  onAssignmentComplete: () => void;
 };
 
 type AssignmentResult = AssignMediaResponse;
@@ -35,7 +34,6 @@ export const AssignmentStep = ({
   toDate,
   onFromDateChange,
   onToDateChange,
-  onAssignmentComplete,
 }: AssignmentStepProps) => {
   const { data: channelsData } = useChannelsQuery();
   const { data: schedulesData } = useContentSchedulesQuery();
@@ -132,7 +130,6 @@ export const AssignmentStep = ({
       }))
     } : null;
     setAssignmentResult(normalizedResult);
-    onAssignmentComplete();
 
     setTimeout(() => {
       if (shouldFetchDrafts) {
