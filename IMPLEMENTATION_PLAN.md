@@ -17,7 +17,12 @@ Migrate the server from Elysia + Eden + TypeBox to Hono + hc client + Zod. This 
 - ✅ Phase 1: Infrastructure Setup (all dependencies added, utilities created)
 - ✅ Settings Feature (6 endpoints - FULLY migrated: schemas + routes + web client)
 - ✅ Bluesky Feature (1 endpoint - FULLY migrated: schemas + routes)
-- ✅ Entity schemas migrated to Zod (6/11):
+- ✅ Hashtags Feature (8 endpoints - FULLY migrated: schemas + routes + web client)
+- ✅ Shoots Feature (6 endpoints - FULLY migrated: schemas + routes + web client)
+- ✅ Filter-presets Feature (5 endpoints - FULLY migrated: schemas + routes + web client)
+- ✅ Snippets Feature (7 endpoints - FULLY migrated: schemas + routes + web client)
+- ✅ Subreddits Feature (6 endpoints - FULLY migrated: schemas + routes + web client)
+- ✅ Entity schemas migrated to Zod (7/11):
   - filter-presets/entity.ts ✅
   - channels/entity.ts ✅
   - hashtags/entity.ts ✅
@@ -86,10 +91,10 @@ We're 60% done with the migration. The infrastructure is in place. Completing it
 
 **Progress Summary:**
 - Infrastructure: 100% complete
-- Features migrated: 2/15 (Settings, Bluesky)
-- Entity schemas migrated: 6/11
-- Operations converted: ~30/130
-- Estimated remaining effort: 100-130 operations to convert
+- Features migrated: 8/15 (Settings, Bluesky, Hashtags, Shoots, Filter-presets, Snippets, Subreddits)
+- Entity schemas migrated: 7/11
+- Operations converted: ~40/130
+- Estimated remaining effort: 90-100 operations to convert
 
 **Migration Strategy Going Forward:**
 Given the cross-dependencies between features, the most efficient approach is:
@@ -242,11 +247,12 @@ Each feature requires: (1) convert TypeBox schemas to Zod, (2) migrate routes to
 
 ### Subreddits Feature (6 endpoints)
 
-- [ ] Convert subreddits schemas to Zod
-  - `entity.ts` (SubredditSchema)
-  - `operations/subreddit/*.ts`
-- [ ] Migrate subreddits routes in `features/subreddits/routes.ts`
-- [ ] Update `@fanslib/apps/web/src/lib/queries/subreddits.ts` to use hc client
+- [x] Convert subreddits schemas to Zod
+  - `entity.ts` (SubredditSchema) - ALREADY DONE
+  - `operations/subreddit/*.ts` - CONVERTED ALL
+- [x] Migrate subreddits routes in `features/subreddits/routes.ts` - DONE
+- [x] Update `@fanslib/apps/web/src/lib/queries/subreddits.ts` to use hc client - DONE
+- [x] Register routes in main index.ts - DONE
 
 ### Snippets Feature (7 endpoints)
 

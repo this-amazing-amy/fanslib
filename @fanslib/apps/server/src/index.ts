@@ -8,6 +8,7 @@ import { runScheduledPostsCronTick } from "./features/posts/scheduled-posts-cron
 import { settingsRoutes } from "./features/settings/routes";
 import { shootsRoutes } from "./features/shoots/routes";
 import { snippetsRoutes } from "./features/snippets/routes";
+import { subredditsRoutes } from "./features/subreddits/routes";
 import { db } from "./lib/db";
 import { devalueMiddleware } from "./lib/devalue-middleware";
 import { env } from "./lib/env";
@@ -72,7 +73,8 @@ const app = new Hono()
   .route("/", hashtagsRoutes)
   .route("/", shootsRoutes)
   .route("/", filterPresetsRoutes)
-  .route("/", snippetsRoutes);
+  .route("/", snippetsRoutes)
+  .route("/", subredditsRoutes);
 
 // Set up cron job if enabled
 if (isScheduledPostsCronEnabled) {
@@ -88,7 +90,7 @@ if (isScheduledPostsCronEnabled) {
 
 // Start server
 const port = 6970;
-const server = Bun.serve({
+Bun.serve({
   fetch: app.fetch,
   port,
 });
@@ -109,7 +111,4 @@ db()
   });
 
 // Export app type for Hono client type inference
-export type AppType = typeof app;
-
-// Export app type for hono/client
 export type AppType = typeof app;

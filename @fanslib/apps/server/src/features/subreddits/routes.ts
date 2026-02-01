@@ -1,66 +1,52 @@
-import { Elysia, t } from "elysia";
-import { CreateSubredditRequestBodySchema, CreateSubredditResponseSchema, createSubreddit } from "./operations/subreddit/create";
-import { DeleteSubredditParamsSchema, DeleteSubredditResponseSchema, deleteSubreddit } from "./operations/subreddit/delete";
-import { FetchAllSubredditsResponseSchema, fetchAllSubreddits } from "./operations/subreddit/fetch-all";
-import { FetchSubredditByIdRequestParamsSchema, FetchSubredditByIdResponseSchema, fetchSubredditById } from "./operations/subreddit/fetch-by-id";
-import { FetchLastPostDatesRequestBodySchema, FetchLastPostDatesResponseSchema, fetchLastPostDatesForSubreddits } from "./operations/subreddit/fetch-last-post-dates";
-import { UpdateSubredditRequestBodySchema, UpdateSubredditRequestParamsSchema, UpdateSubredditResponseSchema, updateSubreddit } from "./operations/subreddit/update";
+import { Hono } from "hono";
+import { zValidator } from "@hono/zod-validator";
+import { validationError, notFound } from "../../lib/hono-utils";
+import { CreateSubredditRequestBodySchema, createSubreddit } from "./operations/subreddit/create";
+import { deleteSubreddit } from "./operations/subreddit/delete";
+import { fetchAllSubreddits } from "./operations/subreddit/fetch-all";
+import { fetchSubredditById } from "./operations/subreddit/fetch-by-id";
+import { FetchLastPostDatesRequestBodySchema, fetchLastPostDatesForSubreddits } from "./operations/subreddit/fetch-last-post-dates";
+import { UpdateSubredditRequestBodySchema, updateSubreddit } from "./operations/subreddit/update";
 
-export const subredditsRoutes = new Elysia({ prefix: "/api/subreddits" })
-  .get("/all", fetchAllSubreddits, {
-    response: FetchAllSubredditsResponseSchema,
+export const subredditsRoutes = new Hono()
+  .basePath("/api/subreddits")
+  .get("/all", async (c) => {
+    const result = await fetchAllSubreddits();
+    return c.json(result);
   })
-  .get("/by-id/:id", async ({ params: { id }, set }) => {
+  .get("/by-id/:id", async (c) => {
+    const id = c.req.param("id");
     const subreddit = await fetchSubredditById(id);
     if (!subreddit) {
-      set.status = 404;
-      return { error: "Subreddit not found" };
+      return notFound(c, "Subreddit not found");
     }
-    return subreddit;
-  }, {
-    params: FetchSubredditByIdRequestParamsSchema,
-    response: {
-      200: FetchSubredditByIdResponseSchema,
-      404: t.Object({ error: t.String() }),
-    },
+    return c.json(subreddit);
   })
-  .post("/", async ({ body }) =>
-    createSubreddit(body)
-  , {
-    body: CreateSubredditRequestBodySchema,
-    response: CreateSubredditResponseSchema,
+  .post("/", zValidator("json", CreateSubredditRequestBodySchema, validationError), async (c) => {
+    const body = c.req.valid("json");
+    const result = await createSubreddit(body);
+    return c.json(result);
   })
-  .patch("/by-id/:id", async ({ params: { id }, body, set }) => {
+  .patch("/by-id/:id", zValidator("json", UpdateSubredditRequestBodySchema, validationError), async (c) => {
+    const id = c.req.param("id");
+    const body = c.req.valid("json");
     const subreddit = await updateSubreddit(id, body);
     if (!subreddit) {
-      set.status = 404;
-      return { error: "Subreddit not found" };
+      return notFound(c, "Subreddit not found");
     }
-    return subreddit;
-  }, {
-    params: UpdateSubredditRequestParamsSchema,
-    body: UpdateSubredditRequestBodySchema,
-    response: {
-      200: UpdateSubredditResponseSchema,
-      404: t.Object({ error: t.String() }),
-    },
+    return c.json(subreddit);
   })
-  .delete("/by-id/:id", async ({ params: { id }, set }) => {
+  .delete("/by-id/:id", async (c) => {
+    const id = c.req.param("id");
     const success = await deleteSubreddit(id);
     if (!success) {
-      set.status = 404;
-      return { error: "Subreddit not found" };
+      return notFound(c, "Subreddit not found");
     }
-    return { success: true };
-  }, {
-    params: DeleteSubredditParamsSchema,
-    response: {
-      200: DeleteSubredditResponseSchema,
-      404: t.Object({ error: t.String() }),
-    },
+    return c.json({ success: true });
   })
-  .post("/last-post-dates", ({ body }) => fetchLastPostDatesForSubreddits(body), {
-    body: FetchLastPostDatesRequestBodySchema,
-    response: FetchLastPostDatesResponseSchema,
+  .post("/last-post-dates", zValidator("json", FetchLastPostDatesRequestBodySchema, validationError), async (c) => {
+    const body = c.req.valid("json");
+    const result = await fetchLastPostDatesForSubreddits(body);
+    return c.json(result);
   });
 
