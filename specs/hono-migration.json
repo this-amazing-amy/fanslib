@@ -78,7 +78,7 @@
         "All validation rules maintained",
         "Date fields use z.coerce.date()"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "feature-migration",
@@ -175,9 +175,9 @@
     },
     {
       "category": "feature-migration",
-      "description": "Migrate Tags feature (17 endpoints)",
+      "description": "Migrate Tags feature (18 endpoints)",
       "acceptance_criteria": [
-        "All 17 endpoints migrated",
+        "All 18 endpoints migrated",
         "Dimensions CRUD works",
         "Definitions CRUD works",
         "Media tag assignment works",
@@ -186,7 +186,7 @@
         "Web client updated",
         "Manual test passes"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "feature-migration",
@@ -260,7 +260,7 @@
         "Web client updated",
         "Manual test passes"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "feature-migration",
@@ -287,7 +287,7 @@
         "Web client updated",
         "Manual test passes"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "feature-migration",
@@ -297,7 +297,7 @@
         "POST /migrate-colors migrated",
         "Both work correctly"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "validation",
@@ -308,7 +308,7 @@
         "All existing tests pass",
         "No TypeScript errors in IDE"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "cleanup",
@@ -323,7 +323,7 @@
         "bun install cleans up lock file",
         "No Elysia imports remain in codebase"
       ],
-      "passes": false
+      "passes": true
     }
   ],
   "technical_notes": {

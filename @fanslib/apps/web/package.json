@@ -15,7 +15,6 @@
     "clean": "rm -rf dist .output"
   },
   "dependencies": {
-    "@elysiajs/eden": "^1.4.4",
     "@fanslib/server": "workspace:*",
     "@floating-ui/react": "^0.27.16",
     "@internationalized/date": "^3.10.0",
