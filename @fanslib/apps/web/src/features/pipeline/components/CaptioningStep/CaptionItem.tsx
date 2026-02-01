@@ -3,7 +3,6 @@ import type { Key } from "@react-types/shared";
 import { format } from "date-fns";
 import { Circle, CheckCircle2, ExternalLink, Link2, MoreVertical, Trash2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
 import type { KeyboardEvent } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { SnippetSelector } from "~/components/SnippetSelector";
@@ -42,7 +41,6 @@ type CaptionItemProps = {
 };
 
 export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionItemProps) => {
-  const queryClient = useQueryClient();
   const { linkedPostIdsForExpanded, setLinkedPostIds, setExpandedPostId } = useLinkedPostsContext();
   const updatePostMutation = useUpdatePostMutation();
   const deletePostMutation = useDeletePostMutation();
@@ -123,7 +121,6 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
         updates,
       });
       console.log('Update result:', result);
-      queryClient.invalidateQueries({ queryKey: ["pipeline", "caption-queue"] });
       onAdvance();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
@@ -143,7 +140,6 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
   const handleDelete = async () => {
     try {
       await deletePostMutation.mutateAsync({ id: item.post.id });
-      queryClient.invalidateQueries({ queryKey: ["pipeline", "caption-queue"] });
       onAdvance();
     } catch (error) {
       console.error("Failed to delete post:", error);

@@ -61,6 +61,7 @@ export const useUpdatePostMutation = () => {
     },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.pipeline.all });
       queryClient.setQueryData(QUERY_KEYS.posts.byId(variables.id), data);
     },
   });
@@ -76,6 +77,7 @@ export const useDeletePostMutation = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.pipeline.all });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.media.all });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contentSchedules.all() });
     },

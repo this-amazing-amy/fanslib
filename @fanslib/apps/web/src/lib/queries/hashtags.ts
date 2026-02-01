@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/hono-client';
+import { QUERY_KEYS } from './query-keys';
 
 export const useHashtagsQuery = () =>
   useQuery({
-    queryKey: ['hashtags', 'list'],
+    queryKey: QUERY_KEYS.hashtags.all(),
     queryFn: async () => {
       const result = await api.api.hashtags.all.$get();
       return result.json();
@@ -12,7 +13,7 @@ export const useHashtagsQuery = () =>
 
 export const useHashtagQuery = (params: { id: string }) =>
   useQuery({
-    queryKey: ['hashtags', params.id],
+    queryKey: QUERY_KEYS.hashtags.byId(params.id),
     queryFn: async () => {
       const result = await api.api.hashtags['by-id'][':id'].$get({ param: { id: params.id } });
       return result.json();
@@ -22,7 +23,7 @@ export const useHashtagQuery = (params: { id: string }) =>
 
 export const useHashtagsByIdsQuery = (query: { ids?: string }) =>
   useQuery({
-    queryKey: ['hashtags', 'by-ids', query.ids],
+    queryKey: QUERY_KEYS.hashtags.byIds(query.ids),
     queryFn: async () => {
       const result = await api.api.hashtags['by-ids'].$get({ query: { ids: query.ids } });
       return result.json();
@@ -39,7 +40,7 @@ export const useCreateHashtagMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['hashtags', 'list'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.hashtags.all() });
     },
   });
 };
@@ -53,7 +54,7 @@ export const useCreateHashtagsBatchMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['hashtags', 'list'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.hashtags.all() });
     },
   });
 };
@@ -67,14 +68,14 @@ export const useDeleteHashtagMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['hashtags', 'list'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.hashtags.all() });
     },
   });
 };
 
 export const useHashtagStatsQuery = (params: { id: string }) =>
   useQuery({
-    queryKey: ['hashtags', params.id, 'stats'],
+    queryKey: QUERY_KEYS.hashtags.stats(params.id),
     queryFn: async () => {
       const result = await api.api.hashtags['by-id'][':id'].stats.$get({ param: { id: params.id } });
       return result.json();
@@ -102,8 +103,8 @@ export const useUpdateHashtagStatsMutation = () => {
       return result.json();
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['hashtags', variables.id, 'stats'] });
-      queryClient.invalidateQueries({ queryKey: ['hashtags', variables.id] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.hashtags.stats(variables.id) });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.hashtags.byId(variables.id) });
     },
   });
 };

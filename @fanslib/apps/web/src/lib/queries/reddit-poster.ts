@@ -1,6 +1,7 @@
 import type { Subreddit } from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/hono-client';
+import { QUERY_KEYS } from './query-keys';
 
 
 export const useGenerateRandomPost = () => useMutation({
@@ -61,14 +62,14 @@ export const useSchedulePosts = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reddit-automation', 'scheduled-posts'] });
-      queryClient.invalidateQueries({ queryKey: ['subreddits'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.redditAutomation.scheduledPosts() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.subreddits.all() });
     },
   });
 };
 
 export const useScheduledPosts = () => useQuery({
-    queryKey: ['reddit-automation', 'scheduled-posts'],
+    queryKey: QUERY_KEYS.redditAutomation.scheduledPosts(),
     queryFn: async () => {
       const result = await api.api['reddit-automation']['scheduled-posts'].$get();
       return result.json();

@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/hono-client';
+import { QUERY_KEYS } from './query-keys';
 
 export const useSnippetsQuery = () =>
   useQuery({
-    queryKey: ['snippets', 'list'],
+    queryKey: QUERY_KEYS.snippets.all(),
     queryFn: async () => {
       const result = await api.api.snippets.all.$get();
       return result.json();
@@ -12,7 +13,7 @@ export const useSnippetsQuery = () =>
 
 export const useGlobalSnippetsQuery = () =>
   useQuery({
-    queryKey: ['snippets', 'global'],
+    queryKey: QUERY_KEYS.snippets.global(),
     queryFn: async () => {
       const result = await api.api.snippets.global.$get();
       return result.json();
@@ -21,7 +22,7 @@ export const useGlobalSnippetsQuery = () =>
 
 export const useSnippetsByChannelQuery = (params: { channelId: string }) =>
   useQuery({
-    queryKey: ['snippets', 'by-channel', params.channelId],
+    queryKey: QUERY_KEYS.snippets.byChannel(params.channelId),
     queryFn: async () => {
       const result = await api.api.snippets['by-channel-id'][':channelId'].$get({ param: { channelId: params.channelId } });
       return result.json();
@@ -31,7 +32,7 @@ export const useSnippetsByChannelQuery = (params: { channelId: string }) =>
 
 export const useSnippetQuery = (params: { id: string }) =>
   useQuery({
-    queryKey: ['snippets', params.id],
+    queryKey: QUERY_KEYS.snippets.byId(params.id),
     queryFn: async () => {
       const result = await api.api.snippets['by-id'][':id'].$get({ param: { id: params.id } });
       return result.json();
@@ -52,10 +53,10 @@ export const useCreateSnippetMutation = () => {
       return result.json();
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['snippets', 'list'] });
-      queryClient.invalidateQueries({ queryKey: ['snippets', 'global'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.snippets.all() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.snippets.global() });
       if (data?.channel) {
-        queryClient.invalidateQueries({ queryKey: ['snippets', 'by-channel', data.channel.id] });
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.snippets.byChannel(data.channel.id) });
       }
     },
   });
@@ -82,9 +83,9 @@ export const useUpdateSnippetMutation = () => {
       return result.json();
     },
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['snippets', 'list'] });
-      queryClient.invalidateQueries({ queryKey: ['snippets', 'global'] });
-      queryClient.setQueryData(['snippets', variables.id], data);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.snippets.all() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.snippets.global() });
+      queryClient.setQueryData(QUERY_KEYS.snippets.byId(variables.id), data);
     },
   });
 };
@@ -98,8 +99,8 @@ export const useDeleteSnippetMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['snippets', 'list'] });
-      queryClient.invalidateQueries({ queryKey: ['snippets', 'global'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.snippets.all() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.snippets.global() });
     },
   });
 };

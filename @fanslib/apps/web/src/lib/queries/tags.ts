@@ -1,11 +1,12 @@
 import type { AssignTagsToMediaRequestBody, BulkAssignTagsRequestBody, CreateTagDefinitionRequestBody, CreateTagDimensionRequestBody, DeleteTagDefinitionParams, DeleteTagDimensionParams, FetchMediaTagsRequestParams, FetchMediaTagsRequestQuery, FetchTagDefinitionByIdRequestParams, FetchTagDefinitionsByIdsRequestQuery, FetchTagDimensionByIdRequestParams, FetchTagsByDimensionQuery, RemoveTagsFromMediaRequestBody, RemoveTagsFromMediaRequestParams, UpdateTagDefinitionParams, UpdateTagDefinitionRequestBody, UpdateTagDimensionParams, UpdateTagDimensionRequestBody } from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/hono-client';
+import { QUERY_KEYS } from './query-keys';
 
 // Tag Dimensions
 export const useTagDimensionsQuery = () =>
   useQuery({
-    queryKey: ['tags', 'dimensions'],
+    queryKey: QUERY_KEYS.tags.dimensions.all(),
     queryFn: async () => {
       const result = await api.api.tags.dimensions.$get();
       return result.json();
@@ -14,7 +15,7 @@ export const useTagDimensionsQuery = () =>
 
 export const useTagDimensionQuery = (params: FetchTagDimensionByIdRequestParams) =>
   useQuery({
-    queryKey: ['tags', 'dimensions', params.id],
+    queryKey: QUERY_KEYS.tags.dimensions.byId(params.id),
     queryFn: async () => {
       const result = await api.api.tags.dimensions[':id'].$get({ param: { id: params.id } });
       return result.json();
@@ -31,7 +32,7 @@ export const useCreateTagDimensionMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tags', 'dimensions'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.dimensions.all() });
     },
   });
 };
@@ -49,8 +50,8 @@ export const useUpdateTagDimensionMutation = () => {
       return result.json();
     },
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['tags', 'dimensions'] });
-      queryClient.setQueryData(['tags', 'dimensions', variables.id], data);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.dimensions.all() });
+      queryClient.setQueryData(QUERY_KEYS.tags.dimensions.byId(variables.id), data);
     },
   });
 };
@@ -64,8 +65,8 @@ export const useDeleteTagDimensionMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tags', 'dimensions'] });
-      queryClient.invalidateQueries({ queryKey: ['tags', 'definitions'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.dimensions.all() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.definitions.all() });
     },
   });
 };
@@ -73,7 +74,7 @@ export const useDeleteTagDimensionMutation = () => {
 // Tag Definitions
 export const useTagDefinitionsByDimensionQuery = (query: FetchTagsByDimensionQuery) =>
   useQuery({
-    queryKey: ['tags', 'definitions', 'by-dimension', query.dimensionId],
+    queryKey: QUERY_KEYS.tags.definitions.byDimension(query),
     queryFn: async () => {
       const result = await api.api.tags.definitions.$get(query);
       return result.json();
@@ -83,7 +84,7 @@ export const useTagDefinitionsByDimensionQuery = (query: FetchTagsByDimensionQue
 
 export const useTagDefinitionQuery = (params: FetchTagDefinitionByIdRequestParams) =>
   useQuery({
-    queryKey: ['tags', 'definitions', params.id],
+    queryKey: QUERY_KEYS.tags.definitions.byId(params.id),
     queryFn: async () => {
       const result = await api.api.tags.definitions[':id'].$get({ param: { id: params.id } });
       return result.json();
@@ -93,7 +94,7 @@ export const useTagDefinitionQuery = (params: FetchTagDefinitionByIdRequestParam
 
 export const useTagDefinitionsByIdsQuery = (query: FetchTagDefinitionsByIdsRequestQuery) =>
   useQuery({
-    queryKey: ['tags', 'definitions', 'by-ids', query.ids],
+    queryKey: QUERY_KEYS.tags.definitions.byIds(query),
     queryFn: async () => {
       const result = await api.api.tags.definitions['by-ids'].$get({ ids: query.ids });
       return result.json();
@@ -110,10 +111,10 @@ export const useCreateTagDefinitionMutation = () => {
       return result.json();
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['tags', 'definitions'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.definitions.all() });
 
       // Optimistically add the new tag to the dimensions cache
-      queryClient.setQueryData(['tags', 'dimensions'], (oldData: unknown) => {
+      queryClient.setQueryData(QUERY_KEYS.tags.dimensions.all(), (oldData: unknown) => {
         if (!oldData || !Array.isArray(oldData) || !data) return oldData;
 
         return oldData.map(dimension => {
@@ -126,10 +127,12 @@ export const useCreateTagDefinitionMutation = () => {
         });
       });
 
-      queryClient.invalidateQueries({ queryKey: ['tags', 'dimensions'] });
-      queryClient.invalidateQueries({
-        queryKey: ['tags', 'definitions', 'by-dimension', data?.dimensionId],
-      });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.dimensions.all() });
+      if (data?.dimensionId) {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.tags.definitions.byDimension({ dimensionId: data.dimensionId }),
+        });
+      }
     },
   });
 };
@@ -147,10 +150,10 @@ export const useUpdateTagDefinitionMutation = () => {
       return result.json();
     },
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['tags', 'definitions'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.definitions.all() });
 
       // Optimistically update the dimensions cache with the updated tag
-      queryClient.setQueryData(['tags', 'dimensions'], (oldData: unknown) => {
+      queryClient.setQueryData(QUERY_KEYS.tags.dimensions.all(), (oldData: unknown) => {
         if (!oldData || !Array.isArray(oldData)) return oldData;
 
         return oldData.map(dimension => {
@@ -165,11 +168,13 @@ export const useUpdateTagDefinitionMutation = () => {
         });
       });
 
-      queryClient.invalidateQueries({ queryKey: ['tags', 'dimensions'] });
-      queryClient.setQueryData(['tags', 'definitions', variables.id], data);
-      queryClient.invalidateQueries({
-        queryKey: ['tags', 'definitions', 'by-dimension', data?.dimensionId],
-      });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.dimensions.all() });
+      queryClient.setQueryData(QUERY_KEYS.tags.definitions.byId(variables.id), data);
+      if (data?.dimensionId) {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.tags.definitions.byDimension({ dimensionId: data.dimensionId }),
+        });
+      }
     },
   });
 };
@@ -183,9 +188,9 @@ export const useDeleteTagDefinitionMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tags', 'definitions'] });
-      queryClient.invalidateQueries({ queryKey: ['tags', 'dimensions'] });
-      queryClient.invalidateQueries({ queryKey: ['tags', 'media'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.definitions.all() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.dimensions.all() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.media.all() });
     },
   });
 };
@@ -196,7 +201,7 @@ export const useMediaTagsQuery = (
   query?: FetchMediaTagsRequestQuery
 ) =>
   useQuery({
-    queryKey: ['tags', 'media', params.mediaId, query?.dimensionId],
+    queryKey: QUERY_KEYS.tags.media.byMediaId(params.mediaId, query),
     queryFn: async () => {
       const result = await api.api.tags.media['by-media-id'][':mediaId'].$get({ 
         param: { mediaId: params.mediaId },
@@ -209,7 +214,7 @@ export const useMediaTagsQuery = (
 
 export const useBulkMediaTagsQuery = (mediaIds: string[], dimensionId?: number) =>
   useQuery({
-    queryKey: ['tags', 'media', 'bulk', mediaIds, dimensionId],
+    queryKey: QUERY_KEYS.tags.media.bulk(mediaIds, dimensionId),
     queryFn: async () => {
       if (mediaIds.length === 0) return [];
 
@@ -228,7 +233,7 @@ export const useBulkMediaTagsQuery = (mediaIds: string[], dimensionId?: number) 
 
 export const useTagsForMediasQuery = (mediaIds: string[]) =>
   useQuery({
-    queryKey: ['tags', 'media', 'for-medias', mediaIds],
+    queryKey: QUERY_KEYS.tags.media.forMedias(mediaIds),
     queryFn: async () => {
       if (mediaIds.length === 0) return [];
 
@@ -251,8 +256,8 @@ export const useAssignTagsToMediaMutation = () => {
       return result.json();
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['tags', 'media', variables.mediaId] });
-      queryClient.invalidateQueries({ queryKey: ['media', variables.mediaId] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.media.byMediaId(variables.mediaId) });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.media.byId(variables.mediaId) });
     },
   });
 };
@@ -267,11 +272,11 @@ export const useBulkAssignTagsMutation = () => {
     },
     onSuccess: (_, variables) => {
       variables.forEach((assignment) => {
-        queryClient.invalidateQueries({ queryKey: ['tags', 'media', assignment.mediaId] });
-        queryClient.invalidateQueries({ queryKey: ['media', assignment.mediaId] });
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.media.byMediaId(assignment.mediaId) });
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.media.byId(assignment.mediaId) });
       });
-      queryClient.invalidateQueries({ queryKey: ['tags', 'media', 'bulk'] });
-      queryClient.invalidateQueries({ queryKey: ['media', 'list'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.media.bulk([], undefined) });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.media.list() });
     },
   });
 };
@@ -290,9 +295,9 @@ export const useRemoveTagsFromMediaMutation = () => {
       return result.json();
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['tags', 'media', variables.mediaId] });
-      queryClient.invalidateQueries({ queryKey: ['media', variables.mediaId] });
-      queryClient.invalidateQueries({ queryKey: ['tags', 'media', 'bulk'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.media.byMediaId(variables.mediaId) });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.media.byId(variables.mediaId) });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.media.bulk([], undefined) });
     },
   });
 };
@@ -300,7 +305,7 @@ export const useRemoveTagsFromMediaMutation = () => {
 // Drift Prevention
 export const useDriftPreventionStatsQuery = () =>
   useQuery({
-    queryKey: ['tags', 'drift-prevention', 'stats'],
+    queryKey: QUERY_KEYS.tags.driftPrevention.stats(),
     queryFn: async () => {
       const result = await api.api.tags['drift-prevention'].stats.$get();
       return result.json();
@@ -316,8 +321,8 @@ export const usePerformCleanupMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tags', 'drift-prevention', 'stats'] });
-      queryClient.invalidateQueries({ queryKey: ['tags', 'media'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.driftPrevention.stats() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.media.all() });
     },
   });
 };
@@ -331,8 +336,8 @@ export const useSyncStickerDisplayMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tags', 'drift-prevention', 'stats'] });
-      queryClient.invalidateQueries({ queryKey: ['tags', 'media'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.driftPrevention.stats() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.media.all() });
     },
   });
 };

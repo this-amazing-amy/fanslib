@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../api/hono-client";
 import type { LoginStatus, SessionStatus } from "../reddit/auth-status-utils";
+import { QUERY_KEYS } from './query-keys';
 
 // Login to Reddit
 export const useRedditLoginMutation = () => {
@@ -15,15 +16,15 @@ export const useRedditLoginMutation = () => {
     },
     onSuccess: () => {
       // Invalidate both login and session status queries
-      queryClient.invalidateQueries({ queryKey: ["reddit", "login-status"] });
-      queryClient.invalidateQueries({ queryKey: ["reddit", "session-status"] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.reddit.loginStatus() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.reddit.sessionStatus() });
     },
   });
 };
 
 // Check login status
 export const useRedditLoginStatusQuery = (userId?: string) => useQuery({
-    queryKey: ["reddit", "login-status", userId],
+    queryKey: QUERY_KEYS.reddit.loginStatus(userId),
     queryFn: async (): Promise<LoginStatus> => {
       const result = await api.api["reddit-automation"]["check-login"].$post({
         json: { userId }
@@ -35,7 +36,7 @@ export const useRedditLoginStatusQuery = (userId?: string) => useQuery({
 
 // Check session status on server
 export const useRedditSessionStatusQuery = (userId?: string) => useQuery({
-    queryKey: ["reddit", "session-status", userId],
+    queryKey: QUERY_KEYS.reddit.sessionStatus(userId),
     queryFn: async (): Promise<SessionStatus> => {
       const result = await api.api["reddit-automation"].session.status.$post({
         json: { userId }
@@ -58,8 +59,8 @@ export const useClearRedditSessionMutation = () => {
     },
     onSuccess: () => {
       // Invalidate both login and session status queries
-      queryClient.invalidateQueries({ queryKey: ["reddit", "login-status"] });
-      queryClient.invalidateQueries({ queryKey: ["reddit", "session-status"] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.reddit.loginStatus() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.reddit.sessionStatus() });
     },
   });
 };

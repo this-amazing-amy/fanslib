@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { automationApi } from '../api/automation';
+import { QUERY_KEYS } from './query-keys';
 
 export const usePostToReddit = () => {
   const queryClient = useQueryClient();
@@ -15,13 +16,13 @@ export const usePostToReddit = () => {
       caption: string;
     }) => automationApi.postToReddit({ subredditId, mediaId, caption }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all });
     },
   });
 };
 
 export const useIsAutomationRunning = () => useQuery({
-    queryKey: ['automation', 'is-running'],
+    queryKey: QUERY_KEYS.automation.isRunning(),
     queryFn: () => automationApi.isRunning(),
     refetchInterval: 2000,
   });

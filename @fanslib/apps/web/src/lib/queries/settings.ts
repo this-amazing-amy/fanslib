@@ -4,10 +4,11 @@ import type {
 } from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/hono-client';
+import { QUERY_KEYS } from './query-keys';
 
 export const useSettingsQuery = () =>
   useQuery({
-    queryKey: ['settings'],
+    queryKey: QUERY_KEYS.settings.all(),
     queryFn: async () => {
       const result = await api.api.settings.$get();
       return result.json();
@@ -23,7 +24,7 @@ export const useSaveSettingsMutation = () => {
       return result.json();
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(['settings'], data);
+      queryClient.setQueryData(QUERY_KEYS.settings.all(), data);
     },
   });
 };
@@ -37,14 +38,14 @@ export const useToggleSfwModeMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['settings'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.settings.all() });
     },
   });
 };
 
 export const useFanslyCredentialsQuery = () =>
   useQuery({
-    queryKey: ['settings', 'fansly-credentials'],
+    queryKey: QUERY_KEYS.settings.fanslyCredentials(),
     queryFn: async () => {
       const result = await api.api.settings['fansly-credentials'].$get();
       return result.json();
@@ -60,7 +61,7 @@ export const useSaveFanslyCredentialsMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['settings', 'fansly-credentials'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.settings.fanslyCredentials() });
     },
   });
 };
@@ -74,7 +75,7 @@ export const useClearFanslyCredentialsMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.setQueryData(['settings', 'fansly-credentials'], null);
+      queryClient.setQueryData(QUERY_KEYS.settings.fanslyCredentials(), null);
     },
   });
 };

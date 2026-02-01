@@ -1,6 +1,7 @@
 import type { DraftBlueskyPostRequestBody, FindRedgifsURLRequestBody, FindSubredditPostingTimesRequestBody, RefreshRedgifsURLRequestBody } from '@fanslib/server/schemas';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/hono-client';
+import { QUERY_KEYS } from './query-keys';
 
 export const useDraftBlueskyMutation = () => {
   const queryClient = useQueryClient();
@@ -11,7 +12,7 @@ export const useDraftBlueskyMutation = () => {
       return result.json();
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['posts', variables.postId] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.byId(variables.postId) });
     },
   });
 };
@@ -26,7 +27,7 @@ export const useFindRedgifsUrlMutation = () => {
     },
     onSuccess: (data, variables) => {
       if (data?.url) {
-        queryClient.invalidateQueries({ queryKey: ['media', variables.mediaId] });
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.media.byId(variables.mediaId) });
       }
     },
   });
@@ -42,7 +43,7 @@ export const useRefreshRedgifsUrlMutation = () => {
     },
     onSuccess: (data, variables) => {
       if (data?.url) {
-        queryClient.invalidateQueries({ queryKey: ['media', variables.mediaId] });
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.media.byId(variables.mediaId) });
       }
     },
   });

@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/hono-client';
+import { QUERY_KEYS } from './query-keys';
 
 type MediaFilter = Array<{
   include: boolean;
@@ -20,7 +21,7 @@ type MediaFilter = Array<{
 
 export const useFilterPresetsQuery = () =>
   useQuery({
-    queryKey: ['filter-presets', 'list'],
+    queryKey: QUERY_KEYS.filterPresets.all(),
     queryFn: async () => {
       const result = await api.api['filter-presets'].all.$get();
       return result.json();
@@ -29,7 +30,7 @@ export const useFilterPresetsQuery = () =>
 
 export const useFilterPresetQuery = (id: string) =>
   useQuery({
-    queryKey: ['filter-presets', id],
+    queryKey: QUERY_KEYS.filterPresets.byId(id),
     queryFn: async () => {
       const result = await api.api['filter-presets']['by-id'][':id'].$get({ param: { id } });
       return result.json();
@@ -46,7 +47,7 @@ export const useCreateFilterPresetMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['filter-presets', 'list'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.filterPresets.all() });
     },
   });
 };
@@ -71,8 +72,8 @@ export const useUpdateFilterPresetMutation = () => {
       return result.json();
     },
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['filter-presets', 'list'] });
-      queryClient.setQueryData(['filter-presets', variables.id], data);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.filterPresets.all() });
+      queryClient.setQueryData(QUERY_KEYS.filterPresets.byId(variables.id), data);
     },
   });
 };
@@ -86,7 +87,7 @@ export const useDeleteFilterPresetMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['filter-presets', 'list'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.filterPresets.all() });
     },
   });
 };

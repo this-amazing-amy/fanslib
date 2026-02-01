@@ -1,10 +1,11 @@
 import type { CreateContentScheduleRequestBody, FetchVirtualPostsRequestQuery, UpdateContentScheduleRequestBody } from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/hono-client';
+import { QUERY_KEYS } from './query-keys';
 
 export const useContentSchedulesQuery = () =>
   useQuery({
-    queryKey: ['content-schedules', 'list'],
+    queryKey: QUERY_KEYS.contentSchedules.list(),
     queryFn: async () => {
       const result = await api.api['content-schedules'].all.$get();
       return result.json();
@@ -13,7 +14,7 @@ export const useContentSchedulesQuery = () =>
 
 export const useContentScheduleQuery = (id: string) =>
   useQuery({
-    queryKey: ['content-schedules', id],
+    queryKey: QUERY_KEYS.contentSchedules.byId(id),
     queryFn: async () => {
       const result = await api.api['content-schedules'][':id'].$get({ param: { id } });
       return result.json();
@@ -23,7 +24,7 @@ export const useContentScheduleQuery = (id: string) =>
 
 export const useContentSchedulesByChannelQuery = (channelId: string) =>
   useQuery({
-    queryKey: ['content-schedules', 'by-channel', channelId],
+    queryKey: QUERY_KEYS.contentSchedules.byChannel(channelId),
     queryFn: async () => {
       const result = await api.api['content-schedules']['by-channel-id'][':channelId'].$get({ param: { channelId } });
       return result.json();
@@ -37,7 +38,11 @@ export const useVirtualPostsQuery = (params: {
   toDate: Date;
 }) =>
   useQuery({
-    queryKey: ['content-schedules', 'virtual-posts', params],
+    queryKey: QUERY_KEYS.contentSchedules.virtualPosts({
+      channelIds: params.channelIds,
+      fromDate: params.fromDate.toISOString(),
+      toDate: params.toDate.toISOString(),
+    }),
     queryFn: async () => {
       const query: FetchVirtualPostsRequestQuery = {
         channelIds: params.channelIds,
@@ -60,10 +65,10 @@ export const useCreateContentScheduleMutation = () => {
       return result.json();
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['content-schedules', 'list'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contentSchedules.list() });
       if (data && 'channelId' in data) {
         queryClient.invalidateQueries({
-          queryKey: ['content-schedules', 'by-channel', data.channelId],
+          queryKey: QUERY_KEYS.contentSchedules.byChannel(data.channelId),
         });
       }
     },
@@ -85,8 +90,8 @@ export const useUpdateContentScheduleMutation = () => {
     },
     onSuccess: (data, variables) => {
       // Invalidate all content-schedules queries to ensure fresh data
-      queryClient.invalidateQueries({ queryKey: ['content-schedules'] });
-      queryClient.setQueryData(['content-schedules', variables.id], data);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contentSchedules.all() });
+      queryClient.setQueryData(QUERY_KEYS.contentSchedules.byId(variables.id), data);
     },
   });
 };
@@ -100,7 +105,7 @@ export const useDeleteContentScheduleMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['content-schedules'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contentSchedules.all() });
     },
   });
 };
@@ -114,7 +119,7 @@ export const useSkipScheduleSlotMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['content-schedules'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contentSchedules.all() });
     },
   });
 };
@@ -128,7 +133,7 @@ export const useUnskipScheduleSlotMutation = () => {
       return result.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['content-schedules'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contentSchedules.all() });
     },
   });
 };
