@@ -20,9 +20,10 @@ type Post = PostWithRelations;
 type PostCalendarPostProps = {
   post: Post | VirtualPost;
   onUpdate?: () => Promise<void>;
+  allPosts?: (Post | VirtualPost)[];
 };
 
-export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
+export const PostCalendarPost = ({ post, onUpdate, allPosts = [] }: PostCalendarPostProps) => {
   const { startPostDrag, endPostDrag } = usePostDrag();
   const { preferences } = usePostPreferences();
   const skipSlotMutation = useSkipScheduleSlotMutation();
@@ -35,11 +36,17 @@ export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
     initialChannelId?: string;
     scheduleId?: string;
     initialMediaSelectionExpanded?: boolean;
+    allPosts?: (Post | VirtualPost)[];
+    virtualPost?: VirtualPost;
   } | null>(null);
   
   const virtualPostClick = useVirtualPostClick({
     post: isVirtualPost(post) ? post : ({} as VirtualPost),
-    onOpenCreateDialog: (data) => setCreatePostData(data),
+    onOpenCreateDialog: (data) => setCreatePostData({
+      ...data,
+      allPosts,
+      virtualPost: isVirtualPost(post) ? post : undefined,
+    }),
   });
   
   const closeCreatePostDialog = () => {
@@ -47,6 +54,18 @@ export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
     if (onUpdate) {
       onUpdate();
     }
+  };
+  
+  const handleNavigateToSlot = (virtualPost: VirtualPost) => {
+    setCreatePostData({
+      media: [],
+      initialDate: new Date(virtualPost.date),
+      initialChannelId: virtualPost.channelId,
+      scheduleId: virtualPost.scheduleId ?? undefined,
+      initialMediaSelectionExpanded: true,
+      allPosts,
+      virtualPost,
+    });
   };
 
   const status = post.status ?? 'draft';
@@ -167,6 +186,9 @@ export const PostCalendarPost = ({ post, onUpdate }: PostCalendarPostProps) => {
         initialChannelId={createPostData?.initialChannelId}
         scheduleId={createPostData?.scheduleId}
         initialMediaSelectionExpanded={createPostData?.initialMediaSelectionExpanded}
+        allPosts={createPostData?.allPosts}
+        virtualPost={createPostData?.virtualPost}
+        onNavigateToSlot={handleNavigateToSlot}
       />
     </>
   );

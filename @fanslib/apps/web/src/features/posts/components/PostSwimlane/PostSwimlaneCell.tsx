@@ -15,12 +15,14 @@ type PostSwimlaneCellProps = {
   date: Date;
   channelId: string;
   posts: (Post | VirtualPost)[];
+  allPosts?: (Post | VirtualPost)[];
 };
 
 export const PostSwimlaneCell = ({
   date,
   channelId,
   posts,
+  allPosts = [],
 }: PostSwimlaneCellProps) => {
   const { isDragging: isMediaDragging, draggedMedias, endMediaDrag } = useMediaDrag();
   const { isDragging: isPostDragging, draggedPost, endPostDrag } = usePostDrag();
@@ -94,7 +96,7 @@ export const PostSwimlaneCell = ({
   return (
     <div className="flex flex-col gap-1 min-h-[80px]">
       {sortedPosts.map((post) => (
-        <PostSwimlaneCard key={post.id} post={post} />
+        <PostSwimlaneCard key={post.id} post={post} allPosts={allPosts} />
       ))}
       {isDragging && (
         <div

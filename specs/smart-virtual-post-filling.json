@@ -131,7 +131,7 @@
         "If no more slots for this channel, closes panel",
         "Tab key navigates to next slot without creating post"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "ux",

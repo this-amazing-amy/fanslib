@@ -11,12 +11,14 @@ type PostSwimlaneDayRowProps = {
   date: Date;
   channels: Channel[];
   postsByChannel: Map<string, (Post | VirtualPost)[]>;
+  allPosts?: (Post | VirtualPost)[];
 };
 
 export const PostSwimlaneDayRow = ({
   date,
   channels,
   postsByChannel,
+  allPosts = [],
 }: PostSwimlaneDayRowProps) => {
   const isTodayDay = isToday(date);
 
@@ -55,6 +57,7 @@ export const PostSwimlaneDayRow = ({
             date={date}
             channelId={channel.id}
             posts={channelPosts}
+            allPosts={allPosts}
           />
         );
       })}

@@ -128,6 +128,7 @@ export const PostSwimlane = ({ posts, className, onUpdate }: PostSwimlaneProps) 
                   date={day.date}
                   channels={visibleChannels}
                   postsByChannel={day.postsByChannel}
+                  allPosts={posts}
                 />
               ))}
             </div>

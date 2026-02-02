@@ -132,6 +132,7 @@ export const PostCalendar = ({ className, posts, onUpdate }: PostCalendarProps) 
                           key={post.id}
                           onUpdate={onUpdate}
                           post={post}
+                          allPosts={posts}
                         />)}
                   </div>
                 )}

@@ -17,9 +17,10 @@ type Post = PostWithRelations;
 
 type PostSwimlaneCardProps = {
   post: Post | VirtualPost;
+  allPosts?: (Post | VirtualPost)[];
 };
 
-export const PostSwimlaneCard = ({ post }: PostSwimlaneCardProps) => {
+export const PostSwimlaneCard = ({ post, allPosts = [] }: PostSwimlaneCardProps) => {
   const isVirtual = isVirtualPost(post);
   const time = format(new Date(post.date), "HH:mm");
   const status = post.status ?? "draft";
@@ -36,6 +37,8 @@ export const PostSwimlaneCard = ({ post }: PostSwimlaneCardProps) => {
         initialChannelId: data.initialChannelId,
         scheduleId: data.scheduleId,
         initialMediaSelectionExpanded: data.initialMediaSelectionExpanded,
+        allPosts,
+        virtualPost: isVirtual ? post : undefined,
       }),
   });
 

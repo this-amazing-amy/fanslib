@@ -1,4 +1,4 @@
-import type { Media, PostStatus } from '@fanslib/server/schemas';
+import type { Media, PostStatus, PostWithRelations } from '@fanslib/server/schemas';
 import { useNavigate } from "@tanstack/react-router";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -26,9 +26,11 @@ import { Textarea } from "~/components/ui/Textarea";
 import { MediaSelectionProvider } from "~/contexts/MediaSelectionContext";
 import { CombinedMediaSelection } from "~/features/library/components/CombinedMediaSelection";
 import { cn } from "~/lib/cn";
+import { findNextUnfilledSlot } from "~/lib/find-next-unfilled-slot";
 import { useChannelsQuery } from "~/lib/queries/channels";
 import { useContentScheduleQuery, useSkipScheduleSlotMutation } from "~/lib/queries/content-schedules";
 import { useCreatePostMutation } from "~/lib/queries/posts";
+import type { VirtualPost } from "~/lib/virtual-posts";
 
 
 
@@ -45,6 +47,9 @@ type CreatePostDialogProps = {
   title?: string;
   initialMediaSelectionExpanded?: boolean;
   initialShouldRedirect?: boolean;
+  allPosts?: (PostWithRelations | VirtualPost)[];
+  virtualPost?: VirtualPost;
+  onNavigateToSlot?: (post: VirtualPost) => void;
 };
 
 const toast = () => {};
@@ -72,6 +77,9 @@ export const CreatePostDialog = ({
   title = "Create Post",
   initialMediaSelectionExpanded: _initialMediaSelectionExpanded,
   initialShouldRedirect = true,
+  allPosts = [],
+  virtualPost,
+  onNavigateToSlot,
 }: CreatePostDialogProps) => {
   const navigate = useNavigate();
   const { data: channels = [] } = useChannelsQuery();
@@ -192,7 +200,7 @@ export const CreatePostDialog = ({
     });
   };
 
-  const handleCreatePost = useCallback(async () => {
+  const handleCreatePost = useCallback(async (shouldNavigateToNext = false) => {
     if (selectedChannel.length === 0) {
       toast();
       return;
@@ -219,9 +227,29 @@ export const CreatePostDialog = ({
       });
 
       toast();
-      onOpenChange(false);
+      
+      // Handle navigation to next slot
+      if (shouldNavigateToNext && virtualPost && onNavigateToSlot) {
+        const nextSlot = findNextUnfilledSlot({
+          currentPost: virtualPost,
+          allPosts,
+        });
+        
+        if (nextSlot) {
+          // Clear selection for next slot
+          setSelectedMedia([]);
+          setCaption("");
+          // Navigate to next slot
+          onNavigateToSlot(nextSlot);
+        } else {
+          // No more unfilled slots, close dialog
+          onOpenChange(false);
+        }
+      } else {
+        onOpenChange(false);
+      }
 
-      if (shouldRedirect && newPost?.id) {
+      if (shouldRedirect && newPost?.id && !shouldNavigateToNext) {
         navigate({ to: `/posts/${newPost.id}` });
       }
     } catch {
@@ -240,24 +268,64 @@ export const CreatePostDialog = ({
     selectedSubreddits,
     createPost,
     contentScheduleId,
+    virtualPost,
+    onNavigateToSlot,
+    allPosts,
   ]);
+
+  const handleNavigateToNextSlot = useCallback(() => {
+    if (!virtualPost || !onNavigateToSlot) return;
+
+    const nextSlot = findNextUnfilledSlot({
+      currentPost: virtualPost,
+      allPosts,
+    });
+
+    if (nextSlot) {
+      // Clear selection for next slot
+      setSelectedMedia([]);
+      setCaption("");
+      // Navigate to next slot
+      onNavigateToSlot(nextSlot);
+    } else {
+      // Show message if no unfilled slots remain
+      toast();
+    }
+  }, [virtualPost, onNavigateToSlot, allPosts]);
 
   useEffect(() => {
     if (!open) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
       const isCmdOrCtrl = event.metaKey || event.ctrlKey;
+      const isShift = event.shiftKey;
       const isEnter = event.key === 'Enter';
+      const isTab = event.key === 'Tab';
       
+      // Shift+Enter: Create and Next
+      if (isShift && isEnter && !disabled) {
+        event.preventDefault();
+        handleCreatePost(true);
+        return;
+      }
+      
+      // Cmd/Ctrl+Enter: Create Post
       if (isCmdOrCtrl && isEnter && !disabled) {
         event.preventDefault();
-        handleCreatePost();
+        handleCreatePost(false);
+        return;
+      }
+      
+      // Tab: Navigate to next slot without creating
+      if (isTab && virtualPost && onNavigateToSlot) {
+        event.preventDefault();
+        handleNavigateToNextSlot();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [open, disabled, handleCreatePost]);
+  }, [open, disabled, handleCreatePost, virtualPost, onNavigateToSlot, handleNavigateToNextSlot]);
 
   const handleSkipSlot = useCallback(async () => {
     if (!scheduleId || !selectedChannel[0]) return;
@@ -477,18 +545,42 @@ export const CreatePostDialog = ({
                         {confirmSkip ? "Click again to confirm skip" : "Skip This Slot"}
                       </Button>
                     )}
-                    <Button
-                      onPress={() => {
-                        handleCreatePost();
-                        close();
-                      }}
-                      className={cn(
-                        scheduleId && selectedMedia.length === 0 ? "flex-1" : "w-full"
-                      )}
-                      isDisabled={disabled}
-                    >
-                      Create post
-                    </Button>
+                    {virtualPost && onNavigateToSlot ? (
+                      <>
+                        <Button
+                          onPress={() => {
+                            handleCreatePost(false);
+                            close();
+                          }}
+                          className="flex-1"
+                          isDisabled={disabled}
+                        >
+                          Create Post
+                        </Button>
+                        <Button
+                          onPress={() => {
+                            handleCreatePost(true);
+                          }}
+                          className="flex-1"
+                          isDisabled={disabled}
+                        >
+                          Create & Next
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        onPress={() => {
+                          handleCreatePost(false);
+                          close();
+                        }}
+                        className={cn(
+                          scheduleId && selectedMedia.length === 0 ? "flex-1" : "w-full"
+                        )}
+                        isDisabled={disabled}
+                      >
+                        Create post
+                      </Button>
+                    )}
                   </div>
                 </DialogFooter>
               </>

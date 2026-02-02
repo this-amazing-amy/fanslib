@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useState } from "react";
-import type { Media } from '@fanslib/server/schemas';
+import type { Media, PostWithRelations } from '@fanslib/server/schemas';
 import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
+import type { VirtualPost } from "~/lib/virtual-posts";
 
 
 type CreatePostDialogData = {
@@ -10,6 +11,8 @@ type CreatePostDialogData = {
   initialCaption?: string;
   scheduleId?: string;
   initialMediaSelectionExpanded?: boolean;
+  allPosts?: (PostWithRelations | VirtualPost)[];
+  virtualPost?: VirtualPost;
 };
 
 type CreatePostDialogContextValue = {
@@ -37,6 +40,17 @@ export const CreatePostDialogProvider = ({
     setDialogData(null);
     onUpdate?.();
   }, [onUpdate]);
+  
+  const handleNavigateToSlot = useCallback((virtualPost: VirtualPost) => {
+    setDialogData((prev) => ({
+      ...prev,
+      media: [],
+      initialDate: new Date(virtualPost.date),
+      initialChannelId: virtualPost.channelId,
+      scheduleId: virtualPost.scheduleId ?? undefined,
+      virtualPost,
+    }));
+  }, []);
 
   return (
     <CreatePostDialogContext.Provider value={{ openCreatePostDialog }}>
@@ -50,6 +64,9 @@ export const CreatePostDialogProvider = ({
         initialCaption={dialogData?.initialCaption}
         scheduleId={dialogData?.scheduleId}
         initialMediaSelectionExpanded={dialogData?.initialMediaSelectionExpanded}
+        allPosts={dialogData?.allPosts}
+        virtualPost={dialogData?.virtualPost}
+        onNavigateToSlot={handleNavigateToSlot}
       />
     </CreatePostDialogContext.Provider>
   );
