@@ -1,0 +1,844 @@
+# Implementation Plan: Smart Virtual Post Filling and Subreddits
+
+**Scope:** Implementation of smart media assignment UI for virtual posts with contextual filtering, and subreddit management architecture improvements.
+
+**Specs:**
+
+- `specs/smart-virtual-post-filling.json` (0/12 passing)
+- `specs/subreddits.json` (19/23 passing - 2 architectural failures, 4 UI features deprecated)
+
+**Goal:** Achieve 100% pass rate for both specs.
+
+---
+
+## ⚠️ UI CONSOLIDATION - Subreddit Pages Deprecated (2026-02-02)
+
+The following subreddit UI components have been **DEPRECATED** and consolidated into the Channels page:
+
+| Component                 | Status                           | Replacement                                      |
+| ------------------------- | -------------------------------- | ------------------------------------------------ |
+| `/subreddits` route       | Redirects to `/content/channels` | Channels page                                    |
+| `SubredditsPage`          | DEPRECATED                       | `Channels` component                             |
+| `RedditBulkPostGenerator` | DEPRECATED                       | Standard `CreatePostDialog` with reddit channels |
+| `CreateSubredditDialog`   | DEPRECATED                       | `CreateChannelForm` with `typeId='reddit'`       |
+| `SubredditTable`          | DEPRECATED                       | `ChannelView` cards for reddit channels          |
+
+**Rationale:** Consolidating subreddit management into the unified Channels page reduces UI complexity and provides a consistent channel management experience across all platform types.
+
+**What's Preserved:**
+
+- All backend API endpoints (`/api/subreddits/*`) unchanged
+- Subreddit entity and schema unchanged
+- Reddit-specific fields (verification, flair, posting times) accessible via ChannelView
+- Posting times heatmap available in channel settings
+
+**Impact on Spec:**
+
+- `specs/subreddits.json` UI features marked deprecated with new acceptance criteria for channels integration
+- Task #3 (RedditBulkPostGenerator hard-coded channel ID) → **REMOVED** (component deprecated)
+
+---
+
+## CRITICAL BLOCKERS - Architectural Failures
+
+### 1. ⚠️ Subreddit-Channel Composition Pattern [SPEC: subreddits.json #1]
+
+**Status:** ❌ FAILED - Critical architectural blocker  
+**Why:** Subreddit spec requires 1:1 relationship with Channel entity. Currently NO relationship exists, fields are duplicated.  
+**Blocks:** Multiple subreddit features rely on proper composition
+
+**Current State:**
+
+- Subreddit entity: `id`, `name`, `maxPostFrequencyHours`, `eligibleMediaFilter`, `verificationStatus`
+- Channel entity: `id`, `name`, `description`, `typeId`, `eligibleMediaFilter`
+- NO foreign key relationship
+- `eligibleMediaFilter` duplicated on both entities
+
+**Implementation Phases:**
+
+#### Phase 1: Add Relation [ ]
+
+- Add `@OneToOne(() => Channel, { eager: true })` to Subreddit entity
+- Add `@JoinColumn()` decorator for foreign key
+- Keep duplicate fields temporarily for backward compatibility
+- File: `@fanslib/apps/server/src/features/subreddits/entity.ts`
+
+#### Phase 2: Data Migration [ ]
+
+- Create migration script to pair existing Subreddits with Channels
+- For each Subreddit: create/link Channel with matching name and filters
+- Verify all Subreddits have valid channelId
+- Run in transaction with rollback capability
+
+#### Phase 3: Update Operations [ ]
+
+- Wrap CRUD in transactions (create/update/delete both entities atomically)
+- Update queries: `subredditRepo.find({ relations: ['channel'] })`
+- Update all operations in `subreddits/operations/` to use composition
+- Files: `@fanslib/apps/server/src/features/subreddits/routes.ts`, `operations/*`
+
+#### Phase 4: Remove Duplication [ ]
+
+- Remove `name` field from Subreddit (use `channel.name`)
+- Remove `eligibleMediaFilter` from Subreddit (use `channel.eligibleMediaFilter`)
+- Update SubredditSchema in `schemas/`
+- Export updated schemas through `src/schemas.ts`
+
+#### Phase 5: Frontend Updates [ ]
+
+- ~~Update all components to access `subreddit.channel.name`~~ (subreddit UI deprecated)
+- ~~Update SubredditCard, SubredditList, SubredditForm components~~ (deprecated)
+- ~~Update RedditBulkPostGenerator~~ (deprecated)
+- Add reddit-specific settings panel to ChannelView for `typeId='reddit'`
+- Files: `@fanslib/apps/web/src/features/channels/components/ChannelView.tsx`
+
+**Acceptance Criteria:**
+
+- ✅ Each Subreddit has `channel: Channel` relation (OneToOne, eager loaded)
+- ✅ Subreddit entity has NO duplicate fields (name, filters live on Channel)
+- ✅ Create subreddit → creates both Subreddit + Channel in transaction
+- ✅ Delete subreddit → cascades to Channel
+- ✅ All queries automatically include channel data
+- ✅ Frontend accesses shared properties via `subreddit.channel.*`
+- ✅ No breaking changes for existing data
+
+**Dependencies:** None (can start immediately)  
+**Risk:** ⚠️ Breaking change - requires careful data migration and testing
+
+---
+
+### ~~2. ⚠️ Add Channel Cooldown Fields~~ [COMPLETED]
+
+**Status:** ✅ COMPLETED (2026-02-02)  
+**Implementation:**
+- Added `postCooldownHours: number | null` to Channel entity
+- Added `mediaRepostCooldownHours: number | null` to Channel entity  
+- Updated ChannelSchema and exported via `src/schemas.ts`
+- Updated seed data with realistic cooldown values
+- Frontend forms updated to display cooldown fields
+
+**Unblocks:** Task #5 (Media repost cooldown filtering)
+
+---
+
+## HIGH PRIORITY - Core Features for Spec Pass
+
+### ~~3. 🔧 Fix Hard-Coded Channel ID in RedditBulkPostGenerator~~ [REMOVED]
+
+**Status:** ❌ REMOVED - Component deprecated  
+**Why:** `RedditBulkPostGenerator` has been deprecated. Reddit post creation now uses the standard `CreatePostDialog` workflow via the Channels page.
+
+**Previous Issue:** Hard-coded `channelId: "reddit"` on lines 67 and 88.
+
+**Resolution:** Component deprecated on 2026-02-02. Reddit channels managed through unified Channels page. Post creation uses standard flow with channel-specific options.
+
+**Files Deprecated:**
+
+- `@fanslib/apps/web/src/features/subreddits/components/RedditBulkPostGenerator.tsx`
+- `@fanslib/apps/web/src/features/subreddits/SubredditsPage.tsx`
+- `@fanslib/apps/web/src/routes/subreddits.tsx` (now redirects to `/content/channels`)
+
+---
+
+### 4. 🎯 Automatic Filter Pre-Application [SPEC: smart-virtual-post-filling.json #3]
+
+**Status:** [ ] Not started - Core UX feature  
+**Why:** Virtual posts should auto-filter media based on schedule+channel config. Currently NO automatic merging.
+
+**Current State:**
+
+- `buildFilterGroupQuery` exists in `library/filter-helpers.ts`
+- `mergeFilterGroups` exists but not used for virtual posts
+- MediaFilter schema supports 11 filter types
+- Schedule.mediaFilters, Channel.eligibleMediaFilter, ScheduleChannel.mediaFilterOverrides exist
+- Virtual post opens CreatePostDialog with CombinedMediaSelection, but NO filters pre-applied
+
+**Implementation:**
+
+#### Backend: Filter Merging Utility [ ]
+
+- Create `getMergedFiltersForSlot(scheduleId, channelId)` in `library/operations/`
+- Fetch Schedule.mediaFilters, Channel.eligibleMediaFilter, ScheduleChannel.mediaFilterOverrides
+- Merge using precedence: **ScheduleChannel > Channel > Schedule**
+- Use existing `mergeFilterGroups` helper (additive concatenation)
+- Return single MediaFilter object
+- File: `@fanslib/apps/server/src/features/library/operations/filter-helpers.ts`
+
+#### Backend: Media Fetch Endpoint [ ]
+
+- Add optional `scheduleId` and `channelId` query params to media list endpoint
+- If provided, call getMergedFiltersForSlot and apply to query
+- Return metadata: `{ appliedFilters: MediaFilter, filterSource: 'schedule' | 'channel' | 'override' }`
+- File: `@fanslib/apps/server/src/features/library/routes.ts`
+
+#### Frontend: Auto-Apply in Virtual Post Flow [ ]
+
+- Update `useVirtualPostClick` hook to pass scheduleId+channelId
+- CreatePostDialog fetches merged filters on mount when scheduleId+channelId present
+- Pre-populate CombinedMediaSelection with merged filters
+- Show "X filters active from schedule" badge/indicator
+- Files:
+  - `@fanslib/apps/web/src/features/posts/hooks/useVirtualPostClick.tsx`
+  - `@fanslib/apps/web/src/features/posts/components/CreatePostDialog.tsx`
+  - `@fanslib/apps/web/src/features/library/components/CombinedMediaSelection.tsx`
+
+#### Frontend: Filter Visibility [ ]
+
+- Show expandable "Active Filters" section
+- Display each auto-applied filter with source badge (Schedule/Channel/Override)
+- Allow users to add temporary filters on top
+- Allow users to remove auto-applied filters (with warning, session only)
+- Filter changes don't persist to schedule config
+
+**Acceptance Criteria:**
+
+- ✅ Opening virtual post automatically applies merged filters
+- ✅ UI shows "5 filters active" indicator
+- ✅ Users can see which filters came from where
+- ✅ Users can add temporary filters
+- ✅ Users can remove auto-applied filters (session only)
+- ✅ Filter precedence correct: ScheduleChannel > Channel > Schedule
+- ✅ No duplicate filters after merging
+
+**Dependencies:** None (can start immediately)
+
+---
+
+### 5. 🕒 Media Repost Cooldown Filtering [SPEC: smart-virtual-post-filling.json #4]
+
+**Status:** [ ] Not started - Ready to implement  
+**Why:** Prevent reposting same media too soon. Core UX requirement for content freshness.
+
+**Dependencies:** None (Task #2 completed - Channel cooldown fields exist)
+
+**Current State:**
+- Post entity has PostMedia join table relationships
+- NO cooldown checking when creating posts
+- Media tiles have NO posting history indicators
+
+**Implementation:**
+
+#### Backend: Cooldown Query [ ]
+
+- Create `getRecentlyPostedMediaIds(channelId, cooldownHours)` helper
+- Query:
+  ```sql
+  SELECT DISTINCT pm.mediaId
+  FROM post_media pm
+  JOIN post p ON p.id = pm.postId
+  WHERE p.channelId = :channelId
+    AND p.scheduledFor >= NOW() - INTERVAL :hours HOUR
+  ```
+- Return `Set<string>` of ineligible media IDs
+- File: `@fanslib/apps/server/src/features/library/operations/cooldown-helpers.ts` (new)
+
+#### Backend: Media Fetch with Cooldown Filter [ ]
+
+- Update media list endpoint to accept `excludeMediaIds: string[]` param
+- Apply: `.andWhere('media.id NOT IN (:...excludeMediaIds)')`
+- When scheduleId+channelId provided, auto-exclude recently posted media
+- Return metadata: `{ excludedByRepostCooldown: number }`
+- File: `@fanslib/apps/server/src/features/library/routes.ts`
+
+#### Backend: Per-Media Posting History [ ]
+
+- Create `GET /api/media/:id/posts` endpoint
+- Return: `{ totalPosts: number, lastPostedAt: Date | null, postsByChannel: Post[] }`
+- Use for "Posted 3d ago" indicators
+- File: `@fanslib/apps/server/src/features/posts/routes.ts`
+
+#### Frontend: Visual Indicators [ ]
+
+- Show "Recently Posted" badge on ineligible media tiles
+- Display "Posted 3d ago" relative timestamp
+- Gray out/dim recently posted media tiles
+- Disable selection by default
+- File: `@fanslib/apps/web/src/features/library/components/MediaTile/MediaTile.tsx`
+
+#### Frontend: Cooldown Override [ ]
+
+- Add "Show recently posted media" toggle in filter panel
+- When enabled, remove excludeMediaIds filter
+- Show warning: "This media was posted 3d ago. Reposting may reduce engagement."
+- Allow assignment if user explicitly overrides
+- File: `@fanslib/apps/web/src/features/library/components/CombinedMediaSelection.tsx`
+
+**Acceptance Criteria:**
+
+- ✅ Media posted within `mediaRepostCooldownHours` excluded from results
+- ✅ UI shows clear visual indicator (badge, grayed-out style)
+- ✅ Timestamp shows relative time: "Posted 3 days ago"
+- ✅ Users can toggle "Include recently posted" to override
+- ✅ Query performs well (<500ms for 10k media, 100k posts)
+- ✅ Cooldown is per-channel (same media can post to different channels)
+
+**Performance:**
+
+- Add index: `CREATE INDEX idx_post_channel_scheduled ON post(channelId, scheduledFor DESC)`
+
+---
+
+### 6. 🔄 Sort Options [SPEC: smart-virtual-post-filling.json #5]
+
+**Status:** [ ] Not started  
+**Why:** Users need control over media order. Spec requires 4 sort modes.
+
+**Tasks:**
+
+#### Backend: Sort Schema [ ]
+
+- Add `sort` param to media list endpoint schema
+- Type: `"newest" | "oldest" | "recently_posted" | "least_posted"`
+- Default: "newest"
+- File: `@fanslib/apps/server/src/features/library/schemas/media-list-request.ts`
+
+#### Backend: Sort Queries [ ]
+
+- `newest`: `ORDER BY media.addedAt DESC` (likely exists)
+- `oldest`: `ORDER BY media.addedAt ASC`
+- `recently_posted`:
+  ```sql
+  LEFT JOIN post_media pm ON pm.mediaId = media.id
+  LEFT JOIN post p ON p.id = pm.postId
+  GROUP BY media.id
+  ORDER BY MAX(p.scheduledFor) DESC NULLS LAST
+  ```
+- `least_posted`:
+  ```sql
+  LEFT JOIN post_media pm ON pm.mediaId = media.id
+  GROUP BY media.id
+  ORDER BY COUNT(pm.id) ASC, media.addedAt DESC
+  ```
+- Add database index: `CREATE INDEX idx_media_addedAt ON media(addedAt)`
+- File: `@fanslib/apps/server/src/features/library/routes.ts`
+
+#### Frontend: Sort Dropdown [ ]
+
+- Add sort dropdown to media grid header
+- Options: "Newest Added", "Oldest Added", "Recently Posted", "Least Posted"
+- Store selection in sessionStorage: `mediaGridSort`
+- Restore on component mount (session persistence per spec)
+- Trigger refetch when sort changes
+- Files:
+  - `@fanslib/apps/web/src/features/library/components/MediaGrid.tsx`
+  - `@fanslib/apps/web/src/features/library/hooks/useMediaList.ts`
+
+**Acceptance Criteria:**
+
+- ✅ 4 sort modes work correctly
+- ✅ Sort persists within browser session (not across sessions per spec)
+- ✅ Default is "newest"
+- ✅ Query performance <500ms for 10k media
+- ✅ UI is discoverable (clear dropdown labels)
+
+**Dependencies:** None
+
+---
+
+### 7. 📋 Recent Posts Context Display [SPEC: smart-virtual-post-filling.json #11]
+
+**Status:** [ ] Not started  
+**Why:** Users need context about recent posts to avoid content repetition.
+
+**Implementation:**
+
+#### Backend: Recent Posts Endpoint [ ]
+
+- Create `GET /api/posts/recent` endpoint
+- Query params: `{ channelId: string, limit?: number }`
+- Query: `WHERE scheduledFor <= NOW() ORDER BY scheduledFor DESC`
+- Include relations: `postMedia.media` for thumbnails
+- Return: `{ id, caption, scheduledFor, postedAt, media: { id, path, thumbnailPath }[] }`
+- Default limit: 3 (per spec), max: 10
+- Add index: `CREATE INDEX idx_post_channel_scheduled ON post(channelId, scheduledFor DESC)`
+- Files:
+  - `@fanslib/apps/server/src/features/posts/routes.ts`
+  - `@fanslib/apps/server/src/features/posts/operations/fetch-recent.ts` (new)
+
+#### Frontend: RecentPostsPanel Component [ ]
+
+- Create new component: `RecentPostsPanel.tsx`
+- Props: `{ channelId: string }`
+- Fetch recent posts via TanStack Query hook
+- Display each post:
+  - Media thumbnail(s) (first 3 if multiple)
+  - Caption (truncated to 50 chars)
+  - Relative timestamp: "Posted 3h ago" / "Scheduled for 2h from now"
+- Empty state: "No recent posts for {channel name}"
+- Collapse/expand functionality (per spec)
+- Files:
+  - `@fanslib/apps/web/src/features/posts/components/RecentPostsPanel.tsx` (new)
+  - `@fanslib/apps/web/src/features/posts/hooks/useRecentPosts.ts` (new)
+
+#### Frontend: Integration [ ]
+
+- Add RecentPostsPanel to CreatePostDialog or smart filling panel
+- Position in sidebar or top section
+- Update when channelId changes
+- Show posting status badge (Draft/Ready/Scheduled/Posted)
+- Gray out scheduled-but-not-posted items
+- File: `@fanslib/apps/web/src/features/posts/components/CreatePostDialog.tsx`
+
+**Acceptance Criteria:**
+
+- ✅ Shows last 3 posts for selected channel (per spec)
+- ✅ Updates immediately when channel changes
+- ✅ Displays media thumbnails, caption snippets, timestamps
+- ✅ Empty state is clear and helpful
+- ✅ Performance: <200ms query time
+- ✅ Collapsible per spec Feature #11
+
+**Dependencies:** None
+
+---
+
+### 8. 📊 Complete MediaTilePostsPopover [SPEC: smart-virtual-post-filling.json #6]
+
+**Status:** [ ] Not started - Currently STUB returning null  
+**Why:** Users need visual posting history on media items. TODO comments indicate incomplete implementation.
+
+**Current State:**
+
+```typescript
+// @fanslib/apps/web/src/features/library/components/MediaTile/MediaTilePostsPopover.tsx
+// Returns null with TODO comments:
+// TODO: Implement postMedia relations query
+// TODO: Create ChannelBadge component
+// TODO: Create StatusBadge component
+// TODO: Set up Popover component
+```
+
+**Implementation:**
+
+#### Backend: Media Posting History Endpoint [ ]
+
+- Create `GET /api/media/:id/posts` endpoint
+- Query PostMedia join table: `SELECT * FROM post_media WHERE mediaId = :id`
+- Join with Post entity for channel, status, dates
+- Return: `{ totalCount: number, posts: Post[] }`
+- Order by scheduledFor DESC
+- File: `@fanslib/apps/server/src/features/posts/routes.ts`
+
+#### Frontend: Badge Components [ ]
+
+- Create `ChannelBadge.tsx`:
+  - Props: `{ channelId: string, channelName: string, channelType: string }`
+  - Display channel icon + name (compact)
+- Create `StatusBadge.tsx`:
+  - Props: `{ status: "draft" | "ready" | "scheduled" | "posted" }`
+  - Color-coded: draft (gray), ready (blue), scheduled (yellow), posted (green)
+- Files: `@fanslib/apps/web/src/features/posts/components/` (new)
+
+#### Frontend: Popover Implementation [ ]
+
+- Remove stub `return null`
+- Create TanStack Query hook: `useMediaPosts(mediaId)`
+- Show badge on MediaTile: "Posted 3x" (only if count > 0 per spec)
+- Badge style: small, subtle, corner of tile
+- On click: open popover with post list
+- List each post:
+  - ChannelBadge
+  - StatusBadge
+  - Timestamp: "Scheduled for Mar 15" or "Posted 3 days ago"
+- Empty state: "Not posted yet"
+- Max height with scroll if >5 posts
+- Files:
+  - `@fanslib/apps/web/src/features/library/components/MediaTile/MediaTilePostsPopover.tsx` (implement)
+  - `@fanslib/apps/web/src/features/library/components/MediaTile/MediaTile.tsx` (integration)
+  - `@fanslib/apps/web/src/features/posts/hooks/useMediaPosts.ts` (new)
+
+**Acceptance Criteria:**
+
+- ✅ MediaTile shows "Posted Nx" badge if count > 0 (per spec Feature #6)
+- ✅ Badge only appears when post count > 0
+- ✅ Clicking badge opens popover
+- ✅ Each post shows: channel, status, date
+- ✅ Empty state handled gracefully
+- ✅ Popover is accessible (keyboard navigation)
+- ✅ Component is NO LONGER a stub
+- ✅ All TODO comments resolved
+
+**Performance:**
+
+- Consider batching requests if showing many tiles
+- Cache post counts to avoid repeated queries
+
+**Dependencies:** None
+
+---
+
+## MEDIUM PRIORITY - UX Polish
+
+### 9. ✨ Smart Media Selection Panel with Morphing Animation [SPEC: smart-virtual-post-filling.json #1, #2, #8, #9]
+
+**Status:** [ ] Not started - Polish feature  
+**Why:** Enhanced UX. Core functionality works without animation.
+
+**Current State:**
+
+- PostCalendar renders virtual posts
+- CreatePostDialog opens via useVirtualPostClick hook
+- VirtualPostOverlay shows "+" on hover
+- framer-motion v12.23.26 installed
+- ❌ NO prefers-reduced-motion checking anywhere in codebase
+
+**Features:**
+
+1. Feature #1: Morphing animation
+2. Feature #2: Panel positioning (~480px width per spec)
+3. Feature #8: Multi-select mode (Shift/Cmd-click, drag reorder)
+4. Feature #9: Action buttons (Create Post, Create & Next, Cancel)
+
+**Implementation:**
+
+#### Morphing Animation (Feature #1) [ ]
+
+- Add `layoutId` to VirtualPostOverlay and panel
+- Use `<motion.div layoutId="post-panel">` for morph
+- Animate from calendar cell position to panel position
+- ⚠️ **Add prefers-reduced-motion check** (critical accessibility):
+  ```typescript
+  const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+  <motion.div transition={{ duration: prefersReducedMotion ? 0 : 0.3 }}>
+  ```
+- Respect user preference per spec acceptance criteria
+
+#### Panel Layout (Feature #2) [ ]
+
+- Panel width: ~480px per spec
+- Smart viewport bounds (keep panel visible)
+- Header: date + channel + schedule badge
+- Footer: action buttons
+- Responsive layout per spec
+
+#### Multi-Select Mode (Feature #8) [ ]
+
+- Single click select
+- Shift+click: range selection
+- Cmd/Ctrl+click: multi-select
+- Drag to reorder selected media
+- Show "X selected" indicator
+- Cmd+Enter shortcut per spec
+
+#### Action Buttons (Feature #9) [ ]
+
+- "Create Post" button (Cmd+Enter per spec)
+  - Disabled until media selected per spec
+  - Creates post with selected media
+  - Inherits date/channel/scheduleId per spec
+- "Create & Next" button
+  - Creates post then opens next unfilled slot
+  - Tab navigates without creating per spec Feature #10
+- "Cancel" button
+
+#### Accessibility [ ]
+
+- ⚠️ **CRITICAL**: Respect prefers-reduced-motion for ALL animations per spec
+- Keyboard shortcuts (Cmd+Enter, Tab per spec)
+- Focus trap in panel
+- Screen reader announcements
+
+**Acceptance Criteria:**
+
+- ✅ Panel morphs from calendar cell position (Feature #1)
+- ✅ Animation is 0ms when prefers-reduced-motion (Feature #1 spec requirement)
+- ✅ Panel ~480px width, smart bounds (Feature #2)
+- ✅ Multi-select with Shift/Cmd-click works (Feature #8)
+- ✅ "Create Post" disabled until media selected (Feature #9)
+- ✅ Cmd+Enter shortcut creates post (Feature #9)
+- ✅ All interactions keyboard accessible
+
+**Files:**
+
+- `@fanslib/apps/web/src/features/posts/components/PostCalendar/VirtualPostOverlay.tsx`
+- `@fanslib/apps/web/src/features/posts/components/CreatePostDialog.tsx`
+- `@fanslib/apps/web/src/features/posts/hooks/useVirtualPostClick.tsx`
+- `@fanslib/apps/web/src/hooks/useMediaQuery.ts` (prefers-reduced-motion)
+
+**Dependencies:** None (but lower priority than core features)
+
+**Note:** Existing framer-motion usage in Logo.tsx and MediaFilters.tsx does NOT check prefers-reduced-motion - this must be added
+
+---
+
+### 10. 🎛️ Filter Refinement Controls [SPEC: smart-virtual-post-filling.json #7]
+
+**Status:** [ ] Not started  
+**Why:** Users need to adjust auto-applied filters. Medium priority.
+
+**Current State:**
+
+- CombinedMediaSelection exists with filter controls
+- MediaFilters component uses framer-motion animations
+- NO interface showing which filters are pre-applied vs user-added
+
+**Implementation:**
+
+#### Active Filters Display [ ]
+
+- Show expandable "Active Filters" section
+- List each filter with:
+  - Filter type (e.g., "Channels", "Tags")
+  - Source badge: "Schedule" | "Channel" | "Override"
+  - Remove button (with confirmation for auto-applied)
+
+#### Add Temporary Filters [ ]
+
+- Show "+ Add Filter" button
+- Opens filter type selector
+- Temporary filters marked "Session Only"
+- Don't persist to schedule config per spec
+
+#### Quick Filter Toggles [ ]
+
+- "Include recently posted" toggle (overrides cooldown)
+- "Show all media" toggle (removes all filters temporarily)
+
+#### Filter Count Badge [ ]
+
+- Show "5 filters active" badge
+- Click to expand/collapse
+- Color-code: blue (auto-applied), gray (user-added)
+
+**Acceptance Criteria:**
+
+- ✅ Users see all active filters and sources
+- ✅ Users can add temporary filters
+- ✅ Users can remove auto-applied filters with warning
+- ✅ Filter count badge always visible
+- ✅ Changes are session-only (don't modify schedule per spec)
+
+**Files:**
+
+- `@fanslib/apps/web/src/features/library/components/CombinedMediaSelection.tsx`
+- `@fanslib/apps/web/src/features/library/components/MediaFilters.tsx`
+- `@fanslib/apps/web/src/features/posts/components/CreatePostDialog.tsx`
+
+**Dependencies:** Task #4 (filter pre-application)
+
+---
+
+### 11. ⏭️ "Create and Navigate to Next" Feature [SPEC: smart-virtual-post-filling.json #10]
+
+**Status:** [ ] Not started  
+**Why:** Power user workflow optimization. Tab navigates per spec.
+
+**Current State:**
+
+- Virtual posts generated with ID format: `virtual-{scheduleId}-{channelId}-{timestamp}`
+- NO "next unfilled virtual post" navigation logic
+- createPostMutation creates real posts
+- NO logic to find next empty slot
+
+**Implementation:**
+
+#### Backend: Next Unfilled Slot Query [ ]
+
+- Create `GET /api/posts/next-unfilled-slot` endpoint
+- Query params: `{ scheduleId: string, currentTimestamp: string }`
+- Query virtual posts for schedule
+- Check which have corresponding real posts
+- Return: `{ scheduleId, channelId, timestamp } | null`
+- Handle edge case: no more slots (return null)
+- File: `@fanslib/apps/server/src/features/posts/operations/find-next-slot.ts` (new)
+
+#### Frontend: Navigation Logic [ ]
+
+- Add "Create & Next" button
+- On success:
+  1. Create post for current slot
+  2. Fetch next unfilled slot
+  3. If exists, navigate to that slot
+  4. If none, show toast: "All slots filled! 🎉"
+- Tab navigates without creating per spec Feature #10
+- Show loading state
+
+#### Frontend: Calendar Navigation [ ]
+
+- Calendar can programmatically navigate to date
+- Scroll to next slot if not visible
+- Highlight newly opened slot briefly
+
+**Acceptance Criteria:**
+
+- ✅ "Create & Next" navigates to next unfilled slot per spec
+- ✅ Tab navigates without creating per spec Feature #10
+- ✅ Shows success toast
+- ✅ Handles "no more slots" gracefully
+- ✅ Calendar scrolls to show next slot
+
+**Files:**
+
+- `@fanslib/apps/server/src/features/posts/operations/find-next-slot.ts` (new)
+- `@fanslib/apps/server/src/features/posts/routes.ts`
+- `@fanslib/apps/web/src/features/posts/components/CreatePostDialog.tsx`
+- `@fanslib/apps/web/src/features/posts/components/PostCalendar/PostCalendar.tsx`
+
+**Dependencies:** None
+
+---
+
+## LOW PRIORITY - Edge Cases
+
+### 12. 🚫 Empty State Handling [SPEC: smart-virtual-post-filling.json #12]
+
+**Status:** [ ] Not started - Edge case UX  
+**Why:** Important but not blocking core functionality.
+
+**Scenarios:**
+
+#### Scenario 1: No Media in Library [ ]
+
+- Message: "Your library is empty. Upload media to get started."
+- Action: "Upload Media" button
+- Helpful illustration
+
+#### Scenario 2: All Media Filtered [ ]
+
+- Message: "No media matches the current filters." per spec
+- Actions:
+  - "Remove Filters" → clears temporary
+  - "Adjust Schedule Filters" → links to settings per spec
+- Show count: "127 media items hidden by filters"
+- Show active limiting filters per spec
+
+#### Scenario 3: All Media on Cooldown [ ]
+
+- Message: "All media was recently posted to this channel."
+- Show next available date
+- Action: "Include Recently Posted" → disables cooldown
+
+#### Scenario 4: No Virtual Posts [ ]
+
+- Message: "This schedule has no upcoming posts."
+- Action: "Configure Schedule"
+- Show schedule info
+
+**Acceptance Criteria:**
+
+- ✅ Each scenario has distinct message per spec
+- ✅ Messages explain WHY no media shown per spec
+- ✅ Action buttons provide clear next steps per spec
+- ✅ Option to skip slot per spec Feature #12
+
+**Files:**
+
+- `@fanslib/apps/web/src/features/library/components/MediaGrid.tsx`
+- `@fanslib/apps/web/src/features/posts/components/CreatePostDialog.tsx`
+- `@fanslib/apps/web/src/components/ui/EmptyState` (exists)
+
+**Dependencies:** None
+
+---
+
+## OUT OF SCOPE
+
+Explicitly excluded from this work scope:
+
+- Library scanning improvements
+- Tag analytics API endpoints (TODO in useTagAnalytics.ts)
+- Electron app (`@fanslib/electron-legacy` is deprecated - reference only)
+- Other platform integrations (OnlyFans, Fansly, Twitter, Bluesky)
+- Caption generation AI features
+- Pipeline assignment step improvements (out of scope)
+- Content schedule UI improvements (out of scope)
+- Query revalidation features (separate spec)
+- Captioning page features (separate spec)
+
+---
+
+## SUCCESS CRITERIA
+
+### Specs Passing
+
+- ✅ `specs/subreddits.json`: **23/23 features passing** (currently 19/23)
+  - Fix Feature #1: Subreddit-Channel composition (CRITICAL)
+  - Fix Feature #4: Channel cooldown configuration
+- ✅ `specs/smart-virtual-post-filling.json`: **12/12 features passing** (currently 0/12)
+  - All filtering, sorting, UI features functional
+  - Animation respects prefers-reduced-motion
+  - No hard-coded values
+
+### Functional Requirements
+
+- ✅ Virtual post click auto-applies merged filters (schedule+channel+override)
+- ✅ Media on repost cooldown excluded or visually indicated
+- ✅ 4 sort modes work: newest, oldest, recently posted, least posted
+- ✅ Recent posts panel shows context (last 3)
+- ✅ Media tiles show posting history
+- ✅ "Create & Next" navigates to next unfilled slot
+- ✅ Empty states are helpful and actionable
+- ✅ No hard-coded channel IDs
+
+### Performance
+
+- ✅ Media list query with filters + sort: <500ms (10k media, 100k posts)
+- ✅ Cooldown filtering query: <400ms
+- ✅ Recent posts query: <200ms
+- ✅ Virtual post generation: <100ms for 1000+ slots
+- ✅ Morphing animation: 0ms when reduced motion preferred
+
+### Accessibility
+
+- ✅ All animations respect prefers-reduced-motion
+- ✅ Keyboard navigation works throughout
+- ✅ Screen reader accessible
+- ✅ Focus management proper
+
+### Code Quality
+
+- ✅ Type-safe schemas for all endpoints
+- ✅ No `any` types
+- ✅ Filter merging centralized
+- ✅ All TODO comments resolved
+- ✅ No hard-coded IDs
+
+---
+
+## IMPLEMENTATION ORDER
+
+### Phase 1: Critical Blockers (3-5 days)
+
+1. Task #1: Subreddit-Channel composition (5 phases)
+2. ~~Task #3: Fix hard-coded channel ID~~ → REMOVED (component deprecated)
+
+### Phase 2: Core Features (4-6 days)
+
+4. Task #4: Automatic filter pre-application
+5. Task #5: Media repost cooldown filtering (unblocked after Phase 1)
+6. Task #6: Sort options
+7. Task #7: Recent posts context
+8. Task #8: Complete MediaTilePostsPopover
+
+### Phase 3: UX Polish (3-5 days - optional)
+
+9. Task #9: Morphing panel animation with prefers-reduced-motion
+10. Task #10: Filter refinement controls
+11. Task #11: Create & Next navigation
+12. Task #12: Empty state handling
+
+**Total Estimated Effort:**
+
+- **Required (Phases 1-2):** 8-10 days (reduced by 1 day - Task #3 removed)
+- **Optional (Phase 3):** 3-5 days
+- **Total:** 11-15 days for 100% completion
+
+---
+
+## PROGRESS TRACKING
+
+**Completed:** 2/12 tasks (Task #2 completed, Task #3 removed - component deprecated)  
+**In Progress:** 0/10 tasks  
+**Not Started:** 9/10 tasks
+
+**Spec Status:**
+
+- `subreddits.json`: 19/23 → Target: 19/19 non-deprecated (4 UI features deprecated, 2 architectural to fix)
+- `smart-virtual-post-filling.json`: 0/12 → Target: 12/12 (implement all)
+
+**Next Action:** Begin Phase 1 - Task #1 (Subreddit-Channel composition) or Phase 2 - Core Features
+
+---
+
+**Last Updated:** 2026-02-02 (Task #2 completed)  
+**Plan Version:** 1.2 (Channel cooldown fields added)

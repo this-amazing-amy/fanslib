@@ -13,6 +13,8 @@ export const UpdateChannelRequestBodySchema = z
     description: z.string().nullable(),
     typeId: z.string(),
     eligibleMediaFilter: z.unknown().nullable(),
+    postCooldownHours: z.number().int().nullable(),
+    mediaRepostCooldownHours: z.number().int().nullable(),
     defaultHashtags: z.array(z.string()),
   })
   .partial();

@@ -8,6 +8,8 @@ export const CHANNEL_FIXTURES: ChannelFixture[] = [
     name: "My Fansly Channel",
     typeId: "fansly",
     description: "Main Fansly channel for content",
+    postCooldownHours: null,
+    mediaRepostCooldownHours: null,
     defaultHashtags: [],
   },
   {
@@ -15,6 +17,8 @@ export const CHANNEL_FIXTURES: ChannelFixture[] = [
     name: "OnlyFans Account",
     typeId: "onlyfans",
     description: "Primary OnlyFans channel",
+    postCooldownHours: null,
+    mediaRepostCooldownHours: null,
     defaultHashtags: [],
   },
   {
@@ -22,6 +26,8 @@ export const CHANNEL_FIXTURES: ChannelFixture[] = [
     name: "Reddit Promo",
     typeId: "reddit",
     description: "Reddit promotion channel",
+    postCooldownHours: null,
+    mediaRepostCooldownHours: null,
     defaultHashtags: [],
   },
 ];

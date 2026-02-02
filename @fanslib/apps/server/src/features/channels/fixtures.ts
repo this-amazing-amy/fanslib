@@ -32,6 +32,8 @@ export const seedChannelFixtures = async () => {
           name: fixture.name,
           typeId: fixture.typeId,
           description: fixture.description,
+          postCooldownHours: fixture.postCooldownHours,
+          mediaRepostCooldownHours: fixture.mediaRepostCooldownHours,
         });
       }
     })

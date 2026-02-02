@@ -40,6 +40,12 @@ export class Channel {
   @Column({ type: "simple-json", nullable: true, name: "eligibleMediaFilter" })
   eligibleMediaFilter: unknown | null = null;
 
+  @Column({ type: "int", nullable: true, name: "postCooldownHours" })
+  postCooldownHours: number | null = null;
+
+  @Column({ type: "int", nullable: true, name: "mediaRepostCooldownHours" })
+  mediaRepostCooldownHours: number | null = null;
+
   @ManyToOne(() => ChannelType)
   @JoinColumn({ name: "typeId" })
   type!: ChannelType;
@@ -67,6 +73,8 @@ export const ChannelSchema = z.object({
   description: z.string().nullable(),
   typeId: z.string(),
   eligibleMediaFilter: z.unknown().nullable(),
+  postCooldownHours: z.number().int().nullable(),
+  mediaRepostCooldownHours: z.number().int().nullable(),
   defaultHashtags: z.unknown(),
   type: ChannelTypeSchema,
 });
