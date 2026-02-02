@@ -5,9 +5,29 @@ import { cn } from "~/lib/cn";
 import { getMediaFileUrl, getMediaThumbnailUrl } from "~/lib/media-urls";
 import { useMediaTagsQuery } from "~/lib/queries/tags";
 import { formatDuration } from "~/lib/video";
+import { MediaTilePostingHistoryIndicator } from "./MediaTilePostingHistoryIndicator";
 
 
 type MediaPreview = Pick<Media, "id" | "name" | "type" | "duration">;
+
+type PostingHistoryData = {
+  totalPosts: number;
+  lastPostedAt: string | null;
+  postsByChannel: Array<{
+    id: string;
+    date: string;
+    channelId: string;
+    channel: {
+      id: string;
+      name: string;
+      type: {
+        id: string;
+        name: string;
+        color: string | null;
+      };
+    };
+  }>;
+};
 
 export type MediaTileLiteProps = {
   media: MediaPreview;
@@ -16,6 +36,9 @@ export type MediaTileLiteProps = {
   imageError?: boolean;
   isActivePreview?: boolean;
   hideTagStickers?: boolean;
+  postingHistory?: PostingHistoryData;
+  currentChannelId?: string;
+  isWithinCooldown?: boolean;
 };
 
 export const MediaTileLite = memo(
@@ -26,6 +49,9 @@ export const MediaTileLite = memo(
     imageError: controlledImageError,
     isActivePreview = false,
     hideTagStickers = false,
+    postingHistory,
+    currentChannelId,
+    isWithinCooldown = false,
   }: MediaTileLiteProps) => {
     const [localImageError, setLocalImageError] = useState(false);
     const imageError = controlledImageError ?? localImageError;
@@ -77,6 +103,10 @@ export const MediaTileLite = memo(
 
     return (
       <div className={cn("relative aspect-square bg-base-300 rounded-lg overflow-hidden", className)}>
+        {/* Apply dimmed visual treatment if within cooldown */}
+        {isWithinCooldown && (
+          <div className="absolute inset-0 bg-black/40 z-[5]" />
+        )}
         {media.type === "video" ? (
           <>
             {!isActivePreview && (
@@ -124,21 +154,26 @@ export const MediaTileLite = memo(
             )}
           </div>
         )}
-        {!hideTagStickers && (
-          <div className="absolute bottom-1 left-1 flex gap-1 z-10">
-            {stickerTags.length > 0 && (
-              <div className="size-5 p-1 rounded bg-black/50 flex items-center justify-center">
-                {stickerTags.map((tag) => (
-                  <div
-                    key={tag.id}
-                    className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: tag.color ?? "#666" }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+        <div className="absolute bottom-1 left-1 flex gap-1 z-10">
+          {!hideTagStickers && stickerTags.length > 0 && (
+            <div className="size-5 p-1 rounded bg-black/50 flex items-center justify-center">
+              {stickerTags.map((tag) => (
+                <div
+                  key={tag.id}
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: tag.color ?? "#666" }}
+                />
+              ))}
+            </div>
+          )}
+          {postingHistory && (
+            <MediaTilePostingHistoryIndicator
+              history={postingHistory}
+              currentChannelId={currentChannelId}
+              isWithinCooldown={isWithinCooldown}
+            />
+          )}
+        </div>
       </div>
     );
   }

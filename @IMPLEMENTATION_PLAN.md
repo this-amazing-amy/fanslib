@@ -1127,3 +1127,43 @@ Explicitly excluded from this work scope:
 
 **Last Updated:** 2026-02-02 (Task #11 completed - Create & Next Navigation)  
 **Plan Version:** 1.8 (10/12 tasks complete, smart-virtual-post-filling 50%)
+
+---
+
+**Update 2026-02-02:** Feature #6 (Visual Posting History Indicators) COMPLETED ✅
+
+**Implementation Details:**
+- Created `useBulkMediaPostingHistoryQuery` hook to efficiently fetch posting history for multiple media items at once
+- Created `MediaTilePostingHistoryIndicator.tsx` component with Clock icon and tooltip showing:
+  - Total times media was posted
+  - Last posted date/channel to current channel (if applicable)
+  - Last posted date/channel to any other channel
+  - Warning indicator for media within cooldown period
+- Updated `MediaTileLite.tsx` to accept and display posting history indicator:
+  - Added `postingHistory`, `currentChannelId`, and `isWithinCooldown` props
+  - Added dimmed overlay (`bg-black/40`) for media within cooldown when shown via toggle
+  - Positioned indicator in bottom-left corner alongside tag stickers
+- Updated `CombinedMediaSelection.tsx` to fetch and pass posting history:
+  - Uses `useBulkMediaPostingHistoryQuery` for all visible media items
+  - Determines `isWithinCooldown` based on `applyRepostCooldown`, `includeRecentlyPosted`, and posting history
+  - Passes history data and channel context to `MediaTileLite`
+- Installed `date-fns` for relative time formatting (e.g., "2 days ago")
+
+**Acceptance Criteria Met:**
+- ✅ Thumbnails show Clock indicator icon if media was posted before
+- ✅ Hover tooltip shows when and where media was last posted (current channel and/or other channels)
+- ✅ Recently posted media within cooldown (when shown via toggle) has dimmed visual treatment
+
+**Test Results:**
+- ✅ Typecheck: passing
+- ✅ Lint: passing
+
+**Spec Status Update:**
+- `smart-virtual-post-filling.json`: 6/12 features (50%) → Feature #6 now passing
+
+**Progress:** 11/12 tasks complete, 1 remaining (Task #9 - morphing panel animation)
+
+---
+
+**Last Updated:** 2026-02-02 (Feature #6 completed - Visual Posting History Indicators)  
+**Plan Version:** 1.9 (11/12 tasks complete, smart-virtual-post-filling 50%)

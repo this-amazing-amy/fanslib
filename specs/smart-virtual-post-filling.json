@@ -88,7 +88,7 @@
         "Hover tooltip shows when and where media was last posted",
         "Recently posted media (when shown via toggle) has distinct visual treatment"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "ux",

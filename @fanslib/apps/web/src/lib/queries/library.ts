@@ -34,6 +34,22 @@ export const useMediaPostingHistoryQuery = (mediaId: string) =>
     enabled: !!mediaId,
   });
 
+export const useBulkMediaPostingHistoryQuery = (mediaIds: string[]) =>
+  useQuery({
+    queryKey: ['media', 'posting-history', 'bulk', mediaIds],
+    queryFn: async () => {
+      const historyPromises = mediaIds.map((id) =>
+        api.api.media['by-id'][':id']['posting-history'].$get({ param: { id } })
+          .then((res) => res.json())
+          .then((data) => ({ mediaId: id, history: data }))
+      );
+      const results = await Promise.all(historyPromises);
+      return new Map(results.map((r) => [r.mediaId, r.history]));
+    },
+    enabled: mediaIds.length > 0,
+    staleTime: 60000, // 1 minute
+  });
+
 export const useMediaAdjacentQuery = (
   params: FindAdjacentMediaRequestParams,
   body?: FindAdjacentMediaBody

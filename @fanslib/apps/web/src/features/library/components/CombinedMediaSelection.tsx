@@ -6,7 +6,7 @@ import { Checkbox } from "~/components/ui/Checkbox";
 import { ScrollArea } from "~/components/ui/ScrollArea";
 import { FilterPresetProvider } from "~/contexts/FilterPresetContext";
 import { cn } from "~/lib/cn";
-import { useMediaListQuery } from "~/lib/queries/library";
+import { useMediaListQuery, useBulkMediaPostingHistoryQuery } from "~/lib/queries/library";
 import { MediaFilters } from "./MediaFilters/MediaFilters";
 import { MediaFiltersProvider } from "./MediaFilters/MediaFiltersContext";
 import { MediaTileLite } from "./MediaTile/MediaTileLite";
@@ -76,6 +76,10 @@ export const CombinedMediaSelection = ({
   const totalItems = mediaResponse?.total ?? 0;
 
   const filteredMedia: Media[] = media.filter((m) => !excludeMediaIds.includes(m.id));
+
+  // Fetch posting history for all visible media
+  const mediaIds = filteredMedia.map((m) => m.id);
+  const { data: postingHistoryMap } = useBulkMediaPostingHistoryQuery(mediaIds);
 
   // Merge selected media with filtered media, sorting selected items first
   const combinedMedia = useMemo(() => {
@@ -156,6 +160,19 @@ export const CombinedMediaSelection = ({
             <div className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-4">
               {combinedMedia.map((item) => {
                 const itemIsSelected = isSelected(item.id);
+                const postingHistory = postingHistoryMap?.get(item.id);
+                
+                // Check if media is within cooldown - only applies when:
+                // 1. applyRepostCooldown is true
+                // 2. includeRecentlyPosted is true (showing items that would normally be filtered)
+                // 3. The item has posting history to current channel
+                const isWithinCooldown = Boolean(
+                  applyRepostCooldown && 
+                  includeRecentlyPosted && 
+                  channelId &&
+                  postingHistory?.postsByChannel?.some((p) => p.channelId === channelId)
+                );
+
                 return (
                   <div
                     key={item.id}
@@ -177,7 +194,13 @@ export const CombinedMediaSelection = ({
                       }
                     }}
                   >
-                    <MediaTileLite media={item} isActivePreview={item.id === activePreviewId} />
+                    <MediaTileLite
+                      media={item}
+                      isActivePreview={item.id === activePreviewId}
+                      postingHistory={postingHistory}
+                      currentChannelId={channelId}
+                      isWithinCooldown={isWithinCooldown}
+                    />
                     {itemIsSelected && (
                       <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center z-10">
                         <Check className="w-3 h-3 text-primary-foreground" />
