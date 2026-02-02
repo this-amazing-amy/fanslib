@@ -7,6 +7,14 @@ import { CreateSubredditDialog } from "./components/CreateSubredditDialog";
 import { RedditBulkPostGenerator } from "./components/RedditBulkPostGenerator";
 import { SubredditTable } from "./components/SubredditTable";
 
+/**
+ * @deprecated This page is deprecated. Subreddit management has been consolidated
+ * into the Channels page at /content/channels. Reddit channels (subreddits) are now
+ * managed as channels with typeId='reddit'.
+ * 
+ * The route now redirects to /content/channels. This component is kept for reference
+ * but should not be used directly.
+ */
 export const SubredditsPage = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { data: subreddits = [], refetch } = useSubredditsQuery();

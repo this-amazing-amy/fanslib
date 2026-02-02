@@ -1,6 +1,6 @@
 {
   "name": "Subreddits",
-  "description": "Reddit community management for content distribution, including subreddit configuration, verification tracking, and optimal posting time analysis",
+  "description": "Reddit community management for content distribution, including subreddit configuration, verification tracking, and optimal posting time analysis. UI is consolidated into the Channels page.",
   "context": {
     "problem": "Reddit requires careful management of posting frequency, community rules, and content matching to avoid bans and maximize engagement",
     "user_need": "Track and configure subreddits with their specific requirements, verification status, and optimal posting times"
@@ -17,7 +17,10 @@
     "out_of_scope": [
       "Automatic subreddit discovery",
       "Subreddit rule scraping",
-      "Karma tracking"
+      "Karma tracking",
+      "Dedicated /subreddits route (DEPRECATED - redirects to /content/channels)",
+      "RedditBulkPostGenerator (DEPRECATED - use standard post creation)",
+      "Standalone subreddit table UI (DEPRECATED - managed via ChannelView)"
     ]
   },
   "features": [
@@ -178,36 +181,42 @@
     },
     {
       "category": "ui",
-      "description": "Subreddits management page",
+      "description": "DEPRECATED: Subreddits management page - consolidated into Channels",
       "acceptance_criteria": [
-        "Route /subreddits displays subreddit management UI",
-        "Two tabs: 'Post to Reddit' and 'Manage Subreddits'",
-        "Manage tab shows table of all subreddits",
-        "Create button opens dialog to add new subreddit"
+        "Route /subreddits redirects to /content/channels",
+        "Reddit channels (subreddits) appear in the unified channels list",
+        "Reddit-specific settings accessible via ChannelView expansion panel",
+        "Create button creates channel with typeId='reddit'"
       ],
-      "passes": true
+      "passes": false,
+      "deprecated": true,
+      "deprecation_note": "Standalone subreddits page removed. Management consolidated into /content/channels. Reddit channels managed alongside other channel types."
     },
     {
       "category": "ui",
-      "description": "Subreddit table with inline editing",
+      "description": "DEPRECATED: Subreddit table - replaced by ChannelView",
       "acceptance_criteria": [
-        "Table displays: name, verification status, post frequency, member count",
-        "Rows are clickable to expand/edit",
-        "Inline editing for all configurable fields",
-        "Delete action with confirmation"
+        "Reddit channels displayed in unified channel cards",
+        "ChannelView shows subreddit-specific fields when typeId='reddit'",
+        "Inline editing via ChannelView edit mode",
+        "Delete action integrated into ChannelView"
       ],
-      "passes": true
+      "passes": false,
+      "deprecated": true,
+      "deprecation_note": "Dedicated subreddit table removed. Reddit channels appear as ChannelView cards with reddit-specific expansion panel."
     },
     {
       "category": "ui",
-      "description": "Create subreddit dialog",
+      "description": "DEPRECATED: Create subreddit dialog - use CreateChannelForm",
       "acceptance_criteria": [
-        "Modal dialog for creating new subreddit",
-        "Name field is required",
-        "Optional fields: notes, maxPostFrequencyHours, verificationStatus",
-        "Validates input before submission"
+        "CreateChannelForm supports typeId='reddit' selection",
+        "Reddit-specific fields shown when reddit type selected",
+        "Subreddit name becomes channel name",
+        "Creates both Channel and linked Subreddit entity"
       ],
-      "passes": true
+      "passes": false,
+      "deprecated": true,
+      "deprecation_note": "Standalone dialog removed. Use CreateChannelForm with reddit type selection."
     },
     {
       "category": "ui",
@@ -222,14 +231,16 @@
     },
     {
       "category": "ui",
-      "description": "Reddit bulk post generator",
+      "description": "DEPRECATED: Reddit bulk post generator - use standard post creation",
       "acceptance_criteria": [
-        "UI to generate multiple random posts across subreddits",
-        "Select which subreddits to include",
-        "Preview generated posts before scheduling",
-        "Respects subreddit posting frequency limits"
+        "Post creation uses standard CreatePostDialog workflow",
+        "Channel selection includes reddit channels",
+        "Smart virtual post filling applies to reddit schedules",
+        "Reddit-specific options (flair, prefix) available in post creation"
       ],
-      "passes": true
+      "passes": false,
+      "deprecated": true,
+      "deprecation_note": "Standalone bulk generator removed. Reddit posts created via unified post creation flow with channel-specific options."
     },
     {
       "category": "integration",
@@ -271,6 +282,24 @@
       "library (media filtering)",
       "posts (scheduling, history)"
     ],
-    "architecture_decision": "Subreddit uses composition pattern with Channel: Subreddit has 1:1 relationship with Channel via channelId FK. This allows unified scoring/filtering logic to operate on Channel entity while keeping Reddit-specific complexity isolated."
+    "architecture_decision": "Subreddit uses composition pattern with Channel: Subreddit has 1:1 relationship with Channel via channelId FK. This allows unified scoring/filtering logic to operate on Channel entity while keeping Reddit-specific complexity isolated.",
+    "ui_consolidation": {
+      "status": "DEPRECATED",
+      "date": "2026-02-02",
+      "reason": "Subreddit UI consolidated into unified Channels page to reduce complexity and provide consistent channel management experience.",
+      "migration": {
+        "/subreddits": "Redirects to /content/channels",
+        "SubredditsPage": "DEPRECATED - replaced by Channels component",
+        "RedditBulkPostGenerator": "DEPRECATED - use standard CreatePostDialog with reddit channels",
+        "CreateSubredditDialog": "DEPRECATED - use CreateChannelForm with typeId='reddit'",
+        "SubredditTable": "DEPRECATED - reddit channels shown as ChannelView cards"
+      },
+      "preserved_functionality": [
+        "Backend API endpoints unchanged",
+        "Subreddit entity and schema unchanged",
+        "Reddit-specific fields accessible via ChannelView expansion",
+        "Posting times heatmap available in channel settings"
+      ]
+    }
   }
 }

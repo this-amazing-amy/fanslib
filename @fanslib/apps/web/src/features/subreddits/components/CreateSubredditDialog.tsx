@@ -1,16 +1,26 @@
+/**
+ * @deprecated This component is deprecated. Subreddit creation is now handled
+ * through the unified channel creation flow at /content/channels.
+ * 
+ * Create a channel with typeId='reddit' to add a new subreddit. Reddit-specific
+ * fields (verification status, flair, etc.) will be configurable in the channel
+ * settings panel.
+ * 
+ * This file is kept for reference during migration but should not be used.
+ */
 import { useState } from 'react';
 import { Button } from '~/components/ui/Button';
 import {
-  Dialog,
-  DialogBody,
-  DialogFooter,
-  DialogHeader,
-  DialogModal,
-  DialogTitle,
+    Dialog,
+    DialogBody,
+    DialogFooter,
+    DialogHeader,
+    DialogModal,
+    DialogTitle,
 } from '~/components/ui/Dialog';
 import { Input } from '~/components/ui/Input';
 import { VERIFICATION_STATUS, type VerificationStatusType } from '~/components/VerificationStatus';
-import { useCreateSubredditMutation, useAnalyzePostingTimesMutation } from '~/lib/queries/subreddits';
+import { useAnalyzePostingTimesMutation, useCreateSubredditMutation } from '~/lib/queries/subreddits';
 
 type CreateSubredditDialogProps = {
   isOpen: boolean;

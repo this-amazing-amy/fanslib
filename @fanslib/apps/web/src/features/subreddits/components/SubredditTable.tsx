@@ -1,11 +1,20 @@
+/**
+ * @deprecated This component is deprecated. Subreddit management is now handled
+ * through the unified Channels page at /content/channels.
+ * 
+ * Reddit channels appear in the channels list with their subreddit-specific
+ * settings accessible via the ChannelView component's expanded panel.
+ * 
+ * This file is kept for reference during migration but should not be used.
+ */
 import type { Subreddit } from '@fanslib/server/schemas';
 import { ArrowDown, ArrowUp } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useLocalStorage } from '~/hooks/useLocalStorage';
 import { cn } from '~/lib/cn';
 import {
-  useDeleteSubredditMutation,
-  useLastPostDatesQuery,
+    useDeleteSubredditMutation,
+    useLastPostDatesQuery,
 } from '~/lib/queries/subreddits';
 import { EditingSubredditRow } from './EditingSubredditRow';
 import { SubredditRow } from './SubredditRow';

@@ -1,3 +1,13 @@
+/**
+ * @deprecated This component is deprecated. Reddit post generation functionality
+ * will be consolidated into the unified post creation flow via the Channels page.
+ * 
+ * Reddit channels (subreddits) are now managed as channels with typeId='reddit'
+ * at /content/channels. Post creation uses the standard CreatePostDialog with
+ * channel-specific options.
+ * 
+ * This file is kept for reference during migration but should not be used.
+ */
 import type { Subreddit } from '@fanslib/server/schemas';
 import { ChevronRight, Clock, Loader2, Sparkles } from "lucide-react";
 import { useState } from "react";
