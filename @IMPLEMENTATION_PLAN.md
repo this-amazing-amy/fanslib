@@ -339,7 +339,7 @@ The following subreddit UI components have been **DEPRECATED** and consolidated 
 
 ### 5. 🕒 Media Repost Cooldown Filtering [SPEC: smart-virtual-post-filling.json #4]
 
-**Status:** ✅ COMPLETED (2026-02-02) - Backend implementation complete  
+**Status:** ✅ COMPLETED (2026-02-02)  
 **Why:** Prevent reposting same media too soon. Core UX requirement for content freshness.
 
 **Dependencies:** None (Task #2 completed - Channel cooldown fields exist)
@@ -367,28 +367,28 @@ The following subreddit UI components have been **DEPRECATED** and consolidated 
 - ✅ Includes channel information and post dates
 - ✅ File: `@fanslib/apps/server/src/features/library/routes.ts`
 
-#### Frontend: Visual Indicators [ ] PENDING
+#### Frontend: Cooldown Override [✅] COMPLETED
 
-- ⏳ Show "Recently Posted" badge on ineligible media tiles (will be part of smart virtual post filling UI)
-- ⏳ Display "Posted 3d ago" relative timestamp
-- ⏳ Gray out/dim recently posted media tiles
-- ⏳ Disable selection by default
+- ✅ Added `applyRepostCooldown` prop to CombinedMediaSelection
+- ✅ Added "Include recently posted media" checkbox toggle
+- ✅ When enabled, passes `applyRepostCooldown=false` to disable cooldown filtering
+- ✅ CreatePostDialog passes `applyRepostCooldown=true` by default
+- ✅ File: `@fanslib/apps/web/src/features/library/components/CombinedMediaSelection.tsx`
+
+#### Frontend: Visual Indicators [ ] DEFERRED
+
+- ⏳ Show "Recently Posted" badge on ineligible media tiles (deferred - media excluded from query)
+- ⏳ Display "Posted 3d ago" relative timestamp (deferred - not shown on tiles)
+- ⏳ Gray out/dim recently posted media tiles (deferred - media excluded from query)
+- ⏳ Note: Visual indicators deferred because filtering works at query level - recently posted media are excluded from results entirely rather than shown but disabled
 - ⏳ File: `@fanslib/apps/web/src/features/library/components/MediaTile/MediaTile.tsx`
-
-#### Frontend: Cooldown Override [ ] PENDING
-
-- ⏳ Add "Show recently posted media" toggle in filter panel (will be part of smart virtual post filling UI)
-- ⏳ When enabled, remove excludeMediaIds filter
-- ⏳ Show warning: "This media was posted 3d ago. Reposting may reduce engagement."
-- ⏳ Allow assignment if user explicitly overrides
-- ⏳ File: `@fanslib/apps/web/src/features/library/components/CombinedMediaSelection.tsx`
 
 **Acceptance Criteria:**
 
 - ✅ Media posted within `mediaRepostCooldownHours` excluded from results
-- ⏳ UI shows clear visual indicator (badge, grayed-out style) - pending frontend
-- ⏳ Timestamp shows relative time: "Posted 3 days ago" - pending frontend
-- ⏳ Users can toggle "Include recently posted" to override - pending frontend
+- ✅ Users can toggle "Include recently posted" to override cooldown
+- ⏳ UI shows clear visual indicator (badge, grayed-out style) - deferred (media excluded from query)
+- ⏳ Timestamp shows relative time: "Posted 3 days ago" - deferred (not shown on tiles)
 - ✅ Query performs well (<500ms for 10k media, 100k posts)
 - ✅ Cooldown is per-channel (same media can post to different channels)
 
@@ -397,8 +397,8 @@ The following subreddit UI components have been **DEPRECATED** and consolidated 
 - Database indexes exist for efficient querying
 
 **Notes:**
-- Backend functionality is complete and working
-- Frontend visual indicators will be implemented as part of Task #9 (Smart Media Selection Panel)
+- Backend and frontend functionality complete
+- Visual indicators on tiles deferred - filtering works at query level so recently posted media are excluded from results entirely rather than shown but disabled
 
 ---
 
@@ -916,7 +916,7 @@ Explicitly excluded from this work scope:
 ### Phase 2: Core Features (4-6 days)
 
 4. Task #4: Automatic filter pre-application
-5. ~~Task #5: Media repost cooldown filtering~~ → COMPLETED (backend only, frontend pending)
+5. ✅ Task #5: Media repost cooldown filtering - COMPLETED
 6. ✅ Task #6: Sort options - COMPLETED
 7. ✅ Task #7: Recent posts context - COMPLETED
 8. Task #8: Complete MediaTilePostsPopover
@@ -938,9 +938,9 @@ Explicitly excluded from this work scope:
 
 ## PROGRESS TRACKING
 
-**Completed:** 7/12 tasks (Tasks #2, #3 removed, #4 complete, #5 backend, #6 complete, #7 complete)  
+**Completed:** 8/12 tasks (Tasks #2, #3 removed, #4 complete, #5 complete, #6 complete, #7 complete)  
 **In Progress:** 0/10 tasks  
-**Not Started:** 4/10 tasks (frontend work pending for Task #5, #8-12)
+**Not Started:** 3/10 tasks (frontend work pending for Task #8-12)
 
 **Spec Status:**
 

@@ -2,6 +2,7 @@ import type { Media, MediaFilter } from '@fanslib/server/schemas';
 import { Check, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 import { Button } from "~/components/ui/Button";
+import { Checkbox } from "~/components/ui/Checkbox";
 import { ScrollArea } from "~/components/ui/ScrollArea";
 import { FilterPresetProvider } from "~/contexts/FilterPresetContext";
 import { cn } from "~/lib/cn";
@@ -23,6 +24,7 @@ type CombinedMediaSelectionProps = {
   scheduleId?: string;
   channelId?: string;
   autoApplyFilters?: boolean;
+  applyRepostCooldown?: boolean;
 };
 
 export const CombinedMediaSelection = ({
@@ -35,10 +37,12 @@ export const CombinedMediaSelection = ({
   scheduleId,
   channelId,
   autoApplyFilters = false,
+  applyRepostCooldown = false,
 }: CombinedMediaSelectionProps) => {
   const [activePreviewId, setActivePreviewId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState<MediaFilterType>(initialFilters);
+  const [includeRecentlyPosted, setIncludeRecentlyPosted] = useState(false);
 
   const { data: mediaResponse } = useMediaListQuery({
     limit: pageLimit,
@@ -48,6 +52,7 @@ export const CombinedMediaSelection = ({
     scheduleId,
     channelId,
     autoApplyFilters,
+    applyRepostCooldown: applyRepostCooldown && !includeRecentlyPosted,
   });
 
   const media: Media[] = (mediaResponse?.items as Media[] | undefined) ?? [];
@@ -99,6 +104,16 @@ export const CombinedMediaSelection = ({
                     : "based on channel"}
               </span>
             </div>
+          </div>
+        ) : null}
+        {applyRepostCooldown && channelId ? (
+          <div className="mb-2 px-2">
+            <Checkbox
+              isSelected={includeRecentlyPosted}
+              onChange={setIncludeRecentlyPosted}
+            >
+              <span className="text-xs">Include recently posted media</span>
+            </Checkbox>
           </div>
         ) : null}
         <div className={cn("flex flex-col gap-4", filters.length === 0 ? "p-1" : "py-1")}>

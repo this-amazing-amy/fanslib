@@ -260,6 +260,7 @@ export const CreatePostDialog = ({
                         scheduleId={contentScheduleId ?? undefined}
                         channelId={selectedChannel[0]}
                         autoApplyFilters={true}
+                        applyRepostCooldown={true}
                       />
                     </div>
 
