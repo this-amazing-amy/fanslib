@@ -9,6 +9,7 @@ import { MediaFilterSchema } from "../../schemas/media-filter";
 import { MediaSortSchema } from "../../schemas/media-sort";
 import { Channel } from "../../../channels/entity";
 import { getRecentlyPostedMediaIds } from "./get-recently-posted-media-ids";
+import { getMergedFiltersForSlot } from "../../../content-schedules/operations/get-merged-filters";
 
 export const FetchAllMediaRequestBodySchema = z.object({
   page: z.number().optional(),
@@ -17,7 +18,9 @@ export const FetchAllMediaRequestBodySchema = z.object({
   sort: MediaSortSchema.optional(),
   excludeMediaIds: z.array(z.string()).optional(),
   channelId: z.string().optional(),
+  scheduleId: z.string().optional(),
   applyRepostCooldown: z.boolean().optional(),
+  autoApplyFilters: z.boolean().optional(),
 });
 
 export const FetchAllMediaResponseSchema = paginatedResponseSchema(MediaSchema);
@@ -37,6 +40,19 @@ export const fetchAllMedia = async (
     .leftJoinAndSelect("post.channel", "channel")
     .leftJoinAndSelect("post.subreddit", "subreddit");
 
+  // Auto-apply merged filters from schedule + channel if requested
+  if (params?.autoApplyFilters && params?.scheduleId && params?.channelId) {
+    const { filters: mergedFilters } = await getMergedFiltersForSlot(
+      params.scheduleId,
+      params.channelId,
+    );
+
+    if (mergedFilters.length > 0) {
+      buildFilterGroupQuery(mergedFilters, queryBuilder);
+    }
+  }
+
+  // Apply manual filters (these can be additional temporary filters)
   if (params?.filters) {
     buildFilterGroupQuery(params.filters, queryBuilder);
   }

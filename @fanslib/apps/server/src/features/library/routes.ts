@@ -26,7 +26,9 @@ const FetchAllMediaRequestBodySchema = z.object({
   sort: MediaSortSchema.optional(),
   excludeMediaIds: z.array(z.string()).optional(),
   channelId: z.string().optional(),
+  scheduleId: z.string().optional(),
   applyRepostCooldown: z.boolean().optional(),
+  autoApplyFilters: z.boolean().optional(),
 });
 
 const DeleteMediaQuerySchema = z.object({
@@ -104,7 +106,9 @@ export const libraryRoutes = new Hono()
       sort: body.sort,
       excludeMediaIds: body.excludeMediaIds,
       channelId: body.channelId,
+      scheduleId: body.scheduleId,
       applyRepostCooldown: body.applyRepostCooldown,
+      autoApplyFilters: body.autoApplyFilters,
     });
     return c.json(result);
   })
