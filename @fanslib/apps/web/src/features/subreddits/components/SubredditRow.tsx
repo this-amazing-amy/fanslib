@@ -30,13 +30,13 @@ export const SubredditRow = ({
       {/* Name */}
       <div className="p-2 pl-4 min-h-12 flex items-center">
         <a
-          href={`https://reddit.com/r/${subreddit.name}`}
+          href={`https://reddit.com/r/${subreddit.channel?.name ?? 'Unknown'}`}
           target="_blank"
           rel="noreferrer"
           className="flex items-center gap-2 group hover:underline"
         >
           <span className={textClasses}>
-            r/<strong>{subreddit.name}</strong>
+            r/<strong>{subreddit.channel?.name ?? 'Unknown'}</strong>
           </span>
           <ExternalLink className="h-4 w-4 text-base-content/60 opacity-50 group-hover:opacity-100" />
         </a>

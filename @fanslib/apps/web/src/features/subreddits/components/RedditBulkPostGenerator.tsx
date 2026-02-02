@@ -24,7 +24,10 @@ type GeneratedPost = {
   id: string;
   subreddit: {
     id: string;
-    name: string;
+    name?: string;
+    channel?: {
+      name: string;
+    };
   };
   media: {
     id: string;
@@ -225,7 +228,8 @@ export const RedditBulkPostGenerator = ({ subreddits }: RedditBulkPostGeneratorP
 
         <div className="flex-1 flex flex-col bg-base-100 rounded-lg overflow-hidden border border-base-300">
           <div className="flex-1 overflow-y-auto">
-            <ScheduledPostsList posts={scheduledPosts ?? []} />
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            <ScheduledPostsList posts={(scheduledPosts ?? []) as any} />
           </div>
         </div>
       </div>

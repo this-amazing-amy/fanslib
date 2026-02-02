@@ -71,7 +71,7 @@ export const CreateSubredditDialog = ({
       if (result) {
         analyzePostingTimesMutation.mutate({
           subredditId: result.id,
-          subredditName: result.name,
+          subredditName: result.channel?.name ?? 'Unknown',
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         });
       }

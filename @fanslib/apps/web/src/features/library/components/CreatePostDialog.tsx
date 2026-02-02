@@ -27,7 +27,7 @@ import { MediaSelectionProvider } from "~/contexts/MediaSelectionContext";
 import { CombinedMediaSelection } from "~/features/library/components/CombinedMediaSelection";
 import { cn } from "~/lib/cn";
 import { useChannelsQuery } from "~/lib/queries/channels";
-import { useContentScheduleQuery } from "~/lib/queries/content-schedules";
+import { useContentScheduleQuery, useSkipScheduleSlotMutation } from "~/lib/queries/content-schedules";
 import { useCreatePostMutation } from "~/lib/queries/posts";
 
 
@@ -76,6 +76,8 @@ export const CreatePostDialog = ({
   const navigate = useNavigate();
   const { data: channels = [] } = useChannelsQuery();
   const { mutateAsync: createPost } = useCreatePostMutation();
+  const skipSlotMutation = useSkipScheduleSlotMutation();
+  const [confirmSkip, setConfirmSkip] = useState(false);
 
   const [selectedChannel, setSelectedChannel] = useState<string[]>([]);
   const [selectedSubreddits, setSelectedSubreddits] = useState<string[]>(initialSubredditId ? [initialSubredditId] : []);
@@ -238,6 +240,28 @@ export const CreatePostDialog = ({
     createPost,
     contentScheduleId,
   ]);
+
+  const handleSkipSlot = useCallback(async () => {
+    if (!scheduleId || !selectedChannel[0]) return;
+
+    if (!confirmSkip) {
+      setConfirmSkip(true);
+      return;
+    }
+
+    try {
+      await skipSlotMutation.mutateAsync({
+        scheduleId,
+        date: selectedDate,
+      });
+      
+      setConfirmSkip(false);
+      onOpenChange?.(false);
+    } catch {
+      toast();
+      setConfirmSkip(false);
+    }
+  }, [scheduleId, selectedChannel, selectedDate, confirmSkip, skipSlotMutation, onOpenChange]);
 
   return (
     <MediaSelectionProvider media={selectedMedia}>
@@ -424,16 +448,30 @@ export const CreatePostDialog = ({
                 </div>
 
                 <DialogFooter className="flex flex-col gap-2 flex-shrink-0 mt-2">
-                  <Button
-                    onPress={() => {
-                      handleCreatePost();
-                      close();
-                    }}
-                    className="w-full"
-                    isDisabled={disabled}
-                  >
-                    Create post
-                  </Button>
+                  <div className="flex gap-2 w-full">
+                    {scheduleId && selectedMedia.length === 0 && (
+                      <Button
+                        variant="ghost"
+                        onPress={handleSkipSlot}
+                        className="flex-1"
+                        onMouseLeave={() => setConfirmSkip(false)}
+                      >
+                        {confirmSkip ? "Click again to confirm skip" : "Skip This Slot"}
+                      </Button>
+                    )}
+                    <Button
+                      onPress={() => {
+                        handleCreatePost();
+                        close();
+                      }}
+                      className={cn(
+                        scheduleId && selectedMedia.length === 0 ? "flex-1" : "w-full"
+                      )}
+                      isDisabled={disabled}
+                    >
+                      Create post
+                    </Button>
+                  </div>
                 </DialogFooter>
               </>
             )}

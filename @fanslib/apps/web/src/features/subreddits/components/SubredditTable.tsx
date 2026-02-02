@@ -26,7 +26,7 @@ type SubredditTableProps = {
 };
 
 type SortConfig = {
-  key: keyof Subreddit | null;
+  key: keyof Subreddit | 'channelName' | null;
   direction: 'asc' | 'desc';
 };
 
@@ -39,7 +39,7 @@ export const SubredditTable = ({
 
   const { value: sortConfig, setValue: setSortConfig } = useLocalStorage<SortConfig>(
     'subreddit-table-sort',
-    { key: 'name', direction: 'asc' }
+    { key: 'channelName', direction: 'asc' }
   );
 
   // Fetch last post dates for all subreddits
@@ -51,12 +51,18 @@ export const SubredditTable = ({
   const sortedSubreddits = useMemo(() => {
     if (!sortConfig.key) return subreddits;
 
-    return [...subreddits].sort((a, b) => {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const aValue = a[sortConfig.key!];
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const bValue = b[sortConfig.key!];
+    const key = sortConfig.key;
 
+    return [...subreddits].sort((a, b) => {
+      const getValue = (s: Subreddit) => {
+        if (key === 'channelName') {
+          return s.channel?.name;
+        }
+        return s[key];
+      };
+      
+      const aValue = getValue(a);
+      const bValue = getValue(b);
 
       if (aValue === null || aValue === undefined) return 1;
       if (bValue === null || bValue === undefined) return -1;
@@ -66,7 +72,7 @@ export const SubredditTable = ({
     });
   }, [subreddits, sortConfig]);
 
-  const handleSort = (key: keyof Subreddit) => {
+  const handleSort = (key: keyof Subreddit | 'channelName') => {
     setSortConfig({
       key,
       direction: sortConfig.key === key && sortConfig.direction === 'asc' ? 'desc' : 'asc',
@@ -84,7 +90,7 @@ export const SubredditTable = ({
     }
   };
 
-  const SortIcon = ({ column }: { column: keyof Subreddit }) => {
+  const SortIcon = ({ column }: { column: keyof Subreddit | 'channelName' }) => {
     if (sortConfig.key !== column) return null;
     return sortConfig.direction === 'asc' ? (
       <ArrowUp className="h-3 w-3" />
@@ -117,10 +123,10 @@ export const SubredditTable = ({
             {/* Header Row */}
             <div className="contents font-medium border-b border-base-300">
               <button
-                onClick={() => handleSort('name')}
+                onClick={() => handleSort('channelName')}
                 className="p-2 pl-4 min-h-10 flex items-center gap-1 hover:bg-base-200 transition-colors"
               >
-                Name <SortIcon column="name" />
+                Name <SortIcon column="channelName" />
               </button>
               <button
                 onClick={() => handleSort('memberCount')}

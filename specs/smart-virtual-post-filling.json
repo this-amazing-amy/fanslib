@@ -151,7 +151,7 @@
         "Shows which filters are active and limiting results",
         "Option to skip this slot"
       ],
-      "passes": false
+      "passes": true
     }
   ],
   "technical_notes": {

@@ -21,7 +21,7 @@ export const SubredditSelect = ({ value, onChange, multiple = false }: Subreddit
 
   const displayValue =
     selectedSubreddits.length > 0
-      ? selectedSubreddits.map((s) => `r/${s.name}`).join(", ")
+      ? selectedSubreddits.map((s) => `r/${s.channel?.name ?? 'Unknown'}`).join(", ")
       : "Select subreddit...";
 
   const selectSubreddit = (currentValue: string) => {
@@ -52,7 +52,7 @@ export const SubredditSelect = ({ value, onChange, multiple = false }: Subreddit
             {(subreddits ?? []).map((subreddit) => (
               <CommandItem
                 key={subreddit.id}
-                value={subreddit.name}
+                value={subreddit.channel?.name ?? 'Unknown'}
                 onSelect={() => selectSubreddit(subreddit.id)}
                 className="flex items-center justify-between"
               >
@@ -63,7 +63,7 @@ export const SubredditSelect = ({ value, onChange, multiple = false }: Subreddit
                       value.includes(subreddit.id) ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  r/{subreddit.name}
+                  r/{subreddit.channel?.name ?? 'Unknown'}
                 </div>
                 <div className="text-sm text-muted-foreground">
                   {formatViewCount(subreddit.memberCount ?? 0)}

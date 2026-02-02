@@ -20,7 +20,7 @@ export const SubredditFilterSelector = ({ value, onChange }: SubredditFilterSele
     [subreddits, value]
   );
 
-  const displayValue = selectedSubreddit ? selectedSubreddit.name : "Select subreddit...";
+  const displayValue = selectedSubreddit ? selectedSubreddit.channel?.name ?? 'Unknown' : "Select subreddit...";
 
   const selectSubreddit = (subredditId: string) => {
     onChange(subredditId);
@@ -46,7 +46,7 @@ export const SubredditFilterSelector = ({ value, onChange }: SubredditFilterSele
               {(subreddits ?? []).map((subreddit) => (
                 <CommandItem
                   key={subreddit.id}
-                  value={subreddit.name}
+                  value={subreddit.channel?.name ?? 'Unknown'}
                   onSelect={() => selectSubreddit(subreddit.id)}
                 >
                   <Check
@@ -55,7 +55,7 @@ export const SubredditFilterSelector = ({ value, onChange }: SubredditFilterSele
                       value === subreddit.id ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {subreddit.name}
+                  {subreddit.channel?.name ?? 'Unknown'}
                 </CommandItem>
               ))}
             </CommandGroup>

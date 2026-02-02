@@ -21,19 +21,12 @@ type EditingSubredditRowProps = {
   onUpdate: () => void;
 };
 
-// Simple sanitizer for filter input
-const sanitizeFilterInput = (filter: unknown) => {
-  if (!filter) return null;
-  return filter;
-};
-
 export const EditingSubredditRow = ({ subreddit, onUpdate }: EditingSubredditRowProps) => {
   const updateSubredditMutation = useUpdateSubredditMutation();
   const analyzePostingTimesMutation = useAnalyzePostingTimesMutation();
 
   const [editingSubreddit, setEditingSubreddit] = useState<EditingSubreddit>({
     ...subreddit,
-    eligibleMediaFilter: sanitizeFilterInput(subreddit.eligibleMediaFilter),
   });
 
   const [unparsedMemberCount, setUnparsedMemberCount] = useState<string>(
@@ -45,12 +38,10 @@ export const EditingSubredditRow = ({ subreddit, onUpdate }: EditingSubredditRow
       await updateSubredditMutation.mutateAsync({
         id: subreddit.id,
         updates: {
-          name: editingSubreddit.name,
           maxPostFrequencyHours: editingSubreddit.maxPostFrequencyHours ?? undefined,
           notes: editingSubreddit.notes ?? undefined,
           memberCount: parseViewCount(unparsedMemberCount.replaceAll(',', '.')) ?? undefined,
           verificationStatus: editingSubreddit.verificationStatus,
-          eligibleMediaFilter: editingSubreddit.eligibleMediaFilter ?? undefined,
           defaultFlair: editingSubreddit.defaultFlair ?? undefined,
           captionPrefix: editingSubreddit.captionPrefix ?? undefined,
           postingTimesData: editingSubreddit.postingTimesData ?? undefined,
@@ -68,7 +59,7 @@ export const EditingSubredditRow = ({ subreddit, onUpdate }: EditingSubredditRow
     try {
       const result = await analyzePostingTimesMutation.mutateAsync({
         subredditId: subreddit.id,
-        subredditName: subreddit.name,
+        subredditName: subreddit.channel?.name ?? 'Unknown',
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       });
 
@@ -89,9 +80,12 @@ export const EditingSubredditRow = ({ subreddit, onUpdate }: EditingSubredditRow
       {/* Name */}
       <div className="p-2 pl-4 min-h-12 flex items-center">
         <Input
-          value={editingSubreddit.name}
-          onChange={(value) => setEditingSubreddit({ ...editingSubreddit, name: value as string })}
+          value={editingSubreddit.channel?.name ?? 'Unknown'}
+          onChange={() => {
+            // Name is read-only in deprecated component
+          }}
           className="h-8"
+          isDisabled
         />
       </div>
 
@@ -186,24 +180,21 @@ export const EditingSubredditRow = ({ subreddit, onUpdate }: EditingSubredditRow
           {/* Media Filters Section */}
           <div>
             <MediaFiltersProvider
-              value={editingSubreddit.eligibleMediaFilter as MediaFilter}
-              onChange={(filter) =>
-                setEditingSubreddit({ ...editingSubreddit, eligibleMediaFilter: filter })
-              }
+              value={editingSubreddit.channel?.eligibleMediaFilter as MediaFilter}
+              onChange={() => {
+                // Media filters are read-only in deprecated component
+              }}
             >
               <FilterPresetProvider
-                onFiltersChange={(filter) => {
-                  setEditingSubreddit({ ...editingSubreddit, eligibleMediaFilter: filter });
+                onFiltersChange={() => {
+                  // Media filters are read-only in deprecated component
                 }}
               >
                 <div className="flex items-center justify-end gap-2">
                   <RedditChannelFilterPreset
-                    onApplyFilter={(filter) =>
-                      setEditingSubreddit({
-                        ...editingSubreddit,
-                        eligibleMediaFilter: sanitizeFilterInput(filter),
-                      })
-                    }
+                    onApplyFilter={() => {
+                      // Media filters are read-only in deprecated component
+                    }}
                   />
                   <FilterActions />
                 </div>

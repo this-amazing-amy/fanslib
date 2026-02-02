@@ -271,7 +271,7 @@ export const MediaFilterSummary = ({
     () =>
       (Array.isArray(subreddits) ? subreddits : []).reduce((map, subreddit) => {
         const id = typeof subreddit?.id === "string" ? subreddit.id : "";
-        const name = typeof subreddit?.name === "string" ? subreddit.name : "";
+        const name = typeof subreddit?.channel?.name === "string" ? subreddit.channel.name : "";
         return id && name ? map.set(id, name) : map;
       }, new Map<string, string>()),
     [subreddits]

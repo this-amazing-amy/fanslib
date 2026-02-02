@@ -6,7 +6,10 @@ type Post = {
   id: string;
   subreddit: {
     id: string;
-    name: string;
+    name?: string;
+    channel?: {
+      name: string;
+    };
   };
   media: {
     id: string;
@@ -52,7 +55,7 @@ export const PostGenerationGrid = ({
           </div>
 
           <div>
-            <div className="font-medium text-sm">r/{post.subreddit.name}</div>
+            <div className="font-medium text-sm">r/{post.subreddit.channel?.name ?? post.subreddit.name ?? 'Unknown'}</div>
             <textarea
               value={post.caption}
               onChange={(e) => onUpdatePost(index, { caption: e.target.value })}

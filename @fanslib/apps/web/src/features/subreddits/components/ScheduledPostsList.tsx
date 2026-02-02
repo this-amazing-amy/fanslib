@@ -5,7 +5,10 @@ type ScheduledPost = {
   id: string;
   subreddit: {
     id: string;
-    name: string;
+    name?: string;
+    channel?: {
+      name: string;
+    };
   };
   media: {
     id: string;
@@ -88,7 +91,7 @@ export const ScheduledPostsList = ({ posts }: ScheduledPostsListProps) => {
               </div>
 
               <div className="font-medium text-sm truncate">
-                r/{post.subreddit.name}
+                r/{post.subreddit.channel?.name ?? post.subreddit.name ?? 'Unknown'}
               </div>
 
               <div className="text-xs text-base-content/60 line-clamp-2 mt-1">

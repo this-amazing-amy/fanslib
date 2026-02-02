@@ -57,6 +57,7 @@ export const CombinedMediaSelection = ({
 
   const media: Media[] = (mediaResponse?.items as Media[] | undefined) ?? [];
   const totalPages = mediaResponse?.totalPages ?? 1;
+  const totalItems = mediaResponse?.total ?? 0;
 
   const filteredMedia: Media[] = media.filter((m) => !excludeMediaIds.includes(m.id));
 
@@ -162,9 +163,31 @@ export const CombinedMediaSelection = ({
                 );
               })}
             </div>
-            {combinedMedia.length === 0 && (
-              <div className="col-span-full text-center py-8 text-base-content/60">
-                No media found
+            {combinedMedia.length === 0 && totalItems === 0 && (
+              <div className="col-span-full text-center py-8 space-y-3">
+                <h3 className="text-lg font-semibold text-base-content/80">
+                  No eligible media found
+                </h3>
+                <div className="space-y-1.5 text-sm text-base-content/60">
+                  {autoApplyFilters && (scheduleId ?? channelId) && (
+                    <p>
+                      • Auto-applied filters from {scheduleId && channelId ? "schedule and channel" : scheduleId ? "schedule" : "channel"}
+                    </p>
+                  )}
+                  {applyRepostCooldown && !includeRecentlyPosted && channelId && (
+                    <p>
+                      • Excluding recently posted media (within cooldown period)
+                    </p>
+                  )}
+                  {filters.length > 0 && (
+                    <p>
+                      • Custom filters applied
+                    </p>
+                  )}
+                </div>
+                <p className="text-sm text-base-content/60 pt-2">
+                  Try adjusting your filters or skip this slot
+                </p>
               </div>
             )}
           </div>

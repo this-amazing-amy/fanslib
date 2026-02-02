@@ -75,7 +75,7 @@ const PostDetailRoute = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 py-6">
             <div className="@container flex flex-col gap-4">
                 <ChannelBadge
-                  name={normalizedPost.channel.typeId === 'reddit' && normalizedPost.subreddit?.name ? `r/${normalizedPost.subreddit.name}` : normalizedPost.channel.name}
+                  name={normalizedPost.channel.typeId === 'reddit' && normalizedPost.subreddit?.channel?.name ? `r/${normalizedPost.subreddit.channel.name}` : normalizedPost.channel.name}
                   typeId={normalizedPost.channel.typeId}
                 size="md"
               />
