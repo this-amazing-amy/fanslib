@@ -1,7 +1,8 @@
 import { db } from "./db";
-import { ChannelType } from "../features/channels/entity";
+import { Channel, ChannelType } from "../features/channels/entity";
 import { CHANNEL_TYPES } from "../features/channels/channelTypes";
 import { ContentSchedule, ScheduleChannel } from "../features/content-schedules/entity";
+import { Subreddit } from "../features/subreddits/entity";
 
 export const seedChannelTypes = async () => {
   const dataSource = await db();
@@ -76,9 +77,71 @@ export const migrateSchedulesToMultiChannel = async () => {
   return { migrated: migratedCount };
 };
 
+export const migrateSubredditsToChannelComposition = async () => {
+  const dataSource = await db();
+  const subredditRepo = dataSource.getRepository(Subreddit);
+  const channelRepo = dataSource.getRepository(Channel);
+
+  const subredditsWithoutChannel = await subredditRepo.find({
+    where: {},
+    relations: ["channel"],
+  });
+
+  const subredditsNeedingMigration = subredditsWithoutChannel.filter(
+    (s) => s.channelId === null
+  );
+
+  if (subredditsNeedingMigration.length === 0) {
+    console.log("✓ No subreddits need migration to channel composition");
+    return { migrated: 0 };
+  }
+
+  console.log(`🔄 Migrating ${subredditsNeedingMigration.length} subreddits to channel composition...`);
+
+  const results = await Promise.all(
+    subredditsNeedingMigration.map(async (subreddit) => {
+      try {
+        const existingChannel = await channelRepo.findOne({
+          where: { name: subreddit.name, typeId: "reddit" },
+        });
+
+        const channel = existingChannel ?? channelRepo.create({
+          name: subreddit.name,
+          typeId: "reddit",
+          description: subreddit.notes,
+          eligibleMediaFilter: subreddit.eligibleMediaFilter,
+          postCooldownHours: subreddit.maxPostFrequencyHours,
+          mediaRepostCooldownHours: 720,
+        });
+
+        if (existingChannel) {
+          console.log(`  → Found existing channel "${channel.name}" for subreddit ${subreddit.id}`);
+        } else {
+          await channelRepo.save(channel);
+          console.log(`  → Created new channel "${channel.name}" for subreddit ${subreddit.id}`);
+        }
+
+        subreddit.channelId = channel.id;
+        await subredditRepo.save(subreddit);
+
+        return { subredditId: subreddit.id, migrated: true };
+      } catch (error) {
+        console.error(`  ✗ Failed to migrate subreddit ${subreddit.id}:`, error);
+        return { subredditId: subreddit.id, migrated: false, error };
+      }
+    })
+  );
+
+  const migratedCount = results.filter((r) => r.migrated).length;
+  console.log(`✓ Migrated ${migratedCount} subreddits to channel composition`);
+
+  return { migrated: migratedCount, failed: results.length - migratedCount };
+};
+
 export const seedDatabase = async () => {
   console.log("🌱 Seeding database...");
   await seedChannelTypes();
   await migrateSchedulesToMultiChannel();
+  await migrateSubredditsToChannelComposition();
   console.log("✅ Database seeding complete");
 };

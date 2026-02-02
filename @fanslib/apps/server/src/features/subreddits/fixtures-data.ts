@@ -1,7 +1,7 @@
 import type { Subreddit } from "./entity";
 import { VERIFICATION_STATUS } from "./entity";
 
-export type SubredditFixture = Omit<Subreddit, "eligibleMediaFilter" | "postingTimesData" | "postingTimesLastFetched" | "postingTimesTimezone">;
+export type SubredditFixture = Omit<Subreddit, "eligibleMediaFilter" | "postingTimesData" | "postingTimesLastFetched" | "postingTimesTimezone" | "channel">;
 
 export const SUBREDDIT_FIXTURES: SubredditFixture[] = [
   {
@@ -13,6 +13,7 @@ export const SUBREDDIT_FIXTURES: SubredditFixture[] = [
     defaultFlair: "OC",
     captionPrefix: "Check this out!",
     notes: null,
+    channelId: "channel-3",
   },
   {
     id: "subreddit-2",
@@ -23,5 +24,6 @@ export const SUBREDDIT_FIXTURES: SubredditFixture[] = [
     notes: "Verified subreddit",
     defaultFlair: "OC",
     captionPrefix: "Check this out!",
+    channelId: null,
   },
 ];

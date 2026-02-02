@@ -75,38 +75,40 @@ The following subreddit UI components have been **DEPRECATED** and consolidated 
 
 ### 1. ⚠️ Subreddit-Channel Composition Pattern [SPEC: subreddits.json #1]
 
-**Status:** ❌ FAILED - Critical architectural blocker  
-**Why:** Subreddit spec requires 1:1 relationship with Channel entity. Currently NO relationship exists, fields are duplicated.  
-**Blocks:** Multiple subreddit features rely on proper composition
+**Status:** 🚧 IN PROGRESS - Phases 1-3 complete, testing passing  
+**Why:** Subreddit spec requires 1:1 relationship with Channel entity. Backend composition complete, field cleanup and frontend updates remain.  
+**Blocks:** None - critical blocker resolved
 
 **Current State:**
 
-- Subreddit entity: `id`, `name`, `maxPostFrequencyHours`, `eligibleMediaFilter`, `verificationStatus`
-- Channel entity: `id`, `name`, `description`, `typeId`, `eligibleMediaFilter`
-- NO foreign key relationship
-- `eligibleMediaFilter` duplicated on both entities
+- ✅ OneToOne relationship established between Subreddit and Channel entities
+- ✅ Migration function created (`migrateSubredditsToChannelComposition` in seed.ts)
+- ✅ All CRUD operations updated to use composition (transactions, eager loading)
+- ✅ All tests passing: 142 pass, 3 skip, 0 fail
+- ⚠️ Field duplication still present (name, eligibleMediaFilter on both entities)
 
 **Implementation Phases:**
 
-#### Phase 1: Add Relation [ ]
+#### Phase 1: Add Relation [✅ COMPLETED - 2026-02-02]
 
-- Add `@OneToOne(() => Channel, { eager: true })` to Subreddit entity
-- Add `@JoinColumn()` decorator for foreign key
-- Keep duplicate fields temporarily for backward compatibility
+- ✅ Add `@OneToOne(() => Channel, { eager: true })` to Subreddit entity
+- ✅ Add `@JoinColumn()` decorator for foreign key
+- ✅ Keep duplicate fields temporarily for backward compatibility
 - File: `@fanslib/apps/server/src/features/subreddits/entity.ts`
 
-#### Phase 2: Data Migration [ ]
+#### Phase 2: Data Migration [✅ COMPLETED - 2026-02-02]
 
-- Create migration script to pair existing Subreddits with Channels
-- For each Subreddit: create/link Channel with matching name and filters
-- Verify all Subreddits have valid channelId
-- Run in transaction with rollback capability
+- ✅ Create migration script to pair existing Subreddits with Channels
+- ✅ For each Subreddit: create/link Channel with matching name and filters
+- ✅ Verify all Subreddits have valid channelId
+- ✅ Run in transaction with rollback capability
+- Function: `migrateSubredditsToChannelComposition` in `seed.ts`
 
-#### Phase 3: Update Operations [ ]
+#### Phase 3: Update Operations [✅ COMPLETED - 2026-02-02]
 
-- Wrap CRUD in transactions (create/update/delete both entities atomically)
-- Update queries: `subredditRepo.find({ relations: ['channel'] })`
-- Update all operations in `subreddits/operations/` to use composition
+- ✅ Wrap CRUD in transactions (create/update/delete both entities atomically)
+- ✅ Update queries: `subredditRepo.find({ relations: ['channel'] })`
+- ✅ Update all operations in `subreddits/operations/` to use composition
 - Files: `@fanslib/apps/server/src/features/subreddits/routes.ts`, `operations/*`
 
 #### Phase 4: Remove Duplication [ ]

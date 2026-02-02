@@ -23,11 +23,11 @@ export const CHANNEL_FIXTURES: ChannelFixture[] = [
   },
   {
     id: "channel-3",
-    name: "Reddit Promo",
+    name: "r/TestSubreddit",
     typeId: "reddit",
-    description: "Reddit promotion channel",
-    postCooldownHours: null,
-    mediaRepostCooldownHours: null,
+    description: null,
+    postCooldownHours: 24,
+    mediaRepostCooldownHours: 720,
     defaultHashtags: [],
   },
 ];
