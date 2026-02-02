@@ -188,7 +188,7 @@
         "Reddit-specific settings accessible via ChannelView expansion panel",
         "Create button creates channel with typeId='reddit'"
       ],
-      "passes": false,
+      "passes": true,
       "deprecated": true,
       "deprecation_note": "Standalone subreddits page removed. Management consolidated into /content/channels. Reddit channels managed alongside other channel types."
     },
@@ -201,7 +201,7 @@
         "Inline editing via ChannelView edit mode",
         "Delete action integrated into ChannelView"
       ],
-      "passes": false,
+      "passes": true,
       "deprecated": true,
       "deprecation_note": "Dedicated subreddit table removed. Reddit channels appear as ChannelView cards with reddit-specific expansion panel."
     },
@@ -214,7 +214,7 @@
         "Subreddit name becomes channel name",
         "Creates both Channel and linked Subreddit entity"
       ],
-      "passes": false,
+      "passes": true,
       "deprecated": true,
       "deprecation_note": "Standalone dialog removed. Use CreateChannelForm with reddit type selection."
     },
@@ -238,7 +238,7 @@
         "Smart virtual post filling applies to reddit schedules",
         "Reddit-specific options (flair, prefix) available in post creation"
       ],
-      "passes": false,
+      "passes": true,
       "deprecated": true,
       "deprecation_note": "Standalone bulk generator removed. Reddit posts created via unified post creation flow with channel-specific options."
     },
