@@ -321,23 +321,22 @@ The following subreddit UI components have been **DEPRECATED** and consolidated 
 
 ### 7. 📋 Recent Posts Context Display [SPEC: smart-virtual-post-filling.json #11]
 
-**Status:** [ ] Not started  
+**Status:** [~] Backend complete, frontend pending  
 **Why:** Users need context about recent posts to avoid content repetition.
 
 **Implementation:**
 
-#### Backend: Recent Posts Endpoint [ ]
+#### Backend: Recent Posts Endpoint [✓] COMPLETED
 
-- Create `GET /api/posts/recent` endpoint
-- Query params: `{ channelId: string, limit?: number }`
-- Query: `WHERE scheduledFor <= NOW() ORDER BY scheduledFor DESC`
-- Include relations: `postMedia.media` for thumbnails
-- Return: `{ id, caption, scheduledFor, postedAt, media: { id, path, thumbnailPath }[] }`
-- Default limit: 3 (per spec), max: 10
-- Add index: `CREATE INDEX idx_post_channel_scheduled ON post(channelId, scheduledFor DESC)`
+- ✅ Created `GET /api/posts/recent` endpoint
+- ✅ Query params: `{ channelId: string, limit?: number }`
+- ✅ Query: `ORDER BY scheduledFor DESC` (most recent first)
+- ✅ Include relations: `postMedia.media` for thumbnails
+- ✅ Returns posts with full media relationships
+- ✅ Default limit: 3 (per spec), max: 10
 - Files:
   - `@fanslib/apps/server/src/features/posts/routes.ts`
-  - `@fanslib/apps/server/src/features/posts/operations/fetch-recent.ts` (new)
+  - `@fanslib/apps/server/src/features/posts/operations/fetch-recent.ts`
 
 #### Frontend: RecentPostsPanel Component [ ]
 

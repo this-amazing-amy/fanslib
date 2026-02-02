@@ -11,6 +11,7 @@ import { fetchAllPosts } from "./operations/post/fetch-all";
 import { fetchPostsByChannel } from "./operations/post/fetch-by-channel";
 import { fetchPostById } from "./operations/post/fetch-by-id";
 import { fetchPostsByMediaId } from "./operations/post/fetch-by-media-id";
+import { FetchRecentPostsRequestSchema, fetchRecentPosts } from "./operations/post/fetch-recent";
 import { UpdatePostRequestBodySchema, updatePost } from "./operations/post/update";
 import { PostFiltersSchema } from "./schemas/post-filters";
 
@@ -42,6 +43,11 @@ export const postsRoutes = new Hono()
   .get("/by-media-id/:mediaId", async (c) => {
     const mediaId = c.req.param("mediaId");
     const posts = await fetchPostsByMediaId(mediaId);
+    return c.json(posts);
+  })
+  .get("/recent", zValidator("query", FetchRecentPostsRequestSchema, validationError), async (c) => {
+    const params = c.req.valid("query");
+    const posts = await fetchRecentPosts(params);
     return c.json(posts);
   })
   .post("/", zValidator("json", CreatePostRequestBodySchema, validationError), async (c) => {
