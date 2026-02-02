@@ -1227,3 +1227,72 @@ Explicitly excluded from this work scope:
 
 **Last Updated:** 2026-02-02 (Feature #6 completed - Visual Posting History Indicators)  
 **Plan Version:** 1.9 (11/12 tasks complete, smart-virtual-post-filling 50%)
+
+---
+
+## Task #9: Morphing Panel Animation ✅ (2026-02-02)
+
+**Goal:** Implement smooth morphing animation from virtual post card to media selection panel
+
+**Implementation:**
+
+Created `usePrefersReducedMotion` hook (`@fanslib/apps/web/src/hooks/usePrefersReducedMotion.ts`):
+- Detects `prefers-reduced-motion` media query
+- Updates state on media query change
+- Returns boolean for use in animation configurations
+
+Updated `PostCalendarPostView.tsx`:
+- Added `layoutId` prop to component signature
+- Conditionally renders `motion.div` vs `div` based on layoutId presence
+- Passes layoutId to card wrapper for shared element transition
+
+Updated `PostCalendarPost.tsx`:
+- Generates unique layoutId for virtual posts: `virtual-post-${date}-${channelId}`
+- Passes layoutId to `PostCalendarPostView` only for virtual posts
+- Real posts remain unchanged
+
+Replaced React Aria Dialog with framer-motion in `CreatePostDialog.tsx`:
+- Replaced `DialogTrigger`/`DialogModal`/`Dialog` with `AnimatePresence`/`motion.div`
+- Added backdrop with fade animation (opacity 0→1)
+- Panel uses `layoutId` matching virtual post card for morphing transition
+- Content wraps in `motion.div` with fade-in after morph completes
+- Transition duration: 300ms (0 if prefers-reduced-motion)
+- Content fade delay: 150ms after morph starts
+- Added Escape key handler to close dialog
+- Backdrop click closes dialog with reverse animation
+
+**Animation Flow:**
+1. User clicks virtual post card
+2. Card morphs outward into panel position (layoutId transition)
+3. Backdrop fades in simultaneously
+4. Content fades in after 150ms delay
+5. On close: reverse animation back to original card position
+
+**Accessibility:**
+- Respects `prefers-reduced-motion` for instant transitions (0ms duration)
+- Maintains keyboard navigation (Escape, Tab, Cmd+Enter, Shift+Enter)
+- Backdrop click handler for easy dismissal
+- No animation jank due to proper AnimatePresence usage
+
+**Acceptance Criteria Met:**
+- ✅ Panel morphs from clicked card boundaries outward
+- ✅ Uses framer-motion layoutId for shared element transition
+- ✅ Panel floats above calendar via fixed positioning
+- ✅ Semi-transparent backdrop dims the calendar
+- ✅ Content fades in after morph completes
+- ✅ Backdrop click and Escape close with reverse animation
+- ✅ Respects prefers-reduced-motion media query
+
+**Test Results:**
+- ✅ Typecheck: passing
+- ✅ Lint: passing
+
+**Spec Status Update:**
+- `smart-virtual-post-filling.json`: 12/12 features (100%) → Feature #1 now passing
+
+**Progress:** 12/12 tasks complete - ALL FEATURES COMPLETE! 🎉
+
+---
+
+**Last Updated:** 2026-02-02 (Feature #1 completed - Morphing Panel Animation)  
+**Plan Version:** 2.0 (12/12 tasks complete, smart-virtual-post-filling 100% COMPLETE!)
