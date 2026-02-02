@@ -372,6 +372,7 @@ export const CreatePostDialog = ({
                         channelId={selectedChannel[0]}
                         autoApplyFilters={true}
                         applyRepostCooldown={true}
+                        onClose={() => onOpenChange(false)}
                       />
                     </div>
 

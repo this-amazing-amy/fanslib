@@ -98,7 +98,7 @@
         "User can add/remove filters using same UI as library browser",
         "Filter state resets when panel closes"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "functional",

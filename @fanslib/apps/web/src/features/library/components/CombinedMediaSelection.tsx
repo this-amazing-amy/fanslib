@@ -10,6 +10,7 @@ import { useMediaListQuery } from "~/lib/queries/library";
 import { MediaFilters } from "./MediaFilters/MediaFilters";
 import { MediaFiltersProvider } from "./MediaFilters/MediaFiltersContext";
 import { MediaTileLite } from "./MediaTile/MediaTileLite";
+import { MediaFilterSummary } from "~/components/MediaFilterSummary";
 
 
 type MediaFilterType = MediaFilter;
@@ -25,6 +26,7 @@ type CombinedMediaSelectionProps = {
   channelId?: string;
   autoApplyFilters?: boolean;
   applyRepostCooldown?: boolean;
+  onClose?: () => void;
 };
 
 export const CombinedMediaSelection = ({
@@ -38,17 +40,31 @@ export const CombinedMediaSelection = ({
   channelId,
   autoApplyFilters = false,
   applyRepostCooldown = false,
+  onClose,
 }: CombinedMediaSelectionProps) => {
   const [activePreviewId, setActivePreviewId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [filters, setFilters] = useState<MediaFilterType>(initialFilters);
+  const [userFilters, setUserFilters] = useState<MediaFilterType>([]);
   const [includeRecentlyPosted, setIncludeRecentlyPosted] = useState(false);
+
+  // Reset user filters when panel closes
+  useEffect(() => {
+    if (onClose) {
+      return () => {
+        setUserFilters([]);
+      };
+    }
+  }, [onClose]);
+
+  // Combine user filters with initial filters for the query
+  // Initial filters are pre-applied, user filters are additional refinements
+  const combinedFilters = useMemo(() => [...initialFilters, ...userFilters], [initialFilters, userFilters]);
 
   const { data: mediaResponse } = useMediaListQuery({
     limit: pageLimit,
     page: currentPage,
     sort: { field: "fileModificationDate", direction: "DESC" },
-    filters,
+    filters: combinedFilters,
     scheduleId,
     channelId,
     autoApplyFilters,
@@ -79,34 +95,35 @@ export const CombinedMediaSelection = ({
   const handleNextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   const handlePrevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
-  const handleFilterChange = (newFilters: MediaFilterType) => {
-    setFilters(newFilters);
+  const handleUserFilterChange = (newFilters: MediaFilterType) => {
+    setUserFilters(newFilters);
     setCurrentPage(1);
   };
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [filters]);
+  }, [userFilters]);
 
   const isSelected = (mediaId: string) => selectedMedia.some((m) => m.id === mediaId);
 
   return (
     <div className={cn("flex flex-col", className)}>
       <div className="flex-shrink-0">
-        {autoApplyFilters && (scheduleId || channelId) ? (
-          <div className="mb-2 px-2">
-            <div className="flex items-center gap-2 text-xs text-base-content/70 bg-base-200/50 px-3 py-2 rounded-md">
-              <span className="font-medium">🎯 Auto-filtering media</span>
-              <span>
-                {scheduleId && channelId
-                  ? "based on schedule and channel"
-                  : scheduleId
-                    ? "based on schedule"
-                    : "based on channel"}
-              </span>
+        {/* Pre-applied filters badge */}
+        {autoApplyFilters && (scheduleId || channelId) && initialFilters.length > 0 ? (
+          <div className="mb-3 px-2">
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2 text-xs text-base-content/70">
+                <span className="font-medium">🎯 Pre-applied filters from {scheduleId && channelId ? "schedule and channel" : scheduleId ? "schedule" : "channel"}:</span>
+              </div>
+              <div className="bg-base-200/30 px-3 py-2 rounded-md border border-base-300/50">
+                <MediaFilterSummary mediaFilters={initialFilters} />
+              </div>
             </div>
           </div>
         ) : null}
+
+        {/* Repost cooldown toggle */}
         {applyRepostCooldown && channelId ? (
           <div className="mb-2 px-2">
             <Checkbox
@@ -117,12 +134,19 @@ export const CombinedMediaSelection = ({
             </Checkbox>
           </div>
         ) : null}
-        <div className={cn("flex flex-col gap-4", filters.length === 0 ? "p-1" : "py-1")}>
-          <FilterPresetProvider onFiltersChange={handleFilterChange}>
-            <MediaFiltersProvider value={filters} onChange={handleFilterChange}>
-              <MediaFilters />
-            </MediaFiltersProvider>
-          </FilterPresetProvider>
+
+        {/* User refinement filters */}
+        <div className="mb-2 px-2">
+          <div className="text-xs font-medium text-base-content/70 mb-2">
+            Additional filters:
+          </div>
+          <div className={cn("flex flex-col gap-4", userFilters.length === 0 ? "p-1" : "py-1")}>
+            <FilterPresetProvider onFiltersChange={handleUserFilterChange}>
+              <MediaFiltersProvider value={userFilters} onChange={handleUserFilterChange}>
+                <MediaFilters />
+              </MediaFiltersProvider>
+            </FilterPresetProvider>
+          </div>
         </div>
       </div>
 
@@ -169,9 +193,9 @@ export const CombinedMediaSelection = ({
                   No eligible media found
                 </h3>
                 <div className="space-y-1.5 text-sm text-base-content/60">
-                  {autoApplyFilters && (scheduleId ?? channelId) && (
+                  {initialFilters.length > 0 && (
                     <p>
-                      • Auto-applied filters from {scheduleId && channelId ? "schedule and channel" : scheduleId ? "schedule" : "channel"}
+                      • Pre-applied filters from {scheduleId && channelId ? "schedule and channel" : scheduleId ? "schedule" : "channel"}
                     </p>
                   )}
                   {applyRepostCooldown && !includeRecentlyPosted && channelId && (
@@ -179,9 +203,9 @@ export const CombinedMediaSelection = ({
                       • Excluding recently posted media (within cooldown period)
                     </p>
                   )}
-                  {filters.length > 0 && (
+                  {userFilters.length > 0 && (
                     <p>
-                      • Custom filters applied
+                      • Additional custom filters applied
                     </p>
                   )}
                 </div>
