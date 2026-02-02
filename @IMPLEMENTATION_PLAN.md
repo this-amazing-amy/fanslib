@@ -411,58 +411,34 @@ The following subreddit UI components have been **DEPRECATED** and consolidated 
 
 ### 8. 📊 Complete MediaTilePostsPopover [SPEC: smart-virtual-post-filling.json #6]
 
-**Status:** [ ] Not started - Currently STUB returning null  
+**Status:** ✅ COMPLETED  
 **Why:** Users need visual posting history on media items. TODO comments indicate incomplete implementation.
 
-**Current State:**
+**Implementation Completed:**
 
-```typescript
-// @fanslib/apps/web/src/features/library/components/MediaTile/MediaTilePostsPopover.tsx
-// Returns null with TODO comments:
-// TODO: Implement postMedia relations query
-// TODO: Create ChannelBadge component
-// TODO: Create StatusBadge component
-// TODO: Set up Popover component
-```
+- ✅ **Backend endpoint**: Updated `GET /api/media/:id/posting-history`
+  - Returns `PostMedia[]` with `post.channel` relation included
+  - Sorts by `post.scheduledFor DESC`
+  - File: `@fanslib/apps/server/src/features/library/routes.ts`
+  
+- ✅ **Query hook**: `useMediaPostingHistoryQuery(mediaId)`
+  - Query key: `['media', 'postingHistory', mediaId]`
+  - Uses eden treaty for type safety
+  - File: `@fanslib/apps/web/src/lib/queries/library.ts`
 
-**Implementation:**
+- ✅ **UI Components**:
+  - `MediaTilePostsPopover.tsx` - Fully implemented with:
+    - Badge showing "Posted Nx" when count > 0
+    - Popover with posting history list
+    - Integration with existing `ChannelBadge` and `StatusBadge` components
+    - Relative timestamps using date-fns (e.g., "Posted 3 days ago")
+    - Scrollable list with max-h-96 for long histories
+    - Empty state handling: "Not posted yet"
+  - File: `@fanslib/apps/web/src/features/library/components/MediaTile/MediaTilePostsPopover.tsx`
+  - Integration: `@fanslib/apps/web/src/features/library/components/MediaTile/MediaTile.tsx`
+  - Badge components: Reused existing `ChannelBadge.tsx` and `StatusBadge.tsx` from posts feature
 
-#### Backend: Media Posting History Endpoint [ ]
-
-- Create `GET /api/media/:id/posts` endpoint
-- Query PostMedia join table: `SELECT * FROM post_media WHERE mediaId = :id`
-- Join with Post entity for channel, status, dates
-- Return: `{ totalCount: number, posts: Post[] }`
-- Order by scheduledFor DESC
-- File: `@fanslib/apps/server/src/features/posts/routes.ts`
-
-#### Frontend: Badge Components [ ]
-
-- Create `ChannelBadge.tsx`:
-  - Props: `{ channelId: string, channelName: string, channelType: string }`
-  - Display channel icon + name (compact)
-- Create `StatusBadge.tsx`:
-  - Props: `{ status: "draft" | "ready" | "scheduled" | "posted" }`
-  - Color-coded: draft (gray), ready (blue), scheduled (yellow), posted (green)
-- Files: `@fanslib/apps/web/src/features/posts/components/` (new)
-
-#### Frontend: Popover Implementation [ ]
-
-- Remove stub `return null`
-- Create TanStack Query hook: `useMediaPosts(mediaId)`
-- Show badge on MediaTile: "Posted 3x" (only if count > 0 per spec)
-- Badge style: small, subtle, corner of tile
-- On click: open popover with post list
-- List each post:
-  - ChannelBadge
-  - StatusBadge
-  - Timestamp: "Scheduled for Mar 15" or "Posted 3 days ago"
-- Empty state: "Not posted yet"
-- Max height with scroll if >5 posts
-- Files:
-  - `@fanslib/apps/web/src/features/library/components/MediaTile/MediaTilePostsPopover.tsx` (implement)
-  - `@fanslib/apps/web/src/features/library/components/MediaTile/MediaTile.tsx` (integration)
-  - `@fanslib/apps/web/src/features/posts/hooks/useMediaPosts.ts` (new)
+**Testing:** All tests pass (142 pass, 3 skip, 0 fail)
 
 **Acceptance Criteria:**
 

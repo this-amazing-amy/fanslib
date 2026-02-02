@@ -22,6 +22,18 @@ export const useMediaQuery = (params: FetchMediaByIdRequestParams) =>
     enabled: !!params.id,
   });
 
+export const useMediaPostingHistoryQuery = (mediaId: string) =>
+  useQuery({
+    queryKey: QUERY_KEYS.media.postingHistory(mediaId),
+    queryFn: async () => {
+      const result = await api.api.media['by-id'][':id']['posting-history'].$get({ 
+        param: { id: mediaId } 
+      });
+      return result.json();
+    },
+    enabled: !!mediaId,
+  });
+
 export const useMediaAdjacentQuery = (
   params: FindAdjacentMediaRequestParams,
   body?: FindAdjacentMediaBody

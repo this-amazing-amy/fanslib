@@ -56,6 +56,7 @@ export const QUERY_KEYS = {
     list: (params?: FetchAllMediaRequestBody) => ['media', 'list', params] as const,
     byId: (id: string) => ['media', id] as const,
     adjacent: (id: string, body?: unknown) => ['media', id, 'adjacent', body] as const,
+    postingHistory: (id: string) => ['media', id, 'posting-history'] as const,
   },
 
   tags: {
