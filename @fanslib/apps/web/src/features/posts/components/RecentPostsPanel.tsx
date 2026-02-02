@@ -63,9 +63,9 @@ export const RecentPostsPanel = ({
                 key={post.id}
                 className="flex items-start gap-3 p-3 rounded-lg bg-base-100 hover:bg-base-100/80 transition-colors"
               >
-                {hasPostMedia ? (
+                {hasPostMedia && Array.isArray(post.postMedia) ? (
                   <div className="flex gap-1">
-                    {(post.postMedia as any[]).slice(0, 3).map((pm: any) => 
+                    {post.postMedia.slice(0, 3).map((pm) => 
                       pm.media ? (
                         <MediaTileLite
                           key={pm.media.id}
@@ -74,9 +74,9 @@ export const RecentPostsPanel = ({
                         />
                       ) : null
                     )}
-                    {(post.postMedia as any[]).length > 3 ? (
+                    {post.postMedia.length > 3 ? (
                       <div className="w-16 h-16 rounded-md bg-base-200 flex items-center justify-center text-xs font-semibold text-base-content/60">
-                        +{(post.postMedia as any[]).length - 3}
+                        +{post.postMedia.length - 3}
                       </div>
                     ) : null}
                   </div>

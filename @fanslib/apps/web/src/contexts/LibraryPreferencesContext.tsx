@@ -34,7 +34,7 @@ const defaultPreferences: LibraryPreferences = {
   },
   filter: [],
   sort: {
-    field: "fileModificationDate",
+    field: "fileCreationDate",
     direction: "DESC",
   },
   pagination: {

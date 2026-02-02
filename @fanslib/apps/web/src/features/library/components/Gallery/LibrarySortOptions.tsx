@@ -9,34 +9,40 @@ import {
 
 export type SortOption = MediaSort;
 
-const sortFields: { value: SortField; label: string }[] = [
+const sortFields: { value: SortField; label: string; directions?: ('ASC' | 'DESC')[] }[] = [
   {
-    value: "fileModificationDate",
-    label: "Modified Date",
+    value: "fileCreationDate",
+    label: "Newest Added",
+    directions: ["DESC"], // Newest first (default)
   },
   {
     value: "fileCreationDate",
-    label: "Created Date",
+    label: "Oldest Added",
+    directions: ["ASC"], // Oldest first
   },
   {
     value: "lastPosted",
-    label: "Last Posted",
+    label: "Recently Posted",
+    directions: ["DESC"], // Most recently posted first
+  },
+  {
+    value: "leastPosted",
+    label: "Least Posted",
+    directions: ["ASC"], // Least posted first
   },
 ];
 
-const createSortOptions = () => sortFields.flatMap((field) =>
-    (["ASC", "DESC"] as const).map((direction) => {
-      const value = `${field.value}:${direction}`;
-      const label = `${field.label} ${direction === "ASC" ? "↑" : "↓"}`;
+const createSortOptions = () => sortFields.map((field) => {
+    const direction = field.directions?.[0] ?? "DESC";
+    const value = `${field.value}:${direction}`;
 
-      return {
-        value,
-        label,
-        field: field.value,
-        direction,
-      };
-    })
-  );
+    return {
+      value,
+      label: field.label,
+      field: field.value,
+      direction,
+    };
+  });
 
 const sortOptions = createSortOptions();
 

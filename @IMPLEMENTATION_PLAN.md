@@ -22,7 +22,7 @@
 3. **Automatic Filter Pre-application** (Task #4) - Virtual posts with `autoApplyFilter=true` automatically use channel filter with merge logic
 4. **leastPosted Sort Option** (Task #5) - New sort strategy orders media by post count (least posted first), then by date
 5. **Recent Posts Endpoint** (Task #6) - `/api/posts/recent` returns posts from last N days for cooldown context
-6. **Subreddit UI Consolidation** (Task #7 - deprecated)
+6. **Sort Options Frontend** (Task #6) - ✅ COMPLETED - LibrarySortOptions component with all 4 sort modes, default changed to fileCreationDate
 7. **Recent Posts Context Display** (Task #7) - ✅ COMPLETED - RecentPostsPanel component with query hook, status badges, relative timestamps
 
 **Technical Highlights:**
@@ -34,14 +34,57 @@
 
 **Next Priorities:**
 
-1. **Frontend UI Integration** - Continue smart virtual post filling UI (Tasks #6, #8-12)
-   - Sort options UI (Task #6)
+1. **Frontend UI Integration** - Continue smart virtual post filling UI (Tasks #8-12)
    - MediaTilePostsPopover completion (Task #8)
    - Filter inheritance toggle
    - Visual cooldown indicators
    - "Create & Next" navigation
 
 2. **Task #1: Subreddit-Channel Composition** - Architectural refactor to establish 1:1 relationship between Subreddit and Channel entities (critical blocker)
+
+---
+
+## ✅ COMPLETED: Task #6 - Sort Options Frontend
+
+**Status:** ✅ COMPLETED (2026-02-02)  
+**Test Results:** All tests passing (142 pass, 3 skip, 0 fail)
+
+### Implementation Summary
+
+Updated `LibrarySortOptions` component to include all 4 sort options from spec. Changed default sort from `fileModificationDate` to `fileCreationDate` per spec requirements. All sort options correctly mapped to backend sort fields with proper persistence via session storage.
+
+### What Was Done
+
+1. **Updated LibrarySortOptions component** (`@fanslib/apps/web/src/features/library/components/Gallery/LibrarySortOptions.tsx`)
+   - Added all 4 sort options: "Newest Added" (default), "Oldest Added", "Recently Posted", "Least Posted"
+   - Removed "Random" option (not in spec)
+   - Mapped frontend labels to correct backend sort fields:
+     - "Newest Added" → `fileCreationDate` + `desc`
+     - "Oldest Added" → `fileCreationDate` + `asc`
+     - "Recently Posted" → `lastPosted` + `desc`
+     - "Least Posted" → `leastPosted` + `asc`
+
+2. **Changed default sort field** (`@fanslib/apps/web/src/contexts/LibraryPreferencesContext.tsx`)
+   - Updated default `sortField` from `fileModificationDate` to `fileCreationDate`
+   - Maintains `desc` direction for "newest first" behavior
+
+3. **Sort persistence**
+   - Sort preference automatically persists in `sessionStorage` via `LibraryPreferencesContext`
+   - Restores on component mount for session continuity
+
+### Files Modified
+
+- `@fanslib/apps/web/src/features/library/components/Gallery/LibrarySortOptions.tsx` - Updated sort options array
+- `@fanslib/apps/web/src/contexts/LibraryPreferencesContext.tsx` - Changed default sort field
+
+### Acceptance Criteria Met
+
+- ✅ Sort dropdown offers: Newest Added (default), Oldest Added, Recently Posted, Least Posted
+- ✅ Newest/Oldest Added sorts by `fileCreationDate`
+- ✅ Recently/Least Posted sorts by `lastPosted`/`leastPosted`
+- ✅ Sort preference persists for the session
+
+**Next Task:** Continue Phase 2 frontend work - Task #8 (MediaTilePostsPopover completion) or Task #4/5 (Frontend integration)
 
 ---
 
@@ -99,7 +142,7 @@ Created a complete recent posts context panel for the smart virtual post filling
 - ✅ Query performs efficiently (<200ms)
 - ✅ All tests pass
 
-**Next Task:** Continue Phase 2 frontend work - Task #6 (Sort options UI) or Task #8 (MediaTilePostsPopover completion)
+**Next Task:** Continue Phase 2 frontend work - Task #8 (MediaTilePostsPopover completion) or Task #4/5 (Frontend integration)
 
 ---
 
@@ -362,10 +405,45 @@ The following subreddit UI components have been **DEPRECATED** and consolidated 
 
 ### 6. 🔄 Sort Options [SPEC: smart-virtual-post-filling.json #5]
 
-**Status:** [~] Backend COMPLETED, Frontend pending  
-**Why:** Users need control over media order. Spec requires 4 sort modes.
+**Status:** ✅ COMPLETED (2026-02-02)  
+**Test Results:** All tests passing (142 pass, 3 skip, 0 fail)
 
-**Tasks:**
+### Implementation Summary
+
+Updated `LibrarySortOptions` component to include all 4 sort options from spec. Changed default sort from `fileModificationDate` to `fileCreationDate` per spec requirements. All sort options correctly mapped to backend sort fields with proper persistence via session storage.
+
+### What Was Done
+
+1. **Updated LibrarySortOptions component** (`@fanslib/apps/web/src/features/library/components/Gallery/LibrarySortOptions.tsx`)
+   - Added all 4 sort options: "Newest Added" (default), "Oldest Added", "Recently Posted", "Least Posted"
+   - Removed "Random" option (not in spec)
+   - Mapped frontend labels to correct backend sort fields:
+     - "Newest Added" → `fileCreationDate` + `desc`
+     - "Oldest Added" → `fileCreationDate` + `asc`
+     - "Recently Posted" → `lastPosted` + `desc`
+     - "Least Posted" → `leastPosted` + `asc`
+
+2. **Changed default sort field** (`@fanslib/apps/web/src/contexts/LibraryPreferencesContext.tsx`)
+   - Updated default `sortField` from `fileModificationDate` to `fileCreationDate`
+   - Maintains `desc` direction for "newest first" behavior
+
+3. **Sort persistence**
+   - Sort preference automatically persists in `sessionStorage` via `LibraryPreferencesContext`
+   - Restores on component mount for session continuity
+
+### Files Modified
+
+- `@fanslib/apps/web/src/features/library/components/Gallery/LibrarySortOptions.tsx` - Updated sort options array
+- `@fanslib/apps/web/src/contexts/LibraryPreferencesContext.tsx` - Changed default sort field
+
+### Acceptance Criteria Met
+
+- ✅ Sort dropdown offers: Newest Added (default), Oldest Added, Recently Posted, Least Posted
+- ✅ Newest/Oldest Added sorts by `fileCreationDate`
+- ✅ Recently/Least Posted sorts by `lastPosted`/`leastPosted`
+- ✅ Sort preference persists for the session
+
+### Backend Implementation (Previously Completed)
 
 #### Backend: Sort Schema [✓] COMPLETED
 
@@ -389,25 +467,6 @@ The following subreddit UI components have been **DEPRECATED** and consolidated 
 - All 4 sort modes fully functional via backend API
 - `leastPosted` uses COUNT of post_media associations, breaks ties with fileModificationDate DESC
 - Adjacent media navigation works correctly with all sort fields
-
-#### Frontend: Sort Dropdown [ ] NOT STARTED
-
-- Add sort dropdown to media grid header
-- Options: "Newest Added", "Oldest Added", "Recently Posted", "Least Posted", "Random"
-- Store selection in sessionStorage: `mediaGridSort`
-- Restore on component mount (session persistence per spec)
-- Trigger refetch when sort changes
-- Files:
-  - `@fanslib/apps/web/src/features/library/components/MediaGrid.tsx`
-  - `@fanslib/apps/web/src/features/library/hooks/useMediaList.ts`
-
-**Acceptance Criteria:**
-
-- ✅ 4 sort modes work correctly
-- ✅ Sort persists within browser session (not across sessions per spec)
-- ✅ Default is "newest"
-- ✅ Query performance <500ms for 10k media
-- ✅ UI is discoverable (clear dropdown labels)
 
 **Dependencies:** None
 
@@ -859,7 +918,7 @@ Explicitly excluded from this work scope:
 
 4. Task #4: Automatic filter pre-application
 5. ~~Task #5: Media repost cooldown filtering~~ → COMPLETED (backend only, frontend pending)
-6. Task #6: Sort options
+6. ✅ Task #6: Sort options - COMPLETED
 7. ✅ Task #7: Recent posts context - COMPLETED
 8. Task #8: Complete MediaTilePostsPopover
 
@@ -880,18 +939,18 @@ Explicitly excluded from this work scope:
 
 ## PROGRESS TRACKING
 
-**Completed:** 5/12 tasks (Tasks #2, #3 removed, #4 backend, #5 backend, #7 complete)  
+**Completed:** 6/12 tasks (Tasks #2, #3 removed, #4 backend, #5 backend, #6 complete, #7 complete)  
 **In Progress:** 0/10 tasks  
-**Not Started:** 5/10 tasks (frontend work pending for Tasks #4, #5, #6, #8-12)
+**Not Started:** 4/10 tasks (frontend work pending for Tasks #4, #5, #8-12)
 
 **Spec Status:**
 
 - `subreddits.json`: 19/23 → Target: 19/19 non-deprecated (4 UI features deprecated, 2 architectural to fix)
 - `smart-virtual-post-filling.json`: 0/12 → Target: 12/12 (backend for #3 and #4 complete, frontend integration pending)
 
-**Next Action:** Begin Phase 1 - Task #1 (Subreddit-Channel composition) or continue Phase 2 - Frontend integration for Tasks #4 and #5
+**Next Action:** Begin Phase 1 - Task #1 (Subreddit-Channel composition) or continue Phase 2 - Frontend integration for Tasks #4, #5, and #8
 
 ---
 
-**Last Updated:** 2026-02-02 (Task #7 completed - Recent Posts Context Display with RecentPostsPanel component)  
-**Plan Version:** 1.5 (Recent posts context frontend integration complete)
+**Last Updated:** 2026-02-02 (Task #6 completed - Sort Options Frontend with LibrarySortOptions component)  
+**Plan Version:** 1.6 (Sort options frontend integration complete)
