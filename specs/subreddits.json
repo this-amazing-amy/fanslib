@@ -72,7 +72,7 @@
         "null means no restriction for either field",
         "Subreddit's maxPostFrequencyHours migrates to Channel.postCooldownHours"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "data",
