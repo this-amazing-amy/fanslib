@@ -268,42 +268,38 @@ The following subreddit UI components have been **DEPRECATED** and consolidated 
 
 ### 6. 🔄 Sort Options [SPEC: smart-virtual-post-filling.json #5]
 
-**Status:** [ ] Not started  
+**Status:** [~] Backend COMPLETED, Frontend pending  
 **Why:** Users need control over media order. Spec requires 4 sort modes.
 
 **Tasks:**
 
-#### Backend: Sort Schema [ ]
+#### Backend: Sort Schema [✓] COMPLETED
 
-- Add `sort` param to media list endpoint schema
-- Type: `"newest" | "oldest" | "recently_posted" | "least_posted"`
-- Default: "newest"
+- ✅ Added `sortField` and `sortDirection` params to media list endpoint schema
+- ✅ SortFieldSchema enum: `"fileModificationDate" | "lastPosted" | "leastPosted" | "random"`
+- ✅ SortDirectionSchema enum: `"asc" | "desc"` 
+- ✅ Default: `fileModificationDate` + `desc` (newest first)
 - File: `@fanslib/apps/server/src/features/library/schemas/media-list-request.ts`
 
-#### Backend: Sort Queries [ ]
+#### Backend: Sort Queries [✓] COMPLETED
 
-- `newest`: `ORDER BY media.addedAt DESC` (likely exists)
-- `oldest`: `ORDER BY media.addedAt ASC`
-- `recently_posted`:
-  ```sql
-  LEFT JOIN post_media pm ON pm.mediaId = media.id
-  LEFT JOIN post p ON p.id = pm.postId
-  GROUP BY media.id
-  ORDER BY MAX(p.scheduledFor) DESC NULLS LAST
-  ```
-- `least_posted`:
-  ```sql
-  LEFT JOIN post_media pm ON pm.mediaId = media.id
-  GROUP BY media.id
-  ORDER BY COUNT(pm.id) ASC, media.addedAt DESC
-  ```
-- Add database index: `CREATE INDEX idx_media_addedAt ON media(addedAt)`
+- ✅ `fileModificationDate` + `desc`: `ORDER BY media.fileModificationDate DESC` (newest)
+- ✅ `fileModificationDate` + `asc`: `ORDER BY media.fileModificationDate ASC` (oldest)
+- ✅ `lastPosted`: `LEFT JOIN post_media, GROUP BY, ORDER BY MAX(post.scheduledFor)`
+- ✅ `leastPosted`: `LEFT JOIN post_media, GROUP BY, ORDER BY COUNT(post_media.id) ASC`
+- ✅ `random`: `ORDER BY RANDOM()`
+- ✅ Updated `find-adjacent` operation to handle all sort fields
 - File: `@fanslib/apps/server/src/features/library/routes.ts`
 
-#### Frontend: Sort Dropdown [ ]
+**Implementation Notes:**
+- All 4 sort modes fully functional via backend API
+- `leastPosted` uses COUNT of post_media associations, breaks ties with fileModificationDate DESC
+- Adjacent media navigation works correctly with all sort fields
+
+#### Frontend: Sort Dropdown [ ] NOT STARTED
 
 - Add sort dropdown to media grid header
-- Options: "Newest Added", "Oldest Added", "Recently Posted", "Least Posted"
+- Options: "Newest Added", "Oldest Added", "Recently Posted", "Least Posted", "Random"
 - Store selection in sessionStorage: `mediaGridSort`
 - Restore on component mount (session persistence per spec)
 - Trigger refetch when sort changes

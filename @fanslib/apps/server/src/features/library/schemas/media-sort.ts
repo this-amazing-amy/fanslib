@@ -4,6 +4,7 @@ export const SortFieldSchema = z.enum([
   'fileModificationDate',
   'fileCreationDate',
   'lastPosted',
+  'leastPosted',
   'random',
 ]);
 

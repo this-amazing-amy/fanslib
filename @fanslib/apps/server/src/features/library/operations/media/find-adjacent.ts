@@ -73,6 +73,7 @@ export const findAdjacentMedia = async (
       }
       break;
     case "lastPosted":
+    case "leastPosted":
       currentValue = currentMedia.fileCreationDate;
       previousCondition = `media.fileCreationDate > :currentValue`;
       nextCondition = `media.fileCreationDate < :currentValue`;

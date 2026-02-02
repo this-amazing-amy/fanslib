@@ -96,13 +96,26 @@ export const fetchAllMedia = async (
           .addSelect(
             (subQuery) =>
               subQuery
-                .select("MAX(p.date)")
+                .select("MAX(p.scheduledFor)")
                 .from("post", "p")
-                .innerJoin("post.postMedia", "pm")
+                .innerJoin("post_media", "pm", "pm.postId = p.id")
                 .where("pm.mediaId = media.id"),
             "lastPostDate"
           )
           .orderBy("lastPostDate", direction, "NULLS LAST");
+        break;
+      case "leastPosted":
+        queryBuilder
+          .addSelect(
+            (subQuery) =>
+              subQuery
+                .select("COUNT(pm.id)")
+                .from("post_media", "pm")
+                .where("pm.mediaId = media.id"),
+            "postCount"
+          )
+          .orderBy("postCount", direction)
+          .addOrderBy("media.fileModificationDate", "DESC");
         break;
       case "random":
         queryBuilder.orderBy("RANDOM() * unixepoch()", direction);
