@@ -13,5 +13,8 @@ export const fetchSubredditById = async (
 ): Promise<z.infer<typeof FetchSubredditByIdResponseSchema> | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Subreddit);
-  return repository.findOne({ where: { id } });
+  return repository.findOne({
+    where: { id },
+    relations: ["channel"],
+  });
 };

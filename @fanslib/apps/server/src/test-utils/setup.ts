@@ -62,15 +62,43 @@ export const createTestChannel = async (overrides: Partial<Channel> = {}) => {
 
 export const createTestSubreddit = async (overrides: Partial<Subreddit> = {}) => {
   const dataSource = getTestDataSource();
-  const repository = dataSource.getRepository(Subreddit);
+  const subredditRepo = dataSource.getRepository(Subreddit);
+  const channelRepo = dataSource.getRepository(Channel);
+  const channelTypeRepo = dataSource.getRepository("ChannelType");
 
-  const subreddit = repository.create({
+  // Ensure reddit channel type exists
+  const redditType = await channelTypeRepo.findOne({ where: { id: "reddit" } });
+  if (!redditType) {
+    await channelTypeRepo.save({
+      id: "reddit",
+      name: "Reddit",
+      color: "#FF5700",
+    });
+  }
+
+  // Create or use provided channel
+  const channel = overrides.channelId
+    ? await channelRepo.findOne({ where: { id: overrides.channelId } })
+    : channelRepo.create({
+        name: `testsubreddit-${Date.now()}`,
+        typeId: "reddit",
+        description: null,
+        eligibleMediaFilter: null,
+        postCooldownHours: null,
+        mediaRepostCooldownHours: 720,
+      });
+
+  if (!overrides.channelId && channel) {
+    await channelRepo.save(channel);
+  }
+
+  const subreddit = subredditRepo.create({
     id: `subreddit-${Date.now()}-${Math.random()}`,
-    name: "testsubreddit",
+    channelId: channel?.id ?? null,
     ...overrides,
   });
 
-  return repository.save(subreddit);
+  return subredditRepo.save(subreddit);
 };
 
 export const createTestPost = async (

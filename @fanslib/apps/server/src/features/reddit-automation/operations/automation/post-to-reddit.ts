@@ -17,12 +17,22 @@ export const postToReddit = async (
   caption: string
 ): Promise<RedditPostResult> => {
   const subredditRepo = (await db()).getRepository(Subreddit);
-  const subreddit = await subredditRepo.findOne({ where: { id: subredditId } });
+  const subreddit = await subredditRepo.findOne({
+    where: { id: subredditId },
+    relations: ["channel"],
+  });
 
   if (!subreddit) {
     return {
       success: false,
       error: "Subreddit not found",
+    };
+  }
+
+  if (!subreddit.channel) {
+    return {
+      success: false,
+      error: "Subreddit has no associated channel",
     };
   }
 
@@ -50,7 +60,7 @@ export const postToReddit = async (
 
   const draft: RedditPostDraft = {
     type: "Link",
-    subreddit: subreddit.name,
+    subreddit: subreddit.channel.name,
     caption: fullCaption,
     url: redgifsResult.url,
     flair,

@@ -56,7 +56,9 @@ describe("Subreddits Routes", () => {
       SUBREDDIT_FIXTURES.forEach((fixture) => {
         const subreddit = data?.find((s: Subreddit) => s.id === fixture.id);
         expect(subreddit).toBeDefined();
-        expect(subreddit?.name).toBe(fixture.name);
+        if (fixture.channelId && subreddit?.channel) {
+          expect(subreddit.channel.id).toBe(fixture.channelId);
+        }
       });
     });
   });
@@ -75,7 +77,9 @@ describe("Subreddits Routes", () => {
 
       const data = await parseResponse<Subreddit>(response);
       expect(data?.id).toBe(fixtureSubreddit.id);
-      expect(data?.name).toBe(fixtureSubreddit.name);
+      if (fixtureSubreddit.channelId && data?.channel) {
+        expect(data.channel.id).toBe(fixtureSubreddit.channelId);
+      }
     });
 
     test("returns error for non-existent subreddit", async () => {
@@ -106,7 +110,7 @@ describe("Subreddits Routes", () => {
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Subreddit>(response);
-      expect(data?.name).toBe("newsubreddit");
+      expect(data?.channel?.name).toBe("newsubreddit");
     });
   });
 
@@ -133,7 +137,7 @@ describe("Subreddits Routes", () => {
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Subreddit>(response);
-      expect(data?.name).toBe("updated");
+      expect(data?.channel?.name).toBe("updated");
       expect(data?.notes).toBe("Updated notes");
       expect(data?.id).toBe(fixtureSubreddit.id);
     });

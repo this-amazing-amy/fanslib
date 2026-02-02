@@ -140,13 +140,14 @@ export const regenerateMedia = async (
 
   const targetSubreddit = await subredditRepo.findOne({
     where: { id: subredditId },
+    relations: ["channel"],
   });
 
   if (!targetSubreddit) {
     throw new Error("Subreddit not found");
   }
 
-  const filters = targetSubreddit.eligibleMediaFilter as MediaFilters | null;
+  const filters = targetSubreddit.channel?.eligibleMediaFilter as MediaFilters | null;
 
   const { media } = await selectRandomMedia(filters);
   if (!media) {

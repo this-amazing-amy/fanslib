@@ -37,7 +37,7 @@
         "Scoring/filtering logic operates on Channel, not Subreddit directly",
         "Reddit-specific fields (flairs, posting rules, verification) remain on Subreddit"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "data",

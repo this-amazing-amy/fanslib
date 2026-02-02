@@ -25,9 +25,6 @@ export class Subreddit {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @Column({ type: "varchar", name: "name" })
-  name!: string;
-
   @Column({ type: "int", nullable: true, name: "maxPostFrequencyHours" })
   maxPostFrequencyHours: number | null = null;
 
@@ -36,9 +33,6 @@ export class Subreddit {
 
   @Column({ type: "int", nullable: true, name: "memberCount" })
   memberCount: number | null = null;
-
-  @Column({ type: "simple-json", nullable: true, name: "eligibleMediaFilter" })
-  eligibleMediaFilter: unknown | null = null;
 
   @Column({ type: "varchar", default: VERIFICATION_STATUS.UNKNOWN, name: "verificationStatus" })
   verificationStatus!: z.infer<typeof VerificationStatusSchema>;
@@ -67,7 +61,7 @@ export class Subreddit {
   channelId: string | null = null;
 
   @OneToOne(() => Channel, { eager: true, nullable: true })
-  @JoinColumn({ name: "channelId" })
+  @JoinColumn({ name: "channelId", foreignKeyConstraintName: "FK_subreddit_channel" })
   channel: Channel | null = null;
 }
 
@@ -80,11 +74,9 @@ const PostingTimeSchema = z.object({
 
 export const SubredditSchema = z.object({
   id: z.string(),
-  name: z.string(),
   maxPostFrequencyHours: z.number().nullable(),
   notes: z.string().nullable(),
   memberCount: z.number().nullable(),
-  eligibleMediaFilter: z.unknown().nullable(),
   verificationStatus: VerificationStatusSchema,
   defaultFlair: z.string().nullable(),
   captionPrefix: z.string().nullable(),

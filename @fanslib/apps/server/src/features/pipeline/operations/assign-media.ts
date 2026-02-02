@@ -54,8 +54,11 @@ const getChannelFilter = (
   return combineFilters(baseFilters, overrides);
 };
 
-const getSubredditFilter = (subreddit: Subreddit, channel: Channel): MediaFilters | null =>
-  (subreddit.eligibleMediaFilter as MediaFilters | null) ?? (channel.eligibleMediaFilter as MediaFilters | null) ?? null;
+const getSubredditFilter = (subreddit: Subreddit, channel: Channel): MediaFilters | null => {
+  const subredditChannelFilter = subreddit.channel?.eligibleMediaFilter as MediaFilters | null;
+  const channelFilter = channel.eligibleMediaFilter as MediaFilters | null;
+  return subredditChannelFilter ?? channelFilter ?? null;
+};
 
 type ScheduleAssignmentResult = {
   createdPosts: AssignedPost[];
@@ -308,7 +311,9 @@ export const assignMediaToSchedules = async (
     .flatMap((post) => post.postMedia?.map((pm) => pm.media?.id) ?? [])
     .filter((id): id is string => Boolean(id));
 
-  const subreddits = await subredditRepo.find();
+  const subreddits = await subredditRepo.find({
+    relations: ["channel"],
+  });
 
   const scheduleAssignments = await Promise.all(
     schedules.map(async (schedule) => {

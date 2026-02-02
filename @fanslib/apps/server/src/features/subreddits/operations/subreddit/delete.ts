@@ -2,6 +2,7 @@ import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { Subreddit } from "../../entity";
 import { Channel } from "../../../channels/entity";
+import { Post } from "../../../posts/entity";
 
 export const DeleteSubredditParamsSchema = z.object({
   id: z.string(),
@@ -17,6 +18,7 @@ export const deleteSubreddit = async (id: string): Promise<boolean> => {
   return await dataSource.transaction(async (manager) => {
     const subredditRepo = manager.getRepository(Subreddit);
     const channelRepo = manager.getRepository(Channel);
+    const postRepo = manager.getRepository(Post);
 
     const subreddit = await subredditRepo.findOne({ 
       where: { id },
@@ -26,6 +28,13 @@ export const deleteSubreddit = async (id: string): Promise<boolean> => {
     if (!subreddit) {
       return false;
     }
+
+    // Update posts to remove subreddit reference
+    // (Setting to null instead of deleting to preserve post history)
+    await postRepo.update(
+      { subredditId: id },
+      { subredditId: null }
+    );
 
     await subredditRepo.delete({ id });
 

@@ -11,6 +11,7 @@ export const fetchAllSubreddits = async (): Promise<
   const repository = dataSource.getRepository(Subreddit);
 
   return repository.find({
+    relations: ["channel"],
     order: {
       memberCount: "DESC",
     },

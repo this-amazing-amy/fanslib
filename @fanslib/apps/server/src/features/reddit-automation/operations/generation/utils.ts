@@ -44,7 +44,7 @@ export const selectRandomMediaWithConflictChecking = async (
   subreddit: Subreddit,
   channelId: string
 ): Promise<{ media: Media | null; totalAvailable: number; usedMediaCount: number }> => {
-  const filters = subreddit.eligibleMediaFilter as MediaFilters | null;
+  const filters = subreddit.channel?.eligibleMediaFilter as MediaFilters | null;
 
   const usedMediaIds = await getUsedMediaForSubreddit(subreddit.id, channelId);
 

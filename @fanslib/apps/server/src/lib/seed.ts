@@ -101,15 +101,27 @@ export const migrateSubredditsToChannelComposition = async () => {
   const results = await Promise.all(
     subredditsNeedingMigration.map(async (subreddit) => {
       try {
+        // Read old data from database columns that may still exist
+        const rawSubreddit = await dataSource.query(
+          `SELECT name, eligibleMediaFilter FROM subreddit WHERE id = ?`,
+          [subreddit.id]
+        ).catch(() => null);
+
+        const oldName = rawSubreddit?.[0]?.name;
+        const oldEligibleMediaFilter = rawSubreddit?.[0]?.eligibleMediaFilter;
+
+        // Use old data if available, otherwise generate default name
+        const channelName = oldName ?? `r/subreddit-${subreddit.id.slice(0, 8)}`;
+        
         const existingChannel = await channelRepo.findOne({
-          where: { name: subreddit.name, typeId: "reddit" },
+          where: { name: channelName, typeId: "reddit" },
         });
 
         const channel = existingChannel ?? channelRepo.create({
-          name: subreddit.name,
+          name: channelName,
           typeId: "reddit",
           description: subreddit.notes,
-          eligibleMediaFilter: subreddit.eligibleMediaFilter,
+          eligibleMediaFilter: oldEligibleMediaFilter ? JSON.parse(oldEligibleMediaFilter) : null,
           postCooldownHours: subreddit.maxPostFrequencyHours,
           mediaRepostCooldownHours: 720,
         });

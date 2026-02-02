@@ -1,4 +1,4 @@
-import type { z } from "zod";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import {
   Subreddit,
@@ -11,7 +11,13 @@ export const CreateSubredditRequestBodySchema = SubredditSchema.omit({
   id: true,
   channelId: true,
   channel: true,
-}).required({ name: true }).partial();
+})
+  .extend({
+    name: z.string(),
+    eligibleMediaFilter: z.unknown().nullable().optional(),
+  })
+  .partial()
+  .required({ name: true });
 
 export const CreateSubredditResponseSchema = SubredditSchema;
 
@@ -41,6 +47,15 @@ export const createSubreddit = async (
     });
     await subredditRepo.save(subreddit);
 
-    return subreddit;
+    const savedSubreddit = await subredditRepo.findOne({
+      where: { id: subreddit.id },
+      relations: ["channel"],
+    });
+
+    if (!savedSubreddit) {
+      throw new Error("Failed to retrieve saved subreddit");
+    }
+
+    return savedSubreddit;
   });
 };

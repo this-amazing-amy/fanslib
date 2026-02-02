@@ -14,13 +14,13 @@ export const seedSubredditFixtures = async () => {
     if (!existing) {
       const subreddit = subredditRepo.create({
         id: fixture.id,
-        name: fixture.name,
         maxPostFrequencyHours: fixture.maxPostFrequencyHours,
         notes: fixture.notes,
         memberCount: fixture.memberCount,
         verificationStatus: fixture.verificationStatus,
         defaultFlair: fixture.defaultFlair,
         captionPrefix: fixture.captionPrefix,
+        channelId: fixture.channelId,
       });
       await subredditRepo.save(subreddit);
     }

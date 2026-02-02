@@ -10,7 +10,12 @@ export const UpdateSubredditRequestParamsSchema = z.object({
 export const UpdateSubredditRequestBodySchema = SubredditSchema.omit({
   channelId: true,
   channel: true,
-}).partial();
+})
+  .extend({
+    name: z.string().optional(),
+    eligibleMediaFilter: z.unknown().nullable().optional(),
+  })
+  .partial();
 
 export const UpdateSubredditResponseSchema = SubredditSchema;
 

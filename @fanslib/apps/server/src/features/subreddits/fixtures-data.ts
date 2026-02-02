@@ -1,12 +1,11 @@
 import type { Subreddit } from "./entity";
 import { VERIFICATION_STATUS } from "./entity";
 
-export type SubredditFixture = Omit<Subreddit, "eligibleMediaFilter" | "postingTimesData" | "postingTimesLastFetched" | "postingTimesTimezone" | "channel">;
+export type SubredditFixture = Omit<Subreddit, "postingTimesData" | "postingTimesLastFetched" | "postingTimesTimezone" | "channel">;
 
 export const SUBREDDIT_FIXTURES: SubredditFixture[] = [
   {
     id: "subreddit-1",
-    name: "r/TestSubreddit",
     maxPostFrequencyHours: 24,
     memberCount: 10000,
     verificationStatus: VERIFICATION_STATUS.UNKNOWN,
@@ -17,7 +16,6 @@ export const SUBREDDIT_FIXTURES: SubredditFixture[] = [
   },
   {
     id: "subreddit-2",
-    name: "r/AnotherSub",
     maxPostFrequencyHours: 12,
     memberCount: 5000,
     verificationStatus: VERIFICATION_STATUS.VERIFIED,
