@@ -120,7 +120,7 @@
         "Cmd+Enter keyboard shortcut triggers Create Post",
         "Button disabled until at least one media selected"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "functional",

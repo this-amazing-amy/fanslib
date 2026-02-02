@@ -117,6 +117,7 @@ export const CreatePostDialog = ({
 
   const disabled = 
     selectedChannel.length === 0 || 
+    selectedMedia.length === 0 ||
     (channelCaptionMaxLength !== Infinity && caption?.length >= channelCaptionMaxLength);
 
   useEffect(() => {
@@ -240,6 +241,23 @@ export const CreatePostDialog = ({
     createPost,
     contentScheduleId,
   ]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const isCmdOrCtrl = event.metaKey || event.ctrlKey;
+      const isEnter = event.key === 'Enter';
+      
+      if (isCmdOrCtrl && isEnter && !disabled) {
+        event.preventDefault();
+        handleCreatePost();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [open, disabled, handleCreatePost]);
 
   const handleSkipSlot = useCallback(async () => {
     if (!scheduleId || !selectedChannel[0]) return;
