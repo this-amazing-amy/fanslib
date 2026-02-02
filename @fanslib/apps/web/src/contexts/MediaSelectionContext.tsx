@@ -143,7 +143,9 @@ export const MediaSelectionProvider = ({ children, media }: MediaSelectionProvid
       const selectedItem = flattenedMedia.find((m) => m.media.id === mediaId);
       if (!selectedItem) return;
 
-      // Multi-selection (shift + click)
+      const isCtrlOrCmd = event.ctrlKey || event.metaKey;
+
+      // Range selection (shift + click)
       if (isShiftPressed && lastClickedIndex !== null) {
         const indices = getIndexRange(lastClickedIndex, selectedItem.globalIndex);
 
@@ -158,16 +160,23 @@ export const MediaSelectionProvider = ({ children, media }: MediaSelectionProvid
         return;
       }
 
-      // Single selection
-      setSelectedMediaIds((prev) => {
-        const newSelection = new Set(prev);
-        if (newSelection.has(mediaId)) {
-          newSelection.delete(mediaId);
-        } else {
-          newSelection.add(mediaId);
-        }
-        return newSelection;
-      });
+      // Multi-select (Cmd/Ctrl + click) - toggle individual item
+      if (isCtrlOrCmd) {
+        setSelectedMediaIds((prev) => {
+          const newSelection = new Set(prev);
+          if (newSelection.has(mediaId)) {
+            newSelection.delete(mediaId);
+          } else {
+            newSelection.add(mediaId);
+          }
+          return newSelection;
+        });
+        setLastClickedIndex(selectedItem.globalIndex);
+        return;
+      }
+
+      // Single selection - clear others and select only this one
+      setSelectedMediaIds(new Set([mediaId]));
       setLastClickedIndex(selectedItem.globalIndex);
     },
     [flattenedMedia, isShiftPressed, lastClickedIndex]

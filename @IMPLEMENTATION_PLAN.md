@@ -4,7 +4,7 @@
 
 **Specs:**
 
-- `specs/smart-virtual-post-filling.json` (9/12 passing, 75% - **ALL BACKEND TASKS COMPLETE**)
+- `specs/smart-virtual-post-filling.json` (10/12 passing, 83% - **ALL BACKEND TASKS COMPLETE**)
 - `specs/subreddits.json` (19/23 passing - 100% of non-deprecated features complete)
 
 **Goal:** Achieve 100% pass rate for both specs.
@@ -13,7 +13,7 @@
 
 ## 📋 Session Summary (Latest)
 
-**Progress:** 12/12 tasks completed for smart virtual post filling. **Spec Status:** 9/12 features now passing (75%) in smart-virtual-post-filling.json.
+**Progress:** 13/12 tasks completed for smart virtual post filling. **Spec Status:** 10/12 features now passing (83%) in smart-virtual-post-filling.json.
 
 **Today's Completed Work (2026-02-02):**
 
@@ -71,6 +71,7 @@
 12. **Create Post Action** (Task #9) - ✅ COMPLETED - Create Post button with keyboard shortcut, proper validation, post creation from virtual post
 13. **Create & Next Navigation** (Task #13) - ✅ COMPLETED - Create and Next button navigates to next unfilled slot, Tab key navigation support
 14. **Filter Refinement Controls** (Task #11) - ✅ COMPLETED - Inline MediaFilters component with pre-applied vs user-added filter distinction
+15. **Visual Posting History Indicators** (Task #10) - ✅ COMPLETED - MediaTile shows posting history with icons and tooltips
 
 **Technical Highlights:**
 
@@ -84,22 +85,20 @@
 
 - Task #8: Media selection component redesign (split-panel layout - frontend-only)
 - Task #9: Panel animations and morphing transitions (frontend-only)
-- Task #10: Visual posting history indicators (frontend-only)
 - Task #12: Multi-select behavior (shift/cmd-click, drag reorder - frontend-only)
 
-**Note:** Tasks #8-10, #12 are UX/frontend polish features. All core functionality is complete.
+**Note:** Tasks #8-9, #12 are UX/frontend polish features. All core functionality is complete.
 
 **Next Priorities (by complexity, simplest first):**
 
-1. **Task #10: Visual Posting History Indicators** - Add indicator icons and tooltips showing when/where media was previously posted
-2. **Task #12: Multi-Select Behavior** - Implement shift-click range selection, cmd-click multi-select, drag-to-reorder
-3. **Task #8: Media Selection Component Redesign** - Redesign to split-panel layout with larger thumbnails and better UX
-4. **Task #9: Panel Animations** - Implement morphing panel animation with framer-motion layoutId transitions
+1. **Task #12: Multi-Select Behavior** - Implement shift-click range selection, cmd-click multi-select, drag-to-reorder
+2. **Task #8: Media Selection Component Redesign** - Redesign to split-panel layout with larger thumbnails and better UX
+3. **Task #9: Panel Animations** - Implement morphing panel animation with framer-motion layoutId transitions
 
 **Current Status Summary:**
 
 - ✅ **subreddits.json:** 19/19 non-deprecated features (82% overall - 4 deprecated UI features)
-- 🚧 **smart-virtual-post-filling.json:** 8/12 features (67% - 4 UX/frontend features remaining)
+- 🚧 **smart-virtual-post-filling.json:** 10/12 features (83% - 3 UX/frontend features remaining)
 - ✅ **All backend tasks complete**
 - ✅ **All architectural refactoring complete**
 - ✅ **All filtering functionality complete**
@@ -126,6 +125,50 @@
 - ✅ Button disabled until at least one media selected
 
 **Status:** ✅ **COMPLETE** - Feature passes all acceptance criteria. Post creation works correctly with proper validation, success feedback, and keyboard shortcuts.
+
+---
+
+## ✅ COMPLETED: Task #10 - Visual Posting History Indicators
+
+**Status:** ✅ COMPLETED (2026-02-02)
+
+**Goal:** Add visual indicators to media thumbnails showing posting history and cooldown status.
+
+### Implementation Summary
+
+Enhanced MediaTile component to display posting history indicators with tooltips, providing users with at-a-glance information about when and where media was previously posted. This helps prevent consecutive similar content and informs content curation decisions.
+
+### Features Implemented
+
+1. **Posting history indicator icon**
+   - Clock icon badge appears on thumbnails for media previously posted to the current channel
+   - Only shows for posts outside the cooldown period
+   - Positioned in top-right corner with semi-transparent badge
+
+2. **Hover tooltip with posting details**
+   - Shows when media was last posted (relative time format)
+   - Displays which channel received the post
+   - Provides context for content rotation decisions
+
+3. **Recently posted visual treatment**
+   - Media within cooldown period (when shown via toggle) gets distinct styling
+   - Different badge color/style to indicate cooldown status
+   - Clear visual separation between available and on-cooldown media
+
+### User Experience Benefits
+
+- **Informed decisions:** Users see posting history before selecting media
+- **Prevent repetition:** Visual cues help avoid posting same content too frequently
+- **Content rotation:** Easy to identify least-recently-posted media
+- **Transparency:** Clear indication of which media is in cooldown vs available
+
+### Acceptance Criteria (spec feature #6)
+
+- ✅ Thumbnails show indicator icon if media was posted to this channel before (outside cooldown)
+- ✅ Hover tooltip shows when and where media was last posted
+- ✅ Recently posted media (when shown via toggle) has distinct visual treatment
+
+**Status:** ✅ **COMPLETE** - All acceptance criteria met. Visual indicators provide clear posting history context.
 
 ---
 

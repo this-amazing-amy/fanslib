@@ -109,7 +109,7 @@
         "Cmd/Ctrl-click for multi-select",
         "Drag to reorder selected media"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "functional",
