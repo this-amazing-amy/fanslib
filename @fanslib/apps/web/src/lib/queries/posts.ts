@@ -37,6 +37,21 @@ export const usePostsByChannelQuery = (channelId: string) =>
     enabled: !!channelId,
   });
 
+export const useRecentPostsQuery = (params: { channelId: string; limit?: number }) =>
+  useQuery({
+    queryKey: QUERY_KEYS.posts.recent(params.channelId, params.limit),
+    queryFn: async () => {
+      const result = await api.api.posts.recent.$get({ 
+        query: { 
+          channelId: params.channelId, 
+          limit: params.limit?.toString() 
+        } 
+      });
+      return result.json();
+    },
+    enabled: !!params.channelId,
+  });
+
 export const useCreatePostMutation = () => {
   const queryClient = useQueryClient();
 

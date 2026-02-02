@@ -28,8 +28,8 @@ export const fetchRecentPosts = async (
     .leftJoinAndSelect("post.channel", "channel")
     .leftJoinAndSelect("post.subreddit", "subreddit")
     .where("post.channelId = :channelId", { channelId })
-    .andWhere("post.scheduledFor <= :now", { now: new Date().toISOString() })
-    .orderBy("post.scheduledFor", "DESC")
+    .andWhere("post.date <= :now", { now: new Date().toISOString() })
+    .orderBy("post.date", "DESC")
     .limit(limit)
     .getMany();
 

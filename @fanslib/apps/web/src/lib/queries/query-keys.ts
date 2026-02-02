@@ -45,6 +45,7 @@ export const QUERY_KEYS = {
     byId: (id: string) => ['posts', id] as const,
     byChannel: (channelId: string) => ['posts', 'by-channel', channelId] as const,
     byMedia: (mediaId: string) => ['posts', 'by-media', mediaId] as const,
+    recent: (channelId: string, limit?: number) => ['posts', 'recent', channelId, limit] as const,
     temporalContext: (channelId: string | 'all', centerDate: string) =>
       ['posts', 'temporal-context', channelId, centerDate] as const,
     drafts: (channelIds: string[], fromDate: string, toDate: string) =>

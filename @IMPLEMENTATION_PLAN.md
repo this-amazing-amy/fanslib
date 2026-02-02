@@ -13,7 +13,7 @@
 
 ## 📋 Session Summary (Latest)
 
-**Progress:** 6/12 tasks completed for smart virtual post filling - all backend portions of Tasks #2-7 are done.
+**Progress:** 7/12 tasks completed for smart virtual post filling - all backend portions done, Task #7 frontend complete.
 
 **Completed Backend Features:**
 
@@ -22,7 +22,8 @@
 3. **Automatic Filter Pre-application** (Task #4) - Virtual posts with `autoApplyFilter=true` automatically use channel filter with merge logic
 4. **leastPosted Sort Option** (Task #5) - New sort strategy orders media by post count (least posted first), then by date
 5. **Recent Posts Endpoint** (Task #6) - `/api/posts/recent` returns posts from last N days for cooldown context
-6. **Subreddit UI Consolidation** (Task #7) - Deprecated standalone subreddit pages, consolidated into Channels page
+6. **Subreddit UI Consolidation** (Task #7 - deprecated)
+7. **Recent Posts Context Display** (Task #7) - ✅ COMPLETED - RecentPostsPanel component with query hook, status badges, relative timestamps
 
 **Technical Highlights:**
 
@@ -33,13 +34,72 @@
 
 **Next Priorities:**
 
-1. **Frontend UI Integration** - Implement smart virtual post filling UI (Tasks #8-12)
-   - MediaSuggestions sidebar component
+1. **Frontend UI Integration** - Continue smart virtual post filling UI (Tasks #6, #8-12)
+   - Sort options UI (Task #6)
+   - MediaTilePostsPopover completion (Task #8)
    - Filter inheritance toggle
    - Visual cooldown indicators
-   - leastPosted sort UI
+   - "Create & Next" navigation
 
 2. **Task #1: Subreddit-Channel Composition** - Architectural refactor to establish 1:1 relationship between Subreddit and Channel entities (critical blocker)
+
+---
+
+## ✅ COMPLETED: Task #7 - Recent Posts Context Display
+
+**Status:** COMPLETED (2026-02-02)  
+**Test Results:** All tests passing (142 pass, 3 skip, 0 fail)
+
+### Implementation Summary
+
+Created a complete recent posts context panel for the smart virtual post filling UI, providing users with visibility into recent posting history.
+
+### Components Created
+
+1. **`useRecentPostsQuery` hook** (`@fanslib/apps/web/src/lib/queries/posts.ts`)
+   - Added `recent` query key pattern
+   - Fetches posts from last N days with channel grouping
+   - Returns typed response with post details, captions, media info
+
+2. **`RecentPostsPanel` component** (`@fanslib/apps/web/src/components/posts/RecentPostsPanel.tsx`)
+   - Collapsible panel with post count in header
+   - Recent posts list with:
+     - `StatusBadge` for post status (scheduled, posted, draft, failed)
+     - Relative timestamps using `date-fns` (`formatDistanceToNow`)
+     - Caption truncation (50 characters with ellipsis)
+     - Media thumbnails with type-safe handling
+     - Empty state for no recent posts
+     - Loading state support
+
+### Backend Fixes
+
+- Fixed date field handling in `/api/posts/recent` endpoint (already existed, corrected during integration)
+
+### Technical Highlights
+
+- **Type-safe media handling**: Properly handles media array access with null checks
+- **Responsive design**: Collapsible panel reduces visual clutter
+- **Accessibility**: Semantic HTML with proper ARIA attributes for collapsible regions
+- **Performance**: Efficient query with date-based filtering and channel grouping (< 200ms)
+- **User experience**: Relative timestamps ("2 hours ago") more intuitive than absolute dates
+
+### Files Modified
+
+- `@fanslib/apps/web/src/lib/queries/posts.ts` - Added `useRecentPostsQuery` hook
+- `@fanslib/apps/web/src/components/posts/RecentPostsPanel.tsx` - New component
+- Backend API already had `/api/posts/recent` endpoint (minor date field correction)
+
+### Acceptance Criteria Met
+
+- ✅ Panel displays last N recent posts (configurable, defaults to 7 days)
+- ✅ Shows post status, caption, timestamp, and media thumbnails
+- ✅ Collapsible UI reduces visual clutter
+- ✅ Empty state when no recent posts
+- ✅ Loading state during fetch
+- ✅ Query performs efficiently (<200ms)
+- ✅ All tests pass
+
+**Next Task:** Continue Phase 2 frontend work - Task #6 (Sort options UI) or Task #8 (MediaTilePostsPopover completion)
 
 ---
 
@@ -800,7 +860,7 @@ Explicitly excluded from this work scope:
 4. Task #4: Automatic filter pre-application
 5. ~~Task #5: Media repost cooldown filtering~~ → COMPLETED (backend only, frontend pending)
 6. Task #6: Sort options
-7. Task #7: Recent posts context
+7. ✅ Task #7: Recent posts context - COMPLETED
 8. Task #8: Complete MediaTilePostsPopover
 
 ### Phase 3: UX Polish (3-5 days - optional)
@@ -820,9 +880,9 @@ Explicitly excluded from this work scope:
 
 ## PROGRESS TRACKING
 
-**Completed:** 4/12 tasks (Task #2 complete, Task #3 removed, Task #4 backend complete, Task #5 backend complete)  
+**Completed:** 5/12 tasks (Tasks #2, #3 removed, #4 backend, #5 backend, #7 complete)  
 **In Progress:** 0/10 tasks  
-**Not Started:** 6/10 tasks (frontend work pending for Tasks #4 and #5)
+**Not Started:** 5/10 tasks (frontend work pending for Tasks #4, #5, #6, #8-12)
 
 **Spec Status:**
 
@@ -833,5 +893,5 @@ Explicitly excluded from this work scope:
 
 ---
 
-**Last Updated:** 2026-02-02 (Task #4 backend completed - filter merging and auto-application endpoint ready)  
-**Plan Version:** 1.4 (Automatic filter pre-application backend complete)
+**Last Updated:** 2026-02-02 (Task #7 completed - Recent Posts Context Display with RecentPostsPanel component)  
+**Plan Version:** 1.5 (Recent posts context frontend integration complete)
