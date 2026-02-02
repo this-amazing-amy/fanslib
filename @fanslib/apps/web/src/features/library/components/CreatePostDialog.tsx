@@ -1,7 +1,8 @@
 import type { Media, PostStatus, PostWithRelations } from '@fanslib/server/schemas';
+import { AnimatePresence, motion } from "framer-motion";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { ChannelSelect } from "~/components/ChannelSelect";
@@ -15,14 +16,6 @@ import { StatusSelect } from "~/components/StatusSelect";
 import { SubredditSelect } from "~/components/SubredditSelect";
 import { Button } from "~/components/ui/Button";
 import { Checkbox } from "~/components/ui/Checkbox";
-import {
-    Dialog,
-    DialogFooter,
-    DialogHeader,
-    DialogModal,
-    DialogTitle,
-    DialogTrigger,
-} from "~/components/ui/Dialog";
 import { ScrollArea } from "~/components/ui/ScrollArea";
 import { Textarea } from "~/components/ui/Textarea";
 import { MediaSelectionProvider } from "~/contexts/MediaSelectionContext";
@@ -33,6 +26,7 @@ import { useChannelsQuery } from "~/lib/queries/channels";
 import { useContentScheduleQuery, useSkipScheduleSlotMutation } from "~/lib/queries/content-schedules";
 import { useCreatePostMutation } from "~/lib/queries/posts";
 import type { VirtualPost } from "~/lib/virtual-posts";
+import { usePrefersReducedMotion } from "~/hooks/usePrefersReducedMotion";
 
 
 
@@ -88,6 +82,8 @@ export const CreatePostDialog = ({
   const { mutateAsync: createPost } = useCreatePostMutation();
   const skipSlotMutation = useSkipScheduleSlotMutation();
   const [confirmSkip, setConfirmSkip] = useState(false);
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const [showContent, setShowContent] = useState(false);
 
   const [selectedChannel, setSelectedChannel] = useState<string[]>([]);
   const [selectedSubreddits, setSelectedSubreddits] = useState<string[]>(initialSubredditId ? [initialSubredditId] : []);
@@ -303,6 +299,14 @@ export const CreatePostDialog = ({
       const isShift = event.shiftKey;
       const isEnter = event.key === 'Enter';
       const isTab = event.key === 'Tab';
+      const isEscape = event.key === 'Escape';
+      
+      // Escape: Close dialog
+      if (isEscape) {
+        event.preventDefault();
+        onOpenChange(false);
+        return;
+      }
       
       // Shift+Enter: Create and Next
       if (isShift && isEnter && !disabled) {
@@ -327,7 +331,20 @@ export const CreatePostDialog = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [open, disabled, handleCreatePost, virtualPost, onNavigateToSlot, handleNavigateToNextSlot]);
+  }, [open, disabled, handleCreatePost, virtualPost, onNavigateToSlot, handleNavigateToNextSlot, onOpenChange]);
+
+  useEffect(() => {
+    if (open) {
+      if (prefersReducedMotion) {
+        setShowContent(true);
+      } else {
+        const timer = setTimeout(() => setShowContent(true), 300);
+        return () => clearTimeout(timer);
+      }
+    } else {
+      setShowContent(false);
+    }
+  }, [open, prefersReducedMotion]);
 
   const handleSkipSlot = useCallback(async () => {
     if (!scheduleId || !selectedChannel[0]) return;
@@ -351,21 +368,64 @@ export const CreatePostDialog = ({
     }
   }, [scheduleId, selectedChannel, selectedDate, confirmSkip, skipSlotMutation, onOpenChange]);
 
+  const layoutId = virtualPost ? `virtual-post-${virtualPost.date}-${virtualPost.channelId}` : undefined;
+  const transitionDuration = prefersReducedMotion ? 0 : 0.3;
+
   return (
     <MediaSelectionProvider media={selectedMedia}>
-      <DialogTrigger isOpen={open} onOpenChange={onOpenChange}>
-        <DialogModal>
-          <Dialog maxWidth="30rem" className="max-h-[90vh] flex flex-col overflow-hidden">
-            {({ close }) => (
-              <>
-                <DialogHeader className="flex-shrink-0 mb-2">
+      <AnimatePresence mode="wait">
+        {open && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: transitionDuration }}
+              onClick={() => onOpenChange(false)}
+              className="fixed inset-0 z-[70] bg-black/50"
+            />
+            
+            {/* Panel */}
+            <motion.div
+              layoutId={layoutId}
+              className={cn(
+                "fixed left-[50%] top-[50%] z-[71] w-full max-w-[30rem]",
+                "translate-x-[-50%] translate-y-[-50%]",
+                "border-2 border-base-content bg-base-100 shadow-xl rounded-xl",
+                "max-h-[90vh] flex flex-col overflow-hidden p-6"
+              )}
+              transition={{
+                duration: transitionDuration,
+                ease: [0.4, 0, 0.2, 1],
+              }}
+            >
+              {/* Close button */}
+              <Button
+                variant="ghost"
+                size="xs"
+                aria-label="Close"
+                className="btn-circle absolute right-2 top-2 z-10"
+                onPress={() => onOpenChange(false)}
+              >
+                <X className="h-6 w-6" />
+              </Button>
+
+              {/* Content with fade-in */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: showContent ? 1 : 0 }}
+                transition={{ duration: prefersReducedMotion ? 0 : 0.2, delay: prefersReducedMotion ? 0 : 0.15 }}
+                className="flex flex-col h-full"
+              >
+                <div className="flex-shrink-0 mb-2">
                   {virtualPost ? (
                     <div className="flex flex-col gap-2">
                       <div className="flex items-start justify-between">
                         <div className="flex flex-col gap-1">
-                          <DialogTitle className="text-lg">
+                          <h2 className="font-bold text-lg">
                             {format(new Date(virtualPost.date), "EEEE, MMMM d")}
-                          </DialogTitle>
+                          </h2>
                           <div className="text-sm text-base-content/60 font-medium">
                             {format(new Date(virtualPost.date), "h:mm a")}
                           </div>
@@ -390,9 +450,9 @@ export const CreatePostDialog = ({
                       </div>
                     </div>
                   ) : (
-                    <DialogTitle>{title}</DialogTitle>
+                    <h2 className="font-bold text-lg">{title}</h2>
                   )}
-                </DialogHeader>
+                </div>
 
                 <ScrollArea className="flex-1 min-h-0">
                   <div className="flex flex-col gap-4 pr-2">
@@ -568,7 +628,7 @@ export const CreatePostDialog = ({
                   </Checkbox>
                 </div>
 
-                <DialogFooter className="flex flex-col gap-2 flex-shrink-0 mt-2">
+                <div className="flex flex-col gap-2 flex-shrink-0 mt-2">
                   <div className="flex gap-2 w-full">
                     {scheduleId && selectedMedia.length === 0 && (
                       <Button
@@ -585,7 +645,7 @@ export const CreatePostDialog = ({
                         <Button
                           onPress={() => {
                             handleCreatePost(false);
-                            close();
+                            onOpenChange(false);
                           }}
                           className="flex-1"
                           isDisabled={disabled}
@@ -606,7 +666,7 @@ export const CreatePostDialog = ({
                       <Button
                         onPress={() => {
                           handleCreatePost(false);
-                          close();
+                          onOpenChange(false);
                         }}
                         className={cn(
                           scheduleId && selectedMedia.length === 0 ? "flex-1" : "w-full"
@@ -626,12 +686,12 @@ export const CreatePostDialog = ({
                       Browse Full Library
                     </Link>
                   )}
-                </DialogFooter>
-              </>
-            )}
-          </Dialog>
-        </DialogModal>
-      </DialogTrigger>
+                </div>
+              </motion.div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </MediaSelectionProvider>
   );
 };

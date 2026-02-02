@@ -154,6 +154,7 @@ export const PostCalendarPost = ({ post, onUpdate, allPosts = [] }: PostCalendar
       overlaySlot={overlay}
       actionSlot={skipButton}
       onMouseLeave={() => setConfirmSkip(false)}
+      layoutId={virtual ? `virtual-post-${post.date}-${post.channelId}` : undefined}
     />
   );
 

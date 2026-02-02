@@ -33,7 +33,7 @@
         "Click backdrop or press Escape closes panel with reverse animation",
         "Animation respects prefers-reduced-motion (instant transition when set)"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "ux",
