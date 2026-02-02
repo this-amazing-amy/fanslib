@@ -45,7 +45,7 @@
         "Panel header shows: date/time, channel badge, schedule name/color, close button",
         "Panel footer shows: Create Post button, Create and Next button, Browse Full Library link"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "functional",

@@ -20,6 +20,7 @@ const maxWidthClasses = {
   xl: 'max-w-xl',
   '2xl': 'max-w-2xl',
   '3xl': 'max-w-3xl',
+  '30rem': 'max-w-[30rem]',
 };
 
 // Modal component with styled overlay
@@ -45,7 +46,7 @@ export const DialogModal = ({ children, className, isDismissable = true, ...prop
 type DialogProps = Omit<AriaDialogProps, 'children'> & {
   children: ReactNode | ((opts: { close: () => void }) => ReactNode);
   className?: string;
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '30rem';
   showCloseButton?: boolean;
 }
 

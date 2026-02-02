@@ -1,9 +1,11 @@
 import type { Media, PostStatus, PostWithRelations } from '@fanslib/server/schemas';
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { format } from "date-fns";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { ChannelSelect } from "~/components/ChannelSelect";
+import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
 import { ContentScheduleSelect } from "~/components/ContentScheduleSelect";
 import { DateTimePicker } from "~/components/DateTimePicker";
 import { HashtagButton } from "~/components/HashtagButton";
@@ -353,11 +355,43 @@ export const CreatePostDialog = ({
     <MediaSelectionProvider media={selectedMedia}>
       <DialogTrigger isOpen={open} onOpenChange={onOpenChange}>
         <DialogModal>
-          <Dialog maxWidth="3xl" className="max-h-[90vh] flex flex-col overflow-hidden">
+          <Dialog maxWidth="30rem" className="max-h-[90vh] flex flex-col overflow-hidden">
             {({ close }) => (
               <>
                 <DialogHeader className="flex-shrink-0 mb-2">
-                  <DialogTitle>{title}</DialogTitle>
+                  {virtualPost ? (
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-start justify-between">
+                        <div className="flex flex-col gap-1">
+                          <DialogTitle className="text-lg">
+                            {format(new Date(virtualPost.date), "EEEE, MMMM d")}
+                          </DialogTitle>
+                          <div className="text-sm text-base-content/60 font-medium">
+                            {format(new Date(virtualPost.date), "h:mm a")}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <ChannelBadge
+                          name={virtualPost.channel.name}
+                          typeId={virtualPost.channel.type?.id ?? virtualPost.channel.typeId}
+                          size="sm"
+                          borderStyle="visible"
+                        />
+                        {virtualPost.schedule && (
+                          <ContentScheduleBadge
+                            name={virtualPost.schedule.name}
+                            emoji={virtualPost.schedule.emoji ?? undefined}
+                            color={virtualPost.schedule.color ?? undefined}
+                            size="sm"
+                            borderStyle="visible"
+                          />
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <DialogTitle>{title}</DialogTitle>
+                  )}
                 </DialogHeader>
 
                 <ScrollArea className="flex-1 min-h-0">
@@ -583,6 +617,15 @@ export const CreatePostDialog = ({
                       </Button>
                     )}
                   </div>
+                  {virtualPost && (
+                    <Link 
+                      to="/content/library" 
+                      className="text-sm text-center text-base-content/60 hover:text-base-content underline"
+                      onClick={() => onOpenChange(false)}
+                    >
+                      Browse Full Library
+                    </Link>
+                  )}
                 </DialogFooter>
               </>
             )}
