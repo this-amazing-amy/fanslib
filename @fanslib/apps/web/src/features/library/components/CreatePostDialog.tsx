@@ -257,6 +257,9 @@ export const CreatePostDialog = ({
                         selectedMedia={selectedMedia}
                         onMediaSelect={handleMediaSelect}
                         excludeMediaIds={media.map((m) => m.id)}
+                        scheduleId={contentScheduleId ?? undefined}
+                        channelId={selectedChannel[0]}
+                        autoApplyFilters={true}
                       />
                     </div>
 

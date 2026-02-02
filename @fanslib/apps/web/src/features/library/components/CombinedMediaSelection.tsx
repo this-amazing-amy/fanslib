@@ -20,6 +20,9 @@ type CombinedMediaSelectionProps = {
   excludeMediaIds?: string[];
   pageLimit?: number;
   initialFilters?: MediaFilterType;
+  scheduleId?: string;
+  channelId?: string;
+  autoApplyFilters?: boolean;
 };
 
 export const CombinedMediaSelection = ({
@@ -29,6 +32,9 @@ export const CombinedMediaSelection = ({
   excludeMediaIds = [],
   pageLimit = 30,
   initialFilters = [],
+  scheduleId,
+  channelId,
+  autoApplyFilters = false,
 }: CombinedMediaSelectionProps) => {
   const [activePreviewId, setActivePreviewId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -39,6 +45,9 @@ export const CombinedMediaSelection = ({
     page: currentPage,
     sort: { field: "fileModificationDate", direction: "DESC" },
     filters,
+    scheduleId,
+    channelId,
+    autoApplyFilters,
   });
 
   const media: Media[] = (mediaResponse?.items as Media[] | undefined) ?? [];
@@ -78,6 +87,20 @@ export const CombinedMediaSelection = ({
   return (
     <div className={cn("flex flex-col", className)}>
       <div className="flex-shrink-0">
+        {autoApplyFilters && (scheduleId || channelId) ? (
+          <div className="mb-2 px-2">
+            <div className="flex items-center gap-2 text-xs text-base-content/70 bg-base-200/50 px-3 py-2 rounded-md">
+              <span className="font-medium">🎯 Auto-filtering media</span>
+              <span>
+                {scheduleId && channelId
+                  ? "based on schedule and channel"
+                  : scheduleId
+                    ? "based on schedule"
+                    : "based on channel"}
+              </span>
+            </div>
+          </div>
+        ) : null}
         <div className={cn("flex flex-col gap-4", filters.length === 0 ? "p-1" : "py-1")}>
           <FilterPresetProvider onFiltersChange={handleFilterChange}>
             <MediaFiltersProvider value={filters} onChange={handleFilterChange}>
