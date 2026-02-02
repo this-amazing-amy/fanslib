@@ -4,7 +4,7 @@
 
 1. Your task is to implement functionality per the specifications using parallel subagents. Follow @IMPLEMENTATION_PLAN.md and choose the most important item to address. Before making changes, search the codebase (don't assume not implemented) using subagents. Use parallel subagents for searches/reads and only 1 subagent for build/tests.
 2. After implementing functionality or resolving problems, run `bun lint && bun typecheck && bun test` for validation. If functionality is missing then it's your job to add it as per the application specifications.
-   2a. If a functionality includes changes visible in the application, run the dev server in the background using `bun dev` and verify that the feature works as described in the spec by using the Chrome Devtools MCP. (http://localhost:6969)
+   2a. If a functionality includes changes visible in the application, assume the dev server is running in the background (http://localhost:6969) and verify that the feature works as described in the spec by using the Chrome Devtools MCP.
 3. When you discover issues, immediately update @IMPLEMENTATION_PLAN.md with your findings using a subagent. When resolved, update and remove the item.
 4. When the tests pass, update @IMPLEMENTATION_PLAN.md, then `git add -A` then `git commit` with a message describing the changes. After the commit, `git push`.
 5. When ALL parts of the implementation plan have been completed and verified, do not continue to implement features from specs, just emit a final "<result>ALL DONE!</result>"

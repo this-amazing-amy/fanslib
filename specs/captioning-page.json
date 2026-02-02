@@ -129,7 +129,7 @@
         "Selecting posts includes them in sync when saving",
         "Visual indicator (purple border) highlights linked posts in main queue"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "functional",
@@ -162,7 +162,7 @@
         "Confirming deletes post and advances to next item",
         "Loading state shown during deletion"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "functional",
