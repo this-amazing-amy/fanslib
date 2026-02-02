@@ -1,0 +1,276 @@
+{
+  "name": "Subreddits",
+  "description": "Reddit community management for content distribution, including subreddit configuration, verification tracking, and optimal posting time analysis",
+  "context": {
+    "problem": "Reddit requires careful management of posting frequency, community rules, and content matching to avoid bans and maximize engagement",
+    "user_need": "Track and configure subreddits with their specific requirements, verification status, and optimal posting times"
+  },
+  "scope": {
+    "in_scope": [
+      "Subreddit CRUD operations",
+      "Verification status tracking",
+      "Posting frequency limits",
+      "Optimal posting time analysis",
+      "Media eligibility filtering per subreddit",
+      "Integration with Reddit automation"
+    ],
+    "out_of_scope": [
+      "Automatic subreddit discovery",
+      "Subreddit rule scraping",
+      "Karma tracking"
+    ]
+  },
+  "features": [
+    {
+      "category": "architecture",
+      "description": "Subreddit extends Channel via composition pattern",
+      "acceptance_criteria": [
+        "Subreddit entity has channelId foreign key with 1:1 relationship to Channel",
+        "Creating a Subreddit auto-creates corresponding Channel with typeId='reddit'",
+        "Deleting a Subreddit deletes the corresponding Channel",
+        "eligibleMediaFilter moves from Subreddit to Channel entity",
+        "postCooldownHours (formerly maxPostFrequencyHours) moves from Subreddit to Channel entity",
+        "mediaRepostCooldownHours added to Channel entity",
+        "Scoring/filtering logic operates on Channel, not Subreddit directly",
+        "Reddit-specific fields (flairs, posting rules, verification) remain on Subreddit"
+      ],
+      "passes": false
+    },
+    {
+      "category": "data",
+      "description": "Subreddit entity with core fields",
+      "acceptance_criteria": [
+        "Subreddit has id (UUID), name (string), notes (text nullable)",
+        "name stores subreddit name without r/ prefix",
+        "memberCount stores subscriber count (nullable, for reference)",
+        "Entity is persisted in SQLite via TypeORM"
+      ],
+      "passes": true
+    },
+    {
+      "category": "data",
+      "description": "Verification status tracking",
+      "acceptance_criteria": [
+        "verificationStatus enum: UNKNOWN, NOT_NEEDED, NEEDED, APPLIED, REJECTED, VERIFIED",
+        "Default status is UNKNOWN for new subreddits",
+        "Status can be updated via PATCH endpoint",
+        "UI displays verification status with appropriate styling"
+      ],
+      "passes": true
+    },
+    {
+      "category": "data",
+      "description": "Channel cooldown configuration",
+      "acceptance_criteria": [
+        "postCooldownHours field on Channel (nullable integer): min hours between ANY posts to this channel",
+        "mediaRepostCooldownHours field on Channel (nullable integer): min hours before SAME media can be reposted",
+        "postCooldownHours used by scheduling to prevent posting too frequently (spam prevention)",
+        "mediaRepostCooldownHours used by scoring algorithm to deprioritize recently-used media (content freshness)",
+        "null means no restriction for either field",
+        "Subreddit's maxPostFrequencyHours migrates to Channel.postCooldownHours"
+      ],
+      "passes": false
+    },
+    {
+      "category": "data",
+      "description": "Default flair and caption prefix",
+      "acceptance_criteria": [
+        "defaultFlair field stores preferred flair for this subreddit",
+        "captionPrefix field stores text to prepend to captions",
+        "Both are nullable strings",
+        "Applied automatically during post generation"
+      ],
+      "passes": true
+    },
+    {
+      "category": "data",
+      "description": "Optimal posting times data",
+      "acceptance_criteria": [
+        "postingTimesData stores array of {day, hour, posts, score} objects",
+        "postingTimesLastFetched tracks when data was last refreshed",
+        "postingTimesTimezone stores the timezone for the data",
+        "Data is fetched from external API (Postpone)"
+      ],
+      "passes": true
+    },
+    {
+      "category": "data",
+      "description": "Media eligibility filter per subreddit",
+      "acceptance_criteria": [
+        "eligibleMediaFilter field uses MediaFilter schema on Channel entity",
+        "Filters which media can be posted to this subreddit",
+        "Applied during random post generation",
+        "Supports tags, shoots, media type, and other filter criteria"
+      ],
+      "passes": true
+    },
+    {
+      "category": "api",
+      "description": "Fetch all subreddits endpoint",
+      "acceptance_criteria": [
+        "GET /api/subreddits/all returns array of all subreddits",
+        "Includes all subreddit fields",
+        "No pagination (subreddit count is typically small)"
+      ],
+      "passes": true
+    },
+    {
+      "category": "api",
+      "description": "Fetch subreddit by ID endpoint",
+      "acceptance_criteria": [
+        "GET /api/subreddits/by-id/:id returns single subreddit",
+        "Returns 404 if subreddit not found"
+      ],
+      "passes": true
+    },
+    {
+      "category": "api",
+      "description": "Create subreddit endpoint",
+      "acceptance_criteria": [
+        "POST /api/subreddits/ creates new subreddit",
+        "name is required, all other fields optional",
+        "Returns created subreddit with generated ID",
+        "Validates input against schema"
+      ],
+      "passes": true
+    },
+    {
+      "category": "api",
+      "description": "Update subreddit endpoint",
+      "acceptance_criteria": [
+        "PATCH /api/subreddits/by-id/:id updates existing subreddit",
+        "All fields are optional (partial update)",
+        "Returns 404 if subreddit not found",
+        "Returns updated subreddit"
+      ],
+      "passes": true
+    },
+    {
+      "category": "api",
+      "description": "Delete subreddit endpoint",
+      "acceptance_criteria": [
+        "DELETE /api/subreddits/by-id/:id deletes subreddit",
+        "Returns 404 if subreddit not found",
+        "Returns { success: true } on success"
+      ],
+      "passes": true
+    },
+    {
+      "category": "api",
+      "description": "Fetch last post dates for subreddits",
+      "acceptance_criteria": [
+        "POST /api/subreddits/last-post-dates accepts array of subreddit IDs",
+        "Returns map of subredditId to last post date",
+        "Used by UI to show posting status"
+      ],
+      "passes": true
+    },
+    {
+      "category": "api",
+      "description": "Fetch optimal posting times from external API",
+      "acceptance_criteria": [
+        "POST /api/postpone/find-subreddit-posting-times fetches from Postpone API",
+        "Accepts subreddit name and timezone",
+        "Returns array of {day, hour, score} for best posting times",
+        "Caches result in subreddit's postingTimesData field"
+      ],
+      "passes": true
+    },
+    {
+      "category": "ui",
+      "description": "Subreddits management page",
+      "acceptance_criteria": [
+        "Route /subreddits displays subreddit management UI",
+        "Two tabs: 'Post to Reddit' and 'Manage Subreddits'",
+        "Manage tab shows table of all subreddits",
+        "Create button opens dialog to add new subreddit"
+      ],
+      "passes": true
+    },
+    {
+      "category": "ui",
+      "description": "Subreddit table with inline editing",
+      "acceptance_criteria": [
+        "Table displays: name, verification status, post frequency, member count",
+        "Rows are clickable to expand/edit",
+        "Inline editing for all configurable fields",
+        "Delete action with confirmation"
+      ],
+      "passes": true
+    },
+    {
+      "category": "ui",
+      "description": "Create subreddit dialog",
+      "acceptance_criteria": [
+        "Modal dialog for creating new subreddit",
+        "Name field is required",
+        "Optional fields: notes, maxPostFrequencyHours, verificationStatus",
+        "Validates input before submission"
+      ],
+      "passes": true
+    },
+    {
+      "category": "ui",
+      "description": "Posting times heatmap visualization",
+      "acceptance_criteria": [
+        "Heatmap shows optimal posting times by day/hour",
+        "Color intensity indicates score/engagement",
+        "Displays timezone information",
+        "Refresh button to fetch latest data from API"
+      ],
+      "passes": true
+    },
+    {
+      "category": "ui",
+      "description": "Reddit bulk post generator",
+      "acceptance_criteria": [
+        "UI to generate multiple random posts across subreddits",
+        "Select which subreddits to include",
+        "Preview generated posts before scheduling",
+        "Respects subreddit posting frequency limits"
+      ],
+      "passes": true
+    },
+    {
+      "category": "integration",
+      "description": "Media selection with subreddit filters",
+      "acceptance_criteria": [
+        "Random post generation applies subreddit/channel's eligibleMediaFilter",
+        "Excludes media posted to same subreddit within restriction period (via mediaRepostCooldownHours)",
+        "Falls back gracefully if no eligible media found"
+      ],
+      "passes": true
+    },
+    {
+      "category": "integration",
+      "description": "Optimal scheduling based on posting times",
+      "acceptance_criteria": [
+        "Post generation considers postingTimesData for scheduling",
+        "Prefers higher-score time slots",
+        "Respects maxPostFrequencyHours between posts",
+        "Avoids conflicts with existing scheduled posts"
+      ],
+      "passes": true
+    },
+    {
+      "category": "integration",
+      "description": "Caption generation with subreddit prefix",
+      "acceptance_criteria": [
+        "Generated captions include subreddit's captionPrefix if set",
+        "Hashtags are stripped from caption end",
+        "Falls back to most recent caption used for the media"
+      ],
+      "passes": true
+    }
+  ],
+  "technical_notes": {
+    "integrates_with": [
+      "channels (via composition pattern - Subreddit extends Channel)",
+      "reddit-automation (post generation, scheduling)",
+      "api-postpone (external API for posting times)",
+      "library (media filtering)",
+      "posts (scheduling, history)"
+    ],
+    "architecture_decision": "Subreddit uses composition pattern with Channel: Subreddit has 1:1 relationship with Channel via channelId FK. This allows unified scoring/filtering logic to operate on Channel entity while keeping Reddit-specific complexity isolated."
+  }
+}

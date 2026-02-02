@@ -1,6 +1,6 @@
 {
   "name": "Smart Virtual Post Filling",
-  "description": "Streamlined workflow for assigning media to virtual posts with contextual filtering and suggestions",
+  "description": "Streamlined workflow for assigning media to virtual posts with contextual filtering",
   "context": {
     "problem": "Pipeline auto-assignment creates posts that always need manual review and reassignment, making it slower than intentional curation",
     "user_need": "Click a virtual post and immediately see relevant, filtered media options to assign with minimal friction"
@@ -10,136 +10,157 @@
       "Contextual media filtering when selecting a virtual post",
       "Quick media assignment from filtered view",
       "Navigation between unfilled slots",
-      "Smart suggestions based on posting history"
+      "Media repost prevention via cooldown filtering"
     ],
     "out_of_scope": [
       "AI-powered content recommendations",
       "Automated caption generation",
-      "Cross-platform content optimization"
+      "Cross-platform content optimization",
+      "Complex scoring algorithms"
     ]
   },
   "features": [
     {
-      "category": "functional",
-      "description": "Open filtered library panel when clicking virtual post",
+      "category": "ux",
+      "description": "Morphing panel animation when clicking virtual post",
       "acceptance_criteria": [
-        "Clicking virtual post opens media selection panel",
+        "Clicking virtual post in PostCalendar view opens media selection panel",
+        "Panel animates by morphing from clicked card boundaries outward",
+        "Uses framer-motion layoutId for shared element transition",
+        "Panel floats above calendar via portal (position: fixed)",
+        "Semi-transparent backdrop appears behind, dimming the calendar",
+        "Panel content (grid, controls) fades in after morph animation completes",
+        "Click backdrop or press Escape closes panel with reverse animation",
+        "Animation respects prefers-reduced-motion (instant transition when set)"
+      ],
+      "passes": false
+    },
+    {
+      "category": "ux",
+      "description": "Panel positioning and layout",
+      "acceptance_criteria": [
+        "Panel anchored to original card position",
+        "Panel expands to ~480px width",
+        "Smart positioning keeps panel within viewport bounds",
+        "Panel header shows: date/time, channel badge, schedule name/color, close button",
+        "Panel footer shows: Create Post button, Create and Next button, Browse Full Library link"
+      ],
+      "passes": false
+    },
+    {
+      "category": "functional",
+      "description": "Pre-filter library based on schedule and channel configuration",
+      "acceptance_criteria": [
         "Library is pre-filtered to schedule's mediaFilters",
         "Library is pre-filtered to channel's eligibleMediaFilter",
-        "Combined filters apply (schedule + channel + scheduleChannel overrides)"
+        "ScheduleChannel overrides apply when present",
+        "Combined filters are additive (all must match)"
       ],
       "passes": false
     },
     {
       "category": "functional",
-      "description": "Exclude recently-used media from suggestions",
+      "description": "Media repost cooldown filtering",
       "acceptance_criteria": [
-        "Media posted to this channel within cooldown period is deprioritized or hidden",
-        "Cooldown period is configurable per channel",
-        "User can toggle to show all media including recently-used"
+        "Media posted to this channel within mediaRepostCooldownHours is hidden by default",
+        "mediaRepostCooldownHours is configured per channel (default 720 hours / 30 days)",
+        "User can toggle 'Show recently posted' to include media within cooldown period",
+        "When shown, recently posted media has visual indicator but is not deprioritized"
       ],
       "passes": false
     },
     {
       "category": "functional",
-      "description": "Sort media by freshness/unused status",
+      "description": "Sort options",
       "acceptance_criteria": [
-        "Default sort shows never-posted-to-this-channel media first",
-        "Secondary sort by least-recently-used across all channels",
-        "User can change sort order (newest, oldest, most used, least used)"
+        "Sort dropdown offers: Newest Added (default), Oldest Added, Recently Posted, Least Posted",
+        "Newest/Oldest Added sorts by fileCreationDate",
+        "Recently/Least Posted sorts by last post date to any channel",
+        "Sort preference persists for the session"
+      ],
+      "passes": false
+    },
+    {
+      "category": "ux",
+      "description": "Visual posting history indicators",
+      "acceptance_criteria": [
+        "Thumbnails show indicator icon if media was posted to this channel before (outside cooldown)",
+        "Hover tooltip shows when and where media was last posted",
+        "Recently posted media (when shown via toggle) has distinct visual treatment"
+      ],
+      "passes": false
+    },
+    {
+      "category": "ux",
+      "description": "Filter refinement controls",
+      "acceptance_criteria": [
+        "Panel includes existing MediaFilters component for filter refinement",
+        "User can add/remove filters using same UI as library browser",
+        "Filter state resets when panel closes"
       ],
       "passes": false
     },
     {
       "category": "functional",
-      "description": "Media selection reuses existing library selection UI",
+      "description": "Media selection behavior",
       "acceptance_criteria": [
-        "Uses same selection mechanism as existing library (click to select, shift-click for range)",
-        "Selected media shown in staging area with reorder capability",
-        "Existing drag-and-drop from library to virtual post still works"
+        "Click thumbnail to select single media",
+        "Shift-click for range selection",
+        "Cmd/Ctrl-click for multi-select",
+        "Drag to reorder selected media"
       ],
       "passes": false
     },
     {
       "category": "functional",
-      "description": "Create post action with keyboard shortcut",
+      "description": "Create post action",
       "acceptance_criteria": [
-        "Explicit 'Create Post' button to confirm assignment",
-        "Keyboard shortcut (e.g., Cmd+Enter) to create post quickly",
+        "Create Post button creates post with selected media",
         "Post inherits date, channel, scheduleId from virtual post",
-        "Optional 'Create and Next' to save and jump to next unfilled slot"
+        "Cmd+Enter keyboard shortcut triggers Create Post",
+        "Button disabled until at least one media selected"
       ],
       "passes": false
     },
     {
       "category": "functional",
-      "description": "Navigate to next unfilled slot",
+      "description": "Create and navigate to next slot",
       "acceptance_criteria": [
-        "After creating post, option to jump to next unfilled virtual post",
-        "Keyboard shortcut for quick navigation (e.g., Tab or arrow keys)",
-        "Respects current channel filter (next in same channel vs any channel)"
-      ],
-      "passes": false
-    },
-    {
-      "category": "functional",
-      "description": "Show slot context while selecting media",
-      "acceptance_criteria": [
-        "Display which channel the slot is for",
-        "Display the date/time of the slot",
-        "Display schedule name and color",
-        "Show what was posted recently on this channel for context"
+        "Create and Next button creates post and opens next unfilled virtual post",
+        "Next slot is the chronologically next virtual post for same channel",
+        "If no more slots for this channel, closes panel",
+        "Tab key navigates to next slot without creating post"
       ],
       "passes": false
     },
     {
       "category": "ux",
-      "description": "Quick filter refinement without leaving context",
+      "description": "Recent posts context display",
       "acceptance_criteria": [
-        "User can add/remove tag filters inline",
-        "User can filter by media type (image/video)",
-        "User can search by filename",
-        "Filters are additive to schedule's base filters"
-      ],
-      "passes": false
-    },
-    {
-      "category": "ux",
-      "description": "Visual indication of media posting history",
-      "acceptance_criteria": [
-        "Media thumbnails show indicator if posted to current channel before",
-        "Hover/click shows when and where media was last posted",
-        "Clear visual difference between fresh and used media"
+        "Panel shows last 3 posts on this channel as small thumbnails",
+        "Helps user avoid posting similar content consecutively",
+        "Context display is collapsible to save space"
       ],
       "passes": false
     },
     {
       "category": "edge-case",
-      "description": "No eligible media available",
+      "description": "Empty state when no eligible media",
       "acceptance_criteria": [
         "Clear message when filters result in empty media list",
-        "Suggestion to adjust filters or add more media",
+        "Shows which filters are active and limiting results",
         "Option to skip this slot"
-      ],
-      "passes": false
-    },
-    {
-      "category": "edge-case",
-      "description": "Slot already filled while panel open",
-      "acceptance_criteria": [
-        "If another user/tab fills the slot, panel shows notification",
-        "User can choose to create additional post or move to next slot"
       ],
       "passes": false
     }
   ],
   "technical_notes": {
-    "replaces": "Pipeline bulk auto-assignment for most use cases",
+    "initial_implementation": "PostCalendar view only; PostSwimlane can be added later",
     "integrates_with": [
-      "content-schedules (virtual posts)",
-      "library (media filtering)",
-      "posts (creation)"
-    ],
-    "key_insight": "Curation is inherently a human decision; optimize the interface, not the algorithm"
+      "content-schedules (virtual posts, mediaFilters)",
+      "channels (eligibleMediaFilter, mediaRepostCooldownHours)",
+      "library (existing filter system, fetch-all endpoint)",
+      "posts (creation, posting history for cooldown check)"
+    ]
   }
 }
