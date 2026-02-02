@@ -7,6 +7,7 @@ import { ChannelSelect } from "~/components/ChannelSelect";
 import { ContentScheduleSelect } from "~/components/ContentScheduleSelect";
 import { DateTimePicker } from "~/components/DateTimePicker";
 import { HashtagButton } from "~/components/HashtagButton";
+import { RecentPostsPanel } from "~/features/posts/components/RecentPostsPanel";
 import { SnippetSelector } from "~/components/SnippetSelector";
 import { StatusSelect } from "~/components/StatusSelect";
 import { SubredditSelect } from "~/components/SubredditSelect";
@@ -263,6 +264,17 @@ export const CreatePostDialog = ({
                         applyRepostCooldown={true}
                       />
                     </div>
+
+                    {/* Recent Posts Context */}
+                    {selectedChannel[0] ? (
+                      <div className="flex-shrink-0">
+                        <RecentPostsPanel 
+                          channelId={selectedChannel[0]} 
+                          limit={3} 
+                          defaultCollapsed={false}
+                        />
+                      </div>
+                    ) : null}
 
                     {/* Bottom Section: Post Details */}
                     <div className="flex flex-col gap-4">

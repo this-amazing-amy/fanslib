@@ -56,7 +56,7 @@
         "ScheduleChannel overrides apply when present",
         "Combined filters are additive (all must match)"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "functional",
@@ -67,7 +67,7 @@
         "User can toggle 'Show recently posted' to include media within cooldown period",
         "When shown, recently posted media has visual indicator but is not deprioritized"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "functional",
@@ -78,7 +78,7 @@
         "Recently/Least Posted sorts by last post date to any channel",
         "Sort preference persists for the session"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "ux",
@@ -141,7 +141,7 @@
         "Helps user avoid posting similar content consecutively",
         "Context display is collapsible to save space"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "category": "edge-case",
