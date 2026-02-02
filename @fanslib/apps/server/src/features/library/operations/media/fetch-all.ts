@@ -7,12 +7,17 @@ import { MediaSchema } from "../../schema";
 import { buildFilterGroupQuery } from "../../filter-helpers";
 import { MediaFilterSchema } from "../../schemas/media-filter";
 import { MediaSortSchema } from "../../schemas/media-sort";
+import { Channel } from "../../../channels/entity";
+import { getRecentlyPostedMediaIds } from "./get-recently-posted-media-ids";
 
 export const FetchAllMediaRequestBodySchema = z.object({
   page: z.number().optional(),
   limit: z.number().optional(),
   filters: MediaFilterSchema.optional(),
   sort: MediaSortSchema.optional(),
+  excludeMediaIds: z.array(z.string()).optional(),
+  channelId: z.string().optional(),
+  applyRepostCooldown: z.boolean().optional(),
 });
 
 export const FetchAllMediaResponseSchema = paginatedResponseSchema(MediaSchema);
@@ -34,6 +39,33 @@ export const fetchAllMedia = async (
 
   if (params?.filters) {
     buildFilterGroupQuery(params.filters, queryBuilder);
+  }
+
+  // Apply manual excludeMediaIds filter
+  if (params?.excludeMediaIds && params.excludeMediaIds.length > 0) {
+    queryBuilder.andWhere("media.id NOT IN (:...excludeMediaIds)", {
+      excludeMediaIds: params.excludeMediaIds,
+    });
+  }
+
+  // Apply repost cooldown if requested and channelId provided
+  if (params?.applyRepostCooldown && params?.channelId) {
+    const channel = await database.manager.findOne(Channel, {
+      where: { id: params.channelId },
+    });
+
+    if (channel?.mediaRepostCooldownHours && channel.mediaRepostCooldownHours > 0) {
+      const recentlyPostedMediaIds = await getRecentlyPostedMediaIds(
+        params.channelId,
+        channel.mediaRepostCooldownHours,
+      );
+
+      if (recentlyPostedMediaIds.size > 0) {
+        queryBuilder.andWhere("media.id NOT IN (:...recentMediaIds)", {
+          recentMediaIds: Array.from(recentlyPostedMediaIds),
+        });
+      }
+    }
   }
 
   if (params?.sort) {

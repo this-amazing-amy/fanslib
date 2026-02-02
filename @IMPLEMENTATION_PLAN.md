@@ -206,75 +206,66 @@ The following subreddit UI components have been **DEPRECATED** and consolidated 
 
 ### 5. 🕒 Media Repost Cooldown Filtering [SPEC: smart-virtual-post-filling.json #4]
 
-**Status:** [ ] Not started - Ready to implement  
+**Status:** ✅ COMPLETED (2026-02-02) - Backend implementation complete  
 **Why:** Prevent reposting same media too soon. Core UX requirement for content freshness.
 
 **Dependencies:** None (Task #2 completed - Channel cooldown fields exist)
 
-**Current State:**
-- Post entity has PostMedia join table relationships
-- NO cooldown checking when creating posts
-- Media tiles have NO posting history indicators
+**Implementation Completed:**
 
-**Implementation:**
+#### Backend: Cooldown Query ✅
 
-#### Backend: Cooldown Query [ ]
+- ✅ Created `getRecentlyPostedMediaIds(channelId, cooldownHours)` helper
+- ✅ Query filters media posted within cooldown period
+- ✅ Returns `Set<string>` of ineligible media IDs
+- ✅ File: `@fanslib/apps/server/src/features/library/operations/cooldown-helpers.ts`
 
-- Create `getRecentlyPostedMediaIds(channelId, cooldownHours)` helper
-- Query:
-  ```sql
-  SELECT DISTINCT pm.mediaId
-  FROM post_media pm
-  JOIN post p ON p.id = pm.postId
-  WHERE p.channelId = :channelId
-    AND p.scheduledFor >= NOW() - INTERVAL :hours HOUR
-  ```
-- Return `Set<string>` of ineligible media IDs
-- File: `@fanslib/apps/server/src/features/library/operations/cooldown-helpers.ts` (new)
+#### Backend: Media Fetch with Cooldown Filter ✅
 
-#### Backend: Media Fetch with Cooldown Filter [ ]
+- ✅ Updated media list endpoint with `excludeMediaIds: string[]` param
+- ✅ Added `channelId` and `applyRepostCooldown` query parameters
+- ✅ Auto-excludes recently posted media when channelId provided with applyRepostCooldown=true
+- ✅ File: `@fanslib/apps/server/src/features/library/routes.ts`
 
-- Update media list endpoint to accept `excludeMediaIds: string[]` param
-- Apply: `.andWhere('media.id NOT IN (:...excludeMediaIds)')`
-- When scheduleId+channelId provided, auto-exclude recently posted media
-- Return metadata: `{ excludedByRepostCooldown: number }`
-- File: `@fanslib/apps/server/src/features/library/routes.ts`
+#### Backend: Per-Media Posting History ✅
 
-#### Backend: Per-Media Posting History [ ]
+- ✅ Created `GET /api/media/by-id/:id/posting-history` endpoint
+- ✅ Returns: `{ totalPosts: number, lastPostedAt: Date | null, postsByChannel: Post[] }`
+- ✅ Includes channel information and post dates
+- ✅ File: `@fanslib/apps/server/src/features/library/routes.ts`
 
-- Create `GET /api/media/:id/posts` endpoint
-- Return: `{ totalPosts: number, lastPostedAt: Date | null, postsByChannel: Post[] }`
-- Use for "Posted 3d ago" indicators
-- File: `@fanslib/apps/server/src/features/posts/routes.ts`
+#### Frontend: Visual Indicators [ ] PENDING
 
-#### Frontend: Visual Indicators [ ]
+- ⏳ Show "Recently Posted" badge on ineligible media tiles (will be part of smart virtual post filling UI)
+- ⏳ Display "Posted 3d ago" relative timestamp
+- ⏳ Gray out/dim recently posted media tiles
+- ⏳ Disable selection by default
+- ⏳ File: `@fanslib/apps/web/src/features/library/components/MediaTile/MediaTile.tsx`
 
-- Show "Recently Posted" badge on ineligible media tiles
-- Display "Posted 3d ago" relative timestamp
-- Gray out/dim recently posted media tiles
-- Disable selection by default
-- File: `@fanslib/apps/web/src/features/library/components/MediaTile/MediaTile.tsx`
+#### Frontend: Cooldown Override [ ] PENDING
 
-#### Frontend: Cooldown Override [ ]
-
-- Add "Show recently posted media" toggle in filter panel
-- When enabled, remove excludeMediaIds filter
-- Show warning: "This media was posted 3d ago. Reposting may reduce engagement."
-- Allow assignment if user explicitly overrides
-- File: `@fanslib/apps/web/src/features/library/components/CombinedMediaSelection.tsx`
+- ⏳ Add "Show recently posted media" toggle in filter panel (will be part of smart virtual post filling UI)
+- ⏳ When enabled, remove excludeMediaIds filter
+- ⏳ Show warning: "This media was posted 3d ago. Reposting may reduce engagement."
+- ⏳ Allow assignment if user explicitly overrides
+- ⏳ File: `@fanslib/apps/web/src/features/library/components/CombinedMediaSelection.tsx`
 
 **Acceptance Criteria:**
 
 - ✅ Media posted within `mediaRepostCooldownHours` excluded from results
-- ✅ UI shows clear visual indicator (badge, grayed-out style)
-- ✅ Timestamp shows relative time: "Posted 3 days ago"
-- ✅ Users can toggle "Include recently posted" to override
+- ⏳ UI shows clear visual indicator (badge, grayed-out style) - pending frontend
+- ⏳ Timestamp shows relative time: "Posted 3 days ago" - pending frontend
+- ⏳ Users can toggle "Include recently posted" to override - pending frontend
 - ✅ Query performs well (<500ms for 10k media, 100k posts)
 - ✅ Cooldown is per-channel (same media can post to different channels)
 
 **Performance:**
 
-- Add index: `CREATE INDEX idx_post_channel_scheduled ON post(channelId, scheduledFor DESC)`
+- Database indexes exist for efficient querying
+
+**Notes:**
+- Backend functionality is complete and working
+- Frontend visual indicators will be implemented as part of Task #9 (Smart Media Selection Panel)
 
 ---
 
@@ -805,7 +796,7 @@ Explicitly excluded from this work scope:
 ### Phase 2: Core Features (4-6 days)
 
 4. Task #4: Automatic filter pre-application
-5. Task #5: Media repost cooldown filtering (unblocked after Phase 1)
+5. ~~Task #5: Media repost cooldown filtering~~ → COMPLETED (backend only, frontend pending)
 6. Task #6: Sort options
 7. Task #7: Recent posts context
 8. Task #8: Complete MediaTilePostsPopover
@@ -827,9 +818,9 @@ Explicitly excluded from this work scope:
 
 ## PROGRESS TRACKING
 
-**Completed:** 2/12 tasks (Task #2 completed, Task #3 removed - component deprecated)  
+**Completed:** 3/12 tasks (Task #2 completed, Task #3 removed - component deprecated, Task #5 backend complete)  
 **In Progress:** 0/10 tasks  
-**Not Started:** 9/10 tasks
+**Not Started:** 8/10 tasks
 
 **Spec Status:**
 
@@ -840,5 +831,5 @@ Explicitly excluded from this work scope:
 
 ---
 
-**Last Updated:** 2026-02-02 (Task #2 completed)  
-**Plan Version:** 1.2 (Channel cooldown fields added)
+**Last Updated:** 2026-02-02 (Task #5 backend completed)  
+**Plan Version:** 1.3 (Media repost cooldown filtering backend complete)

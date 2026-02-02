@@ -10,6 +10,7 @@ import { fetchMediaById } from './operations/media/fetch-by-id';
 import { fetchMediaByPath } from './operations/media/fetch-by-path';
 import { findAdjacentMedia } from './operations/media/find-adjacent';
 import { updateMedia } from './operations/media/update';
+import { getMediaPostingHistory } from './operations/media/get-media-posting-history';
 import { getScanStatus, scanFile, scanLibrary } from './operations/scan/scan';
 import { getThumbnailPath } from './operations/scan/thumbnail';
 import { resolveMediaPath } from './path-utils';
@@ -23,6 +24,9 @@ const FetchAllMediaRequestBodySchema = z.object({
   limit: z.number().optional().default(50),
   filters: MediaFilterSchema.optional(),
   sort: MediaSortSchema.optional(),
+  excludeMediaIds: z.array(z.string()).optional(),
+  channelId: z.string().optional(),
+  applyRepostCooldown: z.boolean().optional(),
 });
 
 const DeleteMediaQuerySchema = z.object({
@@ -98,6 +102,9 @@ export const libraryRoutes = new Hono()
       limit: body.limit,
       filters: body.filters,
       sort: body.sort,
+      excludeMediaIds: body.excludeMediaIds,
+      channelId: body.channelId,
+      applyRepostCooldown: body.applyRepostCooldown,
     });
     return c.json(result);
   })
@@ -140,6 +147,11 @@ export const libraryRoutes = new Hono()
     const id = c.req.param('id');
     const body = c.req.valid('json');
     const result = await findAdjacentMedia(id, body);
+    return c.json(result);
+  })
+  .get('/by-id/:id/posting-history', async (c) => {
+    const id = c.req.param('id');
+    const result = await getMediaPostingHistory(id);
     return c.json(result);
   })
   .post('/scan', async (c) => {
