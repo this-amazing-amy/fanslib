@@ -18,6 +18,8 @@ export const validationError = <T>(result: ValidationResult<T> & { target: strin
     code: err.code,
   }));
 
+  console.error(`[Validation Error] ${c.req.method} ${c.req.path} (${result.target}):`, errors);
+
   return c.json(
     {
       error: "Validation failed",

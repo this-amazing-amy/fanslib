@@ -24,26 +24,31 @@
       "category": "ux",
       "description": "Morphing panel animation when clicking virtual post",
       "acceptance_criteria": [
-        "Clicking virtual post in PostCalendar view opens media selection panel",
+        "Clicking virtual post in PostCalendar view opens simplified media selection panel",
         "Panel animates by morphing from clicked card boundaries outward",
         "Uses framer-motion layoutId for shared element transition",
         "Panel floats above calendar via portal (position: fixed)",
         "Semi-transparent backdrop appears behind, dimming the calendar",
         "Panel content (grid, controls) fades in after morph animation completes",
         "Click backdrop or press Escape closes panel with reverse animation",
-        "Animation respects prefers-reduced-motion (instant transition when set)"
+        "Animation respects prefers-reduced-motion (instant transition when set)",
+        "Panel is a simplified media selection UI, NOT the full CreatePostDialog"
       ],
       "passes": true
     },
     {
       "category": "ux",
-      "description": "Panel positioning and layout",
+      "description": "Simplified media selection panel layout",
       "acceptance_criteria": [
         "Panel anchored to original card position",
-        "Panel expands to ~480px width",
+        "Panel expands to approximately 4 media grid items wide",
         "Smart positioning keeps panel within viewport bounds",
-        "Panel header shows: date/time, channel badge, schedule name/color, close button",
-        "Panel footer shows: Create Post button, Create and Next button, Browse Full Library link"
+        "Panel header shows: date/time, content schedule badge with color, channel badge, close button",
+        "MediaFilters component displayed above grid showing all active filters",
+        "Scrollable grid displays filtered media for selection",
+        "Panel footer shows: Expand button (opens full CreatePostDialog), Create Post button",
+        "Create Post button creates the post, closes panel, and revalidates the calendar query",
+        "Expand button opens full CreatePostDialog with current selection preserved"
       ],
       "passes": true
     },
@@ -118,18 +123,20 @@
         "Create Post button creates post with selected media",
         "Post inherits date, channel, scheduleId from virtual post",
         "Cmd+Enter keyboard shortcut triggers Create Post",
-        "Button disabled until at least one media selected"
+        "Button disabled until at least one media selected",
+        "After creation, panel closes and calendar query revalidates to show new post"
       ],
       "passes": true
     },
     {
       "category": "functional",
-      "description": "Create and navigate to next slot",
+      "description": "Expand to full CreatePostDialog",
       "acceptance_criteria": [
-        "Create and Next button creates post and opens next unfilled virtual post",
-        "Next slot is the chronologically next virtual post for same channel",
-        "If no more slots for this channel, closes panel",
-        "Tab key navigates to next slot without creating post"
+        "Expand button opens full CreatePostDialog with all editing capabilities",
+        "Current media selection is preserved when expanding",
+        "Virtual post date, channel, and schedule context is passed to dialog",
+        "User can edit caption, add hashtags, and configure all post options in full dialog",
+        "Full dialog creation also revalidates calendar query on completion"
       ],
       "passes": true
     },

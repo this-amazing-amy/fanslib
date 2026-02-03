@@ -7,7 +7,7 @@ import { PostPreferencesProvider } from "~/contexts/PostPreferencesContext";
 import { CaptioningStep } from "~/features/pipeline/components/CaptioningStep";
 import { useChannelsQuery } from "~/lib/queries/channels";
 
-const CaptionRoute = () => {
+const CaptioningRoute = () => {
   const { data: channelsData } = useChannelsQuery();
   const channels = useMemo(() => channelsData ?? [], [channelsData]);
 
@@ -37,6 +37,6 @@ const CaptionRoute = () => {
   );
 };
 
-export const Route = createFileRoute("/pipeline/caption")({
-  component: CaptionRoute,
+export const Route = createFileRoute("/captioning")({
+  component: CaptioningRoute,
 });

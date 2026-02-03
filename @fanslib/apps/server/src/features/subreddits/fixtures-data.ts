@@ -6,6 +6,7 @@ export type SubredditFixture = Omit<Subreddit, "postingTimesData" | "postingTime
 export const SUBREDDIT_FIXTURES: SubredditFixture[] = [
   {
     id: "subreddit-1",
+    name: null, // Deprecated: name is now stored in channel
     maxPostFrequencyHours: 24,
     memberCount: 10000,
     verificationStatus: VERIFICATION_STATUS.UNKNOWN,
@@ -16,6 +17,7 @@ export const SUBREDDIT_FIXTURES: SubredditFixture[] = [
   },
   {
     id: "subreddit-2",
+    name: "gonewild", // Deprecated: for migration testing
     maxPostFrequencyHours: 12,
     memberCount: 5000,
     verificationStatus: VERIFICATION_STATUS.VERIFIED,

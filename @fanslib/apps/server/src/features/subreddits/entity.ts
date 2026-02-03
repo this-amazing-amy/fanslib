@@ -25,6 +25,13 @@ export class Subreddit {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
+  /**
+   * @deprecated This column is being migrated to channel.name. Only used during migration.
+   * Will be removed in a future version.
+   */
+  @Column({ type: "varchar", nullable: true, name: "name" })
+  name: string | null = null;
+
   @Column({ type: "int", nullable: true, name: "maxPostFrequencyHours" })
   maxPostFrequencyHours: number | null = null;
 

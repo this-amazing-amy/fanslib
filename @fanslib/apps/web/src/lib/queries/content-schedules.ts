@@ -50,8 +50,13 @@ export const useVirtualPostsQuery = (params: {
         toDate: params.toDate.toISOString(),
       };
       const result = await api.api['content-schedules']['virtual-posts'].$get({ query });
+      if (!result.ok) {
+        const errorData = await result.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Failed to fetch virtual posts:', errorData);
+        return [];
+      }
       const data = await result.json();
-      return data ?? [];
+      return Array.isArray(data) ? data : [];
     },
     enabled: params.channelIds.length > 0,
   });

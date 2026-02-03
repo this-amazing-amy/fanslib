@@ -107,11 +107,12 @@ export const migrateSubredditsToChannelComposition = async () => {
           [subreddit.id]
         ).catch(() => null);
 
-        const oldName = rawSubreddit?.[0]?.name;
+        // Use entity's name field first (TypeORM loaded), then raw query, then fallback
+        const oldName = subreddit.name ?? rawSubreddit?.[0]?.name;
         const oldEligibleMediaFilter = rawSubreddit?.[0]?.eligibleMediaFilter;
 
-        // Use old data if available, otherwise generate default name
-        const channelName = oldName ?? `r/subreddit-${subreddit.id.slice(0, 8)}`;
+        // Use old data if available, otherwise generate fallback name
+        const channelName = oldName ?? `subreddit-${subreddit.id.slice(0, 8)}`;
         
         const existingChannel = await channelRepo.findOne({
           where: { name: channelName, typeId: "reddit" },

@@ -13,7 +13,7 @@ export const PlanEmptyState = () => {
       action={{
         label: "Add Channel",
         onClick: () => {
-          navigate({ to: "/content/channels" });
+          navigate({ to: "/channels" });
         },
       }}
     />

@@ -5,7 +5,7 @@ import { PostSchema } from "../../entity";
 
 export const FetchRecentPostsRequestSchema = z.object({
   channelId: z.string(),
-  limit: z.number().int().min(1).max(10).optional().default(3),
+  limit: z.coerce.number().int().min(1).max(10).optional().default(3),
 });
 
 export const FetchRecentPostsResponseSchema = z.array(PostSchema);

@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { notFound, validationError } from "../../lib/hono-utils";
+import { queryStringNumberArray } from "../../lib/query-helpers";
 import * as driftPrevention from "./drift-prevention";
 import { assignTagsToMedia } from "./operations/media-tag/assign";
 import { bulkAssignTags } from "./operations/media-tag/bulk-assign";
@@ -59,7 +60,7 @@ const FetchTagsByDimensionQuerySchema = z.object({
 });
 
 const FetchTagDefinitionsByIdsQuerySchema = z.object({
-  ids: z.string().transform((val) => val.split(",").map(Number)),
+  ids: queryStringNumberArray,
 });
 
 const CreateTagDefinitionBodySchema = z.object({

@@ -18,7 +18,6 @@ export const ShootDetailMediaGrid = ({ medias, onAddMedia }: ShootDetailMediaGri
           withPreview
           withDragAndDrop
           withDuration
-          withPostsPopover
           withNavigation
           withFileName
           withTags

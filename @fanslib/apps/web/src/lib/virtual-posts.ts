@@ -9,7 +9,7 @@ export type VirtualPost = Post & {
 };
 
 export const isVirtualPost = (post: Post | VirtualPost): post is VirtualPost =>
-  "isVirtual" in post && post.isVirtual === true;
+  post !== null && typeof post === "object" && "isVirtual" in post && post.isVirtual === true;
 
 export const filterPostsByType = <T extends Post | VirtualPost>(posts: T[], filter: PostTypeFilter): T[] => {
   if (filter === "virtual") return posts.filter(isVirtualPost) as T[];

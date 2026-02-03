@@ -1,10 +1,11 @@
 import type { Media, PostWithRelations } from '@fanslib/server/schemas';
 import { Link } from "@tanstack/react-router";
 import { Trash2, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { usePostDrag } from "~/contexts/PostDragContext";
 import { usePostPreferences } from "~/contexts/PostPreferencesContext";
 import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
+import { VirtualPostMediaPanel } from "~/features/library/components/VirtualPostMediaPanel";
 import { cn } from "~/lib/cn";
 import { useSkipScheduleSlotMutation } from "~/lib/queries/content-schedules";
 import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
@@ -29,6 +30,7 @@ export const PostCalendarPost = ({ post, onUpdate, allPosts = [] }: PostCalendar
   const skipSlotMutation = useSkipScheduleSlotMutation();
   const [confirmSkip, setConfirmSkip] = useState(false);
   const captionPreview = post.caption ? getCaptionPreview(post.caption) : "";
+  const cardRef = useRef<HTMLDivElement>(null);
   
   const [createPostData, setCreatePostData] = useState<{
     media: Media[];
@@ -39,14 +41,27 @@ export const PostCalendarPost = ({ post, onUpdate, allPosts = [] }: PostCalendar
     allPosts?: (Post | VirtualPost)[];
     virtualPost?: VirtualPost;
   } | null>(null);
+
+  const [simplifiedPanelOpen, setSimplifiedPanelOpen] = useState(false);
+  const [cardBounds, setCardBounds] = useState<DOMRect | undefined>(undefined);
   
   const virtualPostClick = useVirtualPostClick({
     post: isVirtualPost(post) ? post : ({} as VirtualPost),
-    onOpenCreateDialog: (data) => setCreatePostData({
-      ...data,
-      allPosts,
-      virtualPost: isVirtualPost(post) ? post : undefined,
-    }),
+    onOpenCreateDialog: (data) => {
+      if (isVirtualPost(post)) {
+        // Open simplified panel for virtual posts
+        const bounds = cardRef.current?.getBoundingClientRect();
+        setCardBounds(bounds);
+        setSimplifiedPanelOpen(true);
+      } else {
+        // Open full dialog for regular posts
+        setCreatePostData({
+          ...data,
+          allPosts,
+          virtualPost: isVirtualPost(post) ? post : undefined,
+        });
+      }
+    },
   });
   
   const closeCreatePostDialog = () => {
@@ -171,7 +186,9 @@ export const PostCalendarPost = ({ post, onUpdate, allPosts = [] }: PostCalendar
       </div>
     </Link>
   ) : (
-    presentationContent
+    <div ref={cardRef}>
+      {presentationContent}
+    </div>
   );
 
   return (
@@ -179,6 +196,35 @@ export const PostCalendarPost = ({ post, onUpdate, allPosts = [] }: PostCalendar
       <PostCalendarDropzone post={post} onUpdate={onUpdate}>
         {viewContent}
       </PostCalendarDropzone>
+      
+      {/* Simplified panel for virtual posts */}
+      {isVirtualPost(post) && (
+        <VirtualPostMediaPanel
+          virtualPost={post}
+          isOpen={simplifiedPanelOpen}
+          onClose={() => {
+            setSimplifiedPanelOpen(false);
+            if (onUpdate) {
+              onUpdate();
+            }
+          }}
+          onExpand={() => {
+            setSimplifiedPanelOpen(false);
+            setCreatePostData({
+              media: [],
+              initialDate: new Date(post.date),
+              initialChannelId: post.channelId,
+              scheduleId: post.scheduleId ?? undefined,
+              initialMediaSelectionExpanded: true,
+              allPosts,
+              virtualPost: post,
+            });
+          }}
+          cardBounds={cardBounds}
+        />
+      )}
+      
+      {/* Full dialog for editing existing posts or when expanded */}
       <CreatePostDialog
         open={createPostData !== null}
         onOpenChange={closeCreatePostDialog}

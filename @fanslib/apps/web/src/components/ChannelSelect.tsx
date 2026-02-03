@@ -41,7 +41,7 @@ export const ChannelSelect = ({
       {(channels?.length === 0) && (
         <>
           <div className="text-sm text-base-content/60">No channels found.</div>
-          <Link to="/content/channels" className="text-sm hover:underline">
+          <Link to="/channels" className="text-sm hover:underline">
             Create a channel
           </Link>
         </>

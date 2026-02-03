@@ -1,13 +1,18 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
+import { addDays } from "date-fns";
 import { Hono } from "hono";
 import "reflect-metadata";
+import type { z } from "zod";
+import { devalueMiddleware } from "../../lib/devalue-middleware";
 import { getTestDataSource, setupTestDatabase, teardownTestDatabase } from "../../lib/test-db";
 import { resetAllFixtures } from "../../lib/test-fixtures";
-import { devalueMiddleware } from "../../lib/devalue-middleware";
 import { parseResponse } from "../../test-utils/setup";
 import { ContentSchedule } from "./entity";
 import { CONTENT_SCHEDULE_FIXTURES } from "./fixtures-data";
+import type { VirtualPostSchema } from "./operations/generate-virtual-posts";
 import { contentSchedulesRoutes } from "./routes";
+
+type VirtualPost = z.infer<typeof VirtualPostSchema>;
 
 describe("Content Schedules Routes", () => {
   // eslint-disable-next-line functional/no-let
@@ -184,6 +189,58 @@ describe("Content Schedules Routes", () => {
 
       const data = await parseResponse<{ error: string }>(response);
       expect(data?.error).toBe("Content schedule not found");
+    });
+  });
+
+  describe("GET /api/content-schedules/virtual-posts", () => {
+    test("returns virtual posts for channel ids as comma-separated string", async () => {
+      const channel = fixtures.channels.channels[0];
+      if (!channel) {
+        throw new Error("No channel fixtures available");
+      }
+
+      const fromDate = new Date().toISOString();
+      const toDate = addDays(new Date(), 30).toISOString();
+
+      const response = await app.request(
+        `/api/content-schedules/virtual-posts?channelIds=${channel.id}&fromDate=${fromDate}&toDate=${toDate}`
+      );
+      expect(response.status).toBe(200);
+
+      const data = await parseResponse<VirtualPost[]>(response);
+      expect(Array.isArray(data)).toBe(true);
+    });
+
+    test("returns virtual posts for multiple channel ids as comma-separated string", async () => {
+      const channels = fixtures.channels.channels.slice(0, 2);
+      if (channels.length < 2) {
+        throw new Error("Not enough channel fixtures available");
+      }
+
+      const channelIds = channels.map((c) => c.id).join(",");
+      const fromDate = new Date().toISOString();
+      const toDate = addDays(new Date(), 30).toISOString();
+
+      const response = await app.request(
+        `/api/content-schedules/virtual-posts?channelIds=${channelIds}&fromDate=${fromDate}&toDate=${toDate}`
+      );
+      expect(response.status).toBe(200);
+
+      const data = await parseResponse<VirtualPost[]>(response);
+      expect(Array.isArray(data)).toBe(true);
+    });
+
+    test("returns 422 when channelIds is missing", async () => {
+      const fromDate = new Date().toISOString();
+      const toDate = addDays(new Date(), 30).toISOString();
+
+      const response = await app.request(
+        `/api/content-schedules/virtual-posts?fromDate=${fromDate}&toDate=${toDate}`
+      );
+      expect(response.status).toBe(422);
+
+      const data = await parseResponse<{ error: string }>(response);
+      expect(data?.error).toBe("Validation failed");
     });
   });
 });

@@ -2,6 +2,7 @@ import { isSameMinute } from "date-fns";
 import { Between, In } from "typeorm";
 import { z } from "zod";
 import { db } from "../../../lib/db";
+import { queryStringArray } from "../../../lib/query-helpers";
 import type { Channel } from "../../channels/entity";
 import { Post } from "../../posts/entity";
 import { ContentSchedule, ScheduleChannel } from "../entity";
@@ -10,7 +11,7 @@ import { generateScheduleDates } from "../schedule-dates";
 export { generateScheduleDates } from "../schedule-dates";
 
 export const FetchVirtualPostsRequestQuerySchema = z.object({
-  channelIds: z.array(z.string()),
+  channelIds: queryStringArray,
   fromDate: z.string(),
   toDate: z.string(),
 });

@@ -69,7 +69,6 @@ const GalleryContent = ({ medias, error, onScan }: GalleryProps) => {
               withPreview
               withDragAndDrop
               withDuration
-              withPostsPopover
               withNavigation
               withFileName
               withTags

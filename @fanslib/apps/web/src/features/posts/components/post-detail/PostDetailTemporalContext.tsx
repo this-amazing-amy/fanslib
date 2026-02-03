@@ -103,15 +103,15 @@ export const PostDetailTemporalContext = ({ post }: PostDetailTemporalContextPro
             <div
               key={day.toISOString()}
               className={`flex flex-col rounded-lg p-2 ${
-                isCurrentPostDay ? 'bg-base-200 ring-2 ring-primary/50' : ''
+                isCurrentPostDay ? 'bg-base-200' : ''
               }`}
             >
               {/* Day header */}
-              <div className="text-center mb-2 flex-shrink-0">
-                <div className="text-xs text-base-content/60">{format(day, 'EEE')}</div>
-                <div className={`text-sm font-medium ${isCurrentPostDay ? 'text-primary' : ''}`}>
-                  {format(day, 'd MMM')}
-                </div>
+              <div className="flex items-center gap-1.5 mb-2 flex-shrink-0">
+                <span className={`font-medium text-sm ${isCurrentPostDay ? 'bg-primary text-primary-content rounded-full w-6 h-6 flex items-center justify-center' : 'w-6 h-6 flex items-center justify-center'}`}>
+                  {format(day, 'd')}
+                </span>
+                <span className="text-xs text-base-content/60">{format(day, 'EEE')}</span>
               </div>
 
               {/* Posts for this day */}
@@ -148,7 +148,7 @@ export const PostDetailTemporalContext = ({ post }: PostDetailTemporalContextPro
                       wrapper={
                         isCurrentPost
                           ? (children: ReactNode) => (
-                              <div className="ring-2 ring-primary rounded-xl">{children}</div>
+                              <div className="ring-3 ring-primary rounded-xl [&>*]:border-0">{children}</div>
                             )
                           : (children: ReactNode) => (
                               <Link
