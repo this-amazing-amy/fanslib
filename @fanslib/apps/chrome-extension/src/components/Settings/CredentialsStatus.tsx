@@ -29,9 +29,8 @@ export const CredentialsStatus = ({ apiUrl }: CredentialsStatusProps) => {
 
     try {
       const api = eden(urlToCheck);
-      const credentialsResponse = await api.api.settings[
-        'fansly-credentials'
-      ].$get();
+      const credentialsResponse =
+        await api.api.settings['fansly-credentials'].$get();
 
       if (!credentialsResponse.ok) {
         throw new Error('Failed to fetch credentials');

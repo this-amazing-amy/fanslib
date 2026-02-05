@@ -1,6 +1,6 @@
-import { hc } from 'hono/client';
-import * as devalue from 'devalue';
 import type { AppType } from '@fanslib/server';
+import * as devalue from 'devalue';
+import { hc } from 'hono/client';
 
 /**
  * Custom fetch wrapper that handles devalue deserialization.

@@ -66,7 +66,8 @@ export const StatisticsTab = () => {
 
         candidates.forEach((candidate) => {
           const foundCandidate = allCandidates.find(
-            (c: { fanslyStatisticsId: string }) => c.fanslyStatisticsId === candidate.fanslyStatisticsId
+            (c: { fanslyStatisticsId: string }) =>
+              c.fanslyStatisticsId === candidate.fanslyStatisticsId
           );
 
           if (foundCandidate) {

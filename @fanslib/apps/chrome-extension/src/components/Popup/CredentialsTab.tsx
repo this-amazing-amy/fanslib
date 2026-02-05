@@ -48,9 +48,8 @@ export const CredentialsTab = () => {
       const settings = await getSettings();
       const api = eden(settings.apiUrl);
 
-      const credentialsResponse = await api.api.settings[
-        'fansly-credentials'
-      ].$get();
+      const credentialsResponse =
+        await api.api.settings['fansly-credentials'].$get();
 
       if (!credentialsResponse.ok) {
         throw new Error('Failed to fetch credentials');
