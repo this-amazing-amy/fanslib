@@ -1,7 +1,7 @@
 import type { Media, PostStatus, PostWithRelations } from '@fanslib/server/schemas';
-import { AnimatePresence, motion } from "framer-motion";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
+import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChannelBadge } from "~/components/ChannelBadge";
@@ -10,7 +10,6 @@ import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
 import { ContentScheduleSelect } from "~/components/ContentScheduleSelect";
 import { DateTimePicker } from "~/components/DateTimePicker";
 import { HashtagButton } from "~/components/HashtagButton";
-import { RecentPostsPanel } from "~/features/posts/components/RecentPostsPanel";
 import { SnippetSelector } from "~/components/SnippetSelector";
 import { StatusSelect } from "~/components/StatusSelect";
 import { SubredditSelect } from "~/components/SubredditSelect";
@@ -20,13 +19,14 @@ import { ScrollArea } from "~/components/ui/ScrollArea";
 import { Textarea } from "~/components/ui/Textarea";
 import { MediaSelectionProvider } from "~/contexts/MediaSelectionContext";
 import { CombinedMediaSelection } from "~/features/library/components/CombinedMediaSelection";
+import { RecentPostsPanel } from "~/features/posts/components/RecentPostsPanel";
+import { usePrefersReducedMotion } from "~/hooks/usePrefersReducedMotion";
 import { cn } from "~/lib/cn";
 import { findNextUnfilledSlot } from "~/lib/find-next-unfilled-slot";
 import { useChannelsQuery } from "~/lib/queries/channels";
 import { useContentScheduleQuery, useSkipScheduleSlotMutation } from "~/lib/queries/content-schedules";
 import { useCreatePostMutation } from "~/lib/queries/posts";
 import type { VirtualPost } from "~/lib/virtual-posts";
-import { usePrefersReducedMotion } from "~/hooks/usePrefersReducedMotion";
 
 
 
@@ -465,7 +465,6 @@ export const CreatePostDialog = ({
                         scheduleId={contentScheduleId ?? undefined}
                         channelId={selectedChannel[0]}
                         autoApplyFilters={true}
-                        applyRepostCooldown={true}
                         onClose={() => onOpenChange(false)}
                       />
                     </div>

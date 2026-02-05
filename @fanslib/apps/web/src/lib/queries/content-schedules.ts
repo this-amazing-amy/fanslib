@@ -1,16 +1,20 @@
-import type { CreateContentScheduleRequestBody, FetchVirtualPostsRequestQuery, UpdateContentScheduleRequestBody } from '@fanslib/server/schemas';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { CreateContentScheduleRequestBody, UpdateContentScheduleRequestBody } from '@fanslib/server/schemas';
+import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/hono-client';
 import { QUERY_KEYS } from './query-keys';
 
-export const useContentSchedulesQuery = () =>
-  useQuery({
+// Reusable query options for route loaders
+export const contentSchedulesQueryOptions = () =>
+  queryOptions({
     queryKey: QUERY_KEYS.contentSchedules.list(),
     queryFn: async () => {
       const result = await api.api['content-schedules'].all.$get();
       return result.json();
     },
   });
+
+export const useContentSchedulesQuery = () =>
+  useQuery(contentSchedulesQueryOptions());
 
 export const useContentScheduleQuery = (id: string) =>
   useQuery({
@@ -36,16 +40,19 @@ export const useVirtualPostsQuery = (params: {
   channelIds: string[];
   fromDate: Date;
   toDate: Date;
-}) =>
-  useQuery({
+}) => {
+  // Convert array to comma-separated string for query parameter serialization
+  const channelIdsStr = params.channelIds.join(',');
+  
+  return useQuery({
     queryKey: QUERY_KEYS.contentSchedules.virtualPosts({
       channelIds: params.channelIds,
       fromDate: params.fromDate.toISOString(),
       toDate: params.toDate.toISOString(),
     }),
     queryFn: async () => {
-      const query: FetchVirtualPostsRequestQuery = {
-        channelIds: params.channelIds,
+      const query = {
+        channelIds: channelIdsStr,
         fromDate: params.fromDate.toISOString(),
         toDate: params.toDate.toISOString(),
       };
@@ -60,6 +67,7 @@ export const useVirtualPostsQuery = (params: {
     },
     enabled: params.channelIds.length > 0,
   });
+};
 
 export const useCreateContentScheduleMutation = () => {
   const queryClient = useQueryClient();

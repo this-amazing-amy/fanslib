@@ -1,10 +1,10 @@
 import type { CSSProperties, MouseEvent, ReactNode } from "react";
 import { useState } from "react";
-import {
-  Badge as BaseBadge,
-  type BadgeProps as BaseBadgeProps,
-} from "./ui/Badge/Badge";
 import { cn } from "~/lib/cn";
+import {
+    Badge as BaseBadge,
+    type BadgeProps as BaseBadgeProps,
+} from "./ui/Badge/Badge";
 
 export type BadgeSize = "sm" | "md" | "lg";
 

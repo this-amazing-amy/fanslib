@@ -59,18 +59,17 @@ export const PostCalendarPostView = ({
   const content = (
     <CardComponent
       layoutId={layoutId}
-      className="@container group flex flex-col transition-all duration-200 relative p-2 @[150px]:p-2.5 @[180px]:p-3 rounded-xl bg-base-100 border"
+      className="@container group flex flex-col relative p-2 @[150px]:p-2.5 @[180px]:p-3 rounded-xl bg-base-100 border"
       onMouseLeave={onMouseLeave}
     >
-      {/* Overlay slot (e.g., virtual post overlay) */}
-      {overlaySlot}
-      
       {/* Action slot (e.g., skip button) */}
       {actionSlot}
 
       {/* Media Section */}
-      <div className="mb-1 @[150px]:mb-1.5 overflow-hidden rounded-xl">
+      <div className="relative mb-1 @[150px]:mb-1.5 overflow-hidden rounded-xl">
         {mediaSlot}
+        {/* Overlay slot (e.g., virtual post overlay) - inside media section */}
+        {overlaySlot}
       </div>
 
       {/* Badges Row - always side by side, hide text on tight spaces */}

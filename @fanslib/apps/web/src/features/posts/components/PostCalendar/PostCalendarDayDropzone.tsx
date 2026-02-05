@@ -1,12 +1,12 @@
+import type { Media } from '@fanslib/server/schemas';
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import type { Media } from '@fanslib/server/schemas';
 import { useMediaDrag } from "~/contexts/MediaDragContext";
 
 
+import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
 import { useDragOver } from "~/hooks/useDragOver";
 import { cn } from "~/lib/cn";
-import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
 
 type PostCalendarDayDropzoneProps = {
   date: Date;
@@ -19,6 +19,7 @@ export const PostCalendarDayDropzone = ({ date: _date, onUpdate }: PostCalendarD
   const [droppedMedias, setDroppedMedias] = useState<Media[]>([]);
 
   const { isOver, dragHandlers } = useDragOver({
+    shouldStopPropagation: true,
     onDrop: async () => {
       if (draggedMedias.length === 0) return;
       setDroppedMedias(draggedMedias);

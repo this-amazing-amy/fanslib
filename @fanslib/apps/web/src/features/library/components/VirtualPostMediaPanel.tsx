@@ -1,17 +1,14 @@
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Maximize2 } from 'lucide-react';
-import { useState, useEffect, useCallback } from 'react';
-import { createPortal } from 'react-dom';
-import { format } from 'date-fns';
 import type { Media } from '@fanslib/server/schemas';
+import { format } from 'date-fns';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Maximize2, X } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { ChannelBadge } from '~/components/ChannelBadge';
+import { ContentScheduleBadge } from '~/components/ContentScheduleBadge';
+import { useCreatePostMutation } from '~/lib/queries/posts';
 import type { VirtualPost } from '~/lib/virtual-posts';
 import { CombinedMediaSelection } from './CombinedMediaSelection';
-import { RecentPostsPanel } from '../../posts/components/RecentPostsPanel';
-import { MediaFiltersProvider } from './MediaFilters/MediaFiltersContext';
-import { FilterPresetProvider } from '~/contexts/FilterPresetContext';
-import { MediaFilters } from './MediaFilters/MediaFilters';
-import { useCreatePostMutation } from '~/lib/queries/posts';
-import type { MediaFilter } from '@fanslib/server/schemas';
 
 type VirtualPostMediaPanelProps = {
   virtualPost: VirtualPost;
@@ -29,7 +26,6 @@ export const VirtualPostMediaPanel = ({
   cardBounds,
 }: VirtualPostMediaPanelProps) => {
   const [selectedMedia, setSelectedMedia] = useState<Media[]>([]);
-  const [userFilters, setUserFilters] = useState<MediaFilter>([]);
   const { mutateAsync: createPost } = useCreatePostMutation();
 
   const prefersReducedMotion =
@@ -96,7 +92,7 @@ export const VirtualPostMediaPanel = ({
       >
         {/* Backdrop */}
         <motion.div
-          className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+          className="absolute inset-0 bg-black/20 backdrop-blur-[2px]"
           onClick={onClose}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -108,10 +104,10 @@ export const VirtualPostMediaPanel = ({
           layoutId={cardBounds ? layoutId : undefined}
           className="relative z-10 flex flex-col bg-base-100 rounded-lg shadow-xl overflow-hidden"
           style={{
-            width: '80rem',
-            maxWidth: '95vw',
-            height: '90vh',
-            maxHeight: '90vh',
+            width: '42rem',
+            maxWidth: '85vw',
+            height: '32rem',
+            maxHeight: '32rem',
           }}
           initial={
             cardBounds && !prefersReducedMotion
@@ -126,8 +122,8 @@ export const VirtualPostMediaPanel = ({
           animate={{
             x: 0,
             y: 0,
-            width: '80rem',
-            height: '90vh',
+            width: '42rem',
+            height: '32rem',
           }}
           exit={
             cardBounds && !prefersReducedMotion
@@ -146,58 +142,48 @@ export const VirtualPostMediaPanel = ({
         >
           {/* Header */}
           <motion.div
-            className="flex flex-col gap-3 p-4 border-b border-base-300"
+            className="flex items-center justify-between p-3 border-b border-base-300"
             initial={!prefersReducedMotion ? { opacity: 0 } : undefined}
             animate={{ opacity: 1 }}
             transition={{ delay: prefersReducedMotion ? 0 : 0.15 }}
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                {/* Date/Time */}
-                <div className="flex flex-col">
-                  <div className="text-lg font-semibold">
-                    {format(new Date(virtualPost.date), 'EEEE, MMMM d')}
-                  </div>
-                  <div className="text-sm text-base-content/70">
-                    {format(new Date(virtualPost.date), 'h:mm a')}
-                  </div>
+            <div className="flex items-center gap-2">
+              {/* Date/Time */}
+              <div className="flex items-center gap-2">
+                <div className="text-sm font-semibold">
+                  {format(new Date(virtualPost.date), 'EEE, MMM d')}
                 </div>
-
-                {/* Schedule Badge */}
-                {virtualPost.schedule && (
-                  <div
-                    className="badge badge-sm"
-                    style={{
-                      backgroundColor: virtualPost.schedule.color ?? '#6366f1',
-                      color: '#ffffff',
-                    }}
-                  >
-                    {virtualPost.schedule.name}
-                  </div>
-                )}
-
-                {/* Channel Badge */}
-                <div className="badge badge-outline badge-sm">
-                  {virtualPost.channel.name}
+                <div className="text-xs text-base-content/70">
+                  {format(new Date(virtualPost.date), 'h:mm a')}
                 </div>
               </div>
 
-              {/* Close Button */}
-              <button
-                className="btn btn-sm btn-ghost btn-circle"
-                onClick={onClose}
-                aria-label="Close"
-              >
-                <X className="w-4 h-4" />
-              </button>
+              {/* Schedule Badge */}
+              {virtualPost.schedule && (
+                <ContentScheduleBadge
+                  name={virtualPost.schedule.name}
+                  emoji={virtualPost.schedule.emoji}
+                  color={virtualPost.schedule.color}
+                  size="sm"
+                />
+              )}
+
+              {/* Channel Badge */}
+              <ChannelBadge
+                name={virtualPost.channel.name}
+                typeId={virtualPost.channel.typeId}
+                size="sm"
+              />
             </div>
 
-            {/* Media Filters */}
-            <FilterPresetProvider onFiltersChange={setUserFilters}>
-              <MediaFiltersProvider value={userFilters} onChange={setUserFilters}>
-                <MediaFilters collapsed={true} />
-              </MediaFiltersProvider>
-            </FilterPresetProvider>
+            {/* Close Button */}
+            <button
+              className="btn btn-sm btn-ghost btn-circle"
+              onClick={onClose}
+              aria-label="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </motion.div>
 
           {/* Content */}
@@ -207,32 +193,22 @@ export const VirtualPostMediaPanel = ({
             animate={{ opacity: 1 }}
             transition={{ delay: prefersReducedMotion ? 0 : 0.15 }}
           >
-            {/* Recent Posts Context */}
-            <div className="p-4 border-b border-base-300">
-              <RecentPostsPanel
-                channelId={virtualPost.channelId}
-                limit={3}
-                defaultCollapsed={true}
-              />
-            </div>
-
             {/* Media Selection Grid */}
-            <div className="p-4">
+            <div className="p-3">
               <CombinedMediaSelection
                 selectedMedia={selectedMedia}
                 onMediaSelect={handleMediaSelect}
                 scheduleId={virtualPost.scheduleId ?? undefined}
                 channelId={virtualPost.channelId}
                 autoApplyFilters={true}
-                applyRepostCooldown={true}
-                pageLimit={24}
+                pageLimit={8}
               />
             </div>
           </motion.div>
 
           {/* Footer */}
           <motion.div
-            className="flex items-center justify-end gap-3 p-4 border-t border-base-300 bg-base-200"
+            className="flex items-center justify-end gap-2 p-3 border-t border-base-300 bg-base-200"
             initial={!prefersReducedMotion ? { opacity: 0 } : undefined}
             animate={{ opacity: 1 }}
             transition={{ delay: prefersReducedMotion ? 0 : 0.15 }}

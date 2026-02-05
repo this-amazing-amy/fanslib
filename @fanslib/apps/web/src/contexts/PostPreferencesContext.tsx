@@ -6,8 +6,6 @@ import type { DeepPartial } from "~/lib/deep-partial";
 import type { PostTypeFilter } from "~/lib/virtual-posts";
 
 
-export type PostViewType = "timeline" | "calendar" | "swimlane";
-
 export type PostFilterPreferences = {
   search?: string;
   channels?: string[];
@@ -20,30 +18,20 @@ export type PostFilterPreferences = {
 
 export type PostPreferences = {
   view: {
-    viewType: PostViewType;
     showCaptions: boolean;
     openDialogOnDrop: boolean;
     autoDraftBlueskyOnDrop: boolean;
     postTypeFilter: PostTypeFilter;
-    swimlane?: {
-      channelOrder?: string[];
-      hiddenChannels?: string[];
-    };
   };
   filter: PostFilterPreferences;
 };
 
 export const defaultPreferences: PostPreferences = {
   view: {
-    viewType: "timeline",
     showCaptions: false,
     openDialogOnDrop: true,
     autoDraftBlueskyOnDrop: true,
     postTypeFilter: "both",
-    swimlane: {
-      channelOrder: undefined,
-      hiddenChannels: [],
-    },
   },
   filter: {
     search: undefined,

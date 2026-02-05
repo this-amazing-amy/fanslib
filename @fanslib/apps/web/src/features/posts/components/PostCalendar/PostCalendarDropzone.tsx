@@ -37,6 +37,7 @@ export const PostCalendarDropzone = ({ post, children, onUpdate }: PostCalendarD
   const isDragging = isMediaDragging || isPostDragging;
 
   const { isOver, dragHandlers } = useDragOver({
+    shouldStopPropagation: true,
     onDrop: async () => {
       if (!isVirtualPost(post)) {
         if (isMediaDragging && draggedMedias.length > 0) {

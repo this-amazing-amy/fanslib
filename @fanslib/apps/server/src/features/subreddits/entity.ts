@@ -1,5 +1,5 @@
-import { z } from "zod";
 import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { z } from "zod";
 import { Channel, ChannelSchema } from "../channels/entity";
 
 export const VERIFICATION_STATUS = {

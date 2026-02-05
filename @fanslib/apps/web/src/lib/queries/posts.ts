@@ -1,5 +1,5 @@
 import type { AddMediaToPostRequestBody, CreatePostRequestBody, RemoveMediaFromPostRequestBody, UpdatePostRequestBody } from '@fanslib/server/schemas';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/hono-client';
 import { QUERY_KEYS } from './query-keys';
 
@@ -7,8 +7,9 @@ type PostFilters = {
   filters?: string;
 };
 
-export const usePostsQuery = (params?: PostFilters) =>
-  useQuery({
+// Reusable query options for route loaders
+export const postsQueryOptions = (params?: PostFilters) =>
+  queryOptions({
     queryKey: QUERY_KEYS.posts.list(params),
     queryFn: async () => {
       const result = await api.api.posts.all.$get({ query: params ?? {} });
@@ -16,6 +17,9 @@ export const usePostsQuery = (params?: PostFilters) =>
       return data?.posts ?? [];
     },
   });
+
+export const usePostsQuery = (params?: PostFilters) =>
+  useQuery(postsQueryOptions(params));
 
 export const usePostQuery = (params: { id: string }) =>
   useQuery({

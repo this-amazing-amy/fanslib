@@ -1,15 +1,16 @@
 import type { Media, PostWithRelations } from '@fanslib/server/schemas';
 import { Link } from "@tanstack/react-router";
 import { Trash2, X } from "lucide-react";
-import { useState, useRef } from "react";
+import { memo, useRef, useState } from "react";
 import { usePostDrag } from "~/contexts/PostDragContext";
 import { usePostPreferences } from "~/contexts/PostPreferencesContext";
 import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
-import { VirtualPostMediaPanel } from "~/features/library/components/VirtualPostMediaPanel";
 import { cn } from "~/lib/cn";
 import { useSkipScheduleSlotMutation } from "~/lib/queries/content-schedules";
 import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
+import { useInlinePickerActions } from "../../contexts/InlinePickerContext";
 import { useVirtualPostClick } from "../../hooks/useVirtualPostClick";
+import { useVirtualPostFilters } from "../../hooks/useVirtualPostFilters";
 import { getCaptionPreview } from "../../lib/captions";
 import { VirtualPostOverlay } from "../VirtualPostOverlay";
 import { PostCalendarDropzone } from "./PostCalendarDropzone";
@@ -24,13 +25,23 @@ type PostCalendarPostProps = {
   allPosts?: (Post | VirtualPost)[];
 };
 
-export const PostCalendarPost = ({ post, onUpdate, allPosts = [] }: PostCalendarPostProps) => {
+export const PostCalendarPost = memo(({ post, onUpdate, allPosts = [] }: PostCalendarPostProps) => {
   const { startPostDrag, endPostDrag } = usePostDrag();
   const { preferences } = usePostPreferences();
+  const { openPicker, setFloatingPost } = useInlinePickerActions();
   const skipSlotMutation = useSkipScheduleSlotMutation();
   const [confirmSkip, setConfirmSkip] = useState(false);
   const captionPreview = post.caption ? getCaptionPreview(post.caption) : "";
   const cardRef = useRef<HTMLDivElement>(null);
+  
+  // Pre-fetch filters for virtual posts so they're ready when picker opens
+  const virtualPostFilters = useVirtualPostFilters({
+    channelId: post.channelId,
+    scheduleId: isVirtualPost(post) ? post.scheduleId : null,
+  });
+
+  // Check if we're on a large screen (xl breakpoint = 1280px)
+  const isLargeScreen = typeof window !== 'undefined' && window.innerWidth >= 1280;
   
   const [createPostData, setCreatePostData] = useState<{
     media: Media[];
@@ -41,18 +52,23 @@ export const PostCalendarPost = ({ post, onUpdate, allPosts = [] }: PostCalendar
     allPosts?: (Post | VirtualPost)[];
     virtualPost?: VirtualPost;
   } | null>(null);
-
-  const [simplifiedPanelOpen, setSimplifiedPanelOpen] = useState(false);
-  const [cardBounds, setCardBounds] = useState<DOMRect | undefined>(undefined);
   
   const virtualPostClick = useVirtualPostClick({
     post: isVirtualPost(post) ? post : ({} as VirtualPost),
     onOpenCreateDialog: (data) => {
       if (isVirtualPost(post)) {
-        // Open simplified panel for virtual posts
         const bounds = cardRef.current?.getBoundingClientRect();
-        setCardBounds(bounds);
-        setSimplifiedPanelOpen(true);
+        if (isLargeScreen) {
+          // On large screens, set floating post with bounds for animation
+          if (bounds) {
+            setFloatingPost(post, bounds, virtualPostFilters);
+          }
+        } else {
+          // On smaller screens, open the bottom sheet picker
+          if (bounds) {
+            openPicker(post, bounds, virtualPostFilters);
+          }
+        }
       } else {
         // Open full dialog for regular posts
         setCreatePostData({
@@ -124,7 +140,7 @@ export const PostCalendarPost = ({ post, onUpdate, allPosts = [] }: PostCalendar
       className={cn(
         "absolute top-1 right-1 p-1 rounded-md transition-all",
         "opacity-0 group-hover:opacity-100",
-        "z-10",
+        "z-20",
         confirmSkip
           ? "bg-error/80 hover:bg-error text-error-content"
           : "bg-base-200/80 hover:bg-base-300 text-base-content/60 hover:text-base-content"
@@ -197,33 +213,6 @@ export const PostCalendarPost = ({ post, onUpdate, allPosts = [] }: PostCalendar
         {viewContent}
       </PostCalendarDropzone>
       
-      {/* Simplified panel for virtual posts */}
-      {isVirtualPost(post) && (
-        <VirtualPostMediaPanel
-          virtualPost={post}
-          isOpen={simplifiedPanelOpen}
-          onClose={() => {
-            setSimplifiedPanelOpen(false);
-            if (onUpdate) {
-              onUpdate();
-            }
-          }}
-          onExpand={() => {
-            setSimplifiedPanelOpen(false);
-            setCreatePostData({
-              media: [],
-              initialDate: new Date(post.date),
-              initialChannelId: post.channelId,
-              scheduleId: post.scheduleId ?? undefined,
-              initialMediaSelectionExpanded: true,
-              allPosts,
-              virtualPost: post,
-            });
-          }}
-          cardBounds={cardBounds}
-        />
-      )}
-      
       {/* Full dialog for editing existing posts or when expanded */}
       <CreatePostDialog
         open={createPostData !== null}
@@ -239,4 +228,6 @@ export const PostCalendarPost = ({ post, onUpdate, allPosts = [] }: PostCalendar
       />
     </>
   );
-};
+});
+
+PostCalendarPost.displayName = 'PostCalendarPost';

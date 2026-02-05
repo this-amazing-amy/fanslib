@@ -27,8 +27,9 @@ export const MediaTileTagBadges = ({ media }: MediaTileTagBadgesProps) => {
             displayName: tag.shortRepresentation ?? tag.tagDisplayName,
           }}
           size="sm"
-          className="text-[10px]"
+          className="text-[10px] pointer-events-none"
           selectionMode="radio"
+          selectionState="checked"
         />
       ))}
     </>

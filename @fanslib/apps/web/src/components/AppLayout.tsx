@@ -1,12 +1,13 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
-import { type ReactNode, useEffect, useState } from 'react';
+import { type ReactNode, useEffect } from 'react';
 import { Logo } from '~/components/Logo';
 import { NavigationMenu } from '~/components/NavigationMenu';
 import { BurgerIcon } from '~/components/ui/BurgerIcon';
 import { ThemeProvider } from '~/contexts/ThemeContext';
 import { cn } from '~/lib/cn';
 import { useToggleSfwModeMutation } from '~/lib/queries/settings';
+import { queryClient } from '~/router';
 import { mobileNavigationDrawerOpenAtom, sidebarCollapsedAtom, STORAGE_KEY, toggleSidebarAtom } from '~/state/sidebar';
 
 export interface AppLayoutProps {
@@ -15,7 +16,7 @@ export interface AppLayoutProps {
 
 const MainContent = ({ children }: { children: ReactNode }) => <main 
       className={cn(
-        'flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 lg:p-8 content-area'
+        'flex-1 min-h-0 overflow-y-auto pl-4 sm:pl-6 lg:pl-8 content-area'
       )}
       style={{ viewTransitionName: 'main-content' }}
     >
@@ -105,22 +106,8 @@ const LayoutContent = ({ children }: AppLayoutProps) => {
   );
 };
 
-export const AppLayout = ({ children }: AppLayoutProps) => {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 5 * 60 * 1000, // 5 minutes
-            gcTime: 10 * 60 * 1000, // 10 minutes
-          },
-        },
-      })
-  );
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      <LayoutContent>{children}</LayoutContent>
-    </QueryClientProvider>
-  );
-};
+export const AppLayout = ({ children }: AppLayoutProps) => (
+  <QueryClientProvider client={queryClient}>
+    <LayoutContent>{children}</LayoutContent>
+  </QueryClientProvider>
+);

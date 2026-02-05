@@ -1,4 +1,4 @@
-import type { PostWithRelations } from '@fanslib/server/schemas';
+import type { PostMediaWithMedia, PostWithRelations } from '@fanslib/server/schemas';
 import { Link } from '@tanstack/react-router';
 import { addDays, format, isSameDay } from 'date-fns';
 import { Layers } from 'lucide-react';
@@ -10,7 +10,6 @@ import type { ChannelTypeId } from '~/lib/channel-types';
 import { useTemporalContextPostsQuery } from '~/lib/queries/posts';
 import { PostCalendarPostMedia } from '../PostCalendar/PostCalendarPostMedia';
 import { PostCalendarPostView } from '../PostCalendar/PostCalendarPostView';
-import type { PostMediaWithMedia } from '@fanslib/server/schemas';
 
 type Post = PostWithRelations;
 

@@ -1,16 +1,15 @@
 import type { Media, MediaFilter } from '@fanslib/server/schemas';
 import { Check, ChevronLeftIcon, ChevronRightIcon, GripVertical } from "lucide-react";
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { MediaFilterSummary } from "~/components/MediaFilterSummary";
 import { Button } from "~/components/ui/Button";
-import { Checkbox } from "~/components/ui/Checkbox";
 import { ScrollArea } from "~/components/ui/ScrollArea";
 import { FilterPresetProvider } from "~/contexts/FilterPresetContext";
 import { cn } from "~/lib/cn";
-import { useMediaListQuery, useBulkMediaPostingHistoryQuery } from "~/lib/queries/library";
+import { useBulkMediaPostingHistoryQuery, useMediaListQuery } from "~/lib/queries/library";
 import { MediaFilters } from "./MediaFilters/MediaFilters";
 import { MediaFiltersProvider } from "./MediaFilters/MediaFiltersContext";
 import { MediaTileLite } from "./MediaTile/MediaTileLite";
-import { MediaFilterSummary } from "~/components/MediaFilterSummary";
 
 
 type MediaFilterType = MediaFilter;
@@ -25,7 +24,6 @@ type CombinedMediaSelectionProps = {
   scheduleId?: string;
   channelId?: string;
   autoApplyFilters?: boolean;
-  applyRepostCooldown?: boolean;
   onClose?: () => void;
 };
 
@@ -39,13 +37,11 @@ export const CombinedMediaSelection = ({
   scheduleId,
   channelId,
   autoApplyFilters = false,
-  applyRepostCooldown = false,
   onClose,
 }: CombinedMediaSelectionProps) => {
   const [activePreviewId, setActivePreviewId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [userFilters, setUserFilters] = useState<MediaFilterType>([]);
-  const [includeRecentlyPosted, setIncludeRecentlyPosted] = useState(false);
   const [draggedItem, setDraggedItem] = useState<Media | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [lastClickedIndex, setLastClickedIndex] = useState<number | null>(null);
@@ -72,7 +68,6 @@ export const CombinedMediaSelection = ({
     scheduleId,
     channelId,
     autoApplyFilters,
-    applyRepostCooldown: applyRepostCooldown && !includeRecentlyPosted,
   });
 
   const media: Media[] = (mediaResponse?.items as Media[] | undefined) ?? [];
@@ -223,23 +218,8 @@ export const CombinedMediaSelection = ({
           </div>
         ) : null}
 
-        {/* Repost cooldown toggle */}
-        {applyRepostCooldown && channelId ? (
-          <div className="mb-2 px-2">
-            <Checkbox
-              isSelected={includeRecentlyPosted}
-              onChange={setIncludeRecentlyPosted}
-            >
-              <span className="text-xs">Include recently posted media</span>
-            </Checkbox>
-          </div>
-        ) : null}
-
         {/* User refinement filters */}
         <div className="mb-2 px-2">
-          <div className="text-xs font-medium text-base-content/70 mb-2">
-            Additional filters:
-          </div>
           <div className={cn("flex flex-col gap-4", userFilters.length === 0 ? "p-1" : "py-1")}>
             <FilterPresetProvider onFiltersChange={handleUserFilterChange}>
               <MediaFiltersProvider value={userFilters} onChange={handleUserFilterChange}>
@@ -257,17 +237,6 @@ export const CombinedMediaSelection = ({
               {combinedMedia.map((item, index) => {
                 const itemIsSelected = isSelected(item.id);
                 const postingHistory = postingHistoryMap?.get(item.id);
-                
-                // Check if media is within cooldown - only applies when:
-                // 1. applyRepostCooldown is true
-                // 2. includeRecentlyPosted is true (showing items that would normally be filtered)
-                // 3. The item has posting history to current channel
-                const isWithinCooldown = Boolean(
-                  applyRepostCooldown && 
-                  includeRecentlyPosted && 
-                  channelId &&
-                  postingHistory?.postsByChannel?.some((p) => p.channelId === channelId)
-                );
 
                 const isDragging = draggedItem?.id === item.id;
                 const isDragOver = dragOverIndex === index;
@@ -305,7 +274,6 @@ export const CombinedMediaSelection = ({
                       isActivePreview={item.id === activePreviewId}
                       postingHistory={postingHistory}
                       currentChannelId={channelId}
-                      isWithinCooldown={isWithinCooldown}
                     />
                     {itemIsSelected && (
                       <>
@@ -330,11 +298,6 @@ export const CombinedMediaSelection = ({
                   {initialFilters.length > 0 && (
                     <p>
                       • Pre-applied filters from {scheduleId && channelId ? "schedule and channel" : scheduleId ? "schedule" : "channel"}
-                    </p>
-                  )}
-                  {applyRepostCooldown && !includeRecentlyPosted && channelId && (
-                    <p>
-                      • Excluding recently posted media (within cooldown period)
                     </p>
                   )}
                   {userFilters.length > 0 && (

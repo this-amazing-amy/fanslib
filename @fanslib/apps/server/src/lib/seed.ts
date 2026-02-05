@@ -1,8 +1,8 @@
-import { db } from "./db";
-import { Channel, ChannelType } from "../features/channels/entity";
 import { CHANNEL_TYPES } from "../features/channels/channelTypes";
+import { Channel, ChannelType } from "../features/channels/entity";
 import { ContentSchedule, ScheduleChannel } from "../features/content-schedules/entity";
 import { Subreddit } from "../features/subreddits/entity";
+import { db } from "./db";
 
 export const seedChannelTypes = async () => {
   const dataSource = await db();

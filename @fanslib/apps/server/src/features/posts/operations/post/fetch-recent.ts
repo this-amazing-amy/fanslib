@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { db } from "../../../../lib/db";
-import { Post } from "../../entity";
-import { PostSchema } from "../../entity";
+import { Post, PostSchema } from "../../entity";
 
 export const FetchRecentPostsRequestSchema = z.object({
   channelId: z.string(),

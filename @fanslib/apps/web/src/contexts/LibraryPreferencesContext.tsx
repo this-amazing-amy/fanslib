@@ -70,9 +70,8 @@ export const LibraryPreferencesProvider = ({
   );
 
   const updatePreferences = useCallback((updates: DeepPartial<LibraryPreferences>) => {
-    const newPreferences = mergeDeep(preferences, updates) as LibraryPreferences;
-    setPreferences(newPreferences);
-  }, [setPreferences, preferences]);
+    setPreferences((current) => mergeDeep(current, updates) as LibraryPreferences);
+  }, [setPreferences]);
 
   return (
     <LibraryPreferencesContext.Provider

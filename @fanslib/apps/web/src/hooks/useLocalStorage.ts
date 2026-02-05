@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useHydrated } from "./useHydrated";
 
 type UseLocalStorageReturn<T> = {
   value: T;
-  setValue: (value: T) => void;
+  setValue: (value: T | ((prev: T) => T)) => void;
 };
 
 // Hydration-proof localStorage hook
@@ -50,9 +50,9 @@ export const useLocalStorage = <T>(
     window.localStorage.setItem(key, JSON.stringify(value));
   }, [key, value, isHydrated]);
 
-  const setValue = (newValue: T) => {
+  const setValue = useCallback((newValue: T | ((prev: T) => T)) => {
     setValueState(newValue);
-  };
+  }, []);
 
   return { value, setValue };
 };

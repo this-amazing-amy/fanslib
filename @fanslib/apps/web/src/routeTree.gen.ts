@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SubredditsRouteImport } from './routes/subreddits'
 import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as OrchestrateRouteImport } from './routes/orchestrate'
 import { Route as HashtagsRouteImport } from './routes/hashtags'
 import { Route as ContentRouteImport } from './routes/content'
 import { Route as ComponentShowcaseRouteImport } from './routes/component-showcase'
@@ -46,11 +45,6 @@ const SubredditsRoute = SubredditsRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OrchestrateRoute = OrchestrateRouteImport.update({
-  id: '/orchestrate',
-  path: '/orchestrate',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HashtagsRoute = HashtagsRouteImport.update({
@@ -188,7 +182,6 @@ export interface FileRoutesByFullPath {
   '/component-showcase': typeof ComponentShowcaseRoute
   '/content': typeof ContentRouteWithChildren
   '/hashtags': typeof HashtagsRoute
-  '/orchestrate': typeof OrchestrateRoute
   '/settings': typeof SettingsRouteWithChildren
   '/subreddits': typeof SubredditsRoute
   '/analytics/matching': typeof AnalyticsMatchingRoute
@@ -218,7 +211,6 @@ export interface FileRoutesByTo {
   '/component-showcase': typeof ComponentShowcaseRoute
   '/content': typeof ContentRouteWithChildren
   '/hashtags': typeof HashtagsRoute
-  '/orchestrate': typeof OrchestrateRoute
   '/subreddits': typeof SubredditsRoute
   '/analytics/matching': typeof AnalyticsMatchingRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
@@ -247,7 +239,6 @@ export interface FileRoutesById {
   '/component-showcase': typeof ComponentShowcaseRoute
   '/content': typeof ContentRouteWithChildren
   '/hashtags': typeof HashtagsRoute
-  '/orchestrate': typeof OrchestrateRoute
   '/settings': typeof SettingsRouteWithChildren
   '/subreddits': typeof SubredditsRoute
   '/analytics/matching': typeof AnalyticsMatchingRoute
@@ -279,7 +270,6 @@ export interface FileRouteTypes {
     | '/component-showcase'
     | '/content'
     | '/hashtags'
-    | '/orchestrate'
     | '/settings'
     | '/subreddits'
     | '/analytics/matching'
@@ -309,7 +299,6 @@ export interface FileRouteTypes {
     | '/component-showcase'
     | '/content'
     | '/hashtags'
-    | '/orchestrate'
     | '/subreddits'
     | '/analytics/matching'
     | '/content/library'
@@ -337,7 +326,6 @@ export interface FileRouteTypes {
     | '/component-showcase'
     | '/content'
     | '/hashtags'
-    | '/orchestrate'
     | '/settings'
     | '/subreddits'
     | '/analytics/matching'
@@ -368,7 +356,6 @@ export interface RootRouteChildren {
   ComponentShowcaseRoute: typeof ComponentShowcaseRoute
   ContentRoute: typeof ContentRouteWithChildren
   HashtagsRoute: typeof HashtagsRoute
-  OrchestrateRoute: typeof OrchestrateRoute
   SettingsRoute: typeof SettingsRouteWithChildren
   SubredditsRoute: typeof SubredditsRoute
   AnalyticsMatchingRoute: typeof AnalyticsMatchingRoute
@@ -394,13 +381,6 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/orchestrate': {
-      id: '/orchestrate'
-      path: '/orchestrate'
-      fullPath: '/orchestrate'
-      preLoaderRoute: typeof OrchestrateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hashtags': {
@@ -650,7 +630,6 @@ const rootRouteChildren: RootRouteChildren = {
   ComponentShowcaseRoute: ComponentShowcaseRoute,
   ContentRoute: ContentRouteWithChildren,
   HashtagsRoute: HashtagsRoute,
-  OrchestrateRoute: OrchestrateRoute,
   SettingsRoute: SettingsRouteWithChildren,
   SubredditsRoute: SubredditsRoute,
   AnalyticsMatchingRoute: AnalyticsMatchingRoute,

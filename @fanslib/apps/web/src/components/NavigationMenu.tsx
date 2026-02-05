@@ -1,10 +1,9 @@
-import type React from 'react';
 import { Link, useLocation } from '@tanstack/react-router';
 import { useAtom } from 'jotai';
-import { useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
-import { BarChart3, Radio, Calendar, Camera, ChevronDown, ChevronRight, Clapperboard, Columns, Hash, Home, MessageSquareText, Palette, PanelLeft, PanelLeftClose, Settings } from 'lucide-react';
-import { RedditIcon } from '~/components/icons';
+import { BarChart3, Calendar, Camera, ChevronDown, ChevronRight, Clapperboard, Hash, Home, MessageSquareText, PanelLeft, PanelLeftClose, Radio, Settings } from 'lucide-react';
+import type React from 'react';
+import { useState } from 'react';
 import { cn } from '~/lib/cn';
 import { closeSidebarAtom, toggleSidebarCollapsedAtom } from '~/state/sidebar';
 
@@ -17,13 +16,11 @@ type MenuItem = {
 
 const menuItems: MenuItem[] = [
   { to: '/', label: 'Dashboard', icon: Home },
-  { to: '/captioning', label: 'Captioning', icon: MessageSquareText },
-  { to: '/orchestrate', label: 'Orchestrate', icon: Columns },
   { to: '/library', label: 'Library', icon: Clapperboard },
-  { to: '/shoots', label: 'Shoots', icon: Camera },
   { to: '/plan', label: 'Plan', icon: Calendar },
+  { to: '/captioning', label: 'Captioning', icon: MessageSquareText },
+  { to: '/shoots', label: 'Shoots', icon: Camera },
   { to: '/channels', label: 'Channels', icon: Radio },
-  { to: '/subreddits', label: 'Subreddits', icon: RedditIcon },
   { to: '/hashtags', label: 'Hashtags', icon: Hash },
   {
     to: '/analytics',
@@ -34,7 +31,6 @@ const menuItems: MenuItem[] = [
     ],
   },
   { to: '/settings', label: 'Settings', icon: Settings },
-  { to: '/component-showcase', label: 'UI Components', icon: Palette },
 ];
 
 type NavigationMenuProps = {
