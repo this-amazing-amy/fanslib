@@ -1,4 +1,4 @@
-import type { PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations } from '@fanslib/server/schemas';
 import {
   Calendar,
   Check,
@@ -18,7 +18,7 @@ import {
   isVideo,
 } from '../../lib/utils';
 
-type Post = typeof PostWithRelationsSchema.static;
+type Post = PostWithRelations;
 
 type PostCardProps = {
   post: Post;
@@ -39,7 +39,7 @@ export const PostCard = ({
   onMarkPosted,
   onMarkScheduled,
 }: PostCardProps) => {
-  const media = post.postMedia ?? [];
+  const media = Array.isArray(post.postMedia) ? post.postMedia : [];
   const hasLibraryPath = !!libraryPath;
   const [imageErrors, setImageErrors] = useState<Set<number>>(new Set());
   const [imageLoadStates, setImageLoadStates] = useState<

@@ -12,9 +12,9 @@
     "lint": "eslint src"
   },
   "dependencies": {
-    "@elysiajs/eden": "^1.4.4",
     "@fanslib/server": "workspace:*",
     "devalue": "^5.5.0",
+    "hono": "^4.7.0",
     "lucide-react": "^0.544.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

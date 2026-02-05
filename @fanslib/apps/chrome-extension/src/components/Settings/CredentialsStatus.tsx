@@ -31,17 +31,13 @@ export const CredentialsStatus = ({ apiUrl }: CredentialsStatusProps) => {
       const api = eden(urlToCheck);
       const credentialsResponse = await api.api.settings[
         'fansly-credentials'
-      ].get({
-        fetch: {
-          signal: AbortSignal.timeout(5000),
-        },
-      });
+      ].$get();
 
-      if (credentialsResponse.error) {
+      if (!credentialsResponse.ok) {
         throw new Error('Failed to fetch credentials');
       }
 
-      const responseData = credentialsResponse.data;
+      const responseData = await credentialsResponse.json();
       const credentials = responseData?.credentials ?? null;
       const hasCredentials = Boolean(
         credentials &&

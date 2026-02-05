@@ -48,25 +48,25 @@ export const StatisticsTab = () => {
         const settings = await getSettings();
         const api = eden(settings.apiUrl);
 
-        const response = await api.api.analytics.candidates.get({
+        const response = await api.api.analytics.candidates.$get({
           query: {},
         });
 
-        if (response.error || !response.data) {
+        if (!response.ok) {
           debug('warn', 'Failed to load candidate statuses', {
             component: 'StatisticsTab',
             action: 'loadPostStatuses',
-            error: response.error,
           });
           return;
         }
 
-        const allCandidates = response.data.items ?? [];
+        const data = await response.json();
+        const allCandidates = data.items ?? [];
         const statusMap = new Map<string, PostStatus>();
 
         candidates.forEach((candidate) => {
           const foundCandidate = allCandidates.find(
-            (c) => c.fanslyStatisticsId === candidate.fanslyStatisticsId
+            (c: { fanslyStatisticsId: string }) => c.fanslyStatisticsId === candidate.fanslyStatisticsId
           );
 
           if (foundCandidate) {
@@ -150,12 +150,13 @@ export const StatisticsTab = () => {
       }));
 
       const api = eden(settings.apiUrl);
-      const response = await api.api.analytics.candidates.get({
-        query: { status: 'pending', limit: 1 },
+      const response = await api.api.analytics.candidates.$get({
+        query: { status: 'pending', limit: '1' },
       });
 
-      if (!response.error && response.data) {
-        const pendingCount = response.data.total ?? 0;
+      if (response.ok) {
+        const data = await response.json();
+        const pendingCount = data.total ?? 0;
         setSyncStatus((prev) => ({
           ...prev,
           pendingCount,

@@ -1,5 +1,5 @@
 import { CHANNEL_TYPES } from '@fanslib/server/constants';
-import type { PostWithRelationsSchema } from '@fanslib/server/schemas';
+import type { PostWithRelations } from '@fanslib/server/schemas';
 import { useEffect, useState } from 'react';
 import { eden } from '../../lib/api';
 import { getSettings, type Settings } from '../../lib/storage';
@@ -10,7 +10,7 @@ import { PostCard } from './PostCard';
 import { PostNavigation } from './PostNavigation';
 import { StatisticsTab } from './StatisticsTab';
 
-type Post = typeof PostWithRelationsSchema.static;
+type Post = PostWithRelations;
 type Tab = 'queue' | 'statistics' | 'credentials';
 
 export const Popup = () => {
@@ -39,7 +39,7 @@ export const Popup = () => {
       const api = eden(loadedSettings.apiUrl);
 
       // Fetch posts with status "ready" and channel type "fansly"
-      const response = await api.api.posts.all.get({
+      const response = await api.api.posts.all.$get({
         query: {
           filters: JSON.stringify({
             statuses: ['ready'],
@@ -48,18 +48,22 @@ export const Popup = () => {
         },
       });
 
-      if (response.error) {
+      if (!response.ok) {
         throw new Error('Failed to fetch posts');
       }
 
-      const responseData = response.data;
+      const responseData = await response.json();
       const postsArray = Array.isArray(responseData)
         ? responseData
         : (responseData?.posts ?? []);
 
-      const sortedPosts = postsArray.sort(
-        (a: Post, b: Post) =>
-          new Date(a.date).getTime() - new Date(b.date).getTime()
+      // Filter out any null/undefined posts or posts with null dates
+      const validPosts = postsArray.filter(
+        (p): p is Post => p != null && p.date != null
+      );
+
+      const sortedPosts = validPosts.sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
       );
 
       setPosts(sortedPosts);
@@ -85,21 +89,17 @@ export const Popup = () => {
 
     try {
       const api = eden(settings.apiUrl);
-      const response = await api.api.posts['by-id']({ id: postId }).patch({
-        status: newStatus,
+      const response = await api.api.posts['by-id'][':id'].$patch({
+        param: { id: postId },
+        json: { status: newStatus },
       });
 
-      // Check for API errors (response may have error property)
-      const responseWithError = response as { error?: unknown; data?: unknown };
-      if (responseWithError.error) {
-        const errorMessage =
-          typeof responseWithError.error === 'string'
-            ? responseWithError.error
-            : 'Failed to update post';
-        console.error('API error:', responseWithError.error);
-        setErrorMessage(errorMessage);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API error:', errorText);
+        setErrorMessage('Failed to update post');
         setStatus('error');
-        throw new Error(errorMessage);
+        throw new Error('Failed to update post');
       }
 
       await loadPosts();

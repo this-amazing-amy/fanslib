@@ -18,22 +18,23 @@ type UseLibraryVerificationResult = {
 
 const fetchSampleMediaPath = async (apiUrl: string): Promise<string> => {
   const api = eden(apiUrl);
-  const response = await api.api.media.all.post(
-    { page: 1, limit: 1 },
-    { fetch: { signal: AbortSignal.timeout(5000) } }
-  );
+  const response = await api.api.media.all.$post({
+    json: { page: 1, limit: 1 },
+  });
 
-  if (response.error) {
-    throw new Error(`API error: ${JSON.stringify(response.error)}`);
+  if (!response.ok) {
+    throw new Error(`API error: Failed to fetch media`);
   }
 
-  if (!response.data?.items?.length) {
+  const data = await response.json();
+
+  if (!data?.items?.length) {
     throw new Error(
       'No media found in library. Please ensure your library has been scanned.'
     );
   }
 
-  const media = response.data.items[0];
+  const media = data.items[0];
   if (!media || typeof media !== 'object' || !('relativePath' in media)) {
     throw new Error('Invalid media data structure from API');
   }

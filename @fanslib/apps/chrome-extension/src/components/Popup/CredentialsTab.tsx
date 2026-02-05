@@ -50,17 +50,13 @@ export const CredentialsTab = () => {
 
       const credentialsResponse = await api.api.settings[
         'fansly-credentials'
-      ].get({
-        fetch: {
-          signal: AbortSignal.timeout(5000),
-        },
-      });
+      ].$get();
 
-      if (credentialsResponse.error) {
+      if (!credentialsResponse.ok) {
         throw new Error('Failed to fetch credentials');
       }
 
-      const credentialsData = credentialsResponse.data;
+      const credentialsData = await credentialsResponse.json();
       const credentials = credentialsData?.credentials ?? null;
 
       const hasCredentialValues =

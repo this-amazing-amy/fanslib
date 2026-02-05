@@ -21,23 +21,21 @@ export const ConnectionTest = ({ apiUrl }: ConnectionTestProps) => {
 
     try {
       const api = eden(urlToTest);
-      const response = await api.api.posts.all.get({
+      const response = await api.api.posts.all.$get({
         query: {
           filters: JSON.stringify({
             statuses: ['ready'],
             channelTypes: [CHANNEL_TYPES.fansly.id],
           }),
         },
-        fetch: {
-          signal: AbortSignal.timeout(5000),
-        },
       });
 
-      if (response.error) {
+      if (!response.ok) {
         throw new Error(`Server returned error`);
       }
 
-      const posts = response.data?.posts ?? [];
+      const data = await response.json();
+      const posts = data?.posts ?? [];
       setTestStatus('success');
       setTestMessage(`Connected successfully! ${posts.length} post(s) ready.`);
     } catch (err) {
