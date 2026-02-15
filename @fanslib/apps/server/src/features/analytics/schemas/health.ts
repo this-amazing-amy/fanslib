@@ -1,20 +1,20 @@
-import { t } from "elysia";
+import { z } from "zod";
 
-export const StalePostSchema = t.Object({
-  postMediaId: t.String(),
-  postDate: t.String(),
-  mediaName: t.String(),
-  mediaId: t.String(),
-  daysSinceUpdate: t.Number(),
+export const StalePostSchema = z.object({
+  postMediaId: z.string(),
+  postDate: z.string(),
+  mediaName: z.string(),
+  mediaId: z.string(),
+  daysSinceUpdate: z.number(),
 });
 
-export const AnalyticsHealthResponseSchema = t.Object({
-  coveragePercent: t.Number(),
-  totalCount: t.Number(),
-  matchedCount: t.Number(),
-  pendingMatches: t.Number(),
-  highConfidenceMatches: t.Number(),
-  staleCount: t.Number(),
-  unmatchedCount: t.Number(),
-  stalePosts: t.Array(StalePostSchema),
+export const AnalyticsHealthResponseSchema = z.object({
+  coveragePercent: z.number(),
+  totalCount: z.number(),
+  matchedCount: z.number(),
+  pendingMatches: z.number(),
+  highConfidenceMatches: z.number(),
+  staleCount: z.number(),
+  unmatchedCount: z.number(),
+  stalePosts: z.array(StalePostSchema),
 });

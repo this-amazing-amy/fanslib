@@ -1,9 +1,10 @@
+import type { z } from "zod";
 import { HashtagAnalyticsSchema } from "../../schemas/analytics";
 import { getFanslyPostsWithAnalytics } from "./fetch-posts-with-analytics";
 
 export const GetHashtagAnalyticsResponseSchema = HashtagAnalyticsSchema;
 
-export const getHashtagAnalytics = async (): Promise<typeof GetHashtagAnalyticsResponseSchema.static> => {
+export const getHashtagAnalytics = async (): Promise<z.infer<typeof GetHashtagAnalyticsResponseSchema>> => {
   const posts = await getFanslyPostsWithAnalytics();
 
   const hashtagMap = new Map<

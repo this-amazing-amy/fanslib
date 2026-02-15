@@ -1,25 +1,25 @@
-import { t } from "elysia";
+import { z } from "zod";
 
-export const FypPostSchema = t.Object({
-  postId: t.String(),
-  postDate: t.String(),
-  mediaId: t.String(),
-  totalViews: t.Number(),
-  avgEngagementSeconds: t.Number(),
-  percentVsAverage: t.Number(),
-  plateauDaysSincePosted: t.Nullable(t.Number()),
-  daysSincePosted: t.Number(),
+export const FypPostSchema = z.object({
+  postId: z.string(),
+  postDate: z.string(),
+  mediaId: z.string(),
+  totalViews: z.number(),
+  avgEngagementSeconds: z.number(),
+  percentVsAverage: z.number(),
+  plateauDaysSincePosted: z.number().nullable(),
+  daysSincePosted: z.number(),
 });
 
-export const FypActionsQuerySchema = t.Object({
-  thresholdType: t.Optional(t.Union([t.Literal("views"), t.Literal("engagement")])),
-  thresholdValue: t.Optional(t.Number()),
+export const FypActionsQuerySchema = z.object({
+  thresholdType: z.union([z.literal("views"), z.literal("engagement")]).optional(),
+  thresholdValue: z.number().optional(),
 });
 
-export const FypActionsResponseSchema = t.Object({
-  userAverageViews: t.Number(),
-  userAverageEngagementSeconds: t.Number(),
-  activeOnFypCount: t.Number(),
-  considerRemoving: t.Array(FypPostSchema),
-  readyToRepost: t.Array(FypPostSchema),
+export const FypActionsResponseSchema = z.object({
+  userAverageViews: z.number(),
+  userAverageEngagementSeconds: z.number(),
+  activeOnFypCount: z.number(),
+  considerRemoving: z.array(FypPostSchema),
+  readyToRepost: z.array(FypPostSchema),
 });

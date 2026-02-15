@@ -1,8 +1,8 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { saveFanslyCredentials } from "../../settings/operations/credentials/save";
 
-export const UpdateCredentialsFromFetchRequestBodySchema = t.Object({
-  fetchRequest: t.String(),
+export const UpdateCredentialsFromFetchRequestBodySchema = z.object({
+  fetchRequest: z.string(),
 });
 
 const parseFetchRequest = (fetchRequest: string): Partial<{

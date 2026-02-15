@@ -1,23 +1,23 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { Post } from "../../../posts/entity";
 import { FanslyPostWithAnalyticsSchema } from "../../schemas/analytics";
 
-export const GetFanslyPostsWithAnalyticsQuerySchema = t.Object({
-  sortBy: t.Optional(t.String()),
-  sortDirection: t.Optional(t.Union([t.Literal("asc"), t.Literal("desc")])),
-  startDate: t.Optional(t.String()),
-  endDate: t.Optional(t.String()),
+export const GetFanslyPostsWithAnalyticsQuerySchema = z.object({
+  sortBy: z.string().optional(),
+  sortDirection: z.union([z.literal("asc"), z.literal("desc")]).optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
 });
 
-export const GetFanslyPostsWithAnalyticsResponseSchema = t.Array(FanslyPostWithAnalyticsSchema);
+export const GetFanslyPostsWithAnalyticsResponseSchema = z.array(FanslyPostWithAnalyticsSchema);
 
 export const getFanslyPostsWithAnalytics = async (
   sortBy = "date",
   sortDirection: "asc" | "desc" = "desc",
   startDate?: string,
   endDate?: string
-): Promise<typeof GetFanslyPostsWithAnalyticsResponseSchema.static> => {
+): Promise<z.infer<typeof GetFanslyPostsWithAnalyticsResponseSchema>> => {
   const dataSource = await db();
   const postRepository = dataSource.getRepository(Post);
 

@@ -1,0 +1,288 @@
+{
+  "name": "Analytics Elysia → Hono Migration",
+  "description": "Migrate analytics feature from Elysia TypeBox schemas to Zod for consistency with the rest of the codebase",
+  "context": {
+    "problem": "The analytics feature uses Elysia's TypeBox (t) for schema definitions while the rest of the project (including analytics/candidates) uses Zod with @hono/zod-validator, creating schema inconsistency",
+    "impact": "Dual schema systems increase cognitive load, prevent sharing validation logic, and complicate maintenance. The candidates subdomain already migrated to Zod, showing the pattern works.",
+    "user_need": "Developers need a single, consistent schema system across the entire codebase for easier onboarding and maintenance",
+    "data_ready": true
+  },
+  "scope": {
+    "in_scope": [
+      "Replace Elysia TypeBox imports with Zod in 9 files",
+      "Convert all schema definitions from t.* to z.* syntax",
+      "Update type inference from Static<> to z.infer<>",
+      "Replace StandardSchemaV1Like import or remove lib/standard-schema.ts if unused",
+      "Ensure all validations remain functionally equivalent",
+      "Update schemas.ts to use z.infer for analytics types"
+    ],
+    "out_of_scope": [
+      "Changing business logic or validation rules",
+      "Modifying analytics/candidates (already uses Zod)",
+      "Refactoring schema structure or names",
+      "Adding new validation features",
+      "Migrating other features beyond analytics",
+      "Removing Elysia from package.json (may be used elsewhere)"
+    ]
+  },
+  "reference_patterns": {
+    "current_files": [
+      "@fanslib/apps/server/src/features/analytics/schemas/analytics.ts",
+      "@fanslib/apps/server/src/features/analytics/schemas/insights.ts",
+      "@fanslib/apps/server/src/features/analytics/schemas/health.ts",
+      "@fanslib/apps/server/src/features/analytics/schemas/fyp-actions.ts",
+      "@fanslib/apps/server/src/features/analytics/operations/credentials.ts",
+      "@fanslib/apps/server/src/features/analytics/operations/insights.ts",
+      "@fanslib/apps/server/src/features/analytics/operations/post-analytics/fetch-datapoints.ts",
+      "@fanslib/apps/server/src/features/analytics/operations/post-analytics/fetch-posts-with-analytics.ts",
+      "@fanslib/apps/server/src/features/analytics/fetch-fansly-data.ts",
+      "@fanslib/apps/server/src/lib/standard-schema.ts",
+      "@fanslib/apps/server/src/schemas.ts"
+    ],
+    "reference_implementation": "@fanslib/apps/server/src/features/analytics/candidates/ (already using Zod)"
+  },
+  "features": [
+    {
+      "id": "SCHEMA-01",
+      "category": "functional",
+      "description": "schemas/analytics.ts migrated to Zod with all primitive and compound types",
+      "acceptance_criteria": [
+        "Import changed from 'import { t } from \"elysia\"' to 'import { z } from \"zod\"'",
+        "FanslyPostWithAnalyticsSchema uses z.object instead of t.Object",
+        "All t.String() → z.string(), t.Number() → z.number(), t.Date() → z.date()",
+        "t.Optional(x) → x.optional() syntax",
+        "t.Nullable(x) → x.nullable() syntax",
+        "t.Array(x) → z.array(x)",
+        "t.Union([...]) → z.union([...])",
+        "t.Literal(...) → z.literal(...)",
+        "Nested object schemas (media) properly converted",
+        "HashtagAnalyticsSchema and TimeAnalyticsSchema arrays work correctly"
+      ],
+      "passes": false
+    },
+    {
+      "id": "SCHEMA-02",
+      "category": "functional",
+      "description": "schemas/insights.ts migrated with proper handling of Intersections",
+      "acceptance_criteria": [
+        "Import changed to Zod",
+        "BaseSupportingDataSchema converted to z.object",
+        "All t.Intersect([a, b]) replaced with a.and(b) or .extend() where cleaner",
+        "VideoLengthSupportingDataSchema uses .extend() on BaseSupportingDataSchema",
+        "HashtagSupportingDataSchema uses .extend() on BaseSupportingDataSchema",
+        "ContentThemeSupportingDataSchema uses .extend() on BaseSupportingDataSchema",
+        "PostTimingSupportingDataSchema uses .extend() on BaseSupportingDataSchema",
+        "All nested object schemas properly converted",
+        "t.Tuple([a, b]) → z.tuple([a, b])",
+        "t.Record(k, v) → z.record(k, v) in ActionableInsightSchema",
+        "t.Unknown() → z.unknown()"
+      ],
+      "passes": false
+    },
+    {
+      "id": "SCHEMA-03",
+      "category": "functional",
+      "description": "schemas/health.ts migrated to Zod",
+      "acceptance_criteria": [
+        "Import changed to Zod",
+        "StalePostSchema converted to z.object",
+        "AnalyticsHealthResponseSchema converted to z.object",
+        "All primitive types properly converted"
+      ],
+      "passes": false
+    },
+    {
+      "id": "SCHEMA-04",
+      "category": "functional",
+      "description": "schemas/fyp-actions.ts migrated to Zod",
+      "acceptance_criteria": [
+        "Import changed to Zod",
+        "FypPostSchema converted with z.nullable for plateauDaysSincePosted",
+        "FypActionsQuerySchema with x.optional() for optional fields",
+        "FypActionsResponseSchema with nested arrays properly converted"
+      ],
+      "passes": false
+    },
+    {
+      "id": "OPS-01",
+      "category": "functional",
+      "description": "operations/credentials.ts migrated to Zod",
+      "acceptance_criteria": [
+        "Import changed to Zod",
+        "UpdateCredentialsFromFetchRequestBodySchema converted to z.object",
+        "Business logic unchanged (parseFetchRequest, updateFanslyCredentialsFromFetch)"
+      ],
+      "passes": false
+    },
+    {
+      "id": "OPS-02",
+      "category": "functional",
+      "description": "operations/insights.ts migrated to Zod",
+      "acceptance_criteria": [
+        "Import changed to Zod",
+        "All schema definitions use Zod syntax",
+        "Imports from schemas/insights.ts and schemas/analytics.ts work correctly"
+      ],
+      "passes": false
+    },
+    {
+      "id": "OPS-03",
+      "category": "functional",
+      "description": "operations/post-analytics/fetch-datapoints.ts migrated to Zod",
+      "acceptance_criteria": [
+        "Import changed to Zod",
+        "All request/response schemas converted",
+        "Business logic unchanged"
+      ],
+      "passes": false
+    },
+    {
+      "id": "OPS-04",
+      "category": "functional",
+      "description": "operations/post-analytics/fetch-posts-with-analytics.ts migrated to Zod",
+      "acceptance_criteria": [
+        "Import changed to Zod",
+        "Import of FanslyPostWithAnalyticsSchema from schemas/analytics.ts works",
+        "Query and response schemas converted"
+      ],
+      "passes": false
+    },
+    {
+      "id": "OPS-05",
+      "category": "functional",
+      "description": "fetch-fansly-data.ts migrated to Zod",
+      "acceptance_criteria": [
+        "Import changed to Zod",
+        "All schemas converted",
+        "HTTP fetching logic unchanged"
+      ],
+      "passes": false
+    },
+    {
+      "id": "TYPE-01",
+      "category": "functional",
+      "description": "schemas.ts type inference updated for analytics types",
+      "acceptance_criteria": [
+        "import type { Static } from 'elysia' removed or kept only for non-analytics schemas",
+        "GetFanslyPostsWithAnalyticsQuery uses z.infer<typeof ...> instead of Static<typeof ...>",
+        "GetFanslyPostsWithAnalyticsResponse uses z.infer<typeof ...>",
+        "GetHashtagAnalyticsResponse uses z.infer<typeof ...>",
+        "GetTimeAnalyticsResponse uses z.infer<typeof ...>",
+        "GenerateInsightsResponse uses z.infer<typeof ...>",
+        "All exported types remain functionally identical"
+      ],
+      "passes": false
+    },
+    {
+      "id": "LIB-01",
+      "category": "functional",
+      "description": "lib/standard-schema.ts updated or removed if no longer needed",
+      "acceptance_criteria": [
+        "Verified whether Effect Schema integration still needs StandardSchemaV1Like",
+        "If still needed: import changed from 'elysia/types' to '@standard-schema/spec' or native Zod support",
+        "If not needed: file removed and all imports cleaned up",
+        "Effect Schema responseSchema helper still works if needed"
+      ],
+      "passes": false
+    },
+    {
+      "id": "BUILD-01",
+      "category": "functional",
+      "description": "TypeScript builds cleanly with no type errors",
+      "acceptance_criteria": [
+        "pnpm build succeeds with exit code 0",
+        "No TypeScript errors in analytics feature files",
+        "No new ESLint errors introduced"
+      ],
+      "passes": false
+    },
+    {
+      "id": "EDGE-01",
+      "category": "edge-case",
+      "description": "Date fields validated correctly in runtime",
+      "acceptance_criteria": [
+        "Date schemas (date, createdAt, updatedAt) accept Date objects from database",
+        "No z.coerce.date() used unless fields receive string input from HTTP requests",
+        "Existing date handling logic unchanged (these are response/entity schemas, not request schemas)"
+      ],
+      "passes": false
+    },
+    {
+      "id": "EDGE-02",
+      "category": "edge-case",
+      "description": "Complex nested schemas validate correctly",
+      "acceptance_criteria": [
+        "FanslyPostWithAnalyticsSchema with nested optional media object validates",
+        "insights.ts schemas with .extend() and nested objects validate",
+        "Array schemas (hashtag/time analytics) validate",
+        "Union and literal types work correctly"
+      ],
+      "passes": false
+    },
+    {
+      "id": "EDGE-03",
+      "category": "edge-case",
+      "description": "Optional and nullable field semantics preserved",
+      "acceptance_criteria": [
+        "t.Optional(...) → .optional() preserves 'field can be missing' semantics",
+        "t.Nullable(...) → .nullable() preserves 'field can be null' semantics",
+        "Combined optional+nullable cases handled (e.g., .optional().nullable() if needed)"
+      ],
+      "passes": false
+    },
+    {
+      "id": "TEST-01",
+      "category": "functional",
+      "description": "Existing tests pass or are updated to match new schemas",
+      "acceptance_criteria": [
+        "All analytics feature tests run successfully",
+        "No test failures related to schema changes",
+        "Mock data in tests compatible with Zod schemas"
+      ],
+      "passes": false
+    },
+    {
+      "id": "DOC-01",
+      "category": "ux",
+      "description": "Migration documented in commit message and/or PR description",
+      "acceptance_criteria": [
+        "Commit message follows conventional commits (e.g., 'refactor(analytics): migrate schemas from Elysia TypeBox to Zod')",
+        "PR description references architecture briefing",
+        "Breaking changes section empty (migration is internal, API-compatible)"
+      ],
+      "passes": false
+    }
+  ],
+  "technical_notes": {
+    "implementation_approach": "Bottom-up migration: schemas first (analytics.ts → insights.ts → health.ts → fyp-actions.ts), then operations files that consume them, then type inference in schemas.ts, finally lib/standard-schema.ts",
+    "migration_order": [
+      "1. schemas/analytics.ts",
+      "2. schemas/insights.ts (depends on analytics.ts)",
+      "3. schemas/health.ts",
+      "4. schemas/fyp-actions.ts",
+      "5. operations/credentials.ts",
+      "6. operations/insights.ts",
+      "7. operations/post-analytics/fetch-datapoints.ts",
+      "8. operations/post-analytics/fetch-posts-with-analytics.ts",
+      "9. fetch-fansly-data.ts",
+      "10. schemas.ts (type inference)",
+      "11. lib/standard-schema.ts (if needed)"
+    ],
+    "key_patterns": {
+      "import_change": "import { z } from 'zod'",
+      "object": "t.Object({...}) → z.object({...})",
+      "primitives": "t.String() → z.string(), t.Number() → z.number(), t.Boolean() → z.boolean(), t.Date() → z.date()",
+      "modifiers": "t.Optional(x) → x.optional(), t.Nullable(x) → x.nullable()",
+      "compounds": "t.Array(x) → z.array(x), t.Union([...]) → z.union([...]), t.Tuple([...]) → z.tuple([...]), t.Record(k, v) → z.record(k, v)",
+      "intersections": "t.Intersect([a, b]) → a.and(b) OR BaseSchema.extend({...}) for cleaner inheritance",
+      "type_inference": "typeof Schema.static OR Static<typeof Schema> → z.infer<typeof Schema>"
+    },
+    "gotchas": {
+      "intersections": "Zod's z.intersection() only takes 2 args. For multiple: use .and() chaining or .extend() for object schemas (cleaner)",
+      "dates": "z.date() expects Date objects. Current usage is for DB responses (Date objects), not HTTP requests (strings), so should work. Verify no schema is used for request validation.",
+      "standard_schema": "Check if @standard-schema/spec or Zod 3.24+ provides StandardSchemaV1 natively, or if lib/standard-schema.ts can be removed entirely"
+    },
+    "estimated_effort": "2-3 hours for experienced developer. Purely mechanical refactoring, no logic changes.",
+    "reference_implementation": "analytics/candidates subdomain already uses Zod + @hono/zod-validator successfully"
+  }
+}
