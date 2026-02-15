@@ -1,139 +1,108 @@
-import { t } from "elysia";
+import { z } from "zod";
 
 // Base ActionableInsight schema
-const BaseSupportingDataSchema = t.Object({
-  sampleSize: t.Number(),
-  timeRange: t.String(),
+const BaseSupportingDataSchema = z.object({
+  sampleSize: z.number(),
+  timeRange: z.string(),
 });
 
-export const ActionableInsightTypeSchema = t.Union([
-  t.Literal("videoLength"),
-  t.Literal("hashtag"),
-  t.Literal("contentTheme"),
-  t.Literal("postTiming"),
+export const ActionableInsightTypeSchema = z.union([
+  z.literal("videoLength"),
+  z.literal("hashtag"),
+  z.literal("contentTheme"),
+  z.literal("postTiming"),
 ]);
 
-export const ActionableInsightSchema = t.Object({
+export const ActionableInsightSchema = z.object({
   type: ActionableInsightTypeSchema,
-  confidence: t.Number(),
-  recommendation: t.String(),
-  supportingData: t.Intersect([
-    BaseSupportingDataSchema,
-    t.Record(t.String(), t.Unknown()),
-  ]),
+  confidence: z.number(),
+  recommendation: z.string(),
+  supportingData: BaseSupportingDataSchema.and(z.record(z.string(), z.unknown())),
 });
 
 // VideoLengthInsight
-const PerformanceByRangeSchema = t.Object({
-  range: t.String(),
-  avgViews: t.Number(),
-  avgEngagement: t.Number(),
-  sampleSize: t.Number(),
+const PerformanceByRangeSchema = z.object({
+  range: z.string(),
+  avgViews: z.number(),
+  avgEngagement: z.number(),
+  sampleSize: z.number(),
 });
 
-const VideoLengthSupportingDataSchema = t.Intersect([
-  BaseSupportingDataSchema,
-  t.Object({
-    optimalRange: t.Tuple([t.Number(), t.Number()]),
-    performanceByRange: t.Array(PerformanceByRangeSchema),
-  }),
-]);
+const VideoLengthSupportingDataSchema = BaseSupportingDataSchema.extend({
+  optimalRange: z.tuple([z.number(), z.number()]),
+  performanceByRange: z.array(PerformanceByRangeSchema),
+});
 
-export const VideoLengthInsightSchema = t.Intersect([
-  t.Object({
-    type: t.Literal("videoLength"),
-    confidence: t.Number(),
-    recommendation: t.String(),
-  }),
-  t.Object({
-    supportingData: VideoLengthSupportingDataSchema,
-  }),
-]);
+export const VideoLengthInsightSchema = z.object({
+  type: z.literal("videoLength"),
+  confidence: z.number(),
+  recommendation: z.string(),
+  supportingData: VideoLengthSupportingDataSchema,
+});
 
 // HashtagInsight
-const ComparisonDataSchema = t.Object({
-  withHashtag: t.Object({
-    avgViews: t.Number(),
-    avgEngagement: t.Number(),
+const ComparisonDataSchema = z.object({
+  withHashtag: z.object({
+    avgViews: z.number(),
+    avgEngagement: z.number(),
   }),
-  withoutHashtag: t.Object({
-    avgViews: t.Number(),
-    avgEngagement: t.Number(),
+  withoutHashtag: z.object({
+    avgViews: z.number(),
+    avgEngagement: z.number(),
   }),
 });
 
-const HashtagSupportingDataSchema = t.Intersect([
-  BaseSupportingDataSchema,
-  t.Object({
-    hashtag: t.String(),
-    performanceBoost: t.Number(),
-    usageCount: t.Number(),
-    comparisonData: ComparisonDataSchema,
-  }),
-]);
+const HashtagSupportingDataSchema = BaseSupportingDataSchema.extend({
+  hashtag: z.string(),
+  performanceBoost: z.number(),
+  usageCount: z.number(),
+  comparisonData: ComparisonDataSchema,
+});
 
-export const HashtagInsightSchema = t.Intersect([
-  t.Object({
-    type: t.Literal("hashtag"),
-    confidence: t.Number(),
-    recommendation: t.String(),
-  }),
-  t.Object({
-    supportingData: HashtagSupportingDataSchema,
-  }),
-]);
+export const HashtagInsightSchema = z.object({
+  type: z.literal("hashtag"),
+  confidence: z.number(),
+  recommendation: z.string(),
+  supportingData: HashtagSupportingDataSchema,
+});
 
 // ContentThemeInsight
-const ContentThemeSupportingDataSchema = t.Intersect([
-  BaseSupportingDataSchema,
-  t.Object({
-    theme: t.String(),
-    keywords: t.Array(t.String()),
-    performanceBoost: t.Number(),
-    postCount: t.Number(),
-    avgViews: t.Number(),
-    avgEngagement: t.Number(),
-  }),
-]);
-
-export const ContentThemeInsightSchema = t.Intersect([
-  t.Object({
-    type: t.Literal("contentTheme"),
-    confidence: t.Number(),
-    recommendation: t.String(),
-  }),
-  t.Object({
-    supportingData: ContentThemeSupportingDataSchema,
-  }),
-]);
-
-// PostTimingInsight
-const TimeSlotDataSchema = t.Object({
-  timeSlot: t.String(),
-  avgViews: t.Number(),
-  avgEngagement: t.Number(),
-  postCount: t.Number(),
+const ContentThemeSupportingDataSchema = BaseSupportingDataSchema.extend({
+  theme: z.string(),
+  keywords: z.array(z.string()),
+  performanceBoost: z.number(),
+  postCount: z.number(),
+  avgViews: z.number(),
+  avgEngagement: z.number(),
 });
 
-const PostTimingSupportingDataSchema = t.Intersect([
-  BaseSupportingDataSchema,
-  t.Object({
-    optimalTimeSlot: t.String(),
-    performanceBoost: t.Number(),
-    postCount: t.Number(),
-    avgViews: t.Number(),
-    avgEngagement: t.Number(),
-    timeSlotData: t.Array(TimeSlotDataSchema),
-  }),
-]);
+export const ContentThemeInsightSchema = z.object({
+  type: z.literal("contentTheme"),
+  confidence: z.number(),
+  recommendation: z.string(),
+  supportingData: ContentThemeSupportingDataSchema,
+});
 
-export const PostTimingInsightSchema = t.Intersect([
-  t.Object({
-    type: t.Literal("postTiming"),
-    confidence: t.Number(),
-    recommendation: t.String(),
-  }),
-  t.Object({
-    supportingData: PostTimingSupportingDataSchema,
-  }),
-]);
+// PostTimingInsight
+const TimeSlotDataSchema = z.object({
+  timeSlot: z.string(),
+  avgViews: z.number(),
+  avgEngagement: z.number(),
+  postCount: z.number(),
+});
+
+const PostTimingSupportingDataSchema = BaseSupportingDataSchema.extend({
+  optimalTimeSlot: z.string(),
+  performanceBoost: z.number(),
+  postCount: z.number(),
+  avgViews: z.number(),
+  avgEngagement: z.number(),
+  timeSlotData: z.array(TimeSlotDataSchema),
+});
+
+export const PostTimingInsightSchema = z.object({
+  type: z.literal("postTiming"),
+  confidence: z.number(),
+  recommendation: z.string(),
+  supportingData: PostTimingSupportingDataSchema,
+});

@@ -1,49 +1,49 @@
-import { t } from "elysia";
+import { z } from "zod";
 
 // FanslyPostWithAnalytics
-export const FanslyPostWithAnalyticsSchema = t.Object({
-  id: t.String(),
-  date: t.Date(),
-  caption: t.String(),
-  thumbnailUrl: t.String(),
-  postUrl: t.Optional(t.String()),
-  statisticsUrl: t.Optional(t.String()),
-  totalViews: t.Number(),
-  averageEngagementSeconds: t.Number(),
-  averageEngagementPercent: t.Number(),
-  hashtags: t.Array(t.String()),
-  videoLength: t.Number(),
-  media: t.Optional(t.Object({
-    id: t.String(),
-    relativePath: t.String(),
-    type: t.Union([t.Literal("image"), t.Literal("video")]),
-    name: t.String(),
-    size: t.Number(),
-    duration: t.Nullable(t.Number()),
-    redgifsUrl: t.Nullable(t.String()),
-    createdAt: t.Date(),
-    updatedAt: t.Date(),
-    fileCreationDate: t.Date(),
-    fileModificationDate: t.Date(),
-  })),
+export const FanslyPostWithAnalyticsSchema = z.object({
+  id: z.string(),
+  date: z.date(),
+  caption: z.string(),
+  thumbnailUrl: z.string(),
+  postUrl: z.string().optional(),
+  statisticsUrl: z.string().optional(),
+  totalViews: z.number(),
+  averageEngagementSeconds: z.number(),
+  averageEngagementPercent: z.number(),
+  hashtags: z.array(z.string()),
+  videoLength: z.number(),
+  media: z.object({
+    id: z.string(),
+    relativePath: z.string(),
+    type: z.union([z.literal("image"), z.literal("video")]),
+    name: z.string(),
+    size: z.number(),
+    duration: z.number().nullable(),
+    redgifsUrl: z.string().nullable(),
+    createdAt: z.date(),
+    updatedAt: z.date(),
+    fileCreationDate: z.date(),
+    fileModificationDate: z.date(),
+  }).optional(),
 });
 
 // HashtagAnalytics - single item schema
-export const HashtagAnalyticsItemSchema = t.Object({
-  hashtag: t.String(),
-  postCount: t.Number(),
-  avgViews: t.Number(),
-  avgEngagement: t.Number(),
+export const HashtagAnalyticsItemSchema = z.object({
+  hashtag: z.string(),
+  postCount: z.number(),
+  avgViews: z.number(),
+  avgEngagement: z.number(),
 });
 
-export const HashtagAnalyticsSchema = t.Array(HashtagAnalyticsItemSchema);
+export const HashtagAnalyticsSchema = z.array(HashtagAnalyticsItemSchema);
 
 // TimeAnalytics - single item schema
-export const TimeAnalyticsItemSchema = t.Object({
-  timePeriod: t.String(),
-  postCount: t.Number(),
-  avgViews: t.Number(),
-  avgEngagement: t.Number(),
+export const TimeAnalyticsItemSchema = z.object({
+  timePeriod: z.string(),
+  postCount: z.number(),
+  avgViews: z.number(),
+  avgEngagement: z.number(),
 });
 
-export const TimeAnalyticsSchema = t.Array(TimeAnalyticsItemSchema);
+export const TimeAnalyticsSchema = z.array(TimeAnalyticsItemSchema);

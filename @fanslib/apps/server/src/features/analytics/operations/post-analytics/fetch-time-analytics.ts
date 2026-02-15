@@ -1,9 +1,10 @@
+import type { z } from "zod";
 import { TimeAnalyticsSchema } from "../../schemas/analytics";
 import { getFanslyPostsWithAnalytics } from "./fetch-posts-with-analytics";
 
 export const GetTimeAnalyticsResponseSchema = TimeAnalyticsSchema;
 
-export const getTimeAnalytics = async (): Promise<typeof GetTimeAnalyticsResponseSchema.static> => {
+export const getTimeAnalytics = async (): Promise<z.infer<typeof GetTimeAnalyticsResponseSchema>> => {
   const posts = await getFanslyPostsWithAnalytics();
 
   const timeMap = new Map<string, { totalViews: number; totalEngagement: number; count: number }>();

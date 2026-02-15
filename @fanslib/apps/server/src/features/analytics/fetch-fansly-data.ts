@@ -1,17 +1,17 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../lib/db";
 import type { FanslyAnalyticsResponse } from "../../lib/fansly-analytics/fansly-analytics-response";
 import { PostMedia } from "../posts/entity";
 import { loadFanslyCredentials } from "../settings/operations/credentials/load";
 import { addDatapointsToPostMedia } from "./operations/post-analytics/add-datapoints";
 
-export const FetchAnalyticsDataRequestParamsSchema = t.Object({
-  postMediaId: t.String(),
+export const FetchAnalyticsDataRequestParamsSchema = z.object({
+  postMediaId: z.string(),
 });
 
-export const FetchAnalyticsDataRequestBodySchema = t.Object({
-  startDate: t.Optional(t.String()),
-  endDate: t.Optional(t.String()),
+export const FetchAnalyticsDataRequestBodySchema = z.object({
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
 });
 
 const FANSLY_API_URL = "https://apiv3.fansly.com/api/v1/it/moie/statsnew";

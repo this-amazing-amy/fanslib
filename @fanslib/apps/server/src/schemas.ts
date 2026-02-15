@@ -1,5 +1,5 @@
 import type { z } from 'zod';
-import type { Static } from 'elysia';
+
 
 // Media schemas
 import {
@@ -1156,8 +1156,8 @@ export {
   GetFanslyPostsWithAnalyticsQuerySchema,
   GetFanslyPostsWithAnalyticsResponseSchema
 };
-export type GetFanslyPostsWithAnalyticsQuery = Static<typeof GetFanslyPostsWithAnalyticsQuerySchema>;
-export type GetFanslyPostsWithAnalyticsResponse = Static<typeof GetFanslyPostsWithAnalyticsResponseSchema>;
+export type GetFanslyPostsWithAnalyticsQuery = z.infer<typeof GetFanslyPostsWithAnalyticsQuerySchema>;
+export type GetFanslyPostsWithAnalyticsResponse = z.infer<typeof GetFanslyPostsWithAnalyticsResponseSchema>;
 
 
 import {
@@ -1166,7 +1166,7 @@ import {
 export {
   GetHashtagAnalyticsResponseSchema
 };
-export type GetHashtagAnalyticsResponse = Static<typeof GetHashtagAnalyticsResponseSchema>;
+export type GetHashtagAnalyticsResponse = z.infer<typeof GetHashtagAnalyticsResponseSchema>;
 
 
 import {
@@ -1175,7 +1175,7 @@ import {
 export {
   GetTimeAnalyticsResponseSchema
 };
-export type GetTimeAnalyticsResponse = Static<typeof GetTimeAnalyticsResponseSchema>;
+export type GetTimeAnalyticsResponse = z.infer<typeof GetTimeAnalyticsResponseSchema>;
 
 
 import {
@@ -1184,7 +1184,7 @@ import {
 export {
   GenerateInsightsResponseSchema
 };
-export type GenerateInsightsResponse = Static<typeof GenerateInsightsResponseSchema>;
+export type GenerateInsightsResponse = z.infer<typeof GenerateInsightsResponseSchema>;
 
 
 // Analytics entities
@@ -1194,11 +1194,11 @@ import {
 export {
   FanslyPostWithAnalyticsSchema, HashtagAnalyticsItemSchema, HashtagAnalyticsSchema, TimeAnalyticsItemSchema, TimeAnalyticsSchema
 };
-export type FanslyPostWithAnalytics = Static<typeof FanslyPostWithAnalyticsSchema>;
-export type HashtagAnalyticsItem = Static<typeof HashtagAnalyticsItemSchema>;
-export type HashtagAnalytics = Static<typeof HashtagAnalyticsSchema>;
-export type TimeAnalyticsItem = Static<typeof TimeAnalyticsItemSchema>;
-export type TimeAnalytics = Static<typeof TimeAnalyticsSchema>;
+export type FanslyPostWithAnalytics = z.infer<typeof FanslyPostWithAnalyticsSchema>;
+export type HashtagAnalyticsItem = z.infer<typeof HashtagAnalyticsItemSchema>;
+export type HashtagAnalytics = z.infer<typeof HashtagAnalyticsSchema>;
+export type TimeAnalyticsItem = z.infer<typeof TimeAnalyticsItemSchema>;
+export type TimeAnalytics = z.infer<typeof TimeAnalyticsSchema>;
 
 
 import {
@@ -1207,12 +1207,12 @@ import {
 export {
   ActionableInsightSchema, ActionableInsightTypeSchema, ContentThemeInsightSchema, HashtagInsightSchema, PostTimingInsightSchema, VideoLengthInsightSchema
 };
-export type ActionableInsight = Static<typeof ActionableInsightSchema>;
-export type ActionableInsightType = Static<typeof ActionableInsightTypeSchema>;
-export type ContentThemeInsight = Static<typeof ContentThemeInsightSchema>;
-export type HashtagInsight = Static<typeof HashtagInsightSchema>;
-export type PostTimingInsight = Static<typeof PostTimingInsightSchema>;
-export type VideoLengthInsight = Static<typeof VideoLengthInsightSchema>;
+export type ActionableInsight = z.infer<typeof ActionableInsightSchema>;
+export type ActionableInsightType = z.infer<typeof ActionableInsightTypeSchema>;
+export type ContentThemeInsight = z.infer<typeof ContentThemeInsightSchema>;
+export type HashtagInsight = z.infer<typeof HashtagInsightSchema>;
+export type PostTimingInsight = z.infer<typeof PostTimingInsightSchema>;
+export type VideoLengthInsight = z.infer<typeof VideoLengthInsightSchema>;
 
 
 import {
@@ -1223,8 +1223,8 @@ export {
   AnalyticsHealthResponseSchema,
   StalePostSchema
 };
-export type AnalyticsHealthResponse = Static<typeof AnalyticsHealthResponseSchema>;
-export type StalePost = Static<typeof StalePostSchema>;
+export type AnalyticsHealthResponse = z.infer<typeof AnalyticsHealthResponseSchema>;
+export type StalePost = z.infer<typeof StalePostSchema>;
 
 
 import {
@@ -1237,9 +1237,9 @@ export {
   FypActionsResponseSchema,
   FypPostSchema
 };
-export type FypActionsQuery = Static<typeof FypActionsQuerySchema>;
-export type FypActionsResponse = Static<typeof FypActionsResponseSchema>;
-export type FypPost = Static<typeof FypPostSchema>;
+export type FypActionsQuery = z.infer<typeof FypActionsQuerySchema>;
+export type FypActionsResponse = z.infer<typeof FypActionsResponseSchema>;
+export type FypPost = z.infer<typeof FypPostSchema>;
 
 
 // Analytics Candidates schemas

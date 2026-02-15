@@ -1,3 +1,4 @@
+import type { z } from "zod";
 import { db } from "../../../../lib/db";
 import { Channel } from "../../../channels/entity";
 import { Post } from "../../../posts/entity";
@@ -45,7 +46,7 @@ const calculatePlateauDaysSincePosted = (
 };
 
 export const fetchFypActionItems = async (
-  query: typeof FypActionsQuerySchema.static
+  query: z.infer<typeof FypActionsQuerySchema>
 ) => {
   const now = new Date();
   const dataSource = await db();

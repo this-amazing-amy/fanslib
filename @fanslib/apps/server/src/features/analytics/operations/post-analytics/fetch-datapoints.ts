@@ -1,35 +1,35 @@
-import { t } from "elysia";
+import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { PostMedia } from "../../../posts/entity";
 import { FanslyAnalyticsDatapoint } from "../../entity";
 
-export const FetchDatapointsRequestParamsSchema = t.Object({
-  postMediaId: t.String(),
+export const FetchDatapointsRequestParamsSchema = z.object({
+  postMediaId: z.string(),
 });
 
-export const FetchDatapointsResponseSchema = t.Object({
-  datapoints: t.Array(
-    t.Object({
-      timestamp: t.Number(),
-      views: t.Number(),
-      interactionTime: t.Number(),
+export const FetchDatapointsResponseSchema = z.object({
+  datapoints: z.array(
+    z.object({
+      timestamp: z.number(),
+      views: z.number(),
+      interactionTime: z.number(),
     })
   ),
-  lastDatapointDate: t.Union([t.Number(), t.Null()]),
-  hasGap: t.Boolean(),
-  suggestedFetchRange: t.Union([
-    t.Object({
-      startDate: t.String(),
-      endDate: t.String(),
+  lastDatapointDate: z.union([z.number(), z.null()]),
+  hasGap: z.boolean(),
+  suggestedFetchRange: z.union([
+    z.object({
+      startDate: z.string(),
+      endDate: z.string(),
     }),
-    t.Null(),
+    z.null(),
   ]),
-  postDate: t.String(),
+  postDate: z.string(),
 });
 
 export const fetchDatapoints = async (
   postMediaId: string
-): Promise<typeof FetchDatapointsResponseSchema.static> => {
+): Promise<z.infer<typeof FetchDatapointsResponseSchema>> => {
   const dataSource = await db();
   const postMediaRepository = dataSource.getRepository(PostMedia);
   const datapointRepository = dataSource.getRepository(FanslyAnalyticsDatapoint);
