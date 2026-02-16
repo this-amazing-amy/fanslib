@@ -7,6 +7,7 @@ ENV APPDATA_PATH=/app/data
 ENV LIBRARY_PATH=/app/library
 
 # Code kommt via Volume mount
-# bun install manuell nach git pull
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 
-CMD ["bun", "run", "dev"]
+CMD ["/app/start.sh"]
