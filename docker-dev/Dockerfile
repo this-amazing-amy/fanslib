@@ -7,7 +7,7 @@ ENV APPDATA_PATH=/app/data
 ENV LIBRARY_PATH=/app/library
 
 # Code kommt via Volume mount
-COPY start.sh /app/start.sh
-RUN chmod +x /app/start.sh
+COPY start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
 
-CMD ["/app/start.sh"]
+CMD ["/usr/local/bin/start.sh"]
