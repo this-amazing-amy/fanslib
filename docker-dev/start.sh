@@ -1,6 +1,4 @@
 #!/bin/bash
-set -e
-
 cd /app
 
 # Install dependencies if needed
@@ -9,5 +7,5 @@ if [ ! -d "node_modules" ] || [ "package.json" -nt "node_modules" ]; then
   bun install
 fi
 
-# Start dev server
-exec bun run dev
+echo "Container ready. Run 'bun run dev:docker' manually."
+tail -f /dev/null
