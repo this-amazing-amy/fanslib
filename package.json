@@ -15,6 +15,7 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
+    "dev:docker": "turbo run dev --parallel --filter='!@fanslib/electron-companion'",
     "start": "turbo run start --parallel",
     "test": "turbo run test",
     "lint": "turbo run lint",
