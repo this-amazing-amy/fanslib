@@ -72,8 +72,13 @@ jobs:
                 prodPkg.dependencies[name] = version;
               }
             }
+            // h3-v2 is a package alias used by TanStack Start's SSR bundle at runtime
+            prodPkg.dependencies['h3-v2'] = 'npm:h3@2.0.1-rc.14';
             console.log(JSON.stringify(prodPkg, null, 2));
           " > @fanslib/apps/web/dist/package.json
+
+          # Also deploy server.ts (entry point that handles static files + API proxy)
+          cp @fanslib/apps/web/server.ts @fanslib/apps/web/dist/server.ts
 
           echo "=== Web package.json ==="
           cat @fanslib/apps/web/dist/package.json
@@ -133,8 +138,19 @@ jobs:
             cd /var/www/apps/fanslib/production/current/api
             bun install --production
 
-            # Restart both PM2 processes
-            pm2 restart fanslib-web fanslib-api
+            # Update start-web.sh to use server.ts (handles static files + API proxy)
+            cat > /var/www/apps/fanslib/production/current/start-web.sh << 'STARTEOF'
+#!/bin/bash
+set -a
+source /var/www/apps/fanslib/production/.env
+set +a
+exec ~/.bun/bin/bun run /var/www/apps/fanslib/production/current/web/server.ts
+STARTEOF
+            chmod +x /var/www/apps/fanslib/production/current/start-web.sh
+
+            # Restart both PM2 processes with correct cwd
+            pm2 restart fanslib-web --update-env
+            pm2 restart fanslib-api --update-env
             pm2 save
 
             echo "=== PM2 status ==="
