@@ -1,0 +1,160 @@
+# Deploy Fanslib to Production (tsumetai)
+#
+# Builds both web (TanStack Start) and api (Hono/Bun), then deploys via rsync + PM2.
+#
+# Required GitHub Secrets:
+#   SSH_PRIVATE_KEY         - Ed25519 private key for amelia@tsumetai
+#   CF_ACCESS_CLIENT_ID     - Cloudflare Access client ID (for SSH tunnel)
+#   CF_ACCESS_CLIENT_SECRET - Cloudflare Access client secret
+#
+# PM2 process names: fanslib-web, fanslib-api
+# Ports: Web=7000, API=7500
+
+name: Deploy Production
+
+on:
+  push:
+    branches: [main]
+
+env:
+  APP_NAME: fanslib
+  DEPLOY_HOST: ssh.deepblush.garden
+  DEPLOY_USER: amelia
+  DEPLOY_PATH: /var/www/apps/fanslib/production/current
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build
+        run: bun run build
+
+      - name: Install cloudflared
+        run: |
+          curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared
+          chmod +x cloudflared
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          cat >> ~/.ssh/config << EOF
+          Host ${{ env.DEPLOY_HOST }}
+            ProxyCommand ./cloudflared access ssh --hostname %h --id ${{ secrets.CF_ACCESS_CLIENT_ID }} --secret ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+            StrictHostKeyChecking no
+            User ${{ env.DEPLOY_USER }}
+            IdentityFile ~/.ssh/id_ed25519
+          EOF
+
+      - name: Generate production package.json for web
+        run: |
+          node -e "
+            const pkg = require('./@fanslib/apps/web/package.json');
+            const prodPkg = {
+              name: pkg.name,
+              version: pkg.version,
+              type: pkg.type,
+              dependencies: {}
+            };
+            for (const [name, version] of Object.entries(pkg.dependencies || {})) {
+              if (!version.startsWith('workspace:')) {
+                prodPkg.dependencies[name] = version;
+              }
+            }
+            console.log(JSON.stringify(prodPkg, null, 2));
+          " > @fanslib/apps/web/dist/package.json
+
+          echo "=== Web package.json ==="
+          cat @fanslib/apps/web/dist/package.json
+
+      - name: Generate production package.json for api
+        run: |
+          node -e "
+            const pkg = require('./@fanslib/apps/server/package.json');
+            const prodPkg = {
+              name: pkg.name,
+              version: pkg.version,
+              type: pkg.type,
+              dependencies: {}
+            };
+            // Only include externals that aren't bundled
+            const externals = ['playwright', 'playwright-core', 'ffprobe-static', 'fluent-ffmpeg', 'sharp', 'sql.js'];
+            for (const [name, version] of Object.entries(pkg.dependencies || {})) {
+              if (!version.startsWith('workspace:') && externals.includes(name)) {
+                prodPkg.dependencies[name] = version;
+              }
+            }
+            console.log(JSON.stringify(prodPkg, null, 2));
+          " > @fanslib/apps/server/dist/package.json
+
+          echo "=== API package.json ==="
+          cat @fanslib/apps/server/dist/package.json
+
+      - name: Deploy web
+        run: |
+          ssh ${{ env.DEPLOY_HOST }} "mkdir -p ${{ env.DEPLOY_PATH }}/web"
+
+          rsync -avz --delete -e ssh \
+            @fanslib/apps/web/dist/ \
+            ${{ env.DEPLOY_HOST }}:${{ env.DEPLOY_PATH }}/web/
+
+      - name: Deploy api
+        run: |
+          ssh ${{ env.DEPLOY_HOST }} "mkdir -p ${{ env.DEPLOY_PATH }}/api"
+
+          rsync -avz --delete -e ssh \
+            @fanslib/apps/server/dist/ \
+            ${{ env.DEPLOY_HOST }}:${{ env.DEPLOY_PATH }}/api/
+
+      # sql.js WASM has a hardcoded path in the API bundle — must exist on server
+      - name: Deploy sql.js WASM
+        run: |
+          ssh ${{ env.DEPLOY_HOST }} "mkdir -p /workspace/projects/fanslib/node_modules/sql.js/dist"
+
+          rsync -avz -e ssh \
+            node_modules/sql.js/dist/sql-wasm.wasm \
+            ${{ env.DEPLOY_HOST }}:/workspace/projects/fanslib/node_modules/sql.js/dist/sql-wasm.wasm
+
+      - name: Install deps & restart PM2
+        run: |
+          ssh ${{ env.DEPLOY_HOST }} '
+            export PATH="$HOME/.bun/bin:$HOME/.local/bin:$PATH"
+
+            # Copy ENV
+            cp /var/www/apps/fanslib/production/.env /var/www/apps/fanslib/production/current/.env
+
+            # Install web runtime deps
+            cd /var/www/apps/fanslib/production/current/web
+            bun install --production
+
+            # Install api runtime deps (externals)
+            cd /var/www/apps/fanslib/production/current/api
+            bun install --production
+
+            # Restart both PM2 processes
+            pm2 restart fanslib-web fanslib-api
+            pm2 save
+
+            echo "=== PM2 status ==="
+            pm2 list
+          '
+
+      - name: Validate deployment
+        run: |
+          sleep 3
+          ssh ${{ env.DEPLOY_HOST }} '
+            echo "=== Health checks ==="
+            curl -sf http://localhost:7000 > /dev/null && echo "✓ Web OK (port 7000)" || echo "✗ Web FAILED"
+            curl -sf http://localhost:7500/health > /dev/null && echo "✓ API OK (port 7500)" || echo "✗ API FAILED"
+          '
