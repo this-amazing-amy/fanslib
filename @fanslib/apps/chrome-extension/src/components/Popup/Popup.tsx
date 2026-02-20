@@ -59,7 +59,7 @@ export const Popup = () => {
 
       // Filter out any null/undefined posts or posts with null dates
       const validPosts = postsArray.filter(
-        (p): p is Post => p != null && p.date != null
+        (p): p is Post => p?.date != null
       );
 
       const sortedPosts = validPosts.sort(

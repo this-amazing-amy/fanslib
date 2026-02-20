@@ -139,13 +139,7 @@ jobs:
             bun install --production
 
             # Update start-web.sh to use server.ts (handles static files + API proxy)
-            cat > /var/www/apps/fanslib/production/current/start-web.sh << 'STARTEOF'
-#!/bin/bash
-set -a
-source /var/www/apps/fanslib/production/.env
-set +a
-exec ~/.bun/bin/bun run /var/www/apps/fanslib/production/current/web/server.ts
-STARTEOF
+            printf '#!/bin/bash\nset -a\nsource /var/www/apps/fanslib/production/.env\nset +a\nexec ~/.bun/bin/bun run /var/www/apps/fanslib/production/current/web/server.ts\n' > /var/www/apps/fanslib/production/current/start-web.sh
             chmod +x /var/www/apps/fanslib/production/current/start-web.sh
 
             # Restart both PM2 processes with correct cwd
