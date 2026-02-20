@@ -3,11 +3,11 @@ import { join } from 'node:path';
 
 // Import the built server handler
 //@ts-ignore
-import server from './dist/server/server.js';
+import server from './server/server.js';
 
 const PORT = parseInt(process.env.PORT || '6969', 10);
 const API_URL = process.env.API_URL || 'http://localhost:6970';
-const CLIENT_DIR = join(import.meta.dir, 'dist', 'client');
+const CLIENT_DIR = join(import.meta.dir, 'client');
 
 console.log('Starting production server...');
 console.log('Client directory:', CLIENT_DIR);
