@@ -109,7 +109,7 @@ if (isScheduledPostsCronEnabled) {
 }
 
 // Start server
-const port = 6970;
+const port = parseInt(process.env.API_PORT ?? '6970', 10);
 Bun.serve({
   fetch: app.fetch,
   port,
