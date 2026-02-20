@@ -1,7 +1,10 @@
-import { existsSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import { mkdir, unlink } from "fs/promises";
-import { dirname } from "path";
+import { dirname, join } from "path";
+import { fileURLToPath } from "url";
 import "reflect-metadata";
+// @ts-expect-error — sql.js has no type declarations
+import initSqlJs from "sql.js";
 import { DataSource } from "typeorm";
 import { FanslyMediaCandidate } from "../features/analytics/candidate-entity";
 import {
@@ -21,6 +24,40 @@ import { Subreddit } from "../features/subreddits/entity";
 import { MediaTag, TagDefinition, TagDimension } from "../features/tags/entity";
 import { sqliteDbPath } from "./env";
 
+// Resolve WASM path: env var > next to built bundle > node_modules fallback
+const resolveWasmPath = (): string => {
+  if (process.env.SQL_WASM_PATH) return process.env.SQL_WASM_PATH;
+
+  // When running from bundled dist/, the WASM file should be next to the script
+  const scriptDir = typeof import.meta.url === 'string'
+    ? dirname(fileURLToPath(import.meta.url))
+    : __dirname;
+  const bundledPath = join(scriptDir, 'sql-wasm.wasm');
+  if (existsSync(bundledPath)) return bundledPath;
+
+  // Fallback: resolve from node_modules (development)
+  try {
+    const resolved = require.resolve('sql.js/dist/sql-wasm.wasm');
+    if (existsSync(resolved)) return resolved;
+  } catch { /* ignore */ }
+
+  throw new Error(
+    'sql-wasm.wasm not found. Set SQL_WASM_PATH or place it next to the server bundle.'
+  );
+};
+
+// Pre-initialize sql.js with explicit WASM binary to avoid hardcoded paths
+// eslint-disable-next-line functional/no-let
+let _sqlJsDriver: Awaited<ReturnType<typeof initSqlJs>> | null = null;
+
+const loadSqlJsDriver = async () => {
+  if (_sqlJsDriver) return _sqlJsDriver;
+  const wasmPath = resolveWasmPath();
+  const wasmBinary = readFileSync(wasmPath);
+  _sqlJsDriver = await initSqlJs({ wasmBinary });
+  return _sqlJsDriver;
+};
+
 // Lazy initialization to avoid requiring env vars during test setup
 // eslint-disable-next-line functional/no-let
 let _dbPath: string | null = null;
@@ -32,11 +69,12 @@ const getDbPath = () => {
   return _dbPath;
 };
 
-const createAppDataSource = () => {
+const createAppDataSource = (driver?: Awaited<ReturnType<typeof initSqlJs>>) => {
   _appDataSource ??= new DataSource({
     type: "sqljs",
     location: getDbPath(),
     autoSave: true,
+    ...(driver ? { driver } : {}),
     entities: [
       Media,
       Post,
@@ -101,7 +139,8 @@ export const db = async () => {
       await mkdir(dbDir, { recursive: true });
     }
     
-    const source = createAppDataSource();
+    const driver = await loadSqlJsDriver();
+    const source = createAppDataSource(driver);
     await source.initialize();
     initialized = true;
   }

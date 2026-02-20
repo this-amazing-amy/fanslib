@@ -12,12 +12,17 @@ export default defineConfig({
     tailwindcss(),
     tanstackStart(),
     viteReact(),
-    // nodePolyfills({
-    //   // Don't polyfill stream since TanStack Router needs stream/web
-    //   // which isn't available in stream-browserify
-    //   exclude: ['stream'],
-    // }),
   ],
+  environments: {
+    // TanStack Start uses 'ssr' as the server environment name
+    ssr: {
+      resolve: {
+        // Force these packages to be bundled into the server output
+        // instead of left as external imports (fixes deploy on tsumetai)
+        noExternal: ['h3-v2'],
+      },
+    },
+  },
   server: {
     host: '0.0.0.0',
     port: 6969,

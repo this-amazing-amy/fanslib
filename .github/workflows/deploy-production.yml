@@ -89,7 +89,7 @@ jobs:
               dependencies: {}
             };
             // Only include externals that aren't bundled
-            const externals = ['playwright', 'playwright-core', 'ffprobe-static', 'fluent-ffmpeg', 'sharp', 'sql.js'];
+            const externals = ['playwright', 'playwright-core', 'ffprobe-static', 'fluent-ffmpeg', 'sharp'];
             for (const [name, version] of Object.entries(pkg.dependencies || {})) {
               if (!version.startsWith('workspace:') && externals.includes(name)) {
                 prodPkg.dependencies[name] = version;
@@ -116,15 +116,6 @@ jobs:
           rsync -avz --delete -e ssh \
             @fanslib/apps/server/dist/ \
             ${{ env.DEPLOY_HOST }}:${{ env.DEPLOY_PATH }}/api/
-
-      # sql.js WASM has a hardcoded path in the API bundle — must exist on server
-      - name: Deploy sql.js WASM
-        run: |
-          ssh ${{ env.DEPLOY_HOST }} "mkdir -p /workspace/projects/fanslib/node_modules/sql.js/dist"
-
-          rsync -avz -e ssh \
-            node_modules/sql.js/dist/sql-wasm.wasm \
-            ${{ env.DEPLOY_HOST }}:/workspace/projects/fanslib/node_modules/sql.js/dist/sql-wasm.wasm
 
       - name: Install deps & restart PM2
         run: |
