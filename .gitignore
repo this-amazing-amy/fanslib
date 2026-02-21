@@ -323,4 +323,5 @@ yarn.lock
 .test-data/
 
 # Planning documents
-.plans/
+.plans/docs/deployment-setup-tsumetai.md
+docs/deployment-setup-tsumetai.md
