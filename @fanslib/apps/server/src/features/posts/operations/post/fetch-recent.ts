@@ -32,5 +32,8 @@ export const fetchRecentPosts = async (
     .limit(limit)
     .getMany();
 
-  return posts;
+  return posts.map((post) => ({
+    ...post,
+    postMedia: post.postMedia.filter((pm) => pm.media !== null),
+  }));
 };

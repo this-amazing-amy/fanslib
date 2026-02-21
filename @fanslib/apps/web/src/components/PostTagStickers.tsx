@@ -10,7 +10,13 @@ type PostTagStickersProps = {
 };
 
 export const PostTagStickers = memo(({ postMedia }: PostTagStickersProps) => {
-  const mediaIds = useMemo(() => postMedia.map((pm) => pm.media.id), [postMedia]);
+  const mediaIds = useMemo(
+    () =>
+      postMedia
+        .map((pm) => pm?.media?.id)
+        .filter((id): id is string => id != null),
+    [postMedia]
+  );
   const { data: allMediaTags = [] } = useTagsForMediasQuery(mediaIds);
 
   const aggregatedTags = useMemo(() => {
