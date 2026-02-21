@@ -1,3 +1,6 @@
+// Ensure tests run in UTC to avoid timezone-dependent failures
+process.env.TZ = "UTC";
+
 import { existsSync } from "fs";
 import { mkdir } from "fs/promises";
 import { dirname } from "path";

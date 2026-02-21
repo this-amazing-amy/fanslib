@@ -1,3 +1,5 @@
+// @ts-expect-error — sql.js has no type declarations
+import initSqlJs from "sql.js";
 import { DataSource } from "typeorm";
 import { FanslyMediaCandidate } from "../features/analytics/candidate-entity";
 import {
@@ -20,9 +22,18 @@ import { setTestDataSource } from "./db";
 // eslint-disable-next-line functional/no-let
 let testDataSource: DataSource | null = null;
 
-export const createTestDataSource = () => new DataSource({
-  type: "sqlite",
-  database: ":memory:",
+// eslint-disable-next-line functional/no-let
+let _sqlJsDriver: Awaited<ReturnType<typeof initSqlJs>> | null = null;
+
+const loadTestSqlJs = async () => {
+  if (_sqlJsDriver) return _sqlJsDriver;
+  _sqlJsDriver = await initSqlJs();
+  return _sqlJsDriver;
+};
+
+export const createTestDataSource = (driver?: Awaited<ReturnType<typeof initSqlJs>>) => new DataSource({
+  type: "sqljs",
+  ...(driver ? { driver } : {}),
   entities: [
     Media,
     Post,
@@ -56,7 +67,8 @@ export const setupTestDatabase = async () => {
     return testDataSource;
   }
 
-  testDataSource = createTestDataSource();
+  const driver = await loadTestSqlJs();
+  testDataSource = createTestDataSource(driver);
   await testDataSource.initialize();
   setTestDataSource(testDataSource);
   return testDataSource;

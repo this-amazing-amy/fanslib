@@ -37,6 +37,9 @@
     "@fanslib/configs/*"
   ],
   "dependencies": {
+    "@tanstack/react-router": "^1.161.3",
+    "@tanstack/react-router-devtools": "^1.161.3",
+    "@tanstack/react-start": "^1.161.3",
     "fkill-cli": "^9.0.0",
     "sqlite3": "^5.1.7",
     "vite-plugin-node-polyfills": "^0.24.0"
