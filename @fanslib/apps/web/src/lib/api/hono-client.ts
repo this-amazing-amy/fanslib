@@ -2,7 +2,7 @@ import { hc } from "hono/client";
 import * as devalue from "devalue";
 import type { AppType } from "@fanslib/server";
 
-const baseUrl = "/api";
+const baseUrl = "";
 
 /**
  * Custom fetch wrapper that handles devalue deserialization.

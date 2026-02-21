@@ -21,8 +21,7 @@ Bun.serve({
 
     // Proxy /api requests to the API server
     if (pathname.startsWith('/api')) {
-      const apiPath = pathname.replace(/^\/api/, '');
-      const apiUrl = `${API_URL}${apiPath}${url.search}`;
+      const apiUrl = `${API_URL}${pathname}${url.search}`;
       const headers = new Headers(request.headers);
       headers.delete('host');
       
