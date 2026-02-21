@@ -5,8 +5,10 @@
  * The dynamic import breaks the circular dependency chain.
  */
 export const resetAllFixtures = async () => {
-  // Import clearAllTables dynamically to avoid circular dependency
-  const { clearAllTables } = await import("./test-db");
+  // Import dynamically to avoid circular dependency
+  // Ensure DB is initialized (guards against beforeAll/beforeEach race in some Bun versions)
+  const { clearAllTables, setupTestDatabase } = await import("./test-db");
+  await setupTestDatabase();
   await clearAllTables();
   
   const { seedAllFixtures } = await import("./fixtures");
