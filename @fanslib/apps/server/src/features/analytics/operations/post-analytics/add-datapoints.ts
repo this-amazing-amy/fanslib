@@ -1,5 +1,6 @@
 import type { FanslyAnalyticsResponse } from "../../../../lib/fansly-analytics/fansly-analytics-response";
 import { db } from "../../../../lib/db";
+import { NotFoundError } from "../../../../lib/errors";
 import { aggregatePostMediaAnalyticsData } from "../../../../lib/fansly-analytics/aggregate";
 import { saveHashtagsFromAnalytics } from "../../../hashtags/operations/hashtag-stats/save-from-analytics";
 import { PostMedia } from "../../../posts/entity";
@@ -26,7 +27,7 @@ export const addDatapointsToPostMedia = async (
   });
 
   if (!postMedia) {
-    throw new Error("PostMedia not found");
+    throw new NotFoundError("PostMedia not found");
   }
 
   if (postMedia.post.channel.typeId === "fansly" && response.response.aggregationData?.tags) {
@@ -72,7 +73,7 @@ export const addDatapointsToPostMedia = async (
   });
 
   if (!postMediaWithDatapoints) {
-    throw new Error("PostMedia not found after saving datapoints");
+    throw new NotFoundError("PostMedia not found after saving datapoints");
   }
 
   const aggregatedData = aggregatePostMediaAnalyticsData(postMediaWithDatapoints, false);
