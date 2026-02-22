@@ -48,28 +48,14 @@ export const candidatesRoutes = new Hono()
     async (c) => {
       const { id } = c.req.valid("param");
       const body = c.req.valid("json");
-      try {
-        const result = await confirmMatch(id, body);
-        return c.json(result);
-      } catch (error) {
-        if (error instanceof Error && error.message.includes("Could not find any entity")) {
-          return c.json({ error: "Candidate or post media not found" }, 404);
-        }
-        throw error;
-      }
+      const result = await confirmMatch(id, body);
+      return c.json(result);
     }
   )
   .post("/by-id/:id/ignore", zValidator("param", IgnoreCandidateRequestParamsSchema, validationError), async (c) => {
     const { id } = c.req.valid("param");
-    try {
-      const result = await ignoreCandidate(id);
-      return c.json(result);
-    } catch (error) {
-      if (error instanceof Error && error.message.includes("Could not find any entity")) {
-        return c.json({ error: "Candidate not found" }, 404);
-      }
-      throw error;
-    }
+    const result = await ignoreCandidate(id);
+    return c.json(result);
   })
   .post("/bulk-confirm", zValidator("json", BulkConfirmCandidatesRequestBodySchema, validationError), async (c) => {
     const body = c.req.valid("json");
@@ -78,25 +64,11 @@ export const candidatesRoutes = new Hono()
   })
   .post("/by-id/:id/unmatch", zValidator("param", UnmatchCandidateRequestParamsSchema, validationError), async (c) => {
     const { id } = c.req.valid("param");
-    try {
-      const result = await unmatchCandidate(id);
-      return c.json(result);
-    } catch (error) {
-      if (error instanceof Error && error.message.includes("Could not find any entity")) {
-        return c.json({ error: "Candidate not found" }, 404);
-      }
-      throw error;
-    }
+    const result = await unmatchCandidate(id);
+    return c.json(result);
   })
   .post("/by-id/:id/unignore", zValidator("param", UnignoreCandidateRequestParamsSchema, validationError), async (c) => {
     const { id } = c.req.valid("param");
-    try {
-      const result = await unignoreCandidate(id);
-      return c.json(result);
-    } catch (error) {
-      if (error instanceof Error && error.message.includes("Could not find any entity")) {
-        return c.json({ error: "Candidate not found" }, 404);
-      }
-      throw error;
-    }
+    const result = await unignoreCandidate(id);
+    return c.json(result);
   });

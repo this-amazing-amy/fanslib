@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { db } from "../../../../lib/db";
+import { NotFoundError } from "../../../../lib/errors";
 import { PostMedia } from "../../../posts/entity";
 import { FanslyAnalyticsDatapoint } from "../../entity";
 
@@ -40,7 +41,7 @@ export const fetchDatapoints = async (
   });
 
   if (!postMedia) {
-    throw new Error("PostMedia not found");
+    throw new NotFoundError("PostMedia not found");
   }
 
   const datapoints = await datapointRepository.find({
