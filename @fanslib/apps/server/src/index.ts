@@ -12,7 +12,9 @@ import { hashtagsRoutes } from "./features/hashtags/routes";
 import { libraryRoutes } from "./features/library/routes";
 import { pipelineRoutes } from "./features/pipeline/routes";
 import { postsRoutes } from "./features/posts/routes";
+import { Cron } from "croner";
 import { runScheduledPostsCronTick } from "./features/posts/scheduled-posts-cron";
+import { performPeriodicCleanup } from "./features/tags/drift-prevention";
 import { redditAutomationRoutes } from "./features/reddit-automation/routes";
 import { settingsRoutes } from "./features/settings/routes";
 import { shootsRoutes } from "./features/shoots/routes";
@@ -96,16 +98,19 @@ const app = new Hono()
   .route("/", redditAutomationRoutes)
   .route("/", candidatesRoutes);
 
-// Set up cron job if enabled
+// Set up cron jobs if enabled
 if (isScheduledPostsCronEnabled) {
-  setInterval(
-    () => {
-      runScheduledPostsCronTick().catch((error) => {
-        console.error("Scheduled posts cron tick failed:", error);
-      });
-    },
-    60 * 1000,
-  ); // Run every minute
+  new Cron("* * * * *", { name: "scheduled-posts", protect: true }, () => {
+    runScheduledPostsCronTick().catch((error) => {
+      console.error("Scheduled posts cron tick failed:", error);
+    });
+  });
+
+  new Cron("0 * * * *", { name: "tag-drift-prevention", protect: true }, () => {
+    performPeriodicCleanup().catch((error) => {
+      console.error("Tag drift prevention cron tick failed:", error);
+    });
+  });
 }
 
 // Start server
@@ -121,6 +126,7 @@ db()
     await logStartupEnvironment();
     if (isScheduledPostsCronEnabled) {
       await runScheduledPostsCronTick();
+      await performPeriodicCleanup();
     }
     console.log(`🚀 Server running at http://localhost:${port}`);
     console.log(`📊 Database initialized`);

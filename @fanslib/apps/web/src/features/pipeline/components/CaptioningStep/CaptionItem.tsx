@@ -277,7 +277,7 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
                                 tag={{
                                   id: tag.tagDefinitionId,
                                   color: tag.color,
-                                  displayName: tag.shortRepresentation ?? tag.tagDisplayName,
+                                  displayName: tag.shortRepresentation ?? tag.tagDisplayName ?? tag.tagValue,
                                 }}
                                 size="md"
                                 selectionMode="radio"

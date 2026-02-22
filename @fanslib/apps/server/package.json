@@ -37,6 +37,7 @@
     "@hono/node-server": "^1.13.7",
     "@hono/zod-validator": "^0.4.1",
     "@types/glob": "^9.0.0",
+    "croner": "^10.0.1",
     "date-fns": "^4.1.0",
     "devalue": "^5.5.0",
     "effect": "^3.19.0",

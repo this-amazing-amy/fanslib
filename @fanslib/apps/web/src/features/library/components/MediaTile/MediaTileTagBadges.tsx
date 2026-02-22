@@ -24,7 +24,7 @@ export const MediaTileTagBadges = ({ media }: MediaTileTagBadgesProps) => {
           tag={{
             id: tag.tagDefinitionId,
             color: tag.color,
-            displayName: tag.shortRepresentation ?? tag.tagDisplayName,
+            displayName: tag.shortRepresentation ?? tag.tagDisplayName ?? tag.tagValue,
           }}
           size="sm"
           className="text-[10px] pointer-events-none"
