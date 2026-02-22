@@ -13,6 +13,7 @@ import { updateMedia } from './operations/media/update';
 import { getMediaPostingHistory } from './operations/media/get-media-posting-history';
 import { getScanStatus, scanFile, scanLibrary } from './operations/scan/scan';
 import { getThumbnailPath } from './operations/scan/thumbnail';
+import { uploadMediaToShoot } from './operations/upload';
 import { resolveMediaPath } from './path-utils';
 import { MediaFilterSchema } from './schemas/media-filter';
 import { MediaSortSchema } from './schemas/media-sort';
@@ -157,6 +158,28 @@ export const libraryRoutes = new Hono()
     const id = c.req.param('id');
     const result = await getMediaPostingHistory(id);
     return c.json(result);
+  })
+  .post('/upload', async (c) => {
+    const formData = await c.req.formData();
+    const shootId = formData.get('shootId');
+    const file = formData.get('file');
+
+    if (!shootId || typeof shootId !== 'string') {
+      return c.json({ error: 'shootId is required' }, 400);
+    }
+    if (!file || !(file instanceof File)) {
+      return c.json({ error: 'file is required' }, 400);
+    }
+
+    try {
+      const media = await uploadMediaToShoot({ shootId, file });
+      return c.json(media);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Upload failed';
+      if (message.includes('not found')) return c.json({ error: message }, 404);
+      if (message.includes('Unsupported')) return c.json({ error: message }, 422);
+      return c.json({ error: message }, 500);
+    }
   })
   .post('/scan', async (c) => {
     await scanLibrary();
