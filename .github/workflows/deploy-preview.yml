@@ -1,0 +1,321 @@
+# Preview Deployment für Pull Requests
+#
+# Deployt einen Preview-Stack (web + api) auf Tsumetai für jeden PR.
+# URL: https://fanslib-pr-{N}.deepblush.garden
+#
+# Nutzt EIGENE Test-Daten (nicht die Live-DB!):
+#   APPDATA_PATH=/mnt/shares/appdata/fanslib-dev
+#
+# Ports:
+#   Web: 7000 + PR_NUMBER
+#   API: 7500 + PR_NUMBER
+#
+# PM2 Prozesse:
+#   fanslib-pr-{N}      → Web
+#   fanslib-api-pr-{N}  → API
+#
+# Required GitHub Secrets (gleiche wie deploy-production.yml):
+#   SSH_PRIVATE_KEY, CF_ACCESS_CLIENT_ID, CF_ACCESS_CLIENT_SECRET
+#   GITHUB_TOKEN wird automatisch bereitgestellt
+
+name: Deploy Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches: [main]
+
+env:
+  APP_NAME: fanslib
+  DEPLOY_HOST: ssh.deepblush.garden
+  DEPLOY_USER: amelia
+  PREVIEW_BASE: /var/www/apps/fanslib/previews
+  BUN_PATH: /home/amelia/.bun/bin/bun
+
+jobs:
+  # ─── Deploy (auf opened / synchronize / reopened) ─────────────────────────
+  deploy:
+    name: Deploy Preview
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    env:
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      PR_SHA: ${{ github.event.pull_request.head.sha }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build
+        run: bun run build
+
+      - name: Generate web production package.json
+        run: |
+          node -e "
+            const pkg = require('./@fanslib/apps/web/package.json');
+            const prodPkg = {
+              name: pkg.name,
+              version: pkg.version,
+              type: pkg.type,
+              dependencies: {}
+            };
+            for (const [name, version] of Object.entries(pkg.dependencies || {})) {
+              if (!version.startsWith('workspace:')) {
+                prodPkg.dependencies[name] = version;
+              }
+            }
+            prodPkg.dependencies['h3-v2'] = 'npm:h3@2.0.1-rc.14';
+            console.log(JSON.stringify(prodPkg, null, 2));
+          " > @fanslib/apps/web/dist/package.json
+          cp @fanslib/apps/web/server.ts @fanslib/apps/web/dist/server.ts
+
+      - name: Generate api production package.json
+        run: |
+          node -e "
+            const pkg = require('./@fanslib/apps/server/package.json');
+            const prodPkg = {
+              name: pkg.name,
+              version: pkg.version,
+              type: pkg.type,
+              dependencies: {}
+            };
+            const externals = ['playwright', 'playwright-core', 'ffprobe-static', 'fluent-ffmpeg', 'sharp'];
+            for (const [name, version] of Object.entries(pkg.dependencies || {})) {
+              if (!version.startsWith('workspace:') && externals.includes(name)) {
+                prodPkg.dependencies[name] = version;
+              }
+            }
+            console.log(JSON.stringify(prodPkg, null, 2));
+          " > @fanslib/apps/server/dist/package.json
+
+      - name: Install cloudflared
+        run: |
+          curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared
+          chmod +x cloudflared
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          cat >> ~/.ssh/config << EOF
+          Host ${{ env.DEPLOY_HOST }}
+            ProxyCommand ./cloudflared access ssh --hostname %h --id ${{ secrets.CF_ACCESS_CLIENT_ID }} --secret ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+            StrictHostKeyChecking no
+            User ${{ env.DEPLOY_USER }}
+            IdentityFile ~/.ssh/id_ed25519
+          EOF
+
+      - name: Create preview directories on Tsumetai
+        run: |
+          ssh ${{ env.DEPLOY_HOST }} "mkdir -p ${{ env.PREVIEW_BASE }}/pr-${PR_NUMBER}/web ${{ env.PREVIEW_BASE }}/pr-${PR_NUMBER}/api"
+
+      - name: Deploy web
+        run: |
+          rsync -avz --delete -e ssh \
+            @fanslib/apps/web/dist/ \
+            ${{ env.DEPLOY_HOST }}:${{ env.PREVIEW_BASE }}/pr-${PR_NUMBER}/web/
+
+      - name: Deploy api
+        run: |
+          rsync -avz --delete -e ssh \
+            @fanslib/apps/server/dist/ \
+            ${{ env.DEPLOY_HOST }}:${{ env.PREVIEW_BASE }}/pr-${PR_NUMBER}/api/
+
+      - name: Configure env + start PM2
+        run: |
+          ssh ${{ env.DEPLOY_HOST }} bash << EOF
+          set -e
+          export PATH="\$HOME/.bun/bin:\$HOME/.local/bin:\$PATH"
+
+          PR_NUMBER=${PR_NUMBER}
+          WEB_PORT=\$((7000 + PR_NUMBER))
+          API_PORT=\$((7500 + PR_NUMBER))
+          PREVIEW_URL="https://fanslib-pr-\${PR_NUMBER}.deepblush.garden"
+          DEPLOY_DIR="${{ env.PREVIEW_BASE }}/pr-\${PR_NUMBER}"
+
+          # .env aus .env.base + dynamische Variablen
+          cp ${{ env.PREVIEW_BASE }}/.env.base \${DEPLOY_DIR}/.env
+          echo "PORT=\${WEB_PORT}" >> \${DEPLOY_DIR}/.env
+          echo "API_PORT=\${API_PORT}" >> \${DEPLOY_DIR}/.env
+          echo "API_URL=http://localhost:\${API_PORT}" >> \${DEPLOY_DIR}/.env
+          echo "PUBLIC_URL=\${PREVIEW_URL}" >> \${DEPLOY_DIR}/.env
+
+          # ENV in web + api kopieren
+          cp \${DEPLOY_DIR}/.env \${DEPLOY_DIR}/web/.env
+          cp \${DEPLOY_DIR}/.env \${DEPLOY_DIR}/api/.env
+
+          # Dependencies installieren
+          cd \${DEPLOY_DIR}/web && \$HOME/.bun/bin/bun install --production
+          cd \${DEPLOY_DIR}/api && \$HOME/.bun/bin/bun install --production
+
+          # Start-Scripts erzeugen
+          cat > \${DEPLOY_DIR}/start-web.sh << 'SCRIPT'
+          #!/bin/bash
+          set -a
+          source \$(dirname \$0)/.env
+          set +a
+          exec \$HOME/.bun/bin/bun run \$(dirname \$0)/web/server.ts
+          SCRIPT
+          chmod +x \${DEPLOY_DIR}/start-web.sh
+
+          cat > \${DEPLOY_DIR}/start-api.sh << 'SCRIPT'
+          #!/bin/bash
+          set -a
+          source \$(dirname \$0)/.env
+          set +a
+          exec \$HOME/.bun/bin/bun run \$(dirname \$0)/api/index.js
+          SCRIPT
+          chmod +x \${DEPLOY_DIR}/start-api.sh
+
+          # PM2: Web
+          if pm2 describe fanslib-pr-\${PR_NUMBER} > /dev/null 2>&1; then
+            pm2 restart fanslib-pr-\${PR_NUMBER} --update-env
+          else
+            pm2 start \${DEPLOY_DIR}/start-web.sh --name fanslib-pr-\${PR_NUMBER} --interpreter bash
+          fi
+
+          # PM2: API
+          if pm2 describe fanslib-api-pr-\${PR_NUMBER} > /dev/null 2>&1; then
+            pm2 restart fanslib-api-pr-\${PR_NUMBER} --update-env
+          else
+            pm2 start \${DEPLOY_DIR}/start-api.sh --name fanslib-api-pr-\${PR_NUMBER} --interpreter bash
+          fi
+
+          pm2 save
+
+          # Caddy neu generieren
+          /var/www/scripts/generate-caddyfile.sh
+
+          echo "✅ Preview deployed: \${PREVIEW_URL}"
+          echo "   Web:  port \${WEB_PORT} (pm2: fanslib-pr-\${PR_NUMBER})"
+          echo "   API:  port \${API_PORT} (pm2: fanslib-api-pr-\${PR_NUMBER})"
+          EOF
+
+      - name: Health check
+        run: |
+          sleep 5
+          ssh ${{ env.DEPLOY_HOST }} "
+            WEB_PORT=\$((7000 + ${PR_NUMBER}))
+            API_PORT=\$((7500 + ${PR_NUMBER}))
+            curl -sf http://localhost:\${WEB_PORT} > /dev/null && echo '✓ Web OK' || echo '✗ Web FAILED'
+            curl -sf http://localhost:\${API_PORT}/health > /dev/null && echo '✓ API OK' || echo '✗ API FAILED'
+          "
+
+      - name: Comment PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const sha = context.payload.pull_request.head.sha.substring(0, 7);
+            const url = `https://fanslib-pr-${prNumber}.deepblush.garden`;
+
+            // Bestehende Preview-Kommentare finden und updaten statt neue anlegen
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+
+            const existing = comments.data.find(c =>
+              c.user.login === 'github-actions[bot]' &&
+              c.body.includes('Preview deployed')
+            );
+
+            const body = [
+              `🚀 **Preview deployed** — \`${sha}\``,
+              ``,
+              `**URL:** ${url}`,
+              `**Web:** port ${7000 + prNumber} · **API:** port ${7500 + prNumber}`,
+              `**Test-Daten:** \`/mnt/shares/appdata/fanslib-dev\` (nicht die Live-DB!)`,
+              ``,
+              `_Wird automatisch gelöscht wenn der PR geschlossen wird._`,
+            ].join('\n');
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body,
+              });
+            }
+
+  # ─── Cleanup (auf closed) ──────────────────────────────────────────────────
+  cleanup:
+    name: Cleanup Preview
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    env:
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+
+    steps:
+      - name: Install cloudflared
+        run: |
+          curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared
+          chmod +x cloudflared
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          cat >> ~/.ssh/config << EOF
+          Host ${{ env.DEPLOY_HOST }}
+            ProxyCommand ./cloudflared access ssh --hostname %h --id ${{ secrets.CF_ACCESS_CLIENT_ID }} --secret ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+            StrictHostKeyChecking no
+            User ${{ env.DEPLOY_USER }}
+            IdentityFile ~/.ssh/id_ed25519
+          EOF
+
+      - name: Remove preview deployment
+        run: |
+          ssh ${{ env.DEPLOY_HOST }} bash << EOF
+          # Web-Prozess + Verzeichnis via cleanup.sh
+          /var/www/scripts/cleanup.sh fanslib ${PR_NUMBER} || true
+
+          # API-Prozess separat löschen (cleanup.sh kennt nur einen Prozess)
+          pm2 delete fanslib-api-pr-${PR_NUMBER} 2>/dev/null || true
+          pm2 save
+
+          echo "✅ Preview pr-${PR_NUMBER} removed"
+          EOF
+
+      - name: Comment PR (closed)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+
+            const existing = comments.data.find(c =>
+              c.user.login === 'github-actions[bot]' &&
+              c.body.includes('Preview deployed')
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: `~~🚀 Preview deployed~~\n\n🗑️ **Preview removed** — PR wurde geschlossen.`,
+              });
+            }
