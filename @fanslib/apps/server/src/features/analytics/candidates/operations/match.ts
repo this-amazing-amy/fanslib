@@ -7,18 +7,22 @@ import type { ConfirmMatchRequestBodySchema, ConfirmMatchResponseSchema } from "
 export const confirmMatch = async (
   id: string,
   body: z.infer<typeof ConfirmMatchRequestBodySchema>
-): Promise<z.infer<typeof ConfirmMatchResponseSchema>> => {
+): Promise<z.infer<typeof ConfirmMatchResponseSchema> | null> => {
   const dataSource = await db();
   const candidateRepository = dataSource.getRepository(FanslyMediaCandidate);
   const postMediaRepository = dataSource.getRepository(PostMedia);
 
-  const candidate = await candidateRepository.findOneOrFail({
+  const candidate = await candidateRepository.findOne({
     where: { id },
   });
 
-  const postMedia = await postMediaRepository.findOneOrFail({
+  if (!candidate) return null;
+
+  const postMedia = await postMediaRepository.findOne({
     where: { id: body.postMediaId },
   });
+
+  if (!postMedia) return null;
 
   const existingMatch = await candidateRepository.findOne({
     where: { matchedPostMediaId: body.postMediaId },

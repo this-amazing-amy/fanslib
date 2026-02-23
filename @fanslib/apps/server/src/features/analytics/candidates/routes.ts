@@ -49,12 +49,14 @@ export const candidatesRoutes = new Hono()
       const { id } = c.req.valid("param");
       const body = c.req.valid("json");
       const result = await confirmMatch(id, body);
+      if (!result) return c.json({ error: "Candidate or post media not found" }, 404);
       return c.json(result);
     }
   )
   .post("/by-id/:id/ignore", zValidator("param", IgnoreCandidateRequestParamsSchema, validationError), async (c) => {
     const { id } = c.req.valid("param");
     const result = await ignoreCandidate(id);
+    if (!result) return c.json({ error: "Candidate not found" }, 404);
     return c.json(result);
   })
   .post("/bulk-confirm", zValidator("json", BulkConfirmCandidatesRequestBodySchema, validationError), async (c) => {
