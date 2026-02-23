@@ -1,7 +1,6 @@
 import { AlertCircle, CheckCircle2, Clock, Loader2, X } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Button } from "~/components/ui/Button";
-import { Progress } from "~/components/ui/Progress";
 import type { UploadFileState } from "~/hooks/useUploadQueue";
 
 const formatBytes = (bytes: number): string => {
@@ -56,9 +55,12 @@ export const FileRow = ({ fileState, onRemove, onRetry }: FileRowProps) => {
         <p className="text-xs opacity-50">{formatBytes(file.size)}</p>
 
         {status === "uploading" && (
-          <div className="mt-1 flex items-center gap-2">
-            <div className="flex-1">
-              <Progress value={progress} maxValue={100} />
+          <div className="mt-1.5 flex items-center gap-2">
+            <div className="h-2 flex-1 overflow-hidden rounded-full bg-base-content/15">
+              <div
+                className="h-full rounded-full bg-primary transition-all duration-200"
+                style={{ width: `${progress}%` }}
+              />
             </div>
             <span className="text-xs opacity-50 w-8 text-right">{progress}%</span>
           </div>
