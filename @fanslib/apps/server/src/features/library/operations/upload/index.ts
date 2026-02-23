@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { promises as fs } from "fs";
 import path from "path";
 import { db } from "../../../../lib/db";
@@ -12,11 +13,14 @@ const VIDEO_EXTENSIONS = new Set([".mp4", ".webm", ".mov", ".avi", ".mkv"]);
 
 const SUPPORTED_EXTENSIONS = new Set([...IMAGE_EXTENSIONS, ...VIDEO_EXTENSIONS]);
 
-const shootFolderSlug = (shootName: string): string =>
-  shootName
+const shootFolderName = (shoot: Shoot): string => {
+  const date = format(shoot.shootDate, "yyyy-MM-dd");
+  const slug = shoot.name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
+  return `${date}_${slug}`;
+};
 
 const mediaTypeFromExtension = (ext: string): "image" | "video" | null => {
   if (IMAGE_EXTENSIONS.has(ext)) return "image";
@@ -68,8 +72,8 @@ export const uploadMediaToShoot = async ({ shootId, file }: UploadMediaInput) =>
   const type = mediaTypeFromExtension(ext);
   if (!type) throw new Error(`Cannot determine media type for: ${ext}`);
 
-  const slug = shootFolderSlug(shoot.name);
-  const targetDir = path.join(libraryPath, "shoots", slug);
+  const folderName = shootFolderName(shoot);
+  const targetDir = path.join(libraryPath, "shoots", folderName);
   await fs.mkdir(targetDir, { recursive: true });
 
   const uniqueFilename = await resolveUniqueFilename(targetDir, file.name);
@@ -81,7 +85,7 @@ export const uploadMediaToShoot = async ({ shootId, file }: UploadMediaInput) =>
 
   const duration = type === "video" ? await getVideoDuration(absolutePath) : undefined;
 
-  const relativePath = path.join("shoots", slug, uniqueFilename);
+  const relativePath = path.join("shoots", folderName, uniqueFilename);
 
   const media = await createMedia({
     relativePath,

@@ -1,4 +1,4 @@
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, Plus, XCircle } from "lucide-react";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -18,7 +18,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/Dialog";
-import { Progress } from "~/components/ui/Progress";
+import { Input } from "~/components/ui/Input";
 import { ScrollArea } from "~/components/ui/ScrollArea";
 import {
   Select,
@@ -28,13 +28,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/Select";
+import { DateTimePicker } from "~/components/DateTimePicker";
 import { useUploadQueue } from "~/hooks/useUploadQueue";
 import { QUERY_KEYS } from "~/lib/queries/query-keys";
-import { useShootsQuery } from "~/lib/queries/shoots";
+import { useCreateShootMutation, useShootsQuery } from "~/lib/queries/shoots";
 import { DropZone } from "./DropZone";
 import { FileRow } from "./FileRow";
 
 type UploadPhase = "selecting" | "uploading" | "complete";
+type ShootMode = "select" | "create";
 
 type UploadDialogProps = {
   open: boolean;
@@ -45,10 +47,14 @@ export const UploadDialog = ({ open, onOpenChange }: UploadDialogProps) => {
   const [phase, setPhase] = useState<UploadPhase>("selecting");
   const [selectedShootId, setSelectedShootId] = useState<string>("");
   const [confirmCloseOpen, setConfirmCloseOpen] = useState(false);
+  const [shootMode, setShootMode] = useState<ShootMode>("select");
+  const [newShootName, setNewShootName] = useState("");
+  const [newShootDate, setNewShootDate] = useState(() => new Date());
 
   const queryClient = useQueryClient();
   const { data: shootsData } = useShootsQuery({ limit: 200 });
   const shoots = shootsData?.items ?? [];
+  const createShootMutation = useCreateShootMutation();
 
   const {
     files,
@@ -79,12 +85,24 @@ export const UploadDialog = ({ open, onOpenChange }: UploadDialogProps) => {
     cancelUpload();
     setPhase("selecting");
     setSelectedShootId("");
+    setShootMode("select");
+    setNewShootName("");
+    setNewShootDate(new Date());
     onOpenChange(false);
   };
 
-  const startUploadPhase = () => {
-    setPhase("uploading");
-    startUpload(selectedShootId);
+  const startUploadPhase = async () => {
+    if (shootMode === "create") {
+      const shoot = await createShootMutation.mutateAsync({
+        name: newShootName.trim(),
+        shootDate: newShootDate,
+      });
+      setPhase("uploading");
+      startUpload(shoot.id);
+    } else {
+      setPhase("uploading");
+      startUpload(selectedShootId);
+    }
   };
 
   const finishAndClose = () => {
@@ -99,7 +117,9 @@ export const UploadDialog = ({ open, onOpenChange }: UploadDialogProps) => {
   };
 
   const isSelectingPhase = phase === "selecting";
-  const canUpload = selectedShootId && files.length > 0 && isSelectingPhase;
+  const shootReady =
+    shootMode === "select" ? !!selectedShootId : newShootName.trim().length > 0;
+  const canUpload = shootReady && files.length > 0 && isSelectingPhase;
 
   return (
     <>
@@ -121,7 +141,7 @@ export const UploadDialog = ({ open, onOpenChange }: UploadDialogProps) => {
                 <div className="space-y-4">
                   {/* Overall progress bar during upload */}
                   {phase === "uploading" && (
-                    <div className="space-y-1">
+                    <div className="space-y-1.5">
                       <div className="flex justify-between text-xs opacity-50">
                         <span>
                           {completedCount} / {totalCount} done
@@ -129,7 +149,12 @@ export const UploadDialog = ({ open, onOpenChange }: UploadDialogProps) => {
                         </span>
                         <span>{overallProgress}%</span>
                       </div>
-                      <Progress value={overallProgress} maxValue={100} />
+                      <div className="h-2.5 w-full overflow-hidden rounded-full bg-base-content/15">
+                        <div
+                          className="h-full rounded-full bg-primary transition-all duration-300"
+                          style={{ width: `${overallProgress}%` }}
+                        />
+                      </div>
                     </div>
                   )}
 
@@ -154,26 +179,56 @@ export const UploadDialog = ({ open, onOpenChange }: UploadDialogProps) => {
                     </div>
                   )}
 
-                  {/* Shoot selector (selecting phase only) */}
+                  {/* Shoot selector / create (selecting phase only) */}
                   {isSelectingPhase && (
-                    <div>
-                      <SelectLabel>Upload to Shoot</SelectLabel>
-                      <Select
-                        value={selectedShootId}
-                        onValueChange={setSelectedShootId}
-                        aria-label="Select shoot"
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a shoot…" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {shoots.map((shoot) => (
-                            <SelectItem key={shoot.id} value={shoot.id} textValue={shoot.name}>
-                              {shoot.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <SelectLabel className="mb-0">
+                          {shootMode === "select" ? "Upload to Shoot" : "New Shoot"}
+                        </SelectLabel>
+                        <Button
+                          size="xs"
+                          variant="ghost"
+                          onPress={() => {
+                            setShootMode((m) => m === "select" ? "create" : "select");
+                          }}
+                        >
+                          {shootMode === "select" ? (
+                            <><Plus className="mr-1 h-3 w-3" />New shoot</>
+                          ) : (
+                            "Select existing"
+                          )}
+                        </Button>
+                      </div>
+
+                      {shootMode === "select" ? (
+                        <Select
+                          value={selectedShootId}
+                          onValueChange={setSelectedShootId}
+                          aria-label="Select shoot"
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a shoot…" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {shoots.map((shoot) => (
+                              <SelectItem key={shoot.id} value={shoot.id} textValue={shoot.name}>
+                                {shoot.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <div className="space-y-2">
+                          <Input
+                            value={newShootName}
+                            onChange={setNewShootName}
+                            placeholder="Shoot name…"
+                            aria-label="New shoot name"
+                          />
+                          <DateTimePicker date={newShootDate} setDate={setNewShootDate} />
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -203,8 +258,13 @@ export const UploadDialog = ({ open, onOpenChange }: UploadDialogProps) => {
                       <Button variant="outline" onPress={requestClose}>
                         Cancel
                       </Button>
-                      <Button isDisabled={!canUpload} onPress={startUploadPhase}>
-                        Upload {files.length > 0 ? `${files.length} ${files.length === 1 ? "file" : "files"}` : ""}
+                      <Button
+                        isDisabled={!canUpload || createShootMutation.isPending}
+                        onPress={startUploadPhase}
+                      >
+                        {createShootMutation.isPending
+                          ? "Creating shoot…"
+                          : `Upload ${files.length > 0 ? `${files.length} ${files.length === 1 ? "file" : "files"}` : ""}`}
                       </Button>
                     </>
                   )}
