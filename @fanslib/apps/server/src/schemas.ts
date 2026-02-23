@@ -81,6 +81,9 @@ export { MediaSchema, MediaTypeSchema };
 export type Media = z.infer<typeof MediaSchema>;
 export type MediaType = z.infer<typeof MediaTypeSchema>;
 
+export const UploadMediaResponseSchema = MediaSchema;
+export type UploadMediaResponse = z.infer<typeof UploadMediaResponseSchema>;
+
 
 // Media filters
 import {

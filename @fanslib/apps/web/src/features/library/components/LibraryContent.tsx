@@ -1,4 +1,5 @@
 import type { Media, MediaFilter } from '@fanslib/server/schemas';
+import { useState } from "react";
 import { FilterPresetProvider } from "~/contexts/FilterPresetContext";
 import { useLibraryPreferences } from "~/contexts/LibraryPreferencesContext";
 import { useScan } from "~/hooks/useScan";
@@ -12,6 +13,7 @@ import { MediaFilters as MediaFiltersComponent } from "./MediaFilters/MediaFilte
 import { MediaFiltersProvider } from "./MediaFilters/MediaFiltersContext";
 import { ScanButton } from "./ScanButton";
 import { ScanProgress } from "./ScanProgress";
+import { UploadDialog } from "./UploadDialog/UploadDialog";
 import { cn } from "~/lib/cn";
 
 type MediaFilters = MediaFilter;
@@ -35,6 +37,7 @@ export const LibraryContent = ({ showScan = true, contentClassName }: LibraryCon
     filters: preferences.filter,
   });
   const { isScanning, scanProgress, handleScan, scanResult } = useScan();
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
 
   const updateFilters = (filters: MediaFilters) => {
     updatePreferences({
@@ -68,7 +71,13 @@ export const LibraryContent = ({ showScan = true, contentClassName }: LibraryCon
                   }}
                 />
                 <GalleryViewSettings />
-                {showScan ? <ScanButton isScanning={isScanning} onScan={handleScan} /> : null}
+                {showScan ? (
+                  <ScanButton
+                    isScanning={isScanning}
+                    onScan={handleScan}
+                    onUpload={() => setUploadDialogOpen(true)}
+                  />
+                ) : null}
               </div>
               <div className="mb-4">
                 <MediaFiltersComponent
@@ -96,6 +105,7 @@ export const LibraryContent = ({ showScan = true, contentClassName }: LibraryCon
             <GalleryPagination totalPages={mediaList?.totalPages ?? 0} totalItems={mediaList?.total ?? 0} />
           </div>
         </div>
+        <UploadDialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen} />
       </MediaFiltersProvider>
     </FilterPresetProvider>
   );
