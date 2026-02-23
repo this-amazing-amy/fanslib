@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import "reflect-metadata";
 import { EntityNotFoundError, QueryFailedError } from "typeorm";
-import { AppError } from "./lib/errors";
+import { isAppError } from "./lib/errors";
 import { blueskyRoutes } from "./features/api-bluesky/routes";
 import { postponeRoutes } from "./features/api-postpone/routes";
 import { analyticsRoutes } from "./features/analytics/routes";
@@ -107,7 +107,7 @@ const app = new Hono()
 app.onError((error, c) => {
   console.error(`[${c.req.method}] ${c.req.path}`, error);
 
-  if (error instanceof AppError) {
+  if (isAppError(error)) {
     return c.json(
       { error: error.message, code: error.code },
       error.statusCode as Parameters<typeof c.json>[1]
