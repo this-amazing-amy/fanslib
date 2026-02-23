@@ -3,7 +3,7 @@ import type { BlobRef } from "@atproto/api";
 import { getBlueskyAgent } from "../client";
 import { resolveMediaPath } from "../../library/path-utils";
 import type { Media } from "../../library/entity";
-import { ExternalServiceError } from "../../../lib/errors";
+import { externalServiceError } from "../../../lib/errors";
 
 const VIDEO_SERVICE_URL = "https://video.bsky.app";
 const VIDEO_PROCESSING_TIMEOUT_MS = 5 * 60 * 1000;
@@ -28,7 +28,7 @@ const getServiceAuthToken = async (): Promise<{ token: string; userDid: string }
   // Get the user's DID from the session
   const userDid = agent.session?.did;
   if (!userDid) {
-    throw new ExternalServiceError("No authenticated session - cannot get user DID");
+    throw externalServiceError("No authenticated session - cannot get user DID");
   }
 
   // Get the PDS URL from the agent's session to derive the PDS DID
@@ -62,7 +62,7 @@ const uploadVideoToService = async (fileBuffer: Buffer, mimeType: string, servic
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new ExternalServiceError(`Video upload failed: ${response.status} ${response.statusText} - ${errorText}`);
+    throw externalServiceError(`Video upload failed: ${response.status} ${response.statusText} - ${errorText}`);
   }
 
   const data = await response.json() as { jobStatus: VideoJobStatus };
@@ -79,7 +79,7 @@ const getJobStatus = async (jobId: string, serviceToken: string): Promise<VideoJ
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new ExternalServiceError(`Failed to get job status: ${response.status} ${response.statusText} - ${errorText}`);
+    throw externalServiceError(`Failed to get job status: ${response.status} ${response.statusText} - ${errorText}`);
   }
 
   const data = await response.json() as { jobStatus: VideoJobStatus };
@@ -98,13 +98,13 @@ const waitForVideoProcessing = async (jobId: string, serviceToken: string): Prom
     }
 
     if (status.state === "JOB_STATE_FAILED") {
-      throw new ExternalServiceError(`Video processing failed: ${status.error ?? status.message ?? "Unknown error"}`);
+      throw externalServiceError(`Video processing failed: ${status.error ?? status.message ?? "Unknown error"}`);
     }
 
     await sleep(POLLING_INTERVAL_MS);
   }
 
-  throw new ExternalServiceError("Video processing timed out");
+  throw externalServiceError("Video processing timed out");
 };
 
 const getMimeType = (filePath: string): string => {
@@ -131,7 +131,7 @@ export const uploadVideo = async (media: Media): Promise<BlobRef> => {
   }
 
   if (!jobStatus.jobId) {
-    throw new ExternalServiceError("Video upload did not return a job ID");
+    throw externalServiceError("Video upload did not return a job ID");
   }
 
   return waitForVideoProcessing(jobStatus.jobId, serviceToken);
