@@ -6,6 +6,7 @@ import { queryStringNumberArray } from "../../lib/query-helpers";
 import * as driftPrevention from "./drift-prevention";
 import { assignTagsToMedia } from "./operations/media-tag/assign";
 import { bulkAssignTags } from "./operations/media-tag/bulk-assign";
+import { fetchBulkMediaTags } from "./operations/media-tag/fetch-bulk";
 import { fetchMediaTags } from "./operations/media-tag/fetch";
 import { removeTagsFromMedia } from "./operations/media-tag/remove";
 import { createTagDefinition } from "./operations/tag-definition/create";
@@ -235,7 +236,16 @@ export const tagsRoutes = new Hono()
       return c.json({ success: true });
     }
   )
-  // Media Tags - 4 endpoints
+  // Media Tags - 5 endpoints
+  .post(
+    "/media/bulk-by-media-ids",
+    zValidator("json", z.object({ mediaIds: z.array(z.string()) }), validationError),
+    async (c) => {
+      const { mediaIds } = c.req.valid("json");
+      const result = await fetchBulkMediaTags(mediaIds);
+      return c.json(result);
+    }
+  )
   .get(
     "/media/by-media-id/:mediaId",
     zValidator("param", MediaIdParamSchema, validationError),

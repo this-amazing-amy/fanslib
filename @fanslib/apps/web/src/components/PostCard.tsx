@@ -29,7 +29,6 @@ export const PostCard = ({ post }: PostCardProps) => <div className="flex flex-c
               <MediaTile
                 key={pm.id}
                 media={pm.media}
-                allMedias={post.postMedia.map((pm) => pm.media)}
                 index={post.postMedia.indexOf(pm)}
                 className="size-24"
               />

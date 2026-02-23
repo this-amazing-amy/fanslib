@@ -1,5 +1,5 @@
-import type { DeleteMediaRequestParams, FetchAllMediaRequestBody, FetchMediaByIdRequestParams, FindAdjacentMediaBody, FindAdjacentMediaRequestParams, UpdateMediaRequestBody, UpdateMediaRequestParams } from '@fanslib/server/schemas';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { DeleteMediaRequestParams, FetchAllMediaRequestBody, FetchAllMediaResponse, FetchMediaByIdRequestParams, FetchMediaByIdResponse, FindAdjacentMediaBody, FindAdjacentMediaRequestParams, UpdateMediaRequestBody, UpdateMediaRequestParams } from '@fanslib/server/schemas';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/hono-client';
 import { QUERY_KEYS } from './query-keys';
 
@@ -10,17 +10,42 @@ export const useMediaListQuery = (params?: FetchAllMediaRequestBody) =>
       const result = await api.api.media.all.$post({ json: params ?? {} });
       return result.json();
     },
+    placeholderData: keepPreviousData,
   });
 
-export const useMediaQuery = (params: FetchMediaByIdRequestParams) =>
-  useQuery({
+const listCachePlaceholder = (
+  queryClient: ReturnType<typeof useQueryClient>,
+  id: string
+) => {
+  try {
+    const listQueries = queryClient.getQueriesData<FetchAllMediaResponse>({
+      queryKey: QUERY_KEYS.media.all,
+    });
+    for (const [, data] of listQueries) {
+      const found = data?.items?.find((m) => m.id === id);
+      // postMedia is fetched separately on the detail page; this placeholder
+      // only needs to provide enough data for the view transition to work
+      if (found) return { ...found, postMedia: [] } as unknown as FetchMediaByIdResponse;
+    }
+  } catch {
+    // cache lookup is best-effort; any shape mismatch should not break the page
+  }
+  return undefined;
+};
+
+export const useMediaQuery = (params: FetchMediaByIdRequestParams) => {
+  const queryClient = useQueryClient();
+  return useQuery({
     queryKey: QUERY_KEYS.media.byId(params.id),
     queryFn: async () => {
       const result = await api.api.media['by-id'][':id'].$get({ param: { id: params.id } });
       return result.json();
     },
     enabled: !!params.id,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    placeholderData: listCachePlaceholder(queryClient, params.id) as any,
   });
+};
 
 export const useMediaPostingHistoryQuery = (mediaId: string) =>
   useQuery({

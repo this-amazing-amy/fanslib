@@ -1,7 +1,6 @@
 import type { Media } from '@fanslib/server/schemas';
 
-
-import { useMediaSelection } from "~/contexts/MediaSelectionContext";
+import { useMediaHoverStore } from "~/stores/mediaHoverStore";
 import { useSfwMode } from "~/hooks/useSfwMode";
 import { cn } from "~/lib/cn";
 import { useVideoPreview } from "~/hooks/useVideoPreview";
@@ -21,8 +20,7 @@ export const MediaTileVideo = ({
   withDuration,
   cover,
 }: MediaTileVideoProps) => {
-  const { currentHoveredMediaId } = useMediaSelection();
-  const isPreviewActive = withPreview && currentHoveredMediaId === media.id;
+  const isPreviewActive = useMediaHoverStore((s) => withPreview && s.hoveredMediaId === media.id);
   const { videoRef } = useVideoPreview({
     isActive: isPreviewActive,
     mediaType: "video",

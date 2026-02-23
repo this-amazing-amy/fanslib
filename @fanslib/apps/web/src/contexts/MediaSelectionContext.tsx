@@ -5,14 +5,13 @@ import { useGalleryKeyboardHandling } from "~/hooks/useGalleryKeyboardHandling";
 
 type MediaSelectionContextType = {
   selectedMediaIds: Set<string>;
+  selectedMediaItems: Media[];
+  flattenedMedia: FlattenedMedia[];
   isSelected: (mediaId: string) => boolean;
   toggleMediaSelection: (mediaId: string, event: React.MouseEvent) => void;
   clearSelection: () => void;
   lastClickedIndex: number | null;
   isShiftPressed: boolean;
-  currentHoveredMediaId: string | null;
-  setCurrentHoveredMediaId: (mediaId: string | null) => void;
-  isHighlighted: (mediaId: string) => boolean;
 };
 
 const MediaSelectionContext = createContext<MediaSelectionContextType | null>(null);
@@ -35,7 +34,6 @@ export const MediaSelectionProvider = ({ children, media }: MediaSelectionProvid
   const [selectedMediaIds, setSelectedMediaIds] = useState<Set<string>>(new Set());
   const [lastClickedIndex, setLastClickedIndex] = useState<number | null>(null);
   const [isShiftPressed, setIsShiftPressed] = useState(false);
-  const [currentHoveredMediaId, setCurrentHoveredMediaId] = useState<string | null>(null);
 
   // Convert input to a consistent format and calculate global indices
   const { flattenedMedia, mediaList } = useMemo(() => {
@@ -187,48 +185,31 @@ export const MediaSelectionProvider = ({ children, media }: MediaSelectionProvid
     [selectedMediaIds]
   );
 
-  const isHighlighted = useCallback(
-    (mediaId: string) => {
-      if (lastClickedIndex === null || !currentHoveredMediaId) return false;
-      if (selectedMediaIds.size === 0) return false;
-      if (!isShiftPressed) return false;
-
-      const hoveredItem = flattenedMedia.find((m) => m.media.id === currentHoveredMediaId);
-      if (!hoveredItem) return false;
-
-      const currentItem = flattenedMedia.find((m) => m.media.id === mediaId);
-      if (!currentItem) return false;
-
-      const shouldHighlight =
-        currentItem.globalIndex >= Math.min(lastClickedIndex, hoveredItem.globalIndex) &&
-        currentItem.globalIndex <= Math.max(lastClickedIndex, hoveredItem.globalIndex);
-
-      return shouldHighlight;
-    },
-    [lastClickedIndex, currentHoveredMediaId, selectedMediaIds.size, isShiftPressed, flattenedMedia]
+  const selectedMediaItems = useMemo(
+    () => mediaList.filter((m) => selectedMediaIds.has(m.id)),
+    [mediaList, selectedMediaIds]
   );
 
   const value = useMemo(
     () => ({
       selectedMediaIds,
+      selectedMediaItems,
+      flattenedMedia,
       isSelected,
       toggleMediaSelection,
       clearSelection,
       lastClickedIndex,
       isShiftPressed,
-      currentHoveredMediaId,
-      setCurrentHoveredMediaId,
-      isHighlighted,
     }),
     [
       selectedMediaIds,
+      selectedMediaItems,
+      flattenedMedia,
       isSelected,
       toggleMediaSelection,
       clearSelection,
       lastClickedIndex,
       isShiftPressed,
-      currentHoveredMediaId,
-      isHighlighted,
     ]
   );
 
@@ -237,8 +218,6 @@ export const MediaSelectionProvider = ({ children, media }: MediaSelectionProvid
 
 export const useMediaSelection = () => {
   const context = useContext(MediaSelectionContext);
-  if (!context) {
-    throw new Error("useMediaSelection must be used within a MediaSelectionProvider");
-  }
+  if (!context) throw new Error("useMediaSelection must be used within a MediaSelectionProvider");
   return context;
 };

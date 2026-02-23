@@ -30,9 +30,9 @@ import { Route as SettingsContentSafetyRouteImport } from './routes/settings/con
 import { Route as SettingsAppearanceRouteImport } from './routes/settings/appearance'
 import { Route as PostsPostIdRouteImport } from './routes/posts/$postId'
 import { Route as LibraryMediaIdRouteImport } from './routes/library/$mediaId'
+import { Route as ContentShootsRouteImport } from './routes/content/shoots'
 import { Route as ContentLibraryRouteImport } from './routes/content/library'
 import { Route as AnalyticsMatchingRouteImport } from './routes/analytics/matching'
-import { Route as ContentLibraryShootsRouteImport } from './routes/content/library/shoots'
 import { Route as ContentLibraryMediaRouteImport } from './routes/content/library/media'
 import { Route as ContentLibraryMediaIndexRouteImport } from './routes/content/library/media/index'
 import { Route as ContentLibraryMediaMediaIdRouteImport } from './routes/content/library/media/$mediaId'
@@ -142,6 +142,11 @@ const LibraryMediaIdRoute = LibraryMediaIdRouteImport.update({
   path: '/library/$mediaId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContentShootsRoute = ContentShootsRouteImport.update({
+  id: '/shoots',
+  path: '/shoots',
+  getParentRoute: () => ContentRoute,
+} as any)
 const ContentLibraryRoute = ContentLibraryRouteImport.update({
   id: '/library',
   path: '/library',
@@ -151,11 +156,6 @@ const AnalyticsMatchingRoute = AnalyticsMatchingRouteImport.update({
   id: '/analytics/matching',
   path: '/analytics/matching',
   getParentRoute: () => rootRouteImport,
-} as any)
-const ContentLibraryShootsRoute = ContentLibraryShootsRouteImport.update({
-  id: '/shoots',
-  path: '/shoots',
-  getParentRoute: () => ContentLibraryRoute,
 } as any)
 const ContentLibraryMediaRoute = ContentLibraryMediaRouteImport.update({
   id: '/media',
@@ -186,6 +186,7 @@ export interface FileRoutesByFullPath {
   '/subreddits': typeof SubredditsRoute
   '/analytics/matching': typeof AnalyticsMatchingRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
+  '/content/shoots': typeof ContentShootsRoute
   '/library/$mediaId': typeof LibraryMediaIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/settings/appearance': typeof SettingsAppearanceRoute
@@ -200,7 +201,6 @@ export interface FileRoutesByFullPath {
   '/settings/': typeof SettingsIndexRoute
   '/shoots': typeof ShootsIndexRoute
   '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
-  '/content/library/shoots': typeof ContentLibraryShootsRoute
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
   '/content/library/media/': typeof ContentLibraryMediaIndexRoute
 }
@@ -214,6 +214,7 @@ export interface FileRoutesByTo {
   '/subreddits': typeof SubredditsRoute
   '/analytics/matching': typeof AnalyticsMatchingRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
+  '/content/shoots': typeof ContentShootsRoute
   '/library/$mediaId': typeof LibraryMediaIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/settings/appearance': typeof SettingsAppearanceRoute
@@ -227,7 +228,6 @@ export interface FileRoutesByTo {
   '/plan': typeof PlanIndexRoute
   '/settings': typeof SettingsIndexRoute
   '/shoots': typeof ShootsIndexRoute
-  '/content/library/shoots': typeof ContentLibraryShootsRoute
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
   '/content/library/media': typeof ContentLibraryMediaIndexRoute
 }
@@ -243,6 +243,7 @@ export interface FileRoutesById {
   '/subreddits': typeof SubredditsRoute
   '/analytics/matching': typeof AnalyticsMatchingRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
+  '/content/shoots': typeof ContentShootsRoute
   '/library/$mediaId': typeof LibraryMediaIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/settings/appearance': typeof SettingsAppearanceRoute
@@ -257,7 +258,6 @@ export interface FileRoutesById {
   '/settings/': typeof SettingsIndexRoute
   '/shoots/': typeof ShootsIndexRoute
   '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
-  '/content/library/shoots': typeof ContentLibraryShootsRoute
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
   '/content/library/media/': typeof ContentLibraryMediaIndexRoute
 }
@@ -274,6 +274,7 @@ export interface FileRouteTypes {
     | '/subreddits'
     | '/analytics/matching'
     | '/content/library'
+    | '/content/shoots'
     | '/library/$mediaId'
     | '/posts/$postId'
     | '/settings/appearance'
@@ -288,7 +289,6 @@ export interface FileRouteTypes {
     | '/settings/'
     | '/shoots'
     | '/content/library/media'
-    | '/content/library/shoots'
     | '/content/library/media/$mediaId'
     | '/content/library/media/'
   fileRoutesByTo: FileRoutesByTo
@@ -302,6 +302,7 @@ export interface FileRouteTypes {
     | '/subreddits'
     | '/analytics/matching'
     | '/content/library'
+    | '/content/shoots'
     | '/library/$mediaId'
     | '/posts/$postId'
     | '/settings/appearance'
@@ -315,7 +316,6 @@ export interface FileRouteTypes {
     | '/plan'
     | '/settings'
     | '/shoots'
-    | '/content/library/shoots'
     | '/content/library/media/$mediaId'
     | '/content/library/media'
   id:
@@ -330,6 +330,7 @@ export interface FileRouteTypes {
     | '/subreddits'
     | '/analytics/matching'
     | '/content/library'
+    | '/content/shoots'
     | '/library/$mediaId'
     | '/posts/$postId'
     | '/settings/appearance'
@@ -344,7 +345,6 @@ export interface FileRouteTypes {
     | '/settings/'
     | '/shoots/'
     | '/content/library/media'
-    | '/content/library/shoots'
     | '/content/library/media/$mediaId'
     | '/content/library/media/'
   fileRoutesById: FileRoutesById
@@ -516,6 +516,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryMediaIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/content/shoots': {
+      id: '/content/shoots'
+      path: '/shoots'
+      fullPath: '/content/shoots'
+      preLoaderRoute: typeof ContentShootsRouteImport
+      parentRoute: typeof ContentRoute
+    }
     '/content/library': {
       id: '/content/library'
       path: '/library'
@@ -529,13 +536,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/analytics/matching'
       preLoaderRoute: typeof AnalyticsMatchingRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/content/library/shoots': {
-      id: '/content/library/shoots'
-      path: '/shoots'
-      fullPath: '/content/library/shoots'
-      preLoaderRoute: typeof ContentLibraryShootsRouteImport
-      parentRoute: typeof ContentLibraryRoute
     }
     '/content/library/media': {
       id: '/content/library/media'
@@ -576,12 +576,10 @@ const ContentLibraryMediaRouteWithChildren =
 
 interface ContentLibraryRouteChildren {
   ContentLibraryMediaRoute: typeof ContentLibraryMediaRouteWithChildren
-  ContentLibraryShootsRoute: typeof ContentLibraryShootsRoute
 }
 
 const ContentLibraryRouteChildren: ContentLibraryRouteChildren = {
   ContentLibraryMediaRoute: ContentLibraryMediaRouteWithChildren,
-  ContentLibraryShootsRoute: ContentLibraryShootsRoute,
 }
 
 const ContentLibraryRouteWithChildren = ContentLibraryRoute._addFileChildren(
@@ -590,10 +588,12 @@ const ContentLibraryRouteWithChildren = ContentLibraryRoute._addFileChildren(
 
 interface ContentRouteChildren {
   ContentLibraryRoute: typeof ContentLibraryRouteWithChildren
+  ContentShootsRoute: typeof ContentShootsRoute
 }
 
 const ContentRouteChildren: ContentRouteChildren = {
   ContentLibraryRoute: ContentLibraryRouteWithChildren,
+  ContentShootsRoute: ContentShootsRoute,
 }
 
 const ContentRouteWithChildren =

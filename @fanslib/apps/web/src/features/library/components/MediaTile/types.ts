@@ -1,10 +1,9 @@
-import type { Media } from '@fanslib/server/schemas';
-
+import type { Media, MediaTag } from '@fanslib/server/schemas';
 
 export type MediaTileProps = {
   media: Media;
-  allMedias: Media[];
   index: number;
+  tags?: MediaTag[];
   className?: string;
 
   withPostsPopover?: boolean;

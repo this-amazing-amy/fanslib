@@ -10,8 +10,6 @@ type PostCalendarPostMediaProps = {
 };
 
 export const PostCalendarPostMedia = ({ postMedia, isVirtual }: PostCalendarPostMediaProps) => {
-  const allMedias = isVirtual ? [] : postMedia.map((pm) => pm.media);
-
   // Show placeholder for virtual posts
   if (isVirtual) {
     return (
@@ -22,6 +20,7 @@ export const PostCalendarPostMedia = ({ postMedia, isVirtual }: PostCalendarPost
     );
   }
 
+  const allMedias = postMedia.map((pm) => pm.media);
   const mediaCount = postMedia.length;
 
   // Single media - show full width
@@ -34,7 +33,6 @@ export const PostCalendarPostMedia = ({ postMedia, isVirtual }: PostCalendarPost
         >
           <MediaTile
             media={postMedia[0].media}
-            allMedias={allMedias}
             index={0}
             className="rounded-md"
             withPreview
@@ -61,7 +59,6 @@ export const PostCalendarPostMedia = ({ postMedia, isVirtual }: PostCalendarPost
               {media && (
                 <MediaTile
                   media={media}
-                  allMedias={allMedias}
                   index={i}
                   className="rounded-md"
                   withPreview

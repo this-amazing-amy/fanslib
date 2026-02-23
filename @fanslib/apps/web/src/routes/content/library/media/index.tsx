@@ -10,4 +10,3 @@ const LibraryMediaIndexPageContent = () => (
 export const Route = createFileRoute("/content/library/media/")({
   component: LibraryMediaIndexPageContent,
 });
-

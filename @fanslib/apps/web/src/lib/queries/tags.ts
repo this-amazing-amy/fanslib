@@ -1,7 +1,22 @@
-import type { AssignTagsToMediaRequestBody, BulkAssignTagsRequestBody, CreateTagDefinitionRequestBody, CreateTagDimensionRequestBody, DeleteTagDefinitionParams, DeleteTagDimensionParams, FetchMediaTagsRequestParams, FetchMediaTagsRequestQuery, FetchTagDefinitionByIdRequestParams, FetchTagDefinitionsByIdsRequestQuery, FetchTagDimensionByIdRequestParams, FetchTagsByDimensionQuery, RemoveTagsFromMediaRequestBody, RemoveTagsFromMediaRequestParams, UpdateTagDefinitionParams, UpdateTagDefinitionRequestBody, UpdateTagDimensionParams, UpdateTagDimensionRequestBody } from '@fanslib/server/schemas';
+import type { AssignTagsToMediaRequestBody, BulkAssignTagsRequestBody, CreateTagDefinitionRequestBody, CreateTagDimensionRequestBody, DeleteTagDefinitionParams, DeleteTagDimensionParams, FetchMediaTagsRequestParams, FetchMediaTagsRequestQuery, FetchTagDefinitionByIdRequestParams, FetchTagDefinitionsByIdsRequestQuery, FetchTagDimensionByIdRequestParams, FetchTagsByDimensionQuery, MediaTag, RemoveTagsFromMediaRequestBody, RemoveTagsFromMediaRequestParams, UpdateTagDefinitionParams, UpdateTagDefinitionRequestBody, UpdateTagDimensionParams, UpdateTagDimensionRequestBody } from '@fanslib/server/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/hono-client';
 import { QUERY_KEYS } from './query-keys';
+
+export const usePageMediaTagsQuery = (mediaIds: string[]) =>
+  useQuery({
+    queryKey: QUERY_KEYS.tags.media.bulk(mediaIds, undefined),
+    queryFn: async (): Promise<Map<string, MediaTag[]>> => {
+      if (mediaIds.length === 0) return new Map();
+      const result = await api.api.tags.media['bulk-by-media-ids'].$post({
+        json: { mediaIds },
+      });
+      const record = await result.json() as unknown as Record<string, MediaTag[]>;
+      return new Map(Object.entries(record));
+    },
+    enabled: mediaIds.length > 0,
+    staleTime: 5 * 60 * 1000,
+  });
 
 // Tag Dimensions
 export const useTagDimensionsQuery = () =>

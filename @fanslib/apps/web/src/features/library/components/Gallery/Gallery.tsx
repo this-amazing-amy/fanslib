@@ -1,13 +1,13 @@
 import type { Media } from '@fanslib/server/schemas';
 
-
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { ScrollArea } from "~/components/ui/ScrollArea";
 import { useLibraryPreferences } from "~/contexts/LibraryPreferencesContext";
 import { MediaSelectionProvider, useMediaSelection } from "~/contexts/MediaSelectionContext";
 import { MediaTile } from "~/features/library/components/MediaTile";
 import { useDynamicPageSize } from "~/hooks/useDynamicPageSize";
 import { cn } from "~/lib/cn";
+import { usePageMediaTagsQuery } from "~/lib/queries/tags";
 import { GalleryActionBar } from "./GalleryActionBar";
 import { GalleryEmpty } from "./GalleryEmpty";
 
@@ -34,8 +34,10 @@ const GalleryContent = ({ medias, error, onScan, onMediaClick }: GalleryProps) =
     }
   }, [pageSize, preferences.pagination.limit, updatePreferences]);
 
-  const { selectedMediaIds, clearSelection } = useMediaSelection();
-  const selectedMediaItems = medias.filter((m) => selectedMediaIds.has(m.id));
+  const { selectedMediaIds, selectedMediaItems, clearSelection } = useMediaSelection();
+
+  const mediaIds = useMemo(() => medias.map((m) => m.id), [medias]);
+  const { data: tagsByMediaId } = usePageMediaTagsQuery(mediaIds);
 
   if (error) {
     return (
@@ -65,7 +67,7 @@ const GalleryContent = ({ medias, error, onScan, onMediaClick }: GalleryProps) =
             <MediaTile
               key={media.id}
               media={media}
-              allMedias={medias}
+              tags={tagsByMediaId?.get(media.id) ?? []}
               withSelection
               withPreview
               withDragAndDrop

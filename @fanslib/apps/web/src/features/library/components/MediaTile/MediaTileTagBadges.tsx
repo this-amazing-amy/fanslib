@@ -1,18 +1,12 @@
-import type { Media } from '@fanslib/server/schemas';
-import { useMediaTagsQuery } from "~/lib/queries/tags";
+import type { MediaTag } from '@fanslib/server/schemas';
 import { TagBadge } from "../MediaTagEditor/DimensionTagSelector/TagBadge";
 
-
 type MediaTileTagBadgesProps = {
-  media: Media;
+  tags: MediaTag[];
 };
 
-export const MediaTileTagBadges = ({ media }: MediaTileTagBadgesProps) => {
-  const { data: mediaTags = [] } = useMediaTagsQuery({ mediaId: media.id });
-
-  const stickerTags = (mediaTags ?? []).filter(
-    (tag) => tag.stickerDisplay && tag.stickerDisplay !== "none"
-  );
+export const MediaTileTagBadges = ({ tags }: MediaTileTagBadgesProps) => {
+  const stickerTags = tags.filter((tag) => tag.stickerDisplay && tag.stickerDisplay !== "none");
 
   if (!stickerTags.length) return null;
 

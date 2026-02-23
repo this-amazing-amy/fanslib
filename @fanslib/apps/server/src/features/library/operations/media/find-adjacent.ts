@@ -36,12 +36,7 @@ export const findAdjacentMedia = async (
   }
 
   const buildQuery = () => {
-    const queryBuilder = database.manager
-      .createQueryBuilder(Media, "media")
-      .leftJoinAndSelect("media.postMedia", "postMedia")
-      .leftJoinAndSelect("postMedia.post", "post")
-      .leftJoinAndSelect("post.channel", "channel")
-      .leftJoinAndSelect("post.subreddit", "subreddit");
+    const queryBuilder = database.manager.createQueryBuilder(Media, "media");
 
     if (params?.filters) {
       buildFilterGroupQuery(params.filters, queryBuilder);

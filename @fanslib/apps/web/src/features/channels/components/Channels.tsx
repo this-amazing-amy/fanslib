@@ -7,7 +7,6 @@ import {
   DialogTrigger,
 } from "~/components/ui/Dialog";
 import { PageContainer } from "~/components/ui/PageContainer";
-import { PageHeader } from "~/components/ui/PageHeader/PageHeader";
 import { useChannelsQuery } from "~/lib/queries/channels";
 import { ChannelView } from "./ChannelView";
 import { CreateChannelForm } from "./CreateChannelForm";
@@ -23,10 +22,6 @@ export const Channels = () => {
   if (isLoading) {
     return (
       <PageContainer>
-        <PageHeader
-          title="Channels"
-          description="Manage your content distribution channels"
-        />
         <div className="text-center py-12 text-base-content/60">Loading channels...</div>
       </PageContainer>
     );
@@ -37,16 +32,12 @@ export const Channels = () => {
   return (
     <PageContainer>
       <DialogTrigger isOpen={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <PageHeader
-          title="Channels"
-          description="Manage your content distribution channels and schedules"
-          actions={
-            <Button variant="primary">
-              <PlusCircle className="w-5 h-5" />
-              New Channel
-            </Button>
-          }
-        />
+        <div className="flex justify-end mb-6">
+          <Button variant="primary">
+            <PlusCircle className="w-5 h-5" />
+            New Channel
+          </Button>
+        </div>
         <DialogModal>
           <Dialog>
             {({ close }) => (

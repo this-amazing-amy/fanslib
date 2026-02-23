@@ -14,7 +14,6 @@ export const ShootDetailMediaGrid = ({ medias, onAddMedia }: ShootDetailMediaGri
         <MediaTile
           key={media.id}
           media={media}
-          allMedias={medias}
           withPreview
           withDragAndDrop
           withDuration

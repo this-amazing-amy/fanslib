@@ -76,7 +76,6 @@ export const ShootDetailMedia: FC<ShootDetailMediaProps> = ({
           <MediaTile
             media={media}
             index={index}
-            allMedias={allMedias}
             className="w-full h-full"
             withPreview
             withDragAndDrop

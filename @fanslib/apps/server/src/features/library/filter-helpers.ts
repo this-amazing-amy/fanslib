@@ -112,21 +112,13 @@ export const buildFilterItemQuery = (
       );
       break;
 
-    case "posted":
-      if (item.value === true) {
-        if (include) {
-          queryBuilder.andWhere("postMedia.id IS NOT NULL");
-        } else {
-          queryBuilder.andWhere("postMedia.id IS NULL");
-        }
-      } else {
-        if (include) {
-          queryBuilder.andWhere("postMedia.id IS NULL");
-        } else {
-          queryBuilder.andWhere("postMedia.id IS NOT NULL");
-        }
-      }
+    case "posted": {
+      const hasPost = "EXISTS (SELECT 1 FROM post_media pm WHERE pm.mediaId = media.id)";
+      const noPost = "NOT EXISTS (SELECT 1 FROM post_media pm WHERE pm.mediaId = media.id)";
+      const wantsPosted = item.value === true ? include : !include;
+      queryBuilder.andWhere(wantsPosted ? hasPost : noPost);
       break;
+    }
 
     case "mediaType":
       if (include) {

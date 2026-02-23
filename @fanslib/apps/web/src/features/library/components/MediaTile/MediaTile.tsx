@@ -1,6 +1,8 @@
+import { memo, useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
 import { useMediaSelection } from "~/contexts/MediaSelectionContext";
+import { useMediaHoverStore } from "~/stores/mediaHoverStore";
 import { cn } from "~/lib/cn";
 import { MediaTileImage } from "./MediaTileImage";
 import { MediaTilePostsPopover } from "./MediaTilePostsPopover";
@@ -10,12 +12,14 @@ import { MediaTileTypeSticker } from "./MediaTileTypeSticker";
 import { MediaTileVideo } from "./MediaTileVideo";
 import type { MediaTileProps } from "./types";
 
-export const MediaTile = (props: MediaTileProps) => {
-  const { media, allMedias } = props;
+export const MediaTile = memo((props: MediaTileProps) => {
+  const { media, tags = [] } = props;
 
   const { startMediaDrag, endMediaDrag } = useMediaDrag();
-  const { setCurrentHoveredMediaId, isHighlighted, selectedMediaIds, toggleMediaSelection } =
+  const { selectedMediaIds, selectedMediaItems, flattenedMedia, lastClickedIndex, isShiftPressed, toggleMediaSelection } =
     useMediaSelection();
+  const setHoveredMediaId = useMediaHoverStore((s) => s.setHoveredMediaId);
+  const hoveredMediaId = useMediaHoverStore((s) => s.hoveredMediaId);
 
   const withPostsPopover = props.withPostsPopover ?? false;
   const withPreview = props.withPreview ?? false;
@@ -28,14 +32,26 @@ export const MediaTile = (props: MediaTileProps) => {
   const withTags = props.withTags ?? false;
   const { onMediaClick } = props;
 
+  const isHighlighted = useMemo(() => {
+    if (lastClickedIndex === null || !hoveredMediaId) return false;
+    if (selectedMediaIds.size === 0 || !isShiftPressed) return false;
+    const hoveredItem = flattenedMedia.find((m) => m.media.id === hoveredMediaId);
+    const currentItem = flattenedMedia.find((m) => m.media.id === media.id);
+    if (!hoveredItem || !currentItem) return false;
+    return (
+      currentItem.globalIndex >= Math.min(lastClickedIndex, hoveredItem.globalIndex) &&
+      currentItem.globalIndex <= Math.max(lastClickedIndex, hoveredItem.globalIndex)
+    );
+  }, [lastClickedIndex, hoveredMediaId, selectedMediaIds.size, isShiftPressed, flattenedMedia, media.id]);
+
   const activatePreview = () => {
     if (!withPreview) return;
-    setCurrentHoveredMediaId(media.id);
+    setHoveredMediaId(media.id);
   };
 
   const deactivatePreview = () => {
     if (!withPreview) return;
-    setCurrentHoveredMediaId(null);
+    setHoveredMediaId(null);
   };
 
   const selectOrNavigate = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -61,10 +77,8 @@ export const MediaTile = (props: MediaTileProps) => {
   const dragAndDropProps = withDragAndDrop && {
     draggable: true,
     onDragStart: (e: React.DragEvent<HTMLDivElement>) => {
-      const selectedItems = selectedMediaIds.has(media.id)
-        ? allMedias.filter((m) => selectedMediaIds.has(m.id))
-        : [media];
-      startMediaDrag(e, selectedItems);
+      const itemsToDrag = selectedMediaIds.has(media.id) ? selectedMediaItems : [media];
+      startMediaDrag(e, itemsToDrag);
     },
     onDragEnd: endMediaDrag,
   };
@@ -74,7 +88,7 @@ export const MediaTile = (props: MediaTileProps) => {
       className={cn(
         "relative aspect-square bg-base-300 rounded-lg overflow-hidden group",
         (withNavigation || (withSelection && selectedMediaIds.size > 0)) && "cursor-pointer",
-        isHighlighted(media.id) && "ring-2 ring-primary/50",
+        isHighlighted && "ring-2 ring-primary/50",
         isSelected && "ring-2 ring-primary/50",
         props.className
       )}
@@ -96,7 +110,7 @@ export const MediaTile = (props: MediaTileProps) => {
       {withSelection && <MediaTileSelectionCircle mediaId={media.id} />}
       <div className="absolute bottom-1 left-1 flex gap-1 z-10">
         {withPostsPopover && <MediaTilePostsPopover media={media} />}
-        {withTags && <MediaTileTagBadges media={media} />}
+        {withTags && <MediaTileTagBadges tags={tags} />}
         {withTypeIcon && <MediaTileTypeSticker media={media} />}
       </div>
     </div>
@@ -109,4 +123,6 @@ export const MediaTile = (props: MediaTileProps) => {
       {content}
     </Link>
   );
-};
+});
+
+MediaTile.displayName = "MediaTile";

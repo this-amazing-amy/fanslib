@@ -551,6 +551,18 @@ export type DeleteTagDefinitionResponse = z.infer<typeof DeleteTagDefinitionResp
 
 // Tags - Media Tags schemas
 import {
+  FetchBulkMediaTagsRequestBodySchema,
+  FetchBulkMediaTagsResponseSchema
+} from './features/tags/operations/media-tag/fetch-bulk';
+export {
+  FetchBulkMediaTagsRequestBodySchema,
+  FetchBulkMediaTagsResponseSchema
+};
+export type FetchBulkMediaTagsRequestBody = z.infer<typeof FetchBulkMediaTagsRequestBodySchema>;
+export type FetchBulkMediaTagsResponse = z.infer<typeof FetchBulkMediaTagsResponseSchema>;
+
+
+import {
   FetchMediaTagsRequestParamsSchema,
   FetchMediaTagsRequestQuerySchema,
   FetchMediaTagsResponseSchema

@@ -34,11 +34,7 @@ export const fetchAllMedia = async (
 
   const database = await db();
   const queryBuilder = database.manager
-    .createQueryBuilder(Media, "media")
-    .leftJoinAndSelect("media.postMedia", "postMedia")
-    .leftJoinAndSelect("postMedia.post", "post")
-    .leftJoinAndSelect("post.channel", "channel")
-    .leftJoinAndSelect("post.subreddit", "subreddit");
+    .createQueryBuilder(Media, "media");
 
   // Auto-apply merged filters from schedule + channel if requested
   if (params?.autoApplyFilters && params?.scheduleId && params?.channelId) {

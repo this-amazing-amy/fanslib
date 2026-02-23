@@ -69,18 +69,14 @@ const LayoutContent = ({ children }: AppLayoutProps) => {
 
         {/* Page content */}
         <div className='drawer-content flex flex-col h-[100svh]'>
-          <header className='main-header navbar bg-base-100 lg:hidden h-16 px-4 items-center'>
-            <div className='flex-none'>
-              <label
-                htmlFor='drawer-toggle'
-                className='btn btn-square btn-ghost min-h-12 min-w-12'
-              >
-                <BurgerIcon />
-              </label>
-            </div>
-            <div className='flex-1 flex items-center'>
-              <Logo isCollapsed={false} className="h-8" />
-            </div>
+          <header className='main-header flex items-center bg-base-100 lg:hidden h-16 px-4 gap-2'>
+            <label
+              htmlFor='drawer-toggle'
+              className='btn btn-square btn-ghost'
+            >
+              <BurgerIcon />
+            </label>
+            <Logo isCollapsed={false} className="h-8" />
           </header>
 
           <MainContent>{children}</MainContent>

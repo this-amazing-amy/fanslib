@@ -16,10 +16,10 @@ type MenuItem = {
 
 const menuItems: MenuItem[] = [
   { to: '/', label: 'Dashboard', icon: Home },
-  { to: '/library', label: 'Library', icon: Clapperboard },
+  { to: '/content/library/media', label: 'Library', icon: Clapperboard },
+  { to: '/content/shoots', label: 'Shoots', icon: Camera },
   { to: '/plan', label: 'Plan', icon: Calendar },
   { to: '/captioning', label: 'Captioning', icon: MessageSquareText },
-  { to: '/shoots', label: 'Shoots', icon: Camera },
   { to: '/channels', label: 'Channels', icon: Radio },
   { to: '/hashtags', label: 'Hashtags', icon: Hash },
   {
@@ -69,8 +69,8 @@ export const NavigationMenu = ({ isCollapsed }: NavigationMenuProps) => {
 
   return (
     <>
-      <nav className="flex-1 overflow-y-auto">
-        <ul className={cn('menu space-y-1 p-4 lg:p-6', isCollapsed && 'lg:p-2 lg:flex lg:flex-col lg:items-center mx-auto')}>
+      <nav className="flex-1 overflow-y-auto w-full">
+        <ul className={cn('menu w-full space-y-1 p-4 lg:p-6', isCollapsed && 'lg:p-2 lg:flex lg:flex-col lg:items-center mx-auto')}>
           {menuItems.map((item) => {
             const { to, label, icon: Icon, children } = item;
             const hasChildren = children && children.length > 0;
@@ -98,13 +98,13 @@ export const NavigationMenu = ({ isCollapsed }: NavigationMenuProps) => {
 
             if (!hasChildren) {
               return (
-                <li key={to} className={cn(isCollapsed && 'lg:w-full lg:flex lg:justify-center')}>
+                <li key={to} className={cn('w-full', isCollapsed && 'lg:flex lg:justify-center')}>
                   <Link
                     to={to}
                     onClick={closeSidebarAfterNavigate}
                     aria-label={label}
                     className={cn(
-                      'flex items-center rounded-lg text-sm font-medium transition-colors hover:bg-base-300 [&.active]:bg-primary [&.active]:text-primary-content',
+                      'flex items-center w-full rounded-lg text-sm font-medium transition-colors hover:bg-base-300 [&.active]:bg-primary [&.active]:text-primary-content',
                       'gap-3 px-4 py-3 min-h-12 lg:py-1',
                       isCollapsed && 'lg:w-10 lg:h-10 lg:justify-center lg:gap-0 lg:px-3 lg:py-3 lg:min-h-0'
                     )}
@@ -117,11 +117,11 @@ export const NavigationMenu = ({ isCollapsed }: NavigationMenuProps) => {
             }
 
             return (
-              <li key={to}>
+              <li key={to} className="w-full">
                 <button
                   onClick={() => toggleExpanded(to)}
                   className={cn(
-                    'flex items-center flex-1 gap-3 px-4 py-3 min-h-12 lg:py-1 rounded-lg text-sm font-medium transition-colors',
+                    'flex items-center w-full gap-3 px-4 py-3 min-h-12 lg:py-1 rounded-lg text-sm font-medium transition-colors',
                     'hover:bg-base-300',
                     active && 'bg-primary/10',
                     isCollapsed && 'lg:w-10 lg:h-10 lg:justify-center lg:gap-0 lg:px-3 lg:py-3 lg:min-h-0'
@@ -143,12 +143,12 @@ export const NavigationMenu = ({ isCollapsed }: NavigationMenuProps) => {
                     {children.map((child) => {
                       const childActive = location.pathname === child.to;
                       return (
-                        <li key={child.to}>
+                        <li key={child.to} className="w-full">
                           <Link
                             to={child.to}
                             onClick={closeSidebarAfterNavigate}
                             className={cn(
-                              'flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-base-300',
+                              'flex items-center w-full gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-base-300',
                               childActive && 'bg-primary text-primary-content'
                             )}
                           >

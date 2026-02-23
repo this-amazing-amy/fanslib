@@ -321,7 +321,6 @@ export const PostPreview = ({
                       <MediaTile
                         key={pm.id}
                         media={pm.media}
-                        allMedias={post.postMedia.map((pm) => pm.media)}
                         index={post.postMedia.indexOf(pm)}
                         className={cn("size-24", isMatched && "opacity-30")}
                         withPreview
