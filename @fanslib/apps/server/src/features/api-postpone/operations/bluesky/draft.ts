@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { db } from "../../../../lib/db";
-import { ConfigurationError, NotFoundError, ValidationError } from "../../../../lib/errors";
+import { configurationError, notFoundError, validationError } from "../../../../lib/errors";
 import { CHANNEL_TYPES } from "../../../channels/channelTypes";
 import { Post } from "../../../posts/entity";
 import { loadSettings } from "../../../settings/operations/setting/load";
@@ -45,7 +45,7 @@ export const draftBlueskyPost = async (data: z.infer<typeof DraftBlueskyPostRequ
 
   const settings = await loadSettings();
   if (!settings.blueskyUsername) {
-    throw new ConfigurationError("Bluesky username not configured. Please add it in Settings.");
+    throw configurationError("Bluesky username not configured. Please add it in Settings.");
   }
 
   const post = await postRepository.findOne({
@@ -59,11 +59,11 @@ export const draftBlueskyPost = async (data: z.infer<typeof DraftBlueskyPostRequ
   });
 
   if (!post) {
-    throw new NotFoundError(`Post with id ${data.postId} not found`);
+    throw notFoundError(`Post with id ${data.postId} not found`);
   }
 
   if (post.channel.typeId !== CHANNEL_TYPES.bluesky.id) {
-    throw new ValidationError("Post is not for Bluesky channel");
+    throw validationError("Post is not for Bluesky channel");
   }
 
   if (post.postponeBlueskyDraftedAt) {
