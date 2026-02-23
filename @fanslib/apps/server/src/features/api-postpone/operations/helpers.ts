@@ -1,5 +1,5 @@
 import { loadSettings } from "../../settings/operations/setting/load";
-import { ConfigurationError, ExternalServiceError } from "../../../lib/errors";
+import { configurationError, externalServiceError } from "../../../lib/errors";
 
 type PostponeResponseType<T> = {
   data?: T;
@@ -13,7 +13,7 @@ export const fetchPostpone = async <T, V = unknown>(
   const settings = await loadSettings();
 
   if (!settings.postponeToken) {
-    throw new ConfigurationError("Postpone token not configured. Please add it in Settings.");
+    throw configurationError("Postpone token not configured. Please add it in Settings.");
   }
 
   const body = JSON.stringify({
@@ -32,17 +32,17 @@ export const fetchPostpone = async <T, V = unknown>(
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new ExternalServiceError(errorText);
+    throw externalServiceError(errorText);
   }
 
   const result = (await response.json()) as PostponeResponseType<T>;
 
   if (result.errors) {
-    throw new ExternalServiceError(`GraphQL Error: ${result.errors[0]?.message ?? "Unknown error"}`);
+    throw externalServiceError(`GraphQL Error: ${result.errors[0]?.message ?? "Unknown error"}`);
   }
 
   if (!result.data) {
-    throw new ExternalServiceError("No data returned from Postpone API");
+    throw externalServiceError("No data returned from Postpone API");
   }
 
   return result.data;
