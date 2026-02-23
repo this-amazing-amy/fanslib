@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { saveFanslyCredentials } from "../../settings/operations/credentials/save";
-import { ValidationError } from "../../../lib/errors";
+import { validationError } from "../../../lib/errors";
 
 export const UpdateCredentialsFromFetchRequestBodySchema = z.object({
   fetchRequest: z.string(),
@@ -45,7 +45,7 @@ export const updateFanslyCredentialsFromFetch = async (fetchRequest: string): Pr
   const credentials = parseFetchRequest(fetchRequest);
 
   if (!credentials.fanslyAuth || !credentials.fanslySessionId) {
-    throw new ValidationError(
+    throw validationError(
       "Could not extract required credentials from fetch request. Please ensure you copied a valid Fansly API request."
     );
   }

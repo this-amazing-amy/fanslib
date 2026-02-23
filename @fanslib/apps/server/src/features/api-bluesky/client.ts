@@ -1,6 +1,6 @@
 import { BskyAgent } from "@atproto/api";
 import { loadSettings } from "../settings/operations/setting/load";
-import { ConfigurationError } from "../../lib/errors";
+import { configurationError } from "../../lib/errors";
 
 type SessionCache = {
   agent: BskyAgent;
@@ -21,7 +21,7 @@ const getOrCreateAgent = async (): Promise<BskyAgent> => {
   const settings = await loadSettings();
 
   if (!settings.blueskyUsername || !settings.blueskyAppPassword) {
-    throw new ConfigurationError("Bluesky credentials not configured. Please set blueskyUsername and blueskyAppPassword in settings.");
+    throw configurationError("Bluesky credentials not configured. Please set blueskyUsername and blueskyAppPassword in settings.");
   }
 
   const agent = new BskyAgent({
