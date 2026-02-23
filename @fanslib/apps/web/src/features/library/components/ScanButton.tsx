@@ -1,4 +1,4 @@
-import { MoreVertical, RefreshCw } from "lucide-react";
+import { MoreVertical, RefreshCw, Upload } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import {
   DropdownMenu,
@@ -11,9 +11,10 @@ import { cn } from "~/lib/cn";
 type ScanButtonProps = {
   isScanning: boolean;
   onScan: () => Promise<void>;
+  onUpload: () => void;
 };
 
-export const ScanButton = ({ isScanning, onScan }: ScanButtonProps) => (
+export const ScanButton = ({ isScanning, onScan, onUpload }: ScanButtonProps) => (
   <DropdownMenuTrigger>
     <Button
       isDisabled={isScanning}
@@ -23,7 +24,17 @@ export const ScanButton = ({ isScanning, onScan }: ScanButtonProps) => (
       <MoreVertical className="h-4 w-4" />
     </Button>
     <DropdownMenuPopover placement="bottom end" className="w-48">
-      <DropdownMenu onAction={() => onScan()}>
+      <DropdownMenu onAction={(key) => {
+        if (key === "scan") onScan();
+        if (key === "upload") onUpload();
+      }}>
+        <DropdownMenuItem
+          id="upload"
+          className="flex items-center gap-2 text-sm font-medium"
+        >
+          <Upload className="h-4 w-4" />
+          Upload Files
+        </DropdownMenuItem>
         <DropdownMenuItem
           id="scan"
           isDisabled={isScanning}
