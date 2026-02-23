@@ -19,4 +19,5 @@ export type MediaTileProps = {
   withFileName?: boolean;
 
   cover?: boolean;
+  onMediaClick?: (media: Media) => void;
 };

@@ -15,9 +15,10 @@ type GalleryProps = {
   medias: Media[];
   error?: string;
   onScan: () => void;
+  onMediaClick?: (media: Media) => void;
 };
 
-const GalleryContent = ({ medias, error, onScan }: GalleryProps) => {
+const GalleryContent = ({ medias, error, onScan, onMediaClick }: GalleryProps) => {
   const { preferences, updatePreferences } = useLibraryPreferences();
   const containerRef = useRef<HTMLElement | null>(null);
 
@@ -73,6 +74,7 @@ const GalleryContent = ({ medias, error, onScan }: GalleryProps) => {
               withFileName
               withTags
               index={index}
+              onMediaClick={onMediaClick}
             />
           ))}
           {medias.length === 0 && <GalleryEmpty onScan={onScan} />}
@@ -82,6 +84,8 @@ const GalleryContent = ({ medias, error, onScan }: GalleryProps) => {
   );
 };
 
-export const Gallery = (props: GalleryProps) => <MediaSelectionProvider media={props.medias}>
-      <GalleryContent {...props} />
-    </MediaSelectionProvider>;
+export const Gallery = (props: GalleryProps) => (
+  <MediaSelectionProvider media={props.medias}>
+    <GalleryContent {...props} />
+  </MediaSelectionProvider>
+);

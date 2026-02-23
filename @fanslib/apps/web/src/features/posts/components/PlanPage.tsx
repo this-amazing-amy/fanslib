@@ -9,10 +9,8 @@ import { PlanContent } from "./PlanContent";
 import { PlanLibraryPanel } from "./PlanLibraryPanel";
 import { PickerPanel } from "./PostCalendar/PickerPanel";
 
-// Memoized to prevent re-renders from parent state changes
 const MemoizedPlanContent = memo(PlanContent);
 
-// Isolated component for the picker panel that needs state
 const PickerPanelContainer = () => {
   const { state } = useInlinePickerState();
   const { closePicker, setFilters } = useInlinePickerActions();
@@ -60,4 +58,3 @@ export const PlanPage = () => (
     </PostDragProvider>
   </MediaDragProvider>
 );
-

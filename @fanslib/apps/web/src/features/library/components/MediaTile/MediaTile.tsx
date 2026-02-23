@@ -26,6 +26,7 @@ export const MediaTile = (props: MediaTileProps) => {
   const withNavigation = props.withNavigation ?? false;
   const cover = props.cover ?? false;
   const withTags = props.withTags ?? false;
+  const { onMediaClick } = props;
 
   const activatePreview = () => {
     if (!withPreview) return;
@@ -46,6 +47,12 @@ export const MediaTile = (props: MediaTileProps) => {
     const isSelectionCircleClicked = (e.target as HTMLElement).closest(".selection-circle");
     if (isSelectionCircleClicked) {
       e.preventDefault();
+      return;
+    }
+
+    if (onMediaClick) {
+      e.preventDefault();
+      onMediaClick(media);
     }
   };
 
@@ -95,7 +102,7 @@ export const MediaTile = (props: MediaTileProps) => {
     </div>
   );
 
-  if (!withNavigation) return content;
+  if (!withNavigation || onMediaClick) return content;
 
   return (
     <Link to="/content/library/media/$mediaId" params={{ mediaId: media.id }}>

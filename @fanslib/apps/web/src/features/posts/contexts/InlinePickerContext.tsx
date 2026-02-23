@@ -18,7 +18,7 @@ type InlinePickerState = {
 
 // Actions context - stable references, never causes re-renders
 type InlinePickerActionsContextValue = {
-  openPicker: (virtualPost: VirtualPost, anchorBounds: DOMRect, initialFilters: MediaFilter) => void;
+  openPicker: (virtualPost: VirtualPost, initialFilters: MediaFilter, anchorBounds?: DOMRect) => void;
   closePicker: () => void;
   setFilters: (filters: MediaFilter) => void;
   selectVirtualPost: (virtualPost: VirtualPost, filters: MediaFilter) => void;
@@ -58,12 +58,12 @@ export const InlinePickerProvider = ({ children }: InlinePickerProviderProps) =>
   const onPostCreatedRef = useRef(onPostCreated);
   onPostCreatedRef.current = onPostCreated;
 
-  const openPicker = useCallback((virtualPost: VirtualPost, anchorBounds: DOMRect, initialFilters: MediaFilter) => {
+  const openPicker = useCallback((virtualPost: VirtualPost, initialFilters: MediaFilter, anchorBounds?: DOMRect) => {
     setState(prev => ({
       ...prev,
       isOpen: true,
       virtualPost,
-      anchorBounds,
+      anchorBounds: anchorBounds ?? null,
       filters: initialFilters,
     }));
   }, []);

@@ -40,8 +40,8 @@ export const PostCalendarPost = memo(({ post, onUpdate, allPosts = [] }: PostCal
     scheduleId: isVirtualPost(post) ? post.scheduleId : null,
   });
 
-  // Check if we're on a large screen (xl breakpoint = 1280px)
-  const isLargeScreen = typeof window !== 'undefined' && window.innerWidth >= 1280;
+  // Use the same breakpoint as the library panel split view (1600px)
+  const isLargeScreen = typeof window !== 'undefined' && window.innerWidth >= 1600;
   
   const [createPostData, setCreatePostData] = useState<{
     media: Media[];
@@ -58,16 +58,10 @@ export const PostCalendarPost = memo(({ post, onUpdate, allPosts = [] }: PostCal
     onOpenCreateDialog: (data) => {
       if (isVirtualPost(post)) {
         const bounds = cardRef.current?.getBoundingClientRect();
-        if (isLargeScreen) {
-          // On large screens, set floating post with bounds for animation
-          if (bounds) {
-            setFloatingPost(post, bounds, virtualPostFilters);
-          }
+        if (isLargeScreen && bounds) {
+          setFloatingPost(post, bounds, virtualPostFilters);
         } else {
-          // On smaller screens, open the bottom sheet picker
-          if (bounds) {
-            openPicker(post, bounds, virtualPostFilters);
-          }
+          openPicker(post, virtualPostFilters, bounds);
         }
       } else {
         // Open full dialog for regular posts
@@ -185,7 +179,6 @@ export const PostCalendarPost = memo(({ post, onUpdate, allPosts = [] }: PostCal
       overlaySlot={overlay}
       actionSlot={skipButton}
       onMouseLeave={() => setConfirmSkip(false)}
-      layoutId={virtual ? `virtual-post-${post.date}-${post.channelId}` : undefined}
     />
   );
 

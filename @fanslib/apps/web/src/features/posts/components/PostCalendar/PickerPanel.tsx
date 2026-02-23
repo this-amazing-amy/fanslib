@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Loader2, X } from 'lucide-react';
@@ -10,6 +11,7 @@ import { useMediaFilters } from '~/features/library/components/MediaFilters/Medi
 import { cn } from '~/lib/cn';
 import { getMediaThumbnailUrl } from '~/lib/media-urls';
 import { useMediaListQuery } from '~/lib/queries/library';
+import { QUERY_KEYS } from '~/lib/queries/query-keys';
 import { useCreatePostMutation } from '~/lib/queries/posts';
 import type { VirtualPost } from '~/lib/virtual-posts';
 
@@ -25,7 +27,8 @@ export const PickerPanel = ({
   onClose,
 }: PickerPanelProps) => {
   const { mutateAsync: createPost, isPending: isCreating } = useCreatePostMutation();
-  
+  const queryClient = useQueryClient();
+
   // Consume filters from parent MediaFiltersProvider
   const { filters } = useMediaFilters();
 
@@ -58,11 +61,15 @@ export const PickerPanel = ({
         scheduleId: virtualPost.scheduleId ?? undefined,
         subredditId: undefined,
       });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all }),
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contentSchedules.all() }),
+      ]);
       onClose();
     } catch (error) {
       console.error('Failed to create post:', error);
     }
-  }, [virtualPost, createPost, onClose]);
+  }, [virtualPost, createPost, queryClient, onClose]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') {

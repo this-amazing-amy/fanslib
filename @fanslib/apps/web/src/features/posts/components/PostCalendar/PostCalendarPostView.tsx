@@ -1,5 +1,4 @@
 import { format } from "date-fns";
-import { motion } from "framer-motion";
 import type { ReactNode } from "react";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
@@ -34,8 +33,6 @@ type PostCalendarPostViewProps = {
   // Wrapper (for drag/link behavior)
   wrapper?: (children: ReactNode) => ReactNode;
   
-  // Animation
-  layoutId?: string;
 };
 
 export const PostCalendarPostView = ({
@@ -50,15 +47,11 @@ export const PostCalendarPostView = ({
   actionSlot,
   onMouseLeave,
   wrapper,
-  layoutId,
 }: PostCalendarPostViewProps) => {
   const time = format(date, "HH:mm");
 
-  const CardComponent = layoutId ? motion.div : 'div';
-
   const content = (
-    <CardComponent
-      layoutId={layoutId}
+    <div
       className="@container group flex flex-col relative p-2 @[150px]:p-2.5 @[180px]:p-3 rounded-xl bg-base-100 border"
       onMouseLeave={onMouseLeave}
     >
@@ -110,7 +103,7 @@ export const PostCalendarPostView = ({
           {caption}
         </div>
       )}
-    </CardComponent>
+    </div>
   );
 
   return wrapper ? wrapper(content) : content;

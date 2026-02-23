@@ -1,7 +1,10 @@
 import type { Media, MediaFilter } from '@fanslib/server/schemas';
-import { useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useCallback, useEffect, useState } from 'react';
 import { FilterPresetProvider } from '~/contexts/FilterPresetContext';
 import { LibraryPreferencesProvider, useLibraryPreferences } from '~/contexts/LibraryPreferencesContext';
+import { usePostPreferences } from '~/contexts/PostPreferencesContext';
+import { CreatePostDialog } from '~/features/library/components/CreatePostDialog';
 import { Gallery } from '~/features/library/components/Gallery/Gallery';
 import { GalleryPagination } from '~/features/library/components/Gallery/GalleryPagination';
 import { GallerySkeleton } from '~/features/library/components/Gallery/GallerySkeleton';
@@ -10,16 +13,48 @@ import { LibrarySortOptions } from '~/features/library/components/Gallery/Librar
 import { MediaFilters } from '~/features/library/components/MediaFilters/MediaFilters';
 import { MediaFiltersProvider } from '~/features/library/components/MediaFilters/MediaFiltersContext';
 import { useMediaListQuery } from '~/lib/queries/library';
+import { QUERY_KEYS } from '~/lib/queries/query-keys';
 import type { VirtualPost } from '~/lib/virtual-posts';
-import { useInlinePicker } from '../contexts/InlinePickerContext';
+import { useInlinePicker, useInlinePickerActions } from '../contexts/InlinePickerContext';
+import { useCreatePostFromVirtualSlot } from '../hooks/useCreatePostFromVirtualSlot';
 
 type PlanLibraryPanelInnerProps = {
   virtualPost: VirtualPost | null;
   externalFilters: MediaFilter;
 };
 
-const PlanLibraryPanelInner = ({ virtualPost: _virtualPost, externalFilters }: PlanLibraryPanelInnerProps) => {
+const PlanLibraryPanelInner = ({ virtualPost, externalFilters }: PlanLibraryPanelInnerProps) => {
   const { preferences, updatePreferences } = useLibraryPreferences();
+  const { preferences: postPreferences } = usePostPreferences();
+  const { clearFloatingPost } = useInlinePickerActions();
+  const { createPostFromVirtualSlot } = useCreatePostFromVirtualSlot();
+  const [dialogMedia, setDialogMedia] = useState<Media | null>(null);
+  const queryClient = useQueryClient();
+
+  const invalidateCalendar = useCallback(() =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all }),
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contentSchedules.all() }),
+    ]).then(() => undefined),
+    [queryClient]
+  );
+
+  const mediaClickHandler = useCallback(
+    async (media: Media) => {
+      if (!virtualPost) return;
+      if (postPreferences.view.openDialogOnDrop) {
+        setDialogMedia(media);
+      } else {
+        await createPostFromVirtualSlot({
+          virtualPost,
+          mediaIds: [media.id],
+          onUpdate: invalidateCalendar,
+        });
+        clearFloatingPost();
+      }
+    },
+    [virtualPost, postPreferences.view.openDialogOnDrop, createPostFromVirtualSlot, invalidateCalendar, clearFloatingPost]
+  );
 
   // Sync external filters (from virtual post selection) with library preferences
   useEffect(() => {
@@ -61,6 +96,22 @@ const PlanLibraryPanelInner = ({ virtualPost: _virtualPost, externalFilters }: P
   return (
     <FilterPresetProvider onFiltersChange={updateFilters}>
       <MediaFiltersProvider value={preferences.filter} onChange={updateFilters}>
+        {virtualPost && (
+          <CreatePostDialog
+            open={dialogMedia !== null}
+            onOpenChange={(open) => {
+              if (!open) {
+                setDialogMedia(null);
+                clearFloatingPost();
+              }
+            }}
+            media={dialogMedia ? [dialogMedia] : []}
+            initialDate={virtualPost ? new Date(virtualPost.date) : undefined}
+            initialChannelId={virtualPost?.channelId}
+            scheduleId={virtualPost?.scheduleId ?? undefined}
+            virtualPost={virtualPost}
+          />
+        )}
         <div className="flex h-full w-full flex-col overflow-hidden">
           <div className="flex-1 min-h-0 px-4 pb-4 flex flex-col">
             <div className="mb-4">
@@ -92,6 +143,7 @@ const PlanLibraryPanelInner = ({ virtualPost: _virtualPost, externalFilters }: P
                   medias={(mediaList?.items as Media[] | undefined) ?? []}
                   error={error ? (error instanceof Error ? error.message : 'Unknown error') : undefined}
                   onScan={() => {}}
+                  onMediaClick={virtualPost ? mediaClickHandler : undefined}
                 />
               )}
             </div>
