@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { db } from "../../lib/db";
+import { ConfigurationError, ExternalServiceError, ValidationError } from "../../lib/errors";
 import type { FanslyAnalyticsResponse } from "../../lib/fansly-analytics/fansly-analytics-response";
 import { PostMedia } from "../posts/entity";
 import { loadFanslyCredentials } from "../settings/operations/credentials/load";
@@ -35,13 +36,13 @@ export const fetchFanslyAnalyticsData = async (
   });
 
   if (!postMedia.fanslyStatisticsId) {
-    throw new Error("PostMedia does not have a valid Fansly statistics ID");
+    throw new ValidationError("PostMedia does not have a valid Fansly statistics ID");
   }
 
   const credentialsData = await loadFanslyCredentials();
 
   if (!credentialsData?.credentials?.fanslyAuth || !credentialsData?.credentials?.fanslySessionId) {
-    throw new Error(
+    throw new ConfigurationError(
       "Fansly credentials not configured. Please set up your Fansly authentication in settings."
     );
   }
@@ -92,11 +93,11 @@ export const fetchFanslyAnalyticsData = async (
 
   if (!response.ok) {
     if (response.status === 401 || response.status === 403) {
-      throw new Error(
+      throw new ConfigurationError(
         "Fansly authentication failed. Please update your credentials in settings."
       );
     }
-    throw new Error(`Fansly API returned ${response.status}: ${response.statusText}`);
+    throw new ExternalServiceError(`Fansly API returned ${response.status}: ${response.statusText}`);
   }
 
   const data: FanslyAnalyticsResponse = await response.json();

@@ -1,6 +1,8 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import "reflect-metadata";
+import { EntityNotFoundError, QueryFailedError } from "typeorm";
+import { isAppError } from "./lib/errors";
 import { blueskyRoutes } from "./features/api-bluesky/routes";
 import { postponeRoutes } from "./features/api-postpone/routes";
 import { analyticsRoutes } from "./features/analytics/routes";
@@ -24,7 +26,6 @@ import { tagsRoutes } from "./features/tags/routes";
 import { db } from "./lib/db";
 import { devalueMiddleware } from "./lib/devalue-middleware";
 import { env } from "./lib/env";
-import { migrateColorsToPresets } from "./lib/migrate-colors-to-presets";
 import { seedDatabase } from "./lib/seed";
 import { walkDirectory } from "./lib/walkDirectory";
 
@@ -69,17 +70,6 @@ const app = new Hono()
   )
   .use("*", devalueMiddleware())
   .get("/health", (c) => c.json({ status: "ok", timestamp: new Date() }))
-  .post("/migrate-colors", async (c) => {
-    try {
-      const result = await migrateColorsToPresets();
-      return c.json({ success: true, ...result });
-    } catch (error) {
-      return c.json({
-        success: false,
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
-    }
-  })
   .route("/", settingsRoutes)
   .route("/", analyticsRoutes)
   .route("/", blueskyRoutes)
@@ -97,6 +87,32 @@ const app = new Hono()
   .route("/", postsRoutes)
   .route("/", redditAutomationRoutes)
   .route("/", candidatesRoutes);
+
+// Global error handler — maps AppError subclasses and TypeORM errors to HTTP responses
+app.onError((error, c) => {
+  console.error(`[${c.req.method}] ${c.req.path}`, error);
+
+  if (isAppError(error)) {
+    return c.json(
+      { error: error.message, code: error.code },
+      error.statusCode as Parameters<typeof c.json>[1]
+    );
+  }
+
+  if (error instanceof EntityNotFoundError) {
+    return c.json({ error: "Resource not found", code: "NOT_FOUND" }, 404);
+  }
+
+  if (error instanceof QueryFailedError) {
+    const message = error.message;
+    if (message.includes("UNIQUE constraint failed") || message.includes("unique constraint")) {
+      return c.json({ error: "Resource already exists", code: "CONFLICT" }, 409);
+    }
+    return c.json({ error: "Database error", code: "DATABASE_ERROR" }, 500);
+  }
+
+  return c.json({ error: "Internal server error", code: "INTERNAL_ERROR" }, 500);
+});
 
 // Set up cron jobs if enabled
 if (isScheduledPostsCronEnabled) {
