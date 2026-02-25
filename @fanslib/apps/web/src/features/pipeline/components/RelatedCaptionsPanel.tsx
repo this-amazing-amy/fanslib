@@ -1,7 +1,7 @@
 import type { CaptionQueueItem } from '@fanslib/server/schemas';
 import { format } from "date-fns";
 import { useQueries } from "@tanstack/react-query";
-import { ArrowLeft } from "lucide-react";
+import { Copy } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { MediaTileLite } from "~/features/library/components/MediaTile/MediaTileLite";
 import { api } from "~/lib/api/hono-client";
@@ -10,6 +10,7 @@ import { api } from "~/lib/api/hono-client";
 type RelatedCaptionsPanelProps = {
   relatedByMedia: CaptionQueueItem["relatedByMedia"];
   relatedByShoot: CaptionQueueItem["relatedByShoot"];
+  currentCaption: string;
   onUseCaption: (caption: string) => void;
 };
 
@@ -17,12 +18,17 @@ type RelatedItem =
   | (CaptionQueueItem["relatedByMedia"][number] & { type: "media" })
   | (CaptionQueueItem["relatedByShoot"][number] & { type: "shoot" });
 
-export const RelatedCaptionsPanel = ({ relatedByMedia, relatedByShoot, onUseCaption }: RelatedCaptionsPanelProps) => {
-
+export const RelatedCaptionsPanel = ({
+  relatedByMedia,
+  relatedByShoot,
+  currentCaption,
+  onUseCaption,
+}: RelatedCaptionsPanelProps) => {
+  const currentCaptionTrimmed = (currentCaption ?? "").trim();
   const allRelated: RelatedItem[] = [
     ...relatedByMedia.map((item) => ({ ...item, type: "media" as const })),
     ...relatedByShoot.map((item) => ({ ...item, type: "shoot" as const })),
-  ];
+  ].filter((item) => (item.caption?.trim() ?? "") !== currentCaptionTrimmed);
 
   // Group by caption text to deduplicate
   const groupedByCaption = allRelated.reduce((acc, item) => {
@@ -60,7 +66,7 @@ export const RelatedCaptionsPanel = ({ relatedByMedia, relatedByShoot, onUseCapt
 
   if (deduplicatedItems.length === 0) {
     return (
-      <div className="rounded-lg border border-base-300 p-4">
+      <div className="rounded-lg py-4">
         <div className="text-sm font-medium mb-2 text-right">Related</div>
         <div className="text-xs text-base-content/60 text-right">No related captions</div>
       </div>
@@ -68,9 +74,9 @@ export const RelatedCaptionsPanel = ({ relatedByMedia, relatedByShoot, onUseCapt
   }
 
   return (
-    <div className="rounded-lg border border-base-300 p-4 space-y-3">
+    <div className="rounded-lg py-4 space-y-3">
       <div className="text-sm font-medium">Related</div>
-      <div className="space-y-4">
+      <div className="space-y-2">
         {deduplicatedItems.map((item, index) => {
           const postQuery = postQueries[index];
           const post = postQuery.data && typeof postQuery.data === "object" && "id" in postQuery.data ? postQuery.data : null;
@@ -97,8 +103,18 @@ export const RelatedCaptionsPanel = ({ relatedByMedia, relatedByShoot, onUseCapt
           const groupKey = item.items.map((i) => i.postId).sort().join('-');
 
           return (
-            <div key={groupKey} className="space-y-2 pb-4 border-b border-base-300 last:border-0 last:pb-0">
+            <div key={groupKey} className="space-y-2 p-3 rounded-lg border border-black">
               <div className="flex items-start gap-3">
+                {item.caption && (
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => onUseCaption(item.caption ?? "")}
+                    className="flex-shrink-0 h-9 w-9"
+                  >
+                    <Copy className="h-5 w-5" />
+                  </Button>
+                )}
                 {isLoading ? (
                   <div className="w-16 aspect-square flex-shrink-0 bg-base-200 animate-pulse rounded" />
                 ) : firstMedia ? (
@@ -122,12 +138,6 @@ export const RelatedCaptionsPanel = ({ relatedByMedia, relatedByShoot, onUseCapt
                     )}
                   </div>
                   <div className="text-sm">{renderCaption(item.caption)}</div>
-                  {item.caption && (
-                    <Button size="xs" variant="ghost" onClick={() => onUseCaption(item.caption ?? "")}>
-                      <ArrowLeft className="h-3 w-3 mr-1" />
-                      Use
-                    </Button>
-                  )}
                 </div>
               </div>
             </div>

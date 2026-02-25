@@ -37,7 +37,7 @@ export const CalendarWeekRow = memo(
               onUpdate={onUpdate}
               className={cn(
                 "flex flex-col min-h-0 rounded-lg p-1.5",
-                today && "bg-base-200 ring-2 ring-primary/50"
+                today && "bg-base-200 ring-2 ring-primary"
               )}
             >
               <div className="flex items-center gap-1 mb-1 flex-shrink-0">

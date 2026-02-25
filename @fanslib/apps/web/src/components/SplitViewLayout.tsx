@@ -230,7 +230,7 @@ const ResizableHandle = ({
     >
       <ResizablePrimitive.PanelResizeHandle
         className={cn(
-          "relative flex w-3 h-full cursor-col-resize items-center justify-center rounded-full bg-primary/30 transition-colors hover:bg-primary/40 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-base-100 data-[panel-group-direction=vertical]:h-3 data-[panel-group-direction=vertical]:w-full data-[panel-group-direction=vertical]:cursor-row-resize",
+          "relative flex w-3 h-full cursor-col-resize items-center justify-center rounded-full bg-primary/30 transition-colors hover:bg-primary/40 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100 data-[panel-group-direction=vertical]:h-3 data-[panel-group-direction=vertical]:w-full data-[panel-group-direction=vertical]:cursor-row-resize",
           className
         )}
         onDragging={(isDragging) => {

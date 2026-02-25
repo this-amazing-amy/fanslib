@@ -86,7 +86,7 @@ export const MediaSelection = ({
                     "relative aspect-square cursor-pointer rounded-lg overflow-hidden transition-all",
                     selectedMedia.some((m) => m.id === item.id)
                       ? "ring-2 ring-primary"
-                      : "hover:ring-2 hover:ring-primary/50"
+                      : "hover:ring-2 hover:ring-primary"
                   )}
                   onClick={() => onMediaSelect(item)}
                   onMouseEnter={() => {

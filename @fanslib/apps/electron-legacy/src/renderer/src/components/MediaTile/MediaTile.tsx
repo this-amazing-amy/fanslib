@@ -70,8 +70,8 @@ export const MediaTile = (props: MediaTileProps) => {
       className={cn(
         "relative aspect-square bg-muted rounded-lg overflow-hidden group",
         (withNavigation || (withSelection && selectedMediaIds.size > 0)) && "cursor-pointer",
-        isHighlighted(media.id) && "ring-2 ring-primary/50",
-        isSelected && "ring-2 ring-primary/50",
+        isHighlighted(media.id) && "ring-2 ring-primary",
+        isSelected && "ring-2 ring-primary",
         props.className
       )}
       onMouseEnter={activatePreview}

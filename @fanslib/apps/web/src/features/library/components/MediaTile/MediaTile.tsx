@@ -107,9 +107,9 @@ export const MediaTile = memo((props: MediaTileProps) => {
   const content = (
     <div
       className={cn(
-        "flex flex-col bg-base-300 rounded-lg overflow-hidden group border cursor-pointer",
-        isHighlighted && "ring-2 ring-primary/50 border-primary",
-        isSelected ? "ring-2 ring-primary/50 border-primary" : "border-base-content/20",
+        "flex flex-col bg-white rounded-lg overflow-hidden group border cursor-pointer",
+        isHighlighted && "ring-2 ring-primary border-primary",
+        isSelected ? "ring-2 ring-primary border-primary" : "border-black",
         props.className
       )}
       style={withNavigation ? { viewTransitionName: `media-${media.id}` } : undefined}
@@ -134,7 +134,7 @@ export const MediaTile = memo((props: MediaTileProps) => {
         {withSelection && <MediaTileSelectionCircle mediaId={media.id} globalIndex={currentItem?.globalIndex ?? 0} />}
       </div>
       {hasFooter && (
-        <div className="flex flex-col gap-2 px-3 pt-3 pb-3 bg-base-100">
+        <div className="flex flex-col gap-2 px-3 pt-3 pb-3 bg-white">
           {(withTags || withPostsPopover || withTypeIcon) && (
             <div className="flex items-center gap-2">
               <div className="flex flex-wrap gap-1 flex-1 min-w-0">

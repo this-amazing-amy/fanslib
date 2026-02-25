@@ -1,7 +1,7 @@
 import type { CaptionQueueItem, Media, PostStatus } from '@fanslib/server/schemas';
 import type { Key } from "@react-types/shared";
 import { format } from "date-fns";
-import { Circle, CheckCircle2, ExternalLink, Link2, MoreVertical, Trash2 } from "lucide-react";
+import { ExternalLink, Link2, MoreVertical, Trash2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import type { KeyboardEvent } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -21,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
 import { useDebounce } from "~/hooks/useDebounce";
+import { usePrefersReducedMotion } from "~/hooks/usePrefersReducedMotion";
 import { cn } from "~/lib/cn";
 import { api } from "~/lib/api/hono-client";
 import { useDeletePostMutation, useUpdatePostMutation } from "~/lib/queries/posts";
@@ -42,6 +43,7 @@ type CaptionItemProps = {
 };
 
 export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionItemProps) => {
+  const prefersReducedMotion = usePrefersReducedMotion();
   const { linkedPostIdsForExpanded, setLinkedPostIds, setExpandedPostId } = useLinkedPostsContext();
   const updatePostMutation = useUpdatePostMutation();
   const deletePostMutation = useDeletePostMutation();
@@ -78,7 +80,7 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
   useEffect(() => {
     setSelectedLinkedPostIds(linkedPostIds);
     setLinkedPostIds(item.post.id, linkedPostIds);
-  }, [linkedPostIds, item.post.id, setLinkedPostIds]);
+  }, [item.post.id]);
 
   useEffect(() => {
     if (isExpanded) {
@@ -162,7 +164,6 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
     }
   };
 
-  const hasCaption = item.post.caption?.trim() ?? false;
   const channel = item.post.channel as { name: string; id: string; typeId: string; type?: { id: string } } | undefined;
   const schedule = item.post.schedule as { name: string; emoji: string | null; color: string | null } | null | undefined;
   const subreddit = item.post.subreddit as { name: string } | null | undefined;
@@ -170,7 +171,22 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
 
   return (
     <>
-      <div className={cn("border rounded-lg relative", isLinkedToExpanded ? "border-purple-500" : "border-base-300")}>
+      <div className="flex items-stretch">
+        <div
+          className={cn(
+            "flex flex-col justify-center flex-shrink-0 overflow-hidden ease-out",
+            isLinkedToExpanded ? "w-9" : "w-0 min-w-0",
+            !prefersReducedMotion && "transition-[width] duration-200"
+          )}
+        >
+          <Link2 className="w-6 h-6 text-primary flex-shrink-0" />
+        </div>
+        <div
+          className={cn(
+            "border rounded-lg relative flex-1 min-w-0",
+            isLinkedToExpanded ? "ring-2 ring-primary border-primary" : "border-black"
+          )}
+        >
         <div className="absolute top-3 right-3 flex items-center gap-2">
           <Link
             to="/posts/$postId"
@@ -207,17 +223,7 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
         onClick={onExpand}
         className="w-full text-left px-4 py-3 flex items-center gap-3"
       >
-        <div className="flex-shrink-0 flex items-center gap-1.5">
-          {isLinkedToExpanded && (
-            <Link2 className="w-4 h-4 text-purple-500" />
-          )}
-          {hasCaption ? (
-            <CheckCircle2 className="w-5 h-5 text-base-content/60" />
-          ) : (
-            <Circle className="w-5 h-5 text-base-content/60" />
-          )}
-        </div>
-        <div className="flex-1 space-y-1">
+        <div className="flex-1 space-y-1 min-w-0">
           <div className="flex items-baseline gap-2">
             <span className="text-base font-semibold">
               {format(new Date(item.post.date), "EEE, MMM d")}
@@ -250,7 +256,7 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
         </div>
       </button>
       {isExpanded && (
-        <div className="border-t border-base-300 p-4 space-y-4">
+        <div className="p-4 space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="space-y-3">
               {postMedia.length > 0 && (
@@ -287,11 +293,6 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
                       </div>
                     );
                   })}
-                </div>
-              )}
-              {updatePostMutation.isPending && (
-                <div className="flex justify-end">
-                  <div className="text-xs text-base-content/60">Saving...</div>
                 </div>
               )}
               <div className="relative">
@@ -335,11 +336,13 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
             <RelatedCaptionsPanel
               relatedByMedia={item.relatedByMedia}
               relatedByShoot={item.relatedByShoot}
+              currentCaption={localCaption}
               onUseCaption={updateCaption}
             />
           </div>
         </div>
       )}
+        </div>
       </div>
 
       <DeleteConfirmDialog

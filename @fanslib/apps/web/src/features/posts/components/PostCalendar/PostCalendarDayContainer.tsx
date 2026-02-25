@@ -62,7 +62,7 @@ export const PostCalendarDayContainer = ({
       className={cn(
         className,
         'transition-colors',
-        showDropFeedback && isOver && 'bg-primary/10 ring-2 ring-primary/50 ring-inset'
+        showDropFeedback && isOver && 'bg-primary/10 ring-2 ring-primary ring-inset'
       )}
     >
       {children}

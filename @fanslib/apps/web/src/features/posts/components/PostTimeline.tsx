@@ -84,7 +84,7 @@ export const PostTimeline = ({ posts, className, onUpdate, matchedPostMediaIds }
           className={cn(
             "h-full w-full flex flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed transition-colors",
             isOver ? "border-primary bg-primary/10" : "border-base-300",
-            isDragging && "border-primary/50"
+            isDragging && "border-primary"
           )}
         >
           <CalendarDays

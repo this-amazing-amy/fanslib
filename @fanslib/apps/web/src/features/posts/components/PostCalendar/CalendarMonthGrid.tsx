@@ -75,7 +75,7 @@ export const CalendarMonthGrid = memo(({ monthDate, posts, onUpdate, todayRef }:
               className={cn(
                 dayIdx === 0 && colStartClasses[getDayOffset(day)],
                 "flex flex-col min-h-[100px] rounded-lg p-2",
-                isTodayDay && "bg-base-200 ring-2 ring-primary/50"
+                isTodayDay && "bg-base-200 ring-2 ring-primary"
               )}
             >
               <div ref={isTodayDay ? todayRef : undefined}>

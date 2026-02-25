@@ -96,7 +96,7 @@ export const CandidateCard = ({ candidate, onMatchWithPostMediaId, onIgnore, onU
       className={cn(
         "border rounded-xl bg-base-100 relative transition-all",
         isDraggedOver ? "border-primary border-2 bg-primary/10" : "border-base-content",
-        showDropZone && !isDraggedOver && "border-dashed border-primary/50"
+        showDropZone && !isDraggedOver && "border-dashed border-primary"
       )}
       onDragOver={handleDragOver}
       onDragEnter={handleDragEnter}
