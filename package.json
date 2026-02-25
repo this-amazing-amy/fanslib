@@ -15,7 +15,6 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
-    "dev:docker": "turbo run dev --parallel --filter='!@fanslib/electron-companion'",
     "start": "turbo run start --parallel",
     "test": "turbo run test",
     "lint": "turbo run lint",
@@ -23,10 +22,7 @@
     "storybook": "turbo run storybook",
     "clean": "turbo run clean",
     "format": "turbo run format",
-    "db:push": "turbo run db:push",
-    "db:generate": "turbo run db:generate",
-    "db:migrate": "turbo run db:migrate",
-    "sync-to-drive": "bun run @fanslib/apps/scripts/sync-to-drive.ts"
+    "deploy": "./scripts/deploy.sh"
   },
   "workspaces": [
     "@fanslib/apps/web",

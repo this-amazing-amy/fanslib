@@ -72,6 +72,8 @@ TZ=Europe/Berlin
 
 **Prerequisite:** SSH key-based auth to deploy host. Export the variables above before running (or use a deploy script).
 
+**Quick deploy:** Copy `scripts/deploy.env.example` to `scripts/deploy.env`, fill in your values, then run `bun run deploy`.
+
 ### 1. Build
 
 ```bash

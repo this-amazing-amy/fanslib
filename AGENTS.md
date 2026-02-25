@@ -56,7 +56,7 @@ This repo is a Bun + Turborepo monorepo. Follow these rules by default unless a 
 
 - Use `bun` commands (not npm/yarn/pnpm).
 - Web: React 19 + TanStack Start/Router/Query.
-- Server: **MIGRATING** from Elysia + Eden + TypeBox to Hono + hc client + Zod (mixed state).
+- Server: Hono + hc client + Zod
 
 Common commands:
 
@@ -770,7 +770,7 @@ const isPaid =
 
 FansLib is a **Turborepo monorepo** for managing adult content creator libraries and social media posting. The system has three main components:
 
-1. **`@fanslib/server`** - Elysia backend API (Bun runtime, TypeORM + SQLite)
+1. **`@fanslib/server`** - Hono backend API (Bun runtime, TypeORM + SQLite)
 2. **`@fanslib/web`** - TanStack Start web client (React 19, TanStack Router/Query)
 3. **Shared configs** - `@fanslib/eslint`, `@fanslib/typescript` (Prettier config is in root `.prettierrc.cjs`)
 
@@ -782,7 +782,7 @@ There is also a @fanslib/electron-legacy app for desktop library management, but
   - Web client imports schemas: `import type { MediaSchema } from '@fanslib/server/schemas'`
   - Server exports all schemas through `src/schemas.ts` barrel file
 - **Database**: Single SQLite file managed by TypeORM with `sqljs` driver (no migrations, auto-sync schema)
-- **API communication**: `@elysiajs/eden` treaty client with `devalue` for serialization (handles Dates, Maps, Sets)
+- **API communication**: Hono `hc` client with `devalue` for serialization (handles Dates, Maps, Sets)
 - **Feature-based structure**: Each domain (library, posts, channels, tags, etc.) has its own directory with `entity.ts`, `routes.ts`, `operations/`, and `schemas/`
 
 ## Development Workflows
@@ -825,7 +825,7 @@ Features follow a consistent pattern in `@fanslib/apps/server/src/features/{feat
 ```
 features/example-feature/
 ├── entity.ts           # TypeORM entities
-├── routes.ts           # Elysia route definitions (export {featureName}Routes)
+├── routes.ts           # Hono route definitions (export {featureName}Routes)
 ├── operations/         # Business logic organized by operation
 │   └── operation-name/
 │       ├── index.ts    # Main operation function
@@ -837,20 +837,20 @@ features/example-feature/
 
 1. Create feature directory under `src/features/`
 2. Define TypeORM entities in `entity.ts`
-3. Create Elysia routes in `routes.ts` with prefix `/api/{feature-name}`
-4. Implement operations with input/output schemas using `t.Object()` from Elysia
+3. Create Hono routes in `routes.ts` with prefix `/api/{feature-name}`
+4. Implement operations with input/output schemas using Zod
 5. Export schemas through `src/schemas.ts` for web client consumption
-6. Register routes in `src/index.ts`: `.use({featureName}Routes)`
+6. Register routes in `src/index.ts`: `.route("/", {featureName}Routes)`
 7. Add entities to `src/lib/db.ts` entities array
 
 ## Code Conventions
 
 ### Type Safety
 
-- **Elysia schemas**: Use `t.Object()` for API contracts, not Zod
+- **Schemas**: Use Zod for API contracts and validation
 - **Schema exports**: Always export request/response schemas with descriptive names ending in `Schema`
-- **Type inference**: Use `typeof SchemaName.static` for TypeScript types
-- **Validation**: Elysia validates at runtime; rely on schema definitions
+- **Type inference**: Use `z.infer<typeof Schema>` for TypeScript types
+- **Validation**: Zod validates at runtime via `@hono/zod-validator`
 
 ### Database Patterns
 
@@ -862,7 +862,7 @@ features/example-feature/
 ### Web Client Patterns
 
 - **API calls**: Use TanStack Query hooks in `src/lib/queries/{feature}.ts`
-- **Eden client**: Import from `src/lib/api/eden.ts`, already configured with devalue
+- **API client**: Import from `src/lib/api/hono-client.ts`, configured with devalue
 - **Routes**: TanStack Router file-based routing in `src/routes/`
 - **State**: Jotai atoms for global state, TanStack Query for server state
 - **Styling**: Tailwind CSS + DaisyUI components
@@ -880,15 +880,16 @@ features/example-feature/
 
 ```typescript
 // In @fanslib/apps/server/src/features/example/routes.ts
-export const exampleRoutes = new Elysia({ prefix: '/api/example' }).post(
+import { Hono } from 'hono';
+import { zValidator } from '@hono/zod-validator';
+
+export const exampleRoutes = new Hono().post(
   '/create',
-  async ({ body }) => {
-    // Implementation
-    return result;
-  },
-  {
-    body: CreateExampleRequestSchema,
-    response: CreateExampleResponseSchema,
+  zValidator('json', CreateExampleRequestSchema, validationError),
+  async (c) => {
+    const body = c.req.valid('json');
+    const result = await createExample(body);
+    return c.json(result);
   }
 );
 ```
@@ -897,12 +898,14 @@ export const exampleRoutes = new Elysia({ prefix: '/api/example' }).post(
 
 ```typescript
 // In @fanslib/apps/web/src/lib/queries/example.ts
+import { api } from '../api/hono-client';
+
 export const useExampleQuery = (params: ExampleParams) =>
   useQuery({
     queryKey: ['example', params],
     queryFn: async () => {
-      const result = await eden.api.example.get(params);
-      return result.data;
+      const result = await api.api.example.$get({ query: params });
+      return result.json();
     },
   });
 ```
@@ -910,7 +913,7 @@ export const useExampleQuery = (params: ExampleParams) =>
 ### Access Media Files
 
 - Media served via REST endpoints in `library/routes.ts`
-- Use `eden.api.media['by-path']({ path }).get()` for file serving
+- Use `api.api.media['by-path']({ path }).$get()` for file serving
 - Thumbnails served separately, see `getThumbnailPath` in `library/operations/scan/`
 
 ### Media Filtering & Tagging
@@ -922,7 +925,7 @@ export const useExampleQuery = (params: ExampleParams) =>
 ## Tech Stack Reference
 
 - **Runtime**: Bun (not Node.js)
-- **Server**: Elysia 1.4+ (Bun-first web framework)
+- **Server**: Hono (Bun-first web framework)
 - **Database**: TypeORM 0.3+ with sql.js (SQLite in-memory with file persistence)
 - **Web**: React 19, TanStack Router 1.x, TanStack Query 5.x, TanStack Start
 - **Styling**: Tailwind CSS 4.x, DaisyUI 5.x, React Aria Components

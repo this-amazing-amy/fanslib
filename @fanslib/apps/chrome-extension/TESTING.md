@@ -37,7 +37,7 @@ The test page (`test-popup.html`) uses:
 
 - **Mock Chrome APIs**: `chrome.storage` and `chrome.runtime` are mocked to use `localStorage` and console warnings
 - **Same React Components**: Uses the exact same `Popup` component as the real extension
-- **Same API Calls**: Makes the same Eden treaty API calls to your server
+- **Same API Calls**: Makes the same Hono client API calls to your server
 
 ## Debugging "Mark Posted" Issues
 

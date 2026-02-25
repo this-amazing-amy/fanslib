@@ -271,11 +271,9 @@ Thumbs.db
 # Prisma
 prisma/migrations/
 
-# Docker
-.dockerignore
-
-# Deployment scripts
-deploy.sh
+# Deployment
+/deploy.sh
+scripts/deploy.env
 
 # Terraform
 *.tfstate
@@ -322,6 +320,3 @@ yarn.lock
 .dev-data/
 .test-data/
 
-# Planning documents
-.plans/docs/deployment-setup-tsumetai.md
-docs/deployment-setup-tsumetai.md
