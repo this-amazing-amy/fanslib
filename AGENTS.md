@@ -1,9 +1,5 @@
 # FansLib AI coding guide
 
-## Ralph Loop Operations
-
-When running in the Ralph loop (`./loop.sh`), follow these operational guidelines:
-
 **Spec Format**
 
 Specifications live in `specs/*.json` and use the Anthropic agent-first format:
@@ -39,7 +35,6 @@ bun lint && bun typecheck && bun test
 
 **File Updates**
 
-- Keep `@IMPLEMENTATION_PLAN.md` current with progress, discoveries, and bugs
 - Update spec JSON files to mark features as passing
 - NEVER put status updates or progress notes in AGENTS.md
 
