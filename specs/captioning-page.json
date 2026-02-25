@@ -35,7 +35,7 @@
     "RelatedCaptionsPanel": "Shows captions from related posts (same media or shoot) with 'Use' button",
     "CaptionSyncControl": "Checkbox list for syncing caption to linked posts sharing the same media",
     "current_files": [
-      "@fanslib/apps/web/src/routes/pipeline/caption.tsx",
+      "@fanslib/apps/web/src/routes/captioning.tsx",
       "@fanslib/apps/web/src/features/pipeline/components/CaptioningStep/"
     ]
   },

@@ -18,7 +18,7 @@
       "Automatic subreddit discovery",
       "Subreddit rule scraping",
       "Karma tracking",
-      "Dedicated /subreddits route (DEPRECATED - redirects to /content/channels)",
+      "Dedicated /subreddits route (DEPRECATED - redirects to /channels)",
       "RedditBulkPostGenerator (DEPRECATED - use standard post creation)",
       "Standalone subreddit table UI (DEPRECATED - managed via ChannelView)"
     ]
@@ -183,14 +183,14 @@
       "category": "ui",
       "description": "DEPRECATED: Subreddits management page - consolidated into Channels",
       "acceptance_criteria": [
-        "Route /subreddits redirects to /content/channels",
+        "Route /subreddits redirects to /channels",
         "Reddit channels (subreddits) appear in the unified channels list",
         "Reddit-specific settings accessible via ChannelView expansion panel",
         "Create button creates channel with typeId='reddit'"
       ],
       "passes": true,
       "deprecated": true,
-      "deprecation_note": "Standalone subreddits page removed. Management consolidated into /content/channels. Reddit channels managed alongside other channel types."
+      "deprecation_note": "Standalone subreddits page removed. Management consolidated into /channels. Reddit channels managed alongside other channel types."
     },
     {
       "category": "ui",
@@ -288,7 +288,7 @@
       "date": "2026-02-02",
       "reason": "Subreddit UI consolidated into unified Channels page to reduce complexity and provide consistent channel management experience.",
       "migration": {
-        "/subreddits": "Redirects to /content/channels",
+        "/subreddits": "Redirects to /channels",
         "SubredditsPage": "DEPRECATED - replaced by Channels component",
         "RedditBulkPostGenerator": "DEPRECATED - use standard CreatePostDialog with reddit channels",
         "CreateSubredditDialog": "DEPRECATED - use CreateChannelForm with typeId='reddit'",
