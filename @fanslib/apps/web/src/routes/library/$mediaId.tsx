@@ -8,7 +8,7 @@ import { MediaDetailNavigation } from '~/components/media-detail/MediaDetailNavi
 import { MediaPosts } from '~/components/media-detail/MediaPosts';
 import { Button } from '~/components/ui/Button';
 import { LibraryPreferencesProvider } from '~/contexts/LibraryPreferencesContext';
-import { MediaSelectionProvider } from '~/contexts/MediaSelectionContext';
+
 import { MediaTagEditor } from '~/features/library/components/MediaTagEditor';
 import { useMediaQuery } from '~/lib/queries/library';
 
@@ -38,8 +38,7 @@ const MediaRoute = () => {
 
   return (
     <LibraryPreferencesProvider>
-      <MediaSelectionProvider media={[mediaWithDates]}>
-        <div className="overflow-y-auto">
+      <div className="overflow-y-auto">
           <div className="max-w-[1280px] px-8 mx-auto pt-8 pb-12">
             <div className="flex items-center gap-2 mb-2">
               <Button variant="ghost" size="sm" onClick={() => navigate({ to: "/library" })}>
@@ -72,8 +71,7 @@ const MediaRoute = () => {
               <MediaPosts mediaId={media.id} />
             </div>
           </div>
-        </div>
-      </MediaSelectionProvider>
+      </div>
     </LibraryPreferencesProvider>
   );
 };

@@ -5,7 +5,7 @@ import { ErrorState } from "~/components/ui/ErrorState";
 import { ScrollArea } from "~/components/ui/ScrollArea";
 import { SectionHeader } from "~/components/ui/SectionHeader";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
-import { MediaSelectionProvider } from "~/contexts/MediaSelectionContext";
+import { useMediaSelectionSetup } from "~/hooks/useMediaSelectionSetup";
 import { useShootContext } from "~/contexts/ShootContext";
 import { useShootPreferences } from "~/contexts/ShootPreferencesContext";
 import { ShootCard } from "~/features/shoots/components/ShootCard";
@@ -29,6 +29,12 @@ export const ShootsContent: FC<ShootsContentProps> = ({ className }) => {
   const { preferences, updatePreferences } = useShootPreferences();
   const scrollRef = useScrollPosition<HTMLDivElement>(!isLoading);
   const { allMedia, shootsMedia } = useShootsMedia(shoots);
+
+  const mediaMap = useMemo(
+    () => new Map(Array.from(allMedia.entries()).map(([key, value]) => [key.viewIndex, value])),
+    [allMedia]
+  );
+  useMediaSelectionSetup(mediaMap);
 
   const sortedShoots = useMemo(() => {
     const sorted = [...shoots];
@@ -63,10 +69,7 @@ export const ShootsContent: FC<ShootsContentProps> = ({ className }) => {
   }
 
   return (
-    <MediaSelectionProvider
-      media={new Map(Array.from(allMedia.entries()).map(([key, value]) => [key.viewIndex, value]))}
-    >
-      <div className={cn(className, "flex h-full flex-col")}>
+    <div className={cn(className, "flex h-full flex-col")}>
         <div className="px-6 pb-4">
           <SectionHeader
             title=""
@@ -128,8 +131,7 @@ export const ShootsContent: FC<ShootsContentProps> = ({ className }) => {
             </div>
           </ScrollArea>
         </div>
-      </div>
-    </MediaSelectionProvider>
+    </div>
   );
 };
 

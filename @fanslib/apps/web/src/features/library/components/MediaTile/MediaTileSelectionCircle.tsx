@@ -1,13 +1,15 @@
-import { useMediaSelection } from "~/contexts/MediaSelectionContext";
+import { useMediaSelectionStore } from "~/stores/mediaSelectionStore";
 import { Check } from "lucide-react";
 import { cn } from "~/lib/cn";
 
 type MediaTileSelectionCircleProps = {
   mediaId: string;
+  globalIndex: number;
 };
 
-export const MediaTileSelectionCircle = ({ mediaId }: MediaTileSelectionCircleProps) => {
-  const { isSelected, toggleMediaSelection } = useMediaSelection();
+export const MediaTileSelectionCircle = ({ mediaId, globalIndex }: MediaTileSelectionCircleProps) => {
+  const isSelected = useMediaSelectionStore((s) => s.selectedIds.has(mediaId));
+  const toggleItem = useMediaSelectionStore((s) => s.toggleItem);
 
   return (
     <div
@@ -18,17 +20,16 @@ export const MediaTileSelectionCircle = ({ mediaId }: MediaTileSelectionCirclePr
         "border-2 cursor-pointer",
         "hover:opacity-100 group-hover:opacity-100",
         {
-          "opacity-100 bg-primary border-primary text-primary-foreground": isSelected(mediaId),
-          "opacity-0 bg-background/80 border-foreground/20 hover:border-foreground/40":
-            !isSelected(mediaId),
+          "opacity-100 bg-primary border-primary text-primary-foreground": isSelected,
+          "opacity-0 bg-background/80 border-foreground/20 hover:border-foreground/40": !isSelected,
         }
       )}
       onClick={(e) => {
         e.stopPropagation();
-        toggleMediaSelection(mediaId, e);
+        toggleItem(mediaId, globalIndex);
       }}
     >
-      {isSelected(mediaId) && <Check className="w-3 h-3" />}
+      {isSelected && <Check className="w-3 h-3" />}
     </div>
   );
 };

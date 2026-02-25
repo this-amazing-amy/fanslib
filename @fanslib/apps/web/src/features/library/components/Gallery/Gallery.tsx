@@ -3,11 +3,12 @@ import type { Media } from '@fanslib/server/schemas';
 import { useEffect, useMemo, useRef } from "react";
 import { ScrollArea } from "~/components/ui/ScrollArea";
 import { useLibraryPreferences } from "~/contexts/LibraryPreferencesContext";
-import { MediaSelectionProvider, useMediaSelection } from "~/contexts/MediaSelectionContext";
 import { MediaTile } from "~/features/library/components/MediaTile";
 import { useDynamicPageSize } from "~/hooks/useDynamicPageSize";
+import { useMediaSelectionSetup } from "~/hooks/useMediaSelectionSetup";
 import { cn } from "~/lib/cn";
 import { usePageMediaTagsQuery } from "~/lib/queries/tags";
+import { useMediaSelectionStore } from "~/stores/mediaSelectionStore";
 import { GalleryActionBar } from "./GalleryActionBar";
 import { GalleryEmpty } from "./GalleryEmpty";
 
@@ -19,6 +20,7 @@ type GalleryProps = {
 };
 
 const GalleryContent = ({ medias, error, onScan, onMediaClick }: GalleryProps) => {
+  useMediaSelectionSetup(medias);
   const { preferences, updatePreferences } = useLibraryPreferences();
   const containerRef = useRef<HTMLElement | null>(null);
 
@@ -34,7 +36,12 @@ const GalleryContent = ({ medias, error, onScan, onMediaClick }: GalleryProps) =
     }
   }, [pageSize, preferences.pagination.limit, updatePreferences]);
 
-  const { selectedMediaIds, selectedMediaItems, clearSelection } = useMediaSelection();
+  const selectedIds = useMediaSelectionStore((s) => s.selectedIds);
+  const clearSelection = useMediaSelectionStore((s) => s.clearSelection);
+  const selectedMediaItems = useMemo(
+    () => medias.filter((m) => selectedIds.has(m.id)),
+    [medias, selectedIds]
+  );
 
   const mediaIds = useMemo(() => medias.map((m) => m.id), [medias]);
   const { data: tagsByMediaId } = usePageMediaTagsQuery(mediaIds);
@@ -50,7 +57,7 @@ const GalleryContent = ({ medias, error, onScan, onMediaClick }: GalleryProps) =
   return (
     <div className="h-full">
       <GalleryActionBar
-        selectedCount={selectedMediaIds.size}
+        selectedCount={selectedIds.size}
         selectedMedia={selectedMediaItems}
         onClearSelection={clearSelection}
       />
@@ -75,6 +82,7 @@ const GalleryContent = ({ medias, error, onScan, onMediaClick }: GalleryProps) =
               withNavigation
               withFileName
               withTags
+              withPostsPopover
               index={index}
               onMediaClick={onMediaClick}
             />
@@ -87,7 +95,5 @@ const GalleryContent = ({ medias, error, onScan, onMediaClick }: GalleryProps) =
 };
 
 export const Gallery = (props: GalleryProps) => (
-  <MediaSelectionProvider media={props.medias}>
-    <GalleryContent {...props} />
-  </MediaSelectionProvider>
+  <GalleryContent {...props} />
 );

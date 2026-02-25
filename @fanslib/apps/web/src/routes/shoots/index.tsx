@@ -3,7 +3,7 @@ import { PageHeader } from '~/components/ui/PageHeader';
 import { AnalyticsProvider } from '~/contexts/AnalyticsContext';
 import { LibraryPreferencesProvider } from '~/contexts/LibraryPreferencesContext';
 import { MediaDragProvider } from '~/contexts/MediaDragContext';
-import { MediaSelectionProvider } from '~/contexts/MediaSelectionContext';
+
 import { PostDragProvider } from '~/contexts/PostDragContext';
 import { PostPreferencesProvider } from '~/contexts/PostPreferencesContext';
 import { RedditPostProvider } from '~/contexts/RedditPostContext';
@@ -13,30 +13,28 @@ import { TagDragProvider } from '~/contexts/TagDragContext';
 import { Shoots } from '~/features/shoots/components/Shoots';
 
 const ShootsPageContent = () => (
-  <MediaSelectionProvider media={[]}>
-    <MediaDragProvider>
-      <TagDragProvider>
-        <PostDragProvider>
-          <ShootPreferencesProvider>
-            <AnalyticsProvider>
-              <PostPreferencesProvider>
-                <RedditPostProvider>
-                  <div className="flex h-full w-full flex-col overflow-hidden">
-                    <div className="flex-none px-6 py-6">
-                      <PageHeader title="Shoots" />
-                    </div>
-                    <div className="flex-1 min-h-0 overflow-hidden">
-                      <Shoots />
-                    </div>
+  <MediaDragProvider>
+    <TagDragProvider>
+      <PostDragProvider>
+        <ShootPreferencesProvider>
+          <AnalyticsProvider>
+            <PostPreferencesProvider>
+              <RedditPostProvider>
+                <div className="flex h-full w-full flex-col overflow-hidden">
+                  <div className="flex-none px-6 py-6">
+                    <PageHeader title="Shoots" />
                   </div>
-                </RedditPostProvider>
-              </PostPreferencesProvider>
-            </AnalyticsProvider>
-          </ShootPreferencesProvider>
-        </PostDragProvider>
-      </TagDragProvider>
-    </MediaDragProvider>
-  </MediaSelectionProvider>
+                  <div className="flex-1 min-h-0 overflow-hidden">
+                    <Shoots />
+                  </div>
+                </div>
+              </RedditPostProvider>
+            </PostPreferencesProvider>
+          </AnalyticsProvider>
+        </ShootPreferencesProvider>
+      </PostDragProvider>
+    </TagDragProvider>
+  </MediaDragProvider>
 );
 
 export const ShootsPage = () => (

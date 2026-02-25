@@ -13,7 +13,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '~/components/ui/Dialog';
-import { MediaSelectionProvider } from '~/contexts/MediaSelectionContext';
+
 import { CombinedMediaSelection } from '~/features/library/components/CombinedMediaSelection';
 import { cn } from '~/lib/cn';
 import { useAddMediaToPostMutation, useRemoveMediaFromPostMutation } from '~/lib/queries/posts';
@@ -133,8 +133,7 @@ export const PostDetailMedia = ({ post }: PostDetailMediaProps) => {
         </div>
       </button>
 
-      <MediaSelectionProvider media={selectedMedia}>
-        <DialogTrigger isOpen={isAddMediaOpen} onOpenChange={setIsAddMediaOpen}>
+      <DialogTrigger isOpen={isAddMediaOpen} onOpenChange={setIsAddMediaOpen}>
           <DialogModal>
             <Dialog maxWidth="3xl" className="max-h-[80vh] flex flex-col">
               {({ close }) => (
@@ -166,8 +165,7 @@ export const PostDetailMedia = ({ post }: PostDetailMediaProps) => {
               )}
             </Dialog>
           </DialogModal>
-        </DialogTrigger>
-      </MediaSelectionProvider>
+      </DialogTrigger>
     </div>
   );
 };

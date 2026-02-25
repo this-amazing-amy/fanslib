@@ -17,7 +17,7 @@ import { Button } from "~/components/ui/Button";
 import { Checkbox } from "~/components/ui/Checkbox";
 import { ScrollArea } from "~/components/ui/ScrollArea";
 import { Textarea } from "~/components/ui/Textarea";
-import { MediaSelectionProvider } from "~/contexts/MediaSelectionContext";
+
 import { CombinedMediaSelection } from "~/features/library/components/CombinedMediaSelection";
 import { RecentPostsPanel } from "~/features/posts/components/RecentPostsPanel";
 import { usePrefersReducedMotion } from "~/hooks/usePrefersReducedMotion";
@@ -372,8 +372,7 @@ export const CreatePostDialog = ({
   const transitionDuration = prefersReducedMotion ? 0 : 0.3;
 
   return (
-    <MediaSelectionProvider media={selectedMedia}>
-      <AnimatePresence mode="wait">
+    <AnimatePresence mode="wait">
         {open && (
           <>
             {/* Backdrop */}
@@ -690,7 +689,6 @@ export const CreatePostDialog = ({
             </motion.div>
           </>
         )}
-      </AnimatePresence>
-    </MediaSelectionProvider>
+    </AnimatePresence>
   );
 };

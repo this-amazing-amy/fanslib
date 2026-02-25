@@ -1,8 +1,8 @@
 import { memo, useMemo } from "react";
-import { Link } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
-import { useMediaSelection } from "~/contexts/MediaSelectionContext";
 import { useMediaHoverStore } from "~/stores/mediaHoverStore";
+import { useMediaSelectionStore } from "~/stores/mediaSelectionStore";
 import { cn } from "~/lib/cn";
 import { MediaTileImage } from "./MediaTileImage";
 import { MediaTilePostsPopover } from "./MediaTilePostsPopover";
@@ -15,9 +15,16 @@ import type { MediaTileProps } from "./types";
 export const MediaTile = memo((props: MediaTileProps) => {
   const { media, tags = [] } = props;
 
+  const navigate = useNavigate();
   const { startMediaDrag, endMediaDrag } = useMediaDrag();
-  const { selectedMediaIds, selectedMediaItems, flattenedMedia, lastClickedIndex, isShiftPressed, toggleMediaSelection } =
-    useMediaSelection();
+
+  const flattenedMedia = useMediaSelectionStore((s) => s.flattenedMedia);
+  const selectedIds = useMediaSelectionStore((s) => s.selectedIds);
+  const isShiftPressed = useMediaSelectionStore((s) => s.isShiftPressed);
+  const lastClickedIndex = useMediaSelectionStore((s) => s.lastClickedIndex);
+  const toggleItem = useMediaSelectionStore((s) => s.toggleItem);
+  const selectRange = useMediaSelectionStore((s) => s.selectRange);
+
   const setHoveredMediaId = useMediaHoverStore((s) => s.setHoveredMediaId);
   const hoveredMediaId = useMediaHoverStore((s) => s.hoveredMediaId);
 
@@ -28,13 +35,13 @@ export const MediaTile = memo((props: MediaTileProps) => {
   const withDuration = props.withDuration ?? false;
   const withTypeIcon = props.withTypeIcon ?? false;
   const withNavigation = props.withNavigation ?? false;
-  const cover = props.cover ?? false;
   const withTags = props.withTags ?? false;
+  const withFileName = props.withFileName ?? false;
   const { onMediaClick } = props;
 
   const isHighlighted = useMemo(() => {
     if (lastClickedIndex === null || !hoveredMediaId) return false;
-    if (selectedMediaIds.size === 0 || !isShiftPressed) return false;
+    if (selectedIds.size === 0 || !isShiftPressed) return false;
     const hoveredItem = flattenedMedia.find((m) => m.media.id === hoveredMediaId);
     const currentItem = flattenedMedia.find((m) => m.media.id === media.id);
     if (!hoveredItem || !currentItem) return false;
@@ -42,7 +49,7 @@ export const MediaTile = memo((props: MediaTileProps) => {
       currentItem.globalIndex >= Math.min(lastClickedIndex, hoveredItem.globalIndex) &&
       currentItem.globalIndex <= Math.max(lastClickedIndex, hoveredItem.globalIndex)
     );
-  }, [lastClickedIndex, hoveredMediaId, selectedMediaIds.size, isShiftPressed, flattenedMedia, media.id]);
+  }, [lastClickedIndex, hoveredMediaId, selectedIds.size, isShiftPressed, flattenedMedia, media.id]);
 
   const activatePreview = () => {
     if (!withPreview) return;
@@ -54,75 +61,103 @@ export const MediaTile = memo((props: MediaTileProps) => {
     setHoveredMediaId(null);
   };
 
-  const selectOrNavigate = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (withSelection && selectedMediaIds.size > 0) {
-      toggleMediaSelection(media.id, e);
-      return;
-    }
+  const currentItem = flattenedMedia.find((m) => m.media.id === media.id);
 
-    const isSelectionCircleClicked = (e.target as HTMLElement).closest(".selection-circle");
-    if (isSelectionCircleClicked) {
-      e.preventDefault();
-      return;
+  const selectOrNavigate = () => {
+    if (withSelection && currentItem) {
+      if (isShiftPressed && lastClickedIndex !== null) {
+        selectRange(currentItem.globalIndex);
+        return;
+      }
+
+      if (selectedIds.size > 0) {
+        toggleItem(media.id, currentItem.globalIndex);
+        return;
+      }
     }
 
     if (onMediaClick) {
-      e.preventDefault();
       onMediaClick(media);
+      return;
+    }
+
+    if (withNavigation) {
+      navigate({ to: "/content/library/media/$mediaId", params: { mediaId: media.id } });
     }
   };
 
-  const isSelected = selectedMediaIds.has(media.id);
+  const isSelected = selectedIds.has(media.id);
+
+  const selectedItems = useMemo(
+    () => flattenedMedia.filter((m) => selectedIds.has(m.media.id)).map((m) => m.media),
+    [flattenedMedia, selectedIds]
+  );
 
   const dragAndDropProps = withDragAndDrop && {
     draggable: true,
     onDragStart: (e: React.DragEvent<HTMLDivElement>) => {
-      const itemsToDrag = selectedMediaIds.has(media.id) ? selectedMediaItems : [media];
+      const itemsToDrag = selectedIds.has(media.id) ? selectedItems : [media];
       startMediaDrag(e, itemsToDrag);
     },
     onDragEnd: endMediaDrag,
   };
 
+  const hasFooter = withTags || withFileName || withPostsPopover || withTypeIcon;
+
   const content = (
     <div
       className={cn(
-        "relative aspect-square bg-base-300 rounded-lg overflow-hidden group",
-        (withNavigation || (withSelection && selectedMediaIds.size > 0)) && "cursor-pointer",
-        isHighlighted && "ring-2 ring-primary/50",
-        isSelected && "ring-2 ring-primary/50",
+        "flex flex-col bg-base-300 rounded-lg overflow-hidden group border cursor-pointer",
+        isHighlighted && "ring-2 ring-primary/50 border-primary",
+        isSelected ? "ring-2 ring-primary/50 border-primary" : "border-base-content/20",
         props.className
       )}
       style={withNavigation ? { viewTransitionName: `media-${media.id}` } : undefined}
       onMouseEnter={activatePreview}
       onMouseLeave={deactivatePreview}
-      onClick={selectOrNavigate}
+      onClick={(e) => {
+        if ((e.target as HTMLElement).closest(".selection-circle")) return;
+        selectOrNavigate();
+      }}
       {...dragAndDropProps}
     >
-      {media.type === "video" && (
-        <MediaTileVideo
-          media={media}
-          withPreview={withPreview}
-          withDuration={withDuration}
-          cover={cover}
-        />
-      )}
-      {media.type === "image" && <MediaTileImage media={media} cover={cover} />}
-      {withSelection && <MediaTileSelectionCircle mediaId={media.id} />}
-      <div className="absolute bottom-1 left-1 flex gap-1 z-10">
-        {withPostsPopover && <MediaTilePostsPopover media={media} />}
-        {withTags && <MediaTileTagBadges tags={tags} />}
-        {withTypeIcon && <MediaTileTypeSticker media={media} />}
+      <div className="relative aspect-square overflow-hidden">
+        {media.type === "video" && (
+          <MediaTileVideo
+            media={media}
+            withPreview={withPreview}
+            withDuration={withDuration}
+            cover={true}
+          />
+        )}
+        {media.type === "image" && <MediaTileImage media={media} cover={true} />}
+        {withSelection && <MediaTileSelectionCircle mediaId={media.id} globalIndex={currentItem?.globalIndex ?? 0} />}
       </div>
+      {hasFooter && (
+        <div className="flex flex-col gap-2 px-3 pt-3 pb-3 bg-base-100">
+          {(withTags || withPostsPopover || withTypeIcon) && (
+            <div className="flex items-center gap-2">
+              <div className="flex flex-wrap gap-1 flex-1 min-w-0">
+                {withTags && <MediaTileTagBadges tags={tags} />}
+                {withTypeIcon && <MediaTileTypeSticker media={media} />}
+              </div>
+              {withPostsPopover && <MediaTilePostsPopover media={media} />}
+            </div>
+          )}
+          {withFileName && (
+            <span
+              className="text-xs text-base-content/90 truncate leading-tight"
+              style={{ direction: "rtl" }}
+            >
+              {media.name}
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 
-  if (!withNavigation || onMediaClick) return content;
-
-  return (
-    <Link to="/content/library/media/$mediaId" params={{ mediaId: media.id }}>
-      {content}
-    </Link>
-  );
+  return content;
 });
 
 MediaTile.displayName = "MediaTile";

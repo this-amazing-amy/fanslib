@@ -9,7 +9,7 @@ import { MediaDetailNavigation } from '~/components/media-detail/MediaDetailNavi
 import { MediaPosts } from '~/components/media-detail/MediaPosts';
 import { CreatePostDialog } from '~/features/library/components/CreatePostDialog';
 import { Button } from '~/components/ui/Button';
-import { MediaSelectionProvider } from '~/contexts/MediaSelectionContext';
+
 import { MediaTagEditor } from '~/features/library/components/MediaTagEditor';
 import { useMediaQuery } from '~/lib/queries/library';
 
@@ -39,8 +39,7 @@ const MediaRoute = () => {
   const mediaWithDates = media as unknown as typeof media & { createdAt: Date; updatedAt: Date; fileCreationDate: Date; fileModificationDate: Date };
 
   return (
-    <MediaSelectionProvider media={[mediaWithDates]}>
-      <div className="overflow-y-auto">
+    <div className="overflow-y-auto">
         <div className="max-w-[1280px] px-8 mx-auto pt-8 pb-12">
           <div className="flex items-center gap-2 mb-2">
             <Button variant="ghost" size="sm" onClick={() => router.history.back()}>
@@ -97,8 +96,7 @@ const MediaRoute = () => {
             media={[mediaWithDates]}
           />
         </div>
-      </div>
-    </MediaSelectionProvider>
+    </div>
   );
 };
 

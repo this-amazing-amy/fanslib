@@ -12,7 +12,7 @@ import {
   DialogTrigger,
 } from "~/components/ui/Dialog";
 import { LibraryPreferencesProvider } from "~/contexts/LibraryPreferencesContext";
-import { MediaSelectionProvider } from "~/contexts/MediaSelectionContext";
+
 import { CombinedMediaSelection } from "~/features/library/components/CombinedMediaSelection";
 import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
 import { MediaDragProvider } from "~/contexts/MediaDragContext";
@@ -93,91 +93,87 @@ const ShootDetailRoute = () => {
     <MediaDragProvider>
       <PostDragProvider>
         <PostPreferencesProvider>
-          <MediaSelectionProvider media={normalizedShoot.media ?? []}>
-            <div>
-              <div className="max-w-[1280px] px-8 mx-auto pt-8 pb-12">
-            <div className="flex items-center gap-2 mb-2">
-              <Button variant="ghost" size="sm" onClick={goBack}>
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back
-              </Button>
-              <div className="flex-1" />
-              <ShootDetailDotsMenu
-                onCreatePost={() => setIsCreatePostDialogOpen(true)}
-                mediaCount={normalizedShoot.media?.length ?? 0}
-              />
-            </div>
-
-            <ShootDetailTitleInput shoot={normalizedShoot} />
-
-            <div className="py-6">
-              <ShootDetailDateInput shoot={normalizedShoot} />
-            </div>
-
-            <div className="@container flex flex-col gap-4">
-              <LibraryPreferencesProvider>
-                <ShootDetailMediaGrid
-                  medias={normalizedShoot.media ?? []}
-                  onAddMedia={() => setIsAddMediaOpen(true)}
+          <div>
+            <div className="max-w-[1280px] px-8 mx-auto pt-8 pb-12">
+              <div className="flex items-center gap-2 mb-2">
+                <Button variant="ghost" size="sm" onClick={goBack}>
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back
+                </Button>
+                <div className="flex-1" />
+                <ShootDetailDotsMenu
+                  onCreatePost={() => setIsCreatePostDialogOpen(true)}
+                  mediaCount={normalizedShoot.media?.length ?? 0}
                 />
-              </LibraryPreferencesProvider>
-            </div>
+              </div>
 
-                <div className="mt-8">
-                  <h2 className="text-xl font-semibold mb-4">Posts</h2>
-                  <ShootPosts shootId={normalizedShoot.id} />
-                </div>
+              <ShootDetailTitleInput shoot={normalizedShoot} />
+
+              <div className="py-6">
+                <ShootDetailDateInput shoot={normalizedShoot} />
+              </div>
+
+              <div className="@container flex flex-col gap-4">
+                <LibraryPreferencesProvider>
+                  <ShootDetailMediaGrid
+                    medias={normalizedShoot.media ?? []}
+                    onAddMedia={() => setIsAddMediaOpen(true)}
+                  />
+                </LibraryPreferencesProvider>
+              </div>
+
+              <div className="mt-8">
+                <h2 className="text-xl font-semibold mb-4">Posts</h2>
+                <ShootPosts shootId={normalizedShoot.id} />
               </div>
             </div>
+          </div>
 
-            <MediaSelectionProvider media={selectedMedia}>
-              <DialogTrigger isOpen={isAddMediaOpen} onOpenChange={setIsAddMediaOpen}>
-                <DialogModal>
-                  <Dialog maxWidth="3xl" className="max-h-[80vh] flex flex-col">
-                    {({ close }) => (
-                      <>
-                        <DialogHeader>
-                          <DialogTitle>Add Media to Shoot</DialogTitle>
-                        </DialogHeader>
-                        <div className="flex-1 min-h-0 overflow-hidden">
-                          <CombinedMediaSelection
-                            selectedMedia={selectedMedia}
-                            onMediaSelect={handleMediaSelect}
-                            excludeMediaIds={normalizedShoot.media?.map((m) => m.id) ?? []}
-                            initialFilters={[
-                              {
-                                include: false,
-                                items: [{ type: "shoot", id: "" }],
-                              },
-                            ]}
-                          />
-                        </div>
-                        <DialogFooter>
-                          <Button variant="ghost" onPress={close}>
-                            Cancel
-                          </Button>
-                          <Button
-                            onPress={handleAddMedia}
-                            isDisabled={selectedMedia.length === 0 || updateShootMutation.isPending}
-                          >
-                            {updateShootMutation.isPending
-                              ? "Adding..."
-                              : `Add ${selectedMedia.length} media`}
-                          </Button>
-                        </DialogFooter>
-                      </>
-                    )}
-                  </Dialog>
-                </DialogModal>
-              </DialogTrigger>
-            </MediaSelectionProvider>
+          <DialogTrigger isOpen={isAddMediaOpen} onOpenChange={setIsAddMediaOpen}>
+            <DialogModal>
+              <Dialog maxWidth="3xl" className="max-h-[80vh] flex flex-col">
+                {({ close }) => (
+                  <>
+                    <DialogHeader>
+                      <DialogTitle>Add Media to Shoot</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex-1 min-h-0 overflow-hidden">
+                      <CombinedMediaSelection
+                        selectedMedia={selectedMedia}
+                        onMediaSelect={handleMediaSelect}
+                        excludeMediaIds={normalizedShoot.media?.map((m) => m.id) ?? []}
+                        initialFilters={[
+                          {
+                            include: false,
+                            items: [{ type: "shoot", id: "" }],
+                          },
+                        ]}
+                      />
+                    </div>
+                    <DialogFooter>
+                      <Button variant="ghost" onPress={close}>
+                        Cancel
+                      </Button>
+                      <Button
+                        onPress={handleAddMedia}
+                        isDisabled={selectedMedia.length === 0 || updateShootMutation.isPending}
+                      >
+                        {updateShootMutation.isPending
+                          ? "Adding..."
+                          : `Add ${selectedMedia.length} media`}
+                      </Button>
+                    </DialogFooter>
+                  </>
+                )}
+              </Dialog>
+            </DialogModal>
+          </DialogTrigger>
 
-            <CreatePostDialog
-              open={isCreatePostDialogOpen}
-              onOpenChange={setIsCreatePostDialogOpen}
-              media={normalizedShoot.media ?? []}
-            />
-          </MediaSelectionProvider>
+          <CreatePostDialog
+            open={isCreatePostDialogOpen}
+            onOpenChange={setIsCreatePostDialogOpen}
+            media={normalizedShoot.media ?? []}
+          />
         </PostPreferencesProvider>
       </PostDragProvider>
     </MediaDragProvider>

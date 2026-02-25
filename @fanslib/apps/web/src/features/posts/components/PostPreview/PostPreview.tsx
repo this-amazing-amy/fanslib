@@ -6,7 +6,7 @@ import { useState } from "react";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
 import { StatusIcon } from "~/components/StatusIcon";
-import { MediaSelectionProvider } from "~/contexts/MediaSelectionContext";
+
 import { usePostDrag } from "~/contexts/PostDragContext";
 import { usePostPreferences } from "~/contexts/PostPreferencesContext";
 import { MediaTile } from "~/features/library/components/MediaTile";
@@ -314,21 +314,19 @@ export const PostPreview = ({
                   <Camera className="w-6 h-6 text-base-content/20" />
                 </div>
               ) : (
-                <MediaSelectionProvider media={post.postMedia.map((pm) => pm.media)}>
-                  {post.postMedia.map((pm) => {
-                    const isMatched = matchedPostMediaIds?.has(pm.id) ?? false;
-                    return (
-                      <MediaTile
-                        key={pm.id}
-                        media={pm.media}
-                        index={post.postMedia.indexOf(pm)}
-                        className={cn("size-24", isMatched && "opacity-30")}
-                        withPreview
-                        withDuration
-                      />
-                    );
-                  })}
-                </MediaSelectionProvider>
+                post.postMedia.map((pm) => {
+                  const isMatched = matchedPostMediaIds?.has(pm.id) ?? false;
+                  return (
+                    <MediaTile
+                      key={pm.id}
+                      media={pm.media}
+                      index={post.postMedia.indexOf(pm)}
+                      className={cn("size-24", isMatched && "opacity-30")}
+                      withPreview
+                      withDuration
+                    />
+                  );
+                })
               )}
             </div>
           </div>

@@ -1,6 +1,6 @@
 import type { PostMediaWithMedia } from '@fanslib/server/schemas';
 import { Camera } from "lucide-react";
-import { MediaSelectionProvider } from "~/contexts/MediaSelectionContext";
+
 import { MediaTile } from "~/features/library/components/MediaTile";
 
 
@@ -26,27 +26,24 @@ export const PostCalendarPostMedia = ({ postMedia, isVirtual }: PostCalendarPost
   // Single media - show full width
   if (mediaCount === 1) {
     return (
-      <MediaSelectionProvider media={allMedias}>
-        <div
-          className="w-full aspect-square rounded-md overflow-hidden"
-          style={{ viewTransitionName: `media-${postMedia[0].media.id}` }}
-        >
-          <MediaTile
-            media={postMedia[0].media}
-            index={0}
-            className="rounded-md"
-            withPreview
-            cover
-          />
-        </div>
-      </MediaSelectionProvider>
+      <div
+        className="w-full aspect-square rounded-md overflow-hidden"
+        style={{ viewTransitionName: `media-${postMedia[0].media.id}` }}
+      >
+        <MediaTile
+          media={postMedia[0].media}
+          index={0}
+          className="rounded-md"
+          withPreview
+          cover
+        />
+      </div>
     );
   }
 
   // Multiple media - show 2x2 grid
   return (
-    <MediaSelectionProvider media={allMedias}>
-      <div className="grid gap-1 grid-cols-2">
+    <div className="grid gap-1 grid-cols-2">
         {Array.from({ length: Math.min(4, mediaCount) }).map((_, i) => {
           const media = postMedia[i]?.media;
 
@@ -75,7 +72,6 @@ export const PostCalendarPostMedia = ({ postMedia, isVirtual }: PostCalendarPost
             </div>
           );
         })}
-      </div>
-    </MediaSelectionProvider>
+    </div>
   );
 };
