@@ -21,12 +21,12 @@ const listCachePlaceholder = (
     const listQueries = queryClient.getQueriesData<FetchAllMediaResponse>({
       queryKey: QUERY_KEYS.media.all,
     });
-    for (const [, data] of listQueries) {
-      const found = data?.items?.find((m) => m.id === id);
-      // postMedia is fetched separately on the detail page; this placeholder
-      // only needs to provide enough data for the view transition to work
-      if (found) return { ...found, postMedia: [] } as unknown as FetchMediaByIdResponse;
-    }
+    const match = listQueries
+      .map(([, data]) => data?.items?.find((m) => m.id === id))
+      .find(Boolean);
+    // postMedia is fetched separately on the detail page; this placeholder
+    // only needs to provide enough data for the view transition to work
+    if (match) return { ...match, postMedia: [] } as unknown as FetchMediaByIdResponse;
   } catch {
     // cache lookup is best-effort; any shape mismatch should not break the page
   }

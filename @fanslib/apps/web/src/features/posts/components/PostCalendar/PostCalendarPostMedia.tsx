@@ -20,7 +20,6 @@ export const PostCalendarPostMedia = ({ postMedia, isVirtual }: PostCalendarPost
     );
   }
 
-  const allMedias = postMedia.map((pm) => pm.media);
   const mediaCount = postMedia.length;
 
   // Single media - show full width
