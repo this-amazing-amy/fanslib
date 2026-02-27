@@ -28,6 +28,13 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: bun-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-
+
       - name: Install dependencies
         run: bun install
 
