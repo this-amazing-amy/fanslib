@@ -37,7 +37,7 @@ jobs:
   deploy:
     name: Deploy Preview
     if: github.event.action != 'closed'
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     env:
       PR_NUMBER: ${{ github.event.pull_request.number }}
       PR_SHA: ${{ github.event.pull_request.head.sha }}
@@ -258,7 +258,7 @@ jobs:
   cleanup:
     name: Cleanup Preview
     if: github.event.action == 'closed'
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     env:
       PR_NUMBER: ${{ github.event.pull_request.number }}
 
