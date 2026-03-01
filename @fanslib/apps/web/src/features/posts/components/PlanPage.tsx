@@ -30,14 +30,18 @@ const PickerPanelContainer = () => {
   );
 };
 
-const PlanPageInner = () => {
+type PlanPageInnerProps = {
+  initialRange?: { startDate: Date; endDate: Date };
+};
+
+const PlanPageInner = ({ initialRange }: PlanPageInnerProps) => {
   const calendarContainerRef = useRef<HTMLDivElement>(null);
 
   return (
     <>
       <div className="h-full grid grid-cols-[1fr] min-[1600px]:grid-cols-[2fr_1fr] overflow-hidden pt-4 sm:pt-6 lg:pt-8 pr-4 sm:pr-6 lg:pr-8">
         <div ref={calendarContainerRef} className="relative min-h-0 overflow-hidden">
-          <MemoizedPlanContent />
+          <MemoizedPlanContent initialRange={initialRange} />
         </div>
         <div className="hidden min-[1600px]:flex min-[1600px]:flex-col h-full border-l border-base-200">
           <PlanLibraryPanel />
@@ -49,11 +53,15 @@ const PlanPageInner = () => {
   );
 };
 
-export const PlanPage = () => (
+type PlanPageProps = {
+  initialRange?: { startDate: Date; endDate: Date };
+};
+
+export const PlanPage = ({ initialRange }: PlanPageProps) => (
   <MediaDragProvider>
     <PostDragProvider>
       <InlinePickerProvider>
-        <PlanPageInner />
+        <PlanPageInner initialRange={initialRange} />
       </InlinePickerProvider>
     </PostDragProvider>
   </MediaDragProvider>

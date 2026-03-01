@@ -6,11 +6,14 @@ import { PlanPage } from "~/features/posts/components/PlanPage";
 import { contentSchedulesQueryOptions } from "~/lib/queries/content-schedules";
 import { postsQueryOptions } from "~/lib/queries/posts";
 
-const PlanRoute = () => (
-  <PostPreferencesProvider>
-    <PlanPage />
-  </PostPreferencesProvider>
-);
+const PlanRoute = () => {
+  const { initialRange } = Route.useLoaderData();
+  return (
+    <PostPreferencesProvider>
+      <PlanPage initialRange={initialRange} />
+    </PostPreferencesProvider>
+  );
+};
 
 export const Route = createFileRoute("/plan/")({
   loader: async ({ context }) => {
@@ -31,6 +34,8 @@ export const Route = createFileRoute("/plan/")({
       })
     );
     void context.queryClient.prefetchQuery(contentSchedulesQueryOptions());
+
+    return { initialRange: prefetchRange };
   },
   component: PlanRoute,
 });

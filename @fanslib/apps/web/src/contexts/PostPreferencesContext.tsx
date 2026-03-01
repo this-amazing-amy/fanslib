@@ -1,5 +1,4 @@
 import type { PostStatus } from '@fanslib/server/schemas';
-import { addMonths, startOfMonth } from "date-fns";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { mergeDeep } from "remeda";
 import type { DeepPartial } from "~/lib/deep-partial";
@@ -37,10 +36,7 @@ export const defaultPreferences: PostPreferences = {
     search: undefined,
     channels: undefined,
     statuses: undefined,
-    dateRange: {
-      startDate: startOfMonth(new Date()).toISOString(),
-      endDate: addMonths(startOfMonth(new Date()), 3).toISOString(),
-    },
+    dateRange: undefined,
   },
 };
 

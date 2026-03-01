@@ -18,7 +18,9 @@ import { PostFilters } from "./PostFilters";
 
 type Post = PostWithRelations;
 
-const initialRange = () => {
+type DateRange = { startDate: Date; endDate: Date };
+
+const computeInitialRange = (): DateRange => {
   const weekStart = startOfWeek(new Date(), { locale: de });
   return {
     startDate: subWeeks(weekStart, 1),
@@ -26,12 +28,18 @@ const initialRange = () => {
   };
 };
 
-export const PlanContent = () => {
+type PlanContentProps = {
+  initialRange?: DateRange;
+};
+
+export const PlanContent = ({ initialRange }: PlanContentProps) => {
   const { data: channels = [] } = useChannelsQuery();
   const { preferences, updatePreferences } = usePostPreferences();
   const calendarRef = useRef<PostCalendarHandle>(null);
 
-  const [visibleRange, setVisibleRange] = useState(initialRange);
+  const [visibleRange, setVisibleRange] = useState<DateRange>(
+    () => initialRange ?? computeInitialRange()
+  );
 
   const handleVisibleRangeChange = useCallback(
     (startDate: Date, endDate: Date) => {

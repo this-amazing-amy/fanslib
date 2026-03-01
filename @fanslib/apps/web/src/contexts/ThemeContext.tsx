@@ -10,14 +10,8 @@ type ThemeContextType = {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const getSystemTheme = (): Theme => {
-  if (typeof window !== "undefined" && window.matchMedia) {
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  }
-  return "light";
-};
-
 const applyTheme = (theme: Theme) => {
+  if (typeof document === "undefined") return;
   if (theme === "dark") {
     document.documentElement.classList.add("dark");
   } else {
@@ -26,7 +20,7 @@ const applyTheme = (theme: Theme) => {
 };
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>(() => getSystemTheme());
+  const [theme, setTheme] = useState<Theme>("light");
   const { data: settings } = useSettingsQuery();
 
   useEffect(() => {
@@ -34,12 +28,14 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   }, [theme]);
 
   useEffect(() => {
-    if (settings?.theme) {
-      const loadedTheme = settings.theme as Theme;
-      if (loadedTheme !== theme) {
-        setTheme(loadedTheme);
-        applyTheme(loadedTheme);
-      }
+    const resolvedTheme =
+      (settings?.theme as Theme | undefined) ??
+      (typeof window !== "undefined" && window.matchMedia?.("(prefers-color-scheme: dark)")?.matches
+        ? "dark"
+        : "light");
+    if (resolvedTheme !== theme) {
+      setTheme(resolvedTheme);
+      applyTheme(resolvedTheme);
     }
   }, [settings, theme]);
 

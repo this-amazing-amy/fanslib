@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { FilterPresetProvider } from '~/contexts/FilterPresetContext';
 import { LibraryPreferencesProvider, useLibraryPreferences } from '~/contexts/LibraryPreferencesContext';
 import { usePostPreferences } from '~/contexts/PostPreferencesContext';
+import { ClientOnly } from '~/components/ClientOnly';
 import { CreatePostDialog } from '~/features/library/components/CreatePostDialog';
 import { Gallery } from '~/features/library/components/Gallery/Gallery';
 import { GalleryPagination } from '~/features/library/components/Gallery/GalleryPagination';
@@ -139,12 +140,14 @@ const PlanLibraryPanelInner = ({ virtualPost, externalFilters }: PlanLibraryPane
               {isLoading || (isFetching && !mediaList) ? (
                 <GallerySkeleton />
               ) : (
-                <Gallery
-                  medias={(mediaList?.items as Media[] | undefined) ?? []}
-                  error={error ? (error instanceof Error ? error.message : 'Unknown error') : undefined}
-                  onScan={() => {}}
-                  onMediaClick={virtualPost ? mediaClickHandler : undefined}
-                />
+                <ClientOnly fallback={<GallerySkeleton />}>
+                  <Gallery
+                    medias={(mediaList?.items as Media[] | undefined) ?? []}
+                    error={error ? (error instanceof Error ? error.message : 'Unknown error') : undefined}
+                    onScan={() => {}}
+                    onMediaClick={virtualPost ? mediaClickHandler : undefined}
+                  />
+                </ClientOnly>
               )}
             </div>
             <GalleryPagination totalPages={mediaList?.totalPages ?? 0} totalItems={mediaList?.total ?? 0} />

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { FilterPresetProvider } from "~/contexts/FilterPresetContext";
 import { useLibraryPreferences } from "~/contexts/LibraryPreferencesContext";
 import { useScan } from "~/hooks/useScan";
+import { ClientOnly } from "~/components/ClientOnly";
 import { useMediaListQuery } from "~/lib/queries/library";
 import { Gallery } from "./Gallery/Gallery";
 import { GalleryPagination } from "./Gallery/GalleryPagination";
@@ -95,11 +96,13 @@ export const LibraryContent = ({ showScan = true, contentClassName }: LibraryCon
               {isLoading || (isFetching && !mediaList) ? (
                 <GallerySkeleton />
               ) : (
-                <Gallery
-                  medias={(mediaList?.items as Media[] | undefined) ?? []}
-                  error={error ? (error instanceof Error ? error.message : "Unknown error") : undefined}
-                  onScan={showScan ? handleScan : () => {}}
-                />
+                <ClientOnly fallback={<GallerySkeleton />}>
+                  <Gallery
+                    medias={(mediaList?.items as Media[] | undefined) ?? []}
+                    error={error ? (error instanceof Error ? error.message : "Unknown error") : undefined}
+                    onScan={showScan ? handleScan : () => {}}
+                  />
+                </ClientOnly>
               )}
             </div>
             <GalleryPagination totalPages={mediaList?.totalPages ?? 0} totalItems={mediaList?.total ?? 0} />

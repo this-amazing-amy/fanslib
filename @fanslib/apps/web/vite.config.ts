@@ -13,6 +13,9 @@ export default defineConfig({
     tanstackStart(),
     viteReact(),
   ],
+  resolve: {
+    dedupe: ['react', 'react-dom'],
+  },
   environments: {
     // TanStack Start uses 'ssr' as the server environment name
     ssr: {
@@ -20,6 +23,8 @@ export default defineConfig({
         // Force these packages to be bundled into the server output
         // instead of left as external imports (fixes deploy on tsumetai)
         noExternal: ['h3-v2'],
+        // Ensure single React instance for Zustand and other libs during SSR
+        dedupe: ['react', 'react-dom', 'zustand'],
       },
     },
   },

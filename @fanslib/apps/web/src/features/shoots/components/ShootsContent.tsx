@@ -5,7 +5,7 @@ import { ErrorState } from "~/components/ui/ErrorState";
 import { ScrollArea } from "~/components/ui/ScrollArea";
 import { SectionHeader } from "~/components/ui/SectionHeader";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
-import { useMediaSelectionSetup } from "~/hooks/useMediaSelectionSetup";
+import { ClientOnlyMediaSelectionSetup } from "~/components/ClientOnlyMediaSelectionSetup";
 import { useShootContext } from "~/contexts/ShootContext";
 import { useShootPreferences } from "~/contexts/ShootPreferencesContext";
 import { ShootCard } from "~/features/shoots/components/ShootCard";
@@ -34,7 +34,6 @@ export const ShootsContent: FC<ShootsContentProps> = ({ className }) => {
     () => new Map(Array.from(allMedia.entries()).map(([key, value]) => [key.viewIndex, value])),
     [allMedia]
   );
-  useMediaSelectionSetup(mediaMap);
 
   const sortedShoots = useMemo(() => {
     const sorted = [...shoots];
@@ -70,6 +69,7 @@ export const ShootsContent: FC<ShootsContentProps> = ({ className }) => {
 
   return (
     <div className={cn(className, "flex h-full flex-col")}>
+      <ClientOnlyMediaSelectionSetup media={mediaMap} />
         <div className="px-6 pb-4">
           <SectionHeader
             title=""
