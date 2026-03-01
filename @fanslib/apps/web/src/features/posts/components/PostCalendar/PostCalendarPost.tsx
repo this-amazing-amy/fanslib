@@ -1,7 +1,7 @@
 import type { Media, PostWithRelations } from '@fanslib/server/schemas';
 import { Link } from "@tanstack/react-router";
 import { Trash2, X } from "lucide-react";
-import { memo, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { usePostDrag } from "~/contexts/PostDragContext";
 import { usePostPreferences } from "~/contexts/PostPreferencesContext";
 import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
@@ -41,7 +41,11 @@ export const PostCalendarPost = memo(({ post, onUpdate, allPosts = [] }: PostCal
   });
 
   // Use the same breakpoint as the library panel split view (1600px)
-  const isLargeScreen = typeof window !== 'undefined' && window.innerWidth >= 1600;
+  // Initialized to false (matches SSR) and updated after mount to avoid hydration mismatch
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
+  useEffect(() => {
+    setIsLargeScreen(window.innerWidth >= 1600);
+  }, []);
   
   const [createPostData, setCreatePostData] = useState<{
     media: Media[];

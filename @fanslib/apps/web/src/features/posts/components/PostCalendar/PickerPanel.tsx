@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Loader2, X } from 'lucide-react';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ChannelBadge } from '~/components/ChannelBadge';
 import { ContentScheduleBadge } from '~/components/ContentScheduleBadge';
@@ -32,9 +32,10 @@ export const PickerPanel = ({
   // Consume filters from parent MediaFiltersProvider
   const { filters } = useMediaFilters();
 
-  const prefersReducedMotion =
-    typeof window !== 'undefined' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  useEffect(() => {
+    setPrefersReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }, []);
 
   // Fetch 8 media candidates
   const { data: mediaResponse, isLoading } = useMediaListQuery({
