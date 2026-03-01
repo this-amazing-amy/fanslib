@@ -18,7 +18,12 @@ SSH_OPTS="-o StrictHostKeyChecking=no"
 
 echo "Building..."
 cd "$REPO_ROOT"
-bun run build
+if [ -n "${BUILD_DEV:-}" ]; then
+  echo "Using React development mode (BUILD_DEV=1)"
+  bun run build:dev
+else
+  bun run build
+fi
 
 echo "Syncing web..."
 rsync -avz --delete -e "ssh $SSH_OPTS" \

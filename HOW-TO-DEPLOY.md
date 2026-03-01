@@ -74,11 +74,21 @@ TZ=Europe/Berlin
 
 **Quick deploy:** Copy `scripts/deploy.env.example` to `scripts/deploy.env`, fill in your values, then run `bun run deploy`.
 
+**Deploy with React dev mode** (better console errors for debugging): `BUILD_DEV=1 bun run deploy`
+
 ### 1. Build
 
 ```bash
 cd $BUILD_WORKSPACE
 bun run build
+```
+
+**React development mode** (full error messages, warnings, component stacks in console):
+
+```bash
+BUILD_DEV=1 bun run build
+# or
+bun run build:dev
 ```
 
 Build output:
