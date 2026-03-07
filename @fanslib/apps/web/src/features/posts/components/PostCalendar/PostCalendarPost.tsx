@@ -101,7 +101,7 @@ export const PostCalendarPost = memo(({ post, onUpdate, allPosts = [] }: PostCal
   const virtual = isVirtualPost(post);
 
   // Extract channel typeId safely
-  const channelTypeId = post.channel.type?.id ?? post.channel.typeId ?? 'onlyfans';
+  const channelTypeId = post.channel?.type?.id ?? post.channel?.typeId ?? 'unknown';
 
   const handleSkipClick = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -160,7 +160,7 @@ export const PostCalendarPost = memo(({ post, onUpdate, allPosts = [] }: PostCal
       date={new Date(post.date)}
       status={status as 'posted' | 'scheduled' | 'draft'}
       channel={{
-        name: post.channel.name ?? "",
+        name: post.channel?.name ?? "",
         typeId: channelTypeId,
       }}
       schedule={
