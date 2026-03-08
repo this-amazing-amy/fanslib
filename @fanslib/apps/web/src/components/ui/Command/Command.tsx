@@ -111,18 +111,18 @@ export const CommandGroup = ({ children, heading }: { children: ReactNode; headi
 
 export const CommandItem = ({ value, onSelect, children, className }: { value: string; onSelect?: () => void; children: ReactElement | ReactNode; className?: string }) => {
   const ctx = useContext(CommandContext);
+  const incrementRef = useRef<(() => void) | undefined>(undefined);
+  incrementRef.current = ctx?.incrementVisibleCount;
   const select = useCallback(() => {
     onSelect?.();
   }, [onSelect]);
   const isVisible = ctx ? value.toLowerCase().includes(ctx.query.toLowerCase()) : false;
-  
+
   useLayoutEffect(() => {
-    if (!ctx) return undefined;
-    if (isVisible) {
-      ctx.incrementVisibleCount();
-    }
+    if (!isVisible) return undefined;
+    incrementRef.current?.();
     return undefined;
-  }, [ctx, isVisible]);
+  }, [isVisible]);
   
   if (!ctx || !isVisible) return null;
   return (
