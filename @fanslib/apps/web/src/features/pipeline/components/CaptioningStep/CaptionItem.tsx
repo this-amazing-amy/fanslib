@@ -80,6 +80,7 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
   useEffect(() => {
     setSelectedLinkedPostIds(linkedPostIds);
     setLinkedPostIds(item.post.id, linkedPostIds);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- linkedPostIds and setLinkedPostIds are stable references, including them causes infinite re-renders
   }, [item.post.id]);
 
   useEffect(() => {
