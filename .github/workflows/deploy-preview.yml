@@ -1,7 +1,7 @@
 # Preview Deployment für Pull Requests
 #
 # Deployt einen Preview-Stack (web + api) auf Tsumetai für jeden PR.
-# Runner on ebi, deploys to tsumetai via direct SSH.
+# Connects to tsumetai via Tailscale.
 # URL: https://fanslib-pr-{N}.deepblush.garden
 #
 # Ports:
@@ -17,7 +17,7 @@ on:
 
 env:
   APP_NAME: fanslib
-  DEPLOY_HOST: 192.168.69.70
+  DEPLOY_HOST: tsumetai
   DEPLOY_USER: amelia
   PREVIEW_BASE: /var/www/apps/fanslib/previews
   BUN_PATH: /home/amelia/.bun/bin/bun
@@ -26,7 +26,8 @@ jobs:
   deploy:
     name: Deploy Preview
     if: github.event.action != 'closed'
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     env:
       PR_NUMBER: ${{ github.event.pull_request.number }}
       PR_SHA: ${{ github.event.pull_request.head.sha }}
@@ -82,6 +83,20 @@ jobs:
             }
             console.log(JSON.stringify(prodPkg, null, 2));
           " > @fanslib/apps/server/dist/package.json
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ env.DEPLOY_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
 
       - name: Create preview directories
         run: |
@@ -217,11 +232,26 @@ jobs:
   cleanup:
     name: Cleanup Preview
     if: github.event.action == 'closed'
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
     env:
       PR_NUMBER: ${{ github.event.pull_request.number }}
 
     steps:
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ env.DEPLOY_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+
       - name: Remove preview deployment
         run: |
           ssh ${{ env.DEPLOY_USER }}@${{ env.DEPLOY_HOST }} bash << EOF

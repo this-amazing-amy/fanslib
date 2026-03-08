@@ -1,7 +1,7 @@
 # Deploy Fanslib to Production (tsumetai)
 #
 # Builds both web (TanStack Start) and api (Hono/Bun), then deploys via rsync + PM2.
-# Runner on ebi, deploys to tsumetai via direct SSH.
+# Connects to tsumetai via Tailscale.
 #
 # PM2 process names: fanslib-web, fanslib-api
 # Ports: Web=7000, API=7500
@@ -14,13 +14,14 @@ on:
 
 env:
   APP_NAME: fanslib
-  DEPLOY_HOST: 192.168.69.70
+  DEPLOY_HOST: tsumetai
   DEPLOY_USER: amelia
   DEPLOY_PATH: /var/www/apps/fanslib/production/current
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -87,6 +88,20 @@ jobs:
 
           echo "=== API package.json ==="
           cat @fanslib/apps/server/dist/package.json
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ env.DEPLOY_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
 
       - name: Deploy web
         run: |
