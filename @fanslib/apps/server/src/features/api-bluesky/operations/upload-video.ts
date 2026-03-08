@@ -45,11 +45,21 @@ const getServiceAuthToken = async (): Promise<{ token: string; userDid: string }
   return { token: response.data.token, userDid };
 };
 
+const extractJobStatus = (data: Record<string, unknown>, context: string): VideoJobStatus => {
+  // The API may return { jobStatus: { ... } } or the status fields directly
+  const status = (data.jobStatus ?? data) as VideoJobStatus;
+  if (!status || typeof status !== "object" || !("state" in status)) {
+    console.error(`[Bluesky ${context}] Unexpected response shape:`, JSON.stringify(data));
+    throw externalServiceError(`${context}: unexpected response from Bluesky video service`);
+  }
+  return status;
+};
+
 const uploadVideoToService = async (fileBuffer: Buffer, mimeType: string, serviceToken: string, userDid: string): Promise<VideoJobStatus> => {
   const url = new URL(`${VIDEO_SERVICE_URL}/xrpc/app.bsky.video.uploadVideo`);
   url.searchParams.set("did", userDid);
   url.searchParams.set("name", `video_${Date.now()}.mp4`);
-  
+
   const response = await fetch(url.toString(), {
     method: "POST",
     headers: {
@@ -65,8 +75,8 @@ const uploadVideoToService = async (fileBuffer: Buffer, mimeType: string, servic
     throw externalServiceError(`Video upload failed: ${response.status} ${response.statusText} - ${errorText}`);
   }
 
-  const data = await response.json() as { jobStatus: VideoJobStatus };
-  return data.jobStatus;
+  const data = await response.json() as Record<string, unknown>;
+  return extractJobStatus(data, "uploadVideo");
 };
 
 const getJobStatus = async (jobId: string, serviceToken: string): Promise<VideoJobStatus> => {
@@ -82,8 +92,8 @@ const getJobStatus = async (jobId: string, serviceToken: string): Promise<VideoJ
     throw externalServiceError(`Failed to get job status: ${response.status} ${response.statusText} - ${errorText}`);
   }
 
-  const data = await response.json() as { jobStatus: VideoJobStatus };
-  return data.jobStatus;
+  const data = await response.json() as Record<string, unknown>;
+  return extractJobStatus(data, "getJobStatus");
 };
 
 const waitForVideoProcessing = async (jobId: string, serviceToken: string): Promise<BlobRef> => {
