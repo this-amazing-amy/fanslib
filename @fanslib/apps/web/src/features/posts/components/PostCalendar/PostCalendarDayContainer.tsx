@@ -3,7 +3,8 @@ import type { ReactNode } from 'react';
 import { usePostDrag } from '~/contexts/PostDragContext';
 import { useDragOver } from '~/hooks/useDragOver';
 import { cn } from '~/lib/cn';
-import { useUpdatePostMutation } from '~/lib/queries/posts';
+import { useCreatePostMutation, useUpdatePostMutation } from '~/lib/queries/posts';
+import { isVirtualPost } from '~/lib/virtual-posts';
 
 type PostCalendarDayContainerProps = {
   date: Date;
@@ -20,6 +21,7 @@ export const PostCalendarDayContainer = ({
 }: PostCalendarDayContainerProps) => {
   const { isDragging: isPostDragging, draggedPost, endPostDrag } = usePostDrag();
   const updatePostMutation = useUpdatePostMutation();
+  const createPostMutation = useCreatePostMutation();
 
   const { isOver, dragHandlers } = useDragOver({
     onDrop: async () => {
@@ -40,10 +42,21 @@ export const PostCalendarDayContainer = ({
       newDate.setSeconds(originalDate.getSeconds());
 
       try {
-        await updatePostMutation.mutateAsync({
-          id: draggedPost.id,
-          updates: { date: newDate },
-        });
+        if (isVirtualPost(draggedPost)) {
+          await createPostMutation.mutateAsync({
+            date: newDate,
+            channelId: draggedPost.channelId,
+            status: 'draft',
+            caption: '',
+            mediaIds: [],
+            scheduleId: draggedPost.scheduleId ?? undefined,
+          });
+        } else {
+          await updatePostMutation.mutateAsync({
+            id: draggedPost.id,
+            updates: { date: newDate },
+          });
+        }
         await onUpdate();
       } catch (error) {
         console.error('Failed to move post to new date:', error);

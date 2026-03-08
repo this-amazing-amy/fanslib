@@ -1,11 +1,13 @@
 import type { PostWithRelations } from '@fanslib/server/schemas';
 import { createContext, useContext, useState, type FC, type ReactNode } from "react";
+import type { VirtualPost } from "~/lib/virtual-posts";
 
 type Post = PostWithRelations;
+type DraggablePost = Post | VirtualPost;
 
 type PostDragContextType = {
-  draggedPost: Post | null;
-  startPostDrag: (e: React.DragEvent<HTMLDivElement>, post: Post) => void;
+  draggedPost: DraggablePost | null;
+  startPostDrag: (e: React.DragEvent<HTMLDivElement>, post: DraggablePost) => void;
   endPostDrag: () => void;
   isDragging: boolean;
 };
@@ -17,9 +19,9 @@ type PostDragProviderProps = {
 };
 
 export const PostDragProvider: FC<PostDragProviderProps> = ({ children }) => {
-  const [draggedPost, setDraggedPost] = useState<Post | null>(null);
+  const [draggedPost, setDraggedPost] = useState<DraggablePost | null>(null);
 
-  const startPostDrag = (e: React.DragEvent<HTMLDivElement>, post: Post) => {
+  const startPostDrag = (e: React.DragEvent<HTMLDivElement>, post: DraggablePost) => {
     e.dataTransfer.effectAllowed = "copy";
     e.dataTransfer.setData("text/plain", post.id);
     setDraggedPost(post);
