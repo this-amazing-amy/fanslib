@@ -1,7 +1,12 @@
 # Deploy Fanslib to Production (tsumetai)
 #
 # Builds both web (TanStack Start) and api (Hono/Bun), then deploys via rsync + PM2.
-# Connects to tsumetai via Tailscale.
+# Connects to tsumetai via Cloudflare Tunnel.
+#
+# Required GitHub Secrets:
+#   SSH_PRIVATE_KEY         - Ed25519 private key for amelia@tsumetai
+#   CF_ACCESS_CLIENT_ID     - Cloudflare Access client ID (for SSH tunnel)
+#   CF_ACCESS_CLIENT_SECRET - Cloudflare Access client secret
 #
 # PM2 process names: fanslib-web, fanslib-api
 # Ports: Web=7000, API=7500
@@ -14,7 +19,7 @@ on:
 
 env:
   APP_NAME: fanslib
-  DEPLOY_HOST: tsumetai
+  DEPLOY_HOST: ssh.deepblush.garden
   DEPLOY_USER: amelia
   DEPLOY_PATH: /var/www/apps/fanslib/production/current
 
@@ -37,7 +42,7 @@ jobs:
           restore-keys: bun-
 
       - name: Install dependencies
-        run: bun install --verbose
+        run: bun install
 
       - name: Build
         run: bun run build
@@ -89,38 +94,44 @@ jobs:
           echo "=== API package.json ==="
           cat @fanslib/apps/server/dist/package.json
 
-      - name: Connect to Tailscale
-        uses: tailscale/github-action@v2
-        with:
-          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TS_OAUTH_CLIENT_SECRET }}
+      - name: Install cloudflared
+        run: |
+          curl -sL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared
+          chmod +x cloudflared
 
-      - name: Setup SSH key
+      - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H ${{ env.DEPLOY_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+
+          cat >> ~/.ssh/config << EOF
+          Host ${{ env.DEPLOY_HOST }}
+            ProxyCommand ./cloudflared access ssh --hostname %h --id ${{ secrets.CF_ACCESS_CLIENT_ID }} --secret ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+            StrictHostKeyChecking no
+            User ${{ env.DEPLOY_USER }}
+            IdentityFile ~/.ssh/id_ed25519
+          EOF
 
       - name: Deploy web
         run: |
-          ssh ${{ env.DEPLOY_USER }}@${{ env.DEPLOY_HOST }} "mkdir -p ${{ env.DEPLOY_PATH }}/web"
+          ssh ${{ env.DEPLOY_HOST }} "mkdir -p ${{ env.DEPLOY_PATH }}/web"
 
-          rsync -avz --delete \
+          rsync -avz --delete -e ssh \
             @fanslib/apps/web/dist/ \
-            ${{ env.DEPLOY_USER }}@${{ env.DEPLOY_HOST }}:${{ env.DEPLOY_PATH }}/web/
+            ${{ env.DEPLOY_HOST }}:${{ env.DEPLOY_PATH }}/web/
 
       - name: Deploy api
         run: |
-          ssh ${{ env.DEPLOY_USER }}@${{ env.DEPLOY_HOST }} "mkdir -p ${{ env.DEPLOY_PATH }}/api"
+          ssh ${{ env.DEPLOY_HOST }} "mkdir -p ${{ env.DEPLOY_PATH }}/api"
 
-          rsync -avz --delete \
+          rsync -avz --delete -e ssh \
             @fanslib/apps/server/dist/ \
-            ${{ env.DEPLOY_USER }}@${{ env.DEPLOY_HOST }}:${{ env.DEPLOY_PATH }}/api/
+            ${{ env.DEPLOY_HOST }}:${{ env.DEPLOY_PATH }}/api/
 
       - name: Install deps & restart PM2
         run: |
-          ssh ${{ env.DEPLOY_USER }}@${{ env.DEPLOY_HOST }} '
+          ssh ${{ env.DEPLOY_HOST }} '
             export PATH="$HOME/.bun/bin:$HOME/.local/bin:$PATH"
 
             cp /var/www/apps/fanslib/production/.env /var/www/apps/fanslib/production/current/.env
@@ -145,7 +156,7 @@ jobs:
       - name: Validate deployment
         run: |
           sleep 3
-          ssh ${{ env.DEPLOY_USER }}@${{ env.DEPLOY_HOST }} '
+          ssh ${{ env.DEPLOY_HOST }} '
             echo "=== Health checks ==="
             curl -sf http://localhost:7000 > /dev/null && echo "✓ Web OK (port 7000)" || echo "✗ Web FAILED"
             curl -sf http://localhost:7500/health > /dev/null && echo "✓ API OK (port 7500)" || echo "✗ API FAILED"
