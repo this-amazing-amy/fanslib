@@ -145,7 +145,7 @@ export const PlanContent = ({ initialRange }: PlanContentProps) => {
   const isLoading = isPostsFetching || isVirtualPostsFetching;
 
   return (
-    <div className="h-full overflow-hidden flex flex-col max-w-[1200px] mx-auto">
+    <div className="h-full overflow-hidden flex flex-col">
       <div className="px-6 pb-3 flex-shrink-0">
         <SectionHeader title="" actions={<PlanViewSettings />} />
         <div className="mt-2 flex items-center gap-2">
@@ -157,7 +157,7 @@ export const PlanContent = ({ initialRange }: PlanContentProps) => {
           />
         </div>
       </div>
-      <div className="flex-1 min-h-0 pl-20 pr-6">
+      <div className="flex-1 min-h-0 px-4 sm:px-6">
         {!channels?.length && <PlanEmptyState />}
         {(channels?.length ?? 0) > 0 && (
           <PostCalendar

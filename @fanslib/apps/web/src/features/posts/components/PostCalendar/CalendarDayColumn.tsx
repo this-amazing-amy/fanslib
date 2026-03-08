@@ -26,13 +26,13 @@ export const CalendarDayColumn = memo(
     return (
       <div
         className="flex-shrink-0 h-full pt-0.5"
-        style={{ scrollSnapAlign: "start", ...style }}
+        style={{ scrollSnapAlign: style?.scrollSnapAlign ?? "start", ...style }}
       >
         <PostCalendarDayContainer
           date={day}
           onUpdate={onUpdate}
           className={cn(
-            "flex flex-col rounded-lg p-1.5",
+            "flex flex-col rounded-lg p-1.5 h-full min-h-0",
             today && "bg-base-200 ring-2 ring-primary"
           )}
         >
