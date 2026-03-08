@@ -36,6 +36,13 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
     return extendedResponse;
   }
 
+  // Throw on non-ok responses so mutations/queries properly fail
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    const message = body?.error ?? body?.message ?? `Request failed with status ${response.status}`;
+    throw new Error(message);
+  }
+
   return response;
 };
 
