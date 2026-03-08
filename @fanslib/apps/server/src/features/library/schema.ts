@@ -10,6 +10,7 @@ export const MediaSchema = z.object({
   size: z.number(),
   duration: z.number().nullable(),
   redgifsUrl: z.string().nullable(),
+  description: z.string().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   fileCreationDate: z.coerce.date(),
