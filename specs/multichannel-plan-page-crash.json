@@ -1,0 +1,76 @@
+{
+  "name": "Multi-Channel Plan Page Crash Fix",
+  "description": "Fix: Plan Page crasht mit 'Cannot read properties of null (reading id)' bei Multi-Channel Schedules. Chirurgischer Frontend-Fix – Backend ist bereits fertig.",
+  "context": {
+    "problem": "Content Schedules wurden von Single-Channel (channelId) auf Multi-Channel (scheduleChannels M:N-Relation) migriert. channelId ist dabei null gesetzt worden. PlanContent.tsx liest channelIds noch aus schedule.channel (null) statt aus scheduleChannels – führt zum Crash.",
+    "impact": "Plan Page ist für alle User mit Multi-Channel Schedules komplett unbenutzbar.",
+    "user_need": "Plan Page muss wieder funktionieren. Virtual Posts müssen für alle konfigurierten Channels einer Schedule angezeigt werden.",
+    "architecture_notes": "Backend bereits vollständig migriert: fetch-all.ts lädt scheduleChannels eager mit Channel-Details. generate-virtual-posts.ts erstellt bereits einen Virtual Post pro Channel pro Slot. API-Response enthält scheduleChannels bereits. Nur Frontend muss angepasst werden."
+  },
+  "scope": {
+    "in_scope": [
+      "PlanContent.tsx: channelIds aus scheduleChannels lesen statt aus schedule.channel",
+      "PostCalendarPost.tsx: Null-Safety für post.channel (defensive, für echte Posts)"
+    ],
+    "out_of_scope": [
+      "Mehrere Channel-Icons im Schedule-Editor anzeigen (Follow-up Splitter)",
+      "Pipeline-Komponenten (ScheduleBreakdown.tsx, AssignmentStep/index.tsx) – eigener Splitter",
+      "Backend-Änderungen – bereits fertig implementiert",
+      "Legacy Single-Channel Schedules ändern (müssen weiterhin funktionieren)"
+    ]
+  },
+  "features": [
+    {
+      "id": "F01",
+      "category": "functional",
+      "description": "Plan Page lädt channelIds aus scheduleChannels statt schedule.channel",
+      "acceptance_criteria": [
+        "Plan Page crasht nicht mehr bei Schedules mit Multi-Channel-Konfiguration (scheduleChannels.length > 0, channel null)",
+        "channelIds werden aus schedule.scheduleChannels[].channel.id gesammelt (alle Channels der Schedule)",
+        "Bei Schedules mit einem einzelnen Legacy-Channel (scheduleChannels leer, channel gesetzt) werden channelIds korrekt aus schedule.channel.id gelesen",
+        "User-Filter (preferences.filter.channels) hat weiterhin Vorrang vor den Schedule-channelIds",
+        "useVirtualPostsQuery erhält alle relevanten channelIds – Virtual Posts erscheinen für jeden konfigurierten Channel"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F02",
+      "category": "edge-case",
+      "description": "Schedules ohne Channel-Konfiguration führen nicht zum Crash",
+      "acceptance_criteria": [
+        "Wenn scheduleChannels leer ist UND channel null ist, wird kein channelId zur Liste hinzugefügt (kein Crash, leeres Array wird übersprungen)",
+        "Plan Page bleibt funktionsfähig wenn keine Channels konfiguriert sind (leerer Kalender, kein Error)"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F03",
+      "category": "edge-case",
+      "description": "PostCalendarPost rendert auch wenn post.channel null ist",
+      "acceptance_criteria": [
+        "PostCalendarPost crasht nicht wenn post.channel null ist",
+        "Wenn post.channel null ist, wird ein sinnvoller Fallback-Wert verwendet (channelTypeId = 'unknown' oder ein Default)",
+        "Virtual Posts (immer mit Channel laut Backend) sind nicht betroffen – Verhalten ändert sich nicht"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F04",
+      "category": "functional",
+      "description": "Virtual Posts erscheinen pro Channel im Kalender",
+      "acceptance_criteria": [
+        "Eine Schedule mit 3 Channels zeigt Virtual Posts für alle 3 Channels im Kalender an",
+        "Jeder Virtual Post trägt das Icon/Label seines eigenen Channels",
+        "Virtual Posts bleiben klickbar und öffnen den Picker mit dem korrekten Channel-Kontext"
+      ],
+      "passes": false
+    }
+  ],
+  "technical_notes": {
+    "backend_status": "Backend fertig. fetch-all.ts gibt scheduleChannels bereits zurück (mit Channel type + defaultHashtags eager geladen). generate-virtual-posts.ts erstellt bereits Virtual Posts pro Channel.",
+    "frontend_change_1": "PlanContent.tsx Zeile 84-91: schedules.flatMap(s => s.scheduleChannels?.length ? s.scheduleChannels.map(sc => sc.channel.id) : s.channel ? [s.channel.id] : [])",
+    "frontend_change_2": "PostCalendarPost.tsx Zeile ~104: post.channel?.type?.id ?? post.channel?.typeId ?? 'unknown' (Optional Chaining)",
+    "api_type": "FetchAllContentSchedulesResponseSchema (aus fetch-all.ts) exportiert – bereits korrekt getypt mit scheduleChannels: z.array(ScheduleChannelWithChannelSchema)",
+    "open_questions": []
+  }
+}

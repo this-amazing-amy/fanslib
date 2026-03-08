@@ -87,7 +87,9 @@ export const PlanContent = ({ initialRange }: PlanContentProps) => {
     }
     const ids = (schedules ?? []).flatMap((schedule) => {
       if (schedule.scheduleChannels?.length) {
-        return schedule.scheduleChannels.map((sc) => sc.channel.id);
+        return schedule.scheduleChannels
+          .filter((sc) => sc.channel != null)
+          .map((sc) => sc.channel.id);
       }
       if (schedule.channel) {
         return [schedule.channel.id];
