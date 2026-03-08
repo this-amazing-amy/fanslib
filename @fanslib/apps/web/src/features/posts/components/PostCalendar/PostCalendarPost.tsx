@@ -199,7 +199,13 @@ export const PostCalendarPost = memo(({ post, onUpdate, allPosts = [] }: PostCal
       </div>
     </Link>
   ) : (
-    <div ref={cardRef}>
+    <div
+      ref={cardRef}
+      draggable
+      onDragStart={(e) => startPostDrag(e, post)}
+      onDragEnd={endPostDrag}
+      className="cursor-grab active:cursor-grabbing"
+    >
       {presentationContent}
     </div>
   );
