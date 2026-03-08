@@ -14,6 +14,7 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
+    "build:dev": "turbo run build --filter=!@fanslib/web && cd @fanslib/apps/web && bun run build:dev",
     "dev": "turbo run dev --parallel",
     "start": "turbo run start --parallel",
     "test": "turbo run test",

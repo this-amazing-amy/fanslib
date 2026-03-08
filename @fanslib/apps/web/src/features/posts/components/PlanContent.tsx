@@ -85,7 +85,7 @@ export const PlanContent = ({ initialRange }: PlanContentProps) => {
     if (preferences.filter?.channels?.length) {
       return preferences.filter.channels;
     }
-    return (schedules ?? []).flatMap((schedule) => {
+    const ids = (schedules ?? []).flatMap((schedule) => {
       if (schedule.scheduleChannels?.length) {
         return schedule.scheduleChannels.map((sc) => sc.channel.id);
       }
@@ -94,6 +94,7 @@ export const PlanContent = ({ initialRange }: PlanContentProps) => {
       }
       return [];
     });
+    return [...new Set(ids)];
   }, [preferences.filter?.channels, schedules]);
 
   const {
