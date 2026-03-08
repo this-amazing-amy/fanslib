@@ -115,7 +115,9 @@ const postToBluesky = async (post: Post, retryCount: number, now: Date): Promise
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           error: (error as any).error,
         }
-      : { message: "Unknown error" };
+      : (error && typeof error === 'object' && 'message' in error)
+        ? { name: (error as any)._tag ?? (error as any).code, message: (error as any).message }
+        : { message: "Unknown error" };
     
     console.error("Bluesky post failed", {
       postId: post.id,
