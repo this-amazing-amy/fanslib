@@ -25,54 +25,52 @@ export const CalendarWeekRow = memo(
         {week.monthLabel}
       </h3>
 
-      <div className="grid grid-cols-7 gap-1.5 flex-1 min-h-0">
-        {week.days.map((day) => {
-          const dayPosts = postsForDay(posts, day);
-          const today = isToday(day);
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-thin p-0.5">
+        <div className="grid grid-cols-7 gap-1.5">
+          {week.days.map((day) => {
+            const dayPosts = postsForDay(posts, day);
+            const today = isToday(day);
 
-          return (
-            <PostCalendarDayContainer
-              key={day.toISOString()}
-              date={day}
-              onUpdate={onUpdate}
-              className={cn(
-                "flex flex-col min-h-0 rounded-lg p-1.5",
-                today && "bg-base-200 ring-2 ring-primary"
-              )}
-            >
-              <div className="flex items-center gap-1 mb-1 flex-shrink-0">
-                <time
-                  dateTime={format(day, "yyyy-MM-dd")}
-                  className={cn(
-                    "font-medium text-xs w-5 h-5 flex items-center justify-center",
-                    today && "bg-primary text-primary-content rounded-full"
-                  )}
-                >
-                  {format(day, "d")}
-                </time>
-                <span className="text-[10px] text-base-content/50">
-                  {format(day, "EEE")}
-                </span>
-              </div>
-
-              <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-thin">
-                {dayPosts.length > 0 && (
-                  <div className="flex flex-col gap-1.5">
-                    {dayPosts.map((post) => (
-                      <PostCalendarPost
-                        key={post.id}
-                        post={post}
-                        onUpdate={onUpdate}
-                        allPosts={posts}
-                      />
-                    ))}
-                  </div>
+            return (
+              <PostCalendarDayContainer
+                key={day.toISOString()}
+                date={day}
+                onUpdate={onUpdate}
+                className={cn(
+                  "flex flex-col rounded-lg p-1.5",
+                  today && "bg-base-200 ring-2 ring-primary"
                 )}
-                <PostCalendarDayDropzone date={day} onUpdate={onUpdate} />
-              </div>
-            </PostCalendarDayContainer>
-          );
-        })}
+              >
+                <div className="flex items-center gap-1 mb-1 flex-shrink-0">
+                  <time
+                    dateTime={format(day, "yyyy-MM-dd")}
+                    className={cn(
+                      "font-medium text-xs w-5 h-5 flex items-center justify-center",
+                      today && "bg-primary text-primary-content rounded-full"
+                    )}
+                  >
+                    {format(day, "d")}
+                  </time>
+                  <span className="text-[10px] text-base-content/50">
+                    {format(day, "EEE")}
+                  </span>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  {dayPosts.map((post) => (
+                    <PostCalendarPost
+                      key={post.id}
+                      post={post}
+                      onUpdate={onUpdate}
+                      allPosts={posts}
+                    />
+                  ))}
+                  <PostCalendarDayDropzone date={day} onUpdate={onUpdate} />
+                </div>
+              </PostCalendarDayContainer>
+            );
+          })}
+        </div>
       </div>
     </div>
   )
