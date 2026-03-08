@@ -1,6 +1,6 @@
 import { createFileRoute, useParams, useRouter } from '@tanstack/react-router';
 import { ArrowLeft, Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { MediaView } from '~/components/MediaView';
 import { RevealInFinderButton } from '~/components/RevealInFinderButton';
 import { MediaDetailDotsMenu } from '~/components/media-detail/MediaDetailDotsMenu';
@@ -9,15 +9,51 @@ import { MediaDetailNavigation } from '~/components/media-detail/MediaDetailNavi
 import { MediaPosts } from '~/components/media-detail/MediaPosts';
 import { CreatePostDialog } from '~/features/library/components/CreatePostDialog';
 import { Button } from '~/components/ui/Button';
+import { Textarea } from '~/components/ui/Textarea';
 
 import { MediaTagEditor } from '~/features/library/components/MediaTagEditor';
-import { useMediaQuery } from '~/lib/queries/library';
+import { useDebounce } from '~/hooks/useDebounce';
+import { useMediaQuery, useUpdateMediaMutation } from '~/lib/queries/library';
 
 const MediaRoute = () => {
   const { mediaId } = useParams({ from: '/content/library/media/$mediaId' });
   const router = useRouter();
   const { data: media, isLoading, error } = useMediaQuery({ id: mediaId });
   const [createPostDialogOpen, setCreatePostDialogOpen] = useState(false);
+  const [localDescription, setLocalDescription] = useState('');
+  const [isDescriptionSaving, setIsDescriptionSaving] = useState(false);
+  const updateMediaMutation = useUpdateMediaMutation();
+
+  const mediaId_resolved = media && !('error' in media) ? media.id : undefined;
+  const mediaDescription = media && !('error' in media) ? media.description : undefined;
+
+  useEffect(() => {
+    if (mediaId_resolved) {
+      setLocalDescription(mediaDescription ?? '');
+    }
+  }, [mediaId_resolved, mediaDescription]);
+
+  const saveDescription = async (description: string) => {
+    if (!media || 'error' in media) return;
+    setIsDescriptionSaving(true);
+    try {
+      await updateMediaMutation.mutateAsync({
+        id: media.id,
+        updates: { description: description.trim() || null },
+      });
+    } catch (error) {
+      console.error('Failed to update description:', error);
+    } finally {
+      setIsDescriptionSaving(false);
+    }
+  };
+
+  const debouncedSaveDescription = useDebounce(saveDescription, 1000);
+
+  const updateDescription = (newDescription: string) => {
+    setLocalDescription(newDescription);
+    debouncedSaveDescription(newDescription);
+  };
 
   if (isLoading) {
     return (
@@ -62,11 +98,34 @@ const MediaRoute = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-8 py-6">
-            <div
-              className="rounded-2xl bg-base-300 aspect-square overflow-hidden"
-              style={{ viewTransitionName: `media-${media.id}` }}
-            >
-              <MediaView media={mediaWithDates} controls />
+            <div className="flex flex-col gap-4">
+              <div
+                className="rounded-2xl bg-base-300 aspect-square overflow-hidden"
+                style={{ viewTransitionName: `media-${media.id}` }}
+              >
+                <MediaView media={mediaWithDates} controls />
+              </div>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <label htmlFor="media-description" className="text-sm font-medium">
+                    Description
+                  </label>
+                </div>
+                <div className="relative">
+                  <Textarea
+                    id="media-description"
+                    placeholder="Add a description..."
+                    value={localDescription}
+                    onChange={updateDescription}
+                    rows={4}
+                  />
+                  {isDescriptionSaving && (
+                    <div className="absolute right-2 bottom-2 bg-base-100 p-1 rounded text-xs">
+                      Saving...
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
             <div className="flex flex-col gap-6">
               <MediaTagEditor media={[mediaWithDates]} />

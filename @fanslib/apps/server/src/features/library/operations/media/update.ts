@@ -17,6 +17,7 @@ export const UpdateMediaRequestBodySchema = z.object({
   size: z.number().optional(),
   duration: z.number().optional(),
   redgifsUrl: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
   fileCreationDate: z.coerce.date().optional(),
   fileModificationDate: z.coerce.date().optional(),
 });

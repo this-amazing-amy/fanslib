@@ -40,6 +40,9 @@ export class Media {
   @Column({ type: "varchar", nullable: true, name: "redgifsUrl" })
   redgifsUrl: string | null = null;
 
+  @Column({ type: "text", nullable: true, name: "description" })
+  description: string | null = null;
+
   @CreateDateColumn({ type: "datetime", name: "createdAt" })
   createdAt!: Date;
 
