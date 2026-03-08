@@ -18,7 +18,9 @@ type MediaDragProviderProps = {
 export const MediaDragProvider: FC<MediaDragProviderProps> = ({ children }) => {
   const [draggedMedias, setDraggedMedias] = useState<Media[]>([]);
 
-  const startMediaDrag = (_: React.DragEvent<HTMLDivElement>, medias: Media[]) => {
+  const startMediaDrag = (e: React.DragEvent<HTMLDivElement>, medias: Media[]) => {
+    e.dataTransfer.effectAllowed = "copy";
+    e.dataTransfer.setData("text/plain", "");
     setDraggedMedias(medias);
   };
 
