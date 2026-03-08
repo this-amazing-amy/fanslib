@@ -15,7 +15,7 @@ export const usePageMediaTagsQuery = (mediaIds: string[]) =>
       return new Map(Object.entries(record));
     },
     enabled: mediaIds.length > 0,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 1000,
   });
 
 // Tag Dimensions
@@ -66,6 +66,7 @@ export const useUpdateTagDimensionMutation = () => {
     },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.dimensions.all() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.media.all() });
       queryClient.setQueryData(QUERY_KEYS.tags.dimensions.byId(variables.id), data);
     },
   });
@@ -82,6 +83,7 @@ export const useDeleteTagDimensionMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.dimensions.all() });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.definitions.all() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.media.all() });
     },
   });
 };
@@ -189,6 +191,7 @@ export const useUpdateTagDefinitionMutation = () => {
       });
 
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.dimensions.all() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.media.all() });
       queryClient.setQueryData(QUERY_KEYS.tags.definitions.byId(variables.id), data);
       if (data && 'dimensionId' in data && data.dimensionId) {
         queryClient.invalidateQueries({
@@ -279,7 +282,7 @@ export const useAssignTagsToMediaMutation = () => {
       return result.json();
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.media.byMediaId(variables.mediaId) });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.media.all() });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.media.byId(variables.mediaId) });
     },
   });
@@ -294,11 +297,10 @@ export const useBulkAssignTagsMutation = () => {
       return result.json();
     },
     onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.media.all() });
       variables.forEach((assignment) => {
-        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.media.byMediaId(assignment.mediaId) });
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.media.byId(assignment.mediaId) });
       });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.media.bulk([], undefined) });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.media.list() });
     },
   });
@@ -318,9 +320,8 @@ export const useRemoveTagsFromMediaMutation = () => {
       return result.json();
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.media.byMediaId(variables.mediaId) });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.media.all() });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.media.byId(variables.mediaId) });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.media.bulk([], undefined) });
     },
   });
 };

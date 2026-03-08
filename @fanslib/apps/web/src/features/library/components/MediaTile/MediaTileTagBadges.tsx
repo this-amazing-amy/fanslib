@@ -6,7 +6,9 @@ type MediaTileTagBadgesProps = {
 };
 
 export const MediaTileTagBadges = ({ tags }: MediaTileTagBadgesProps) => {
-  const stickerTags = tags.filter((tag) => tag.stickerDisplay && tag.stickerDisplay !== "none");
+  const stickerTags = tags.filter(
+    (tag) => tag.stickerDisplay && tag.stickerDisplay !== "none" && (tag.shortRepresentation || tag.tagDisplayName || tag.tagValue)
+  );
 
   if (!stickerTags.length) return null;
 
