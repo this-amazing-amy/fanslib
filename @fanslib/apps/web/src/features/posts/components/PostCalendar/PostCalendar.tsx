@@ -1,27 +1,10 @@
 import type { PostWithRelations } from "@fanslib/server/schemas";
-import { AnimatePresence, motion } from "framer-motion";
-import { CalendarDays, ChevronDown, ChevronUp } from "lucide-react";
-import { forwardRef, useEffect, useImperativeHandle, useMemo } from "react";
+import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import { Button } from "~/components/ui/Button";
-import { usePrefersReducedMotion } from "~/hooks/usePrefersReducedMotion";
 import { cn } from "~/lib/cn";
-import { CalendarWeekRow } from "./CalendarWeekRow";
-import { useTwoWeekCalendar } from "./useTwoWeekCalendar";
-
-const slideVariants = {
-  enter: (direction: number) => ({
-    y: `${direction * 52}%`,
-    opacity: 0,
-  }),
-  center: {
-    y: 0,
-    opacity: 1,
-  },
-  exit: (direction: number) => ({
-    y: `${direction * -52}%`,
-    opacity: 0,
-  }),
-};
+import { CalendarDayColumn } from "./CalendarDayColumn";
+import { useHorizontalCalendar } from "./useHorizontalCalendar";
 
 type Post = PostWithRelations;
 
@@ -39,14 +22,27 @@ type PostCalendarProps = {
 
 export const PostCalendar = forwardRef<PostCalendarHandle, PostCalendarProps>(
   ({ className, posts, onUpdate, onVisibleRangeChange }, ref) => {
-    const { weeks, visibleRange, pageDown, pageUp, jumpToToday, todayInView, direction, pageKey } =
-      useTwoWeekCalendar();
-    const prefersReducedMotion = usePrefersReducedMotion();
+    const {
+      days,
+      containerRef,
+      scrollLeft,
+      scrollRight,
+      scrollToToday,
+      todayInView,
+      visibleRange,
+      currentMonthLabel,
+    } = useHorizontalCalendar();
 
-    useImperativeHandle(ref, () => ({ scrollToToday: jumpToToday }));
+    useImperativeHandle(ref, () => ({ scrollToToday }));
 
+    // Debounce range change notifications so fast scrolling doesn't cascade refetches
+    const rangeTimerRef = useRef<ReturnType<typeof setTimeout>>();
     useEffect(() => {
-      onVisibleRangeChange?.(visibleRange.startDate, visibleRange.endDate);
+      clearTimeout(rangeTimerRef.current);
+      rangeTimerRef.current = setTimeout(() => {
+        onVisibleRangeChange?.(visibleRange.startDate, visibleRange.endDate);
+      }, 200);
+      return () => clearTimeout(rangeTimerRef.current);
     }, [visibleRange, onVisibleRangeChange]);
 
     const visiblePosts = useMemo(
@@ -61,68 +57,77 @@ export const PostCalendar = forwardRef<PostCalendarHandle, PostCalendarProps>(
       [posts, visibleRange]
     );
 
+    const dayWidthPercent = 100 / 7;
+
     return (
       <div className={cn("relative h-full", className)}>
-        {/* Paging buttons — floating outside the calendar on the left, anchored to top */}
+        {/* Nav buttons — floating outside the calendar on the left */}
         <div className="absolute -left-14 top-0 flex flex-col items-center gap-2 z-10">
           <Button
             variant="outline"
             size="icon"
-            onPress={pageUp}
-            aria-label="Previous week"
+            onPress={scrollLeft}
+            aria-label="Previous day"
             className="rounded-full"
           >
-            <ChevronUp className="w-5 h-5" />
+            <ChevronLeft className="w-5 h-5" />
           </Button>
 
           <Button
             variant="outline"
             size="icon"
-            onPress={pageDown}
-            aria-label="Next week"
+            onPress={scrollRight}
+            aria-label="Next day"
             className="rounded-full"
           >
-            <ChevronDown className="w-5 h-5" />
+            <ChevronRight className="w-5 h-5" />
           </Button>
 
-          {!todayInView && (
-            <Button
-              variant="outline"
-              size="icon"
-              onPress={jumpToToday}
-              aria-label="Jump to today"
-              className="rounded-full"
-            >
-              <CalendarDays className="w-4 h-4" />
-            </Button>
-          )}
+          <Button
+            variant="outline"
+            size="icon"
+            onPress={scrollToToday}
+            aria-label="Jump to today"
+            className="rounded-full"
+          >
+            <CalendarDays className="w-4 h-4" />
+          </Button>
         </div>
 
-        {/* Calendar grid — full width */}
-        <div className="relative flex flex-col h-full min-h-0 overflow-hidden">
-          <AnimatePresence initial={false} custom={direction.current} mode="popLayout">
-            <motion.div
-              key={pageKey}
-              custom={direction.current}
-              variants={prefersReducedMotion ? undefined : slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ type: "spring", stiffness: 400, damping: 40, mass: 0.8 }}
-              className="absolute inset-0 flex flex-col gap-3"
+        {/* Calendar */}
+        <div className="flex flex-col h-full min-h-0">
+          <h3 className="text-base font-semibold text-base-content/90 px-1 mb-2 flex-shrink-0">
+            {currentMonthLabel}
+          </h3>
+
+          {/* Scroll container with fade edges */}
+          <div className="relative flex-1 min-h-0">
+            <div
+              ref={containerRef}
+              className="h-full overflow-x-auto overflow-y-hidden scrollbar-none"
+              style={{ scrollSnapType: "x mandatory" }}
             >
-              <CalendarWeekRow
-                week={weeks[0]}
-                posts={visiblePosts}
-                onUpdate={onUpdate}
-              />
-              <CalendarWeekRow
-                week={weeks[1]}
-                posts={visiblePosts}
-                onUpdate={onUpdate}
-              />
-            </motion.div>
-          </AnimatePresence>
+              <div
+                className="flex h-full"
+                style={{ width: `${(days.length / 7) * 100}%` }}
+              >
+                {days.map((day) => (
+                  <CalendarDayColumn
+                    key={day.toISOString()}
+                    day={day}
+                    posts={visiblePosts}
+                    allPosts={posts}
+                    onUpdate={onUpdate}
+                    style={{ width: `${dayWidthPercent / (days.length / 7)}%` }}
+                  />
+                ))}
+              </div>
+            </div>
+            {/* Left fade */}
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-base-100 to-transparent" />
+            {/* Right fade */}
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-base-100 to-transparent" />
+          </div>
         </div>
       </div>
     );
