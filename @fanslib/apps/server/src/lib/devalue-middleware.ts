@@ -49,6 +49,11 @@ export const devalueMiddleware = (): MiddlewareHandler => async (c, next) => {
   // Get the response
   const res = c.res;
 
+  // Skip error responses — client only decodes devalue for ok responses
+  if (!res.ok) {
+    return;
+  }
+
   // Skip if not JSON content type or already has devalue header
   const contentType = res.headers.get("Content-Type");
   if (
