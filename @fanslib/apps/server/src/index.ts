@@ -111,7 +111,7 @@ app.onError((error, c) => {
     return c.json({ error: "Database error", code: "DATABASE_ERROR" }, 500);
   }
 
-  return c.json({ error: "Internal server error", code: "INTERNAL_ERROR" }, 500);
+  return c.json({ error: error.message || "Internal server error", code: "INTERNAL_ERROR" }, 500);
 });
 
 // Set up cron jobs if enabled

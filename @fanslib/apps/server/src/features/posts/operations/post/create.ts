@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { In } from "typeorm";
 import { db } from "../../../../lib/db";
+import { notFoundError, validationError } from "../../../../lib/errors";
 import { CHANNEL_TYPES } from "../../../channels/channelTypes";
 import { Channel } from "../../../channels/entity";
 import { Media } from "../../../library/entity";
@@ -38,11 +39,11 @@ export const createPost = async (
     .getOne();
 
   if (!channel) {
-    throw new Error("Channel not found");
+    throw notFoundError("Channel not found");
   }
 
   if (channel.type.id === CHANNEL_TYPES.reddit.id && !postData.subredditId) {
-    throw new Error("Subreddit is required for Reddit posts");
+    throw validationError("Subreddit is required for Reddit posts");
   }
 
   const post = postRepo.create({

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { In } from "typeorm";
 import { db } from "../../../../lib/db";
+import { validationError } from "../../../../lib/errors";
 import { CHANNEL_TYPES } from "../../../channels/channelTypes";
 import { Post } from "../../entity";
 import { PostSchema } from "../../schema";
@@ -50,8 +51,8 @@ export const updatePost = async (
     const validation = await validatePost(postUpdates.caption ?? post.caption, media);
 
     if (!validation.valid) {
-      throw new Error(
-        `Cannot schedule Bluesky post: ${validation.errors.map((e) => e.message).join("; ")}`
+      throw validationError(
+        validation.errors.map((e) => e.message).join("; ")
       );
     }
   }
@@ -106,8 +107,8 @@ export const updatePost = async (
           const validation = await validatePost(syncUpdates.caption ?? syncPost.caption, media);
 
           if (!validation.valid) {
-            throw new Error(
-              `Cannot schedule Bluesky post: ${validation.errors.map((e) => e.message).join("; ")}`
+            throw validationError(
+              validation.errors.map((e) => e.message).join("; ")
             );
           }
         }
