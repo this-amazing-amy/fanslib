@@ -21,15 +21,18 @@ import {
 
 const weekStartOptions = { locale: de } as const;
 
-const VISIBLE_DAYS = 7;
+const DEFAULT_VISIBLE_DAYS = 7;
+const MIN_VISIBLE_DAYS = 1;
+const MAX_VISIBLE_DAYS = 12;
+const MIN_DAY_WIDTH_PX = 120;
 const BUFFER_DAYS = 21;
 
 const mondayOfCurrentWeek = () => startOfWeek(new Date(), weekStartOptions);
 
-const buildInitialDays = (anchor: Date): Date[] =>
+const buildInitialDays = (anchor: Date, visibleDays: number): Date[] =>
   eachDayOfInterval({
     start: subDays(anchor, BUFFER_DAYS),
-    end: addDays(anchor, VISIBLE_DAYS - 1 + BUFFER_DAYS),
+    end: addDays(anchor, visibleDays - 1 + BUFFER_DAYS),
   });
 
 const monthLabel = (days: Date[]): string => {
@@ -50,6 +53,7 @@ const monthLabel = (days: Date[]): string => {
 
 export type UseHorizontalCalendarReturn = {
   days: Date[];
+  visibleDaysCount: number;
   containerRef: RefObject<HTMLDivElement | null>;
   scrollLeft: () => void;
   scrollRight: () => void;
@@ -59,23 +63,38 @@ export type UseHorizontalCalendarReturn = {
   currentMonthLabel: string;
 };
 
+const MOBILE_BREAKPOINT_PX = 640;
+
+const computeVisibleDays = (width: number): number =>
+  width < MOBILE_BREAKPOINT_PX
+    ? 1
+    : Math.min(MAX_VISIBLE_DAYS, Math.max(MIN_VISIBLE_DAYS, Math.floor(width / MIN_DAY_WIDTH_PX)));
+
 export const useHorizontalCalendar = (): UseHorizontalCalendarReturn => {
   const anchor = useRef(mondayOfCurrentWeek());
-  const [days, setDays] = useState(() => buildInitialDays(anchor.current));
+  const [days, setDays] = useState(() => buildInitialDays(anchor.current, DEFAULT_VISIBLE_DAYS));
   const containerRef = useRef<HTMLDivElement | null>(null);
   const containerWidthRef = useRef(0);
+  const [visibleDaysCount, setVisibleDaysCount] = useState(DEFAULT_VISIBLE_DAYS);
+  const visibleDaysCountRef = useRef(DEFAULT_VISIBLE_DAYS);
   const firstVisibleIndexRef = useRef(BUFFER_DAYS);
   const [firstVisibleIndex, setFirstVisibleIndex] = useState(BUFFER_DAYS);
   const isExtendingRef = useRef(false);
 
-  // Measure container width
+  // Measure container width & derive visible day count
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
     const observer = new ResizeObserver((entries) => {
       const entry = entries[0];
-      if (entry) containerWidthRef.current = entry.contentRect.width;
+      if (!entry) return;
+      containerWidthRef.current = entry.contentRect.width;
+      const count = computeVisibleDays(entry.contentRect.width);
+      if (count !== visibleDaysCountRef.current) {
+        visibleDaysCountRef.current = count;
+        setVisibleDaysCount(count);
+      }
     });
     observer.observe(el);
     return () => observer.disconnect();
@@ -152,7 +171,22 @@ export const useHorizontalCalendar = (): UseHorizontalCalendarReturn => {
     };
 
     el.addEventListener("scroll", handleScroll, { passive: true });
-    return () => el.removeEventListener("scroll", handleScroll);
+
+    // Translate vertical wheel scrolling into horizontal scrolling (desktop only)
+    const handleWheel = (e: WheelEvent) => {
+      if (e.deltaY === 0) return;
+      e.preventDefault();
+      el.scrollLeft += e.deltaY;
+    };
+    const isMobile = containerWidthRef.current < MOBILE_BREAKPOINT_PX;
+    if (!isMobile) {
+      el.addEventListener("wheel", handleWheel, { passive: false });
+    }
+
+    return () => {
+      el.removeEventListener("scroll", handleScroll);
+      el.removeEventListener("wheel", handleWheel);
+    };
   }, [days]);
 
   const getDayWidth = useCallback(() => {
@@ -185,8 +219,7 @@ export const useHorizontalCalendar = (): UseHorizontalCalendarReturn => {
       (d) => d.getTime() === todayStart.getTime()
     );
 
-    // Center today in the 7-day viewport (offset by 3)
-    const centerOffset = Math.floor(VISIBLE_DAYS / 2);
+    const centerOffset = Math.floor(visibleDaysCount / 2);
 
     if (todayIdx >= 0) {
       const dayWidth = getDayWidth();
@@ -196,7 +229,7 @@ export const useHorizontalCalendar = (): UseHorizontalCalendarReturn => {
       // Today not in buffer — reset centered on today
       const centeredAnchor = subDays(todayStart, centerOffset);
       anchor.current = centeredAnchor;
-      const newDays = buildInitialDays(centeredAnchor);
+      const newDays = buildInitialDays(centeredAnchor, visibleDaysCount);
       setDays(newDays);
       requestAnimationFrame(() => {
         if (!el) return;
@@ -206,11 +239,11 @@ export const useHorizontalCalendar = (): UseHorizontalCalendarReturn => {
         setFirstVisibleIndex(BUFFER_DAYS);
       });
     }
-  }, [days, getDayWidth]);
+  }, [days, getDayWidth, visibleDaysCount]);
 
   const visibleDays = useMemo(
-    () => days.slice(firstVisibleIndex, firstVisibleIndex + VISIBLE_DAYS),
-    [days, firstVisibleIndex]
+    () => days.slice(firstVisibleIndex, firstVisibleIndex + visibleDaysCount),
+    [days, firstVisibleIndex, visibleDaysCount]
   );
 
   const todayInView = useMemo(
@@ -235,6 +268,7 @@ export const useHorizontalCalendar = (): UseHorizontalCalendarReturn => {
 
   return {
     days,
+    visibleDaysCount,
     containerRef,
     scrollLeft: scrollLeftFn,
     scrollRight: scrollRightFn,

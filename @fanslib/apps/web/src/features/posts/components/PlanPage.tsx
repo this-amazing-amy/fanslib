@@ -43,7 +43,7 @@ const PlanPageInner = ({ initialRange }: PlanPageInnerProps) => {
         <div ref={calendarContainerRef} className="relative min-h-0 overflow-hidden">
           <MemoizedPlanContent initialRange={initialRange} />
         </div>
-        <div className="hidden min-[1600px]:flex min-[1600px]:flex-col h-full border-l border-base-200">
+        <div className="hidden min-[1600px]:flex min-[1600px]:flex-col min-h-0 border-l border-base-200">
           <PlanLibraryPanel />
         </div>
       </div>

@@ -24,6 +24,7 @@ export const PostCalendar = forwardRef<PostCalendarHandle, PostCalendarProps>(
   ({ className, posts, onUpdate, onVisibleRangeChange }, ref) => {
     const {
       days,
+      visibleDaysCount,
       containerRef,
       scrollLeft,
       scrollRight,
@@ -57,48 +58,47 @@ export const PostCalendar = forwardRef<PostCalendarHandle, PostCalendarProps>(
       [posts, visibleRange]
     );
 
-    const dayWidthPercent = 100 / 7;
+    const isSingleDay = visibleDaysCount === 1;
+    const dayWidthPercent = 100 / visibleDaysCount;
 
     return (
       <div className={cn("relative h-full", className)}>
-        {/* Nav buttons — floating outside the calendar on the left */}
-        <div className="absolute -left-14 top-0 flex flex-col items-center gap-2 z-10">
-          <Button
-            variant="outline"
-            size="icon"
-            onPress={scrollLeft}
-            aria-label="Previous day"
-            className="rounded-full"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </Button>
-
-          <Button
-            variant="outline"
-            size="icon"
-            onPress={scrollRight}
-            aria-label="Next day"
-            className="rounded-full"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </Button>
-
-          <Button
-            variant="outline"
-            size="icon"
-            onPress={scrollToToday}
-            aria-label="Jump to today"
-            className="rounded-full"
-          >
-            <CalendarDays className="w-4 h-4" />
-          </Button>
-        </div>
-
         {/* Calendar */}
         <div className="flex flex-col h-full min-h-0">
-          <h3 className="text-base font-semibold text-base-content/90 px-1 mb-2 flex-shrink-0">
-            {currentMonthLabel}
-          </h3>
+          <div className="flex items-center justify-between px-1 mb-2 flex-shrink-0">
+            <h3 className="text-base font-semibold text-base-content/90">
+              {currentMonthLabel}
+            </h3>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="outline"
+                size="icon"
+                onPress={scrollLeft}
+                aria-label="Previous day"
+                className="rounded-full"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onPress={scrollToToday}
+                aria-label="Jump to today"
+                className="rounded-full"
+              >
+                <CalendarDays className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onPress={scrollRight}
+                aria-label="Next day"
+                className="rounded-full"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </Button>
+            </div>
+          </div>
 
           {/* Scroll container with fade edges */}
           <div className="relative flex-1 min-h-0">
@@ -109,7 +109,7 @@ export const PostCalendar = forwardRef<PostCalendarHandle, PostCalendarProps>(
             >
               <div
                 className="flex h-full"
-                style={{ width: `${(days.length / 7) * 100}%` }}
+                style={{ width: `${(days.length / visibleDaysCount) * 100}%` }}
               >
                 {days.map((day) => (
                   <CalendarDayColumn
@@ -118,7 +118,10 @@ export const PostCalendar = forwardRef<PostCalendarHandle, PostCalendarProps>(
                     posts={visiblePosts}
                     allPosts={posts}
                     onUpdate={onUpdate}
-                    style={{ width: `${dayWidthPercent / (days.length / 7)}%` }}
+                    style={{
+                      width: `${dayWidthPercent / (days.length / visibleDaysCount)}%`,
+                      ...(isSingleDay && { scrollSnapAlign: "center" }),
+                    }}
                   />
                 ))}
               </div>
