@@ -774,8 +774,6 @@ FansLib is a **Turborepo monorepo** for managing adult content creator libraries
 2. **`@fanslib/web`** - TanStack Start web client (React 19, TanStack Router/Query)
 3. **Shared configs** - `@fanslib/eslint`, `@fanslib/typescript` (Prettier config is in root `.prettierrc.cjs`)
 
-There is also a @fanslib/electron-legacy app for desktop library management, but it is deprecated in favor of the web client.
-
 ### Key Architectural Decisions
 
 - **Monorepo workspace imports**: Apps import from `@fanslib/server` for type-safe API contracts

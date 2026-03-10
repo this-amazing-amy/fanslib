@@ -70,7 +70,7 @@ const uploadVideoToService = async (fileBuffer: Buffer, mimeType: string, servic
     body: new Uint8Array(fileBuffer),
   });
 
-  if (!response.ok) {
+  if (!response.ok && response.status !== 409) {
     const errorText = await response.text();
     throw externalServiceError(`Video upload failed: ${response.status} ${response.statusText} - ${errorText}`);
   }
