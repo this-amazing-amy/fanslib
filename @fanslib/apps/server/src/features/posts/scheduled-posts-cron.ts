@@ -3,6 +3,7 @@ import { db } from "../../lib/db";
 import { CHANNEL_TYPES } from "../channels/channelTypes";
 import { Channel } from "../channels/entity";
 import { createPost as createBlueskyPost } from "../api-bluesky/operations/create-post";
+import { isAppError } from "../../lib/errors";
 import { Post } from "./entity";
 
 const MAX_BLUESKY_RETRIES = 3;
@@ -105,17 +106,22 @@ const postToBluesky = async (post: Post, retryCount: number, now: Date): Promise
       success: true,
     };
   } catch (error) {
-    const errorDetails = error instanceof Error 
-      ? { 
-          name: error.name, 
+    const errorDetails = isAppError(error)
+      ? {
+          name: error.code,
           message: error.message,
-          // Include XRPC-specific error details if available
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          status: (error as any).status,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          error: (error as any).error,
         }
-      : { message: "Unknown error" };
+      : error instanceof Error
+        ? {
+            name: error.name,
+            message: error.message,
+            // Include XRPC-specific error details if available
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            status: (error as any).status,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            error: (error as any).error,
+          }
+        : { message: String(error) };
     
     console.error("Bluesky post failed", {
       postId: post.id,
