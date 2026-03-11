@@ -10,6 +10,8 @@ import { getTestDataSource } from "../lib/test-db";
 export const parseResponse = async <T>(response: Response): Promise<T | null> => {
   const text = await response.text();
   if (text.length === 0) return null;
+  // Error responses are plain JSON (devalue middleware skips non-ok responses)
+  if (!response.ok) return JSON.parse(text) as T;
   return devalue.parse(text) as T;
 };
 
