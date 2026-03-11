@@ -1,3 +1,4 @@
+import { RichText } from "@atproto/api";
 import { getBlueskyAgent } from "../client";
 import { uploadBlob } from "./upload-blob";
 import { uploadVideo } from "./upload-video";
@@ -57,9 +58,13 @@ const createVideoEmbed = async (media: Media) => {
 export const createPost = async ({ text, media, createdAt }: CreatePostParams): Promise<string> => {
   const agent = await getBlueskyAgent();
 
+  const rt = new RichText({ text });
+  await rt.detectFacets(agent);
+
   const record: Record<string, unknown> = {
     $type: "app.bsky.feed.post",
-    text,
+    text: rt.text,
+    facets: rt.facets,
     labels: {
       $type: "com.atproto.label.defs#selfLabels",
       values: [{ val: "porn" }],
