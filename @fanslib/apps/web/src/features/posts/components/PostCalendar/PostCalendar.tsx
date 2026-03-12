@@ -29,6 +29,7 @@ export const PostCalendar = forwardRef<PostCalendarHandle, PostCalendarProps>(
       scrollLeft,
       scrollRight,
       scrollToToday,
+      todayInView: _todayInView,
       visibleRange,
       currentMonthLabel,
     } = useHorizontalCalendar();
@@ -36,7 +37,7 @@ export const PostCalendar = forwardRef<PostCalendarHandle, PostCalendarProps>(
     useImperativeHandle(ref, () => ({ scrollToToday }));
 
     // Debounce range change notifications so fast scrolling doesn't cascade refetches
-    const rangeTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+    const rangeTimerRef = useRef<ReturnType<typeof setTimeout>>();
     useEffect(() => {
       clearTimeout(rangeTimerRef.current);
       rangeTimerRef.current = setTimeout(() => {
