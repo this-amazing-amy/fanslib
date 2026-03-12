@@ -103,10 +103,6 @@ export const MediaTileLite = memo(
 
     return (
       <div className={cn("relative aspect-square bg-base-300 rounded-lg overflow-hidden", className)}>
-        {/* Apply dimmed visual treatment if within cooldown */}
-        {isWithinCooldown && (
-          <div className="absolute inset-0 bg-black/40 z-[5]" />
-        )}
         {media.type === "video" ? (
           <>
             {!isActivePreview && (
