@@ -133,7 +133,7 @@ export const useUploadQueue = (): UseUploadQueueResult => {
 
   const addFiles = useCallback((newFiles: File[]) => {
     const entries: UploadFileState[] = newFiles.map((file) => ({
-      id: crypto.randomUUID(),
+      id: self.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`,
       file,
       status: "queued",
       progress: 0,
