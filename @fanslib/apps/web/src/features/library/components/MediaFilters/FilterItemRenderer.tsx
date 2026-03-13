@@ -126,28 +126,37 @@ export const FilterItemRenderer = ({
           </div>
         );
 
-      case "repostStatus":
+      case "repostStatus": {
+        const currentValue = value && "value" in value && typeof value.value === "string" ? value.value : "repostable";
+        const currentChannelId = value && "channelId" in value && typeof value.channelId === "string" ? value.channelId : undefined;
         return (
-          <Select
-            value={
-              value && "value" in value && typeof value.value === "string" ? value.value : "repostable"
-            }
-            onValueChange={(newValue) =>
-              onChange({ type: "repostStatus", value: newValue as "never_posted" | "repostable" | "on_cooldown" | "still_growing" })
-            }
-            aria-label="Repost status"
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select repost status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="never_posted" textValue="Never Posted">Never Posted</SelectItem>
-              <SelectItem value="repostable" textValue="Repostable">Repostable</SelectItem>
-              <SelectItem value="on_cooldown" textValue="On Cooldown">On Cooldown</SelectItem>
-              <SelectItem value="still_growing" textValue="Still Growing">Still Growing</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-1 flex-1">
+            <Select
+              value={currentValue}
+              onValueChange={(newValue) =>
+                onChange({ type: "repostStatus", value: newValue as "never_posted" | "repostable" | "on_cooldown" | "still_growing", channelId: currentChannelId })
+              }
+              aria-label="Repost status"
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select repost status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="never_posted" textValue="Never Posted">Never Posted</SelectItem>
+                <SelectItem value="repostable" textValue="Repostable">Repostable</SelectItem>
+                <SelectItem value="on_cooldown" textValue="On Cooldown">On Cooldown</SelectItem>
+                <SelectItem value="still_growing" textValue="Still Growing">Still Growing</SelectItem>
+              </SelectContent>
+            </Select>
+            <ChannelFilterSelector
+              value={currentChannelId}
+              onChange={(channelId) =>
+                onChange({ type: "repostStatus", value: currentValue as "never_posted" | "repostable" | "on_cooldown" | "still_growing", channelId })
+              }
+            />
+          </div>
         );
+      }
 
       case "mediaType":
         return (

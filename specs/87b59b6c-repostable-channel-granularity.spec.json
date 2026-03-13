@@ -1,0 +1,124 @@
+{
+  "name": "Repostable: Channel-spezifische Granularität",
+  "description": "repostStatus ist eine kontextabhängige Eigenschaft eines Mediums — sie hat keine globale Bedeutung ohne Channel-Bezug. Der repostStatus-Filter muss einen Channel-Kontext erzwingen. Die UI darf keinen repostStatus-Badge ohne Channel-Kontext zeigen.",
+  "splitter": "87b59b6c",
+  "context": {
+    "problem": "Der repostStatus-Filter kann aktuell ohne channelId gespeichert werden. Das führt dazu, dass die SQL-Query keinerlei Channel-Scope hat — 'never_posted' bedeutet dann 'nirgendwo gepostet', 'on_cooldown' bedeutet 'irgendwo vor kurzem gepostet'. Das ist semantisch falsch. Ein Medium kann gleichzeitig repostable auf Fansly und on_cooldown auf r/GoneWild sein — ohne Channel-Kontext ist der Status bedeutungslos.",
+    "user_need": "Amelia will sehen welche Medien für einen bestimmten Channel repostable sind — nicht einen globalen Status, der nichts aussagt.",
+    "key_decisions": [
+      "Granularität: per Channel — nicht per Schedule, nicht per Platform",
+      "Fansly Wall und Fansly FYP teilen denselben Fansly-Channel — keine separate Channel-Rows, keine scheduleId-Differenzierung im Filter",
+      "ContentSchedule.channelId ist Legacy — Ada nutzt scheduleChannels (Join-Table) für die Schedule-Channel-Beziehung",
+      "Backend filter-helpers.ts und fetch-all.ts sind bereits korrekt — keine Backend-Schema-Changes nötig",
+      "channelId in FilterItemRepostStatusSchema ist bereits optional definiert — bleibt so; Pflicht wird auf UI-Ebene erzwungen"
+    ]
+  },
+  "scope": {
+    "in_scope": [
+      "FilterItemEditor.tsx — repostStatus-Case: Channel-Dropdown hinzufügen, channelId im gespeicherten FilterItem setzen",
+      "FilterItemRenderer.tsx — repostStatus-Case: channelId in onChange propagieren, Channel-Name anzeigen",
+      "MediaFiltersContext.tsx — repostStatus default item: channelId als undefined initialisieren, Validierung: kein Save ohne channelId",
+      "Backend buildFilterContext: channelId aus FilterItem-repostStatus-Items extrahieren wenn params.channelId fehlt",
+      "filterItemToString (client) — repostStatus: Channel-Name oder ID im Label mitgeben"
+    ],
+    "out_of_scope": [
+      "Separate Channel-Rows für Fansly Wall und Fansly FYP — Amelia: ignorieren",
+      "scheduleId im repostStatus-FilterItem — Granularität ist Channel, nicht Schedule",
+      "withRepostStatus-Badge in der globalen Library-View — Gallery.tsx übergibt bereits kein withRepostStatus, Status ist bereits nicht sichtbar",
+      "ContentSchedule.channelId entfernen — ist Legacy, aber kein Fix in diesem Splitter",
+      "Cooldown-Override auf ContentSchedule-Level — out of scope",
+      "Plateau-Detection (still_growing) — bleibt global, kein Channel-Bezug nötig",
+      "Subreddit-to-Channel-Komposition — funktioniert bereits korrekt"
+    ]
+  },
+  "features": [
+    {
+      "id": "F01",
+      "category": "ui",
+      "description": "FilterItemEditor: repostStatus-Case erfordert Channel-Auswahl",
+      "files": [
+        "apps/web/src/features/library/components/MediaFilters/FilterItemEditor.tsx"
+      ],
+      "acceptance_criteria": [
+        "Im repostStatus-Case wird ein Channel-Dropdown angezeigt (analog zum channel-Case der bereits useChannelsQuery() nutzt)",
+        "Das Channel-Dropdown ist ein Pflichtfeld — Save-Button bleibt disabled solange kein Channel ausgewählt ist",
+        "isValid für repostStatus-Case ist nur true wenn channelId.length > 0 (aktuell: immer true — das ist der Bug)",
+        "saveItem() speichert channelId im FilterItem: { type: 'repostStatus', value: repostStatusValue, channelId: selectedChannelId }",
+        "Beim Bearbeiten eines bestehenden repostStatus-Items wird channelId aus item.channelId vorinitialisiert",
+        "State: neuer useState channelIdValue: string, Initial ''",
+        "Dropdown zeigt alle Channels aus useChannelsQuery(), Format: channel.name"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F02",
+      "category": "ui",
+      "description": "FilterItemRenderer: repostStatus-Case propagiert channelId in onChange",
+      "files": [
+        "apps/web/src/features/library/components/MediaFilters/FilterItemRenderer.tsx"
+      ],
+      "acceptance_criteria": [
+        "Der repostStatus-Case rendert zusätzlich zum Status-Dropdown ein Channel-Dropdown (ChannelFilterSelector oder Select mit useChannelsQuery)",
+        "onChange-Aufruf enthält channelId: { type: 'repostStatus', value: newValue, channelId: selectedChannelId }",
+        "Wenn value.channelId gesetzt ist, wird der Channel vorausgewählt",
+        "Wenn kein Channel gesetzt, zeigt das Dropdown einen Hinweis 'Channel auswählen'",
+        "Der Channel-Name wird neben dem Status-Wert angezeigt oder im Dropdown-Label integriert"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F03",
+      "category": "ui",
+      "description": "MediaFiltersContext: repostStatus Default-Item erfordert Channel",
+      "files": [
+        "apps/web/src/features/library/components/MediaFilters/MediaFiltersContext.tsx"
+      ],
+      "acceptance_criteria": [
+        "addGroupWithFilterType für 'repostStatus' erzeugt: { type: 'repostStatus', value: 'repostable', channelId: undefined }",
+        "addFilterWithTypeToGroup für 'repostStatus' ebenso: channelId: undefined",
+        "Das Default-Item ist valide im Schema (channelId ist optional im Zod-Schema) — kein Schema-Change nötig",
+        "Hinweis: Die Validierungs-Pflicht liegt in FilterItemEditor (F01), nicht im Context"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F04",
+      "category": "backend",
+      "description": "buildFilterContext extrahiert channelId aus repostStatus-FilterItems wenn kein Top-Level-channelId",
+      "files": [
+        "apps/server/src/features/library/operations/media/fetch-all.ts"
+      ],
+      "acceptance_criteria": [
+        "Wenn params.channelId nicht gesetzt ist, aber ein repostStatus-FilterItem channelId hat, wird dieses channelId für buildFilterContext genutzt",
+        "Wenn mehrere repostStatus-Items verschiedene channelIds haben, wird das erste gefundene channelId verwendet (edge case, akzeptabel)",
+        "Wenn weder params.channelId noch Item-channelId vorhanden ist, bleibt buildFilterContext ohne channelCooldownHours (globaler Default, bisheriges Verhalten)",
+        "Helper-Funktion: extractChannelIdFromFilters(filters) → string | undefined",
+        "Keine Breaking Changes an der fetchAllMedia-Signatur"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F05",
+      "category": "ui",
+      "description": "filterItemToString: repostStatus-Label enthält Channel-Info",
+      "files": [
+        "apps/web/src/components/MediaFilterSummary.tsx",
+        "apps/server/src/features/library/filter-helpers.ts"
+      ],
+      "acceptance_criteria": [
+        "filterItemToString für repostStatus gibt zurück: 'Repost Status (Channel: <channelId oder Name>): <label>'",
+        "Wenn channelId nicht gesetzt: 'Repost Status: <label>' (rückwärtskompatibel)",
+        "Channel-Name aufzulösen ist optional — channelId im Label ist akzeptabel wenn keine Query verfügbar ist"
+      ],
+      "passes": true
+    }
+  ],
+  "technical_notes": [
+    "Backend filter-helpers.ts (server): der repostStatus-SQL-Case nutzt bereits item.channelId für AND p.channelId = :rsChannelId — das ist korrekt und bleibt unverändert",
+    "Backend filter-helpers.ts (server): FilterContext.channelCooldownHours bestimmt den cutoffDate-Wert für die Cooldown-Berechnung. Ohne channelId im Context wird defaultMediaRepostCooldownHours (global, aus Settings) verwendet — suboptimal aber nicht falsch",
+    "Das FilterItemRepostStatusSchema lässt channelId als optional — das bleibt so. Pflicht ist UI-Concern, nicht Schema-Concern (Breaking Change vermeiden)",
+    "Gallery.tsx übergibt kein withRepostStatus an MediaTile — der Badge ist in der globalen Library-View bereits nicht sichtbar. Kein Change nötig.",
+    "ContentSchedule hat channelId (nullable, Legacy-FK) und scheduleChannels (Join-Table, korrekt). Ada soll scheduleChannels nutzen, channelId ignorieren.",
+    "Fansly hat nur einen Channel (typeId='fansly'). Wall und FYP sind konzeptuell verschiedene Posting-Strategien (ContentSchedules), aber NICHT separate Channels. Repost-Cooldown ist damit derselbe für Wall und FYP — akzeptabel."
+  ]
+}

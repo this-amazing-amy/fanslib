@@ -29,6 +29,18 @@ export const FetchAllMediaResponseSchema = paginatedResponseSchema(MediaSchema);
 const hasRepostStatusFilter = (filters?: z.infer<typeof MediaFilterSchema>): boolean =>
   filters?.some((group) => group.items.some((item) => item.type === "repostStatus")) ?? false;
 
+const extractChannelIdFromFilters = (filters?: z.infer<typeof MediaFilterSchema>): string | undefined => {
+  if (!filters) return undefined;
+  for (const group of filters) {
+    for (const item of group.items) {
+      if (item.type === "repostStatus" && "channelId" in item && typeof item.channelId === "string" && item.channelId.length > 0) {
+        return item.channelId;
+      }
+    }
+  }
+  return undefined;
+};
+
 const buildFilterContext = async (
   channelId?: string,
 ): Promise<FilterContext> => {
@@ -63,8 +75,9 @@ export const fetchAllMedia = async (
 
   // Build filter context if any repostStatus filters are present
   const needsContext = hasRepostStatusFilter(params?.filters);
+  const resolvedChannelId = params?.channelId ?? extractChannelIdFromFilters(params?.filters);
   const filterContext = needsContext
-    ? await buildFilterContext(params?.channelId)
+    ? await buildFilterContext(resolvedChannelId)
     : undefined;
 
   // Auto-apply merged filters from schedule + channel if requested

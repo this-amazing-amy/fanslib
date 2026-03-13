@@ -77,7 +77,7 @@ export const MediaFiltersProvider = ({ value, onChange, children }: MediaFilters
         defaultItem = { type: filterType, dimensionId: 0 };
         break;
       case "repostStatus":
-        defaultItem = { type: filterType, value: "repostable" };
+        defaultItem = { type: filterType, value: "repostable", channelId: undefined };
         break;
       default:
         defaultItem = { type: "filename", value: "" };
@@ -149,7 +149,7 @@ export const MediaFiltersProvider = ({ value, onChange, children }: MediaFilters
         defaultItem = { type: filterType, dimensionId: 0 };
         break;
       case "repostStatus":
-        defaultItem = { type: filterType, value: "repostable" };
+        defaultItem = { type: filterType, value: "repostable", channelId: undefined };
         break;
       default:
         defaultItem = { type: "filename", value: "" };

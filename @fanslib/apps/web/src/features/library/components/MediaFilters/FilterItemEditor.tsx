@@ -57,6 +57,7 @@ export const FilterItemEditor = ({
   const [idValue, setIdValue] = useState("");
   const [dimensionIdValue, setDimensionIdValue] = useState(0);
   const [repostStatusValue, setRepostStatusValue] = useState<string>("repostable");
+  const [repostStatusChannelId, setRepostStatusChannelId] = useState<string>("");
   const [isValid, setIsValid] = useState(false);
 
   const { data: channels = [] } = useChannelsQuery();
@@ -67,6 +68,9 @@ export const FilterItemEditor = ({
       if ("value" in item) {
         if (item.type === "repostStatus" && typeof item.value === "string") {
           setRepostStatusValue(item.value);
+          if ("channelId" in item && typeof item.channelId === "string") {
+            setRepostStatusChannelId(item.channelId);
+          }
         } else if (typeof item.value === "string") {
           setStringValue(item.value);
         } else if (typeof item.value === "boolean") {
@@ -106,7 +110,7 @@ export const FilterItemEditor = ({
           setIsValid(dimensionIdValue > 0);
           break;
         case "repostStatus":
-          setIsValid(true);
+          setIsValid(repostStatusChannelId.length > 0);
           break;
         default:
           setIsValid(false);
@@ -114,7 +118,7 @@ export const FilterItemEditor = ({
     };
 
     validateCurrentItem();
-  }, [type, stringValue, booleanValue, dateValue, idValue, dimensionIdValue]);
+  }, [type, stringValue, booleanValue, dateValue, idValue, dimensionIdValue, repostStatusChannelId]);
 
   const saveItem = () => {
     if (!isValid) return;
@@ -145,7 +149,7 @@ export const FilterItemEditor = ({
         newItem = { type, dimensionId: dimensionIdValue };
         break;
       case "repostStatus":
-        newItem = { type, value: repostStatusValue as "never_posted" | "repostable" | "on_cooldown" | "still_growing" };
+        newItem = { type, value: repostStatusValue as "never_posted" | "repostable" | "on_cooldown" | "still_growing", channelId: repostStatusChannelId };
         break;
     }
 
@@ -161,6 +165,7 @@ export const FilterItemEditor = ({
     setIdValue("");
     setDimensionIdValue(0);
     setRepostStatusValue("repostable");
+    setRepostStatusChannelId("");
   };
 
   const handleTypeChange = (newType: FilterItemType) => {
@@ -293,6 +298,19 @@ export const FilterItemEditor = ({
                 <SelectItem value="repostable">Repostable</SelectItem>
                 <SelectItem value="on_cooldown">On Cooldown</SelectItem>
                 <SelectItem value="still_growing">Still Growing</SelectItem>
+              </SelectContent>
+            </Select>
+            <Label>Channel (required)</Label>
+            <Select value={repostStatusChannelId} onValueChange={setRepostStatusChannelId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a channel" />
+              </SelectTrigger>
+              <SelectContent>
+                {(channels ?? []).map((channel) => (
+                  <SelectItem key={channel.id} value={channel.id}>
+                    {channel.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

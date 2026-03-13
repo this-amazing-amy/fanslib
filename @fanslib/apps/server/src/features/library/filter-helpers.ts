@@ -407,7 +407,11 @@ export const filterItemToString = (item: FilterItem): string => {
         on_cooldown: "On Cooldown",
         still_growing: "Still Growing",
       };
-      return labels[item.value] ?? "Unknown repost status";
+      const label = labels[item.value] ?? "Unknown repost status";
+      if (item.channelId) {
+        return `Repost Status (Channel: ${item.channelId}): ${label}`;
+      }
+      return `Repost Status: ${label}`;
     }
     default:
       return "Unknown filter";

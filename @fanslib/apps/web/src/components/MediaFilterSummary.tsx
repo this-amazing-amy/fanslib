@@ -27,12 +27,14 @@ const FilterItemBadge = ({
   channelName,
   subredditName,
   tagName,
+  repostChannelName,
 }: {
   item: FilterItem;
   group: FilterGroup;
   channelName?: string;
   subredditName?: string;
   tagName?: string;
+  repostChannelName?: string;
 }) => {
   const isInclude = group.include;
 
@@ -220,6 +222,28 @@ const FilterItemBadge = ({
     );
   }
 
+  // Repost status filter
+  if (item.type === "repostStatus") {
+    const statusLabels: Record<string, string> = {
+      never_posted: "Never Posted",
+      repostable: "Repostable",
+      on_cooldown: "On Cooldown",
+      still_growing: "Still Growing",
+    };
+    const statusLabel = statusLabels[item.value] ?? item.value;
+    const channelSuffix = repostChannelName ? ` (${repostChannelName})` : "";
+    return (
+      <Tooltip content={`Repost: ${statusLabel}${channelSuffix}`} openDelayMs={0}>
+        <Badge variant="secondary" className="text-xs">
+          <span className="flex items-center gap-1">
+            <IncludeIcon isInclude={isInclude} />
+            <span>{`Repost: ${statusLabel}${channelSuffix}`}</span>
+          </span>
+        </Badge>
+      </Tooltip>
+    );
+  }
+
   // Tag dimension (fallback)
   if (item.type === "dimensionEmpty") {
     return (
@@ -299,6 +323,7 @@ export const MediaFilterSummary = ({
           channelName={item.type === "channel" ? channelNameById.get(String(item.id)) : undefined}
           subredditName={item.type === "subreddit" ? subredditNameById.get(String(item.id)) : undefined}
           tagName={item.type === "tag" ? getTagName(item.id) : undefined}
+          repostChannelName={item.type === "repostStatus" && "channelId" in item && typeof item.channelId === "string" ? channelNameById.get(item.channelId) : undefined}
         />
       ))}
       {remainingCount > 0 && (
