@@ -1,0 +1,50 @@
+{
+  "name": "Bugfix: Duplicate Post Modal ignoriert SFW Mode",
+  "description": "Im Duplicate Post Modal (CreatePostDialog) sind Media-Items im SFW Mode ungeschwärzt sichtbar. Ursache: MediaTileLite.tsx nutzt den useSfwMode-Hook nicht, obwohl alle anderen Media-Komponenten ihn verwenden.",
+  "splitter_id": "d7da6820-17f0-4b8a-98ce-fe10463c8f0b",
+  "context": {
+    "problem": "MediaTileLite wird in CombinedMediaSelection verwendet, das im CreatePostDialog (Duplicate Post Modal) eingebettet ist. Alle anderen Media-Komponenten (MediaTileImage, MediaTileVideo, MediaPreview) implementieren den useSfwMode-Hook korrekt — MediaTileLite wurde dabei übersehen.",
+    "impact": "User die SFW Mode aktiviert haben sehen im Duplicate Post Modal explizite Medien ungeschwärzt. Das ist ein direktes Datenschutz- und Safety-Problem — SFW Mode hat genau diesen Use Case.",
+    "user_need": "Wenn SFW Mode aktiv ist, müssen alle Media-Vorschauen im Duplicate Post Modal geschwärzt/gebluret sein — konsistent mit dem Rest der App."
+  },
+  "scope": {
+    "in_scope": [
+      "useSfwMode-Integration in MediaTileLite.tsx",
+      "Blur auf img-Element (Bild-Medien)",
+      "Blur auf img (Thumbnail) und video-Element (Video-Medien)",
+      "onMouseEnter/onMouseLeave auf Root-div für Hover-Reveal"
+    ],
+    "out_of_scope": [
+      "Änderungen an CombinedMediaSelection",
+      "Änderungen an CreatePostDialog",
+      "Refactoring von useSfwMode selbst",
+      "Andere Modals oder Kontexte in denen MediaTileLite verwendet werden könnte"
+    ]
+  },
+  "features": [
+    {
+      "id": "F01",
+      "category": "ui",
+      "description": "useSfwMode in MediaTileLite integrieren — Blur auf alle img- und video-Elemente, Hover-Reveal via onMouseEnter/onMouseLeave auf Root-div",
+      "acceptance_criteria": [
+        "MediaTileLite.tsx importiert useSfwMode aus ~/hooks/useSfwMode",
+        "Der Hook wird innerhalb der Komponente aufgerufen: const { handleMouseEnter, handleMouseLeave, getBlurClassName } = useSfwMode()",
+        "Der Root-div hat onMouseEnter={handleMouseEnter} und onMouseLeave={handleMouseLeave}",
+        "Das img-Element bei Bild-Medien verwendet getBlurClassName() auf seiner className",
+        "Das img-Thumbnail bei Video-Medien verwendet getBlurClassName() auf seiner className",
+        "Das video-Element bei Video-Medien verwendet getBlurClassName() auf seiner className",
+        "Wenn SFW Mode aktiv ist: Alle Media-Vorschauen im Duplicate Post Modal sind gebluret",
+        "Wenn SFW Mode aktiv ist und der User hovern über eine Kachel: Blur wird aufgehoben (Hover-Reveal funktioniert wie bei anderen Komponenten)",
+        "Wenn SFW Mode nicht aktiv ist: MediaTileLite sieht visuell identisch aus wie vor dem Fix — keine Regression",
+        "Der isWithinCooldown-Overlay (bg-black/40) bleibt unverändert erhalten"
+      ],
+      "passes": false
+    }
+  ],
+  "technical_notes": {
+    "file": "@fanslib/apps/web/src/features/library/components/MediaTile/MediaTileLite.tsx",
+    "pattern_reference": "@fanslib/apps/web/src/features/library/components/MediaTile/MediaTileVideo.tsx",
+    "change_summary": "1. Import: useSfwMode aus ~/hooks/useSfwMode; 2. Hook-Aufruf im Komponenten-Body; 3. onMouseEnter/onMouseLeave auf Root-div; 4. getBlurClassName() auf alle img- und video-className-Props",
+    "note": "MediaTileImage.tsx setzt onMouseEnter/onMouseLeave direkt auf das img-Element. MediaTileVideo.tsx setzt es auf einen umschließenden div. Da MediaTileLite mehrere img/video-Elemente hat, ist das div-Pattern (wie MediaTileVideo) korrekt."
+  }
+}
