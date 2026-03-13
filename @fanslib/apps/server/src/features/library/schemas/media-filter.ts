@@ -61,6 +61,7 @@ export const FilterItemRepostStatusSchema = z.object({
   type: z.literal('repostStatus'),
   value: RepostStatusValueSchema,
   channelId: z.string().optional(),
+  subredditId: z.string().optional(),
 });
 
 export const FilterItemSchema = z.discriminatedUnion('type', [

@@ -10,6 +10,7 @@ type FilterItem = FilterGroup['items'][number];
 
 export type FilterContext = {
   channelCooldownHours?: number;
+  subredditCooldownDays?: number;
   repostSettings?: Settings["repostSettings"];
 };
 
@@ -189,6 +190,30 @@ export const buildFilterItemQuery = (
         ? { [`rsChannelId${paramIndex}`]: item.channelId }
         : {};
 
+      // Subreddit-specific cooldown (e.g. Reddit 30-day same-media restriction)
+      const subCooldownDays = context?.subredditCooldownDays ?? 30;
+      const subCutoffDate = new Date();
+      subCutoffDate.setDate(subCutoffDate.getDate() - subCooldownDays);
+      const subCutoffIso = subCutoffDate.toISOString();
+
+      const subredditOnCooldownSql = item.subredditId
+        ? `EXISTS (
+            SELECT 1 FROM post_media pm_sub
+            JOIN post p_sub ON p_sub.id = pm_sub.postId
+            WHERE pm_sub.mediaId = media.id
+            AND p_sub.subredditId = :rsSubredditId${paramIndex}
+            ${item.channelId ? `AND p_sub.channelId = :rsSubChannelId${paramIndex}` : ""}
+            AND p_sub.date >= :rsSubCutoff${paramIndex}
+          )`
+        : "";
+      const subredditParams = item.subredditId
+        ? {
+            [`rsSubredditId${paramIndex}`]: item.subredditId,
+            ...(item.channelId ? { [`rsSubChannelId${paramIndex}`]: item.channelId } : {}),
+            [`rsSubCutoff${paramIndex}`]: subCutoffIso,
+          }
+        : {};
+
       switch (item.value) {
         case "never_posted":
           queryBuilder.andWhere(
@@ -203,22 +228,46 @@ export const buildFilterItemQuery = (
           );
           break;
 
-        case "on_cooldown":
-          queryBuilder.andWhere(
-            `${operator}EXISTS (
+        case "on_cooldown": {
+          // On cooldown if within channel cooldown OR within subreddit cooldown
+          const channelOnCooldown = `EXISTS (
               SELECT 1 FROM post_media pm
               JOIN post p ON p.id = pm.postId
               WHERE pm.mediaId = media.id
               ${channelCondition}
               AND p.status = 'posted'
               AND p.date >= :rsCutoff${paramIndex}
-            )`,
-            { ...channelParams, [`rsCutoff${paramIndex}`]: cutoffIso },
-          );
-          break;
+            )`;
 
-        case "repostable":
-          // Has been posted AND all posts are outside cooldown window
+          if (subredditOnCooldownSql) {
+            queryBuilder.andWhere(
+              `${operator}(${channelOnCooldown} OR ${subredditOnCooldownSql})`,
+              { ...channelParams, [`rsCutoff${paramIndex}`]: cutoffIso, ...subredditParams },
+            );
+          } else {
+            queryBuilder.andWhere(
+              `${operator}${channelOnCooldown}`,
+              { ...channelParams, [`rsCutoff${paramIndex}`]: cutoffIso },
+            );
+          }
+          break;
+        }
+
+        case "repostable": {
+          // Has been posted AND all posts outside cooldown AND not on subreddit cooldown
+          const channelCooldownExpired = `NOT EXISTS (
+                SELECT 1 FROM post_media pm2
+                JOIN post p2 ON p2.id = pm2.postId
+                WHERE pm2.mediaId = media.id
+                ${channelCondition.replace(/p\./g, "p2.").replace(/rsChannelId/g, "rsChannelId2_")}
+                AND p2.status = 'posted'
+                AND p2.date >= :rsCutoff${paramIndex}
+              )`;
+
+          const subredditNotOnCooldown = subredditOnCooldownSql
+            ? `AND NOT ${subredditOnCooldownSql}`
+            : "";
+
           queryBuilder.andWhere(
             `${operator}(
               EXISTS (
@@ -228,26 +277,34 @@ export const buildFilterItemQuery = (
                 ${channelCondition}
                 AND p.status = 'posted'
               )
-              AND NOT EXISTS (
+              AND ${channelCooldownExpired}
+              ${subredditNotOnCooldown}
+            )`,
+            {
+              ...channelParams,
+              ...(item.channelId ? { [`rsChannelId2_${paramIndex}`]: item.channelId } : {}),
+              [`rsCutoff${paramIndex}`]: cutoffIso,
+              ...subredditParams,
+            },
+          );
+          break;
+        }
+
+        case "still_growing": {
+          // Same SQL as repostable — plateau detection is a post-query JS step
+          const channelCooldownExpired = `NOT EXISTS (
                 SELECT 1 FROM post_media pm2
                 JOIN post p2 ON p2.id = pm2.postId
                 WHERE pm2.mediaId = media.id
                 ${channelCondition.replace(/p\./g, "p2.").replace(/rsChannelId/g, "rsChannelId2_")}
                 AND p2.status = 'posted'
                 AND p2.date >= :rsCutoff${paramIndex}
-              )
-            )`,
-            {
-              ...channelParams,
-              ...(item.channelId ? { [`rsChannelId2_${paramIndex}`]: item.channelId } : {}),
-              [`rsCutoff${paramIndex}`]: cutoffIso,
-            },
-          );
-          break;
+              )`;
 
-        case "still_growing":
-          // Same SQL as repostable — the actual plateau detection is done
-          // in a post-query JS step. This SQL gets candidates (cooldown expired).
+          const subredditNotOnCooldown = subredditOnCooldownSql
+            ? `AND NOT ${subredditOnCooldownSql}`
+            : "";
+
           queryBuilder.andWhere(
             `${operator}(
               EXISTS (
@@ -257,22 +314,18 @@ export const buildFilterItemQuery = (
                 ${channelCondition}
                 AND p.status = 'posted'
               )
-              AND NOT EXISTS (
-                SELECT 1 FROM post_media pm2
-                JOIN post p2 ON p2.id = pm2.postId
-                WHERE pm2.mediaId = media.id
-                ${channelCondition.replace(/p\./g, "p2.").replace(/rsChannelId/g, "rsChannelId2_")}
-                AND p2.status = 'posted'
-                AND p2.date >= :rsCutoff${paramIndex}
-              )
+              AND ${channelCooldownExpired}
+              ${subredditNotOnCooldown}
             )`,
             {
               ...channelParams,
               ...(item.channelId ? { [`rsChannelId2_${paramIndex}`]: item.channelId } : {}),
               [`rsCutoff${paramIndex}`]: cutoffIso,
+              ...subredditParams,
             },
           );
           break;
+        }
       }
       break;
     }

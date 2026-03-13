@@ -8,10 +8,9 @@ import type { Channel } from "../../channels/entity";
 import { Media } from "../../library/entity";
 import { Subreddit } from "../../subreddits/entity";
 import { CHANNEL_TYPES } from "../../channels/channelTypes";
-import { buildFilterGroupQuery } from "../../library/filter-helpers";
+import { buildFilterGroupQuery, type FilterContext } from "../../library/filter-helpers";
 import { getMergedFiltersForSlot } from "../../content-schedules/operations/get-merged-filters";
-import { getRecentlyPostedMediaIds } from "../../library/operations/media/get-recently-posted-media-ids";
-import { getUsedMediaForSubreddit } from "../../reddit-automation/operations/generation/utils";
+import type { MediaFilterSchema } from "../../library/schemas/media-filter";
 
 // ---------------------------------------------------------------------------
 // Response schemas
@@ -79,10 +78,9 @@ const postsPerDayRate = (
 /**
  * Count media eligible for a specific schedule × channel slot.
  *
- * "Eligible" means:
+ * Uses the repostStatus filter to determine eligibility:
  * - Passes the merged filters (schedule base + channel eligible + scheduleChannel override)
- * - NOT within the channel's mediaRepostCooldownHours window
- * - For Reddit channels: NOT within the subreddit's 30-day same-media cooldown
+ * - Repostable according to channel cooldown + subreddit cooldown (for Reddit channels)
  */
 const countEligibleMedia = async (
   scheduleId: string,
@@ -94,29 +92,32 @@ const countEligibleMedia = async (
 
   const qb = database.manager.createQueryBuilder(Media, "media");
 
+  // Build filter context with channel-specific cooldown
+  const filterContext: FilterContext = {
+    channelCooldownHours: channel.mediaRepostCooldownHours ?? undefined,
+  };
+
   if (mergedFilters.length > 0) {
-    buildFilterGroupQuery(mergedFilters, qb);
+    buildFilterGroupQuery(mergedFilters, qb, filterContext);
   }
 
-  // Exclude media within the channel's generic repost cooldown
+  // Add repostStatus=repostable filter to exclude media on cooldown
+  // This replaces the manual getRecentlyPostedMediaIds + getUsedMediaForSubreddit calls
   if (channel.mediaRepostCooldownHours && channel.mediaRepostCooldownHours > 0) {
-    const cooldownIds = await getRecentlyPostedMediaIds(channel.id, channel.mediaRepostCooldownHours);
-    if (cooldownIds.size > 0) {
-      qb.andWhere("media.id NOT IN (:...channelCooldownIds)", {
-        channelCooldownIds: Array.from(cooldownIds),
-      });
-    }
-  }
+    type RepostStatusFilter = z.infer<typeof MediaFilterSchema>;
+    const repostFilter: RepostStatusFilter = [{
+      include: false,
+      items: [{
+        type: "repostStatus" as const,
+        value: "on_cooldown" as const,
+        channelId: channel.id,
+        ...(channel.typeId === CHANNEL_TYPES.reddit.id && subreddit
+          ? { subredditId: subreddit.id }
+          : {}),
+      }],
+    }];
 
-  // For Reddit channels: also exclude media within the subreddit's same-media cooldown
-  // (MEDIA_REUSE_RESTRICTION_DAYS = 30 days, as defined in reddit-automation utils)
-  if (channel.typeId === CHANNEL_TYPES.reddit.id && subreddit) {
-    const usedIds = await getUsedMediaForSubreddit(subreddit.id, channel.id);
-    if (usedIds.length > 0) {
-      qb.andWhere("media.id NOT IN (:...subredditCooldownIds)", {
-        subredditCooldownIds: usedIds,
-      });
-    }
+    buildFilterGroupQuery(repostFilter, qb, filterContext);
   }
 
   return qb.getCount();
