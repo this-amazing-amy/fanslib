@@ -415,7 +415,7 @@ export const CreatePostDialog = ({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: showContent ? 1 : 0 }}
                 transition={{ duration: prefersReducedMotion ? 0 : 0.2, delay: prefersReducedMotion ? 0 : 0.15 }}
-                className="flex flex-col h-full"
+                className="flex flex-col flex-1 min-h-0"
               >
                 <div className="flex-shrink-0 mb-2">
                   {virtualPost ? (
