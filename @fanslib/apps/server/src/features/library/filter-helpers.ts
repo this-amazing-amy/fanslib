@@ -222,13 +222,13 @@ export const buildFilterItemQuery = (
       switch (item.value) {
         case "never_posted":
           queryBuilder.andWhere(
-            `${operator}NOT EXISTS (
+            `${operator}(NOT EXISTS (
               SELECT 1 FROM post_media pm
               JOIN post p ON p.id = pm.postId
               WHERE pm.mediaId = media.id
               ${channelCondition}
               AND p.status = 'posted'
-            )`,
+            ) AND media.excluded != 1)`,
             channelParams,
           );
           break;
@@ -284,6 +284,7 @@ export const buildFilterItemQuery = (
               )
               AND ${channelCooldownExpired}
               ${subredditNotOnCooldown}
+              AND media.excluded != 1
             )`,
             {
               ...channelParams,
@@ -321,6 +322,7 @@ export const buildFilterItemQuery = (
               )
               AND ${channelCooldownExpired}
               ${subredditNotOnCooldown}
+              AND media.excluded != 1
             )`,
             {
               ...channelParams,
