@@ -2,6 +2,7 @@ import type { Media } from '@fanslib/server/schemas';
 import { Image as ImageIcon, Video } from "lucide-react";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "~/lib/cn";
+import { useSfwMode } from "~/hooks/useSfwMode";
 import { getMediaFileUrl, getMediaThumbnailUrl } from "~/lib/media-urls";
 import { useMediaTagsQuery } from "~/lib/queries/tags";
 import { formatDuration } from "~/lib/video";
@@ -60,6 +61,7 @@ export const MediaTileLite = memo(
 
     const { data: mediaTags = [] } = useMediaTagsQuery({ mediaId: media.id });
     const stickerTags = (mediaTags ?? []).filter((mt) => mt.stickerDisplay === "color");
+    const { handleMouseEnter, handleMouseLeave, getBlurClassName } = useSfwMode();
 
     const handleImageError = useCallback(() => {
       setLocalImageError(true);
@@ -102,7 +104,7 @@ export const MediaTileLite = memo(
     }, [isActivePreview, media.type]);
 
     return (
-      <div className={cn("relative aspect-square bg-base-300 rounded-lg overflow-hidden", className)}>
+      <div className={cn("relative aspect-square bg-base-300 rounded-lg overflow-hidden", className)} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
         {/* Apply dimmed visual treatment if within cooldown */}
         {isWithinCooldown && (
           <div className="absolute inset-0 bg-black/40 z-[5]" />
@@ -113,7 +115,7 @@ export const MediaTileLite = memo(
               <img
                 src={getMediaThumbnailUrl(media.id)}
                 alt={media.name}
-                className="absolute inset-0 w-full h-full object-contain"
+                className={getBlurClassName("absolute inset-0 w-full h-full object-contain")}
                 onError={handleImageError}
                 loading="lazy"
                 draggable={false}
@@ -122,10 +124,10 @@ export const MediaTileLite = memo(
             <video
               ref={videoRef}
               src={getMediaFileUrl(media.id)}
-              className={cn(
+              className={getBlurClassName(cn(
                 "absolute inset-0 w-full h-full object-contain",
                 !isActivePreview && "hidden"
-              )}
+              ))}
               preload="none"
               draggable={false}
             />
@@ -139,7 +141,7 @@ export const MediaTileLite = memo(
           <img
             src={imageError ? getMediaFileUrl(media.id) : getMediaThumbnailUrl(media.id)}
             alt={media.name}
-            className="w-full h-full object-contain"
+            className={getBlurClassName("w-full h-full object-contain")}
             onError={handleImageError}
             loading="lazy"
             draggable={false}
