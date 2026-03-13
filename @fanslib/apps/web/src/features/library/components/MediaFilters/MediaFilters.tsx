@@ -48,9 +48,9 @@ export const MediaFilters = ({ className = "", collapsed = false, onToggle }: Me
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="flex items-center gap-2 overflow-hidden"
+                  className="flex items-center gap-2 overflow-x-auto overflow-y-hidden pb-1"
                 >
-                  <MediaFilterSummary mediaFilters={displayFilters} maxItems={3} />
+                  <MediaFilterSummary mediaFilters={displayFilters} className="flex-nowrap" />
                 </motion.div>
               ) : (
                 <motion.div

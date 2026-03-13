@@ -43,6 +43,8 @@ export const FilterItemRenderer = ({
       className={cn(
         "h-6 w-6 flex-shrink-0 rounded-full bg-base-100 hover:bg-error hover:text-error-content",
         "opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all",
+        // On touch devices (no hover support), always show the delete button
+        "[@media(hover:none)]:opacity-100 [@media(hover:none)]:visible",
         "border-0 hover:border-0 focus:border-0",
         "ring-0 hover:ring-0 focus:ring-0",
         className
