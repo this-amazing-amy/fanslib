@@ -10,7 +10,6 @@ type FilterItem = FilterGroup['items'][number];
 
 export type FilterContext = {
   channelCooldownHours?: number;
-  subredditCooldownDays?: number;
   repostSettings?: Settings["repostSettings"];
 };
 
@@ -190,12 +189,9 @@ export const buildFilterItemQuery = (
         ? { [`rsChannelId${paramIndex}`]: item.channelId }
         : {};
 
-      // Subreddit-specific cooldown (e.g. Reddit 30-day same-media restriction)
-      const subCooldownDays = context?.subredditCooldownDays ?? 30;
-      const subCutoffDate = new Date();
-      subCutoffDate.setDate(subCutoffDate.getDate() - subCooldownDays);
-      const subCutoffIso = subCutoffDate.toISOString();
-
+      // Subreddit-specific cooldown — uses the same channel cooldown window.
+      // Each subreddit maps to its own channel row, so channelCooldownHours
+      // already reflects the per-subreddit mediaRepostCooldownHours.
       const subredditOnCooldownSql = item.subredditId
         ? `EXISTS (
             SELECT 1 FROM post_media pm_sub
@@ -210,7 +206,7 @@ export const buildFilterItemQuery = (
         ? {
             [`rsSubredditId${paramIndex}`]: item.subredditId,
             ...(item.channelId ? { [`rsSubChannelId${paramIndex}`]: item.channelId } : {}),
-            [`rsSubCutoff${paramIndex}`]: subCutoffIso,
+            [`rsSubCutoff${paramIndex}`]: cutoffIso,
           }
         : {};
 
