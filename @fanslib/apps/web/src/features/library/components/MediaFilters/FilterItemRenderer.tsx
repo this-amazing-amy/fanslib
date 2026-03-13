@@ -126,6 +126,23 @@ export const FilterItemRenderer = ({
           </div>
         );
 
+      case "excluded":
+        return (
+          <div className="flex items-center gap-2">
+            <Switch
+              isSelected={
+                value && "value" in value && typeof value.value === "boolean" ? value.value : true
+              }
+              onChange={(isSelected) => onChange({ type: "excluded", value: isSelected })}
+            />
+            <span className="text-sm">
+              {value && "value" in value && typeof value.value === "boolean" && !value.value
+                ? "Not excluded"
+                : "Excluded from posting"}
+            </span>
+          </div>
+        );
+
       case "repostStatus":
         return (
           <Select

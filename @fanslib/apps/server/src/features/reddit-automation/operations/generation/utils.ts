@@ -19,6 +19,9 @@ export const selectRandomMedia = async (
 
   const query = mediaRepo.createQueryBuilder("media");
 
+  // Always skip excluded media when selecting for scheduling
+  query.andWhere("media.excluded != 1");
+
   if (eligibleMediaFilter) {
     buildFilterGroupQuery(eligibleMediaFilter, query);
   }

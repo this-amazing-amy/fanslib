@@ -151,6 +151,14 @@ export const MediaTile = memo((props: MediaTileProps) => {
             title={REPOST_STATUS_CONFIG[props.repostStatus].tooltip}
           />
         )}
+        {media.excluded && (
+          <div
+            className="absolute top-1.5 right-1.5 bg-black/70 text-white text-[9px] font-bold leading-none px-1 py-0.5 rounded"
+            title="Excluded from posting"
+          >
+            EX
+          </div>
+        )}
       </div>
       {hasFooter && (
         <div className="flex flex-col gap-2 px-3 pt-3 pb-3 bg-white">

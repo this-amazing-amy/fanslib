@@ -174,6 +174,15 @@ export const buildFilterItemQuery = (
       );
       break;
 
+    case "excluded":
+      queryBuilder.andWhere(
+        include
+          ? `media.excluded = :excludedVal${paramIndex}`
+          : `media.excluded != :excludedVal${paramIndex}`,
+        { [`excludedVal${paramIndex}`]: item.value ? 1 : 0 }
+      );
+      break;
+
     case "repostStatus": {
       const cooldownHours = context?.channelCooldownHours
         ?? context?.repostSettings?.defaultMediaRepostCooldownHours
@@ -213,13 +222,13 @@ export const buildFilterItemQuery = (
       switch (item.value) {
         case "never_posted":
           queryBuilder.andWhere(
-            `${operator}NOT EXISTS (
+            `${operator}(NOT EXISTS (
               SELECT 1 FROM post_media pm
               JOIN post p ON p.id = pm.postId
               WHERE pm.mediaId = media.id
               ${channelCondition}
               AND p.status = 'posted'
-            )`,
+            ) AND media.excluded != 1)`,
             channelParams,
           );
           break;
@@ -275,6 +284,7 @@ export const buildFilterItemQuery = (
               )
               AND ${channelCooldownExpired}
               ${subredditNotOnCooldown}
+              AND media.excluded != 1
             )`,
             {
               ...channelParams,
@@ -312,6 +322,7 @@ export const buildFilterItemQuery = (
               )
               AND ${channelCooldownExpired}
               ${subredditNotOnCooldown}
+              AND media.excluded != 1
             )`,
             {
               ...channelParams,
@@ -400,6 +411,8 @@ export const filterItemToString = (item: FilterItem): string => {
       return `Created before: ${item.value.toLocaleDateString()}`;
     case "dimensionEmpty":
       return `Missing tags from dimension: ${item.dimensionId}`;
+    case "excluded":
+      return item.value ? "Excluded from posting" : "Not excluded";
     case "repostStatus": {
       const labels: Record<string, string> = {
         never_posted: "Never Posted",

@@ -10,6 +10,7 @@ import { MediaPosts } from '~/components/media-detail/MediaPosts';
 import { CreatePostDialog } from '~/features/library/components/CreatePostDialog';
 import { Button } from '~/components/ui/Button';
 import { Textarea } from '~/components/ui/Textarea';
+import { Switch } from '~/components/ui/Switch';
 
 import { MediaTagEditor } from '~/features/library/components/MediaTagEditor';
 import { useDebounce } from '~/hooks/useDebounce';
@@ -46,6 +47,14 @@ const MediaRoute = () => {
     } finally {
       setIsDescriptionSaving(false);
     }
+  };
+
+  const toggleExcluded = async (excluded: boolean) => {
+    if (!media || 'error' in media) return;
+    await updateMediaMutation.mutateAsync({
+      id: media.id,
+      updates: { excluded },
+    });
   };
 
   const debouncedSaveDescription = useDebounce(saveDescription, 1000);
@@ -125,6 +134,16 @@ const MediaRoute = () => {
                     </div>
                   )}
                 </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <label htmlFor="media-excluded" className="text-sm font-medium">
+                  Exclude from posting
+                </label>
+                <Switch
+                  id="media-excluded"
+                  isSelected={media.excluded ?? false}
+                  onChange={toggleExcluded}
+                />
               </div>
             </div>
             <div className="flex flex-col gap-6">

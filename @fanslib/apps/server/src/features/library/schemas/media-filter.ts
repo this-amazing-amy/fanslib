@@ -64,6 +64,11 @@ export const FilterItemRepostStatusSchema = z.object({
   subredditId: z.string().optional(),
 });
 
+export const FilterItemExcludedSchema = z.object({
+  type: z.literal('excluded'),
+  value: z.boolean(),
+});
+
 export const FilterItemSchema = z.discriminatedUnion('type', [
   FilterItemChannelSchema,
   FilterItemSubredditSchema,
@@ -77,6 +82,7 @@ export const FilterItemSchema = z.discriminatedUnion('type', [
   FilterItemMediaTypeSchema,
   FilterItemDimensionEmptySchema,
   FilterItemRepostStatusSchema,
+  FilterItemExcludedSchema,
 ]);
 
 export const FilterGroupSchema = z.object({

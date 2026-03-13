@@ -101,6 +101,9 @@ const countEligibleMedia = async (
     buildFilterGroupQuery(mergedFilters, qb, filterContext);
   }
 
+  // Excluded media is never eligible for posting
+  qb.andWhere("media.excluded != 1");
+
   // Add repostStatus=repostable filter to exclude media on cooldown
   // This replaces the manual getRecentlyPostedMediaIds + getUsedMediaForSubreddit calls
   if (channel.mediaRepostCooldownHours && channel.mediaRepostCooldownHours > 0) {

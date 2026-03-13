@@ -45,6 +45,7 @@ const UpdateMediaRequestBodySchema = z.object({
   redgifsUrl: z.string().nullable().optional(),
   fileCreationDate: z.coerce.date().optional(),
   fileModificationDate: z.coerce.date().optional(),
+  excluded: z.boolean().optional(),
 });
 
 const FindAdjacentMediaBodySchema = z.object({
