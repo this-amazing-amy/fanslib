@@ -1,0 +1,42 @@
+{
+  "name": "Bugfix: Duplicate Post Modal scrollt nicht",
+  "description": "Das Modal zum Duplizieren eines Posts scrollt nicht, wenn der Inhalt die Viewport-Höhe übersteigt. Ursache ist eine fehlerhafte Flexbox-Höhen-Kaskade in CreatePostDialog.tsx.",
+  "splitter_id": "7b8478b0-2b5d-4e6f-9b15-ff1895961a56",
+  "context": {
+    "problem": "Der Inner Content Wrapper in CreatePostDialog.tsx verwendet 'h-full'. Das Outer Panel hat nur 'max-height: 90vh' (kein explizites 'height'). CSS: 'height: 100%' auf einem Flex-Item löst sich nicht auf, wenn der Parent nur max-height, aber keine definite height hat. Resultat: ScrollArea denkt sie hat unendlichen Platz — kein Scroll.",
+    "impact": "User können Inhalte im Duplicate Post Modal nicht sehen oder bearbeiten, wenn das Modal voll ist.",
+    "user_need": "Das Modal muss scrollbar sein wenn der Inhalt über 90vh geht."
+  },
+  "scope": {
+    "in_scope": [
+      "Fix der Flexbox-Klasse in CreatePostDialog.tsx (eine Zeile)"
+    ],
+    "out_of_scope": [
+      "Refactoring der ScrollArea-Komponente",
+      "Änderungen an anderen Modals",
+      "Layout-Überarbeitungen am Modal-Header oder -Footer"
+    ]
+  },
+  "features": [
+    {
+      "id": "F01",
+      "category": "ui",
+      "description": "Inner Content Wrapper in CreatePostDialog.tsx: CSS-Klasse 'h-full' ersetzen durch 'flex-1 min-h-0'",
+      "acceptance_criteria": [
+        "In CreatePostDialog.tsx, Zeile ~418: motion.div hat className='flex flex-col flex-1 min-h-0' (nicht 'flex flex-col h-full')",
+        "Das Duplicate Post Modal scrollt, wenn der Inhalt die Viewport-Höhe (90vh) übersteigt",
+        "Das Create Post Modal über Virtual Slot scrollt ebenfalls korrekt (gleicher Dialog, gleicher Fix)",
+        "Header und Footer des Modals bleiben beim Scrollen sichtbar (sind flex-shrink-0)",
+        "Das Modal-Layout bei wenig Inhalt (kein Scroll nötig) ist unverändert — keine visuellen Regressionen"
+      ],
+      "passes": false
+    }
+  ],
+  "technical_notes": {
+    "file": "@fanslib/apps/web/src/features/library/components/CreatePostDialog.tsx",
+    "line": "~418",
+    "change": "className='flex flex-col h-full' → className='flex flex-col flex-1 min-h-0'",
+    "explanation": "flex-1 gibt dem Wrapper eine definite Höhe (verfügbarer Flex-Space), min-h-0 erlaubt dem Item sich kleiner als seinen Content zu machen. ScrollArea (bereits korrekt mit flex-1 min-h-0) triggert dann korrekt.",
+    "architecture_doc": "docs/architecture/7b8478b0-duplicate-modal-scroll.md"
+  }
+}
