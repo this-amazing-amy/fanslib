@@ -6,7 +6,7 @@ import { ContentSchedule } from "../../content-schedules/entity";
 import type { ScheduleChannel } from "../../content-schedules/entity";
 import type { Channel } from "../../channels/entity";
 import { Media } from "../../library/entity";
-import type { Subreddit } from "../../subreddits/entity";
+import { Subreddit } from "../../subreddits/entity";
 import { CHANNEL_TYPES } from "../../channels/channelTypes";
 import { buildFilterGroupQuery } from "../../library/filter-helpers";
 import { getMergedFiltersForSlot } from "../../content-schedules/operations/get-merged-filters";
