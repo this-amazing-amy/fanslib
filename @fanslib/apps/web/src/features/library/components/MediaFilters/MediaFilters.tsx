@@ -38,7 +38,7 @@ export const MediaFilters = ({ className = "", collapsed = false, onToggle }: Me
       ) : (
         /* With filters: Show filter groups + actions (clear, add group) */
         <>
-          <div className="flex-grow flex flex-col gap-2">
+          <div className="flex-grow min-w-0 flex flex-col gap-2">
             {/* Collapsed state: Show summary */}
             <AnimatePresence mode="wait">
               {collapsed ? (
