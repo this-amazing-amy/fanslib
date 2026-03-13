@@ -38,7 +38,7 @@
         "Wenn SFW Mode nicht aktiv ist: MediaTileLite sieht visuell identisch aus wie vor dem Fix — keine Regression",
         "Der isWithinCooldown-Overlay (bg-black/40) bleibt unverändert erhalten"
       ],
-      "passes": false
+      "passes": true
     }
   ],
   "technical_notes": {
