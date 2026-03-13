@@ -38,6 +38,7 @@ const FILTER_TYPE_OPTIONS: { value: FilterItemType; label: string }[] = [
   { value: "filename", label: "Filename" },
   { value: "caption", label: "Caption" },
   { value: "posted", label: "Posted Status" },
+  { value: "repostStatus", label: "Repost Status" },
   { value: "createdDateStart", label: "Created After" },
   { value: "createdDateEnd", label: "Created Before" },
 ];
@@ -55,6 +56,7 @@ export const FilterItemEditor = ({
   const [dateValue, setDateValue] = useState<Date | undefined>(undefined);
   const [idValue, setIdValue] = useState("");
   const [dimensionIdValue, setDimensionIdValue] = useState(0);
+  const [repostStatusValue, setRepostStatusValue] = useState<string>("repostable");
   const [isValid, setIsValid] = useState(false);
 
   const { data: channels = [] } = useChannelsQuery();
@@ -63,7 +65,9 @@ export const FilterItemEditor = ({
     if (item) {
       setType(item.type);
       if ("value" in item) {
-        if (typeof item.value === "string") {
+        if (item.type === "repostStatus" && typeof item.value === "string") {
+          setRepostStatusValue(item.value);
+        } else if (typeof item.value === "string") {
           setStringValue(item.value);
         } else if (typeof item.value === "boolean") {
           setBooleanValue(item.value);
@@ -101,6 +105,9 @@ export const FilterItemEditor = ({
         case "dimensionEmpty":
           setIsValid(dimensionIdValue > 0);
           break;
+        case "repostStatus":
+          setIsValid(true);
+          break;
         default:
           setIsValid(false);
       }
@@ -137,6 +144,9 @@ export const FilterItemEditor = ({
       case "dimensionEmpty":
         newItem = { type, dimensionId: dimensionIdValue };
         break;
+      case "repostStatus":
+        newItem = { type, value: repostStatusValue as "never_posted" | "repostable" | "on_cooldown" | "still_growing" };
+        break;
     }
 
     if (!newItem) return;
@@ -150,6 +160,7 @@ export const FilterItemEditor = ({
     setDateValue(undefined);
     setIdValue("");
     setDimensionIdValue(0);
+    setRepostStatusValue("repostable");
   };
 
   const handleTypeChange = (newType: FilterItemType) => {
@@ -266,6 +277,24 @@ export const FilterItemEditor = ({
               value={dimensionIdValue || undefined}
               onChange={setDimensionIdValue}
             />
+          </div>
+        );
+
+      case "repostStatus":
+        return (
+          <div className="space-y-2">
+            <Label>Repost Status</Label>
+            <Select value={repostStatusValue} onValueChange={setRepostStatusValue}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select repost status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="never_posted">Never Posted</SelectItem>
+                <SelectItem value="repostable">Repostable</SelectItem>
+                <SelectItem value="on_cooldown">On Cooldown</SelectItem>
+                <SelectItem value="still_growing">Still Growing</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         );
 

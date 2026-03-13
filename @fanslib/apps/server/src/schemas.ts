@@ -99,6 +99,8 @@ import {
   FilterItemCreatedDateEndSchema,
   FilterItemMediaTypeSchema,
   FilterItemDimensionEmptySchema,
+  FilterItemRepostStatusSchema,
+  RepostStatusValueSchema,
   FilterGroupSchema,
   MediaFilterSchema
 } from './features/library/schemas/media-filter';
@@ -115,6 +117,8 @@ export {
   FilterItemCreatedDateEndSchema,
   FilterItemMediaTypeSchema,
   FilterItemDimensionEmptySchema,
+  FilterItemRepostStatusSchema,
+  RepostStatusValueSchema,
   FilterGroupSchema,
   MediaFilterSchema
 };
@@ -130,6 +134,8 @@ export type FilterItemCreatedDateStart = z.infer<typeof FilterItemCreatedDateSta
 export type FilterItemCreatedDateEnd = z.infer<typeof FilterItemCreatedDateEndSchema>;
 export type FilterItemMediaType = z.infer<typeof FilterItemMediaTypeSchema>;
 export type FilterItemDimensionEmpty = z.infer<typeof FilterItemDimensionEmptySchema>;
+export type FilterItemRepostStatus = z.infer<typeof FilterItemRepostStatusSchema>;
+export type RepostStatusValue = z.infer<typeof RepostStatusValueSchema>;
 export type FilterGroup = z.infer<typeof FilterGroupSchema>;
 export type MediaFilter = z.infer<typeof MediaFilterSchema>;
 

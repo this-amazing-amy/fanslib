@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation } from "@tanstack/react-router";
-import { FileText, Filter, Palette, Shield, Tags, Zap } from "lucide-react";
+import { FileText, Filter, Palette, RefreshCw, Shield, Tags, Zap } from "lucide-react";
 import { cn } from "~/lib/cn";
 
 type SettingsNavItem = {
@@ -39,6 +39,12 @@ const settingsNavItems: SettingsNavItem[] = [
     href: "/settings/content-safety",
     icon: Shield,
     description: "SFW mode and content filtering",
+  },
+  {
+    title: "Repost Settings",
+    href: "/settings/repost",
+    icon: RefreshCw,
+    description: "Cooldown and plateau detection",
   },
   {
     title: "Integrations",

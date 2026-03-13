@@ -8,6 +8,7 @@ import {
   Hash,
   MessageSquare,
   Plus,
+  RefreshCw,
   Search,
   Tag,
 } from "lucide-react";
@@ -38,6 +39,7 @@ const FILTER_TYPE_OPTIONS = [
   { value: "filename", label: "Filename", icon: Search },
   { value: "caption", label: "Caption", icon: FileText },
   { value: "posted", label: "Posted Status", icon: CheckCircle },
+  { value: "repostStatus", label: "Repost Status", icon: RefreshCw },
   { value: "createdDateStart", label: "Created After", icon: Calendar },
   { value: "createdDateEnd", label: "Created Before", icon: Calendar },
 ] as const;

@@ -16,6 +16,13 @@ export const SettingsSchema = z.object({
   sfwHoverDelay: z.number(),
   backgroundJobsServerUrl: z.string().optional(),
   libraryPath: z.string().optional(),
+  repostSettings: z.object({
+    useAnalytics: z.boolean(),
+    plateauConsecutiveDays: z.number().int(),
+    plateauThresholdPercent: z.number(),
+    minDatapointsForPlateau: z.number().int(),
+    defaultMediaRepostCooldownHours: z.number().int(),
+  }).optional(),
 });
 
 export type Settings = z.infer<typeof SettingsSchema>;

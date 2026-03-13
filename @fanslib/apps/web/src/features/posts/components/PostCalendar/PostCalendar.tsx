@@ -37,7 +37,7 @@ export const PostCalendar = forwardRef<PostCalendarHandle, PostCalendarProps>(
     useImperativeHandle(ref, () => ({ scrollToToday }));
 
     // Debounce range change notifications so fast scrolling doesn't cascade refetches
-    const rangeTimerRef = useRef<ReturnType<typeof setTimeout>>();
+    const rangeTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
     useEffect(() => {
       clearTimeout(rangeTimerRef.current);
       rangeTimerRef.current = setTimeout(() => {

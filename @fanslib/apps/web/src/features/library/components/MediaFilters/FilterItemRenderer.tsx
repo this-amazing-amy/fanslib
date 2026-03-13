@@ -124,6 +124,29 @@ export const FilterItemRenderer = ({
           </div>
         );
 
+      case "repostStatus":
+        return (
+          <Select
+            value={
+              value && "value" in value && typeof value.value === "string" ? value.value : "repostable"
+            }
+            onValueChange={(newValue) =>
+              onChange({ type: "repostStatus", value: newValue as "never_posted" | "repostable" | "on_cooldown" | "still_growing" })
+            }
+            aria-label="Repost status"
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select repost status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="never_posted" textValue="Never Posted">Never Posted</SelectItem>
+              <SelectItem value="repostable" textValue="Repostable">Repostable</SelectItem>
+              <SelectItem value="on_cooldown" textValue="On Cooldown">On Cooldown</SelectItem>
+              <SelectItem value="still_growing" textValue="Still Growing">Still Growing</SelectItem>
+            </SelectContent>
+          </Select>
+        );
+
       case "mediaType":
         return (
           <Select

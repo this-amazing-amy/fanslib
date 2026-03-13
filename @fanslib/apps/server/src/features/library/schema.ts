@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { RepostStatusValueSchema } from "./schemas/media-filter";
 
 export const MediaTypeSchema = z.enum(['image', 'video']);
 
@@ -15,5 +16,6 @@ export const MediaSchema = z.object({
   updatedAt: z.coerce.date(),
   fileCreationDate: z.coerce.date(),
   fileModificationDate: z.coerce.date(),
+  repostStatus: RepostStatusValueSchema.optional(),
 });
 

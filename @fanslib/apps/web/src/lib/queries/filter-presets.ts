@@ -16,6 +16,7 @@ type MediaFilter = Array<{
     | { type: 'createdDateEnd'; value: Date }
     | { type: 'mediaType'; value: 'image' | 'video' }
     | { type: 'dimensionEmpty'; dimensionId: number }
+    | { type: 'repostStatus'; value: 'never_posted' | 'repostable' | 'on_cooldown' | 'still_growing'; channelId?: string; subredditId?: string }
   >;
 }>;
 
