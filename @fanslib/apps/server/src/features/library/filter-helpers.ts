@@ -2,16 +2,23 @@ import type { z } from "zod";
 import type { SelectQueryBuilder } from "typeorm";
 import type { Media } from "./entity";
 import type { MediaFilterSchema } from "./schemas/media-filter";
+import type { Settings } from "../settings/schemas/settings";
 
 type MediaFilters = z.infer<typeof MediaFilterSchema>;
 type FilterGroup = MediaFilters[number];
 type FilterItem = FilterGroup['items'][number];
 
+export type FilterContext = {
+  channelCooldownHours?: number;
+  repostSettings?: Settings["repostSettings"];
+};
+
 export const buildFilterItemQuery = (
   item: FilterItem,
   queryBuilder: SelectQueryBuilder<Media>,
   paramIndex: number,
-  include: boolean
+  include: boolean,
+  context?: FilterContext,
 ): void => {
   const operator = include ? "" : "NOT ";
 
@@ -166,12 +173,116 @@ export const buildFilterItemQuery = (
         { [`dimensionId${paramIndex}`]: item.dimensionId }
       );
       break;
+
+    case "repostStatus": {
+      const cooldownHours = context?.channelCooldownHours
+        ?? context?.repostSettings?.defaultMediaRepostCooldownHours
+        ?? 504;
+      const cutoffDate = new Date();
+      cutoffDate.setHours(cutoffDate.getHours() - cooldownHours);
+      const cutoffIso = cutoffDate.toISOString();
+
+      const channelCondition = item.channelId
+        ? `AND p.channelId = :rsChannelId${paramIndex}`
+        : "";
+      const channelParams = item.channelId
+        ? { [`rsChannelId${paramIndex}`]: item.channelId }
+        : {};
+
+      switch (item.value) {
+        case "never_posted":
+          queryBuilder.andWhere(
+            `${operator}NOT EXISTS (
+              SELECT 1 FROM post_media pm
+              JOIN post p ON p.id = pm.postId
+              WHERE pm.mediaId = media.id
+              ${channelCondition}
+              AND p.status = 'posted'
+            )`,
+            channelParams,
+          );
+          break;
+
+        case "on_cooldown":
+          queryBuilder.andWhere(
+            `${operator}EXISTS (
+              SELECT 1 FROM post_media pm
+              JOIN post p ON p.id = pm.postId
+              WHERE pm.mediaId = media.id
+              ${channelCondition}
+              AND p.status = 'posted'
+              AND p.date >= :rsCutoff${paramIndex}
+            )`,
+            { ...channelParams, [`rsCutoff${paramIndex}`]: cutoffIso },
+          );
+          break;
+
+        case "repostable":
+          // Has been posted AND all posts are outside cooldown window
+          queryBuilder.andWhere(
+            `${operator}(
+              EXISTS (
+                SELECT 1 FROM post_media pm
+                JOIN post p ON p.id = pm.postId
+                WHERE pm.mediaId = media.id
+                ${channelCondition}
+                AND p.status = 'posted'
+              )
+              AND NOT EXISTS (
+                SELECT 1 FROM post_media pm2
+                JOIN post p2 ON p2.id = pm2.postId
+                WHERE pm2.mediaId = media.id
+                ${channelCondition.replace(/p\./g, "p2.").replace(/rsChannelId/g, "rsChannelId2_")}
+                AND p2.status = 'posted'
+                AND p2.date >= :rsCutoff${paramIndex}
+              )
+            )`,
+            {
+              ...channelParams,
+              ...(item.channelId ? { [`rsChannelId2_${paramIndex}`]: item.channelId } : {}),
+              [`rsCutoff${paramIndex}`]: cutoffIso,
+            },
+          );
+          break;
+
+        case "still_growing":
+          // Same SQL as repostable — the actual plateau detection is done
+          // in a post-query JS step. This SQL gets candidates (cooldown expired).
+          queryBuilder.andWhere(
+            `${operator}(
+              EXISTS (
+                SELECT 1 FROM post_media pm
+                JOIN post p ON p.id = pm.postId
+                WHERE pm.mediaId = media.id
+                ${channelCondition}
+                AND p.status = 'posted'
+              )
+              AND NOT EXISTS (
+                SELECT 1 FROM post_media pm2
+                JOIN post p2 ON p2.id = pm2.postId
+                WHERE pm2.mediaId = media.id
+                ${channelCondition.replace(/p\./g, "p2.").replace(/rsChannelId/g, "rsChannelId2_")}
+                AND p2.status = 'posted'
+                AND p2.date >= :rsCutoff${paramIndex}
+              )
+            )`,
+            {
+              ...channelParams,
+              ...(item.channelId ? { [`rsChannelId2_${paramIndex}`]: item.channelId } : {}),
+              [`rsCutoff${paramIndex}`]: cutoffIso,
+            },
+          );
+          break;
+      }
+      break;
+    }
   }
 };
 
 export const buildFilterGroupQuery = (
   filters: MediaFilters,
-  queryBuilder: SelectQueryBuilder<Media>
+  queryBuilder: SelectQueryBuilder<Media>,
+  context?: FilterContext,
 ): void => {
   if (filters?.length === 0) {
     return;
@@ -186,7 +297,7 @@ export const buildFilterGroupQuery = (
     }
 
     group.items.forEach((item: FilterItem) => {
-      buildFilterItemQuery(item, queryBuilder, paramIndex++, group.include);
+      buildFilterItemQuery(item, queryBuilder, paramIndex++, group.include, context);
     });
   });
 };
@@ -240,6 +351,15 @@ export const filterItemToString = (item: FilterItem): string => {
       return `Created before: ${item.value.toLocaleDateString()}`;
     case "dimensionEmpty":
       return `Missing tags from dimension: ${item.dimensionId}`;
+    case "repostStatus": {
+      const labels: Record<string, string> = {
+        never_posted: "Never Posted",
+        repostable: "Repostable",
+        on_cooldown: "On Cooldown",
+        still_growing: "Still Growing",
+      };
+      return labels[item.value] ?? "Unknown repost status";
+    }
     default:
       return "Unknown filter";
   }

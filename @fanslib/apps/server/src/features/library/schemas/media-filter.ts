@@ -55,6 +55,14 @@ export const FilterItemDimensionEmptySchema = z.object({
   dimensionId: z.number(),
 });
 
+export const RepostStatusValueSchema = z.enum(['never_posted', 'repostable', 'on_cooldown', 'still_growing']);
+
+export const FilterItemRepostStatusSchema = z.object({
+  type: z.literal('repostStatus'),
+  value: RepostStatusValueSchema,
+  channelId: z.string().optional(),
+});
+
 export const FilterItemSchema = z.discriminatedUnion('type', [
   FilterItemChannelSchema,
   FilterItemSubredditSchema,
@@ -67,6 +75,7 @@ export const FilterItemSchema = z.discriminatedUnion('type', [
   FilterItemCreatedDateEndSchema,
   FilterItemMediaTypeSchema,
   FilterItemDimensionEmptySchema,
+  FilterItemRepostStatusSchema,
 ]);
 
 export const FilterGroupSchema = z.object({

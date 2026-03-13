@@ -45,6 +45,7 @@ const validateFilterItem = async (item: FilterItem): Promise<boolean> => {
     case "createdDateStart":
     case "createdDateEnd":
     case "dimensionEmpty":
+    case "repostStatus":
       return true;
     default:
       return false;

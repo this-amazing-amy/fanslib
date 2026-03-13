@@ -12,6 +12,15 @@ import { MediaTileTypeSticker } from "./MediaTileTypeSticker";
 import { MediaTileVideo } from "./MediaTileVideo";
 import type { MediaTileProps } from "./types";
 
+import type { RepostStatus } from "./types";
+
+const REPOST_STATUS_CONFIG: Record<RepostStatus, { color: string; label: string; tooltip: string }> = {
+  repostable: { color: "bg-green-500", label: "R", tooltip: "Repostable" },
+  on_cooldown: { color: "bg-yellow-500", label: "C", tooltip: "On Cooldown" },
+  still_growing: { color: "bg-blue-500", label: "G", tooltip: "Still Growing" },
+  never_posted: { color: "bg-gray-400", label: "N", tooltip: "Never Posted" },
+};
+
 export const MediaTile = memo((props: MediaTileProps) => {
   const { media, tags = [] } = props;
 
@@ -37,6 +46,7 @@ export const MediaTile = memo((props: MediaTileProps) => {
   const withNavigation = props.withNavigation ?? false;
   const withTags = props.withTags ?? false;
   const withFileName = props.withFileName ?? false;
+  const withRepostStatus = props.withRepostStatus ?? false;
   const { onMediaClick } = props;
 
   const isHighlighted = useMemo(() => {
@@ -132,6 +142,15 @@ export const MediaTile = memo((props: MediaTileProps) => {
         )}
         {media.type === "image" && <MediaTileImage media={media} cover={true} />}
         {withSelection && <MediaTileSelectionCircle mediaId={media.id} globalIndex={currentItem?.globalIndex ?? 0} />}
+        {withRepostStatus && props.repostStatus && REPOST_STATUS_CONFIG[props.repostStatus] && (
+          <div
+            className={cn(
+              "absolute top-1.5 left-1.5 w-2.5 h-2.5 rounded-full border border-white/50",
+              REPOST_STATUS_CONFIG[props.repostStatus].color,
+            )}
+            title={REPOST_STATUS_CONFIG[props.repostStatus].tooltip}
+          />
+        )}
       </div>
       {hasFooter && (
         <div className="flex flex-col gap-2 px-3 pt-3 pb-3 bg-white">

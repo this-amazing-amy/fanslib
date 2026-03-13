@@ -27,7 +27,7 @@ export const getRecentlyPostedMediaIds = async (
     .from("post_media", "pm")
     .innerJoin("post", "p", "p.id = pm.postId")
     .where("p.channelId = :channelId", { channelId })
-    .andWhere("p.scheduledFor >= :cutoffDate", { cutoffDate: cutoffDate.toISOString() })
+    .andWhere("p.date >= :cutoffDate", { cutoffDate: cutoffDate.toISOString() })
     .getRawMany<{ mediaId: string }>();
 
   return new Set(results.map((r) => r.mediaId));

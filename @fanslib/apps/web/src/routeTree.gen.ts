@@ -27,6 +27,7 @@ import { Route as SettingsIntegrationsRouteImport } from './routes/settings/inte
 import { Route as SettingsFilterPresetsRouteImport } from './routes/settings/filter-presets'
 import { Route as SettingsContentTagsRouteImport } from './routes/settings/content-tags'
 import { Route as SettingsContentSafetyRouteImport } from './routes/settings/content-safety'
+import { Route as SettingsRepostRouteImport } from './routes/settings/repost'
 import { Route as SettingsAppearanceRouteImport } from './routes/settings/appearance'
 import { Route as PostsPostIdRouteImport } from './routes/posts/$postId'
 import { Route as LibraryMediaIdRouteImport } from './routes/library/$mediaId'
@@ -127,6 +128,11 @@ const SettingsContentSafetyRoute = SettingsContentSafetyRouteImport.update({
   path: '/content-safety',
   getParentRoute: () => SettingsRoute,
 } as any)
+const SettingsRepostRoute = SettingsRepostRouteImport.update({
+  id: '/repost',
+  path: '/repost',
+  getParentRoute: () => SettingsRoute,
+} as any)
 const SettingsAppearanceRoute = SettingsAppearanceRouteImport.update({
   id: '/appearance',
   path: '/appearance',
@@ -194,6 +200,7 @@ export interface FileRoutesByFullPath {
   '/settings/content-tags': typeof SettingsContentTagsRoute
   '/settings/filter-presets': typeof SettingsFilterPresetsRoute
   '/settings/integrations': typeof SettingsIntegrationsRoute
+  '/settings/repost': typeof SettingsRepostRoute
   '/settings/snippets': typeof SettingsSnippetsRoute
   '/shoots/$shootId': typeof ShootsShootIdRoute
   '/library': typeof LibraryIndexRoute
@@ -222,6 +229,7 @@ export interface FileRoutesByTo {
   '/settings/content-tags': typeof SettingsContentTagsRoute
   '/settings/filter-presets': typeof SettingsFilterPresetsRoute
   '/settings/integrations': typeof SettingsIntegrationsRoute
+  '/settings/repost': typeof SettingsRepostRoute
   '/settings/snippets': typeof SettingsSnippetsRoute
   '/shoots/$shootId': typeof ShootsShootIdRoute
   '/library': typeof LibraryIndexRoute
@@ -251,6 +259,7 @@ export interface FileRoutesById {
   '/settings/content-tags': typeof SettingsContentTagsRoute
   '/settings/filter-presets': typeof SettingsFilterPresetsRoute
   '/settings/integrations': typeof SettingsIntegrationsRoute
+  '/settings/repost': typeof SettingsRepostRoute
   '/settings/snippets': typeof SettingsSnippetsRoute
   '/shoots/$shootId': typeof ShootsShootIdRoute
   '/library/': typeof LibraryIndexRoute
@@ -282,6 +291,7 @@ export interface FileRouteTypes {
     | '/settings/content-tags'
     | '/settings/filter-presets'
     | '/settings/integrations'
+    | '/settings/repost'
     | '/settings/snippets'
     | '/shoots/$shootId'
     | '/library'
@@ -310,6 +320,7 @@ export interface FileRouteTypes {
     | '/settings/content-tags'
     | '/settings/filter-presets'
     | '/settings/integrations'
+    | '/settings/repost'
     | '/settings/snippets'
     | '/shoots/$shootId'
     | '/library'
@@ -338,6 +349,7 @@ export interface FileRouteTypes {
     | '/settings/content-tags'
     | '/settings/filter-presets'
     | '/settings/integrations'
+    | '/settings/repost'
     | '/settings/snippets'
     | '/shoots/$shootId'
     | '/library/'
@@ -495,6 +507,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsContentSafetyRouteImport
       parentRoute: typeof SettingsRoute
     }
+    '/settings/repost': {
+      id: '/settings/repost'
+      path: '/repost'
+      fullPath: '/settings/repost'
+      preLoaderRoute: typeof SettingsRepostRouteImport
+      parentRoute: typeof SettingsRoute
+    }
     '/settings/appearance': {
       id: '/settings/appearance'
       path: '/appearance'
@@ -605,6 +624,7 @@ interface SettingsRouteChildren {
   SettingsContentTagsRoute: typeof SettingsContentTagsRoute
   SettingsFilterPresetsRoute: typeof SettingsFilterPresetsRoute
   SettingsIntegrationsRoute: typeof SettingsIntegrationsRoute
+  SettingsRepostRoute: typeof SettingsRepostRoute
   SettingsSnippetsRoute: typeof SettingsSnippetsRoute
   SettingsIndexRoute: typeof SettingsIndexRoute
 }
@@ -615,6 +635,7 @@ const SettingsRouteChildren: SettingsRouteChildren = {
   SettingsContentTagsRoute: SettingsContentTagsRoute,
   SettingsFilterPresetsRoute: SettingsFilterPresetsRoute,
   SettingsIntegrationsRoute: SettingsIntegrationsRoute,
+  SettingsRepostRoute: SettingsRepostRoute,
   SettingsSnippetsRoute: SettingsSnippetsRoute,
   SettingsIndexRoute: SettingsIndexRoute,
 }

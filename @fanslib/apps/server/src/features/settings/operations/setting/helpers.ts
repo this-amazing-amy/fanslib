@@ -14,6 +14,13 @@ export const DEFAULT_SETTINGS: Settings = {
   sfwDefaultMode: "off",
   sfwHoverDelay: 300,
   backgroundJobsServerUrl: "",
+  repostSettings: {
+    useAnalytics: false,
+    plateauConsecutiveDays: 5,
+    plateauThresholdPercent: 1.5,
+    minDatapointsForPlateau: 7,
+    defaultMediaRepostCooldownHours: 504, // 21 days
+  },
 };
 
 export const settingsFilePath = (): string => join(appdataPath(), "settings.json");

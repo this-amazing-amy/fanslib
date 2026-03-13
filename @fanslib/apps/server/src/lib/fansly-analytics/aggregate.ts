@@ -1,6 +1,7 @@
 /* eslint-disable functional/no-loop-statements */
 /* eslint-disable functional/no-let */
 import type { Post, PostMedia } from "../../features/posts/entity";
+import { findPlateauStartIndex } from "./plateau-detection";
 
 export type DataPoint = {
   date: string;
@@ -40,45 +41,10 @@ const trimDataAtPlateau = (dataPoints: DataPoint[]): DataPoint[] => {
   }
 
   const minimumPointsToKeep = Math.min(7, dataPoints.length);
-  const changes: number[] = [];
+  const viewValues = dataPoints.map((p) => p.Views);
+  const plateauStartIndex = findPlateauStartIndex(viewValues, minimumPointsToKeep);
 
-  dataPoints.forEach((point, i) => {
-    if (i > 0) {
-      const absoluteChange = point.Views - (dataPoints[i - 1]?.Views ?? 0);
-      const relativeChangePercent =
-        (dataPoints[i - 1]?.Views ?? 0) === 0 ? 100 : (absoluteChange / (dataPoints[i - 1]?.Views ?? 0)) * 100;
-      changes.push(relativeChangePercent);
-    }
-  });
-
-  const movingAverageWindow = 3;
-  const movingAverages: number[] = [];
-
-  changes.forEach((_, i) => {
-    const windowStart = Math.max(0, i - movingAverageWindow + 1);
-    const windowSize = i - windowStart + 1;
-    const sum = changes.slice(windowStart, i + 1).reduce((sum, val) => sum + val, 0);
-    movingAverages.push(sum / windowSize);
-  });
-
-  let plateauStartIndex = -1;
-  const maxChange = Math.max(...changes);
-  const adaptiveThreshold = Math.min(maxChange * 0.05, 1.5);
-  const consecutiveRequired = Math.min(4, Math.ceil(dataPoints.length * 0.1));
-  let lowChangeCount = 0;
-
-  movingAverages.forEach((avg, i) => {
-    if (avg <= adaptiveThreshold) {
-      lowChangeCount++;
-      if (lowChangeCount >= consecutiveRequired && i >= minimumPointsToKeep - 2) {
-        plateauStartIndex = i - lowChangeCount + 2;
-      }
-    } else {
-      lowChangeCount = 0;
-    }
-  });
-
-  if (plateauStartIndex > 0 && plateauStartIndex < dataPoints.length - 2) {
+  if (plateauStartIndex > 0) {
     return dataPoints.slice(0, plateauStartIndex + 3);
   }
 
