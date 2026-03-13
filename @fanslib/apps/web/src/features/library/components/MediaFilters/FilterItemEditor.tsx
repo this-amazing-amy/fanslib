@@ -41,6 +41,7 @@ const FILTER_TYPE_OPTIONS: { value: FilterItemType; label: string }[] = [
   { value: "repostStatus", label: "Repost Status" },
   { value: "createdDateStart", label: "Created After" },
   { value: "createdDateEnd", label: "Created Before" },
+  { value: "excluded", label: "Excluded from Posting" },
 ];
 
 export const FilterItemEditor = ({
@@ -108,6 +109,9 @@ export const FilterItemEditor = ({
         case "repostStatus":
           setIsValid(true);
           break;
+        case "excluded":
+          setIsValid(true);
+          break;
         default:
           setIsValid(false);
       }
@@ -146,6 +150,9 @@ export const FilterItemEditor = ({
         break;
       case "repostStatus":
         newItem = { type, value: repostStatusValue as "never_posted" | "repostable" | "on_cooldown" | "still_growing" };
+        break;
+      case "excluded":
+        newItem = { type, value: booleanValue };
         break;
     }
 
@@ -295,6 +302,17 @@ export const FilterItemEditor = ({
                 <SelectItem value="still_growing">Still Growing</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+        );
+
+      case "excluded":
+        return (
+          <div className="space-y-2">
+            <Label htmlFor="excluded-switch">Excluded from posting</Label>
+            <div className="flex items-center space-x-2">
+              <Switch id="excluded-switch" isSelected={booleanValue} onChange={setBooleanValue} />
+              <span>{booleanValue ? "Excluded" : "Not excluded"}</span>
+            </div>
           </div>
         );
 

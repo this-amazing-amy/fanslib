@@ -43,6 +43,9 @@ export class Media {
   @Column({ type: "text", nullable: true, name: "description" })
   description: string | null = null;
 
+  @Column({ type: "boolean", default: false, name: "excluded" })
+  excluded: boolean = false;
+
   @CreateDateColumn({ type: "datetime", name: "createdAt" })
   createdAt!: Date;
 

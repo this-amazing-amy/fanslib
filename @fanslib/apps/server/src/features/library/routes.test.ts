@@ -183,6 +183,57 @@ describe("Library Routes", () => {
     });
   });
 
+  describe("PATCH /api/media/by-id/:id — excluded flag", () => {
+    test("sets excluded to true", async () => {
+      const fixtureMedia = MEDIA_FIXTURES[0];
+      if (!fixtureMedia) throw new Error("No media fixtures available");
+
+      const response = await app.request(`/api/media/by-id/${fixtureMedia.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ excluded: true }),
+      });
+      expect(response.status).toBe(200);
+
+      const data = await parseResponse<Media>(response);
+      expect(data?.excluded).toBe(true);
+    });
+
+    test("sets excluded to false", async () => {
+      const fixtureMedia = MEDIA_FIXTURES[0];
+      if (!fixtureMedia) throw new Error("No media fixtures available");
+
+      // First set to true
+      await app.request(`/api/media/by-id/${fixtureMedia.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ excluded: true }),
+      });
+
+      // Then set back to false
+      const response = await app.request(`/api/media/by-id/${fixtureMedia.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ excluded: false }),
+      });
+      expect(response.status).toBe(200);
+
+      const data = await parseResponse<Media>(response);
+      expect(data?.excluded).toBe(false);
+    });
+
+    test("defaults excluded to false on new media", async () => {
+      const fixtureMedia = MEDIA_FIXTURES[0];
+      if (!fixtureMedia) throw new Error("No media fixtures available");
+
+      const response = await app.request(`/api/media/by-id/${fixtureMedia.id}`);
+      expect(response.status).toBe(200);
+
+      const data = await parseResponse<Media>(response);
+      expect(data?.excluded).toBe(false);
+    });
+  });
+
   describe("POST /api/media/by-id/:id/adjacent", () => {
     test("returns adjacent media", async () => {
       const fixtureMedia = MEDIA_FIXTURES[1];
