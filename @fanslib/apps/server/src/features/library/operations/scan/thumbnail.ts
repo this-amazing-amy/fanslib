@@ -1,7 +1,7 @@
 import { spawn } from "child_process";
 import { promises as fs } from "fs";
 import path from "path";
-import { appdataPath } from "../../../../lib/env";
+import { appdataPath, env } from "../../../../lib/env";
 
 const THUMBNAIL_DIR = path.join(appdataPath(), "thumbnails");
 
@@ -51,10 +51,11 @@ export const generateThumbnail = async (
       ffmpegArgs.push("-i", mediaPath, "-vf", "scale=320:-1", "-y", thumbnailPath);
     }
 
-    const ffmpeg = spawn("ffmpeg", ffmpegArgs);
+    const ffmpegBin = env().ffmpegPath ?? "ffmpeg";
+    const ffmpeg = spawn(ffmpegBin, ffmpegArgs);
 
     ffmpeg.on("error", (err) => {
-      reject(new Error(`Failed to spawn ffmpeg: ${err.message}`));
+      reject(new Error(`Failed to spawn ffmpeg (binary: "${ffmpegBin}"): ${err.message}. Install ffmpeg or set FFMPEG_PATH env var.`));
     });
 
     ffmpeg.on("exit", (code) => {

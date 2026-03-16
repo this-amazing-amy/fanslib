@@ -3,6 +3,7 @@ import { join } from "path";
 type EnvConfig = {
   appdataPath: string;
   libraryPath: string;
+  ffmpegPath: string | undefined;
   ffprobePath: string | undefined;
 };
 
@@ -21,6 +22,7 @@ export const env = (): EnvConfig => {
   return {
     appdataPath,
     libraryPath,
+    ffmpegPath: process.env.FFMPEG_PATH,
     ffprobePath: process.env.FFPROBE_PATH
   };
 };
