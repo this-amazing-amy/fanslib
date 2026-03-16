@@ -1,0 +1,72 @@
+{
+  "name": "Drag & Drop Upload auf Library Page",
+  "description": "Wenn Dateien über die Library Page gezogen werden, öffnet sich der Upload-Dialog mit den gedropten Dateien vorausgefüllt. Visuelles Overlay zeigt den Drag-over-Zustand an.",
+  "context": {
+    "problem": "Upload geht nur über den Button — Dateien direkt auf die Seite ziehen funktioniert nicht",
+    "user_need": "Schnellerer Workflow: Dateien aus dem Finder/Explorer direkt auf die Library Page ziehen ohne Button-Klick"
+  },
+  "scope": {
+    "in_scope": [
+      "Page-level drag-over-Overlay auf der Library Page",
+      "Drop löst Upload-Dialog aus mit vorausgefüllten Files",
+      "Nur unterstützte Dateitypen werden akzeptiert (gleiche Liste wie DropZone)",
+      "Unterscheidung zwischen OS-File-Drag und internem MediaDrag"
+    ],
+    "out_of_scope": [
+      "Drag & Drop auf anderen Seiten (Shoots, Content etc.)",
+      "Verhalten bei nicht-unterstützten Dateitypen über OS-Level-Drag",
+      "Drag & Drop im Upload-Dialog selbst (bereits implementiert)"
+    ]
+  },
+  "features": [
+    {
+      "category": "refactor",
+      "description": "isSupportedFile aus DropZone.tsx in shared utility extrahieren",
+      "acceptance_criteria": [
+        "Neue Datei: src/features/library/utils/fileUtils.ts",
+        "Exportiert: isSupportedFile(file: File): boolean",
+        "Exportiert: filterSupportedFiles(files: File[]): File[]",
+        "DropZone.tsx importiert isSupportedFile aus fileUtils statt lokaler Definition",
+        "bun lint && bun typecheck && bun test grün"
+      ],
+      "passes": false
+    },
+    {
+      "category": "feature",
+      "description": "UploadDialog akzeptiert initialFiles-Prop",
+      "acceptance_criteria": [
+        "UploadDialog hat optionales Prop initialFiles?: File[]",
+        "Wenn Dialog öffnet (open: false → true) und initialFiles.length > 0: addFiles(initialFiles) wird aufgerufen",
+        "Die Files erscheinen sofort in der File-Liste des Dialogs",
+        "Wenn Dialog ohne initialFiles geöffnet wird: Verhalten unverändert",
+        "bun lint && bun typecheck && bun test grün"
+      ],
+      "passes": false
+    },
+    {
+      "category": "feature",
+      "description": "Page-level Drag & Drop in LibraryContent",
+      "acceptance_criteria": [
+        "LibraryContent hat dragEnter/dragLeave/dragOver/drop Handler",
+        "Handler reagieren nur auf dataTransfer.types.includes('Files') — interner MediaDrag wird ignoriert",
+        "dragCounterRef verhindert Overlay-Flackern bei Kind-Elementen",
+        "isDragOver-State steuert Sichtbarkeit des Overlays",
+        "Beim Drop: filterSupportedFiles angewendet, UploadDialog öffnet sich mit gefilterten Files als initialFiles",
+        "bun lint && bun typecheck && bun test grün"
+      ],
+      "passes": false
+    },
+    {
+      "category": "feature",
+      "description": "Visuelles Drag-over-Overlay",
+      "acceptance_criteria": [
+        "Overlay ist position absolute, inset-0, z-50, pointer-events-none",
+        "Zeigt Upload-Icon und Text 'Drop files to upload'",
+        "Styling konsistent mit DropZone aktivem Zustand: border-primary bg-primary/10, border-dashed",
+        "Overlay ist nur sichtbar wenn isDragOver === true",
+        "bun lint && bun typecheck && bun test grün"
+      ],
+      "passes": false
+    }
+  ]
+}
