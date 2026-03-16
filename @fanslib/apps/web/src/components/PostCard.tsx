@@ -1,4 +1,5 @@
 import type { PostWithRelations } from '@fanslib/server/schemas';
+import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { MediaTile } from "~/features/library/components/MediaTile";
 import { ChannelBadge } from "./ChannelBadge";
@@ -12,7 +13,8 @@ type PostCardProps = {
 };
 
 export const PostCard = ({ post }: PostCardProps) => <div className="flex flex-col flex-1 min-h-0">
-      <div className="border rounded-md relative group transition-colors hover:bg-accent/50">
+      <Link to="/posts/$postId" params={{ postId: post.id }} className="block">
+      <div className="border rounded-md relative group transition-colors hover:bg-accent/50 cursor-pointer">
         <div className="flex items-center justify-between p-4">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
@@ -36,5 +38,6 @@ export const PostCard = ({ post }: PostCardProps) => <div className="flex flex-c
           </div>
         </div>
       </div>
+      </Link>
     </div>;
 
