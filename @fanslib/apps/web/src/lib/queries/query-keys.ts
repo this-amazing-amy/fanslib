@@ -21,18 +21,12 @@ import type {
   FetchTagsByDimensionQuery,
   FetchTagDefinitionsByIdsRequestQuery,
   FetchVirtualPostsRequestQuery,
-  FypActionsQuery,
-  GetFanslyPostsWithAnalyticsQuery,
 } from '@fanslib/server/schemas';
 import type { TagAnalyticsParams } from '../../hooks/useTagAnalytics';
 
 export const QUERY_KEYS = {
   analytics: {
     all: ['analytics'] as const,
-    health: () => ['analytics', 'health'] as const,
-    fypActions: (params?: FypActionsQuery) => ['analytics', 'fyp-actions', params] as const,
-    posts: (params?: GetFanslyPostsWithAnalyticsQuery) => ['analytics', 'posts', params] as const,
-    candidates: () => ['analytics', 'candidates'] as const,
     datapoints: (postMediaId: string) => ['analytics', 'datapoints', postMediaId] as const,
   },
 
