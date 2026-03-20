@@ -165,14 +165,15 @@ describe("analytics-cron", () => {
     await aggregateRepo.save(aggregate);
 
     if (opts.existingDatapoints) {
-      for (const dp of opts.existingDatapoints) {
-        await dpRepo.save(dpRepo.create({
+      await opts.existingDatapoints.reduce(
+        (prev, dp) => prev.then(() => dpRepo.save(dpRepo.create({
           ...dp,
           interactionTime: dp.views * 100,
           postMedia,
           postMediaId: postMedia.id,
-        }));
-      }
+        }))),
+        Promise.resolve() as Promise<unknown>,
+      );
     }
 
     return { postMedia, aggregate };
@@ -216,8 +217,9 @@ describe("analytics-cron", () => {
       expect(result.skipped).toBe(0);
 
       const updatedAggregate = await aggregateRepo.findOne({ where: { postMediaId: postMedia.id } });
-      expect(updatedAggregate!.nextFetchAt).toBeInstanceOf(Date);
-      expect(updatedAggregate!.nextFetchAt!.getTime()).toBeGreaterThan(Date.now());
+      if (!updatedAggregate) throw new Error("aggregate not found");
+      expect(updatedAggregate.nextFetchAt).toBeInstanceOf(Date);
+      expect(updatedAggregate.nextFetchAt?.getTime()).toBeGreaterThan(Date.now());
     });
 
     test("skips all fetches when credentials are stale", async () => {
@@ -301,7 +303,8 @@ describe("analytics-cron", () => {
       );
 
       const updatedAggregate = await aggregateRepo.findOne({ where: { postMediaId: postMedia.id } });
-      expect(updatedAggregate!.nextFetchAt).toBeNull();
+      if (!updatedAggregate) throw new Error("aggregate not found");
+      expect(updatedAggregate.nextFetchAt).toBeNull();
     });
 
     test("on 403 response marks credentials stale and halts", async () => {
@@ -357,10 +360,11 @@ describe("analytics-cron", () => {
       );
 
       const updatedAggregate = await aggregateRepo.findOne({ where: { postMediaId: postMedia.id } });
+      if (!updatedAggregate) throw new Error("aggregate not found");
       const expectedMin = Date.now() + 23 * 60 * 60 * 1000; // ~1 day minus tolerance
       const expectedMax = Date.now() + 25 * 60 * 60 * 1000; // ~1 day plus tolerance
-      expect(updatedAggregate!.nextFetchAt!.getTime()).toBeGreaterThanOrEqual(expectedMin);
-      expect(updatedAggregate!.nextFetchAt!.getTime()).toBeLessThanOrEqual(expectedMax);
+      expect(updatedAggregate.nextFetchAt?.getTime()).toBeGreaterThanOrEqual(expectedMin);
+      expect(updatedAggregate.nextFetchAt?.getTime()).toBeLessThanOrEqual(expectedMax);
     });
 
     test("returns early when no credentials configured", async () => {

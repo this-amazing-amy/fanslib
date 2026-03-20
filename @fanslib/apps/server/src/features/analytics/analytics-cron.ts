@@ -23,10 +23,10 @@ export const computeGrowthRate = (datapoints: Pick<FanslyAnalyticsDatapoint, "vi
   if (datapoints.length < 2) return 0;
 
   const sorted = [...datapoints].sort((a, b) => a.timestamp - b.timestamp);
-  const previous = sorted[sorted.length - 2]!;
-  const current = sorted[sorted.length - 1]!;
+  const previous = sorted[sorted.length - 2];
+  const current = sorted[sorted.length - 1];
 
-  if (previous.views === 0) return 0;
+  if (!previous || !current || previous.views === 0) return 0;
 
   return ((current.views - previous.views) / previous.views) * 100;
 };
@@ -122,6 +122,7 @@ export const processAnalyticsCronTick = async (): Promise<CronTickResult> => {
 
   const result: CronTickResult = { processed: 0, skipped: 0, errors: 0, halted: false };
 
+  // eslint-disable-next-line functional/no-loop-statements
   for (const aggregate of dueAggregates) {
     if (!aggregate.postMedia?.fanslyStatisticsId) {
       result.skipped++;
