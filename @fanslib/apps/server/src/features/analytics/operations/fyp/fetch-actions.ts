@@ -2,7 +2,6 @@ import type { z } from "zod";
 import { db } from "../../../../lib/db";
 import { Channel } from "../../../channels/entity";
 import { Post } from "../../../posts/entity";
-import type { FanslyAnalyticsDatapoint } from "../../entity";
 import { calculateUserPerformanceThreshold } from "../../fyp-performance";
 import type { FypActionsQuerySchema } from "../../schemas/fyp-actions";
 
@@ -21,25 +20,14 @@ const FYP_WINDOW_DAYS = 90;
 
 const calculatePlateauDaysSincePosted = (
   postDate: Date,
-  datapoints: FanslyAnalyticsDatapoint[],
-  plateauPoint?: number
+  plateauDetectedAt?: Date | null
 ): number | null => {
-  if (!plateauPoint || plateauPoint === 0 || datapoints.length === 0) {
+  if (!plateauDetectedAt) {
     return null;
   }
 
-  const sortedDatapoints = [...datapoints].sort(
-    (a, b) => a.timestamp - b.timestamp
-  );
-
-  const plateauDatapoint = sortedDatapoints[plateauPoint];
-  if (!plateauDatapoint) {
-    return null;
-  }
-
-  const plateauTimestamp = plateauDatapoint.timestamp;
   const daysSincePosted = Math.floor(
-    (plateauTimestamp - postDate.getTime()) / (24 * 60 * 60 * 1000)
+    (plateauDetectedAt.getTime() - postDate.getTime()) / (24 * 60 * 60 * 1000)
   );
 
   return Math.max(0, daysSincePosted);
@@ -76,7 +64,6 @@ export const fetchFypActionItems = async (
     .leftJoinAndSelect("post.postMedia", "pm")
     .leftJoinAndSelect("pm.media", "media")
     .leftJoinAndSelect("pm.fanslyAnalyticsAggregate", "agg")
-    .leftJoinAndSelect("pm.fanslyAnalyticsDatapoints", "datapoints")
     .leftJoin("post.channel", "channel")
     .where("channel.typeId = :typeId", { typeId: "fansly" })
     .andWhere("pm.fanslyStatisticsId IS NOT NULL")
@@ -104,12 +91,10 @@ export const fetchFypActionItems = async (
 
     const pm = post.postMedia[0];
     const agg = pm?.fanslyAnalyticsAggregate;
-    const datapoints = pm?.fanslyAnalyticsDatapoints ?? [];
 
     const plateauDaysSincePosted = calculatePlateauDaysSincePosted(
       postDate,
-      datapoints,
-      agg?.fypMetrics?.plateauPoint
+      agg?.plateauDetectedAt
     );
     const hasPlateaued = plateauDaysSincePosted !== null;
 

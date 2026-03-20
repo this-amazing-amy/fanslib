@@ -3,7 +3,6 @@ import initSqlJs from "sql.js";
 import { DataSource } from "typeorm";
 import { FanslyMediaCandidate } from "../features/analytics/candidate-entity";
 import {
-  AnalyticsFetchHistory,
   FanslyAnalyticsAggregate,
   FanslyAnalyticsDatapoint,
 } from "../features/analytics/entity";
@@ -54,7 +53,6 @@ export const createTestDataSource = (driver?: Awaited<ReturnType<typeof initSqlJ
     CaptionSnippet,
     FanslyAnalyticsDatapoint,
     FanslyAnalyticsAggregate,
-    AnalyticsFetchHistory,
     FanslyMediaCandidate,
   ],
   synchronize: true,
@@ -121,7 +119,6 @@ export const clearAllTables = async () => {
     "FilterPreset",
     "FanslyAnalyticsDatapoint",
     "FanslyAnalyticsAggregate",
-    "AnalyticsFetchHistory",
   ];
 
   await entityClearOrder.reduce(

@@ -27,23 +27,3 @@ export const FanslyPostWithAnalyticsSchema = z.object({
     fileModificationDate: z.date(),
   }).optional(),
 });
-
-// HashtagAnalytics - single item schema
-export const HashtagAnalyticsItemSchema = z.object({
-  hashtag: z.string(),
-  postCount: z.number(),
-  avgViews: z.number(),
-  avgEngagement: z.number(),
-});
-
-export const HashtagAnalyticsSchema = z.array(HashtagAnalyticsItemSchema);
-
-// TimeAnalytics - single item schema
-export const TimeAnalyticsItemSchema = z.object({
-  timePeriod: z.string(),
-  postCount: z.number(),
-  avgViews: z.number(),
-  avgEngagement: z.number(),
-});
-
-export const TimeAnalyticsSchema = z.array(TimeAnalyticsItemSchema);

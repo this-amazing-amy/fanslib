@@ -3,21 +3,13 @@ import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { validationError } from "../../lib/hono-utils";
 import { fetchFanslyAnalyticsData } from "./fetch-fansly-data";
-import { updateFanslyCredentialsFromFetch } from "./operations/credentials";
 import { fetchFypActionItems } from "./operations/fyp/fetch-actions";
 import { fetchAnalyticsHealth } from "./operations/health/fetch-health";
-import { generateInsights } from "./operations/insights";
 import { fetchDatapoints } from "./operations/post-analytics/fetch-datapoints";
-import { getHashtagAnalytics } from "./operations/post-analytics/fetch-hashtag-analytics";
 import { getFanslyPostsWithAnalytics } from "./operations/post-analytics/fetch-posts-with-analytics";
-import { getTimeAnalytics } from "./operations/post-analytics/fetch-time-analytics";
 import { initializeAnalyticsAggregates } from "./operations/post-analytics/initialize-aggregates";
 
 // Zod schema conversions for request validation
-const UpdateCredentialsFromFetchRequestBodySchema = z.object({
-  fetchRequest: z.string(),
-});
-
 const FetchDatapointsRequestParamsSchema = z.object({
   postMediaId: z.string(),
 });
@@ -45,11 +37,6 @@ const FypActionsQuerySchema = z.object({
 
 export const analyticsRoutes = new Hono()
   .basePath("/api/analytics")
-  .post("/credentials/update-from-fetch", zValidator("json", UpdateCredentialsFromFetchRequestBodySchema, validationError), async (c) => {
-    const body = c.req.valid("json");
-    await updateFanslyCredentialsFromFetch(body.fetchRequest);
-    return c.json({ success: true });
-  })
   .get("/datapoints/:postMediaId", zValidator("param", FetchDatapointsRequestParamsSchema, validationError), async (c) => {
     const { postMediaId } = c.req.valid("param");
     const result = await fetchDatapoints(postMediaId);
@@ -74,19 +61,6 @@ export const analyticsRoutes = new Hono()
       query.startDate,
       query.endDate
     );
-    return c.json(result);
-  })
-  .get("/hashtags", async (c) => {
-    const result = await getHashtagAnalytics();
-    return c.json(result);
-  })
-  .get("/time", async (c) => {
-    const result = await getTimeAnalytics();
-    return c.json(result);
-  })
-  .get("/insights", async (c) => {
-    const posts = await getFanslyPostsWithAnalytics();
-    const result = await generateInsights(posts);
     return c.json(result);
   })
   .post("/initialize-aggregates", async (c) => {

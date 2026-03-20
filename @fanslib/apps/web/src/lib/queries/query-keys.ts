@@ -33,9 +33,6 @@ export const QUERY_KEYS = {
     fypActions: (params?: FypActionsQuery) => ['analytics', 'fyp-actions', params] as const,
     posts: (params?: GetFanslyPostsWithAnalyticsQuery) => ['analytics', 'posts', params] as const,
     candidates: () => ['analytics', 'candidates'] as const,
-    hashtags: () => ['analytics', 'hashtags'] as const,
-    time: () => ['analytics', 'time'] as const,
-    insights: () => ['analytics', 'insights'] as const,
     datapoints: (postMediaId: string) => ['analytics', 'datapoints', postMediaId] as const,
   },
 
