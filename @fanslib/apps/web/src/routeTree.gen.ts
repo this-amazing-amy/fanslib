@@ -23,17 +23,16 @@ import { Route as PlanIndexRouteImport } from './routes/plan/index'
 import { Route as LibraryIndexRouteImport } from './routes/library/index'
 import { Route as ShootsShootIdRouteImport } from './routes/shoots/$shootId'
 import { Route as SettingsSnippetsRouteImport } from './routes/settings/snippets'
+import { Route as SettingsRepostRouteImport } from './routes/settings/repost'
 import { Route as SettingsIntegrationsRouteImport } from './routes/settings/integrations'
 import { Route as SettingsFilterPresetsRouteImport } from './routes/settings/filter-presets'
 import { Route as SettingsContentTagsRouteImport } from './routes/settings/content-tags'
 import { Route as SettingsContentSafetyRouteImport } from './routes/settings/content-safety'
-import { Route as SettingsRepostRouteImport } from './routes/settings/repost'
 import { Route as SettingsAppearanceRouteImport } from './routes/settings/appearance'
 import { Route as PostsPostIdRouteImport } from './routes/posts/$postId'
 import { Route as LibraryMediaIdRouteImport } from './routes/library/$mediaId'
 import { Route as ContentShootsRouteImport } from './routes/content/shoots'
 import { Route as ContentLibraryRouteImport } from './routes/content/library'
-import { Route as AnalyticsMatchingRouteImport } from './routes/analytics/matching'
 import { Route as ContentLibraryMediaRouteImport } from './routes/content/library/media'
 import { Route as ContentLibraryMediaIndexRouteImport } from './routes/content/library/media/index'
 import { Route as ContentLibraryMediaMediaIdRouteImport } from './routes/content/library/media/$mediaId'
@@ -108,6 +107,11 @@ const SettingsSnippetsRoute = SettingsSnippetsRouteImport.update({
   path: '/snippets',
   getParentRoute: () => SettingsRoute,
 } as any)
+const SettingsRepostRoute = SettingsRepostRouteImport.update({
+  id: '/repost',
+  path: '/repost',
+  getParentRoute: () => SettingsRoute,
+} as any)
 const SettingsIntegrationsRoute = SettingsIntegrationsRouteImport.update({
   id: '/integrations',
   path: '/integrations',
@@ -126,11 +130,6 @@ const SettingsContentTagsRoute = SettingsContentTagsRouteImport.update({
 const SettingsContentSafetyRoute = SettingsContentSafetyRouteImport.update({
   id: '/content-safety',
   path: '/content-safety',
-  getParentRoute: () => SettingsRoute,
-} as any)
-const SettingsRepostRoute = SettingsRepostRouteImport.update({
-  id: '/repost',
-  path: '/repost',
   getParentRoute: () => SettingsRoute,
 } as any)
 const SettingsAppearanceRoute = SettingsAppearanceRouteImport.update({
@@ -157,11 +156,6 @@ const ContentLibraryRoute = ContentLibraryRouteImport.update({
   id: '/library',
   path: '/library',
   getParentRoute: () => ContentRoute,
-} as any)
-const AnalyticsMatchingRoute = AnalyticsMatchingRouteImport.update({
-  id: '/analytics/matching',
-  path: '/analytics/matching',
-  getParentRoute: () => rootRouteImport,
 } as any)
 const ContentLibraryMediaRoute = ContentLibraryMediaRouteImport.update({
   id: '/media',
@@ -190,7 +184,6 @@ export interface FileRoutesByFullPath {
   '/hashtags': typeof HashtagsRoute
   '/settings': typeof SettingsRouteWithChildren
   '/subreddits': typeof SubredditsRoute
-  '/analytics/matching': typeof AnalyticsMatchingRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
   '/content/shoots': typeof ContentShootsRoute
   '/library/$mediaId': typeof LibraryMediaIdRoute
@@ -203,10 +196,10 @@ export interface FileRoutesByFullPath {
   '/settings/repost': typeof SettingsRepostRoute
   '/settings/snippets': typeof SettingsSnippetsRoute
   '/shoots/$shootId': typeof ShootsShootIdRoute
-  '/library': typeof LibraryIndexRoute
-  '/plan': typeof PlanIndexRoute
+  '/library/': typeof LibraryIndexRoute
+  '/plan/': typeof PlanIndexRoute
   '/settings/': typeof SettingsIndexRoute
-  '/shoots': typeof ShootsIndexRoute
+  '/shoots/': typeof ShootsIndexRoute
   '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
   '/content/library/media/': typeof ContentLibraryMediaIndexRoute
@@ -219,7 +212,6 @@ export interface FileRoutesByTo {
   '/content': typeof ContentRouteWithChildren
   '/hashtags': typeof HashtagsRoute
   '/subreddits': typeof SubredditsRoute
-  '/analytics/matching': typeof AnalyticsMatchingRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
   '/content/shoots': typeof ContentShootsRoute
   '/library/$mediaId': typeof LibraryMediaIdRoute
@@ -249,7 +241,6 @@ export interface FileRoutesById {
   '/hashtags': typeof HashtagsRoute
   '/settings': typeof SettingsRouteWithChildren
   '/subreddits': typeof SubredditsRoute
-  '/analytics/matching': typeof AnalyticsMatchingRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
   '/content/shoots': typeof ContentShootsRoute
   '/library/$mediaId': typeof LibraryMediaIdRoute
@@ -281,7 +272,6 @@ export interface FileRouteTypes {
     | '/hashtags'
     | '/settings'
     | '/subreddits'
-    | '/analytics/matching'
     | '/content/library'
     | '/content/shoots'
     | '/library/$mediaId'
@@ -294,10 +284,10 @@ export interface FileRouteTypes {
     | '/settings/repost'
     | '/settings/snippets'
     | '/shoots/$shootId'
-    | '/library'
-    | '/plan'
+    | '/library/'
+    | '/plan/'
     | '/settings/'
-    | '/shoots'
+    | '/shoots/'
     | '/content/library/media'
     | '/content/library/media/$mediaId'
     | '/content/library/media/'
@@ -310,7 +300,6 @@ export interface FileRouteTypes {
     | '/content'
     | '/hashtags'
     | '/subreddits'
-    | '/analytics/matching'
     | '/content/library'
     | '/content/shoots'
     | '/library/$mediaId'
@@ -339,7 +328,6 @@ export interface FileRouteTypes {
     | '/hashtags'
     | '/settings'
     | '/subreddits'
-    | '/analytics/matching'
     | '/content/library'
     | '/content/shoots'
     | '/library/$mediaId'
@@ -370,7 +358,6 @@ export interface RootRouteChildren {
   HashtagsRoute: typeof HashtagsRoute
   SettingsRoute: typeof SettingsRouteWithChildren
   SubredditsRoute: typeof SubredditsRoute
-  AnalyticsMatchingRoute: typeof AnalyticsMatchingRoute
   LibraryMediaIdRoute: typeof LibraryMediaIdRoute
   PostsPostIdRoute: typeof PostsPostIdRoute
   ShootsShootIdRoute: typeof ShootsShootIdRoute
@@ -440,7 +427,7 @@ declare module '@tanstack/react-router' {
     '/shoots/': {
       id: '/shoots/'
       path: '/shoots'
-      fullPath: '/shoots'
+      fullPath: '/shoots/'
       preLoaderRoute: typeof ShootsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -454,14 +441,14 @@ declare module '@tanstack/react-router' {
     '/plan/': {
       id: '/plan/'
       path: '/plan'
-      fullPath: '/plan'
+      fullPath: '/plan/'
       preLoaderRoute: typeof PlanIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/library/': {
       id: '/library/'
       path: '/library'
-      fullPath: '/library'
+      fullPath: '/library/'
       preLoaderRoute: typeof LibraryIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -477,6 +464,13 @@ declare module '@tanstack/react-router' {
       path: '/snippets'
       fullPath: '/settings/snippets'
       preLoaderRoute: typeof SettingsSnippetsRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/settings/repost': {
+      id: '/settings/repost'
+      path: '/repost'
+      fullPath: '/settings/repost'
+      preLoaderRoute: typeof SettingsRepostRouteImport
       parentRoute: typeof SettingsRoute
     }
     '/settings/integrations': {
@@ -505,13 +499,6 @@ declare module '@tanstack/react-router' {
       path: '/content-safety'
       fullPath: '/settings/content-safety'
       preLoaderRoute: typeof SettingsContentSafetyRouteImport
-      parentRoute: typeof SettingsRoute
-    }
-    '/settings/repost': {
-      id: '/settings/repost'
-      path: '/repost'
-      fullPath: '/settings/repost'
-      preLoaderRoute: typeof SettingsRepostRouteImport
       parentRoute: typeof SettingsRoute
     }
     '/settings/appearance': {
@@ -548,13 +535,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/content/library'
       preLoaderRoute: typeof ContentLibraryRouteImport
       parentRoute: typeof ContentRoute
-    }
-    '/analytics/matching': {
-      id: '/analytics/matching'
-      path: '/analytics/matching'
-      fullPath: '/analytics/matching'
-      preLoaderRoute: typeof AnalyticsMatchingRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/content/library/media': {
       id: '/content/library/media'
@@ -653,7 +633,6 @@ const rootRouteChildren: RootRouteChildren = {
   HashtagsRoute: HashtagsRoute,
   SettingsRoute: SettingsRouteWithChildren,
   SubredditsRoute: SubredditsRoute,
-  AnalyticsMatchingRoute: AnalyticsMatchingRoute,
   LibraryMediaIdRoute: LibraryMediaIdRoute,
   PostsPostIdRoute: PostsPostIdRoute,
   ShootsShootIdRoute: ShootsShootIdRoute,
@@ -664,12 +643,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

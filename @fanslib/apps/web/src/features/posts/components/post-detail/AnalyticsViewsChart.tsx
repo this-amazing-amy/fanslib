@@ -1,16 +1,12 @@
 import { ParentSize } from '@visx/responsive';
 import { AreaSeries, Axis, Grid, Tooltip, XYChart, buildChartTheme } from '@visx/xychart';
 import { useMemo } from 'react';
-import { Button } from '~/components/ui/Button';
 import { aggregateDatapoints } from '~/lib/analytics/aggregate';
-import { useFetchFanslyDataMutation } from '~/lib/queries/analytics';
 
 type AnalyticsViewsChartProps = {
   datapoints: Array<{ timestamp: number; views: number; interactionTime: number }>;
   postDate: string;
   postMediaId: string;
-  hasGap: boolean;
-  suggestedFetchRange: { startDate: string; endDate: string } | null;
 };
 
 const chartTheme = buildChartTheme({
@@ -34,12 +30,7 @@ const formatNumber = (value: number): string => {
 export const AnalyticsViewsChart = ({
   datapoints,
   postDate,
-  postMediaId,
-  hasGap,
-  suggestedFetchRange,
 }: AnalyticsViewsChartProps) => {
-  const fetchAnalyticsMutation = useFetchFanslyDataMutation();
-
   const aggregatedData = useMemo(
     () => aggregateDatapoints(datapoints, postDate),
     [datapoints, postDate]
@@ -48,16 +39,6 @@ export const AnalyticsViewsChart = ({
   if (aggregatedData.length === 0) {
     return null;
   }
-
-  const handleFetchMore = () => {
-    if (suggestedFetchRange) {
-      fetchAnalyticsMutation.mutate({
-        postMediaId,
-        startDate: suggestedFetchRange.startDate,
-        endDate: suggestedFetchRange.endDate,
-      });
-    }
-  };
 
   const chartData = aggregatedData.map((point) => ({
     date: point.date,
@@ -160,31 +141,7 @@ export const AnalyticsViewsChart = ({
             </div>
           </div>
         )}
-
-        {hasGap && suggestedFetchRange && (
-          <div
-            className="absolute top-0 right-0 h-full w-1/4 bg-primary/10 border-l-2 border-primary/30 cursor-pointer hover:bg-primary/20 transition-colors flex items-center justify-center"
-            onClick={handleFetchMore}
-            style={{ minWidth: '100px' }}
-          >
-            <div className="text-center p-4">
-              <div className="text-sm font-medium mb-2">Fetch More</div>
-              <Button
-                size="sm"
-                variant="secondary"
-                isDisabled={fetchAnalyticsMutation.isPending}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleFetchMore();
-                }}
-              >
-                {fetchAnalyticsMutation.isPending ? 'Fetching...' : 'Update'}
-              </Button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
 };
-
