@@ -1,3 +1,4 @@
+import { addLogEntry } from '../lib/activity-log';
 import type { CandidateItem } from '../content/fansly-interceptor';
 
 type Message =
@@ -395,6 +396,12 @@ const sendScheduleCapture = async (
 
     debug('info', 'Schedule capture result', { matched: result.matched, postId: result.postId });
 
+    if (result.matched) {
+      await addLogEntry({ type: 'success', message: "Linked '" + caption.slice(0, 40) + "' to post" });
+    } else {
+      await addLogEntry({ type: 'warning', message: "Unrecognized post scheduled: '" + caption.slice(0, 40) + "'" });
+    }
+
     await chrome.storage.local.set({
       lastScheduleCaptureResult: {
         matched: result.matched,
@@ -407,6 +414,8 @@ const sendScheduleCapture = async (
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     debug('error', 'Failed to send schedule capture', { error: errorMessage });
+
+    await addLogEntry({ type: 'error', message: 'Schedule capture failed: ' + errorMessage });
 
     await chrome.storage.local.set({
       lastScheduleCaptureResult: {
