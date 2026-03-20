@@ -15,9 +15,15 @@ export const ScanProgress = ({ scanProgress, scanResult }: ScanProgressProps) =>
         <div className="mb-4">
           <div className="flex justify-between text-sm text-muted-foreground mb-2">
             <span>Scanning library...</span>
-            <span>{Math.round((scanProgress.current / scanProgress.total) * 100)}%</span>
+            <span>
+              {scanProgress.total > 0
+                ? `${Math.round((scanProgress.current / scanProgress.total) * 100)}%`
+                : 'Discovering files...'}
+            </span>
           </div>
-          <Progress value={(scanProgress.current / scanProgress.total) * 100} />
+          <Progress
+            value={scanProgress.total > 0 ? (scanProgress.current / scanProgress.total) * 100 : undefined}
+          />
         </div>
       )}
 

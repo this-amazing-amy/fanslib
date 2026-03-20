@@ -173,12 +173,9 @@ class LibraryScanner {
   }
 
   public onComplete(result: z.infer<typeof LibraryScanResultSchema>): void {
-    // Store result in module-level state instead of sending IPC events
+    // Store result and clear progress atomically
     currentScanResult = result;
-    // Delay clearing progress slightly to ensure it's visible for status checks
-    setTimeout(() => {
-      currentScanProgress = null;
-    }, 100);
+    currentScanProgress = null;
   }
 
   public async startScan(): Promise<void> {
@@ -187,7 +184,7 @@ class LibraryScanner {
     }
 
     this.isScanning = true;
-    currentScanProgress = null;
+    currentScanProgress = { current: 0, total: 0 };
     currentScanResult = null;
 
     try {
@@ -212,6 +209,9 @@ class LibraryScanner {
         totalFiles: filesToProcess.length,
         files: filesToProcess,
       });
+
+      // Update progress with discovered total
+      this.onProgress({ current: 0, total: filesToProcess.length });
 
       // Get existing media for cleanup
       const database = await db();
