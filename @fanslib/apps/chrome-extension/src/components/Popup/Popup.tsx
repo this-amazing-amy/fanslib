@@ -3,6 +3,7 @@ import type { PostWithRelations } from '@fanslib/server/schemas';
 import { useEffect, useState } from 'react';
 import { eden } from '../../lib/api';
 import { getSettings, type Settings } from '../../lib/storage';
+import { ActivityLogTab } from './ActivityLogTab';
 import { CredentialsTab } from './CredentialsTab';
 import { EmptyState } from './EmptyState';
 import { PopupHeader } from './PopupHeader';
@@ -11,7 +12,7 @@ import { PostNavigation } from './PostNavigation';
 import { StatisticsTab } from './StatisticsTab';
 
 type Post = PostWithRelations;
-type Tab = 'queue' | 'statistics' | 'credentials';
+type Tab = 'queue' | 'statistics' | 'activity' | 'credentials';
 
 export const Popup = () => {
   const [settings, setSettings] = useState<Settings | null>(null);
@@ -203,6 +204,12 @@ export const Popup = () => {
           Statistics
         </button>
         <button
+          className={`tab ${activeTab === 'activity' ? 'tab-active' : ''}`}
+          onClick={() => setActiveTab('activity')}
+        >
+          Activity
+        </button>
+        <button
           className={`tab ${activeTab === 'credentials' ? 'tab-active' : ''}`}
           onClick={() => setActiveTab('credentials')}
         >
@@ -236,6 +243,8 @@ export const Popup = () => {
         ) : null
       ) : activeTab === 'statistics' ? (
         <StatisticsTab />
+      ) : activeTab === 'activity' ? (
+        <ActivityLogTab />
       ) : (
         <CredentialsTab />
       )}
