@@ -62,6 +62,7 @@ export const useSaveFanslyCredentialsMutation = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.settings.fanslyCredentials() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.settings.fanslyCredentialStatus() });
     },
   });
 };
@@ -79,6 +80,16 @@ export const useClearFanslyCredentialsMutation = () => {
     },
   });
 };
+
+export const useFanslyCredentialStatusQuery = () =>
+  useQuery({
+    queryKey: QUERY_KEYS.settings.fanslyCredentialStatus(),
+    queryFn: async () => {
+      const result = await api.api.settings['fansly-credential-status'].$get();
+      return result.json();
+    },
+    refetchInterval: 60_000,
+  });
 
 export const useTestBlueskyCredentialsMutation = () =>
   useMutation({

@@ -25,10 +25,11 @@ export const saveFanslyCredentials = async (
     const existingData = await loadFanslyCredentials();
     const existingCredentials = existingData?.credentials ?? {};
     
-    const updatedCredentials = { 
-      ...existingCredentials, 
+    const updatedCredentials = {
+      ...existingCredentials,
       ...credentials,
       _lastUpdated: Date.now(),
+      _stale: false,
     };
 
     await mkdir(dirname(fanslyCredentialsFilePath()), { recursive: true });

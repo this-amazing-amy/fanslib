@@ -8,6 +8,7 @@ export const LoadFanslyCredentialsResponseSchema = z.union([
   z.object({
     credentials: FanslyCredentialsSchema,
     lastUpdated: z.union([z.number(), z.null()]),
+    stale: z.boolean(),
   }),
   z.null(),
 ]);
@@ -19,7 +20,7 @@ export const loadFanslyCredentials = async (): Promise<LoadFanslyCredentialsResp
     const filePath = fanslyCredentialsFilePath();
     const data = await readFile(filePath, "utf8");
     const credentials = JSON.parse(data) as Record<string, unknown>;
-    
+
     const lastUpdated =
       credentials._lastUpdated && typeof credentials._lastUpdated === "number"
         ? credentials._lastUpdated
@@ -27,11 +28,14 @@ export const loadFanslyCredentials = async (): Promise<LoadFanslyCredentialsResp
             .then((stats) => stats.mtimeMs)
             .catch(() => null);
 
-    const { _lastUpdated, ...credentialsWithoutMeta } = credentials;
+    const stale = credentials._stale === true;
+
+    const { _lastUpdated, _stale, ...credentialsWithoutMeta } = credentials;
 
     return {
       credentials: credentialsWithoutMeta,
       lastUpdated,
+      stale,
     };
   } catch {
     return null;

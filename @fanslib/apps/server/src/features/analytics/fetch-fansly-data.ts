@@ -4,6 +4,7 @@ import { configurationError, externalServiceError, validationError } from "../..
 import type { FanslyAnalyticsResponse } from "../../lib/fansly-analytics/fansly-analytics-response";
 import { PostMedia } from "../posts/entity";
 import { loadFanslyCredentials } from "../settings/operations/credentials/load";
+import { markCredentialsStale } from "../settings/operations/credentials/mark-stale";
 import { addDatapointsToPostMedia } from "./operations/post-analytics/add-datapoints";
 
 export const FetchAnalyticsDataRequestParamsSchema = z.object({
@@ -93,6 +94,7 @@ export const fetchFanslyAnalyticsData = async (
 
   if (!response.ok) {
     if (response.status === 401 || response.status === 403) {
+      await markCredentialsStale();
       throw configurationError(
         "Fansly authentication failed. Please update your credentials in settings."
       );

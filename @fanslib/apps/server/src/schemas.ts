@@ -1110,6 +1110,8 @@ export {
   type ClearFanslyCredentialsResponse,
 };
 
+export type { CredentialStatus, CredentialStatusResponse } from './features/settings/operations/credentials/status';
+
 
 // Settings entities
 import { SettingsSchema, type Settings } from './features/settings/schemas/settings';
