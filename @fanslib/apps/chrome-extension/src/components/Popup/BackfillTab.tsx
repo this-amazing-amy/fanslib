@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { parse as devalueParse } from 'devalue';
-import { Image, Video, Check, X, Loader2 } from 'lucide-react';
+import { Image, Video, Check, X, Loader2, ArrowRight } from 'lucide-react';
 import { getSettings } from '../../lib/storage';
 import { addLogEntry } from '../../lib/activity-log';
+import { getMediaThumbnailUrl } from '../../lib/utils';
 
 const parseResponse = async (response: Response): Promise<unknown> => {
   const text = await response.text();
@@ -14,8 +15,10 @@ const parseResponse = async (response: Response): Promise<unknown> => {
 
 type Suggestion = {
   postMediaId: string;
+  mediaId: string;
   filename: string;
   confidence: number;
+  caption?: string;
 };
 
 type Candidate = {
@@ -38,12 +41,14 @@ export const BackfillTab = () => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionInProgress, setActionInProgress] = useState<string | null>(null);
+  const [apiUrl, setApiUrl] = useState('');
 
   const loadCandidates = useCallback(async () => {
     setLoading(true);
     try {
       const settings = await getSettings();
       const apiUrl = settings.apiUrl.replace(/\/+$/, '');
+      setApiUrl(apiUrl);
       const response = await fetch(
         `${apiUrl}/api/analytics/candidates?status=pending&limit=20`
       );
@@ -197,77 +202,114 @@ export const BackfillTab = () => {
               ? candidate.caption.slice(0, 60) +
                 (candidate.caption.length > 60 ? '...' : '')
               : null;
+            const suggestion = candidate.topSuggestion;
+            const suggestionCaptionPreview = suggestion?.caption
+              ? suggestion.caption.slice(0, 60) +
+                (suggestion.caption.length > 60 ? '...' : '')
+              : null;
 
             return (
               <div
                 key={candidate.id}
                 className="card card-compact bg-base-200 p-3"
               >
-                <div className="flex items-start gap-2">
-                  <div className="mt-0.5 shrink-0">
+                {/* Candidate (Fansly side) */}
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="shrink-0">
                     {candidate.mediaType === 'video' ? (
-                      <Video className="w-4 h-4 text-base-content/50" />
+                      <Video className="w-3.5 h-3.5 text-base-content/50" />
                     ) : (
-                      <Image className="w-4 h-4 text-base-content/50" />
+                      <Image className="w-3.5 h-3.5 text-base-content/50" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
+                    <div className="text-[10px] uppercase tracking-wider text-base-content/40 font-semibold">Fansly</div>
                     <div className="text-xs font-medium truncate">
                       {candidate.filename}
                     </div>
                     {captionPreview && (
-                      <div className="text-[10px] text-base-content/50 mt-0.5 truncate">
+                      <div className="text-[10px] text-base-content/50 truncate">
                         {captionPreview}
                       </div>
                     )}
-
-                    {candidate.suggestionsLoading ? (
-                      <div className="text-[10px] text-base-content/40 mt-1 flex items-center gap-1">
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                        Finding matches...
-                      </div>
-                    ) : candidate.topSuggestion ? (
-                      <div className="text-[10px] text-green-600 mt-1 truncate">
-                        Match: {candidate.topSuggestion.filename} (
-                        {Math.round(candidate.topSuggestion.confidence * 100)}%)
-                      </div>
-                    ) : (
-                      <div className="text-[10px] text-base-content/40 mt-1">
-                        No match found
-                      </div>
-                    )}
                   </div>
+                </div>
 
-                  <div className="flex gap-1 shrink-0">
-                    {candidate.topSuggestion &&
-                      !candidate.suggestionsLoading && (
-                        <button
-                          onClick={() => handleConfirm(candidate)}
-                          disabled={isActioning}
-                          className="btn btn-success btn-xs btn-square"
-                          title="Confirm match"
-                        >
-                          {isActioning ? (
-                            <Loader2 className="w-3 h-3 animate-spin" />
-                          ) : (
-                            <Check className="w-3 h-3" />
-                          )}
-                        </button>
+                {/* Match arrow + suggestion */}
+                {candidate.suggestionsLoading ? (
+                  <div className="text-[10px] text-base-content/40 flex items-center gap-1 pl-5">
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    Finding matches...
+                  </div>
+                ) : suggestion ? (
+                  <div className="flex items-center gap-2">
+                    <ArrowRight className="w-3.5 h-3.5 text-green-600 shrink-0" />
+                    {/* Thumbnail */}
+                    <div className="w-10 h-10 rounded overflow-hidden bg-base-300 shrink-0">
+                      <img
+                        src={getMediaThumbnailUrl(apiUrl, suggestion.mediaId)}
+                        alt=""
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[10px] uppercase tracking-wider text-base-content/40 font-semibold">Library match</div>
+                      <div className="text-xs truncate">{suggestion.filename}</div>
+                      {suggestionCaptionPreview && (
+                        <div className="text-[10px] text-base-content/50 truncate">
+                          {suggestionCaptionPreview}
+                        </div>
                       )}
+                      <div className="text-[10px] text-green-600">
+                        {Math.round(suggestion.confidence * 100)}% confidence
+                      </div>
+                    </div>
+                    {/* Actions */}
+                    <div className="flex gap-1 shrink-0">
+                      <button
+                        onClick={() => handleConfirm(candidate)}
+                        disabled={isActioning}
+                        className="btn btn-success btn-xs btn-square"
+                        title="Confirm match"
+                      >
+                        {isActioning ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <Check className="w-3 h-3" />
+                        )}
+                      </button>
+                      <button
+                        onClick={() => handleIgnore(candidate)}
+                        disabled={isActioning}
+                        className="btn btn-ghost btn-xs btn-square"
+                        title="Ignore"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 pl-5">
+                    <div className="text-[10px] text-base-content/40 flex-1">
+                      No match found
+                    </div>
                     <button
                       onClick={() => handleIgnore(candidate)}
                       disabled={isActioning}
                       className="btn btn-ghost btn-xs btn-square"
                       title="Ignore"
                     >
-                      {isActioning && !candidate.topSuggestion ? (
+                      {isActioning ? (
                         <Loader2 className="w-3 h-3 animate-spin" />
                       ) : (
                         <X className="w-3 h-3" />
                       )}
                     </button>
                   </div>
-                </div>
+                )}
               </div>
             );
           })}

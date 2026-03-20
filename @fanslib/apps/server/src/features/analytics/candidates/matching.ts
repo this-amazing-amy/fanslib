@@ -4,6 +4,7 @@ import type { FanslyMediaCandidate } from "../candidate-entity";
 
 type MatchSuggestion = {
   postMediaId: string;
+  mediaId: string;
   confidence: number;
   method: "exact_filename" | "fuzzy_filename" | "manual";
   filename: string;
@@ -79,9 +80,13 @@ export const computeMatchSuggestions = async (
     const normalizedMediaFilename = normalizeFilename(postMedia.media.name);
     const caption = postMedia.post.caption ?? undefined;
 
+    // media is fully loaded via innerJoinAndSelect
+    const mediaId = (postMedia.media as { id: string }).id;
+
     if (normalizedCandidateFilename === normalizedMediaFilename) {
       suggestions.push({
         postMediaId: postMedia.id,
+        mediaId,
         confidence: 1.0,
         method: "exact_filename",
         filename: postMedia.media.name,
@@ -95,6 +100,7 @@ export const computeMatchSuggestions = async (
     if (similarity >= 0.5) {
       suggestions.push({
         postMediaId: postMedia.id,
+        mediaId,
         confidence: similarity,
         method: "fuzzy_filename",
         filename: postMedia.media.name,
