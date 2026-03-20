@@ -1,8 +1,10 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
+import { ActiveFypPostsQuerySchema } from "./schemas/active-fyp-posts";
 import { validationError } from "../../lib/hono-utils";
 import { fetchFanslyAnalyticsData } from "./fetch-fansly-data";
+import { fetchActiveFypPosts } from "./operations/fyp/fetch-active-posts";
 import { fetchFypActionItems } from "./operations/fyp/fetch-actions";
 import { fetchAnalyticsHealth } from "./operations/health/fetch-health";
 import { fetchDatapoints } from "./operations/post-analytics/fetch-datapoints";
@@ -74,5 +76,10 @@ export const analyticsRoutes = new Hono()
   .get("/fyp-actions", zValidator("query", FypActionsQuerySchema, validationError), async (c) => {
     const query = c.req.valid("query");
     const result = await fetchFypActionItems(query);
+    return c.json(result);
+  })
+  .get("/active-fyp-posts", zValidator("query", ActiveFypPostsQuerySchema, validationError), async (c) => {
+    const query = c.req.valid("query");
+    const result = await fetchActiveFypPosts(query);
     return c.json(result);
   });

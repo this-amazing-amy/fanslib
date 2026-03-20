@@ -5,7 +5,7 @@ import { devalueMiddleware } from "../../lib/devalue-middleware";
 import { isAppError } from "../../lib/errors";
 import { getTestDataSource, setupTestDatabase, teardownTestDatabase } from "../../lib/test-db";
 import { resetAllFixtures } from "../../lib/test-fixtures";
-import { createTestChannel, createTestMedia, createTestPost } from "../../test-utils/setup";
+import { createTestChannel, createTestMedia, createTestPost, parseResponse } from "../../test-utils/setup";
 import { saveFanslyCredentials } from "../settings/operations/credentials/save";
 import { loadFanslyCredentials } from "../settings/operations/credentials/load";
 import { PostMedia } from "../posts/entity";
@@ -260,6 +260,153 @@ describe("Analytics Routes", () => {
       const aggregate = await aggregateRepo.findOne({ where: { postMediaId: postMedia.id } });
       if (!aggregate) throw new Error("aggregate not found");
       expect(aggregate.plateauDetectedAt).toBeNil();
+    });
+  });
+
+  describe("GET /api/analytics/active-fyp-posts", () => {
+    const createActivePost = async (overrides?: {
+      caption?: string | null;
+      fypRemovedAt?: Date | null;
+      fypManuallyRemoved?: boolean;
+      fanslyStatisticsId?: string | null;
+      totalViews?: number;
+      averageEngagementPercent?: number;
+      averageEngagementSeconds?: number;
+      plateauDetectedAt?: Date;
+    }) => {
+      const dataSource = getTestDataSource();
+      const postMediaRepo = dataSource.getRepository(PostMedia);
+      const aggregateRepo = dataSource.getRepository(FanslyAnalyticsAggregate);
+
+      const channel = await createTestChannel();
+      const post = await createTestPost(channel.id, {
+        caption: overrides?.caption ?? "Test caption",
+        fypRemovedAt: overrides?.fypRemovedAt ?? null,
+        fypManuallyRemoved: overrides?.fypManuallyRemoved ?? false,
+      });
+      const media = await createTestMedia();
+      const postMedia = postMediaRepo.create({
+        post,
+        media,
+        order: 0,
+        fanslyStatisticsId: overrides?.fanslyStatisticsId ?? "stats-123",
+      });
+      await postMediaRepo.save(postMedia);
+
+      const aggregate = aggregateRepo.create({
+        postMedia,
+        postMediaId: postMedia.id,
+        totalViews: overrides?.totalViews ?? 100,
+        averageEngagementSeconds: overrides?.averageEngagementSeconds ?? 30,
+        averageEngagementPercent: overrides?.averageEngagementPercent ?? 50,
+        plateauDetectedAt: overrides?.plateauDetectedAt,
+      });
+      await aggregateRepo.save(aggregate);
+
+      return { channel, post, media, postMedia, aggregate };
+    };
+
+    test("returns active post with correct shape", async () => {
+      const { post, media, postMedia } = await createActivePost();
+
+      const res = await app.request("/api/analytics/active-fyp-posts");
+      expect(res.status).toBe(200);
+
+      const data = await parseResponse<Array<Record<string, unknown>>>(res);
+      expect(data).toBeArray();
+      expect(data).toHaveLength(1);
+
+      const item = data![0]!;
+      expect(item.postMediaId).toBe(postMedia.id);
+      expect(item.postId).toBe(post.id);
+      expect(item.mediaId).toBe(media.id);
+      expect(item.caption).toBe("Test caption");
+      expect(item.totalViews).toBe(100);
+      expect(item.averageEngagementPercent).toBe(50);
+      expect(item.averageEngagementSeconds).toBe(30);
+    });
+
+    test("excludes manually removed posts", async () => {
+      await createActivePost({ fypManuallyRemoved: true });
+
+      const res = await app.request("/api/analytics/active-fyp-posts");
+      expect(res.status).toBe(200);
+
+      const data = await parseResponse<Array<Record<string, unknown>>>(res);
+      expect(data).toHaveLength(0);
+    });
+
+    test("excludes posts with plateauDetectedAt set", async () => {
+      await createActivePost({ plateauDetectedAt: new Date() });
+
+      const res = await app.request("/api/analytics/active-fyp-posts");
+      expect(res.status).toBe(200);
+
+      const data = await parseResponse<Array<Record<string, unknown>>>(res);
+      expect(data).toHaveLength(0);
+    });
+
+    test("excludes posts with fypRemovedAt set", async () => {
+      await createActivePost({ fypRemovedAt: new Date() });
+
+      const res = await app.request("/api/analytics/active-fyp-posts");
+      expect(res.status).toBe(200);
+
+      const data = await parseResponse<Array<Record<string, unknown>>>(res);
+      expect(data).toHaveLength(0);
+    });
+
+    test("sorts by views ascending (worst-to-best)", async () => {
+      await createActivePost({ totalViews: 500 });
+      await createActivePost({ totalViews: 100 });
+      await createActivePost({ totalViews: 300 });
+
+      const res = await app.request("/api/analytics/active-fyp-posts?sortBy=views");
+      expect(res.status).toBe(200);
+
+      const data = await parseResponse<Array<{ totalViews: number }>>(res);
+      expect(data).toHaveLength(3);
+      expect(data![0]!.totalViews).toBe(100);
+      expect(data![1]!.totalViews).toBe(300);
+      expect(data![2]!.totalViews).toBe(500);
+    });
+
+    test("sorts by engagementPercent ascending", async () => {
+      await createActivePost({ averageEngagementPercent: 80 });
+      await createActivePost({ averageEngagementPercent: 20 });
+      await createActivePost({ averageEngagementPercent: 50 });
+
+      const res = await app.request("/api/analytics/active-fyp-posts?sortBy=engagementPercent");
+      expect(res.status).toBe(200);
+
+      const data = await parseResponse<Array<{ averageEngagementPercent: number }>>(res);
+      expect(data).toHaveLength(3);
+      expect(data![0]!.averageEngagementPercent).toBe(20);
+      expect(data![1]!.averageEngagementPercent).toBe(50);
+      expect(data![2]!.averageEngagementPercent).toBe(80);
+    });
+
+    test("sorts by engagementSeconds ascending", async () => {
+      await createActivePost({ averageEngagementSeconds: 60 });
+      await createActivePost({ averageEngagementSeconds: 10 });
+      await createActivePost({ averageEngagementSeconds: 35 });
+
+      const res = await app.request("/api/analytics/active-fyp-posts?sortBy=engagementSeconds");
+      expect(res.status).toBe(200);
+
+      const data = await parseResponse<Array<{ averageEngagementSeconds: number }>>(res);
+      expect(data).toHaveLength(3);
+      expect(data![0]!.averageEngagementSeconds).toBe(10);
+      expect(data![1]!.averageEngagementSeconds).toBe(35);
+      expect(data![2]!.averageEngagementSeconds).toBe(60);
+    });
+
+    test("returns empty array when no active posts", async () => {
+      const res = await app.request("/api/analytics/active-fyp-posts");
+      expect(res.status).toBe(200);
+
+      const data = await parseResponse<Array<Record<string, unknown>>>(res);
+      expect(data).toHaveLength(0);
     });
   });
 });
