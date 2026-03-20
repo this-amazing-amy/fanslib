@@ -66,8 +66,8 @@ export const computeMatchSuggestions = async (
 
   const allPostMedia = await postMediaRepository
     .createQueryBuilder("postMedia")
-    .leftJoinAndSelect("postMedia.post", "post")
-    .leftJoinAndSelect("postMedia.media", "media")
+    .innerJoinAndSelect("postMedia.post", "post")
+    .innerJoinAndSelect("postMedia.media", "media")
     .where("postMedia.fanslyStatisticsId IS NULL")
     .getMany();
 
@@ -77,6 +77,7 @@ export const computeMatchSuggestions = async (
     if (!postMedia.media?.name) return;
 
     const normalizedMediaFilename = normalizeFilename(postMedia.media.name);
+    const caption = postMedia.post.caption ?? undefined;
 
     if (normalizedCandidateFilename === normalizedMediaFilename) {
       suggestions.push({
@@ -84,7 +85,7 @@ export const computeMatchSuggestions = async (
         confidence: 1.0,
         method: "exact_filename",
         filename: postMedia.media.name,
-        caption: postMedia.post.caption ?? undefined,
+        caption,
       });
       return;
     }
@@ -97,7 +98,7 @@ export const computeMatchSuggestions = async (
         confidence: similarity,
         method: "fuzzy_filename",
         filename: postMedia.media.name,
-        caption: postMedia.post.caption ?? undefined,
+        caption,
       });
     }
   });

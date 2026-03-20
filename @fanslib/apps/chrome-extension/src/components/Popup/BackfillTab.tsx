@@ -1,7 +1,16 @@
 import { useCallback, useEffect, useState } from 'react';
+import { parse as devalueParse } from 'devalue';
 import { Image, Video, Check, X, Loader2 } from 'lucide-react';
 import { getSettings } from '../../lib/storage';
 import { addLogEntry } from '../../lib/activity-log';
+
+const parseResponse = async (response: Response): Promise<unknown> => {
+  const text = await response.text();
+  if (response.headers.get('X-Serialization') === 'devalue') {
+    return devalueParse(text);
+  }
+  return JSON.parse(text);
+};
 
 type Suggestion = {
   postMediaId: string;
@@ -34,15 +43,19 @@ export const BackfillTab = () => {
     setLoading(true);
     try {
       const settings = await getSettings();
+      const apiUrl = settings.apiUrl.replace(/\/+$/, '');
       const response = await fetch(
-        `${settings.apiUrl}/api/analytics/candidates?status=pending&limit=20`
+        `${apiUrl}/api/analytics/candidates?status=pending&limit=20`
       );
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
 
-      const data = (await response.json()) as RawCandidate[];
+      const parsed = (await parseResponse(response)) as
+        | RawCandidate[]
+        | { items: RawCandidate[]; total: number };
+      const data = Array.isArray(parsed) ? parsed : parsed.items;
 
       const initial: Candidate[] = data.map((c) => ({
         id: c.id,
@@ -57,7 +70,7 @@ export const BackfillTab = () => {
 
       // Fetch suggestions for each candidate
       data.forEach((c) => {
-        fetchSuggestions(settings.apiUrl, c.id);
+        fetchSuggestions(apiUrl, c.id);
       });
     } catch (err) {
       console.error('Failed to load candidates:', err);
@@ -80,7 +93,7 @@ export const BackfillTab = () => {
         throw new Error(`HTTP ${response.status}`);
       }
 
-      const suggestions = (await response.json()) as Suggestion[];
+      const suggestions = (await parseResponse(response)) as Suggestion[];
       const topSuggestion = suggestions.length > 0 ? suggestions[0] : null;
 
       setCandidates((prev) =>
@@ -106,7 +119,7 @@ export const BackfillTab = () => {
     try {
       const settings = await getSettings();
       const response = await fetch(
-        `${settings.apiUrl}/api/analytics/candidates/by-id/${candidate.id}/match`,
+        `${settings.apiUrl.replace(/\/+$/, '')}/api/analytics/candidates/by-id/${candidate.id}/match`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -139,7 +152,7 @@ export const BackfillTab = () => {
     try {
       const settings = await getSettings();
       const response = await fetch(
-        `${settings.apiUrl}/api/analytics/candidates/by-id/${candidate.id}/ignore`,
+        `${settings.apiUrl.replace(/\/+$/, '')}/api/analytics/candidates/by-id/${candidate.id}/ignore`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

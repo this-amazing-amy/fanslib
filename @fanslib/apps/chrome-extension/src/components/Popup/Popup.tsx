@@ -10,10 +10,9 @@ import { EmptyState } from './EmptyState';
 import { PopupHeader } from './PopupHeader';
 import { PostCard } from './PostCard';
 import { PostNavigation } from './PostNavigation';
-import { StatisticsTab } from './StatisticsTab';
 
 type Post = PostWithRelations;
-type Tab = 'queue' | 'backfill' | 'statistics' | 'activity' | 'credentials';
+type Tab = 'queue' | 'backfill' | 'credentials';
 
 export const Popup = () => {
   const [settings, setSettings] = useState<Settings | null>(null);
@@ -205,18 +204,6 @@ export const Popup = () => {
           Backfill
         </button>
         <button
-          className={`tab ${activeTab === 'statistics' ? 'tab-active' : ''}`}
-          onClick={() => setActiveTab('statistics')}
-        >
-          Statistics
-        </button>
-        <button
-          className={`tab ${activeTab === 'activity' ? 'tab-active' : ''}`}
-          onClick={() => setActiveTab('activity')}
-        >
-          Activity
-        </button>
-        <button
           className={`tab ${activeTab === 'credentials' ? 'tab-active' : ''}`}
           onClick={() => setActiveTab('credentials')}
         >
@@ -224,39 +211,39 @@ export const Popup = () => {
         </button>
       </div>
 
-      {activeTab === 'queue' ? (
-        posts.length === 0 ? (
-          <EmptyState />
-        ) : currentPost ? (
-          <div className='px-3 pt-3'>
-            <PostCard
-              post={currentPost}
-              libraryPath={settings?.libraryPath ?? ''}
-              apiUrl={settings?.apiUrl ?? ''}
-              webUrl={settings?.webUrl ?? ''}
-              bridgeUrl={settings?.bridgeUrl ?? ''}
-              onMarkPosted={() => markAsPosted(currentPost.id)}
-              onMarkScheduled={() => markAsScheduled(currentPost.id)}
-              linked={linkedPostId === currentPost.id}
-            />
+      <div className='flex-1 overflow-y-auto'>
+        {activeTab === 'queue' ? (
+          posts.length === 0 ? (
+            <EmptyState />
+          ) : currentPost ? (
+            <div className='px-3 pt-3'>
+              <PostCard
+                post={currentPost}
+                libraryPath={settings?.libraryPath ?? ''}
+                apiUrl={settings?.apiUrl ?? ''}
+                webUrl={settings?.webUrl ?? ''}
+                bridgeUrl={settings?.bridgeUrl ?? ''}
+                onMarkPosted={() => markAsPosted(currentPost.id)}
+                onMarkScheduled={() => markAsScheduled(currentPost.id)}
+                linked={linkedPostId === currentPost.id}
+              />
 
-            <PostNavigation
-              currentIndex={currentIndex}
-              totalPosts={posts.length}
-              onPrevious={goToPrevious}
-              onNext={goToNext}
-            />
-          </div>
-        ) : null
-      ) : activeTab === 'backfill' ? (
-        <BackfillTab />
-      ) : activeTab === 'statistics' ? (
-        <StatisticsTab />
-      ) : activeTab === 'activity' ? (
-        <ActivityLogTab />
-      ) : (
-        <CredentialsTab />
-      )}
+              <PostNavigation
+                currentIndex={currentIndex}
+                totalPosts={posts.length}
+                onPrevious={goToPrevious}
+                onNext={goToNext}
+              />
+            </div>
+          ) : null
+        ) : activeTab === 'backfill' ? (
+          <BackfillTab />
+        ) : (
+          <CredentialsTab />
+        )}
+      </div>
+
+      <ActivityLogTab compact />
     </div>
   );
 };

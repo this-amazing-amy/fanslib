@@ -1,5 +1,14 @@
+import { parse as devalueParse } from 'devalue';
 import { addLogEntry } from '../lib/activity-log';
 import type { CandidateItem } from '../content/fansly-interceptor';
+
+const parseResponse = async (response: Response): Promise<unknown> => {
+  const text = await response.text();
+  if (response.headers.get('X-Serialization') === 'devalue') {
+    return devalueParse(text);
+  }
+  return JSON.parse(text);
+};
 
 type Message =
   | {
@@ -63,7 +72,7 @@ const getApiUrl = async (): Promise<string | null> => {
   const storedApiUrl = result[SETTINGS_KEY_API_URL];
   const apiUrl =
     typeof storedApiUrl === 'string' && storedApiUrl.trim() !== ''
-      ? storedApiUrl
+      ? storedApiUrl.replace(/\/+$/, '')
       : null;
   debug('info', 'API URL retrieved', {
     apiUrl: apiUrl ?? DEFAULT_API_URL,
@@ -132,6 +141,8 @@ const sendCredentialsToServer = async (credentials: {
       lastCredentialsError: null,
       pendingCredentials: null,
     });
+
+    await addLogEntry({ type: 'success', message: 'Credentials refreshed' });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
 
@@ -140,6 +151,8 @@ const sendCredentialsToServer = async (credentials: {
       lastCredentialsErrorAt: now,
       pendingCredentials: filteredCredentials,
     });
+
+    await addLogEntry({ type: 'error', message: 'Credential refresh failed: ' + errorMessage });
   }
 };
 
@@ -179,7 +192,7 @@ const sendCandidates = async (candidates: CandidateItem[]): Promise<void> => {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    const result = (await response.json()) as Array<{
+    const result = (await parseResponse(response)) as Array<{
       candidate: unknown;
       status: 'created' | 'existing' | 'already_matched';
     }>;
@@ -215,18 +228,15 @@ const sendCandidates = async (candidates: CandidateItem[]): Promise<void> => {
       syncResult,
     });
 
-    if (syncResult.alreadyMatched > 0) {
-      await addLogEntry({
-        type: 'success',
-        message: 'Backfill: auto-matched ' + syncResult.alreadyMatched + ' posts from timeline',
-      });
-    }
-    if (syncResult.created > 0) {
-      await addLogEntry({
-        type: 'warning',
-        message: syncResult.created + ' unmatched posts — tap Backfill to review',
-      });
-    }
+    const parts: string[] = [];
+    if (syncResult.created > 0) parts.push(syncResult.created + ' new');
+    if (syncResult.alreadyMatched > 0) parts.push(syncResult.alreadyMatched + ' auto-matched');
+    if (syncResult.existing > 0) parts.push(syncResult.existing + ' existing');
+
+    await addLogEntry({
+      type: syncResult.created > 0 ? 'warning' : 'success',
+      message: 'Synced ' + candidates.length + ' posts (' + parts.join(', ') + ')',
+    });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
 
@@ -242,6 +252,8 @@ const sendCandidates = async (candidates: CandidateItem[]): Promise<void> => {
       lastSyncErrorAt: Date.now(),
       isSyncing: false,
     });
+
+    await addLogEntry({ type: 'error', message: 'Sync failed: ' + errorMessage });
   }
 };
 
@@ -405,7 +417,7 @@ const sendScheduleCapture = async (
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    const result = (await response.json()) as { matched: boolean; postId: string | null };
+    const result = (await parseResponse(response)) as { matched: boolean; postId: string | null };
 
     debug('info', 'Schedule capture result', { matched: result.matched, postId: result.postId });
 
@@ -494,6 +506,7 @@ const processPendingCredentials = async (): Promise<void> => {
 
 chrome.runtime.onInstalled.addListener(() => {
   debug('info', 'Background script installed');
+  addLogEntry({ type: 'success', message: 'Extension started' });
   processPendingCredentials();
 });
 
