@@ -17,6 +17,7 @@ import { runwayRoutes } from "./features/pipeline/runway-routes";
 import { postsRoutes } from "./features/posts/routes";
 import { Cron } from "croner";
 import { runScheduledPostsCronTick } from "./features/posts/scheduled-posts-cron";
+import { runAnalyticsCronTick } from "./features/analytics/analytics-cron";
 import { performPeriodicCleanup } from "./features/tags/drift-prevention";
 import { redditAutomationRoutes } from "./features/reddit-automation/routes";
 import { settingsRoutes } from "./features/settings/routes";
@@ -129,6 +130,12 @@ if (isScheduledPostsCronEnabled) {
       console.error("Tag drift prevention cron tick failed:", error);
     });
   });
+
+  new Cron("0 * * * *", { name: "analytics-fetch", protect: true }, () => {
+    runAnalyticsCronTick().catch((error) => {
+      console.error("Analytics fetch cron tick failed:", error);
+    });
+  });
 }
 
 // Start server
@@ -145,6 +152,7 @@ db()
     if (isScheduledPostsCronEnabled) {
       await runScheduledPostsCronTick();
       await performPeriodicCleanup();
+      await runAnalyticsCronTick();
     }
     console.log(`🚀 Server running at http://localhost:${port}`);
     console.log(`📊 Database initialized`);
