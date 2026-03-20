@@ -320,3 +320,5 @@ yarn.lock
 .dev-data/
 .test-data/
 
+.claude/worktrees
+.ralph/worktrees
