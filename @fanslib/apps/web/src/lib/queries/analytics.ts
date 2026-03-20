@@ -134,47 +134,6 @@ export const useUnignoreCandidateMutation = () => {
   });
 };
 
-export const useHashtagAnalyticsQuery = () =>
-  useQuery({
-    queryKey: QUERY_KEYS.analytics.hashtags(),
-    queryFn: async () => {
-      const result = await api.api.analytics.hashtags.$get();
-      return result.json();
-    },
-  });
-
-export const useTimeAnalyticsQuery = () =>
-  useQuery({
-    queryKey: QUERY_KEYS.analytics.time(),
-    queryFn: async () => {
-      const result = await api.api.analytics.time.$get();
-      return result.json();
-    },
-  });
-
-export const useInsightsQuery = () =>
-  useQuery({
-    queryKey: QUERY_KEYS.analytics.insights(),
-    queryFn: async () => {
-      const result = await api.api.analytics.insights.$get();
-      return result.json();
-    },
-  });
-
-export const useUpdateCredentialsMutation = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (fetchRequest: string) => {
-      const result = await api.api.analytics.credentials['update-from-fetch'].$post({ json: { fetchRequest } });
-      return result.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.settings.fanslyCredentials() });
-    },
-  });
-};
-
 export const usePostMediaAnalyticsQuery = (postMediaId: string) =>
   useQuery({
     queryKey: QUERY_KEYS.analytics.datapoints(postMediaId),

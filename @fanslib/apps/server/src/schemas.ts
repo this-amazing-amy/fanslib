@@ -1184,59 +1184,14 @@ export type GetFanslyPostsWithAnalyticsQuery = z.infer<typeof GetFanslyPostsWith
 export type GetFanslyPostsWithAnalyticsResponse = z.infer<typeof GetFanslyPostsWithAnalyticsResponseSchema>;
 
 
-import {
-  GetHashtagAnalyticsResponseSchema
-} from './features/analytics/operations/post-analytics/fetch-hashtag-analytics';
-export {
-  GetHashtagAnalyticsResponseSchema
-};
-export type GetHashtagAnalyticsResponse = z.infer<typeof GetHashtagAnalyticsResponseSchema>;
-
-
-import {
-  GetTimeAnalyticsResponseSchema
-} from './features/analytics/operations/post-analytics/fetch-time-analytics';
-export {
-  GetTimeAnalyticsResponseSchema
-};
-export type GetTimeAnalyticsResponse = z.infer<typeof GetTimeAnalyticsResponseSchema>;
-
-
-import {
-  GenerateInsightsResponseSchema
-} from './features/analytics/operations/insights';
-export {
-  GenerateInsightsResponseSchema
-};
-export type GenerateInsightsResponse = z.infer<typeof GenerateInsightsResponseSchema>;
-
-
 // Analytics entities
 import {
-  FanslyPostWithAnalyticsSchema, HashtagAnalyticsItemSchema, HashtagAnalyticsSchema, TimeAnalyticsItemSchema, TimeAnalyticsSchema
+  FanslyPostWithAnalyticsSchema
 } from './features/analytics/schemas/analytics';
 export {
-  FanslyPostWithAnalyticsSchema, HashtagAnalyticsItemSchema, HashtagAnalyticsSchema, TimeAnalyticsItemSchema, TimeAnalyticsSchema
+  FanslyPostWithAnalyticsSchema
 };
 export type FanslyPostWithAnalytics = z.infer<typeof FanslyPostWithAnalyticsSchema>;
-export type HashtagAnalyticsItem = z.infer<typeof HashtagAnalyticsItemSchema>;
-export type HashtagAnalytics = z.infer<typeof HashtagAnalyticsSchema>;
-export type TimeAnalyticsItem = z.infer<typeof TimeAnalyticsItemSchema>;
-export type TimeAnalytics = z.infer<typeof TimeAnalyticsSchema>;
-
-
-import {
-  ActionableInsightSchema, ActionableInsightTypeSchema, ContentThemeInsightSchema, HashtagInsightSchema, PostTimingInsightSchema, VideoLengthInsightSchema
-} from './features/analytics/schemas/insights';
-export {
-  ActionableInsightSchema, ActionableInsightTypeSchema, ContentThemeInsightSchema, HashtagInsightSchema, PostTimingInsightSchema, VideoLengthInsightSchema
-};
-export type ActionableInsight = z.infer<typeof ActionableInsightSchema>;
-export type ActionableInsightType = z.infer<typeof ActionableInsightTypeSchema>;
-export type ContentThemeInsight = z.infer<typeof ContentThemeInsightSchema>;
-export type HashtagInsight = z.infer<typeof HashtagInsightSchema>;
-export type PostTimingInsight = z.infer<typeof PostTimingInsightSchema>;
-export type VideoLengthInsight = z.infer<typeof VideoLengthInsightSchema>;
 
 
 import {

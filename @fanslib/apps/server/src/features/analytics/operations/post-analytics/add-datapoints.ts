@@ -5,11 +5,7 @@ import { aggregatePostMediaAnalyticsData } from "../../../../lib/fansly-analytic
 import { saveHashtagsFromAnalytics } from "../../../hashtags/operations/hashtag-stats/save-from-analytics";
 import { PostMedia } from "../../../posts/entity";
 import { FanslyAnalyticsAggregate, FanslyAnalyticsDatapoint } from "../../entity";
-import {
-  calculateFypMetrics,
-  calculateFypPerformanceScore,
-  findPlateauDay,
-} from "../../fyp-performance";
+import { findPlateauDay } from "../../fyp-performance";
 import { gatherFanslyPostAnalyticsDatapoints } from "./helpers";
 
 export const addDatapointsToPostMedia = async (
@@ -78,14 +74,8 @@ export const addDatapointsToPostMedia = async (
 
   const aggregatedData = aggregatePostMediaAnalyticsData(postMediaWithDatapoints, false);
 
-  const fypPerformanceScore = await calculateFypPerformanceScore(
-    postMediaWithDatapoints,
-    savedDatapoints
-  );
-  const fypMetrics = await calculateFypMetrics(postMediaWithDatapoints, savedDatapoints);
   const plateauDay = findPlateauDay(savedDatapoints);
-
-  const fypPlateauDetectedAt = plateauDay > 0 ? new Date() : undefined;
+  const plateauDetectedAt = plateauDay > 0 ? new Date() : undefined;
 
   const existingAggregate = await aggregateRepo.findOne({
     where: { postMediaId },
@@ -97,9 +87,7 @@ export const addDatapointsToPostMedia = async (
       aggregatedData.at(-1)?.averageWatchTimeSeconds ?? 0;
     existingAggregate.averageEngagementPercent =
       aggregatedData.at(-1)?.averageWatchTimePercent ?? 0;
-    existingAggregate.fypPerformanceScore = fypPerformanceScore;
-    existingAggregate.fypMetrics = fypMetrics;
-    existingAggregate.fypPlateauDetectedAt = fypPlateauDetectedAt;
+    existingAggregate.plateauDetectedAt = plateauDetectedAt;
     await aggregateRepo.save(existingAggregate);
   } else {
     const newAggregate = aggregateRepo.create({
@@ -108,9 +96,7 @@ export const addDatapointsToPostMedia = async (
       totalViews: aggregatedData.at(-1)?.Views ?? 0,
       averageEngagementSeconds: aggregatedData.at(-1)?.averageWatchTimeSeconds ?? 0,
       averageEngagementPercent: aggregatedData.at(-1)?.averageWatchTimePercent ?? 0,
-      fypPerformanceScore,
-      fypMetrics,
-      fypPlateauDetectedAt,
+      plateauDetectedAt,
     });
     await aggregateRepo.save(newAggregate);
   }

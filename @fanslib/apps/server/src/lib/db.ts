@@ -8,7 +8,6 @@ import initSqlJs from "sql.js";
 import { DataSource } from "typeorm";
 import { FanslyMediaCandidate } from "../features/analytics/candidate-entity";
 import {
-  AnalyticsFetchHistory,
   FanslyAnalyticsAggregate,
   FanslyAnalyticsDatapoint,
 } from "../features/analytics/entity";
@@ -95,7 +94,6 @@ const createAppDataSource = (driver?: Awaited<ReturnType<typeof initSqlJs>>) => 
       CaptionSnippet,
       FanslyAnalyticsDatapoint,
       FanslyAnalyticsAggregate,
-      AnalyticsFetchHistory,
       FanslyMediaCandidate,
     ],
     synchronize: true,

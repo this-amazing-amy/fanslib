@@ -38,19 +38,11 @@ export class FanslyAnalyticsAggregate {
   @Column("float", { default: 0 })
   averageEngagementPercent!: number;
 
-  @Column("float", { nullable: true })
-  fypPerformanceScore?: number;
-
-  @Column("json", { nullable: true })
-  fypMetrics?: {
-    viewVelocity: number;
-    sustainedGrowth: number;
-    plateauPoint: number;
-    isUnderperforming: boolean;
-  };
+  @Column("datetime", { nullable: true })
+  plateauDetectedAt?: Date | undefined;
 
   @Column("datetime", { nullable: true })
-  fypPlateauDetectedAt?: Date | undefined;
+  nextFetchAt?: Date | undefined;
 
   @OneToOne("PostMedia", { onDelete: "CASCADE" })
   @JoinColumn({ name: "postMediaId" })
@@ -59,31 +51,5 @@ export class FanslyAnalyticsAggregate {
   @Column("varchar")
   postMediaId!: string;
 }
-
-@Entity("analytics_fetch_history")
-export class AnalyticsFetchHistory {
-  @PrimaryGeneratedColumn("uuid")
-  id!: string;
-
-  @Column("varchar")
-  timeframeIdentifier!: string;
-
-  @Column("varchar")
-  postMediaId!: string;
-
-  @Column("datetime")
-  fetchedAt!: Date;
-
-  @Column("datetime", { nullable: true })
-  expiresAt?: Date;
-
-  @Column("varchar")
-  timeframeType!: "rolling" | "fixed";
-
-  @ManyToOne("PostMedia", { onDelete: "CASCADE" })
-  @JoinColumn({ name: "postMediaId" })
-  postMedia!: Relation<PostMedia>;
-}
-
 
 
