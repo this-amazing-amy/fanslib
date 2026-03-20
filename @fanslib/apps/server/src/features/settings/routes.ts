@@ -2,7 +2,9 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { clearFanslyCredentials } from "./operations/credentials/clear";
 import { loadFanslyCredentials } from "./operations/credentials/load";
+import { markCredentialsStale } from "./operations/credentials/mark-stale";
 import { saveFanslyCredentials, SaveFanslyCredentialsRequestBodySchema } from "./operations/credentials/save";
+import { getCredentialStatus } from "./operations/credentials/status";
 import { loadSettings } from "./operations/setting/load";
 import { saveSettings, SaveSettingsRequestBodySchema } from "./operations/setting/save";
 import { toggleSfwMode } from "./operations/setting/toggle-sfw";
@@ -34,5 +36,13 @@ export const settingsRoutes = new Hono()
   })
   .delete("/fansly-credentials", async (c) => {
     const result = await clearFanslyCredentials();
+    return c.json(result);
+  })
+  .post("/fansly-credential-stale", async (c) => {
+    const result = await markCredentialsStale();
+    return c.json(result);
+  })
+  .get("/fansly-credential-status", async (c) => {
+    const result = await getCredentialStatus();
     return c.json(result);
   });

@@ -85,6 +85,35 @@ describe("Settings Routes", () => {
           expect(data).toHaveProperty("lastUpdated");
         }
       });
+
+      test("returns stale: false when credentials are not stale", async () => {
+        // Save fresh credentials first
+        await app.request("/api/settings/fansly-credentials", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fanslyAuth: "test-auth", fanslySessionId: "test-session" }),
+        });
+
+        const response = await app.request("/api/settings/fansly-credentials");
+        const data = await parseResponse<{ stale: boolean }>(response);
+        expect(data?.stale).toBe(false);
+      });
+
+      test("returns stale: true after credentials are marked stale", async () => {
+        // Save credentials first
+        await app.request("/api/settings/fansly-credentials", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fanslyAuth: "test-auth", fanslySessionId: "test-session" }),
+        });
+
+        // Mark as stale
+        await app.request("/api/settings/fansly-credential-stale", { method: "POST" });
+
+        const response = await app.request("/api/settings/fansly-credentials");
+        const data = await parseResponse<{ stale: boolean }>(response);
+        expect(data?.stale).toBe(true);
+      });
     });
 
     describe("POST /api/settings/fansly-credentials", () => {
@@ -103,6 +132,99 @@ describe("Settings Routes", () => {
 
         const data = await parseResponse<{ success: boolean }>(response);
         expect(data?.success).toBe(true);
+      });
+
+      test("saving credentials clears the stale flag", async () => {
+        // Save initial credentials
+        await app.request("/api/settings/fansly-credentials", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fanslyAuth: "old-auth" }),
+        });
+
+        // Mark as stale
+        await app.request("/api/settings/fansly-credential-stale", { method: "POST" });
+
+        // Verify stale
+        const staleRes = await app.request("/api/settings/fansly-credentials");
+        const staleData = await parseResponse<{ stale: boolean }>(staleRes);
+        expect(staleData?.stale).toBe(true);
+
+        // Save fresh credentials
+        await app.request("/api/settings/fansly-credentials", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fanslyAuth: "new-auth", fanslySessionId: "new-session" }),
+        });
+
+        // Verify stale is cleared
+        const freshRes = await app.request("/api/settings/fansly-credentials");
+        const freshData = await parseResponse<{ stale: boolean; credentials: Record<string, unknown> }>(freshRes);
+        expect(freshData?.stale).toBe(false);
+        expect(freshData?.credentials?.fanslyAuth).toBe("new-auth");
+      });
+    });
+
+    describe("POST /api/settings/fansly-credential-stale", () => {
+      test("marks credentials as stale", async () => {
+        // Save credentials first
+        await app.request("/api/settings/fansly-credentials", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fanslyAuth: "test-auth", fanslySessionId: "test-session" }),
+        });
+
+        const response = await app.request("/api/settings/fansly-credential-stale", {
+          method: "POST",
+        });
+        expect(response.status).toBe(200);
+
+        const data = await parseResponse<{ success: boolean }>(response);
+        expect(data?.success).toBe(true);
+      });
+    });
+
+    describe("GET /api/settings/fansly-credential-status", () => {
+      test("returns green when credentials refreshed recently (< 24h)", async () => {
+        await app.request("/api/settings/fansly-credentials", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fanslyAuth: "test-auth", fanslySessionId: "test-session" }),
+        });
+
+        const response = await app.request("/api/settings/fansly-credential-status");
+        expect(response.status).toBe(200);
+
+        const data = await parseResponse<{ status: string; stale: boolean; lastUpdated: number | null }>(response);
+        expect(data?.status).toBe("green");
+        expect(data?.stale).toBe(false);
+        expect(data?.lastUpdated).toBeNumber();
+      });
+
+      test("returns red when credentials are stale", async () => {
+        await app.request("/api/settings/fansly-credentials", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fanslyAuth: "test-auth", fanslySessionId: "test-session" }),
+        });
+
+        // Mark stale
+        await app.request("/api/settings/fansly-credential-stale", { method: "POST" });
+
+        const response = await app.request("/api/settings/fansly-credential-status");
+        const data = await parseResponse<{ status: string; stale: boolean }>(response);
+        expect(data?.status).toBe("red");
+        expect(data?.stale).toBe(true);
+      });
+
+      test("returns red when no credentials exist", async () => {
+        // Clear any leftover credentials from previous tests
+        await app.request("/api/settings/fansly-credentials", { method: "DELETE" });
+
+        const response = await app.request("/api/settings/fansly-credential-status");
+        const data = await parseResponse<{ status: string; lastUpdated: number | null }>(response);
+        expect(data?.status).toBe("red");
+        expect(data?.lastUpdated).toBeNull();
       });
     });
 

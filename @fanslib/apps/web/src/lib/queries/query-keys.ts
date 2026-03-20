@@ -137,6 +137,7 @@ export const QUERY_KEYS = {
   settings: {
     all: () => ['settings'] as const,
     fanslyCredentials: () => ['settings', 'fansly-credentials'] as const,
+    fanslyCredentialStatus: () => ['settings', 'fansly-credentials', 'status'] as const,
   },
 
   pipeline: {

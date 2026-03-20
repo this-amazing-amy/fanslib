@@ -1,12 +1,16 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, beforeEach, describe, expect, mock, test } from "bun:test";
 import { Hono } from "hono";
 import "reflect-metadata";
 import { devalueMiddleware } from "../../lib/devalue-middleware";
+import { isAppError } from "../../lib/errors";
 import { getTestDataSource, setupTestDatabase, teardownTestDatabase } from "../../lib/test-db";
 import { resetAllFixtures } from "../../lib/test-fixtures";
-import { createTestMedia, createTestPost } from "../../test-utils/setup";
+import { createTestChannel, createTestMedia, createTestPost } from "../../test-utils/setup";
+import { saveFanslyCredentials } from "../settings/operations/credentials/save";
+import { loadFanslyCredentials } from "../settings/operations/credentials/load";
 import { PostMedia } from "../posts/entity";
 import { FanslyAnalyticsAggregate, FanslyAnalyticsDatapoint } from "./entity";
+import { fetchFanslyAnalyticsData } from "./fetch-fansly-data";
 import { initializeAnalyticsAggregates } from "./operations/post-analytics/initialize-aggregates";
 import { analyticsRoutes } from "./routes";
 
@@ -110,6 +114,90 @@ describe("Analytics Routes", () => {
       if (!loaded) throw new Error("aggregate not found");
       expect("fypPerformanceScore" in loaded).toBe(false);
       expect("fypMetrics" in loaded).toBe(false);
+    });
+  });
+
+  describe("fetchFanslyAnalyticsData — credential staleness on 401/403", () => {
+    test("marks credentials as stale when Fansly API returns 401", async () => {
+      const dataSource = getTestDataSource();
+      const postMediaRepo = dataSource.getRepository(PostMedia);
+
+      // Set up credentials
+      await saveFanslyCredentials({ fanslyAuth: "test-auth", fanslySessionId: "test-session" });
+
+      // Create a PostMedia with a fanslyStatisticsId
+      const channel = await createTestChannel();
+      const post = await createTestPost(channel.id);
+      const media = await createTestMedia();
+      const postMedia = postMediaRepo.create({
+        post,
+        media,
+        order: 0,
+        fanslyStatisticsId: "fake-stats-id",
+      });
+      await postMediaRepo.save(postMedia);
+
+      // Verify credentials are not stale before the call
+      const beforeData = await loadFanslyCredentials();
+      expect(beforeData?.stale).toBe(false);
+
+      // Mock fetch to return 401
+      const originalFetch = globalThis.fetch;
+      globalThis.fetch = Object.assign(
+        mock(() => Promise.resolve(new Response("Unauthorized", { status: 401 }))),
+        { preconnect: globalThis.fetch.preconnect },
+      ) as typeof fetch;
+
+      try {
+        await fetchFanslyAnalyticsData(postMedia.id);
+        throw new Error("Should have thrown");
+      } catch (error) {
+        expect(isAppError(error)).toBe(true);
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+
+      // Verify credentials are now stale
+      const afterData = await loadFanslyCredentials();
+      expect(afterData?.stale).toBe(true);
+    });
+
+    test("does not mark credentials stale on non-auth errors", async () => {
+      const dataSource = getTestDataSource();
+      const postMediaRepo = dataSource.getRepository(PostMedia);
+
+      await saveFanslyCredentials({ fanslyAuth: "test-auth", fanslySessionId: "test-session" });
+
+      const channel = await createTestChannel();
+      const post = await createTestPost(channel.id);
+      const media = await createTestMedia();
+      const postMedia = postMediaRepo.create({
+        post,
+        media,
+        order: 0,
+        fanslyStatisticsId: "fake-stats-id",
+      });
+      await postMediaRepo.save(postMedia);
+
+      // Mock fetch to return 500
+      const originalFetch = globalThis.fetch;
+      globalThis.fetch = Object.assign(
+        mock(() => Promise.resolve(new Response("Server Error", { status: 500 }))),
+        { preconnect: globalThis.fetch.preconnect },
+      ) as typeof fetch;
+
+      try {
+        await fetchFanslyAnalyticsData(postMedia.id);
+        throw new Error("Should have thrown");
+      } catch (error) {
+        expect(isAppError(error)).toBe(true);
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+
+      // Verify credentials are NOT stale
+      const afterData = await loadFanslyCredentials();
+      expect(afterData?.stale).toBe(false);
     });
   });
 
