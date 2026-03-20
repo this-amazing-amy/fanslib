@@ -8,6 +8,7 @@ import { parseResponse, createTestPost, createTestMedia } from "../../../test-ut
 import { PostMedia } from "../../posts/entity";
 import type { FanslyMediaCandidate } from "../candidate-entity";
 import { FanslyMediaCandidate as FanslyMediaCandidateEntity } from "../candidate-entity";
+import { FanslyAnalyticsAggregate } from "../entity";
 import { candidatesRoutes } from "./routes";
 
 describe("Analytics Candidates Routes", () => {
@@ -306,6 +307,47 @@ describe("Analytics Candidates Routes", () => {
 
       const updatedPostMedia = await postMediaRepository.findOne({ where: { id: postMedia.id } });
       expect(updatedPostMedia?.fanslyStatisticsId).toBe("stats-match");
+    });
+
+    test("creates aggregate with nextFetchAt when confirming match", async () => {
+      const media = await createTestMedia();
+      const post = await createTestPost();
+      const dataSource = getTestDataSource();
+      const postMediaRepository = dataSource.getRepository(PostMedia);
+      const candidateRepository = dataSource.getRepository(FanslyMediaCandidateEntity);
+      const aggregateRepo = dataSource.getRepository(FanslyAnalyticsAggregate);
+
+      const postMedia = postMediaRepository.create({
+        post,
+        media,
+        order: 0,
+        isFreePreview: false,
+      });
+      await postMediaRepository.save(postMedia);
+
+      const candidate = candidateRepository.create({
+        fanslyStatisticsId: "stats-match-aggregate",
+        fanslyPostId: "post-match-aggregate",
+        filename: "match-aggregate.jpg",
+        caption: null,
+        fanslyCreatedAt: Date.now(),
+        position: 0,
+        mediaType: "image",
+        status: "pending",
+      });
+      const savedCandidate = await candidateRepository.save(candidate);
+
+      const response = await app.request(`/api/analytics/candidates/by-id/${savedCandidate.id}/match`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postMediaId: postMedia.id }),
+      });
+      expect(response.status).toBe(200);
+
+      const aggregate = await aggregateRepo.findOne({ where: { postMediaId: postMedia.id } });
+      expect(aggregate).toBeTruthy();
+      expect(aggregate?.nextFetchAt).toBeInstanceOf(Date);
+      expect(aggregate?.nextFetchAt?.getTime()).toBeGreaterThan(Date.now());
     });
 
     test("returns 404 for non-existent candidate", async () => {

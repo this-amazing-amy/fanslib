@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { eden } from '../../lib/api';
 import { getSettings, type Settings } from '../../lib/storage';
 import { ActivityLogTab } from './ActivityLogTab';
+import { BackfillTab } from './BackfillTab';
 import { CredentialsTab } from './CredentialsTab';
 import { EmptyState } from './EmptyState';
 import { PopupHeader } from './PopupHeader';
@@ -12,7 +13,7 @@ import { PostNavigation } from './PostNavigation';
 import { StatisticsTab } from './StatisticsTab';
 
 type Post = PostWithRelations;
-type Tab = 'queue' | 'statistics' | 'activity' | 'credentials';
+type Tab = 'queue' | 'backfill' | 'statistics' | 'activity' | 'credentials';
 
 export const Popup = () => {
   const [settings, setSettings] = useState<Settings | null>(null);
@@ -198,6 +199,12 @@ export const Popup = () => {
           Post Queue
         </button>
         <button
+          className={`tab ${activeTab === 'backfill' ? 'tab-active' : ''}`}
+          onClick={() => setActiveTab('backfill')}
+        >
+          Backfill
+        </button>
+        <button
           className={`tab ${activeTab === 'statistics' ? 'tab-active' : ''}`}
           onClick={() => setActiveTab('statistics')}
         >
@@ -241,6 +248,8 @@ export const Popup = () => {
             />
           </div>
         ) : null
+      ) : activeTab === 'backfill' ? (
+        <BackfillTab />
       ) : activeTab === 'statistics' ? (
         <StatisticsTab />
       ) : activeTab === 'activity' ? (

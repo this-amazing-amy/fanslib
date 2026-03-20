@@ -2,7 +2,10 @@ import type { z } from "zod";
 import { db } from "../../../../lib/db";
 import { PostMedia } from "../../../posts/entity";
 import { FanslyMediaCandidate } from "../../candidate-entity";
+import { FanslyAnalyticsAggregate } from "../../entity";
 import type { ConfirmMatchRequestBodySchema, ConfirmMatchResponseSchema } from "../schema";
+
+const INITIAL_FETCH_INTERVAL_DAYS = 1;
 
 export const confirmMatch = async (
   id: string,
@@ -49,6 +52,27 @@ export const confirmMatch = async (
 
   postMedia.fanslyStatisticsId = candidate.fanslyStatisticsId;
   await postMediaRepository.save(postMedia);
+
+  // Create or update aggregate with initial nextFetchAt
+  const aggregateRepository = dataSource.getRepository(FanslyAnalyticsAggregate);
+  const existingAggregate = await aggregateRepository.findOne({
+    where: { postMediaId: body.postMediaId },
+  });
+
+  if (existingAggregate) {
+    existingAggregate.nextFetchAt = new Date(Date.now() + INITIAL_FETCH_INTERVAL_DAYS * 24 * 60 * 60 * 1000);
+    await aggregateRepository.save(existingAggregate);
+  } else {
+    const aggregate = aggregateRepository.create({
+      postMediaId: body.postMediaId,
+      postMedia,
+      totalViews: 0,
+      averageEngagementSeconds: 0,
+      averageEngagementPercent: 0,
+      nextFetchAt: new Date(Date.now() + INITIAL_FETCH_INTERVAL_DAYS * 24 * 60 * 60 * 1000),
+    });
+    await aggregateRepository.save(aggregate);
+  }
 
   return candidate;
 };
