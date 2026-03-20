@@ -23,10 +23,46 @@ export const Popup = () => {
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [linkedPostId, setLinkedPostId] = useState<string | null>(null);
 
   useEffect(() => {
     loadPosts();
   }, []);
+
+  useEffect(() => {
+    const listener = (
+      changes: { [key: string]: chrome.storage.StorageChange },
+      areaName: string
+    ) => {
+      if (
+        areaName === 'local' &&
+        changes.lastScheduleCaptureResult?.newValue
+      ) {
+        const result = changes.lastScheduleCaptureResult.newValue as {
+          matched: boolean;
+          postId: string | null;
+          timestamp: number;
+        };
+
+        if (result.matched && result.postId) {
+          setLinkedPostId(result.postId);
+
+          setTimeout(() => {
+            setLinkedPostId(null);
+            loadPosts().then(() => {
+              // Auto-advance to next post after reload
+              setCurrentIndex((prev) => Math.min(prev + 1, posts.length - 1));
+            });
+          }, 2000);
+        }
+      }
+    };
+
+    chrome.storage.onChanged.addListener(listener);
+    return () => {
+      chrome.storage.onChanged.removeListener(listener);
+    };
+  }, [posts.length]);
 
   const loadPosts = async (isRefresh = false) => {
     if (isRefresh) {
@@ -187,6 +223,7 @@ export const Popup = () => {
               bridgeUrl={settings?.bridgeUrl ?? ''}
               onMarkPosted={() => markAsPosted(currentPost.id)}
               onMarkScheduled={() => markAsScheduled(currentPost.id)}
+              linked={linkedPostId === currentPost.id}
             />
 
             <PostNavigation

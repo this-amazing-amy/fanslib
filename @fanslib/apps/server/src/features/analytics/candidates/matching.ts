@@ -44,7 +44,7 @@ const levenshteinDistance = (str1: string, str2: string): number => {
   return matrix[len1][len2];
 };
 
-const calculateSimilarity = (str1: string, str2: string): number => {
+export const calculateSimilarity = (str1: string, str2: string): number => {
   const maxLen = Math.max(str1.length, str2.length);
   if (maxLen === 0) return 1.0;
   const distance = levenshteinDistance(str1.toLowerCase(), str2.toLowerCase());

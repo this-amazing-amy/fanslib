@@ -28,6 +28,7 @@ type PostCardProps = {
   bridgeUrl: string;
   onMarkPosted: () => void;
   onMarkScheduled: () => void;
+  linked?: boolean;
 };
 
 export const PostCard = ({
@@ -38,6 +39,7 @@ export const PostCard = ({
   bridgeUrl,
   onMarkPosted,
   onMarkScheduled,
+  linked = false,
 }: PostCardProps) => {
   const media = Array.isArray(post.postMedia) ? post.postMedia : [];
   const hasLibraryPath = !!libraryPath;
@@ -123,7 +125,14 @@ export const PostCard = ({
   };
 
   return (
-    <div className='rounded-xl p-3 bg-base-100'>
+    <div className='rounded-xl p-3 bg-base-100 relative'>
+      {linked && (
+        <div className='absolute inset-0 z-10 flex items-center justify-center bg-success/10 rounded-xl border-2 border-success'>
+          <span className='px-4 py-2 bg-success text-success-content rounded-lg font-semibold text-sm shadow-lg'>
+            Linked ✓
+          </span>
+        </div>
+      )}
       <div className='flex items-start justify-between mb-3'>
         <div className='flex flex-col'>
           <span className='text-base font-semibold text-base-content'>

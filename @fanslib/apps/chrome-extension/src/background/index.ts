@@ -13,6 +13,11 @@ type Message =
         fanslyClientCheck?: string;
         fanslyClientId?: string;
       };
+    }
+  | {
+      type: 'FANSLIB_SCHEDULE_CAPTURE';
+      contentId: string;
+      caption: string;
     };
 
 const BATCH_DELAY_MS = 2000;
@@ -364,6 +369,58 @@ const addToBuffer = (candidates: CandidateItem[]): void => {
   }
 };
 
+const sendScheduleCapture = async (
+  contentId: string,
+  caption: string
+): Promise<{ matched: boolean; postId: string | null }> => {
+  debug('info', 'Sending schedule capture to server', { contentId, captionLength: caption.length });
+
+  const apiUrl = await getApiUrl();
+  const endpoint = `${apiUrl}/api/posts/schedule-capture`;
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ contentId, caption }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const result = (await response.json()) as { matched: boolean; postId: string | null };
+
+    debug('info', 'Schedule capture result', { matched: result.matched, postId: result.postId });
+
+    await chrome.storage.local.set({
+      lastScheduleCaptureResult: {
+        matched: result.matched,
+        postId: result.postId,
+        timestamp: Date.now(),
+      },
+    });
+
+    return result;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    debug('error', 'Failed to send schedule capture', { error: errorMessage });
+
+    await chrome.storage.local.set({
+      lastScheduleCaptureResult: {
+        matched: false,
+        postId: null,
+        timestamp: Date.now(),
+        error: errorMessage,
+      },
+    });
+
+    throw error;
+  }
+};
+
 chrome.runtime.onMessage.addListener(
   (message: Message, _sender, sendResponse) => {
     if (message.type === 'FANSLY_TIMELINE_DATA') {
@@ -377,6 +434,20 @@ chrome.runtime.onMessage.addListener(
         // Silently fail - credentials will be retried on next capture
       });
       sendResponse({ success: true });
+      return true;
+    }
+
+    if (message.type === 'FANSLIB_SCHEDULE_CAPTURE') {
+      sendScheduleCapture(message.contentId, message.caption)
+        .then((result) => {
+          sendResponse({ success: true, ...result });
+        })
+        .catch((error) => {
+          sendResponse({
+            success: false,
+            error: error instanceof Error ? error.message : String(error),
+          });
+        });
       return true;
     }
 
