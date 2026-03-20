@@ -214,6 +214,19 @@ const sendCandidates = async (candidates: CandidateItem[]): Promise<void> => {
       lastSyncCount: candidates.length,
       syncResult,
     });
+
+    if (syncResult.alreadyMatched > 0) {
+      await addLogEntry({
+        type: 'success',
+        message: 'Backfill: auto-matched ' + syncResult.alreadyMatched + ' posts from timeline',
+      });
+    }
+    if (syncResult.created > 0) {
+      await addLogEntry({
+        type: 'warning',
+        message: syncResult.created + ' unmatched posts — tap Backfill to review',
+      });
+    }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
 
