@@ -81,9 +81,9 @@ describe("Analytics Routes", () => {
       await aggregateRepo.save(aggregate);
 
       const loaded = await aggregateRepo.findOne({ where: { postMediaId: postMedia.id } });
-      expect(loaded).not.toBeNull();
-      expect(loaded!.plateauDetectedAt).toBeInstanceOf(Date);
-      expect(loaded!.nextFetchAt).toBeInstanceOf(Date);
+      if (!loaded) throw new Error("aggregate not found");
+      expect(loaded.plateauDetectedAt).toBeInstanceOf(Date);
+      expect(loaded.nextFetchAt).toBeInstanceOf(Date);
     });
 
     test("aggregate entity type does not have fypPerformanceScore or fypMetrics", async () => {
@@ -107,9 +107,9 @@ describe("Analytics Routes", () => {
       await aggregateRepo.save(aggregate);
 
       const loaded = await aggregateRepo.findOne({ where: { postMediaId: postMedia.id } });
-      expect(loaded).not.toBeNull();
-      expect("fypPerformanceScore" in loaded!).toBe(false);
-      expect("fypMetrics" in loaded!).toBe(false);
+      if (!loaded) throw new Error("aggregate not found");
+      expect("fypPerformanceScore" in loaded).toBe(false);
+      expect("fypMetrics" in loaded).toBe(false);
     });
   });
 
@@ -140,8 +140,8 @@ describe("Analytics Routes", () => {
       await initializeAnalyticsAggregates();
 
       const aggregate = await aggregateRepo.findOne({ where: { postMediaId: postMedia.id } });
-      expect(aggregate).not.toBeNull();
-      expect(aggregate!.plateauDetectedAt).toBeInstanceOf(Date);
+      if (!aggregate) throw new Error("aggregate not found");
+      expect(aggregate.plateauDetectedAt).toBeInstanceOf(Date);
     });
 
     test("does not set plateauDetectedAt when no plateau detected", async () => {
@@ -170,8 +170,8 @@ describe("Analytics Routes", () => {
       await initializeAnalyticsAggregates();
 
       const aggregate = await aggregateRepo.findOne({ where: { postMediaId: postMedia.id } });
-      expect(aggregate).not.toBeNull();
-      expect(aggregate!.plateauDetectedAt).toBeNil();
+      if (!aggregate) throw new Error("aggregate not found");
+      expect(aggregate.plateauDetectedAt).toBeNil();
     });
   });
 });
