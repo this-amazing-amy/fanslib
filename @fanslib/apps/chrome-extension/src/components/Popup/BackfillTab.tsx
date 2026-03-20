@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Image, Video, Check, X, Loader2 } from 'lucide-react';
 import { getSettings } from '../../lib/storage';
 import { addLogEntry } from '../../lib/activity-log';
@@ -30,11 +30,7 @@ export const BackfillTab = () => {
   const [loading, setLoading] = useState(true);
   const [actionInProgress, setActionInProgress] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadCandidates();
-  }, []);
-
-  const loadCandidates = async () => {
+  const loadCandidates = useCallback(async () => {
     setLoading(true);
     try {
       const settings = await getSettings();
@@ -60,15 +56,19 @@ export const BackfillTab = () => {
       setCandidates(initial);
 
       // Fetch suggestions for each candidate
-      for (const c of data) {
+      data.forEach((c) => {
         fetchSuggestions(settings.apiUrl, c.id);
-      }
+      });
     } catch (err) {
       console.error('Failed to load candidates:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadCandidates();
+  }, [loadCandidates]);
 
   const fetchSuggestions = async (apiUrl: string, candidateId: string) => {
     try {
