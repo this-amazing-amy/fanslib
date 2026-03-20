@@ -58,6 +58,7 @@ export const MediaTileLite = memo(
     const imageError = controlledImageError ?? localImageError;
     const videoRef = useRef<HTMLVideoElement>(null);
     const previewIntervalRef = useRef<number | null>(null);
+    const [isVideoReady, setIsVideoReady] = useState(false);
 
     const { data: mediaTags = [] } = useMediaTagsQuery({ mediaId: media.id });
     const stickerTags = (mediaTags ?? []).filter((mt) => mt.stickerDisplay === "color");
@@ -70,17 +71,23 @@ export const MediaTileLite = memo(
     }, [onImageError]);
 
     useEffect(() => {
-      if (!videoRef.current || media.type !== "video" || !isActivePreview) return () => {};
+      if (!videoRef.current || media.type !== "video" || !isActivePreview) {
+        setIsVideoReady(false);
+        return () => {};
+      }
 
       const video = videoRef.current;
       video.muted = true;
       video.currentTime = 0;
 
+      const onCanPlay = () => setIsVideoReady(true);
+      video.addEventListener("canplay", onCanPlay, { once: true });
+
       const playVideo = async () => {
         try {
           video.play();
-        } catch (error) {
-          console.error("Failed to play video:", error);
+        } catch {
+          // Play may be interrupted if user moves mouse away quickly
         }
       };
 
@@ -96,8 +103,10 @@ export const MediaTileLite = memo(
       }, 1000);
 
       return () => {
+        video.removeEventListener("canplay", onCanPlay);
         video.pause();
         video.currentTime = 0;
+        setIsVideoReady(false);
         if (previewIntervalRef.current) {
           clearInterval(previewIntervalRef.current);
         }
@@ -112,16 +121,17 @@ export const MediaTileLite = memo(
         )}
         {media.type === "video" ? (
           <>
-            {!isActivePreview && (
-              <img
-                src={getMediaThumbnailUrl(media.id)}
-                alt={media.name}
-                className={getBlurClassName("absolute inset-0 w-full h-full object-contain")}
-                onError={handleImageError}
-                loading="lazy"
-                draggable={false}
-              />
-            )}
+            <img
+              src={getMediaThumbnailUrl(media.id)}
+              alt={media.name}
+              className={getBlurClassName(cn(
+                "absolute inset-0 w-full h-full object-contain",
+                isActivePreview && isVideoReady && "invisible"
+              ))}
+              onError={handleImageError}
+              loading="lazy"
+              draggable={false}
+            />
             <video
               ref={videoRef}
               src={getMediaFileUrl(media.id)}
