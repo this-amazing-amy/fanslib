@@ -8,7 +8,6 @@ import {
     useFanslyCredentialsQuery,
     useSaveFanslyCredentialsMutation,
 } from "~/lib/queries/settings";
-import { CredentialStatusIndicator } from "./CredentialStatusIndicator";
 import { SettingRow } from "./SettingRow";
 
 type FanslyCredentials = {
@@ -141,8 +140,6 @@ export const FanslySettings = () => {
 
   return (
     <div className="space-y-4">
-      <CredentialStatusIndicator />
-
       {hasAnyCredentials && (
         <>
           {!hasAllCredentials && (
