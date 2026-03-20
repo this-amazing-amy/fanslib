@@ -162,6 +162,8 @@ let fetchInterceptCount = 0;
 let xhrInterceptCount = 0;
 // eslint-disable-next-line functional/no-let
 let timelineInterceptCount = 0;
+// eslint-disable-next-line functional/no-let
+let scheduleCaptureCount = 0;
 
 const processCandidates = (candidates: CandidateItem[]) => {
   if (candidates.length > 0) {
@@ -243,6 +245,57 @@ const sendCredentialsIfPresent = (
   }
 };
 
+const processScheduleResponse = (url: string, responseText: string) => {
+  try {
+    const data = JSON.parse(responseText) as {
+      success: boolean;
+      response?: {
+        postTemplate?: {
+          content?: string;
+          attachments?: Array<{ contentId: string }>;
+        };
+        post?: {
+          content?: string;
+          attachments?: Array<{ contentId: string }>;
+        };
+      };
+    };
+
+    if (!data.success || !data.response) return;
+
+    const postData = data.response.postTemplate ?? data.response.post;
+    if (!postData) return;
+
+    const contentId = postData.attachments?.[0]?.contentId;
+    if (!contentId) return;
+
+    const caption = postData.content ?? '';
+
+    scheduleCaptureCount++;
+    debug('info', `Schedule capture detected (#${scheduleCaptureCount})`, {
+      url,
+      contentId,
+      captionLength: caption.length,
+    });
+
+    window.postMessage(
+      {
+        type: 'FANSLIB_SCHEDULE_CAPTURE',
+        contentId,
+        caption,
+      },
+      '*'
+    );
+
+    debug('info', 'Schedule capture posted to window');
+  } catch (error) {
+    debug('error', 'Failed to process schedule response', {
+      error,
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
+
 const processTimelineResponse = (url: string, responseText: string) => {
   timelineInterceptCount++;
   debug('info', `Timeline request detected (#${timelineInterceptCount})`, {
@@ -312,6 +365,31 @@ const interceptedFetch = (async (...args): Promise<Response> => {
       processTimelineResponse(url, responseText);
     } catch (error) {
       debug('error', 'Failed to process fetch timeline response', {
+        error,
+        errorMessage: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  const method = (init?.method ?? 'GET').toUpperCase();
+  if (
+    url.includes('apiv3.fansly.com') &&
+    (method === 'POST' || method === 'PUT') &&
+    !url.includes('timelinenew')
+  ) {
+    try {
+      const clone = response.clone();
+      const responseText = await clone.text();
+      if (responseText.includes('postTemplate') || responseText.includes('"post"')) {
+        debug('info', 'Potential schedule response via fetch detected', {
+          url,
+          method,
+          status: response.status,
+        });
+        processScheduleResponse(url, responseText);
+      }
+    } catch (error) {
+      debug('error', 'Failed to process fetch schedule response', {
         error,
         errorMessage: error instanceof Error ? error.message : String(error),
       });
@@ -396,8 +474,19 @@ XMLHttpRequest.prototype.send = function (...args: unknown[]) {
     sendCredentialsIfPresent(credentials);
   }
 
-  if (url.includes('apiv3.fansly.com/api/v1/timelinenew')) {
-    debug('info', 'Timeline request via XHR detected', { url, method });
+  const isTimelineRequest = url.includes('apiv3.fansly.com/api/v1/timelinenew');
+  const isScheduleCandidate =
+    url.includes('apiv3.fansly.com') &&
+    (method === 'POST' || method === 'PUT') &&
+    !url.includes('timelinenew');
+
+  if (isTimelineRequest || isScheduleCandidate) {
+    if (isTimelineRequest) {
+      debug('info', 'Timeline request via XHR detected', { url, method });
+    }
+    if (isScheduleCandidate) {
+      debug('info', 'Potential schedule request via XHR detected', { url, method });
+    }
 
     const originalOnLoad = xhr.onload;
     const originalOnReadyStateChange = xhr.onreadystatechange;
@@ -407,20 +496,43 @@ XMLHttpRequest.prototype.send = function (...args: unknown[]) {
       ...eventArgs: unknown[]
     ) {
       if (this.readyState === 4 && this.status === 200) {
-        debug('info', 'XHR timeline request completed', {
-          status: this.status,
-          statusText: this.statusText,
-          responseLength: this.responseText?.length,
-        });
-
-        try {
-          processTimelineResponse(url, this.responseText);
-        } catch (error) {
-          debug('error', 'Failed to process XHR timeline response', {
-            error,
-            errorMessage:
-              error instanceof Error ? error.message : String(error),
+        if (isTimelineRequest) {
+          debug('info', 'XHR timeline request completed', {
+            status: this.status,
+            statusText: this.statusText,
+            responseLength: this.responseText?.length,
           });
+
+          try {
+            processTimelineResponse(url, this.responseText);
+          } catch (error) {
+            debug('error', 'Failed to process XHR timeline response', {
+              error,
+              errorMessage:
+                error instanceof Error ? error.message : String(error),
+            });
+          }
+        }
+
+        if (isScheduleCandidate) {
+          try {
+            const responseText = this.responseText;
+            if (responseText.includes('postTemplate') || responseText.includes('"post"')) {
+              debug('info', 'XHR schedule response detected', {
+                url,
+                method,
+                status: this.status,
+                responseLength: responseText?.length,
+              });
+              processScheduleResponse(url, responseText);
+            }
+          } catch (error) {
+            debug('error', 'Failed to process XHR schedule response', {
+              error,
+              errorMessage:
+                error instanceof Error ? error.message : String(error),
+            });
+          }
         }
       }
 
@@ -430,10 +542,12 @@ XMLHttpRequest.prototype.send = function (...args: unknown[]) {
     };
 
     xhr.onload = function (this: XMLHttpRequest, ...eventArgs: unknown[]) {
-      debug('info', 'XHR onload fired for timeline request', {
-        status: this.status,
-        responseLength: this.responseText?.length,
-      });
+      if (isTimelineRequest) {
+        debug('info', 'XHR onload fired for timeline request', {
+          status: this.status,
+          responseLength: this.responseText?.length,
+        });
+      }
 
       if (originalOnLoad) {
         return originalOnLoad.apply(this, eventArgs as [ProgressEvent]);

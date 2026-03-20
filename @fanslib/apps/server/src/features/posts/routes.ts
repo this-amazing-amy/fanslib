@@ -13,6 +13,7 @@ import { fetchPostById } from "./operations/post/fetch-by-id";
 import { fetchPostsByMediaId } from "./operations/post/fetch-by-media-id";
 import { FetchRecentPostsRequestSchema, fetchRecentPosts } from "./operations/post/fetch-recent";
 import { UpdatePostRequestBodySchema, updatePost } from "./operations/post/update";
+import { ScheduleCaptureRequestBodySchema, processScheduleCapture } from "./operations/schedule-capture";
 import { PostFiltersSchema } from "./schemas/post-filters";
 
 const FetchAllPostsQuerySchema = z.object({
@@ -90,6 +91,11 @@ export const postsRoutes = new Hono()
       return notFound(c, "Post not found");
     }
     return c.json(post);
+  })
+  .post("/schedule-capture", zValidator("json", ScheduleCaptureRequestBodySchema, validationError), async (c) => {
+    const body = c.req.valid("json");
+    const result = await processScheduleCapture(body);
+    return c.json(result);
   })
   .patch("/by-id/:id/media/:postMediaId", zValidator("json", UpdatePostMediaRequestBodySchema, validationError), async (c) => {
     const id = c.req.param("id");

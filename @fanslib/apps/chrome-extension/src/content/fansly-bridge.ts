@@ -73,6 +73,47 @@ window.addEventListener('message', (event) => {
     }
   }
   
+  if (event.data.type === 'FANSLIB_SCHEDULE_CAPTURE') {
+    debug('info', 'Received schedule capture from MAIN world', {
+      contentId: event.data.contentId,
+      captionLength: event.data.caption?.length,
+    });
+
+    try {
+      if (!chrome?.runtime) {
+        debug('error', 'chrome.runtime not available for schedule capture');
+        return;
+      }
+
+      const message = {
+        type: "FANSLIB_SCHEDULE_CAPTURE",
+        contentId: event.data.contentId,
+        caption: event.data.caption,
+      };
+
+      debug('info', 'Attempting to send schedule capture to background', {
+        messageType: message.type,
+        contentId: message.contentId,
+      });
+
+      chrome.runtime.sendMessage(message)
+        .then(() => {
+          debug('info', 'Schedule capture sent successfully to background script');
+        })
+        .catch((error) => {
+          debug('error', 'Failed to send schedule capture to background script', {
+            error,
+            errorMessage: error instanceof Error ? error.message : String(error),
+          });
+        });
+    } catch (error) {
+      debug('error', 'Failed to forward schedule capture', {
+        error,
+        errorMessage: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
   if (event.data.type === 'FANSLIB_CREDENTIALS') {
     debug('info', 'Received credentials from MAIN world', {
       hasAuth: !!event.data.credentials?.fanslyAuth,
