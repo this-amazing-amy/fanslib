@@ -105,30 +105,6 @@ export const AnalyticsPostCard = ({
         </div>
       )}
 
-      {datapoints && datapoints.length >= 2 && sortMetric && (
-        <Sparkline datapoints={datapoints} metric={sortMetric} width={120} height={24} />
-      )}
-
-      <div className="flex items-center gap-3 text-xs text-base-content/60">
-        <span className="flex items-center gap-1">
-          <Eye className="w-3.5 h-3.5" />
-          {totalViews.toLocaleString()}
-        </span>
-        <span className="flex items-center gap-1">
-          <Percent className="w-3.5 h-3.5" />
-          {averageEngagementPercent.toFixed(1)}%
-        </span>
-        <span className="flex items-center gap-1">
-          <Timer className="w-3.5 h-3.5" />
-          {formatEngagementSeconds(averageEngagementSeconds)}
-        </span>
-        {timesPosted != null && (
-          <span className="flex items-center gap-1">
-            <Repeat className="w-3.5 h-3.5" />
-            {timesPosted}×
-          </span>
-        )}
-      </div>
     </div>
   );
 };
