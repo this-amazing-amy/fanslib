@@ -26,14 +26,9 @@ import type { TagAnalyticsParams } from "../../hooks/useTagAnalytics";
 
 export const QUERY_KEYS = {
   analytics: {
-<<<<<<< HEAD
-    all: ['analytics'] as const,
-    datapoints: (postMediaId: string) => ['analytics', 'datapoints', postMediaId] as const,
-    activeFypPosts: (sortBy?: string) => ['analytics', 'active-fyp-posts', sortBy] as const,
-=======
     all: ["analytics"] as const,
     datapoints: (postMediaId: string) => ["analytics", "datapoints", postMediaId] as const,
->>>>>>> origin/issue-95-repost-candidates
+    activeFypPosts: (sortBy?: string) => ["analytics", "active-fyp-posts", sortBy] as const,
   },
 
   posts: {

@@ -5,6 +5,9 @@ import preferArrowFunctions from "eslint-plugin-prefer-arrow-functions";
 
 export default [
   {
+    ignores: ["**/*.gen.ts"],
+  },
+  {
     files: ["**/*.{ts,tsx}"],
     languageOptions: {
       parser: tsParser,
