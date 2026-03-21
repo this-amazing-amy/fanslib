@@ -26,10 +26,10 @@ import type { TagAnalyticsParams } from "../../hooks/useTagAnalytics";
 
 export const QUERY_KEYS = {
   analytics: {
-    all: ['analytics'] as const,
-    datapoints: (postMediaId: string) => ['analytics', 'datapoints', postMediaId] as const,
-    activeFypPosts: (sortBy?: string) => ['analytics', 'active-fyp-posts', sortBy] as const,
-    repostCandidates: (sortBy?: string) => ['analytics', 'repost-candidates', sortBy] as const,
+    all: ["analytics"] as const,
+    datapoints: (postMediaId: string) => ["analytics", "datapoints", postMediaId] as const,
+    activeFypPosts: (sortBy?: string) => ["analytics", "active-fyp-posts", sortBy] as const,
+    repostCandidates: (sortBy?: string) => ["analytics", "repost-candidates", sortBy] as const,
   },
 
   posts: {
