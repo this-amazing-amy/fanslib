@@ -5,7 +5,11 @@ import { Slider } from "~/components/ui/Slider";
 import { Switch } from "~/components/ui/Switch";
 import { useSfwMode } from "~/hooks/useSfwMode";
 import { cn } from "~/lib/cn";
-import { useSaveSettingsMutation, useSettingsQuery, useToggleSfwModeMutation } from "~/lib/queries/settings";
+import {
+  useSaveSettingsMutation,
+  useSettingsQuery,
+  useToggleSfwModeMutation,
+} from "~/lib/queries/settings";
 import { SettingRow } from "./SettingRow";
 
 export const SfwModeSettings = () => {
@@ -18,7 +22,7 @@ export const SfwModeSettings = () => {
   if (!settings) return null;
 
   const handleBlurIntensityChange = (values: number | number[]) => {
-    const intensity = Array.isArray(values) ? values[0] ?? 5 : values ?? 5;
+    const intensity = Array.isArray(values) ? (values[0] ?? 5) : (values ?? 5);
     setPreviewBlur(intensity);
     saveSettings.mutate({ sfwBlurIntensity: intensity });
   };
@@ -44,7 +48,11 @@ export const SfwModeSettings = () => {
             </p>
           }
         >
-          <Switch id="sfw-mode" isSelected={settings.sfwMode} onChange={() => toggleSfwMode.mutate()} />
+          <Switch
+            id="sfw-mode"
+            isSelected={settings.sfwMode}
+            onChange={() => toggleSfwMode.mutate()}
+          />
         </SettingRow>
 
         <SettingRow
@@ -95,7 +103,7 @@ export const SfwModeSettings = () => {
               <div
                 className={cn(
                   "w-full h-24 bg-gradient-to-r from-purple-500 to-pink-500 rounded-md cursor-pointer",
-                  settings.sfwMode ? getBlurClassName() : ""
+                  settings.sfwMode ? getBlurClassName() : "",
                 )}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}

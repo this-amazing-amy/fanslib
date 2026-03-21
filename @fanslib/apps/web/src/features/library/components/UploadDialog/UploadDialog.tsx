@@ -71,7 +71,10 @@ export const UploadDialog = ({ open, onOpenChange }: UploadDialogProps) => {
     overallProgress,
   } = useUploadQueue();
 
-  const allDone = totalCount > 0 && !isUploading && files.every((f) => f.status === "done" || f.status === "error");
+  const allDone =
+    totalCount > 0 &&
+    !isUploading &&
+    files.every((f) => f.status === "done" || f.status === "error");
 
   const requestClose = () => {
     if (isUploading) {
@@ -117,8 +120,7 @@ export const UploadDialog = ({ open, onOpenChange }: UploadDialogProps) => {
   };
 
   const isSelectingPhase = phase === "selecting";
-  const shootReady =
-    shootMode === "select" ? !!selectedShootId : newShootName.trim().length > 0;
+  const shootReady = shootMode === "select" ? !!selectedShootId : newShootName.trim().length > 0;
   const canUpload = shootReady && files.length > 0 && isSelectingPhase;
 
   return (
@@ -133,8 +135,8 @@ export const UploadDialog = ({ open, onOpenChange }: UploadDialogProps) => {
                     {isSelectingPhase
                       ? "Upload Files"
                       : phase === "uploading"
-                      ? `Uploading ${totalCount} ${totalCount === 1 ? "file" : "files"}…`
-                      : "Upload Complete"}
+                        ? `Uploading ${totalCount} ${totalCount === 1 ? "file" : "files"}…`
+                        : "Upload Complete"}
                   </DialogTitle>
                 </DialogHeader>
 
@@ -165,7 +167,8 @@ export const UploadDialog = ({ open, onOpenChange }: UploadDialogProps) => {
                         <>
                           <CheckCircle2 className="h-4 w-4 text-success flex-shrink-0" />
                           <span>
-                            All {completedCount} {completedCount === 1 ? "file" : "files"} uploaded successfully.
+                            All {completedCount} {completedCount === 1 ? "file" : "files"} uploaded
+                            successfully.
                           </span>
                         </>
                       ) : (
@@ -190,11 +193,14 @@ export const UploadDialog = ({ open, onOpenChange }: UploadDialogProps) => {
                           size="xs"
                           variant="ghost"
                           onPress={() => {
-                            setShootMode((m) => m === "select" ? "create" : "select");
+                            setShootMode((m) => (m === "select" ? "create" : "select"));
                           }}
                         >
                           {shootMode === "select" ? (
-                            <><Plus className="mr-1 h-3 w-3" />New shoot</>
+                            <>
+                              <Plus className="mr-1 h-3 w-3" />
+                              New shoot
+                            </>
                           ) : (
                             "Select existing"
                           )}

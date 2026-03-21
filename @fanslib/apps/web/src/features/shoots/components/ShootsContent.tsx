@@ -32,7 +32,7 @@ export const ShootsContent: FC<ShootsContentProps> = ({ className }) => {
 
   const mediaMap = useMemo(
     () => new Map(Array.from(allMedia.entries()).map(([key, value]) => [key.viewIndex, value])),
-    [allMedia]
+    [allMedia],
   );
 
   const sortedShoots = useMemo(() => {
@@ -70,68 +70,64 @@ export const ShootsContent: FC<ShootsContentProps> = ({ className }) => {
   return (
     <div className={cn(className, "flex h-full flex-col")}>
       <ClientOnlyMediaSelectionSetup media={mediaMap} />
-        <div className="px-6 pb-4">
-          <SectionHeader
-            title=""
-            actions={
-              <div className="flex items-center gap-2">
-                <ShootsSortOptions
-                  value={preferences.sort}
-                  onChange={(sort) => {
-                    updatePreferences({ sort });
-                  }}
-                />
-                <ShootViewSettings />
-              </div>
-            }
-          />
-          <div className="mt-2">
-            <ShootFilters
-              value={filter}
-              onFilterChange={(filters) => updateFilter(filters)}
-            />
-          </div>
-        </div>
-        <div className="flex-1 min-h-0 overflow-y-auto px-6">
-          <ScrollArea className="h-full" ref={scrollRef}>
-            <div className="flex flex-col gap-2 pb-48 pt-4">
-              {sortedShoots.length === 0
-                ? !isDragging && (
-                    <EmptyState
-                      icon={<Camera className="h-12 w-12" />}
-                      title="No shoots created"
-                      description="Drag media here to create your first shoot and organize your content."
-                    />
-                  )
-                : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
-                      {sortedShoots.map((shoot) => {
-                        const groupedMedia =
-                          shootsMedia.get(
-                            Array.from(shootsMedia.keys()).find((k) => k.shootId === shoot.id) ?? {
-                              shootId: shoot.id,
-                              viewIndex: "0",
-                            }
-                          ) ?? new Map();
-                        return (
-                          <ShootCard
-                            key={shoot.id}
-                            shoot={shoot}
-                            groupedMedia={groupedMedia}
-                            onUpdate={() => {
-                              refetch();
-                              refetchLibrary();
-                            }}
-                          />
-                        );
-                      })}
-                    </div>
-                  )}
-              <ShootCreateDropZone className="h-24" />
+      <div className="px-6 pb-4">
+        <SectionHeader
+          title=""
+          actions={
+            <div className="flex items-center gap-2">
+              <ShootsSortOptions
+                value={preferences.sort}
+                onChange={(sort) => {
+                  updatePreferences({ sort });
+                }}
+              />
+              <ShootViewSettings />
             </div>
-          </ScrollArea>
+          }
+        />
+        <div className="mt-2">
+          <ShootFilters value={filter} onFilterChange={(filters) => updateFilter(filters)} />
         </div>
+      </div>
+      <div className="flex-1 min-h-0 overflow-y-auto px-6">
+        <ScrollArea className="h-full" ref={scrollRef}>
+          <div className="flex flex-col gap-2 pb-48 pt-4">
+            {sortedShoots.length === 0 ? (
+              !isDragging && (
+                <EmptyState
+                  icon={<Camera className="h-12 w-12" />}
+                  title="No shoots created"
+                  description="Drag media here to create your first shoot and organize your content."
+                />
+              )
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
+                {sortedShoots.map((shoot) => {
+                  const groupedMedia =
+                    shootsMedia.get(
+                      Array.from(shootsMedia.keys()).find((k) => k.shootId === shoot.id) ?? {
+                        shootId: shoot.id,
+                        viewIndex: "0",
+                      },
+                    ) ?? new Map();
+                  return (
+                    <ShootCard
+                      key={shoot.id}
+                      shoot={shoot}
+                      groupedMedia={groupedMedia}
+                      onUpdate={() => {
+                        refetch();
+                        refetchLibrary();
+                      }}
+                    />
+                  );
+                })}
+              </div>
+            )}
+            <ShootCreateDropZone className="h-24" />
+          </div>
+        </ScrollArea>
+      </div>
     </div>
   );
 };
-

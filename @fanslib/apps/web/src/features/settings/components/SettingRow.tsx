@@ -26,7 +26,7 @@ export const SettingRow = ({
       spacing === "default" && "py-4",
       spacing === "compact" && "py-1",
       variant === "secondary" && "pl-6",
-      className
+      className,
     )}
   >
     <div className="space-y-1">
@@ -38,9 +38,7 @@ export const SettingRow = ({
       >
         {title ?? <span className="text-base-content/60">{title}</span>}
       </h3>
-      {description && (
-        <p className="text-sm text-base-content/60 leading-tight">{description}</p>
-      )}
+      {description && <p className="text-sm text-base-content/60 leading-tight">{description}</p>}
       {descriptionSlot}
     </div>
     <div className={cn("flex items-center pt-0.5", variant === "secondary" && "pt-0")}>

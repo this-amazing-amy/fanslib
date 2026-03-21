@@ -54,4 +54,14 @@ describe("AnalyticsPostCard", () => {
     );
     expect(screen.getByText("Remove")).toBeInTheDocument();
   });
+
+  test("displays times-posted count when provided", () => {
+    render(<AnalyticsPostCard {...defaultProps} timesPosted={3} />);
+    expect(screen.getByText("3×")).toBeInTheDocument();
+  });
+
+  test("does not display times-posted when not provided", () => {
+    render(<AnalyticsPostCard {...defaultProps} />);
+    expect(screen.queryByText(/×$/)).not.toBeInTheDocument();
+  });
 });

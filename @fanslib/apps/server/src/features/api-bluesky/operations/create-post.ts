@@ -20,7 +20,7 @@ const createImageEmbed = async (media: Media[]) => {
         image: blob,
         alt: m.name,
       };
-    })
+    }),
   );
 
   if (uploadedBlobs.length === 0) {

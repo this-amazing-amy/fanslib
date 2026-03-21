@@ -1,12 +1,14 @@
-import type { Channel, ContentScheduleWithChannel, CreateContentScheduleRequestBody, Hashtag, MediaFilter } from '@fanslib/server/schemas';
+import type {
+  Channel,
+  ContentScheduleWithChannel,
+  CreateContentScheduleRequestBody,
+  Hashtag,
+  MediaFilter,
+} from "@fanslib/server/schemas";
 import { Edit2, Plus, Save, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/Button/Button";
-import {
-    Dialog,
-    DialogModal,
-    DialogTrigger,
-} from "~/components/ui/Dialog";
+import { Dialog, DialogModal, DialogTrigger } from "~/components/ui/Dialog";
 import { Input } from "~/components/ui/Input/Input";
 import { Textarea } from "~/components/ui/Textarea";
 import { FilterPresetProvider } from "~/contexts/FilterPresetContext";
@@ -14,15 +16,14 @@ import { MediaFilters as MediaFiltersComponent } from "~/features/library/compon
 import { MediaFiltersProvider } from "~/features/library/components/MediaFilters/MediaFiltersContext";
 import { useDeleteChannelMutation, useUpdateChannelMutation } from "~/lib/queries/channels";
 import {
-    useContentSchedulesByChannelQuery,
-    useCreateContentScheduleMutation,
-    useUpdateContentScheduleMutation,
+  useContentSchedulesByChannelQuery,
+  useCreateContentScheduleMutation,
+  useUpdateContentScheduleMutation,
 } from "~/lib/queries/content-schedules";
 import { ChannelTypeIcon } from "./ChannelTypeIcon";
 import { ContentScheduleForm } from "./ContentScheduleForm";
 import { ContentScheduleList } from "./ContentScheduleList";
 import { HashtagSelector } from "./HashtagSelector";
-
 
 type MediaFilters = MediaFilter;
 
@@ -38,10 +39,10 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
   const [name, setName] = useState(channel.name);
   const [description, setDescription] = useState(channel.description ?? "");
   const [eligibleMediaFilter, setEligibleMediaFilter] = useState<MediaFilters>(
-    (channel.eligibleMediaFilter as MediaFilters) ?? []
+    (channel.eligibleMediaFilter as MediaFilters) ?? [],
   );
   const [defaultHashtags, setDefaultHashtags] = useState<Hashtag[]>(
-    (channel.defaultHashtags as Hashtag[]) ?? []
+    (channel.defaultHashtags as Hashtag[]) ?? [],
   );
   const [showScheduleForm, setShowScheduleForm] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<ContentSchedule | null>(null);
@@ -52,7 +53,9 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
   const createSchedule = useCreateContentScheduleMutation();
   const updateSchedule = useUpdateContentScheduleMutation();
 
-  const { data: schedules, isLoading: isLoadingSchedules } = useContentSchedulesByChannelQuery(channel.id);
+  const { data: schedules, isLoading: isLoadingSchedules } = useContentSchedulesByChannelQuery(
+    channel.id,
+  );
 
   useEffect(() => {
     setName(channel.name);
@@ -195,7 +198,8 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
                         <div className="space-y-4">
                           <h3 className="text-lg font-semibold">Delete Channel</h3>
                           <p>
-                            Are you sure you want to delete this channel? This action cannot be undone.
+                            Are you sure you want to delete this channel? This action cannot be
+                            undone.
                           </p>
                           <div className="flex justify-end gap-2">
                             <Button variant="ghost" onPress={close}>
@@ -230,10 +234,7 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
           </p>
           {isEditing ? (
             <FilterPresetProvider onFiltersChange={setEligibleMediaFilter}>
-              <MediaFiltersProvider
-                value={eligibleMediaFilter}
-                onChange={setEligibleMediaFilter}
-              >
+              <MediaFiltersProvider value={eligibleMediaFilter} onChange={setEligibleMediaFilter}>
                 <MediaFiltersComponent />
               </MediaFiltersProvider>
             </FilterPresetProvider>
@@ -241,10 +242,7 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
             <div className="card bg-base-200 p-4">
               {eligibleMediaFilter.length > 0 ? (
                 <FilterPresetProvider onFiltersChange={() => {}}>
-                  <MediaFiltersProvider
-                    value={eligibleMediaFilter}
-                    onChange={() => {}}
-                  >
+                  <MediaFiltersProvider value={eligibleMediaFilter} onChange={() => {}}>
                     <MediaFiltersComponent />
                   </MediaFiltersProvider>
                 </FilterPresetProvider>
@@ -285,11 +283,7 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-lg font-medium">Content Schedules</h4>
             {!showScheduleForm && (
-              <Button
-                variant="secondary"
-                size="sm"
-                onPress={() => setShowScheduleForm(true)}
-              >
+              <Button variant="secondary" size="sm" onPress={() => setShowScheduleForm(true)}>
                 <Plus className="w-4 h-4" />
                 Add Schedule
               </Button>
@@ -308,7 +302,10 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
           ) : isLoadingSchedules ? (
             <div className="text-center py-8 text-base-content/60">Loading schedules...</div>
           ) : schedules && schedules.length > 0 ? (
-            <ContentScheduleList schedules={schedules as unknown as ContentSchedule[]} onEdit={handleEditSchedule} />
+            <ContentScheduleList
+              schedules={schedules as unknown as ContentSchedule[]}
+              onEdit={handleEditSchedule}
+            />
           ) : (
             <div className="card bg-base-200 p-8 text-center text-base-content/60">
               No content schedules configured. Add one to get started.

@@ -48,7 +48,8 @@ Die `ScrollArea` hat `flex-1 min-h-0` — das ist richtig. Aber das funktioniert
 >
 ```
 
-**Warum das funktioniert:**  
+**Warum das funktioniert:**
+
 - `flex-1` = `flex-grow: 1; flex-shrink: 1; flex-basis: 0%` → füllt den verfügbaren Space im Parent-Flex-Column
 - `min-h-0` = überschreibt den Default `min-height: auto` bei Flex-Items → ermöglicht dem Item sich kleiner als seinen Content zu machen
 - Das kombiniert ergibt eine definite Höhe: der Inner-Div bekommt genau den Platz den der Parent freigibt (90vh - padding), nicht mehr

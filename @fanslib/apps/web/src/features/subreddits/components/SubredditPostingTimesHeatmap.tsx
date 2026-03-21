@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { Card, CardBody, CardTitle } from '~/components/ui/Card/Card';
+import { useMemo } from "react";
+import { Card, CardBody, CardTitle } from "~/components/ui/Card/Card";
 
 type SubredditPostingTime = {
   day: number;
@@ -14,22 +14,22 @@ type SubredditPostingTimesHeatmapProps = {
   className?: string;
 };
 
-const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
 const getIntensityColor = (score: number): string => {
-  if (score === 0) return 'bg-gray-100';
-  if (score <= 20) return 'bg-green-200';
-  if (score <= 40) return 'bg-green-400';
-  if (score <= 60) return 'bg-amber-400';
-  if (score <= 80) return 'bg-orange-500';
-  return 'bg-red-600';
+  if (score === 0) return "bg-gray-100";
+  if (score <= 20) return "bg-green-200";
+  if (score <= 40) return "bg-green-400";
+  if (score <= 60) return "bg-amber-400";
+  if (score <= 80) return "bg-orange-500";
+  return "bg-red-600";
 };
 
 const formatHour = (hour: number): string => {
-  if (hour === 0) return '12 AM';
+  if (hour === 0) return "12 AM";
   if (hour < 12) return `${hour} AM`;
-  if (hour === 12) return '12 PM';
+  if (hour === 12) return "12 PM";
   return `${hour - 12} PM`;
 };
 
@@ -75,7 +75,7 @@ export const SubredditPostingTimesHeatmap = ({
               {timezone && ` (${timezone})`}
             </>
           ) : (
-            'No posting times data available'
+            "No posting times data available"
           )}
         </div>
         {postingTimes.length === 0 ? (
@@ -89,7 +89,7 @@ export const SubredditPostingTimesHeatmap = ({
               <div></div>
               {HOURS.map((hour) => (
                 <div key={hour} className="text-center text-base-content/60 text-[10px] font-mono">
-                  {hour % 6 === 0 ? formatHour(hour) : ''}
+                  {hour % 6 === 0 ? formatHour(hour) : ""}
                 </div>
               ))}
             </div>

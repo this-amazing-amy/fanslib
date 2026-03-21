@@ -1,9 +1,9 @@
-import { useRef, type ReactNode } from 'react';
-import type { AriaTabListProps, AriaTabPanelProps } from 'react-aria';
-import { useTab, useTabList, useTabPanel } from 'react-aria';
-import type { Node, TabListState } from 'react-stately';
-import { Item, useTabListState } from 'react-stately';
-import { cn } from '~/lib/cn';
+import { useRef, type ReactNode } from "react";
+import type { AriaTabListProps, AriaTabPanelProps } from "react-aria";
+import { useTab, useTabList, useTabPanel } from "react-aria";
+import type { Node, TabListState } from "react-stately";
+import { Item, useTabListState } from "react-stately";
+import { cn } from "~/lib/cn";
 
 export type TabsProps<T extends object> = AriaTabListProps<T> & {
   className?: string;
@@ -38,11 +38,7 @@ const Tab = <T extends object>({ item, state }: TabProps<T>) => {
   const isSelected = state.selectedKey === item.key;
 
   return (
-    <div
-      {...tabProps}
-      ref={ref}
-      className={cn('tab', isSelected && 'tab-active')}
-    >
+    <div {...tabProps} ref={ref} className={cn("tab", isSelected && "tab-active")}>
       {item.rendered}
     </div>
   );
@@ -64,4 +60,3 @@ const TabPanel = <T extends object>({ state, ...props }: TabPanelProps<T>) => {
 };
 
 export { Item as TabItem };
-

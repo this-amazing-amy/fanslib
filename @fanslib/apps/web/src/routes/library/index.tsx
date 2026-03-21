@@ -1,16 +1,16 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { PageHeader } from '~/components/ui/PageHeader';
-import { AnalyticsProvider } from '~/contexts/AnalyticsContext';
-import { LibraryPreferencesProvider } from '~/contexts/LibraryPreferencesContext';
-import { MediaDragProvider } from '~/contexts/MediaDragContext';
+import { createFileRoute } from "@tanstack/react-router";
+import { PageHeader } from "~/components/ui/PageHeader";
+import { AnalyticsProvider } from "~/contexts/AnalyticsContext";
+import { LibraryPreferencesProvider } from "~/contexts/LibraryPreferencesContext";
+import { MediaDragProvider } from "~/contexts/MediaDragContext";
 
-import { PostDragProvider } from '~/contexts/PostDragContext';
-import { PostPreferencesProvider } from '~/contexts/PostPreferencesContext';
-import { RedditPostProvider } from '~/contexts/RedditPostContext';
-import { ShootProvider } from '~/contexts/ShootContext';
-import { ShootPreferencesProvider } from '~/contexts/ShootPreferencesContext';
-import { TagDragProvider } from '~/contexts/TagDragContext';
-import { Library } from '~/features/library/components/Library';
+import { PostDragProvider } from "~/contexts/PostDragContext";
+import { PostPreferencesProvider } from "~/contexts/PostPreferencesContext";
+import { RedditPostProvider } from "~/contexts/RedditPostContext";
+import { ShootProvider } from "~/contexts/ShootContext";
+import { ShootPreferencesProvider } from "~/contexts/ShootPreferencesContext";
+import { TagDragProvider } from "~/contexts/TagDragContext";
+import { Library } from "~/features/library/components/Library";
 
 const LibraryPageContent = () => (
   <MediaDragProvider>
@@ -45,6 +45,6 @@ export const LibraryPage = () => (
   </LibraryPreferencesProvider>
 );
 
-export const Route = createFileRoute('/library/')({
+export const Route = createFileRoute("/library/")({
   component: LibraryPage,
 });

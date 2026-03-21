@@ -24,15 +24,20 @@ export const UpdateMediaRequestBodySchema = z.object({
 });
 
 export const UpdateMediaResponseSchema = MediaSchema.extend({
-  postMedia: z.array(PostMediaSchema.extend({
-    post: PostSchema.extend({
-      channel: ChannelSchema,
-      subreddit: SubredditSchema.nullable().optional(),
+  postMedia: z.array(
+    PostMediaSchema.extend({
+      post: PostSchema.extend({
+        channel: ChannelSchema,
+        subreddit: SubredditSchema.nullable().optional(),
+      }),
     }),
-  })),
+  ),
 });
 
-export const updateMedia = async (id: string, updates: z.infer<typeof UpdateMediaRequestBodySchema>): Promise<z.infer<typeof UpdateMediaResponseSchema> | null> => {
+export const updateMedia = async (
+  id: string,
+  updates: z.infer<typeof UpdateMediaRequestBodySchema>,
+): Promise<z.infer<typeof UpdateMediaResponseSchema> | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Media);
 
@@ -72,4 +77,3 @@ export const updateMedia = async (id: string, updates: z.infer<typeof UpdateMedi
     postMedia: updatedMedia.postMedia.filter((pm) => pm.post !== null && pm.post !== undefined),
   };
 };
-

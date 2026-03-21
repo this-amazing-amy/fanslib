@@ -1,4 +1,4 @@
-import type { MediaFilter } from '@fanslib/server/schemas';
+import type { MediaFilter } from "@fanslib/server/schemas";
 import { CalendarDate } from "@internationalized/date";
 import { format } from "date-fns";
 import { CalendarIcon, X } from "lucide-react";
@@ -9,7 +9,13 @@ import { Calendar } from "~/components/ui/Calendar";
 import { Input } from "~/components/ui/Input";
 import { Label } from "~/components/ui/Label";
 import { Popover, PopoverTrigger } from "~/components/ui/Popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/Select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/Select";
 import { Switch } from "~/components/ui/Switch";
 import { cn } from "~/lib/cn";
 import { useChannelsQuery } from "~/lib/queries/channels";
@@ -149,7 +155,14 @@ export const FilterItemEditor = ({
         newItem = { type, dimensionId: dimensionIdValue };
         break;
       case "repostStatus":
-        newItem = { type, value: repostStatusValue as "never_posted" | "repostable" | "on_cooldown" | "still_growing" };
+        newItem = {
+          type,
+          value: repostStatusValue as
+            | "never_posted"
+            | "repostable"
+            | "on_cooldown"
+            | "still_growing",
+        };
         break;
       case "excluded":
         newItem = { type, value: booleanValue };
@@ -239,11 +252,7 @@ export const FilterItemEditor = ({
       case "createdDateStart":
       case "createdDateEnd": {
         const calendarValue = dateValue
-          ? new CalendarDate(
-              dateValue.getFullYear(),
-              dateValue.getMonth() + 1,
-              dateValue.getDate()
-            )
+          ? new CalendarDate(dateValue.getFullYear(), dateValue.getMonth() + 1, dateValue.getDate())
           : undefined;
         return (
           <div className="space-y-2">
@@ -253,7 +262,7 @@ export const FilterItemEditor = ({
                 variant="outline"
                 className={cn(
                   "w-full justify-start text-left font-normal",
-                  !dateValue && "text-muted-foreground"
+                  !dateValue && "text-muted-foreground",
                 )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />

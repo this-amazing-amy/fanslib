@@ -31,4 +31,3 @@ export const getPosterInstance = (): RedditPoster => {
 };
 
 export const hasPosterInstance = (): boolean => posterInstance !== null;
-

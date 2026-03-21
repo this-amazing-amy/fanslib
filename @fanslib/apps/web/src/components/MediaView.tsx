@@ -1,9 +1,8 @@
-import type { Media } from '@fanslib/server/schemas';
+import type { Media } from "@fanslib/server/schemas";
 import { Link } from "@tanstack/react-router";
 import { useSfwMode } from "~/hooks/useSfwMode";
 import { cn } from "~/lib/cn";
 import { getMediaFileUrl } from "~/lib/media-urls";
-
 
 type MediaPreview = Pick<Media, "id" | "name" | "type">;
 
@@ -57,4 +56,3 @@ export const MediaView = ({
     </div>
   );
 };
-

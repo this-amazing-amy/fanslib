@@ -16,7 +16,6 @@ export const UpdateHashtagStatsResponseSchema = HashtagChannelStatsSchema;
 export const updateHashtagStats = async (
   hashtagId: number,
   channelId: string,
-  views: number
+  views: number,
 ): Promise<z.infer<typeof UpdateHashtagStatsResponseSchema>> =>
   incrementHashtagViews(hashtagId, channelId, views);
-

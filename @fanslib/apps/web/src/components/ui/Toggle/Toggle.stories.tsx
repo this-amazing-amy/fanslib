@@ -1,23 +1,23 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
-import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
-import { Toggle } from './Toggle';
+import type { Meta, StoryObj } from "@storybook/react";
+import { useState } from "react";
+import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
+import { Toggle } from "./Toggle";
 
 const meta: Meta<typeof Toggle> = {
-  title: 'UI/Toggle',
+  title: "UI/Toggle",
   component: Toggle,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {
     variant: {
-      control: 'select',
-      options: ['default', 'outline', 'ghost', 'primary'],
+      control: "select",
+      options: ["default", "outline", "ghost", "primary"],
     },
     size: {
-      control: 'select',
-      options: ['sm', 'md', 'lg'],
+      control: "select",
+      options: ["sm", "md", "lg"],
     },
   },
 };
@@ -89,27 +89,27 @@ const TextFormattingToolbarComponent = () => {
         onChange={setBold}
         aria-label="Toggle bold"
       >
-          <Bold className="h-4 w-4" />
-        </Toggle>
-        <Toggle
-          variant="ghost"
-          size="sm"
-          isSelected={italic}
-          onChange={setItalic}
-          aria-label="Toggle italic"
-        >
-          <Italic className="h-4 w-4" />
-        </Toggle>
-        <Toggle
-          variant="ghost"
-          size="sm"
-          isSelected={underline}
-          onChange={setUnderline}
-          aria-label="Toggle underline"
-        >
-          <Underline className="h-4 w-4" />
-        </Toggle>
-      </div>
+        <Bold className="h-4 w-4" />
+      </Toggle>
+      <Toggle
+        variant="ghost"
+        size="sm"
+        isSelected={italic}
+        onChange={setItalic}
+        aria-label="Toggle italic"
+      >
+        <Italic className="h-4 w-4" />
+      </Toggle>
+      <Toggle
+        variant="ghost"
+        size="sm"
+        isSelected={underline}
+        onChange={setUnderline}
+        aria-label="Toggle underline"
+      >
+        <Underline className="h-4 w-4" />
+      </Toggle>
+    </div>
   );
 };
 
@@ -118,38 +118,38 @@ export const TextFormattingToolbar: Story = {
 };
 
 const AlignmentToolbarComponent = () => {
-  const [alignment, setAlignment] = useState<'left' | 'center' | 'right'>('left');
+  const [alignment, setAlignment] = useState<"left" | "center" | "right">("left");
 
-    return (
-      <div className="flex gap-1 p-2 bg-base-200 rounded-lg">
-        <Toggle
-          variant="ghost"
-          size="sm"
-          isSelected={alignment === 'left'}
-          onChange={() => setAlignment('left')}
-          aria-label="Align left"
-        >
-          <AlignLeft className="h-4 w-4" />
-        </Toggle>
-        <Toggle
-          variant="ghost"
-          size="sm"
-          isSelected={alignment === 'center'}
-          onChange={() => setAlignment('center')}
-          aria-label="Align center"
-        >
-          <AlignCenter className="h-4 w-4" />
-        </Toggle>
-        <Toggle
-          variant="ghost"
-          size="sm"
-          isSelected={alignment === 'right'}
-          onChange={() => setAlignment('right')}
-          aria-label="Align right"
-        >
-          <AlignRight className="h-4 w-4" />
-        </Toggle>
-      </div>
+  return (
+    <div className="flex gap-1 p-2 bg-base-200 rounded-lg">
+      <Toggle
+        variant="ghost"
+        size="sm"
+        isSelected={alignment === "left"}
+        onChange={() => setAlignment("left")}
+        aria-label="Align left"
+      >
+        <AlignLeft className="h-4 w-4" />
+      </Toggle>
+      <Toggle
+        variant="ghost"
+        size="sm"
+        isSelected={alignment === "center"}
+        onChange={() => setAlignment("center")}
+        aria-label="Align center"
+      >
+        <AlignCenter className="h-4 w-4" />
+      </Toggle>
+      <Toggle
+        variant="ghost"
+        size="sm"
+        isSelected={alignment === "right"}
+        onChange={() => setAlignment("right")}
+        aria-label="Align right"
+      >
+        <AlignRight className="h-4 w-4" />
+      </Toggle>
+    </div>
   );
 };
 
@@ -179,4 +179,3 @@ export const Disabled: Story = {
     </Toggle>
   ),
 };
-

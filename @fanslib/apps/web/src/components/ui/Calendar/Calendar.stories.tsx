@@ -1,4 +1,10 @@
-import { type DateValue, getLocalTimeZone, isWeekend, parseDate, today } from "@internationalized/date";
+import {
+  type DateValue,
+  getLocalTimeZone,
+  isWeekend,
+  parseDate,
+  today,
+} from "@internationalized/date";
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { Calendar } from "./index";

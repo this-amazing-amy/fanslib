@@ -14,12 +14,10 @@ export const TAG_COLORS = [
 
 export const populateDenormalizedFields = (
   mediaTag: Partial<MediaTag>,
-  tagDefinition: TagDefinition
+  tagDefinition: TagDefinition,
 ): void => {
   if (!tagDefinition.dimension) {
-    throw new Error(
-      `TagDefinition ${tagDefinition.id} does not have dimension relation loaded`
-    );
+    throw new Error(`TagDefinition ${tagDefinition.id} does not have dimension relation loaded`);
   }
 
   mediaTag.dimensionId = tagDefinition.dimensionId;
@@ -43,7 +41,7 @@ export const populateDenormalizedFields = (
 
 export const assignColorForCategoricalTag = async (
   dimensionId: number,
-  providedColor?: string
+  providedColor?: string,
 ): Promise<string | undefined> => {
   const dataSource = await db();
   const dimensionRepository = dataSource.getRepository(TagDimension);
@@ -65,12 +63,13 @@ export const assignColorForCategoricalTag = async (
   });
 
   const usedColors = new Set(
-    existingTags
-      .map((tag) => tag.color)
-      .filter((color) => color !== null && color !== undefined)
+    existingTags.map((tag) => tag.color).filter((color) => color !== null && color !== undefined),
   );
 
-  return TAG_COLORS.find((color) => !usedColors.has(color)) ?? TAG_COLORS[existingTags.length % TAG_COLORS.length];
+  return (
+    TAG_COLORS.find((color) => !usedColors.has(color)) ??
+    TAG_COLORS[existingTags.length % TAG_COLORS.length]
+  );
 };
 
 export const validateExistingAssignments = async (dimensionId: number): Promise<void> => {
@@ -87,7 +86,7 @@ export const validateExistingAssignments = async (dimensionId: number): Promise<
 
   if (violations.length > 0) {
     throw new Error(
-      `Cannot make dimension exclusive: ${violations.length} media items have multiple tags in this dimension`
+      `Cannot make dimension exclusive: ${violations.length} media items have multiple tags in this dimension`,
     );
   }
 };
@@ -153,7 +152,10 @@ export const syncDenormalizedFieldsForDimension = async (dimensionId: number): P
 
 type TagDefinitionHierarchyNode = Pick<TagDefinition, "id" | "parentTagId">;
 
-export const buildTagHierarchyIndex = (tagDefinitions: TagDefinitionHierarchyNode[]): Map<number | null, number[]> => tagDefinitions.reduce<Map<number | null, number[]>>((index, tag) => {
+export const buildTagHierarchyIndex = (
+  tagDefinitions: TagDefinitionHierarchyNode[],
+): Map<number | null, number[]> =>
+  tagDefinitions.reduce<Map<number | null, number[]>>((index, tag) => {
     const parentId = tag.parentTagId ?? null;
     const existingChildren = index.get(parentId) ?? [];
 
@@ -164,7 +166,7 @@ export const buildTagHierarchyIndex = (tagDefinitions: TagDefinitionHierarchyNod
 
 export const getDescendantTagIds = (
   rootTagIds: number[],
-  tagDefinitions: TagDefinitionHierarchyNode[]
+  tagDefinitions: TagDefinitionHierarchyNode[],
 ): number[] => {
   if (rootTagIds.length === 0 || tagDefinitions.length === 0) {
     return [];
@@ -189,7 +191,9 @@ export const getDescendantTagIds = (
   return Array.from(visited);
 };
 
-export const fetchAllTagDefinitionsForHierarchy = async (): Promise<TagDefinitionHierarchyNode[]> => {
+export const fetchAllTagDefinitionsForHierarchy = async (): Promise<
+  TagDefinitionHierarchyNode[]
+> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(TagDefinition);
 
@@ -199,5 +203,3 @@ export const fetchAllTagDefinitionsForHierarchy = async (): Promise<TagDefinitio
 
   return tagDefinitions;
 };
-
-

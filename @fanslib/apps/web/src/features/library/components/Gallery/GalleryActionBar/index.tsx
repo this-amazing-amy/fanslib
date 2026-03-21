@@ -1,5 +1,4 @@
-import type { Media } from '@fanslib/server/schemas';
-
+import type { Media } from "@fanslib/server/schemas";
 
 import { Camera, FolderPlus, Send, X } from "lucide-react";
 import { useState } from "react";
@@ -38,7 +37,7 @@ export const GalleryActionBar = ({
           "transform transition-all duration-300 ease-out",
           selectedCount > 0
             ? "translate-y-0 opacity-100"
-            : "translate-y-full opacity-0 pointer-events-none"
+            : "translate-y-full opacity-0 pointer-events-none",
         )}
       >
         <div className="flex gap-4 row-span-2 items-center">

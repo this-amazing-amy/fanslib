@@ -66,9 +66,7 @@ export const FileRow = ({ fileState, onRemove, onRetry }: FileRowProps) => {
           </div>
         )}
 
-        {status === "error" && error && (
-          <p className="text-xs text-error mt-1 truncate">{error}</p>
-        )}
+        {status === "error" && error && <p className="text-xs text-error mt-1 truncate">{error}</p>}
       </div>
 
       <div className="flex flex-shrink-0 items-center gap-1">
@@ -81,12 +79,7 @@ export const FileRow = ({ fileState, onRemove, onRetry }: FileRowProps) => {
         )}
 
         {canRemove && (
-          <Button
-            size="icon"
-            variant="ghost"
-            aria-label="Remove file"
-            onPress={() => onRemove(id)}
-          >
+          <Button size="icon" variant="ghost" aria-label="Remove file" onPress={() => onRemove(id)}>
             <X className="h-3 w-3" />
           </Button>
         )}

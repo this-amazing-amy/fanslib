@@ -11,7 +11,7 @@ export const RemoveMediaFromPostRequestBodySchema = z.object({
 
 export const removeMediaFromPost = async (
   postId: string,
-  mediaIds: string[]
+  mediaIds: string[],
 ): Promise<PostWithRelations | null> => {
   const dataSource = await db();
   const postMediaRepo = dataSource.getRepository(PostMedia);
@@ -23,4 +23,3 @@ export const removeMediaFromPost = async (
 
   return fetchPostById(postId);
 };
-

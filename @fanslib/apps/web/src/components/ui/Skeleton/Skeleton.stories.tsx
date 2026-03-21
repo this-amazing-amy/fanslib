@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Skeleton } from './Skeleton';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Skeleton } from "./Skeleton";
 
 const meta: Meta<typeof Skeleton> = {
-  title: 'UI/Skeleton',
+  title: "UI/Skeleton",
   component: Skeleton,
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
@@ -12,13 +12,13 @@ type Story = StoryObj<typeof Skeleton>;
 
 export const Text: Story = {
   args: {
-    variant: 'text',
+    variant: "text",
   },
 };
 
 export const Circular: Story = {
   args: {
-    variant: 'circular',
+    variant: "circular",
     width: 64,
     height: 64,
   },
@@ -26,7 +26,7 @@ export const Circular: Story = {
 
 export const Rectangular: Story = {
   args: {
-    variant: 'rectangular',
+    variant: "rectangular",
     width: 200,
     height: 100,
   },
@@ -58,7 +58,7 @@ export const ListSkeleton: Story = {
   render: () => (
     <div className="space-y-4">
       {[...Array(3)].map((_, i) => (
-        // eslint-disable-next-line react/no-array-index-key
+        // oxlint-disable-next-line react/no-array-index-key
         <div key={`skeleton-${i}`} className="flex items-center gap-4">
           <Skeleton variant="circular" width={40} height={40} />
           <div className="flex-1 space-y-2">
@@ -70,4 +70,3 @@ export const ListSkeleton: Story = {
     </div>
   ),
 };
-

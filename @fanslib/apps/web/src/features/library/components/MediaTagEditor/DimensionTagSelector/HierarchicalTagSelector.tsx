@@ -1,8 +1,7 @@
-import type { TagDefinition } from '@fanslib/server/schemas';
+import type { TagDefinition } from "@fanslib/server/schemas";
 import { Fragment, type ReactNode } from "react";
 import type { SelectionState } from "~/lib/tags/selection-state";
 import { TagBadge } from "./TagBadge";
-
 
 type HierarchicalTagSelectorProps = {
   tags: TagDefinition[];
@@ -25,7 +24,7 @@ const buildTagTree = (tags: TagDefinition[]): TagNode[] => {
 
   // Second pass: build tree
   tags.forEach((tag) => {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    // oxlint-disable-next-line typescript/no-non-null-assertion
     const node = tagMap.get(tag.id)!;
     const parentId = tag.parentTagId;
 
@@ -44,9 +43,8 @@ const getDescendantIds = (node: TagNode): number[] => [
 
 const isTagOrDescendantSelected = (
   node: TagNode,
-  tagStates: Record<number, SelectionState>
-): boolean =>
-  getDescendantIds(node).some((id) => tagStates[id] === "checked");
+  tagStates: Record<number, SelectionState>,
+): boolean => getDescendantIds(node).some((id) => tagStates[id] === "checked");
 
 export const HierarchicalTagSelector = ({
   tags,

@@ -1,18 +1,20 @@
-import type { MediaFilter, Subreddit } from '@fanslib/server/schemas';
-import { BarChart3, Check, Loader2 } from 'lucide-react';
-import { useState } from 'react';
-import { Button } from '~/components/ui/Button';
-import { Input } from '~/components/ui/Input/Input';
-import { VERIFICATION_STATUS, type VerificationStatusType } from '~/components/VerificationStatus';
-import { FilterPresetProvider } from '~/contexts/FilterPresetContext';
-import { FilterActions } from '~/features/library/components/MediaFilters/FilterActions';
-import { MediaFilters as MediaFiltersComponent } from '~/features/library/components/MediaFilters/MediaFilters';
-import { MediaFiltersProvider } from '~/features/library/components/MediaFilters/MediaFiltersContext';
-import { RedditChannelFilterPreset } from '~/features/library/components/MediaFilters/RedditChannelFilterPreset';
-import { formatViewCount, parseViewCount } from '~/lib/format-views';
-import { useAnalyzePostingTimesMutation, useUpdateSubredditMutation } from '~/lib/queries/subreddits';
-import { SubredditPostingTimesHeatmap } from './SubredditPostingTimesHeatmap';
-
+import type { MediaFilter, Subreddit } from "@fanslib/server/schemas";
+import { BarChart3, Check, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { Button } from "~/components/ui/Button";
+import { Input } from "~/components/ui/Input/Input";
+import { VERIFICATION_STATUS, type VerificationStatusType } from "~/components/VerificationStatus";
+import { FilterPresetProvider } from "~/contexts/FilterPresetContext";
+import { FilterActions } from "~/features/library/components/MediaFilters/FilterActions";
+import { MediaFilters as MediaFiltersComponent } from "~/features/library/components/MediaFilters/MediaFilters";
+import { MediaFiltersProvider } from "~/features/library/components/MediaFilters/MediaFiltersContext";
+import { RedditChannelFilterPreset } from "~/features/library/components/MediaFilters/RedditChannelFilterPreset";
+import { formatViewCount, parseViewCount } from "~/lib/format-views";
+import {
+  useAnalyzePostingTimesMutation,
+  useUpdateSubredditMutation,
+} from "~/lib/queries/subreddits";
+import { SubredditPostingTimesHeatmap } from "./SubredditPostingTimesHeatmap";
 
 type EditingSubreddit = Subreddit;
 
@@ -30,7 +32,7 @@ export const EditingSubredditRow = ({ subreddit, onUpdate }: EditingSubredditRow
   });
 
   const [unparsedMemberCount, setUnparsedMemberCount] = useState<string>(
-    subreddit.memberCount ? formatViewCount(subreddit.memberCount) : ''
+    subreddit.memberCount ? formatViewCount(subreddit.memberCount) : "",
   );
 
   const updateSubreddit = async () => {
@@ -40,7 +42,7 @@ export const EditingSubredditRow = ({ subreddit, onUpdate }: EditingSubredditRow
         updates: {
           maxPostFrequencyHours: editingSubreddit.maxPostFrequencyHours ?? undefined,
           notes: editingSubreddit.notes ?? undefined,
-          memberCount: parseViewCount(unparsedMemberCount.replaceAll(',', '.')) ?? undefined,
+          memberCount: parseViewCount(unparsedMemberCount.replaceAll(",", ".")) ?? undefined,
           verificationStatus: editingSubreddit.verificationStatus,
           defaultFlair: editingSubreddit.defaultFlair ?? undefined,
           captionPrefix: editingSubreddit.captionPrefix ?? undefined,
@@ -51,7 +53,7 @@ export const EditingSubredditRow = ({ subreddit, onUpdate }: EditingSubredditRow
       });
       onUpdate();
     } catch (error) {
-      console.error('Failed to update subreddit', error);
+      console.error("Failed to update subreddit", error);
     }
   };
 
@@ -59,7 +61,7 @@ export const EditingSubredditRow = ({ subreddit, onUpdate }: EditingSubredditRow
     try {
       const result = await analyzePostingTimesMutation.mutateAsync({
         subredditId: subreddit.id,
-        subredditName: subreddit.channel?.name ?? 'Unknown',
+        subredditName: subreddit.channel?.name ?? "Unknown",
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       });
 
@@ -71,7 +73,7 @@ export const EditingSubredditRow = ({ subreddit, onUpdate }: EditingSubredditRow
         postingTimesTimezone: result.timezone ?? null,
       });
     } catch (error) {
-      console.error('Failed to analyze posting times', error);
+      console.error("Failed to analyze posting times", error);
     }
   };
 
@@ -80,7 +82,7 @@ export const EditingSubredditRow = ({ subreddit, onUpdate }: EditingSubredditRow
       {/* Name */}
       <div className="p-2 pl-4 min-h-12 flex items-center">
         <Input
-          value={editingSubreddit.channel?.name ?? 'Unknown'}
+          value={editingSubreddit.channel?.name ?? "Unknown"}
           onChange={() => {
             // Name is read-only in deprecated component
           }}
@@ -103,7 +105,7 @@ export const EditingSubredditRow = ({ subreddit, onUpdate }: EditingSubredditRow
       <div className="p-2 min-h-12 flex items-center justify-center">
         <Input
           type="number"
-          value={editingSubreddit.maxPostFrequencyHours?.toString() ?? ''}
+          value={editingSubreddit.maxPostFrequencyHours?.toString() ?? ""}
           onChange={(value) =>
             setEditingSubreddit({
               ...editingSubreddit,
@@ -122,7 +124,10 @@ export const EditingSubredditRow = ({ subreddit, onUpdate }: EditingSubredditRow
         <select
           value={editingSubreddit.verificationStatus}
           onChange={(e) =>
-            setEditingSubreddit({ ...editingSubreddit, verificationStatus: e.target.value as VerificationStatusType })
+            setEditingSubreddit({
+              ...editingSubreddit,
+              verificationStatus: e.target.value as VerificationStatusType,
+            })
           }
           className="select select-bordered select-sm w-full h-8"
         >
@@ -137,7 +142,7 @@ export const EditingSubredditRow = ({ subreddit, onUpdate }: EditingSubredditRow
       {/* Default Flair */}
       <div className="p-2 min-h-12 flex items-center justify-center">
         <Input
-          value={editingSubreddit.defaultFlair ?? ''}
+          value={editingSubreddit.defaultFlair ?? ""}
           onChange={(value) =>
             setEditingSubreddit({ ...editingSubreddit, defaultFlair: value as string })
           }
@@ -149,7 +154,7 @@ export const EditingSubredditRow = ({ subreddit, onUpdate }: EditingSubredditRow
       {/* Caption Prefix */}
       <div className="p-2 min-h-12 flex items-center justify-center">
         <Input
-          value={editingSubreddit.captionPrefix ?? ''}
+          value={editingSubreddit.captionPrefix ?? ""}
           onChange={(value) =>
             setEditingSubreddit({ ...editingSubreddit, captionPrefix: value as string })
           }
@@ -161,7 +166,7 @@ export const EditingSubredditRow = ({ subreddit, onUpdate }: EditingSubredditRow
       {/* Notes */}
       <div className="p-2 min-h-12 flex items-center justify-center">
         <Input
-          value={editingSubreddit.notes ?? ''}
+          value={editingSubreddit.notes ?? ""}
           onChange={(value) => setEditingSubreddit({ ...editingSubreddit, notes: value as string })}
           className="h-8"
         />
@@ -204,21 +209,21 @@ export const EditingSubredditRow = ({ subreddit, onUpdate }: EditingSubredditRow
           </div>
 
           <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <Button
-              variant="outline"
-              size="sm"
-              onPress={analyzePostingTimes}
-              isDisabled={analyzePostingTimesMutation.isPending}
-            >
-              {analyzePostingTimesMutation.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : (
-                <BarChart3 className="h-4 w-4 mr-2" />
-              )}
-              {analyzePostingTimesMutation.isPending ? 'Analyzing...' : 'Analyze Posting Times'}
-            </Button>
-          </div>
+            <div className="flex items-center justify-between">
+              <Button
+                variant="outline"
+                size="sm"
+                onPress={analyzePostingTimes}
+                isDisabled={analyzePostingTimesMutation.isPending}
+              >
+                {analyzePostingTimesMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                )}
+                {analyzePostingTimesMutation.isPending ? "Analyzing..." : "Analyze Posting Times"}
+              </Button>
+            </div>
 
             <SubredditPostingTimesHeatmap
               postingTimes={editingSubreddit.postingTimesData ?? []}

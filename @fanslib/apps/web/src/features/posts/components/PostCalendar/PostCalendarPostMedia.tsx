@@ -1,8 +1,7 @@
-import type { PostMediaWithMedia } from '@fanslib/server/schemas';
+import type { PostMediaWithMedia } from "@fanslib/server/schemas";
 import { Camera } from "lucide-react";
 
 import { MediaTile } from "~/features/library/components/MediaTile";
-
 
 type PostCalendarPostMediaProps = {
   postMedia: PostMediaWithMedia[];
@@ -29,13 +28,7 @@ export const PostCalendarPostMedia = ({ postMedia, isVirtual }: PostCalendarPost
         className="w-full aspect-square rounded-md overflow-hidden"
         style={{ viewTransitionName: `media-${postMedia[0].media.id}` }}
       >
-        <MediaTile
-          media={postMedia[0].media}
-          index={0}
-          className="rounded-md"
-          withPreview
-          cover
-        />
+        <MediaTile media={postMedia[0].media} index={0} className="rounded-md" withPreview cover />
       </div>
     );
   }
@@ -43,34 +36,26 @@ export const PostCalendarPostMedia = ({ postMedia, isVirtual }: PostCalendarPost
   // Multiple media - show 2x2 grid
   return (
     <div className="grid gap-1 grid-cols-2">
-        {Array.from({ length: Math.min(4, mediaCount) }).map((_, i) => {
-          const media = postMedia[i]?.media;
+      {Array.from({ length: Math.min(4, mediaCount) }).map((_, i) => {
+        const media = postMedia[i]?.media;
 
-          return (
-            <div
-              className="relative aspect-square rounded-md overflow-hidden"
-              key={`media-slot-${postMedia[i]?.media.id ?? i}`}
-              style={media ? { viewTransitionName: `media-${media.id}` } : undefined}
-            >
-              {media && (
-                <MediaTile
-                  media={media}
-                  index={i}
-                  className="rounded-md"
-                  withPreview
-                  cover
-                />
-              )}
-              {i === 3 && mediaCount > 4 && (
-                <div className="absolute inset-0 bg-base-300/80 backdrop-blur-sm flex items-center justify-center rounded-md">
-                  <span className="text-sm font-semibold text-base-content">
-                    +{mediaCount - 4}
-                  </span>
-                </div>
-              )}
-            </div>
-          );
-        })}
+        return (
+          <div
+            className="relative aspect-square rounded-md overflow-hidden"
+            key={`media-slot-${postMedia[i]?.media.id ?? i}`}
+            style={media ? { viewTransitionName: `media-${media.id}` } : undefined}
+          >
+            {media && (
+              <MediaTile media={media} index={i} className="rounded-md" withPreview cover />
+            )}
+            {i === 3 && mediaCount > 4 && (
+              <div className="absolute inset-0 bg-base-300/80 backdrop-blur-sm flex items-center justify-center rounded-md">
+                <span className="text-sm font-semibold text-base-content">+{mediaCount - 4}</span>
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 };

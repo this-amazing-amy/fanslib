@@ -7,7 +7,10 @@ type MediaTileSelectionCircleProps = {
   globalIndex: number;
 };
 
-export const MediaTileSelectionCircle = ({ mediaId, globalIndex }: MediaTileSelectionCircleProps) => {
+export const MediaTileSelectionCircle = ({
+  mediaId,
+  globalIndex,
+}: MediaTileSelectionCircleProps) => {
   const isSelected = useMediaSelectionStore((s) => s.selectedIds.has(mediaId));
   const toggleItem = useMediaSelectionStore((s) => s.toggleItem);
 
@@ -22,7 +25,7 @@ export const MediaTileSelectionCircle = ({ mediaId, globalIndex }: MediaTileSele
         {
           "opacity-100 bg-primary border-primary text-primary-foreground": isSelected,
           "opacity-0 bg-background/80 border-foreground/20 hover:border-foreground/40": !isSelected,
-        }
+        },
       )}
       onClick={(e) => {
         e.stopPropagation();

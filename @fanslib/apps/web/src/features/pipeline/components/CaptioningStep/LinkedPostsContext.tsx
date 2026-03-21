@@ -37,12 +37,8 @@ export const LinkedPostsProvider = ({ children }: { children: ReactNode }) => {
 
   const value = useMemo(
     () => ({ expandedPostId, setExpandedPostId, linkedPostIdsForExpanded, setLinkedPostIds }),
-    [expandedPostId, linkedPostIdsForExpanded, setLinkedPostIds]
+    [expandedPostId, linkedPostIdsForExpanded, setLinkedPostIds],
   );
 
-  return (
-    <LinkedPostsContext.Provider value={value}>
-      {children}
-    </LinkedPostsContext.Provider>
-  );
+  return <LinkedPostsContext.Provider value={value}>{children}</LinkedPostsContext.Provider>;
 };

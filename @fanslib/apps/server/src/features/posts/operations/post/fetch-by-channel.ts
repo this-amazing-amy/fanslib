@@ -14,7 +14,9 @@ export const PostWithChannelAndMediaSchema = PostSchema.extend({
   channel: ChannelSchema,
 });
 
-export const fetchPostsByChannel = async (channelId: string): Promise<z.infer<typeof PostWithChannelAndMediaSchema>[]> => {
+export const fetchPostsByChannel = async (
+  channelId: string,
+): Promise<z.infer<typeof PostWithChannelAndMediaSchema>[]> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Post);
 
@@ -42,4 +44,3 @@ export const fetchPostsByChannel = async (channelId: string): Promise<z.infer<ty
     postMedia: post.postMedia.filter((pm) => pm.media !== null),
   }));
 };
-

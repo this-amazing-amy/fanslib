@@ -1,27 +1,25 @@
 export type ActivityLogEntry = {
   timestamp: number;
-  type: 'success' | 'warning' | 'error';
+  type: "success" | "warning" | "error";
   message: string;
 };
 
-const STORAGE_KEY = 'fanslib_activity_log';
+const STORAGE_KEY = "fanslib_activity_log";
 const MAX_ENTRIES = 100;
 
 const getStorage = (): typeof chrome.storage.local | null => {
-  if (typeof chrome !== 'undefined' && chrome?.storage?.local) {
+  if (typeof chrome !== "undefined" && chrome?.storage?.local) {
     return chrome.storage.local;
   }
   return null;
 };
 
-export const addLogEntry = async (
-  entry: Omit<ActivityLogEntry, 'timestamp'>
-): Promise<void> => {
+export const addLogEntry = async (entry: Omit<ActivityLogEntry, "timestamp">): Promise<void> => {
   const storage = getStorage();
 
   if (!storage) {
     // Test mode fallback using localStorage
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const raw = localStorage.getItem(STORAGE_KEY);
       const existing: ActivityLogEntry[] = raw ? JSON.parse(raw) : [];
       const newEntry: ActivityLogEntry = {
@@ -52,7 +50,7 @@ export const getActivityLog = async (): Promise<ActivityLogEntry[]> => {
 
   if (!storage) {
     // Test mode fallback using localStorage
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const raw = localStorage.getItem(STORAGE_KEY);
       return raw ? JSON.parse(raw) : [];
     }
@@ -68,7 +66,7 @@ export const clearActivityLog = async (): Promise<void> => {
 
   if (!storage) {
     // Test mode fallback using localStorage
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       localStorage.removeItem(STORAGE_KEY);
     }
     return;

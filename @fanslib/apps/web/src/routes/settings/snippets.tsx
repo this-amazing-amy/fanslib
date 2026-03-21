@@ -1,4 +1,4 @@
-import type { FetchAllSnippetsResponse } from '@fanslib/server/schemas';
+import type { FetchAllSnippetsResponse } from "@fanslib/server/schemas";
 import { createFileRoute } from "@tanstack/react-router";
 import { Edit, FileText, Globe, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -29,7 +29,7 @@ import {
   useUpdateSnippetMutation,
 } from "~/lib/queries/snippets";
 
-type CaptionSnippet = Omit<FetchAllSnippetsResponse[number], 'createdAt' | 'updatedAt'> & {
+type CaptionSnippet = Omit<FetchAllSnippetsResponse[number], "createdAt" | "updatedAt"> & {
   createdAt: string;
   updatedAt: string;
 };
@@ -163,12 +163,12 @@ const SnippetSettings = () => {
       acc[channelId].push(snippet);
       return acc;
     },
-    {} as Record<string, CaptionSnippet[]>
+    {} as Record<string, CaptionSnippet[]>,
   );
 
   const handleDeleteSnippet = async (snippet: CaptionSnippet) => {
     if (confirm(`Are you sure you want to delete "${snippet.name}"?`)) {
-        await deleteMutation.mutateAsync({ id: snippet.id });
+      await deleteMutation.mutateAsync({ id: snippet.id });
     }
   };
 
@@ -314,7 +314,7 @@ const SnippetSettings = () => {
               );
             })}
 
-            {(snippets?.length === 0) && (
+            {snippets?.length === 0 && (
               <div className="text-center py-8 text-base-content/60">
                 <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>No snippets created yet.</p>
@@ -325,7 +325,10 @@ const SnippetSettings = () => {
         </ScrollArea>
 
         {/* Edit Dialog */}
-        <DialogTrigger isOpen={!!editingSnippet} onOpenChange={(open) => !open && setEditingSnippet(null)}>
+        <DialogTrigger
+          isOpen={!!editingSnippet}
+          onOpenChange={(open) => !open && setEditingSnippet(null)}
+        >
           <DialogModal>
             <Dialog>
               {({ close }) => (

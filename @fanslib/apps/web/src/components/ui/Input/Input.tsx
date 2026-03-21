@@ -1,19 +1,19 @@
-import type { InputHTMLAttributes } from 'react';
-import { useRef } from 'react';
-import type { AriaTextFieldProps } from 'react-aria';
-import { useTextField } from 'react-aria';
-import { cn } from '~/lib/cn';
+import type { InputHTMLAttributes } from "react";
+import { useRef } from "react";
+import type { AriaTextFieldProps } from "react-aria";
+import { useTextField } from "react-aria";
+import { cn } from "~/lib/cn";
 
-export type InputProps = Omit<AriaTextFieldProps, 'min' | 'max' | 'step'> & {
-  variant?: 'default' | 'ghost';
+export type InputProps = Omit<AriaTextFieldProps, "min" | "max" | "step"> & {
+  variant?: "default" | "ghost";
   className?: string;
-  type?: InputHTMLAttributes<HTMLInputElement>['type'];
-} & Pick<InputHTMLAttributes<HTMLInputElement>, 'min' | 'max' | 'step' | 'onKeyDown'>;
+  type?: InputHTMLAttributes<HTMLInputElement>["type"];
+} & Pick<InputHTMLAttributes<HTMLInputElement>, "min" | "max" | "step" | "onKeyDown">;
 
 export const Input = ({
-  variant = 'default',
+  variant = "default",
   className,
-  type = 'text',
+  type = "text",
   min,
   max,
   step,
@@ -21,20 +21,17 @@ export const Input = ({
   ...props
 }: InputProps) => {
   const ref = useRef<HTMLInputElement>(null);
-  const { inputProps } = useTextField(
-    { ...props, inputElementType: 'input' },
-    ref
-  );
+  const { inputProps } = useTextField({ ...props, inputElementType: "input" }, ref);
 
   const variantClasses = {
-    default: 'input',
-    ghost: 'input-ghost',
+    default: "input",
+    ghost: "input-ghost",
   };
 
   const { onKeyDown: ariaOnKeyDown, ...restInputProps } = inputProps;
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'a') {
+    if ((e.metaKey || e.ctrlKey) && e.key === "a") {
       return;
     }
     if (ariaOnKeyDown) {
@@ -54,8 +51,11 @@ export const Input = ({
       min={min}
       max={max}
       step={step}
-      className={cn('input border border-base-content w-full focus:outline-none', variantClasses[variant], className)}
+      className={cn(
+        "input border border-base-content w-full focus:outline-none",
+        variantClasses[variant],
+        className,
+      )}
     />
   );
 };
-

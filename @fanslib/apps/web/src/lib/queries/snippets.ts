@@ -1,6 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '../api/hono-client';
-import { QUERY_KEYS } from './query-keys';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { api } from "../api/hono-client";
+import { QUERY_KEYS } from "./query-keys";
 
 export const useSnippetsQuery = () =>
   useQuery({
@@ -24,7 +24,9 @@ export const useSnippetsByChannelQuery = (params: { channelId: string }) =>
   useQuery({
     queryKey: QUERY_KEYS.snippets.byChannel(params.channelId),
     queryFn: async () => {
-      const result = await api.api.snippets['by-channel-id'][':channelId'].$get({ param: { channelId: params.channelId } });
+      const result = await api.api.snippets["by-channel-id"][":channelId"].$get({
+        param: { channelId: params.channelId },
+      });
       return result.json();
     },
     enabled: !!params.channelId,
@@ -34,7 +36,7 @@ export const useSnippetQuery = (params: { id: string }) =>
   useQuery({
     queryKey: QUERY_KEYS.snippets.byId(params.id),
     queryFn: async () => {
-      const result = await api.api.snippets['by-id'][':id'].$get({ param: { id: params.id } });
+      const result = await api.api.snippets["by-id"][":id"].$get({ param: { id: params.id } });
       return result.json();
     },
     enabled: !!params.id,
@@ -44,11 +46,7 @@ export const useCreateSnippetMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: {
-      name: string;
-      content: string;
-      channelId?: string;
-    }) => {
+    mutationFn: async (data: { name: string; content: string; channelId?: string }) => {
       const result = await api.api.snippets.$post({ json: data });
       return result.json();
     },
@@ -76,9 +74,9 @@ export const useUpdateSnippetMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdateSnippetParams) => {
-      const result = await api.api.snippets['by-id'][':id'].$patch({ 
+      const result = await api.api.snippets["by-id"][":id"].$patch({
         param: { id },
-        json: updates 
+        json: updates,
       });
       return result.json();
     },
@@ -95,7 +93,7 @@ export const useDeleteSnippetMutation = () => {
 
   return useMutation({
     mutationFn: async (params: { id: string }) => {
-      const result = await api.api.snippets['by-id'][':id'].$delete({ param: { id: params.id } });
+      const result = await api.api.snippets["by-id"][":id"].$delete({ param: { id: params.id } });
       return result.json();
     },
     onSuccess: () => {

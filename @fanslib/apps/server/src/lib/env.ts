@@ -23,12 +23,12 @@ export const env = (): EnvConfig => {
     appdataPath,
     libraryPath,
     ffmpegPath: process.env.FFMPEG_PATH,
-    ffprobePath: process.env.FFPROBE_PATH
+    ffprobePath: process.env.FFPROBE_PATH,
   };
 };
 
 export const sqliteDbPath = (): string => join(env().appdataPath, "fanslib.sqlite");
 export const appdataPath = (): string => env().appdataPath;
 export const browserDataPath = (): string => join(env().appdataPath, "browser");
-export const fanslyCredentialsFilePath = (): string => join(env().appdataPath, "fansly-credentials.json");
-
+export const fanslyCredentialsFilePath = (): string =>
+  join(env().appdataPath, "fansly-credentials.json");

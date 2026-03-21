@@ -1,4 +1,4 @@
-import type { MediaFilter } from '@fanslib/server/schemas';
+import type { MediaFilter } from "@fanslib/server/schemas";
 import { Filter, FilterX, X } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { Tooltip } from "~/components/ui/Tooltip";
@@ -26,8 +26,11 @@ export const FilterGroupEditor = ({ className = "" }: FilterGroupEditorProps) =>
   return (
     <div className={`${className} space-y-2`}>
       {filters.map((group, groupIndex) => (
-        // eslint-disable-next-line react/no-array-index-key
-        <div key={`group-${groupIndex}-${group.include ? "include" : "exclude"}`} className="border rounded-lg">
+        // oxlint-disable-next-line react/no-array-index-key
+        <div
+          key={`group-${groupIndex}-${group.include ? "include" : "exclude"}`}
+          className="border rounded-lg"
+        >
           <div className="px-3 py-2">
             <div className="flex items-center justify-between gap-2">
               <div className="min-w-0 flex-1 overflow-x-auto overflow-y-hidden py-1">

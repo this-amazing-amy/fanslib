@@ -31,10 +31,7 @@ export const ChannelFilterDropdown = ({ value = [], onChange }: ChannelFilterDro
 
   return (
     <DropdownMenuTrigger>
-      <Button
-        variant="outline"
-        className="w-full justify-between min-w-[200px]"
-      >
+      <Button variant="outline" className="w-full justify-between min-w-[200px]">
         {selectedChannels.length > 0 ? (
           <div className="flex gap-1 flex-wrap">
             {selectedChannels.map((channel) => (
@@ -63,11 +60,15 @@ export const ChannelFilterDropdown = ({ value = [], onChange }: ChannelFilterDro
           <div className="max-h-80 overflow-y-auto">
             <DropdownMenu onAction={(key) => handleToggleChannel(key as string)}>
               {channels.map((channel) => (
-                <DropdownMenuItem key={channel.id} id={channel.id} className="flex items-center gap-2">
+                <DropdownMenuItem
+                  key={channel.id}
+                  id={channel.id}
+                  className="flex items-center gap-2"
+                >
                   <Check
                     className={cn(
                       "h-4 w-4",
-                      value.includes(channel.id) ? "opacity-100" : "opacity-0"
+                      value.includes(channel.id) ? "opacity-100" : "opacity-0",
                     )}
                   />
                   <ChannelBadge

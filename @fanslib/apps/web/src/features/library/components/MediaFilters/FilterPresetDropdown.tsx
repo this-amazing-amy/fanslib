@@ -30,20 +30,13 @@ export const FilterPresetDropdown = ({
 
   return (
     <DropdownMenuTrigger>
-      <Button
-        variant="ghost"
-        size="icon"
-        isDisabled={disabled || isLoading}
-        className={className}
-      >
+      <Button variant="ghost" size="icon" isDisabled={disabled || isLoading} className={className}>
         <Bookmark className="h-4 w-4" />
       </Button>
       <DropdownMenuPopover placement="bottom end">
         <DropdownMenu onAction={handleAction}>
           {presets.length === 0 ? (
-            <div className="px-2 py-1.5 text-sm text-base-content/60">
-              No presets saved yet
-            </div>
+            <div className="px-2 py-1.5 text-sm text-base-content/60">No presets saved yet</div>
           ) : (
             presets.map((preset) => (
               <DropdownMenuItem key={preset.id} id={preset.id}>
@@ -56,4 +49,3 @@ export const FilterPresetDropdown = ({
     </DropdownMenuTrigger>
   );
 };
-

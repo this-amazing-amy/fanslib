@@ -1,40 +1,43 @@
-const DEBUG_PREFIX = '[FansLib:Bridge]';
+const DEBUG_PREFIX = "[FansLib:Bridge]";
 
-const debug = (level: 'info' | 'warn' | 'error', message: string, data?: unknown) => {
+const debug = (level: "info" | "warn" | "error", message: string, data?: unknown) => {
   const timestamp = new Date().toISOString();
-  const logArgs = data !== undefined ? [`[${timestamp}] ${DEBUG_PREFIX} ${message}`, data] : [`[${timestamp}] ${DEBUG_PREFIX} ${message}`];
-  
+  const logArgs =
+    data !== undefined
+      ? [`[${timestamp}] ${DEBUG_PREFIX} ${message}`, data]
+      : [`[${timestamp}] ${DEBUG_PREFIX} ${message}`];
+
   switch (level) {
-    case 'info':
+    case "info":
       console.log(...logArgs);
       break;
-    case 'warn':
+    case "warn":
       console.warn(...logArgs);
       break;
-    case 'error':
+    case "error":
       console.error(...logArgs);
       break;
   }
 };
 
-debug('info', 'Bridge script starting in ISOLATED world', {
+debug("info", "Bridge script starting in ISOLATED world", {
   location: window.location.href,
-  hasChromeRuntime: typeof chrome !== 'undefined' && !!chrome.runtime,
+  hasChromeRuntime: typeof chrome !== "undefined" && !!chrome.runtime,
 });
 
-window.addEventListener('message', (event) => {
+window.addEventListener("message", (event) => {
   if (event.source !== window) return;
-  
-  if (event.data.type === 'FANSLIB_TIMELINE_DATA') {
-    debug('info', 'Received timeline data from MAIN world', {
+
+  if (event.data.type === "FANSLIB_TIMELINE_DATA") {
+    debug("info", "Received timeline data from MAIN world", {
       candidateCount: event.data.candidates?.length,
     });
-    
+
     try {
       if (!chrome?.runtime) {
-        debug('error', 'chrome.runtime not available', {
-          hasChrome: typeof chrome !== 'undefined',
-          hasRuntime: typeof chrome?.runtime !== 'undefined',
+        debug("error", "chrome.runtime not available", {
+          hasChrome: typeof chrome !== "undefined",
+          hasRuntime: typeof chrome?.runtime !== "undefined",
         });
         return;
       }
@@ -44,18 +47,19 @@ window.addEventListener('message', (event) => {
         candidates: event.data.candidates,
       };
 
-      debug('info', 'Attempting to send message to background', {
+      debug("info", "Attempting to send message to background", {
         messageType: message.type,
         candidateCount: message.candidates?.length,
         hasChromeRuntime: !!chrome.runtime,
       });
 
-      chrome.runtime.sendMessage(message)
+      chrome.runtime
+        .sendMessage(message)
         .then(() => {
-          debug('info', 'Message sent successfully to background script');
+          debug("info", "Message sent successfully to background script");
         })
         .catch((error) => {
-          debug('error', 'Failed to send message to background script', {
+          debug("error", "Failed to send message to background script", {
             error,
             errorMessage: error instanceof Error ? error.message : String(error),
             errorStack: error instanceof Error ? error.stack : undefined,
@@ -63,25 +67,25 @@ window.addEventListener('message', (event) => {
           });
         });
     } catch (error) {
-      debug('error', 'Failed to forward message', {
+      debug("error", "Failed to forward message", {
         error,
         errorMessage: error instanceof Error ? error.message : String(error),
         errorStack: error instanceof Error ? error.stack : undefined,
-        hasChrome: typeof chrome !== 'undefined',
-        hasRuntime: typeof chrome?.runtime !== 'undefined',
+        hasChrome: typeof chrome !== "undefined",
+        hasRuntime: typeof chrome?.runtime !== "undefined",
       });
     }
   }
-  
-  if (event.data.type === 'FANSLIB_SCHEDULE_CAPTURE') {
-    debug('info', 'Received schedule capture from MAIN world', {
+
+  if (event.data.type === "FANSLIB_SCHEDULE_CAPTURE") {
+    debug("info", "Received schedule capture from MAIN world", {
       contentId: event.data.contentId,
       captionLength: event.data.caption?.length,
     });
 
     try {
       if (!chrome?.runtime) {
-        debug('error', 'chrome.runtime not available for schedule capture');
+        debug("error", "chrome.runtime not available for schedule capture");
         return;
       }
 
@@ -91,38 +95,39 @@ window.addEventListener('message', (event) => {
         caption: event.data.caption,
       };
 
-      debug('info', 'Attempting to send schedule capture to background', {
+      debug("info", "Attempting to send schedule capture to background", {
         messageType: message.type,
         contentId: message.contentId,
       });
 
-      chrome.runtime.sendMessage(message)
+      chrome.runtime
+        .sendMessage(message)
         .then(() => {
-          debug('info', 'Schedule capture sent successfully to background script');
+          debug("info", "Schedule capture sent successfully to background script");
         })
         .catch((error) => {
-          debug('error', 'Failed to send schedule capture to background script', {
+          debug("error", "Failed to send schedule capture to background script", {
             error,
             errorMessage: error instanceof Error ? error.message : String(error),
           });
         });
     } catch (error) {
-      debug('error', 'Failed to forward schedule capture', {
+      debug("error", "Failed to forward schedule capture", {
         error,
         errorMessage: error instanceof Error ? error.message : String(error),
       });
     }
   }
 
-  if (event.data.type === 'FANSLIB_CREDENTIALS') {
-    debug('info', 'Received credentials from MAIN world', {
+  if (event.data.type === "FANSLIB_CREDENTIALS") {
+    debug("info", "Received credentials from MAIN world", {
       hasAuth: !!event.data.credentials?.fanslyAuth,
       hasSessionId: !!event.data.credentials?.fanslySessionId,
     });
-    
+
     try {
       if (!chrome?.runtime) {
-        debug('error', 'chrome.runtime not available');
+        debug("error", "chrome.runtime not available");
         return;
       }
 
@@ -131,23 +136,24 @@ window.addEventListener('message', (event) => {
         credentials: event.data.credentials,
       };
 
-      debug('info', 'Attempting to send credentials to background', {
+      debug("info", "Attempting to send credentials to background", {
         messageType: message.type,
         hasCredentials: !!message.credentials,
       });
 
-      chrome.runtime.sendMessage(message)
+      chrome.runtime
+        .sendMessage(message)
         .then(() => {
-          debug('info', 'Credentials sent successfully to background script');
+          debug("info", "Credentials sent successfully to background script");
         })
         .catch((error) => {
-          debug('error', 'Failed to send credentials to background script', {
+          debug("error", "Failed to send credentials to background script", {
             error,
             errorMessage: error instanceof Error ? error.message : String(error),
           });
         });
     } catch (error) {
-      debug('error', 'Failed to forward credentials', {
+      debug("error", "Failed to forward credentials", {
         error,
         errorMessage: error instanceof Error ? error.message : String(error),
       });
@@ -155,7 +161,6 @@ window.addEventListener('message', (event) => {
   }
 });
 
-debug('info', 'Bridge message listener installed');
+debug("info", "Bridge message listener installed");
 
 export {};
-

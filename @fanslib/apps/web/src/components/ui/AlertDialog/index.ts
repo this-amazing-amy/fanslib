@@ -10,5 +10,4 @@ export {
   type AlertDialogFooterProps,
   type AlertDialogHeaderProps,
   type AlertDialogTitleProps,
-} from './AlertDialog';
-
+} from "./AlertDialog";

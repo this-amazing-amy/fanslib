@@ -24,10 +24,10 @@ Kein Refactoring, keine Nebenbaustellen. Minimales Risiko.
 
 ```tsx
 // VORHER:
-className="flex flex-col h-full"
+className = "flex flex-col h-full";
 
 // NACHHER:
-className="flex flex-col flex-1 min-h-0"
+className = "flex flex-col flex-1 min-h-0";
 ```
 
 Das ist der einzige Task. Keine anderen Änderungen nötig.

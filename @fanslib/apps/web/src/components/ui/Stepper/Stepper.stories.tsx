@@ -1,24 +1,24 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Check, CreditCard, ShoppingCart, User } from 'lucide-react';
-import { useState } from 'react';
-import { Button } from '../Button';
-import { Stepper } from './Stepper';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Check, CreditCard, ShoppingCart, User } from "lucide-react";
+import { useState } from "react";
+import { Button } from "../Button";
+import { Stepper } from "./Stepper";
 
 const meta: Meta<typeof Stepper> = {
-  title: 'UI/Stepper',
+  title: "UI/Stepper",
   component: Stepper,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {
     orientation: {
-      control: 'select',
-      options: ['horizontal', 'vertical'],
+      control: "select",
+      options: ["horizontal", "vertical"],
     },
     color: {
-      control: 'select',
-      options: ['primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info'],
+      control: "select",
+      options: ["primary", "secondary", "accent", "success", "warning", "error", "info"],
     },
   },
 };
@@ -27,24 +27,24 @@ export default meta;
 type Story = StoryObj<typeof Stepper>;
 
 const basicSteps = [
-  { label: 'Personal Info' },
-  { label: 'Address' },
-  { label: 'Payment' },
-  { label: 'Review' },
+  { label: "Personal Info" },
+  { label: "Address" },
+  { label: "Payment" },
+  { label: "Review" },
 ];
 
 const stepsWithDescription = [
-  { label: 'Account', description: 'Create your account' },
-  { label: 'Profile', description: 'Setup your profile' },
-  { label: 'Preferences', description: 'Choose your preferences' },
-  { label: 'Complete', description: 'Finish setup' },
+  { label: "Account", description: "Create your account" },
+  { label: "Profile", description: "Setup your profile" },
+  { label: "Preferences", description: "Choose your preferences" },
+  { label: "Complete", description: "Finish setup" },
 ];
 
 const stepsWithIcons = [
-  { label: 'Account', icon: <User className="h-4 w-4" /> },
-  { label: 'Shopping', icon: <ShoppingCart className="h-4 w-4" /> },
-  { label: 'Payment', icon: <CreditCard className="h-4 w-4" /> },
-  { label: 'Complete', icon: <Check className="h-4 w-4" /> },
+  { label: "Account", icon: <User className="h-4 w-4" /> },
+  { label: "Shopping", icon: <ShoppingCart className="h-4 w-4" /> },
+  { label: "Payment", icon: <CreditCard className="h-4 w-4" /> },
+  { label: "Complete", icon: <Check className="h-4 w-4" /> },
 ];
 
 const DefaultComponent = () => {
@@ -52,10 +52,7 @@ const DefaultComponent = () => {
 
   return (
     <div className="w-[600px] space-y-8">
-      <Stepper
-        steps={basicSteps}
-        currentStep={currentStep}
-      />
+      <Stepper steps={basicSteps} currentStep={currentStep} />
       <div className="flex gap-2 justify-center">
         <Button
           onPress={() => setCurrentStep(Math.max(0, currentStep - 1))}
@@ -83,10 +80,7 @@ const WithDescriptionsComponent = () => {
 
   return (
     <div className="w-[600px]">
-      <Stepper
-        steps={stepsWithDescription}
-        currentStep={currentStep}
-      />
+      <Stepper steps={stepsWithDescription} currentStep={currentStep} />
     </div>
   );
 };
@@ -100,10 +94,7 @@ const WithIconsComponent = () => {
 
   return (
     <div className="w-[600px]">
-      <Stepper
-        steps={stepsWithIcons}
-        currentStep={currentStep}
-      />
+      <Stepper steps={stepsWithIcons} currentStep={currentStep} />
     </div>
   );
 };
@@ -117,11 +108,7 @@ const ClickableComponent = () => {
 
   return (
     <div className="w-[600px] space-y-4">
-      <Stepper
-        steps={basicSteps}
-        currentStep={currentStep}
-        onStepClick={setCurrentStep}
-      />
+      <Stepper steps={basicSteps} currentStep={currentStep} onStepClick={setCurrentStep} />
       <p className="text-sm text-base-content/70 text-center">
         Click on completed or current steps to navigate
       </p>
@@ -138,11 +125,7 @@ const VerticalComponent = () => {
 
   return (
     <div className="flex gap-8 items-start">
-      <Stepper
-        steps={stepsWithDescription}
-        currentStep={currentStep}
-        orientation="vertical"
-      />
+      <Stepper steps={stepsWithDescription} currentStep={currentStep} orientation="vertical" />
       <div className="flex flex-col gap-2">
         <Button
           onPress={() => setCurrentStep(Math.max(0, currentStep - 1))}
@@ -191,9 +174,7 @@ const CompleteWizardComponent = () => {
         onStepClick={setCurrentStep}
       />
       <div className="card bg-base-200 p-8">
-        <h3 className="text-lg font-semibold mb-4">
-          {stepsWithDescription[currentStep]?.label}
-        </h3>
+        <h3 className="text-lg font-semibold mb-4">{stepsWithDescription[currentStep]?.label}</h3>
         <p className="text-base-content/70 mb-6">
           {stepsWithDescription[currentStep]?.description}
         </p>
@@ -206,9 +187,11 @@ const CompleteWizardComponent = () => {
             Previous
           </Button>
           <Button
-            onPress={() => setCurrentStep(Math.min(stepsWithDescription.length - 1, currentStep + 1))}
+            onPress={() =>
+              setCurrentStep(Math.min(stepsWithDescription.length - 1, currentStep + 1))
+            }
           >
-            {currentStep === stepsWithDescription.length - 1 ? 'Finish' : 'Next'}
+            {currentStep === stepsWithDescription.length - 1 ? "Finish" : "Next"}
           </Button>
         </div>
       </div>

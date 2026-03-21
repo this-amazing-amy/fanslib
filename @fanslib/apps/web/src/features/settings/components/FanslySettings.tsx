@@ -4,9 +4,9 @@ import { Button } from "~/components/ui/Button";
 import { Input } from "~/components/ui/Input";
 import { Textarea } from "~/components/ui/Textarea";
 import {
-    useClearFanslyCredentialsMutation,
-    useFanslyCredentialsQuery,
-    useSaveFanslyCredentialsMutation,
+  useClearFanslyCredentialsMutation,
+  useFanslyCredentialsQuery,
+  useSaveFanslyCredentialsMutation,
 } from "~/lib/queries/settings";
 import { SettingRow } from "./SettingRow";
 
@@ -52,7 +52,6 @@ const parseFetchRequest = (fetchRequest: string): Partial<FanslyCredentials> => 
 
   return credentials;
 };
-
 
 export const FanslySettings = () => {
   const { data: credentialsData } = useFanslyCredentialsQuery();

@@ -108,17 +108,21 @@ const countEligibleMedia = async (
   // This replaces the manual getRecentlyPostedMediaIds + getUsedMediaForSubreddit calls
   if (channel.mediaRepostCooldownHours && channel.mediaRepostCooldownHours > 0) {
     type RepostStatusFilter = z.infer<typeof MediaFilterSchema>;
-    const repostFilter: RepostStatusFilter = [{
-      include: false,
-      items: [{
-        type: "repostStatus" as const,
-        value: "on_cooldown" as const,
-        channelId: channel.id,
-        ...(channel.typeId === CHANNEL_TYPES.reddit.id && subreddit
-          ? { subredditId: subreddit.id }
-          : {}),
-      }],
-    }];
+    const repostFilter: RepostStatusFilter = [
+      {
+        include: false,
+        items: [
+          {
+            type: "repostStatus" as const,
+            value: "on_cooldown" as const,
+            channelId: channel.id,
+            ...(channel.typeId === CHANNEL_TYPES.reddit.id && subreddit
+              ? { subredditId: subreddit.id }
+              : {}),
+          },
+        ],
+      },
+    ];
 
     buildFilterGroupQuery(repostFilter, qb, filterContext);
   }
@@ -151,9 +155,7 @@ export const getRunway = async (): Promise<RunwayResponse> => {
 
   // Collect all channel IDs used across all schedules
   const allChannelIds = [
-    ...new Set(
-      schedules.flatMap((s) => s.scheduleChannels.map((sc) => sc.channelId)),
-    ),
+    ...new Set(schedules.flatMap((s) => s.scheduleChannels.map((sc) => sc.channelId))),
   ];
 
   // Preload subreddits keyed by channelId (Reddit channels only)

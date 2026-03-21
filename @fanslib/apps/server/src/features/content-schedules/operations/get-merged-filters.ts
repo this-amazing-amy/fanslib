@@ -21,7 +21,7 @@ export type MergedFiltersResult = {
 /**
  * Get merged media filters for a virtual post slot
  * Merges filters with precedence: ScheduleChannel override > Channel eligible > Schedule base
- * 
+ *
  * @param scheduleId - The content schedule ID
  * @param channelId - The channel ID
  * @returns Merged filter configuration with source metadata
@@ -60,25 +60,25 @@ export const getMergedFiltersForSlot = async (
   // Base: Schedule mediaFilters (lowest priority)
   if (schedule?.mediaFilters) {
     try {
-      const scheduleFilters = 
-        typeof schedule.mediaFilters === 'string' 
+      const scheduleFilters =
+        typeof schedule.mediaFilters === "string"
           ? JSON.parse(schedule.mediaFilters)
           : schedule.mediaFilters;
-      
+
       if (Array.isArray(scheduleFilters) && scheduleFilters.length > 0) {
         filterGroups.push(...scheduleFilters);
         filterSources.schedule = true;
       }
     } catch (e) {
-      console.error('Failed to parse schedule mediaFilters:', e);
+      console.error("Failed to parse schedule mediaFilters:", e);
     }
   }
 
   // Middle: Channel eligibleMediaFilter
   if (channel?.eligibleMediaFilter) {
     try {
-      const channelFilters = 
-        typeof channel.eligibleMediaFilter === 'string'
+      const channelFilters =
+        typeof channel.eligibleMediaFilter === "string"
           ? JSON.parse(channel.eligibleMediaFilter as string)
           : channel.eligibleMediaFilter;
 
@@ -87,7 +87,7 @@ export const getMergedFiltersForSlot = async (
         filterSources.channel = true;
       }
     } catch (e) {
-      console.error('Failed to parse channel eligibleMediaFilter:', e);
+      console.error("Failed to parse channel eligibleMediaFilter:", e);
     }
   }
 
@@ -95,7 +95,7 @@ export const getMergedFiltersForSlot = async (
   if (scheduleChannel?.mediaFilterOverrides) {
     try {
       const overrideFilters =
-        typeof scheduleChannel.mediaFilterOverrides === 'string'
+        typeof scheduleChannel.mediaFilterOverrides === "string"
           ? JSON.parse(scheduleChannel.mediaFilterOverrides)
           : scheduleChannel.mediaFilterOverrides;
 
@@ -104,7 +104,7 @@ export const getMergedFiltersForSlot = async (
         filterSources.scheduleChannelOverride = true;
       }
     } catch (e) {
-      console.error('Failed to parse scheduleChannel mediaFilterOverrides:', e);
+      console.error("Failed to parse scheduleChannel mediaFilterOverrides:", e);
     }
   }
 

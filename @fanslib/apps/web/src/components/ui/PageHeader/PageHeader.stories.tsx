@@ -1,12 +1,12 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Plus, Download } from 'lucide-react';
-import { Button } from '../Button';
-import { PageHeader } from './PageHeader';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Plus, Download } from "lucide-react";
+import { Button } from "../Button";
+import { PageHeader } from "./PageHeader";
 
 const meta: Meta<typeof PageHeader> = {
-  title: 'UI/PageHeader',
+  title: "UI/PageHeader",
   component: PageHeader,
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
@@ -14,21 +14,21 @@ type Story = StoryObj<typeof PageHeader>;
 
 export const Default: Story = {
   args: {
-    title: 'Page Title',
+    title: "Page Title",
   },
 };
 
 export const WithDescription: Story = {
   args: {
-    title: 'Settings',
-    description: 'Manage your account settings and preferences.',
+    title: "Settings",
+    description: "Manage your account settings and preferences.",
   },
 };
 
 export const WithActions: Story = {
   args: {
-    title: 'Posts',
-    description: 'Manage all your posts in one place.',
+    title: "Posts",
+    description: "Manage all your posts in one place.",
     actions: (
       <>
         <Button variant="ghost" size="sm">
@@ -46,8 +46,8 @@ export const WithActions: Story = {
 
 export const WithBreadcrumbs: Story = {
   args: {
-    title: 'Edit Post',
-    description: 'Update your post details.',
+    title: "Edit Post",
+    description: "Update your post details.",
     breadcrumbs: (
       <div className="breadcrumbs text-sm">
         <ul>
@@ -103,4 +103,3 @@ export const Complete: Story = {
     </div>
   ),
 };
-

@@ -1,26 +1,29 @@
 /**
  * @deprecated This component is deprecated. Subreddit creation is now handled
  * through the unified channel creation flow at /content/channels.
- * 
+ *
  * Create a channel with typeId='reddit' to add a new subreddit. Reddit-specific
  * fields (verification status, flair, etc.) will be configurable in the channel
  * settings panel.
- * 
+ *
  * This file is kept for reference during migration but should not be used.
  */
-import { useState } from 'react';
-import { Button } from '~/components/ui/Button';
+import { useState } from "react";
+import { Button } from "~/components/ui/Button";
 import {
-    Dialog,
-    DialogBody,
-    DialogFooter,
-    DialogHeader,
-    DialogModal,
-    DialogTitle,
-} from '~/components/ui/Dialog';
-import { Input } from '~/components/ui/Input';
-import { VERIFICATION_STATUS, type VerificationStatusType } from '~/components/VerificationStatus';
-import { useAnalyzePostingTimesMutation, useCreateSubredditMutation } from '~/lib/queries/subreddits';
+  Dialog,
+  DialogBody,
+  DialogFooter,
+  DialogHeader,
+  DialogModal,
+  DialogTitle,
+} from "~/components/ui/Dialog";
+import { Input } from "~/components/ui/Input";
+import { VERIFICATION_STATUS, type VerificationStatusType } from "~/components/VerificationStatus";
+import {
+  useAnalyzePostingTimesMutation,
+  useCreateSubredditMutation,
+} from "~/lib/queries/subreddits";
 
 type CreateSubredditDialogProps = {
   isOpen: boolean;
@@ -33,15 +36,15 @@ export const CreateSubredditDialog = ({
   onOpenChange,
   onSubredditCreated,
 }: CreateSubredditDialogProps) => {
-  const [name, setName] = useState('');
-  const [notes, setNotes] = useState('');
-  const [memberCount, setMemberCount] = useState('');
-  const [postFrequencyHours, setPostFrequencyHours] = useState('24');
+  const [name, setName] = useState("");
+  const [notes, setNotes] = useState("");
+  const [memberCount, setMemberCount] = useState("");
+  const [postFrequencyHours, setPostFrequencyHours] = useState("24");
   const [verificationStatus, setVerificationStatus] = useState<VerificationStatusType>(
-    VERIFICATION_STATUS.UNKNOWN
+    VERIFICATION_STATUS.UNKNOWN,
   );
-  const [defaultFlair, setDefaultFlair] = useState('');
-  const [captionPrefix, setCaptionPrefix] = useState('');
+  const [defaultFlair, setDefaultFlair] = useState("");
+  const [captionPrefix, setCaptionPrefix] = useState("");
 
   const createSubredditMutation = useCreateSubredditMutation();
   const analyzePostingTimesMutation = useAnalyzePostingTimesMutation();
@@ -50,7 +53,7 @@ export const CreateSubredditDialog = ({
     e.preventDefault();
 
     if (!name.trim()) {
-      console.error('Subreddit name is required');
+      console.error("Subreddit name is required");
       return;
     }
 
@@ -71,22 +74,22 @@ export const CreateSubredditDialog = ({
       if (result) {
         analyzePostingTimesMutation.mutate({
           subredditId: result.id,
-          subredditName: result.channel?.name ?? 'Unknown',
+          subredditName: result.channel?.name ?? "Unknown",
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         });
       }
 
       // Reset form
-      setName('');
-      setNotes('');
-      setMemberCount('');
-      setPostFrequencyHours('24');
+      setName("");
+      setNotes("");
+      setMemberCount("");
+      setPostFrequencyHours("24");
       setVerificationStatus(VERIFICATION_STATUS.UNKNOWN);
-      setDefaultFlair('');
-      setCaptionPrefix('');
+      setDefaultFlair("");
+      setCaptionPrefix("");
       onSubredditCreated();
     } catch (error) {
-      console.error('Failed to create subreddit:', error);
+      console.error("Failed to create subreddit:", error);
     }
   };
 
@@ -129,9 +132,7 @@ export const CreateSubredditDialog = ({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Post Frequency (hours)
-                  </label>
+                  <label className="block text-sm font-medium mb-2">Post Frequency (hours)</label>
                   <Input
                     type="number"
                     value={postFrequencyHours}
@@ -145,7 +146,9 @@ export const CreateSubredditDialog = ({
                   <label className="block text-sm font-medium mb-2">Verification Status</label>
                   <select
                     value={verificationStatus}
-                    onChange={(e) => setVerificationStatus(e.target.value as VerificationStatusType)}
+                    onChange={(e) =>
+                      setVerificationStatus(e.target.value as VerificationStatusType)
+                    }
                     className="select select-bordered w-full"
                   >
                     {Object.values(VERIFICATION_STATUS).map((status) => (
@@ -193,7 +196,7 @@ export const CreateSubredditDialog = ({
                 Cancel
               </Button>
               <Button type="submit" isDisabled={createSubredditMutation.isPending}>
-                {createSubredditMutation.isPending ? 'Creating...' : 'Create'}
+                {createSubredditMutation.isPending ? "Creating..." : "Create"}
               </Button>
             </DialogFooter>
           </form>

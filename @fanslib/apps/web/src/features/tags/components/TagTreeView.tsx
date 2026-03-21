@@ -1,8 +1,7 @@
-import type { TagDefinition } from '@fanslib/server/schemas';
+import type { TagDefinition } from "@fanslib/server/schemas";
 import { useMemo } from "react";
 import type { TreeNode } from "./TreeNodeComponent";
 import { TreeNodeComponent } from "./TreeNodeComponent";
-
 
 type TagTreeViewProps = {
   tags: TagDefinition[];

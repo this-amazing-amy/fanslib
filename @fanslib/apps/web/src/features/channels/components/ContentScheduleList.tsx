@@ -1,4 +1,4 @@
-import type { ContentScheduleWithChannel } from '@fanslib/server/schemas';
+import type { ContentScheduleWithChannel } from "@fanslib/server/schemas";
 import { Edit, Trash2 } from "lucide-react";
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
 import { MediaFilterSummary } from "~/components/MediaFilterSummary";
@@ -26,8 +26,7 @@ export const ContentScheduleList = ({ schedules, onEdit }: ContentScheduleListPr
     }
   };
 
-  const formatScheduleType = (type: string) =>
-    type.charAt(0).toUpperCase() + type.slice(1);
+  const formatScheduleType = (type: string) => type.charAt(0).toUpperCase() + type.slice(1);
 
   if (schedules.length === 0) {
     return (
@@ -55,12 +54,15 @@ export const ContentScheduleList = ({ schedules, onEdit }: ContentScheduleListPr
                   color={schedule.color}
                   responsive={false}
                 />
-                <span className="badge badge-ghost">
-                  {formatScheduleType(schedule.type)}
-                </span>
+                <span className="badge badge-ghost">{formatScheduleType(schedule.type)}</span>
                 {schedule.postsPerTimeframe && (
                   <span className="text-sm text-base-content/70">
-                    {schedule.postsPerTimeframe} posts per {schedule.type === "daily" ? "day" : schedule.type === "weekly" ? "week" : "month"}
+                    {schedule.postsPerTimeframe} posts per{" "}
+                    {schedule.type === "daily"
+                      ? "day"
+                      : schedule.type === "weekly"
+                        ? "week"
+                        : "month"}
                   </span>
                 )}
               </div>
@@ -68,18 +70,14 @@ export const ContentScheduleList = ({ schedules, onEdit }: ContentScheduleListPr
               {schedule.preferredDays && schedule.preferredDays.length > 0 && (
                 <div className="text-sm">
                   <span className="font-medium">Preferred days:</span>{" "}
-                  <span className="text-base-content/70">
-                    {schedule.preferredDays.join(", ")}
-                  </span>
+                  <span className="text-base-content/70">{schedule.preferredDays.join(", ")}</span>
                 </div>
               )}
 
               {schedule.preferredTimes && schedule.preferredTimes.length > 0 && (
                 <div className="text-sm">
                   <span className="font-medium">Preferred times:</span>{" "}
-                  <span className="text-base-content/70">
-                    {schedule.preferredTimes.join(", ")}
-                  </span>
+                  <span className="text-base-content/70">{schedule.preferredTimes.join(", ")}</span>
                 </div>
               )}
 
@@ -91,11 +89,7 @@ export const ContentScheduleList = ({ schedules, onEdit }: ContentScheduleListPr
             </div>
 
             <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onPress={() => onEdit(schedule)}
-              >
+              <Button variant="ghost" size="sm" onPress={() => onEdit(schedule)}>
                 <Edit className="w-4 h-4" />
               </Button>
               <Button

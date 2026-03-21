@@ -1,7 +1,5 @@
-import type { Media, ShootSummary } from '@fanslib/server/schemas';
+import type { Media, ShootSummary } from "@fanslib/server/schemas";
 import { useMemo } from "react";
-
-
 
 type GroupKey = {
   shootId: string;
@@ -19,13 +17,14 @@ const sortMediaByDate = (a: Media, b: Media) =>
 // Left here as a reference. Before it was grouped by category, but we can't to that anymore as we're using tags now.
 const shouldBeGrouped = (_media: Media) => false;
 
-export const useShootsMedia = (shoots: ShootSummary[]): GroupedShootMedia => useMemo(() => {
+export const useShootsMedia = (shoots: ShootSummary[]): GroupedShootMedia =>
+  useMemo(() => {
     const shootsMedia = new Map<GroupKey, Map<string, Media[]>>();
     const allMedia = new Map<GroupKey, Media[]>();
 
     // Sort shoots by shootDate (descending) to match the view
     const sortedShoots = [...shoots].sort(
-      (a, b) => new Date(b.shootDate).getTime() - new Date(a.shootDate).getTime()
+      (a, b) => new Date(b.shootDate).getTime() - new Date(a.shootDate).getTime(),
     );
 
     sortedShoots.forEach((shoot, viewIndex) => {
@@ -70,7 +69,7 @@ export const useShootsMedia = (shoots: ShootSummary[]): GroupedShootMedia => use
 
       // If not grouping by category, create a single "ALL" group
       // if (!shootPreferences.groupByCategory) {
-      // eslint-disable-next-line no-constant-condition
+      // oxlint-disable-next-line no-constant-condition
       if (true) {
         const sortedMap = new Map<string, Media[]>();
         sortedMap.set("ALL", sortedMedia);
@@ -78,7 +77,7 @@ export const useShootsMedia = (shoots: ShootSummary[]): GroupedShootMedia => use
       } else {
         // Sort category IDs to ensure stable ordering
         const sortedGrouped = new Map(
-          [...grouped.entries()].sort(([a], [b]) => a.localeCompare(b))
+          [...grouped.entries()].sort(([a], [b]) => a.localeCompare(b)),
         );
         shootsMedia.set(groupKey, sortedGrouped);
       }

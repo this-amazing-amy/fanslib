@@ -55,7 +55,7 @@ export const DropZone = ({ onFiles }: DropZoneProps) => {
           "flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed p-8 cursor-pointer transition-colors",
           isDraggingOver
             ? "border-primary bg-primary/10"
-            : "border-base-content/20 hover:border-base-content/40 hover:bg-base-200/50"
+            : "border-base-content/20 hover:border-base-content/40 hover:bg-base-200/50",
         )}
       >
         <Upload className="h-8 w-8 opacity-50" />

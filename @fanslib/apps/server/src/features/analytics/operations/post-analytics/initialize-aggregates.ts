@@ -54,7 +54,6 @@ export const initializeAnalyticsAggregates = async (): Promise<void> => {
 
         await aggregateRepo.save(newAggregate);
       }
-    })
+    }),
   );
 };
-

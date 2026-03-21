@@ -1,17 +1,17 @@
-import { getLocalTimeZone, today } from '@internationalized/date';
-import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
-import type { DateValue } from 'react-aria';
-import type { RangeValue } from '@react-types/shared';
-import { DateRangePicker } from './DateRangePicker';
+import { getLocalTimeZone, today } from "@internationalized/date";
+import type { Meta, StoryObj } from "@storybook/react";
+import { useState } from "react";
+import type { DateValue } from "react-aria";
+import type { RangeValue } from "@react-types/shared";
+import { DateRangePicker } from "./DateRangePicker";
 
 const meta: Meta<typeof DateRangePicker> = {
-  title: 'UI/DateRangePicker',
+  title: "UI/DateRangePicker",
   component: DateRangePicker,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
@@ -22,11 +22,7 @@ const DefaultComponent = () => {
 
   return (
     <div className="w-96">
-      <DateRangePicker
-        label="Select date range"
-        value={value}
-        onChange={(v) => setValue(v)}
-      />
+      <DateRangePicker label="Select date range" value={value} onChange={(v) => setValue(v)} />
     </div>
   );
 };
@@ -43,11 +39,7 @@ const WithDefaultValueComponent = () => {
 
   return (
     <div className="w-96">
-      <DateRangePicker
-        label="Trip dates"
-        value={value}
-        onChange={(v) => v && setValue(v)}
-      />
+      <DateRangePicker label="Trip dates" value={value} onChange={(v) => v && setValue(v)} />
     </div>
   );
 };
@@ -70,9 +62,7 @@ const WithMinMaxDatesComponent = () => {
         minValue={minValue}
         maxValue={maxValue}
       />
-      <p className="text-sm text-base-content/70 mt-2">
-        Only next month is selectable
-      </p>
+      <p className="text-sm text-base-content/70 mt-2">Only next month is selectable</p>
     </div>
   );
 };
@@ -129,4 +119,3 @@ export const ReadOnly: Story = {
     </div>
   ),
 };
-

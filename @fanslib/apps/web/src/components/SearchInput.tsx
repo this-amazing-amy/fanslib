@@ -58,7 +58,7 @@ export const SearchInput = ({
     <div
       className={cn(
         "flex items-center border rounded-md border-base-300 transition-colors hover:bg-base-200",
-        className
+        className,
       )}
     >
       <button
@@ -73,7 +73,7 @@ export const SearchInput = ({
       <div
         className={cn(
           "relative transition-all duration-200 overflow-hidden",
-          open ? "w-auto" : "w-0"
+          open ? "w-auto" : "w-0",
         )}
       >
         <div className="relative">
@@ -102,4 +102,3 @@ export const SearchInput = ({
     </div>
   );
 };
-

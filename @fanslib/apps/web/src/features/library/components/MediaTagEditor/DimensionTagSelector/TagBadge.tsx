@@ -51,10 +51,7 @@ export const TagBadge = ({
 
   return (
     <Badge
-      className={cn(
-        "cursor-pointer flex items-center gap-1",
-        className
-      )}
+      className={cn("cursor-pointer flex items-center gap-1", className)}
       size={size}
       selected={isSelected}
       selectable

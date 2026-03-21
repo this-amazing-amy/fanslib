@@ -11,21 +11,19 @@ export const FetchSnippetsByChannelRequestParamsSchema = z.object({
 export const FetchSnippetsByChannelResponseSchema = z.array(
   CaptionSnippetSchema.omit({ channelId: true }).extend({
     channel: ChannelSchema.nullable(),
-  })
+  }),
 );
 
-export const fetchSnippetsByChannel = async (channelId: string): Promise<z.infer<typeof FetchSnippetsByChannelResponseSchema>> => {
+export const fetchSnippetsByChannel = async (
+  channelId: string,
+): Promise<z.infer<typeof FetchSnippetsByChannelResponseSchema>> => {
   const dataSource = await db();
   const repo = dataSource.getRepository(CaptionSnippet);
   const snippets = await repo.find({
-    where: [
-      { channelId },
-      { channelId: IsNull() },
-    ],
+    where: [{ channelId }, { channelId: IsNull() }],
     relations: ["channel", "channel.type", "channel.defaultHashtags"],
     order: { updatedAt: "DESC" },
   });
-  
+
   return snippets.map(({ channelId: _, ...snippet }) => snippet);
 };
-

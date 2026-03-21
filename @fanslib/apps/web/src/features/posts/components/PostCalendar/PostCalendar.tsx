@@ -50,12 +50,9 @@ export const PostCalendar = forwardRef<PostCalendarHandle, PostCalendarProps>(
       () =>
         posts.filter((post) => {
           const d = new Date(post.date).getTime();
-          return (
-            d >= visibleRange.startDate.getTime() &&
-            d <= visibleRange.endDate.getTime()
-          );
+          return d >= visibleRange.startDate.getTime() && d <= visibleRange.endDate.getTime();
         }),
-      [posts, visibleRange]
+      [posts, visibleRange],
     );
 
     const isSingleDay = visibleDaysCount === 1;
@@ -66,9 +63,7 @@ export const PostCalendar = forwardRef<PostCalendarHandle, PostCalendarProps>(
         {/* Calendar */}
         <div className="flex flex-col h-full min-h-0">
           <div className="flex items-center justify-between px-1 mb-2 flex-shrink-0">
-            <h3 className="text-base font-semibold text-base-content/90">
-              {currentMonthLabel}
-            </h3>
+            <h3 className="text-base font-semibold text-base-content/90">{currentMonthLabel}</h3>
             <div className="flex items-center gap-1">
               <Button
                 variant="outline"
@@ -134,7 +129,7 @@ export const PostCalendar = forwardRef<PostCalendarHandle, PostCalendarProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
 PostCalendar.displayName = "PostCalendar";

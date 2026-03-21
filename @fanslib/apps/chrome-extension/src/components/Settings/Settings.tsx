@@ -1,19 +1,14 @@
-import { useEffect, useState } from 'react';
-import {
-  DEFAULT_API_URL,
-  DEFAULT_WEB_URL,
-  getSettings,
-  saveSettings,
-} from '../../lib/storage';
-import { HowToUse } from './HowToUse';
-import { SettingsForm } from './SettingsForm';
-import { SettingsHeader } from './SettingsHeader';
+import { useEffect, useState } from "react";
+import { DEFAULT_API_URL, DEFAULT_WEB_URL, getSettings, saveSettings } from "../../lib/storage";
+import { HowToUse } from "./HowToUse";
+import { SettingsForm } from "./SettingsForm";
+import { SettingsHeader } from "./SettingsHeader";
 
 export const SettingsPage = () => {
-  const [libraryPath, setLibraryPath] = useState('');
+  const [libraryPath, setLibraryPath] = useState("");
   const [apiUrl, setApiUrl] = useState(DEFAULT_API_URL);
   const [webUrl, setWebUrl] = useState(DEFAULT_WEB_URL);
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saved'>('idle');
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saved">("idle");
 
   useEffect(() => {
     loadSettings();
@@ -33,13 +28,13 @@ export const SettingsPage = () => {
       webUrl: webUrl.trim() || DEFAULT_WEB_URL,
     });
 
-    setSaveStatus('saved');
-    setTimeout(() => setSaveStatus('idle'), 2000);
+    setSaveStatus("saved");
+    setTimeout(() => setSaveStatus("idle"), 2000);
   };
 
   return (
-    <div className='min-h-screen bg-base-100 text-base-content'>
-      <div className='max-w-4xl mx-auto px-6 py-8'>
+    <div className="min-h-screen bg-base-100 text-base-content">
+      <div className="max-w-4xl mx-auto px-6 py-8">
         <SettingsHeader />
 
         <SettingsForm

@@ -1,24 +1,32 @@
 /**
  * @deprecated This component is deprecated. Reddit post generation functionality
  * will be consolidated into the unified post creation flow via the Channels page.
- * 
+ *
  * Reddit channels (subreddits) are now managed as channels with typeId='reddit'
  * at /content/channels. Post creation uses the standard CreatePostDialog with
  * channel-specific options.
- * 
+ *
  * This file is kept for reference during migration but should not be used.
  */
-import type { Subreddit } from '@fanslib/server/schemas';
+import type { Subreddit } from "@fanslib/server/schemas";
 import { ChevronRight, Clock, Loader2, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
 import { AuthenticationStatus } from "~/features/settings/components/reddit/AuthenticationStatus";
 import { useRedditLoginStatusQuery, useRedditSessionStatusQuery } from "~/lib/queries/reddit";
-import { useGeneratePosts, useRegenerateMedia, useSchedulePosts, useScheduledPosts } from "~/lib/queries/reddit-poster";
-import { getAuthenticationStatus, isStatusStale, loadCachedStatus } from "~/lib/reddit/auth-status-utils";
+import {
+  useGeneratePosts,
+  useRegenerateMedia,
+  useSchedulePosts,
+  useScheduledPosts,
+} from "~/lib/queries/reddit-poster";
+import {
+  getAuthenticationStatus,
+  isStatusStale,
+  loadCachedStatus,
+} from "~/lib/reddit/auth-status-utils";
 import { PostGenerationGrid } from "./PostGenerationGrid";
 import { ScheduledPostsList } from "./ScheduledPostsList";
-
 
 type GeneratedPost = {
   id: string;
@@ -87,7 +95,7 @@ export const RedditBulkPostGenerator = ({ subreddits }: RedditBulkPostGeneratorP
 
   const updatePost = (index: number, updates: Partial<GeneratedPost>) => {
     setGeneratedPosts((prev) =>
-      prev.map((post, i) => (i === index ? { ...post, ...updates } : post))
+      prev.map((post, i) => (i === index ? { ...post, ...updates } : post)),
     );
   };
 
@@ -228,7 +236,7 @@ export const RedditBulkPostGenerator = ({ subreddits }: RedditBulkPostGeneratorP
 
         <div className="flex-1 flex flex-col bg-base-100 rounded-lg overflow-hidden border border-base-300">
           <div className="flex-1 overflow-y-auto">
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            {/* oxlint-disable-next-line typescript/no-explicit-any */}
             <ScheduledPostsList posts={(scheduledPosts ?? []) as any} />
           </div>
         </div>

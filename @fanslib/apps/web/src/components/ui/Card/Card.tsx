@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { cn } from '~/lib/cn';
+import type { ReactNode } from "react";
+import { cn } from "~/lib/cn";
 
 export type CardProps = {
   children: ReactNode;
@@ -7,17 +7,9 @@ export type CardProps = {
   compact?: boolean;
 };
 
-export const Card = ({
-  children,
-  className,
-  compact = false,
-}: CardProps) => (
+export const Card = ({ children, className, compact = false }: CardProps) => (
   <div
-    className={cn(
-      'card bg-base-100 border border-base-300',
-      compact && 'card-compact',
-      className
-    )}
+    className={cn("card bg-base-100 border border-base-300", compact && "card-compact", className)}
   >
     {children}
   </div>
@@ -29,7 +21,7 @@ export type CardBodyProps = {
 };
 
 export const CardBody = ({ children, className }: CardBodyProps) => (
-  <div className={cn('card-body', className)}>{children}</div>
+  <div className={cn("card-body", className)}>{children}</div>
 );
 
 export type CardTitleProps = {
@@ -38,7 +30,7 @@ export type CardTitleProps = {
 };
 
 export const CardTitle = ({ children, className }: CardTitleProps) => (
-  <h2 className={cn('card-title', className)}>{children}</h2>
+  <h2 className={cn("card-title", className)}>{children}</h2>
 );
 
 export type CardActionsProps = {
@@ -47,6 +39,5 @@ export type CardActionsProps = {
 };
 
 export const CardActions = ({ children, className }: CardActionsProps) => (
-  <div className={cn('card-actions justify-end', className)}>{children}</div>
+  <div className={cn("card-actions justify-end", className)}>{children}</div>
 );
-

@@ -13,17 +13,19 @@ export const FanslyPostWithAnalyticsSchema = z.object({
   averageEngagementPercent: z.number(),
   hashtags: z.array(z.string()),
   videoLength: z.number(),
-  media: z.object({
-    id: z.string(),
-    relativePath: z.string(),
-    type: z.union([z.literal("image"), z.literal("video")]),
-    name: z.string(),
-    size: z.number(),
-    duration: z.number().nullable(),
-    redgifsUrl: z.string().nullable(),
-    createdAt: z.date(),
-    updatedAt: z.date(),
-    fileCreationDate: z.date(),
-    fileModificationDate: z.date(),
-  }).optional(),
+  media: z
+    .object({
+      id: z.string(),
+      relativePath: z.string(),
+      type: z.union([z.literal("image"), z.literal("video")]),
+      name: z.string(),
+      size: z.number(),
+      duration: z.number().nullable(),
+      redgifsUrl: z.string().nullable(),
+      createdAt: z.date(),
+      updatedAt: z.date(),
+      fileCreationDate: z.date(),
+      fileModificationDate: z.date(),
+    })
+    .optional(),
 });

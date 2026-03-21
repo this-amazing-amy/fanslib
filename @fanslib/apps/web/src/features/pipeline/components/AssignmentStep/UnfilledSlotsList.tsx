@@ -1,5 +1,5 @@
 import { AlertTriangle } from "lucide-react";
-import type { AssignMediaResponse, Media } from '@fanslib/server/schemas';
+import type { AssignMediaResponse, Media } from "@fanslib/server/schemas";
 import { UnfilledSlotDropzone } from "./UnfilledSlotDropzone";
 import { UnfilledSlotsLibrary } from "./UnfilledSlotsLibrary";
 
@@ -7,13 +7,15 @@ type UnfilledSlotsListProps = {
   slots: AssignMediaResponse["unfilled"];
   schedules: Array<{ id: string; name: string; emoji: string | null; color: string | null }>;
   channels: Array<{ id: string; name: string; typeId: string; type?: { id: string } }>;
-  onSlotAssign: (
-    slot: AssignMediaResponse["unfilled"][number],
-    medias: Media[]
-  ) => void;
+  onSlotAssign: (slot: AssignMediaResponse["unfilled"][number], medias: Media[]) => void;
 };
 
-export const UnfilledSlotsList = ({ slots, schedules, channels, onSlotAssign }: UnfilledSlotsListProps) => {
+export const UnfilledSlotsList = ({
+  slots,
+  schedules,
+  channels,
+  onSlotAssign,
+}: UnfilledSlotsListProps) => {
   if (slots.length === 0) {
     return null;
   }
