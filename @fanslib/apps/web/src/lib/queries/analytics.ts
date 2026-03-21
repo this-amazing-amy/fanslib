@@ -25,6 +25,17 @@ export const useActiveFypPostsQuery = (sortBy?: "views" | "engagementPercent" | 
     },
   });
 
+export const useRepostCandidatesQuery = (sortBy?: "views" | "engagementPercent" | "engagementSeconds") =>
+  useQuery({
+    queryKey: QUERY_KEYS.analytics.repostCandidates(sortBy),
+    queryFn: async () => {
+      const result = await api.api.analytics['repost-candidates'].$get({
+        query: { sortBy },
+      });
+      return result.json();
+    },
+  });
+
 export const useFetchFanslyDataMutation = () => {
   const queryClient = useQueryClient();
 
