@@ -4,7 +4,9 @@ import { TagDimension, TagDimensionSchema } from "../../entity";
 
 export const GetAllTagDimensionsResponseSchema = z.array(TagDimensionSchema);
 
-export const fetchAllTagDimensions = async (): Promise<z.infer<typeof GetAllTagDimensionsResponseSchema>> => {
+export const fetchAllTagDimensions = async (): Promise<
+  z.infer<typeof GetAllTagDimensionsResponseSchema>
+> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(TagDimension);
 
@@ -13,4 +15,3 @@ export const fetchAllTagDimensions = async (): Promise<z.infer<typeof GetAllTagD
     relations: ["tags"],
   });
 };
-

@@ -1,10 +1,7 @@
 import type { CSSProperties, MouseEvent, ReactNode } from "react";
 import { useState } from "react";
 import { cn } from "~/lib/cn";
-import {
-    Badge as BaseBadge,
-    type BadgeProps as BaseBadgeProps,
-} from "./ui/Badge/Badge";
+import { Badge as BaseBadge, type BadgeProps as BaseBadgeProps } from "./ui/Badge/Badge";
 
 export type BadgeSize = "sm" | "md" | "lg";
 
@@ -14,7 +11,7 @@ export type BadgeProps = {
   backgroundColor: string;
   foregroundColor: string;
   borderColor?: string;
-  borderStyle?: 'visible' | 'none';
+  borderStyle?: "visible" | "none";
   selected?: boolean;
   selectable?: boolean;
   disabled?: boolean;
@@ -38,7 +35,7 @@ export const Badge = ({
   backgroundColor,
   foregroundColor,
   borderColor,
-  borderStyle = 'visible',
+  borderStyle = "visible",
   selected = false,
   selectable = false,
   disabled = false,
@@ -70,9 +67,8 @@ export const Badge = ({
     }
   };
 
-  const effectiveBorderColor = borderStyle === 'none' 
-    ? effectiveBackgroundColor 
-    : (borderColor ?? foregroundColor);
+  const effectiveBorderColor =
+    borderStyle === "none" ? effectiveBackgroundColor : (borderColor ?? foregroundColor);
 
   const style: CSSProperties = {
     backgroundColor: effectiveBackgroundColor,
@@ -88,12 +84,14 @@ export const Badge = ({
         // Container query responsive behavior:
         // - responsive=true (default): collapsed by default, expands when container >= 200px
         // - responsive=false: always expanded
-        label && responsive && "gap-0 justify-center w-5 h-5 @[200px]:gap-1.5 @[200px]:justify-start @[200px]:w-fit @[200px]:h-auto",
+        label &&
+          responsive &&
+          "gap-0 justify-center w-5 h-5 @[200px]:gap-1.5 @[200px]:justify-start @[200px]:w-fit @[200px]:h-auto",
         label && !responsive && "gap-1.5 justify-start w-fit h-auto",
         "border",
         isInteractive && "cursor-pointer transition-colors",
         disabled && "opacity-30 cursor-not-allowed",
-        className
+        className,
       )}
       style={style}
       onClick={isInteractive ? (event) => handleClick(event) : undefined}
@@ -102,14 +100,15 @@ export const Badge = ({
     >
       {icon ? <span className="flex items-center justify-center leading-none">{icon}</span> : null}
       {label && (
-        <span className={cn(
-          "whitespace-nowrap overflow-hidden text-ellipsis",
-          responsive ? "hidden @[200px]:inline" : "inline"
-        )}>
+        <span
+          className={cn(
+            "whitespace-nowrap overflow-hidden text-ellipsis",
+            responsive ? "hidden @[200px]:inline" : "inline",
+          )}
+        >
           {label}
         </span>
       )}
     </BaseBadge>
   );
 };
-

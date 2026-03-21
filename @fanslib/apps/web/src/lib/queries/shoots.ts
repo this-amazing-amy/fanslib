@@ -1,6 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '../api/hono-client';
-import { QUERY_KEYS } from './query-keys';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { api } from "../api/hono-client";
+import { QUERY_KEYS } from "./query-keys";
 
 type FetchAllShootsParams = {
   page?: number;
@@ -25,7 +25,7 @@ export const useShootQuery = (params: { id: string }) =>
   useQuery({
     queryKey: QUERY_KEYS.shoots.byId(params.id),
     queryFn: async () => {
-      const result = await api.api.shoots['by-id'][':id'].$get({ param: { id: params.id } });
+      const result = await api.api.shoots["by-id"][":id"].$get({ param: { id: params.id } });
       return result.json();
     },
     enabled: !!params.id,
@@ -65,9 +65,9 @@ export const useUpdateShootMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdateShootParams) => {
-      const result = await api.api.shoots['by-id'][':id'].$patch({ 
+      const result = await api.api.shoots["by-id"][":id"].$patch({
         param: { id },
-        json: updates 
+        json: updates,
       });
       return result.json();
     },
@@ -87,7 +87,7 @@ export const useDeleteShootMutation = () => {
 
   return useMutation({
     mutationFn: async (params: { id: string }) => {
-      const result = await api.api.shoots['by-id'][':id'].$delete({ param: { id: params.id } });
+      const result = await api.api.shoots["by-id"][":id"].$delete({ param: { id: params.id } });
       return result.json();
     },
     onSuccess: () => {
@@ -101,11 +101,8 @@ export const usePostsByShootIdQuery = (shootId: string) =>
   useQuery({
     queryKey: QUERY_KEYS.shoots.posts(shootId),
     queryFn: async () => {
-      const result = await api.api.shoots['by-id'][':id'].posts.$get({ param: { id: shootId } });
+      const result = await api.api.shoots["by-id"][":id"].posts.$get({ param: { id: shootId } });
       return result.json();
     },
     enabled: !!shootId,
   });
-
-
-

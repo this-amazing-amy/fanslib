@@ -2,9 +2,9 @@
 /* eslint-disable functional/no-let */
 
 export type PlateauConfig = {
-  consecutiveDays: number;     // default 5
-  thresholdPercent: number;    // default 1.5
-  minDatapoints: number;       // default 7
+  consecutiveDays: number; // default 5
+  thresholdPercent: number; // default 1.5
+  minDatapoints: number; // default 7
 };
 
 export const DEFAULT_PLATEAU_CONFIG: PlateauConfig = {
@@ -80,10 +80,7 @@ export const detectViewPlateau = (
  * Returns -1 if no plateau is found.
  * Used by trimDataAtPlateau in aggregate.ts.
  */
-export const findPlateauStartIndex = (
-  viewValues: number[],
-  minPointsToKeep: number,
-): number => {
+export const findPlateauStartIndex = (viewValues: number[], minPointsToKeep: number): number => {
   if (viewValues.length <= 3) {
     return -1;
   }

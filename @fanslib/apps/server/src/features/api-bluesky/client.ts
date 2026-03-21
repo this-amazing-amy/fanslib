@@ -21,7 +21,9 @@ const getOrCreateAgent = async (): Promise<BskyAgent> => {
   const settings = await loadSettings();
 
   if (!settings.blueskyUsername || !settings.blueskyAppPassword) {
-    throw configurationError("Bluesky credentials not configured. Please set blueskyUsername and blueskyAppPassword in settings.");
+    throw configurationError(
+      "Bluesky credentials not configured. Please set blueskyUsername and blueskyAppPassword in settings.",
+    );
   }
 
   const agent = new BskyAgent({
@@ -33,7 +35,7 @@ const getOrCreateAgent = async (): Promise<BskyAgent> => {
     password: settings.blueskyAppPassword,
   });
 
-  const expiresAt = now + (120 * 60 * 1000) - SESSION_EXPIRY_BUFFER_MS;
+  const expiresAt = now + 120 * 60 * 1000 - SESSION_EXPIRY_BUFFER_MS;
 
   sessionCache.value = {
     agent,

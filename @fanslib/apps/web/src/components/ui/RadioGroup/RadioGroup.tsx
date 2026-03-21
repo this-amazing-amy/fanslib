@@ -1,9 +1,9 @@
-import { createContext, useContext, useRef, type ReactNode } from 'react';
-import type { AriaRadioGroupProps, AriaRadioProps } from 'react-aria';
-import { useRadio, useRadioGroup } from 'react-aria';
-import type { RadioGroupState } from 'react-stately';
-import { useRadioGroupState } from 'react-stately';
-import { cn } from '~/lib/cn';
+import { createContext, useContext, useRef, type ReactNode } from "react";
+import type { AriaRadioGroupProps, AriaRadioProps } from "react-aria";
+import { useRadio, useRadioGroup } from "react-aria";
+import type { RadioGroupState } from "react-stately";
+import { useRadioGroupState } from "react-stately";
+import { cn } from "~/lib/cn";
 
 type RadioGroupContextValue = {
   state: RadioGroupState;
@@ -21,11 +21,13 @@ export const RadioGroup = ({ className, children, ...props }: RadioGroupProps) =
   const { radioGroupProps, labelProps } = useRadioGroup(props, state);
 
   return (
-    <div {...radioGroupProps} className={cn('flex flex-col gap-2', className)}>
-      {props.label && <span {...labelProps} className="label-text font-medium">{props.label}</span>}
-      <RadioGroupContext.Provider value={{ state }}>
-        {children}
-      </RadioGroupContext.Provider>
+    <div {...radioGroupProps} className={cn("flex flex-col gap-2", className)}>
+      {props.label && (
+        <span {...labelProps} className="label-text font-medium">
+          {props.label}
+        </span>
+      )}
+      <RadioGroupContext.Provider value={{ state }}>{children}</RadioGroupContext.Provider>
     </div>
   );
 };
@@ -35,14 +37,18 @@ export type RadioGroupItemProps = AriaRadioProps & {
   children: ReactNode;
 };
 
-export const RadioGroupItem = ({ className: _className, children, ...props }: RadioGroupItemProps) => {
+export const RadioGroupItem = ({
+  className: _className,
+  children,
+  ...props
+}: RadioGroupItemProps) => {
   const ref = useRef<HTMLInputElement>(null);
   const context = useContext(RadioGroupContext);
-  
+
   if (!context) {
-    throw new Error('RadioGroupItem must be used within RadioGroup');
+    throw new Error("RadioGroupItem must be used within RadioGroup");
   }
-  
+
   const { state } = context;
   const { inputProps } = useRadio(props, state, ref);
 
@@ -53,4 +59,3 @@ export const RadioGroupItem = ({ className: _className, children, ...props }: Ra
     </label>
   );
 };
-

@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { CheckCircle2, FileX, ImagePlus } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import type { AssignMediaResponse, PostWithRelations } from '@fanslib/server/schemas';
+import type { AssignMediaResponse, PostWithRelations } from "@fanslib/server/schemas";
 import { MediaTileLite } from "~/features/library/components/MediaTile/MediaTileLite";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
@@ -15,7 +15,13 @@ type CreatedDraftsListProps = {
   onAssignMedia?: (draftId: string) => void;
 };
 
-export const CreatedDraftsList = ({ drafts, fromDate, toDate, assignmentResult, onAssignMedia }: CreatedDraftsListProps) => {
+export const CreatedDraftsList = ({
+  drafts,
+  fromDate,
+  toDate,
+  assignmentResult,
+  onAssignMedia,
+}: CreatedDraftsListProps) => {
   const filteredDrafts = drafts.filter((draft) => {
     const draftDate = new Date(draft.date);
     return draftDate >= fromDate && draftDate <= toDate && draft.status === "draft";
@@ -40,17 +46,20 @@ export const CreatedDraftsList = ({ drafts, fromDate, toDate, assignmentResult, 
             <span>
               {draftsCreatedCount} {draftsCreatedCount === 1 ? "Draft" : "Drafts"} created
               {preExistingCount > 0 && (
-                <span className="text-base-content/60">
-                  {" "}({preExistingCount} pre-existing)
-                </span>
+                <span className="text-base-content/60"> ({preExistingCount} pre-existing)</span>
               )}
             </span>
           </div>
           <div className="space-y-2">
             {draftsWithMedia.map((draft) => {
               const draftDate = new Date(draft.date);
-              const channel = draft.channel as { name: string; id: string; typeId: string; type?: { id: string } } | undefined;
-              const schedule = draft.schedule as { name: string; emoji: string | null; color: string | null } | null | undefined;
+              const channel = draft.channel as
+                | { name: string; id: string; typeId: string; type?: { id: string } }
+                | undefined;
+              const schedule = draft.schedule as
+                | { name: string; emoji: string | null; color: string | null }
+                | null
+                | undefined;
               const firstMedia = draft.postMedia?.[0]?.media;
 
               return (
@@ -105,14 +114,20 @@ export const CreatedDraftsList = ({ drafts, fromDate, toDate, assignmentResult, 
           <div className="flex items-center gap-2 text-base font-medium">
             <FileX className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
             <span>
-              {draftsWithoutMedia.length} {draftsWithoutMedia.length === 1 ? "Draft" : "Drafts"} without media
+              {draftsWithoutMedia.length} {draftsWithoutMedia.length === 1 ? "Draft" : "Drafts"}{" "}
+              without media
             </span>
           </div>
           <div className="space-y-2">
             {draftsWithoutMedia.map((draft) => {
               const draftDate = new Date(draft.date);
-              const channel = draft.channel as { name: string; id: string; typeId: string; type?: { id: string } } | undefined;
-              const schedule = draft.schedule as { name: string; emoji: string | null; color: string | null } | null | undefined;
+              const channel = draft.channel as
+                | { name: string; id: string; typeId: string; type?: { id: string } }
+                | undefined;
+              const schedule = draft.schedule as
+                | { name: string; emoji: string | null; color: string | null }
+                | null
+                | undefined;
 
               return (
                 <div

@@ -28,4 +28,3 @@ export const seedSubredditFixtures = async () => {
 
   return await subredditRepo.find();
 };
-

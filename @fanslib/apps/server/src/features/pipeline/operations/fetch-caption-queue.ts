@@ -5,15 +5,15 @@ import { db } from "../../../lib/db";
 import { Post } from "../../posts/entity";
 import { fetchPostsByMediaId } from "../../posts/operations/post/fetch-by-media-id";
 import { fetchPostsByShootId } from "../../shoots/operations/shoot/fetch-posts-by-shoot-id";
-import type {
-  CaptionQueueItemSchema,
-  FetchCaptionQueueRequestQuerySchema,
-} from "../schema";
+import type { CaptionQueueItemSchema, FetchCaptionQueueRequestQuerySchema } from "../schema";
 
 type CaptionQueueItem = z.infer<typeof CaptionQueueItemSchema>;
 
 const uniqueByPostId = <T extends { postId: string }>(items: T[]): T[] =>
-  items.reduce<T[]>((acc, item) => (acc.some((entry) => entry.postId === item.postId) ? acc : [...acc, item]), []);
+  items.reduce<T[]>(
+    (acc, item) => (acc.some((entry) => entry.postId === item.postId) ? acc : [...acc, item]),
+    [],
+  );
 
 type PostWithChannel = {
   id: string;
@@ -34,7 +34,7 @@ const formatRelatedCaption = (post: PostWithChannel) => ({
 });
 
 export const fetchCaptionQueue = async (
-  query: z.infer<typeof FetchCaptionQueueRequestQuerySchema>
+  query: z.infer<typeof FetchCaptionQueueRequestQuerySchema>,
 ): Promise<CaptionQueueItem[]> => {
   const dataSource = await db();
   const postRepo = dataSource.getRepository(Post);
@@ -78,29 +78,31 @@ export const fetchCaptionQueue = async (
 
   const queue = await Promise.all(
     posts.map(async (post) => {
-      const mediaIds = post.postMedia.map((pm) => pm.media?.id).filter((id): id is string => Boolean(id));
-      const shootEntries = (post.postMedia as Array<{ media?: { shoots?: Array<{ id: string; name: string }> } }>)
+      const mediaIds = post.postMedia
+        .map((pm) => pm.media?.id)
+        .filter((id): id is string => Boolean(id));
+      const shootEntries = (
+        post.postMedia as Array<{ media?: { shoots?: Array<{ id: string; name: string }> } }>
+      )
         .flatMap((pm) => pm.media?.shoots ?? [])
         .filter((shoot) => shoot);
 
-      const shootIdToName = new Map(
-        shootEntries.map((shoot) => [shoot.id, shoot.name])
-      );
+      const shootIdToName = new Map(shootEntries.map((shoot) => [shoot.id, shoot.name]));
 
       const relatedByMediaPosts = await Promise.all(
-        mediaIds.map(async (mediaId) => fetchPostsByMediaId(mediaId))
+        mediaIds.map(async (mediaId) => fetchPostsByMediaId(mediaId)),
       );
 
       const relatedByShootPosts = await Promise.all(
         uniqueByPostId(
           shootEntries.map((shoot) => ({
             postId: shoot.id,
-          }))
+          })),
         ).map(async (entry) => {
           const shootPosts = await fetchPostsByShootId(entry.postId);
           const shootName = shootIdToName.get(entry.postId) ?? "Unknown";
           return shootPosts.map((p) => ({ ...p, shootName }));
-        })
+        }),
       );
 
       const relatedByMedia = uniqueByPostId(
@@ -108,7 +110,7 @@ export const fetchCaptionQueue = async (
           .flat()
           .filter((relatedPost) => relatedPost.id !== post.id)
           .filter((relatedPost) => (relatedPost.caption ?? "").trim().length > 0)
-          .map(formatRelatedCaption)
+          .map(formatRelatedCaption),
       );
 
       const relatedByShoot = uniqueByPostId(
@@ -119,7 +121,7 @@ export const fetchCaptionQueue = async (
           .map((relatedPost) => ({
             ...formatRelatedCaption(relatedPost),
             shootName: relatedPost.shootName,
-          }))
+          })),
       );
 
       const linkedPosts = posts
@@ -148,7 +150,7 @@ export const fetchCaptionQueue = async (
         relatedByShoot,
         linkedPosts,
       };
-    })
+    }),
   );
 
   return queue;

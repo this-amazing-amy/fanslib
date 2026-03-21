@@ -1,18 +1,18 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
-import { Slider } from './Slider';
+import type { Meta, StoryObj } from "@storybook/react";
+import { useState } from "react";
+import { Slider } from "./Slider";
 
 const meta: Meta<typeof Slider> = {
-  title: 'UI/Slider',
+  title: "UI/Slider",
   component: Slider,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {
     color: {
-      control: 'select',
-      options: ['primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info'],
+      control: "select",
+      options: ["primary", "secondary", "accent", "success", "warning", "error", "info"],
     },
   },
 };
@@ -25,11 +25,7 @@ const DefaultComponent = () => {
 
   return (
     <div className="w-80">
-      <Slider
-        label="Volume"
-        value={value}
-        onChange={(v) => setValue(v as number)}
-      />
+      <Slider label="Volume" value={value} onChange={(v) => setValue(v as number)} />
     </div>
   );
 };
@@ -116,11 +112,7 @@ export const Colors: Story = {
 export const Disabled: Story = {
   render: () => (
     <div className="w-80">
-      <Slider
-        label="Disabled slider"
-        defaultValue={50}
-        isDisabled
-      />
+      <Slider label="Disabled slider" defaultValue={50} isDisabled />
     </div>
   ),
 };
@@ -145,4 +137,3 @@ const CustomFormattingComponent = () => {
 export const CustomFormatting: Story = {
   render: () => <CustomFormattingComponent />,
 };
-

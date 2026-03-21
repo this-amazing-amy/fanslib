@@ -1,7 +1,13 @@
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "~/components/ui/Button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "~/components/ui/Command";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "~/components/ui/Command";
 import { Popover, PopoverTrigger } from "~/components/ui/Popover";
 import { cn } from "~/lib/cn";
 import { useSubredditsQuery } from "~/lib/queries/subreddits";
@@ -17,10 +23,12 @@ export const SubredditFilterSelector = ({ value, onChange }: SubredditFilterSele
 
   const selectedSubreddit = useMemo(
     () => (subreddits ?? []).find((subreddit) => subreddit.id === value),
-    [subreddits, value]
+    [subreddits, value],
   );
 
-  const displayValue = selectedSubreddit ? selectedSubreddit.channel?.name ?? 'Unknown' : "Select subreddit...";
+  const displayValue = selectedSubreddit
+    ? (selectedSubreddit.channel?.name ?? "Unknown")
+    : "Select subreddit...";
 
   const selectSubreddit = (subredditId: string) => {
     onChange(subredditId);
@@ -29,11 +37,7 @@ export const SubredditFilterSelector = ({ value, onChange }: SubredditFilterSele
 
   return (
     <PopoverTrigger isOpen={open} onOpenChange={setOpen}>
-      <Button
-        variant="outline"
-        aria-expanded={open}
-        className="w-full justify-between"
-      >
+      <Button variant="outline" aria-expanded={open} className="w-full justify-between">
         {isLoading ? "Loading..." : displayValue}
         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </Button>
@@ -46,16 +50,16 @@ export const SubredditFilterSelector = ({ value, onChange }: SubredditFilterSele
               {(subreddits ?? []).map((subreddit) => (
                 <CommandItem
                   key={subreddit.id}
-                  value={subreddit.channel?.name ?? 'Unknown'}
+                  value={subreddit.channel?.name ?? "Unknown"}
                   onSelect={() => selectSubreddit(subreddit.id)}
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === subreddit.id ? "opacity-100" : "opacity-0"
+                      value === subreddit.id ? "opacity-100" : "opacity-0",
                     )}
                   />
-                  {subreddit.channel?.name ?? 'Unknown'}
+                  {subreddit.channel?.name ?? "Unknown"}
                 </CommandItem>
               ))}
             </CommandGroup>

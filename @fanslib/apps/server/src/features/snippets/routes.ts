@@ -37,15 +37,19 @@ export const snippetsRoutes = new Hono()
     const result = await createSnippet(body);
     return c.json(result);
   })
-  .patch("/by-id/:id", zValidator("json", UpdateSnippetRequestBodySchema, validationError), async (c) => {
-    const id = c.req.param("id");
-    const body = c.req.valid("json");
-    const snippet = await updateSnippet(id, body);
-    if (!snippet) {
-      return notFound(c, "Snippet not found");
-    }
-    return c.json(snippet);
-  })
+  .patch(
+    "/by-id/:id",
+    zValidator("json", UpdateSnippetRequestBodySchema, validationError),
+    async (c) => {
+      const id = c.req.param("id");
+      const body = c.req.valid("json");
+      const snippet = await updateSnippet(id, body);
+      if (!snippet) {
+        return notFound(c, "Snippet not found");
+      }
+      return c.json(snippet);
+    },
+  )
   .delete("/by-id/:id", async (c) => {
     const id = c.req.param("id");
     const success = await deleteSnippet(id);

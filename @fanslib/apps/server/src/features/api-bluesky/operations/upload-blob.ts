@@ -34,10 +34,7 @@ const isCompressibleImage = (mimeType: string): boolean =>
 const compressAtQuality = async (buffer: Buffer, quality: number): Promise<Buffer> =>
   sharp(buffer).jpeg({ quality, mozjpeg: true }).toBuffer();
 
-const tryCompressionQualities = async (
-  buffer: Buffer,
-  quality: number
-): Promise<Buffer> => {
+const tryCompressionQualities = async (buffer: Buffer, quality: number): Promise<Buffer> => {
   if (quality < COMPRESSION_QUALITY_MIN) {
     return buffer;
   }
@@ -62,7 +59,10 @@ const resizeAndCompress = async (buffer: Buffer, currentSize: number): Promise<B
     .toBuffer();
 };
 
-const compressImage = async (buffer: Buffer, mimeType: string): Promise<{ buffer: Buffer; mimeType: string }> => {
+const compressImage = async (
+  buffer: Buffer,
+  mimeType: string,
+): Promise<{ buffer: Buffer; mimeType: string }> => {
   if (buffer.length <= MAX_IMAGE_SIZE) {
     return { buffer, mimeType };
   }
@@ -74,9 +74,10 @@ const compressImage = async (buffer: Buffer, mimeType: string): Promise<{ buffer
   const outputMimeType = "image/jpeg";
   const compressedBuffer = await tryCompressionQualities(buffer, COMPRESSION_QUALITY_START);
 
-  const finalBuffer = compressedBuffer.length > MAX_IMAGE_SIZE
-    ? await resizeAndCompress(buffer, compressedBuffer.length)
-    : compressedBuffer;
+  const finalBuffer =
+    compressedBuffer.length > MAX_IMAGE_SIZE
+      ? await resizeAndCompress(buffer, compressedBuffer.length)
+      : compressedBuffer;
 
   console.info("Image compressed for Bluesky upload", {
     originalSize: `${(buffer.length / 1024 / 1024).toFixed(2)}MB`,
@@ -93,9 +94,10 @@ export const uploadBlob = async (media: Media): Promise<{ blob: unknown; mimeTyp
   const fileBuffer = await readFile(filePath);
   const originalMimeType = getMimeType(filePath);
 
-  const { buffer: uploadBuffer, mimeType } = media.type === "image"
-    ? await compressImage(fileBuffer, originalMimeType)
-    : { buffer: fileBuffer, mimeType: originalMimeType };
+  const { buffer: uploadBuffer, mimeType } =
+    media.type === "image"
+      ? await compressImage(fileBuffer, originalMimeType)
+      : { buffer: fileBuffer, mimeType: originalMimeType };
 
   const agent = await getBlueskyAgent();
 

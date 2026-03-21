@@ -19,7 +19,7 @@ export const seedChannelTypes = async () => {
       id: type.id,
       name: type.name,
       color: type.color,
-    })
+    }),
   );
 
   await repository.save(channelTypes);
@@ -35,9 +35,7 @@ export const migrateSchedulesToMultiChannel = async () => {
     where: {},
   });
 
-  const schedulesNeedingMigration = schedulesWithLegacyChannel.filter(
-    (s) => s.channelId !== null
-  );
+  const schedulesNeedingMigration = schedulesWithLegacyChannel.filter((s) => s.channelId !== null);
 
   if (schedulesNeedingMigration.length === 0) {
     console.log("✓ No schedules need migration to multi-channel model");
@@ -68,7 +66,7 @@ export const migrateSchedulesToMultiChannel = async () => {
       await scheduleChannelRepo.save(scheduleChannel);
 
       return { scheduleId: schedule.id, migrated: true };
-    })
+    }),
   );
 
   const migratedCount = results.filter((r) => r.migrated).length;
@@ -87,25 +85,24 @@ export const migrateSubredditsToChannelComposition = async () => {
     relations: ["channel"],
   });
 
-  const subredditsNeedingMigration = subredditsWithoutChannel.filter(
-    (s) => s.channelId === null
-  );
+  const subredditsNeedingMigration = subredditsWithoutChannel.filter((s) => s.channelId === null);
 
   if (subredditsNeedingMigration.length === 0) {
     console.log("✓ No subreddits need migration to channel composition");
     return { migrated: 0 };
   }
 
-  console.log(`🔄 Migrating ${subredditsNeedingMigration.length} subreddits to channel composition...`);
+  console.log(
+    `🔄 Migrating ${subredditsNeedingMigration.length} subreddits to channel composition...`,
+  );
 
   const results = await Promise.all(
     subredditsNeedingMigration.map(async (subreddit) => {
       try {
         // Read old data from database columns that may still exist
-        const rawSubreddit = await dataSource.query(
-          `SELECT name, eligibleMediaFilter FROM subreddit WHERE id = ?`,
-          [subreddit.id]
-        ).catch(() => null);
+        const rawSubreddit = await dataSource
+          .query(`SELECT name, eligibleMediaFilter FROM subreddit WHERE id = ?`, [subreddit.id])
+          .catch(() => null);
 
         // Use entity's name field first (TypeORM loaded), then raw query, then fallback
         const oldName = subreddit.name ?? rawSubreddit?.[0]?.name;
@@ -113,19 +110,21 @@ export const migrateSubredditsToChannelComposition = async () => {
 
         // Use old data if available, otherwise generate fallback name
         const channelName = oldName ?? `subreddit-${subreddit.id.slice(0, 8)}`;
-        
+
         const existingChannel = await channelRepo.findOne({
           where: { name: channelName, typeId: "reddit" },
         });
 
-        const channel = existingChannel ?? channelRepo.create({
-          name: channelName,
-          typeId: "reddit",
-          description: subreddit.notes,
-          eligibleMediaFilter: oldEligibleMediaFilter ? JSON.parse(oldEligibleMediaFilter) : null,
-          postCooldownHours: subreddit.maxPostFrequencyHours,
-          mediaRepostCooldownHours: 720,
-        });
+        const channel =
+          existingChannel ??
+          channelRepo.create({
+            name: channelName,
+            typeId: "reddit",
+            description: subreddit.notes,
+            eligibleMediaFilter: oldEligibleMediaFilter ? JSON.parse(oldEligibleMediaFilter) : null,
+            postCooldownHours: subreddit.maxPostFrequencyHours,
+            mediaRepostCooldownHours: 720,
+          });
 
         if (existingChannel) {
           console.log(`  → Found existing channel "${channel.name}" for subreddit ${subreddit.id}`);
@@ -142,7 +141,7 @@ export const migrateSubredditsToChannelComposition = async () => {
         console.error(`  ✗ Failed to migrate subreddit ${subreddit.id}:`, error);
         return { subredditId: subreddit.id, migrated: false, error };
       }
-    })
+    }),
   );
 
   const migratedCount = results.filter((r) => r.migrated).length;

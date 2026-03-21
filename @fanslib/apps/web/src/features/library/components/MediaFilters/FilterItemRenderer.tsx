@@ -1,4 +1,4 @@
-import type { MediaFilter } from '@fanslib/server/schemas';
+import type { MediaFilter } from "@fanslib/server/schemas";
 import { CalendarDate } from "@internationalized/date";
 import { format } from "date-fns";
 import { CalendarIcon, ImageIcon, VideoIcon, X } from "lucide-react";
@@ -8,7 +8,13 @@ import { Button } from "~/components/ui/Button";
 import { Calendar } from "~/components/ui/Calendar";
 import { Input } from "~/components/ui/Input";
 import { Popover, PopoverTrigger } from "~/components/ui/Popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/Select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/Select";
 import { Switch } from "~/components/ui/Switch";
 import { cn } from "~/lib/cn";
 import { ChannelFilterSelector } from "./ChannelFilterSelector";
@@ -47,7 +53,7 @@ export const FilterItemRenderer = ({
         "[@media(hover:none)]:opacity-100 [@media(hover:none)]:visible",
         "border-0 hover:border-0 focus:border-0",
         "ring-0 hover:ring-0 focus:ring-0",
-        className
+        className,
       )}
       onPress={onRemove}
       aria-label="Remove filter"
@@ -147,10 +153,15 @@ export const FilterItemRenderer = ({
         return (
           <Select
             value={
-              value && "value" in value && typeof value.value === "string" ? value.value : "repostable"
+              value && "value" in value && typeof value.value === "string"
+                ? value.value
+                : "repostable"
             }
             onValueChange={(newValue) =>
-              onChange({ type: "repostStatus", value: newValue as "never_posted" | "repostable" | "on_cooldown" | "still_growing" })
+              onChange({
+                type: "repostStatus",
+                value: newValue as "never_posted" | "repostable" | "on_cooldown" | "still_growing",
+              })
             }
             aria-label="Repost status"
           >
@@ -158,10 +169,18 @@ export const FilterItemRenderer = ({
               <SelectValue placeholder="Select repost status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="never_posted" textValue="Never Posted">Never Posted</SelectItem>
-              <SelectItem value="repostable" textValue="Repostable">Repostable</SelectItem>
-              <SelectItem value="on_cooldown" textValue="On Cooldown">On Cooldown</SelectItem>
-              <SelectItem value="still_growing" textValue="Still Growing">Still Growing</SelectItem>
+              <SelectItem value="never_posted" textValue="Never Posted">
+                Never Posted
+              </SelectItem>
+              <SelectItem value="repostable" textValue="Repostable">
+                Repostable
+              </SelectItem>
+              <SelectItem value="on_cooldown" textValue="On Cooldown">
+                On Cooldown
+              </SelectItem>
+              <SelectItem value="still_growing" textValue="Still Growing">
+                Still Growing
+              </SelectItem>
             </SelectContent>
           </Select>
         );
@@ -202,11 +221,7 @@ export const FilterItemRenderer = ({
         const dateValue =
           value && "value" in value && value.value instanceof Date ? value.value : undefined;
         const calendarValue = dateValue
-          ? new CalendarDate(
-              dateValue.getFullYear(),
-              dateValue.getMonth() + 1,
-              dateValue.getDate()
-            )
+          ? new CalendarDate(dateValue.getFullYear(), dateValue.getMonth() + 1, dateValue.getDate())
           : undefined;
         return (
           <PopoverTrigger isOpen={calendarOpen} onOpenChange={setCalendarOpen}>
@@ -214,7 +229,7 @@ export const FilterItemRenderer = ({
               variant="outline"
               className={cn(
                 "w-full justify-start text-left font-normal",
-                !dateValue && "text-muted-foreground"
+                !dateValue && "text-muted-foreground",
               )}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />

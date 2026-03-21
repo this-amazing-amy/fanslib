@@ -7,7 +7,7 @@ export const IncrementHashtagViewsResponseSchema = HashtagChannelStatsSchema;
 export const incrementHashtagViews = async (
   hashtagId: number,
   channelId: string,
-  viewCount: number
+  viewCount: number,
 ): Promise<z.infer<typeof IncrementHashtagViewsResponseSchema>> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(HashtagChannelStats);
@@ -36,4 +36,3 @@ export const incrementHashtagViews = async (
 
   return repository.save(stats);
 };
-

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../api/hono-client";
 import type { LoginStatus, SessionStatus } from "../reddit/auth-status-utils";
-import { QUERY_KEYS } from './query-keys';
+import { QUERY_KEYS } from "./query-keys";
 
 // Login to Reddit
 export const useRedditLoginMutation = () => {
@@ -10,7 +10,7 @@ export const useRedditLoginMutation = () => {
   return useMutation({
     mutationFn: async (userId?: string) => {
       const result = await api.api["reddit-automation"].login.$post({
-        json: { userId }
+        json: { userId },
       });
       return result.json();
     },
@@ -23,11 +23,12 @@ export const useRedditLoginMutation = () => {
 };
 
 // Check login status
-export const useRedditLoginStatusQuery = (userId?: string) => useQuery({
+export const useRedditLoginStatusQuery = (userId?: string) =>
+  useQuery({
     queryKey: QUERY_KEYS.reddit.loginStatus(userId),
     queryFn: async (): Promise<LoginStatus> => {
       const result = await api.api["reddit-automation"]["check-login"].$post({
-        json: { userId }
+        json: { userId },
       });
       return result.json() as Promise<LoginStatus>;
     },
@@ -35,11 +36,12 @@ export const useRedditLoginStatusQuery = (userId?: string) => useQuery({
   });
 
 // Check session status on server
-export const useRedditSessionStatusQuery = (userId?: string) => useQuery({
+export const useRedditSessionStatusQuery = (userId?: string) =>
+  useQuery({
     queryKey: QUERY_KEYS.reddit.sessionStatus(userId),
     queryFn: async (): Promise<SessionStatus> => {
       const result = await api.api["reddit-automation"].session.status.$post({
-        json: { userId }
+        json: { userId },
       });
       return result.json() as Promise<SessionStatus>;
     },
@@ -53,7 +55,7 @@ export const useClearRedditSessionMutation = () => {
   return useMutation({
     mutationFn: async (userId?: string) => {
       const result = await api.api["reddit-automation"].session.$delete({
-        json: { userId }
+        json: { userId },
       });
       return result.json();
     },
@@ -64,4 +66,3 @@ export const useClearRedditSessionMutation = () => {
     },
   });
 };
-

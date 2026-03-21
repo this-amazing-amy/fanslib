@@ -26,7 +26,12 @@ const getValidationError = (numericValue: number, schema: NumericSchema): string
   return null;
 };
 
-export const NumericValueInput = ({ value, onChange, schema, onValidationChange }: NumericValueInputProps) => {
+export const NumericValueInput = ({
+  value,
+  onChange,
+  schema,
+  onValidationChange,
+}: NumericValueInputProps) => {
   const [inputValue, setInputValue] = useState(value.toString());
   const [error, setError] = useState<string | null>(null);
 
@@ -61,9 +66,7 @@ export const NumericValueInput = ({ value, onChange, schema, onValidationChange 
 
   return (
     <div className="space-y-2">
-      <Label htmlFor="numericValue">
-        Value *{schema.unit ? ` (${schema.unit})` : ""}
-      </Label>
+      <Label htmlFor="numericValue">Value *{schema.unit ? ` (${schema.unit})` : ""}</Label>
       <Input
         id="numericValue"
         type="number"

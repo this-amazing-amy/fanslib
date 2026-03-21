@@ -1,6 +1,6 @@
-import type { AppType } from '@fanslib/server';
-import * as devalue from 'devalue';
-import { hc } from 'hono/client';
+import type { AppType } from "@fanslib/server";
+import * as devalue from "devalue";
+import { hc } from "hono/client";
 
 /**
  * Custom fetch wrapper that handles devalue deserialization.
@@ -10,9 +10,9 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
   const response = await fetch(input, init);
 
   // Check if response should be devalue-deserialized
-  const serialization = response.headers.get('X-Serialization');
+  const serialization = response.headers.get("X-Serialization");
 
-  if (serialization === 'devalue' && response.ok) {
+  if (serialization === "devalue" && response.ok) {
     const text = await response.text();
     const data = devalue.parse(text);
 

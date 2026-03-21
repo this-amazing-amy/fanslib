@@ -30,7 +30,11 @@ type OverduePostRow = {
   blueskyRetryCount: number;
 };
 
-const findOverdueScheduledNonRedditPosts = async (postRepository: Repository<Post>, now: Date): Promise<OverduePostRow[]> => postRepository
+const findOverdueScheduledNonRedditPosts = async (
+  postRepository: Repository<Post>,
+  now: Date,
+): Promise<OverduePostRow[]> =>
+  postRepository
     .createQueryBuilder("post")
     .leftJoin(Channel, "channel", "channel.id = post.channelId")
     .leftJoinAndSelect("post.postMedia", "postMedia")
@@ -45,7 +49,11 @@ const findOverdueScheduledNonRedditPosts = async (postRepository: Repository<Pos
     .andWhere("channel.typeId != :redditTypeId", { redditTypeId: CHANNEL_TYPES.reddit.id })
     .getRawMany<OverduePostRow>();
 
-const fetchPostWithRelations = async (postRepository: Repository<Post>, postId: string): Promise<Post | null> => postRepository.findOne({
+const fetchPostWithRelations = async (
+  postRepository: Repository<Post>,
+  postId: string,
+): Promise<Post | null> =>
+  postRepository.findOne({
     where: { id: postId },
     relations: {
       postMedia: {
@@ -60,12 +68,17 @@ const fetchPostWithRelations = async (postRepository: Repository<Post>, postId: 
     },
   });
 
-const extractMediaFromPost = (post: Post) => post.postMedia
+const extractMediaFromPost = (post: Post) =>
+  post.postMedia
     .filter((pm) => pm.media !== null)
     .map((pm) => pm.media)
     .filter((m): m is NonNullable<typeof m> => m !== null);
 
-const postToBluesky = async (post: Post, retryCount: number, now: Date): Promise<UpdatedPostLog> => {
+const postToBluesky = async (
+  post: Post,
+  retryCount: number,
+  now: Date,
+): Promise<UpdatedPostLog> => {
   const postRepository = (await db()).getRepository(Post);
   const media = extractMediaFromPost(post);
 
@@ -116,13 +129,13 @@ const postToBluesky = async (post: Post, retryCount: number, now: Date): Promise
             name: error.name,
             message: error.message,
             // Include XRPC-specific error details if available
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // oxlint-disable-next-line typescript/no-explicit-any
             status: (error as any).status,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // oxlint-disable-next-line typescript/no-explicit-any
             error: (error as any).error,
           }
         : { message: String(error) };
-    
+
     console.error("Bluesky post failed", {
       postId: post.id,
       mediaCount: media.length,
@@ -158,7 +171,7 @@ const markPostAsPosted = async (post: Post, now: Date): Promise<void> => {
 const processOverduePost = async (
   postRepository: Repository<Post>,
   row: OverduePostRow,
-  now: Date
+  now: Date,
 ): Promise<UpdatedPostLog> => {
   const post = await fetchPostWithRelations(postRepository, row.id);
 
@@ -220,7 +233,7 @@ export const updateOverdueScheduledNonRedditPosts = async (): Promise<UpdateResu
   }
 
   const allResults = await Promise.all(
-    overduePosts.map((row) => processOverduePost(postRepository, row, now))
+    overduePosts.map((row) => processOverduePost(postRepository, row, now)),
   );
 
   const updatedPosts = allResults.filter((r) => !r.skipped);

@@ -1,4 +1,4 @@
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   DatePicker as AriaDatePicker,
   Button,
@@ -18,8 +18,8 @@ import {
   Popover,
   type DatePickerProps as AriaDatePickerProps,
   type DateValue,
-} from 'react-aria-components';
-import { cn } from '~/lib/cn';
+} from "react-aria-components";
+import { cn } from "~/lib/cn";
 
 export type DatePickerProps<T extends DateValue> = AriaDatePickerProps<T> & {
   label?: string;
@@ -32,11 +32,11 @@ export const DatePicker = <T extends DateValue>({
   label,
   className,
   error,
-  locale = 'de-DE',
+  locale = "de-DE",
   ...props
 }: DatePickerProps<T>) => (
   <I18nProvider locale={locale}>
-    <AriaDatePicker {...props} className={cn('form-control', className)}>
+    <AriaDatePicker {...props} className={cn("form-control", className)}>
       {label && (
         <Label className="label">
           <span className="label-text">{label}</span>
@@ -48,9 +48,9 @@ export const DatePicker = <T extends DateValue>({
             <DateSegment
               segment={segment}
               className={cn(
-                'rounded text-sm tabular-nums outline-none',
-                'focus:bg-primary focus:text-primary-content',
-                'data-[placeholder]:text-base-content/50'
+                "rounded text-sm tabular-nums outline-none",
+                "focus:bg-primary focus:text-primary-content",
+                "data-[placeholder]:text-base-content/50",
               )}
             />
           )}
@@ -61,9 +61,9 @@ export const DatePicker = <T extends DateValue>({
       </Group>
       <Popover
         className={cn(
-          'z-50 bg-base-100 border border-base-300 rounded-lg shadow-lg',
-          'entering:animate-in entering:fade-in entering:zoom-in-95',
-          'exiting:animate-out exiting:fade-out exiting:zoom-out-95'
+          "z-50 bg-base-100 border border-base-300 rounded-lg shadow-lg",
+          "entering:animate-in entering:fade-in entering:zoom-in-95",
+          "exiting:animate-out exiting:fade-out exiting:zoom-out-95",
         )}
         offset={8}
       >
@@ -91,13 +91,13 @@ export const DatePicker = <T extends DateValue>({
                   <CalendarCell
                     date={date}
                     className={cn(
-                      'h-9 w-9 p-0 font-normal cursor-pointer flex items-center justify-center text-sm',
-                      'outline-none',
-                      'hover:bg-base-200',
-                      'data-[selected]:bg-primary data-[selected]:text-primary-content data-[selected]:rounded-lg',
-                      'data-[outside-month]:text-base-content/30',
-                      'data-[disabled]:text-base-content/30 data-[disabled]:cursor-not-allowed',
-                      'data-[unavailable]:text-error data-[unavailable]:line-through'
+                      "h-9 w-9 p-0 font-normal cursor-pointer flex items-center justify-center text-sm",
+                      "outline-none",
+                      "hover:bg-base-200",
+                      "data-[selected]:bg-primary data-[selected]:text-primary-content data-[selected]:rounded-lg",
+                      "data-[outside-month]:text-base-content/30",
+                      "data-[disabled]:text-base-content/30 data-[disabled]:cursor-not-allowed",
+                      "data-[unavailable]:text-error data-[unavailable]:line-through",
                     )}
                   />
                 )}
@@ -115,5 +115,4 @@ export const DatePicker = <T extends DateValue>({
   </I18nProvider>
 );
 
-DatePicker.displayName = 'DatePicker';
-
+DatePicker.displayName = "DatePicker";

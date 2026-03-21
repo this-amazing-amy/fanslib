@@ -16,7 +16,7 @@ const ensureThumbnailDir = async () => {
 export const generateThumbnail = async (
   mediaPath: string,
   mediaId: string,
-  type: "image" | "video"
+  type: "image" | "video",
 ): Promise<string> => {
   await ensureThumbnailDir();
 
@@ -55,7 +55,11 @@ export const generateThumbnail = async (
     const ffmpeg = spawn(ffmpegBin, ffmpegArgs);
 
     ffmpeg.on("error", (err) => {
-      reject(new Error(`Failed to spawn ffmpeg (binary: "${ffmpegBin}"): ${err.message}. Install ffmpeg or set FFMPEG_PATH env var.`));
+      reject(
+        new Error(
+          `Failed to spawn ffmpeg (binary: "${ffmpegBin}"): ${err.message}. Install ffmpeg or set FFMPEG_PATH env var.`,
+        ),
+      );
     });
 
     ffmpeg.on("exit", (code) => {
@@ -68,7 +72,8 @@ export const generateThumbnail = async (
   });
 };
 
-export const getThumbnailPath = (mediaId: string): string => path.join(THUMBNAIL_DIR, `${mediaId.replace(/\/$/, "")}.jpg`);
+export const getThumbnailPath = (mediaId: string): string =>
+  path.join(THUMBNAIL_DIR, `${mediaId.replace(/\/$/, "")}.jpg`);
 
 export const thumbnailExists = async (mediaId: string): Promise<boolean> => {
   try {

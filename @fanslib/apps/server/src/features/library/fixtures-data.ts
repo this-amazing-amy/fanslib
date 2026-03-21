@@ -1,6 +1,17 @@
 import type { Media } from "./entity";
 
-export type MediaFixture = Omit<Media, "createdAt" | "updatedAt" | "fileCreationDate" | "fileModificationDate" | "redgifsUrl" | "description" | "postMedia" | "shoots" | "mediaTags">;
+export type MediaFixture = Omit<
+  Media,
+  | "createdAt"
+  | "updatedAt"
+  | "fileCreationDate"
+  | "fileModificationDate"
+  | "redgifsUrl"
+  | "description"
+  | "postMedia"
+  | "shoots"
+  | "mediaTags"
+>;
 
 export const MEDIA_FIXTURES: MediaFixture[] = [
   {

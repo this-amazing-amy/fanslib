@@ -1,16 +1,20 @@
-import type { FilterItemTag, MediaFilter } from '@fanslib/server/schemas';
+import type { FilterItemTag, MediaFilter } from "@fanslib/server/schemas";
 import { useTagDefinitionsByIdsQuery } from "~/lib/queries/tags";
 
 type MediaFilters = MediaFilter;
 
-const extractTagIds = (filterGroups: MediaFilters): number[] => filterGroups.flatMap((group) =>
+const extractTagIds = (filterGroups: MediaFilters): number[] =>
+  filterGroups.flatMap((group) =>
     group.items
-      .filter((item): item is FilterItemTag => item.type === 'tag')
+      .filter((item): item is FilterItemTag => item.type === "tag")
       .map((item) => Number(item.id))
-      .filter((id) => !isNaN(id))
+      .filter((id) => !isNaN(id)),
   );
 
-const createTagNameMap = (tagDefinitions?: Array<{ id: number; displayName: string }>): Map<string, string> => tagDefinitions
+const createTagNameMap = (
+  tagDefinitions?: Array<{ id: number; displayName: string }>,
+): Map<string, string> =>
+  tagDefinitions
     ? new Map(tagDefinitions.map((tag) => [String(tag.id), tag.displayName]))
     : new Map();
 
@@ -21,6 +25,6 @@ export const useTagFilterNames = (filterGroups: MediaFilters) => {
     return new Map<string, string>();
   }
   const tagNameMap = createTagNameMap(tagDefinitions);
-  
+
   return tagNameMap;
 };

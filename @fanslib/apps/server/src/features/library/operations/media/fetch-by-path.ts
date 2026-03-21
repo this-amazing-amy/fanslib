@@ -11,15 +11,19 @@ export const FetchMediaByPathRequestParamsSchema = z.object({
 });
 
 export const FetchMediaByPathResponseSchema = MediaSchema.extend({
-  postMedia: z.array(PostMediaSchema.extend({
-    post: PostSchema.extend({
-      channel: ChannelSchema,
-      subreddit: SubredditSchema.nullable().optional(),
+  postMedia: z.array(
+    PostMediaSchema.extend({
+      post: PostSchema.extend({
+        channel: ChannelSchema,
+        subreddit: SubredditSchema.nullable().optional(),
+      }),
     }),
-  })),
+  ),
 });
 
-export const fetchMediaByPath = async (relativePath: string): Promise<z.infer<typeof FetchMediaByPathResponseSchema> | null> => {
+export const fetchMediaByPath = async (
+  relativePath: string,
+): Promise<z.infer<typeof FetchMediaByPathResponseSchema> | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Media);
 

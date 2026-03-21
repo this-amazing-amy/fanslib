@@ -45,7 +45,9 @@ const RepostSettings = () => {
           <Input
             type="number"
             value={String(repostSettings.defaultMediaRepostCooldownHours)}
-            onChange={(val) => updateRepostSetting("defaultMediaRepostCooldownHours", parseInt(val, 10) || 504)}
+            onChange={(val) =>
+              updateRepostSetting("defaultMediaRepostCooldownHours", parseInt(val, 10) || 504)
+            }
             min={0}
             aria-label="Default cooldown hours"
           />
@@ -71,7 +73,9 @@ const RepostSettings = () => {
               <Input
                 type="number"
                 value={String(repostSettings.plateauConsecutiveDays)}
-                onChange={(val) => updateRepostSetting("plateauConsecutiveDays", parseInt(val, 10) || 5)}
+                onChange={(val) =>
+                  updateRepostSetting("plateauConsecutiveDays", parseInt(val, 10) || 5)
+                }
                 min={1}
                 aria-label="Plateau consecutive days"
               />
@@ -85,7 +89,9 @@ const RepostSettings = () => {
               <Input
                 type="number"
                 value={String(repostSettings.plateauThresholdPercent)}
-                onChange={(val) => updateRepostSetting("plateauThresholdPercent", parseFloat(val) || 1.5)}
+                onChange={(val) =>
+                  updateRepostSetting("plateauThresholdPercent", parseFloat(val) || 1.5)
+                }
                 min={0}
                 step={0.1}
                 aria-label="Plateau threshold percent"
@@ -100,7 +106,9 @@ const RepostSettings = () => {
               <Input
                 type="number"
                 value={String(repostSettings.minDatapointsForPlateau)}
-                onChange={(val) => updateRepostSetting("minDatapointsForPlateau", parseInt(val, 10) || 7)}
+                onChange={(val) =>
+                  updateRepostSetting("minDatapointsForPlateau", parseInt(val, 10) || 7)
+                }
                 min={3}
                 aria-label="Minimum datapoints for plateau"
               />

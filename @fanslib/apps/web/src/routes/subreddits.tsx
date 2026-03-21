@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from '@tanstack/react-router';
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 /**
  * @deprecated This route is deprecated. Subreddit management has been consolidated
@@ -7,10 +7,10 @@ import { createFileRoute, redirect } from '@tanstack/react-router';
  *
  * This redirect preserves backward compatibility for any bookmarks or external links.
  */
-export const Route = createFileRoute('/subreddits')({
-	beforeLoad: () => {
-		throw redirect({
-			to: '/channels',
-		});
-	},
+export const Route = createFileRoute("/subreddits")({
+  beforeLoad: () => {
+    throw redirect({
+      to: "/channels",
+    });
+  },
 });

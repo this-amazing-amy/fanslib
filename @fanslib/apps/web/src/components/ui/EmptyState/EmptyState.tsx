@@ -1,7 +1,7 @@
-import { Inbox } from 'lucide-react';
-import type { ReactNode } from 'react';
-import { cn } from '~/lib/cn';
-import { Button } from '../Button';
+import { Inbox } from "lucide-react";
+import type { ReactNode } from "react";
+import { cn } from "~/lib/cn";
+import { Button } from "../Button";
 
 export type EmptyStateProps = {
   icon?: ReactNode;
@@ -14,17 +14,13 @@ export type EmptyStateProps = {
   className?: string;
 };
 
-export const EmptyState = ({
-  icon,
-  title,
-  description,
-  action,
-  className,
-}: EmptyStateProps) => {
+export const EmptyState = ({ icon, title, description, action, className }: EmptyStateProps) => {
   const displayIcon = icon ?? <Inbox className="w-16 h-16" />;
 
   return (
-    <div className={cn('flex flex-col items-center justify-center py-12 px-4 text-center', className)}>
+    <div
+      className={cn("flex flex-col items-center justify-center py-12 px-4 text-center", className)}
+    >
       <div className="mb-4 text-base-content/50">{displayIcon}</div>
       <h3 className="text-lg font-semibold mb-2 text-base-content/60">{title}</h3>
       {description && <p className="text-base-content/70 mb-6 max-w-sm">{description}</p>}
@@ -36,4 +32,3 @@ export const EmptyState = ({
     </div>
   );
 };
-

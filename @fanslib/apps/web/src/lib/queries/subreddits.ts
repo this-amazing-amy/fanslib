@@ -1,8 +1,8 @@
-import type { UpdateSubredditRequestBody } from '@fanslib/server/schemas';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '../api/hono-client';
-import { useFindSubredditPostingTimesMutation } from './postpone';
-import { QUERY_KEYS } from './query-keys';
+import type { UpdateSubredditRequestBody } from "@fanslib/server/schemas";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { api } from "../api/hono-client";
+import { useFindSubredditPostingTimesMutation } from "./postpone";
+import { QUERY_KEYS } from "./query-keys";
 
 export const useSubredditsQuery = () =>
   useQuery({
@@ -17,7 +17,7 @@ export const useSubredditQuery = (params: { id: string }) =>
   useQuery({
     queryKey: QUERY_KEYS.subreddits.byId(params.id),
     queryFn: async () => {
-      const result = await api.api.subreddits['by-id'][':id'].$get({ param: { id: params.id } });
+      const result = await api.api.subreddits["by-id"][":id"].$get({ param: { id: params.id } });
       return result.json();
     },
     enabled: !!params.id,
@@ -27,7 +27,9 @@ export const useLastPostDatesQuery = (params: { subredditIds: string[] }) =>
   useQuery({
     queryKey: QUERY_KEYS.subreddits.lastPostDates(params.subredditIds),
     queryFn: async () => {
-      const result = await api.api.subreddits['last-post-dates'].$post({ json: { subredditIds: params.subredditIds } });
+      const result = await api.api.subreddits["last-post-dates"].$post({
+        json: { subredditIds: params.subredditIds },
+      });
       return result.json();
     },
     enabled: params.subredditIds.length > 0,
@@ -37,7 +39,11 @@ export const useCreateSubredditMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { name: string; maxPostFrequencyHours?: number | null; notes?: string | null }) => {
+    mutationFn: async (data: {
+      name: string;
+      maxPostFrequencyHours?: number | null;
+      notes?: string | null;
+    }) => {
       const result = await api.api.subreddits.$post({ json: data });
       return result.json();
     },
@@ -57,7 +63,10 @@ export const useUpdateSubredditMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdateSubredditParams) => {
-      const result = await api.api.subreddits['by-id'][':id'].$patch({ param: { id }, json: updates });
+      const result = await api.api.subreddits["by-id"][":id"].$patch({
+        param: { id },
+        json: updates,
+      });
       return result.json();
     },
     onSuccess: (data, variables) => {
@@ -72,7 +81,7 @@ export const useDeleteSubredditMutation = () => {
 
   return useMutation({
     mutationFn: async (params: { id: string }) => {
-      const result = await api.api.subreddits['by-id'][':id'].$delete({ param: { id: params.id } });
+      const result = await api.api.subreddits["by-id"][":id"].$delete({ param: { id: params.id } });
       return result.json();
     },
     onSuccess: () => {
@@ -101,7 +110,7 @@ export const useAnalyzePostingTimesMutation = () => {
       });
 
       if (!result?.postingTimes) {
-        throw new Error('No posting times data received');
+        throw new Error("No posting times data received");
       }
 
       await updateSubredditMutation.mutateAsync({

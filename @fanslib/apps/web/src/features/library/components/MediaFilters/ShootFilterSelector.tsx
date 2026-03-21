@@ -1,12 +1,17 @@
-import type { Shoot } from '@fanslib/server/schemas';
+import type { Shoot } from "@fanslib/server/schemas";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "~/components/ui/Button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "~/components/ui/Command";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "~/components/ui/Command";
 import { Popover, PopoverTrigger } from "~/components/ui/Popover";
 import { cn } from "~/lib/cn";
 import { useShootsQuery } from "~/lib/queries/shoots";
-
 
 type ShootFilterSelectorProps = {
   value?: string;
@@ -21,12 +26,15 @@ export const ShootFilterSelector = ({ value, onChange }: ShootFilterSelectorProp
   const normalizedValue = value && value !== "" ? value : undefined;
 
   const selectedShoot = useMemo(
-    () => (shoots?.items as Shoot[] | undefined)?.find((shoot: Shoot) => shoot.id === normalizedValue),
-    [shoots, normalizedValue]
+    () =>
+      (shoots?.items as Shoot[] | undefined)?.find((shoot: Shoot) => shoot.id === normalizedValue),
+    [shoots, normalizedValue],
   );
 
   const displayValue = normalizedValue
-    ? (selectedShoot ? selectedShoot.name : "Select shoot...")
+    ? selectedShoot
+      ? selectedShoot.name
+      : "Select shoot..."
     : "All shoots";
 
   const selectShoot = (shootId: string) => {
@@ -43,11 +51,7 @@ export const ShootFilterSelector = ({ value, onChange }: ShootFilterSelectorProp
 
   return (
     <PopoverTrigger isOpen={open} onOpenChange={setOpen}>
-      <Button
-        variant="outline"
-        aria-expanded={open}
-        className="w-full justify-between"
-      >
+      <Button variant="outline" aria-expanded={open} className="w-full justify-between">
         {isLoading ? "Loading..." : displayValue}
         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </Button>
@@ -57,15 +61,9 @@ export const ShootFilterSelector = ({ value, onChange }: ShootFilterSelectorProp
           {!isLoading && !hasShoots ? <CommandEmpty>No shoot found.</CommandEmpty> : null}
           <div className="max-h-80 overflow-y-auto">
             <CommandGroup>
-              <CommandItem
-                value="All shoots"
-                onSelect={() => selectShoot("")}
-              >
+              <CommandItem value="All shoots" onSelect={() => selectShoot("")}>
                 <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    !normalizedValue ? "opacity-100" : "opacity-0"
-                  )}
+                  className={cn("mr-2 h-4 w-4", !normalizedValue ? "opacity-100" : "opacity-0")}
                 />
                 All shoots
               </CommandItem>
@@ -78,7 +76,7 @@ export const ShootFilterSelector = ({ value, onChange }: ShootFilterSelectorProp
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      normalizedValue === shoot.id ? "opacity-100" : "opacity-0"
+                      normalizedValue === shoot.id ? "opacity-100" : "opacity-0",
                     )}
                   />
                   {shoot.name}

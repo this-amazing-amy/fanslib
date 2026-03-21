@@ -1,13 +1,13 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Logo } from './Logo';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Logo } from "./Logo";
 
 const meta: Meta<typeof Logo> = {
-  title: 'UI/Logo',
+  title: "UI/Logo",
   component: Logo,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
@@ -24,5 +24,3 @@ export const Collapsed: Story = {
     isOpen: false,
   },
 };
-
-

@@ -1,22 +1,22 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Input } from '../Input';
-import { Label } from './Label';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Input } from "../Input";
+import { Label } from "./Label";
 
 const meta: Meta<typeof Label> = {
-  title: 'Form Controls/Label',
+  title: "Form Controls/Label",
   component: Label,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {
     required: {
-      control: { type: 'boolean' },
+      control: { type: "boolean" },
     },
   },
   decorators: [
     (Story: React.ComponentType) => (
-      <div style={{ width: '300px' }}>
+      <div style={{ width: "300px" }}>
         <Story />
       </div>
     ),
@@ -28,15 +28,15 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    children: 'Email address',
-    htmlFor: 'email',
+    children: "Email address",
+    htmlFor: "email",
   },
 };
 
 export const Required: Story = {
   args: {
-    children: 'Password',
-    htmlFor: 'password',
+    children: "Password",
+    htmlFor: "password",
     required: true,
   },
 };
@@ -60,4 +60,3 @@ export const RequiredWithInput: Story = {
     </div>
   ),
 };
-

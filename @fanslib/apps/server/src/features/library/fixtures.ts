@@ -29,4 +29,3 @@ export const seedMediaFixtures = async () => {
 
   return await mediaRepo.find();
 };
-

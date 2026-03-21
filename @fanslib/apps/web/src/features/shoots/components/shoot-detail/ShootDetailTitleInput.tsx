@@ -1,9 +1,8 @@
-import type { ShootSummary } from '@fanslib/server/schemas';
+import type { ShootSummary } from "@fanslib/server/schemas";
 import type { KeyboardEvent } from "react";
 import { useState } from "react";
 import { Input } from "~/components/ui/Input";
 import { useUpdateShootMutation } from "~/lib/queries/shoots";
-
 
 type ShootDetailTitleInputProps = {
   shoot: ShootSummary;
@@ -16,7 +15,7 @@ export const ShootDetailTitleInput = ({ shoot }: ShootDetailTitleInputProps) => 
 
   const saveName = async (name: string) => {
     if (name.trim() === "" || name === shoot.name) return;
-    
+
     setIsSaving(true);
     try {
       await updateShootMutation.mutateAsync({
@@ -63,4 +62,3 @@ export const ShootDetailTitleInput = ({ shoot }: ShootDetailTitleInputProps) => 
     </div>
   );
 };
-

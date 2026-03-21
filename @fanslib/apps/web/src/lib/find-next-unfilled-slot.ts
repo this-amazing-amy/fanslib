@@ -1,5 +1,5 @@
-import type { PostWithRelations } from '@fanslib/server/schemas';
-import { isVirtualPost, type VirtualPost } from './virtual-posts';
+import type { PostWithRelations } from "@fanslib/server/schemas";
+import { isVirtualPost, type VirtualPost } from "./virtual-posts";
 
 type Post = PostWithRelations;
 
@@ -10,7 +10,7 @@ type FindNextUnfilledSlotParams = {
 
 /**
  * Finds the next unfilled virtual post slot chronologically.
- * 
+ *
  * Logic:
  * - Starts from current post's date
  * - Looks for subsequent virtual posts (unfilled slots)
@@ -22,7 +22,7 @@ export const findNextUnfilledSlot = ({
   allPosts,
 }: FindNextUnfilledSlotParams): VirtualPost | null => {
   const virtualPosts = allPosts.filter(isVirtualPost);
-  
+
   if (virtualPosts.length === 0) return null;
 
   const currentDate = new Date(currentPost.date);
@@ -37,7 +37,7 @@ export const findNextUnfilledSlot = ({
 
   // Find future slots (after current date)
   const futureSlots = channelVirtualPosts.filter(
-    (p) => new Date(p.date).getTime() > currentDate.getTime()
+    (p) => new Date(p.date).getTime() > currentDate.getTime(),
   );
 
   if (futureSlots.length > 0) {
@@ -46,7 +46,7 @@ export const findNextUnfilledSlot = ({
 
   // Wrap to beginning - find earliest slot
   const earliestSlot = channelVirtualPosts[0];
-  
+
   // If we're already at the earliest slot, there's nowhere to go
   if (earliestSlot && earliestSlot.date === currentPost.date) {
     return null;

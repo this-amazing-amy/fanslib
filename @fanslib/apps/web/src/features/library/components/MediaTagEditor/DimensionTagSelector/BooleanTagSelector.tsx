@@ -1,17 +1,16 @@
-import type { MediaTag, TagDimension } from '@fanslib/server/schemas';
+import type { MediaTag, TagDimension } from "@fanslib/server/schemas";
 import { X } from "lucide-react";
 import { useState } from "react";
 import { Switch } from "~/components/ui/Switch";
 import {
-    useCreateTagDefinitionMutation,
-    useTagDefinitionsByDimensionQuery,
+  useCreateTagDefinitionMutation,
+  useTagDefinitionsByDimensionQuery,
 } from "~/lib/queries/tags";
 import {
-    formatBooleanValue,
-    parseBooleanSchema,
-    validateBooleanValue,
+  formatBooleanValue,
+  parseBooleanSchema,
+  validateBooleanValue,
 } from "~/lib/tags/tagValidation";
-
 
 type BooleanTagSelectorProps = {
   dimension: TagDimension;
@@ -27,7 +26,9 @@ export const BooleanTagSelector = ({
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { data: availableTags, refetch: refetchTags } = useTagDefinitionsByDimensionQuery({ dimensionId: dimension.id });
+  const { data: availableTags, refetch: refetchTags } = useTagDefinitionsByDimensionQuery({
+    dimensionId: dimension.id,
+  });
   const createTagMutation = useCreateTagDefinitionMutation();
 
   const schema = parseBooleanSchema(dimension.validationSchema);

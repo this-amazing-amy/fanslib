@@ -1,4 +1,4 @@
-import type { Media } from '@fanslib/server/schemas';
+import type { Media } from "@fanslib/server/schemas";
 import { Image as ImageIcon, Video } from "lucide-react";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "~/lib/cn";
@@ -7,7 +7,6 @@ import { useMediaTagsQuery } from "~/lib/queries/tags";
 import { formatDuration } from "~/lib/video";
 import { useSfwMode } from "~/hooks/useSfwMode";
 import { MediaTilePostingHistoryIndicator } from "./MediaTilePostingHistoryIndicator";
-
 
 type MediaPreview = Pick<Media, "id" | "name" | "type" | "duration">;
 
@@ -114,11 +113,13 @@ export const MediaTileLite = memo(
     }, [isActivePreview, media.type]);
 
     return (
-      <div className={cn("relative aspect-square bg-base-300 rounded-lg overflow-hidden", className)} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+      <div
+        className={cn("relative aspect-square bg-base-300 rounded-lg overflow-hidden", className)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
         {/* Apply dimmed visual treatment if within cooldown */}
-        {isWithinCooldown && (
-          <div className="absolute inset-0 bg-black/40 z-[5]" />
-        )}
+        {isWithinCooldown && <div className="absolute inset-0 bg-black/40 z-[5]" />}
         {media.type === "video" ? (
           <>
             <img
@@ -135,7 +136,9 @@ export const MediaTileLite = memo(
             <video
               ref={videoRef}
               src={getMediaFileUrl(media.id)}
-              className={getBlurClassName(cn("absolute inset-0 w-full h-full object-contain", !isActivePreview && "hidden"))}
+              className={getBlurClassName(
+                cn("absolute inset-0 w-full h-full object-contain", !isActivePreview && "hidden"),
+              )}
               preload="none"
               draggable={false}
             />
@@ -186,7 +189,7 @@ export const MediaTileLite = memo(
         </div>
       </div>
     );
-  }
+  },
 );
 
 MediaTileLite.displayName = "MediaTileLite";

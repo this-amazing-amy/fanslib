@@ -1,23 +1,22 @@
-import type { Media, PostWithRelations } from '@fanslib/server/schemas';
-import { Link } from '@tanstack/react-router';
-import { ExternalLink, Plus, Trash2Icon } from 'lucide-react';
-import { useState } from 'react';
-import { MediaView } from '~/components/MediaView';
-import { RevealInFinderButton } from '~/components/RevealInFinderButton';
-import { Button } from '~/components/ui/Button';
+import type { Media, PostWithRelations } from "@fanslib/server/schemas";
+import { Link } from "@tanstack/react-router";
+import { ExternalLink, Plus, Trash2Icon } from "lucide-react";
+import { useState } from "react";
+import { MediaView } from "~/components/MediaView";
+import { RevealInFinderButton } from "~/components/RevealInFinderButton";
+import { Button } from "~/components/ui/Button";
 import {
-    Dialog,
-    DialogFooter,
-    DialogHeader,
-    DialogModal,
-    DialogTitle,
-    DialogTrigger,
-} from '~/components/ui/Dialog';
+  Dialog,
+  DialogFooter,
+  DialogHeader,
+  DialogModal,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/Dialog";
 
-import { CombinedMediaSelection } from '~/features/library/components/CombinedMediaSelection';
-import { cn } from '~/lib/cn';
-import { useAddMediaToPostMutation, useRemoveMediaFromPostMutation } from '~/lib/queries/posts';
-
+import { CombinedMediaSelection } from "~/features/library/components/CombinedMediaSelection";
+import { cn } from "~/lib/cn";
+import { useAddMediaToPostMutation, useRemoveMediaFromPostMutation } from "~/lib/queries/posts";
 
 type Post = PostWithRelations;
 
@@ -43,13 +42,13 @@ export const PostDetailMedia = ({ post }: PostDetailMediaProps) => {
       });
       setConfirmingDelete(null);
     } catch (error) {
-      console.error('Failed to remove media from post:', error);
+      console.error("Failed to remove media from post:", error);
     }
   };
 
   const handleDragStart = (e: React.DragEvent, mediaId: string) => {
-    e.dataTransfer.effectAllowed = 'copy';
-    e.dataTransfer.setData('text/plain', mediaId);
+    e.dataTransfer.effectAllowed = "copy";
+    e.dataTransfer.setData("text/plain", mediaId);
   };
 
   const handleMediaSelect = (media: Media) => {
@@ -95,7 +94,7 @@ export const PostDetailMedia = ({ post }: PostDetailMediaProps) => {
               className="backdrop-blur-sm bg-base-100/80 h-8 w-8"
             />
             <Button
-              variant={confirmingDelete === postMedia.id ? 'error' : 'ghost'}
+              variant={confirmingDelete === postMedia.id ? "error" : "ghost"}
               size="icon"
               onClick={() => {
                 if (confirmingDelete === postMedia.id) {
@@ -110,9 +109,7 @@ export const PostDetailMedia = ({ post }: PostDetailMediaProps) => {
             >
               <Trash2Icon className="h-4 w-4" />
               {confirmingDelete === postMedia.id && (
-                <span className="ml-1">
-                  {removeMediaMutation.isPending ? '...' : 'Sure?'}
-                </span>
+                <span className="ml-1">{removeMediaMutation.isPending ? "..." : "Sure?"}</span>
               )}
             </Button>
           </div>
@@ -121,10 +118,10 @@ export const PostDetailMedia = ({ post }: PostDetailMediaProps) => {
       <button
         onClick={() => setIsAddMediaOpen(true)}
         className={cn(
-          'aspect-square rounded-2xl border-2 border-dashed border-base-300',
-          'flex items-center justify-center',
-          'hover:border-primary hover:bg-primary/10 transition-colors',
-          'cursor-pointer'
+          "aspect-square rounded-2xl border-2 border-dashed border-base-300",
+          "flex items-center justify-center",
+          "hover:border-primary hover:bg-primary/10 transition-colors",
+          "cursor-pointer",
         )}
       >
         <div className="flex flex-col items-center gap-2 text-base-content/60">
@@ -134,39 +131,36 @@ export const PostDetailMedia = ({ post }: PostDetailMediaProps) => {
       </button>
 
       <DialogTrigger isOpen={isAddMediaOpen} onOpenChange={setIsAddMediaOpen}>
-          <DialogModal>
-            <Dialog maxWidth="3xl" className="max-h-[80vh] flex flex-col">
-              {({ close }) => (
-                <>
-                  <DialogHeader>
-                    <DialogTitle>Add Media to Post</DialogTitle>
-                  </DialogHeader>
-                  <div className="flex-1 min-h-0 overflow-hidden">
-                    <CombinedMediaSelection
-                      selectedMedia={selectedMedia}
-                      onMediaSelect={handleMediaSelect}
-                      excludeMediaIds={existingMediaIds}
-                    />
-                  </div>
-                  <DialogFooter>
-                    <Button variant="ghost" onPress={close}>
-                      Cancel
-                    </Button>
-                    <Button
-                      onPress={handleAddMedia}
-                      isDisabled={selectedMedia.length === 0 || addMediaMutation.isPending}
-                    >
-                      {addMediaMutation.isPending
-                        ? 'Adding...'
-                        : `Add ${selectedMedia.length} media`}
-                    </Button>
-                  </DialogFooter>
-                </>
-              )}
-            </Dialog>
-          </DialogModal>
+        <DialogModal>
+          <Dialog maxWidth="3xl" className="max-h-[80vh] flex flex-col">
+            {({ close }) => (
+              <>
+                <DialogHeader>
+                  <DialogTitle>Add Media to Post</DialogTitle>
+                </DialogHeader>
+                <div className="flex-1 min-h-0 overflow-hidden">
+                  <CombinedMediaSelection
+                    selectedMedia={selectedMedia}
+                    onMediaSelect={handleMediaSelect}
+                    excludeMediaIds={existingMediaIds}
+                  />
+                </div>
+                <DialogFooter>
+                  <Button variant="ghost" onPress={close}>
+                    Cancel
+                  </Button>
+                  <Button
+                    onPress={handleAddMedia}
+                    isDisabled={selectedMedia.length === 0 || addMediaMutation.isPending}
+                  >
+                    {addMediaMutation.isPending ? "Adding..." : `Add ${selectedMedia.length} media`}
+                  </Button>
+                </DialogFooter>
+              </>
+            )}
+          </Dialog>
+        </DialogModal>
       </DialogTrigger>
     </div>
   );
 };
-

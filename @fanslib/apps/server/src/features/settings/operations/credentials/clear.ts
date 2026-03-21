@@ -19,4 +19,3 @@ export const clearFanslyCredentials = async (): Promise<ClearFanslyCredentialsRe
   }
   return { success: true };
 };
-

@@ -1,10 +1,10 @@
-import { Heart, RefreshCw, Settings as SettingsIcon } from 'lucide-react';
-import { ConnectionStatus } from './ConnectionStatus';
+import { Heart, RefreshCw, Settings as SettingsIcon } from "lucide-react";
+import { ConnectionStatus } from "./ConnectionStatus";
 
 type PopupHeaderProps = {
   postCount: number;
   currentIndex: number;
-  connectionStatus: 'loading' | 'connected' | 'error';
+  connectionStatus: "loading" | "connected" | "error";
   errorMessage: string | null;
   onOpenSettings: () => void;
   onRefresh: () => void;
@@ -19,36 +19,36 @@ export const PopupHeader = ({
   onRefresh,
   isRefreshing,
 }: PopupHeaderProps) => (
-  <div className='flex items-center gap-3 px-3 py-2 border-b border-base-300 justify-between'>
-    <div className='flex items-center gap-3'>
+  <div className="flex items-center gap-3 px-3 py-2 border-b border-base-300 justify-between">
+    <div className="flex items-center gap-3">
       <div
-        className='w-9 h-9 rounded-lg flex items-center justify-center'
-        style={{ backgroundColor: 'rgb(229, 214, 254)' }}
+        className="w-9 h-9 rounded-lg flex items-center justify-center"
+        style={{ backgroundColor: "rgb(229, 214, 254)" }}
       >
-        <Heart className='w-5 h-5 text-white fill-white' />
+        <Heart className="w-5 h-5 text-white fill-white" />
       </div>
       {postCount > 0 && (
-        <div className='text-xs text-base-content/60'>
-          {postCount} post{postCount !== 1 ? 's' : ''} ready
+        <div className="text-xs text-base-content/60">
+          {postCount} post{postCount !== 1 ? "s" : ""} ready
         </div>
       )}
     </div>
-    <div className='flex items-center gap-2'>
+    <div className="flex items-center gap-2">
       <ConnectionStatus status={connectionStatus} errorMessage={errorMessage} />
       <button
         onClick={onRefresh}
-        disabled={connectionStatus === 'loading' || isRefreshing}
-        className='p-1.5 rounded-lg hover:bg-base-200 text-base-content/60 hover:text-base-content transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
-        title='Refresh'
+        disabled={connectionStatus === "loading" || isRefreshing}
+        className="p-1.5 rounded-lg hover:bg-base-200 text-base-content/60 hover:text-base-content transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        title="Refresh"
       >
-        <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+        <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
       </button>
       <button
         onClick={onOpenSettings}
-        className='p-1.5 rounded-lg hover:bg-base-200 text-base-content/60 hover:text-base-content transition-colors cursor-pointer'
-        title='Settings'
+        className="p-1.5 rounded-lg hover:bg-base-200 text-base-content/60 hover:text-base-content transition-colors cursor-pointer"
+        title="Settings"
       >
-        <SettingsIcon className='w-4 h-4' />
+        <SettingsIcon className="w-4 h-4" />
       </button>
     </div>
   </div>

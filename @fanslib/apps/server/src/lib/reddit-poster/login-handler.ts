@@ -11,7 +11,7 @@ import type {
 } from "./types";
 
 export class RedditLoginHandler {
-  private browser: BrowserContext  | null = null;
+  private browser: BrowserContext | null = null;
   private page: Page | null = null;
   private config: RedditLoginHandlerConfig;
 
@@ -34,10 +34,12 @@ export class RedditLoginHandler {
       });
       this.page = this.browser.pages()[0] ?? (await this.browser.newPage());
     } else {
-      this.browser = await chromium.launch({
-        headless: this.config.browserOptions?.headless ?? false,
-        timeout: this.config.browserOptions?.timeout ?? 30000,
-      })?.then((browser) => browser.contexts()[0] ?? null);
+      this.browser = await chromium
+        .launch({
+          headless: this.config.browserOptions?.headless ?? false,
+          timeout: this.config.browserOptions?.timeout ?? 30000,
+        })
+        ?.then((browser) => browser.contexts()[0] ?? null);
       this.page = (await this.browser?.newPage()) ?? null;
     }
   };
@@ -148,7 +150,11 @@ export class RedditLoginHandler {
     }
 
     const sessionData = await this.config.sessionStorage.read();
-    const { cookies, localStorage: localStorageData, sessionStorage: sessionStorageData } = JSON.parse(sessionData);
+    const {
+      cookies,
+      localStorage: localStorageData,
+      sessionStorage: sessionStorageData,
+    } = JSON.parse(sessionData);
 
     await this.page.context().addCookies(cookies);
 
@@ -162,7 +168,7 @@ export class RedditLoginHandler {
           window.sessionStorage.setItem(key, value as string);
         });
       },
-      { localStorage: localStorageData, sessionStorage: sessionStorageData }
+      { localStorage: localStorageData, sessionStorage: sessionStorageData },
     );
 
     await this.page.goto("https://www.reddit.com");
@@ -194,6 +200,3 @@ export class RedditLoginHandler {
     this.page = null;
   };
 }
-
-
-

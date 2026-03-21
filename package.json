@@ -1,17 +1,14 @@
 {
   "name": "@fanslib/root",
-  "devDependencies": {
-    "turbo": "^2.5.6",
-    "@types/node": "^22.10.5",
-    "typescript": "^5.9.2",
-    "prettier": "^3.6.2",
-    "prettier-plugin-organize-imports": "^4.2.0"
-  },
-  "engines": {
-    "bun": ">=1.0.0"
-  },
-  "packageManager": "bun@1.2.19",
   "private": true,
+  "workspaces": [
+    "@fanslib/apps/web",
+    "@fanslib/apps/server",
+    "@fanslib/apps/chrome-extension",
+    "@fanslib/apps/electron-companion",
+    "@fanslib/libraries/*",
+    "@fanslib/configs/*"
+  ],
   "scripts": {
     "build": "turbo run build",
     "build:dev": "turbo run build --filter=!@fanslib/web && cd @fanslib/apps/web && bun run build:dev",
@@ -23,16 +20,9 @@
     "storybook": "turbo run storybook",
     "clean": "turbo run clean",
     "format": "turbo run format",
+    "format:check": "turbo run format:check",
     "deploy": "./scripts/deploy.sh"
   },
-  "workspaces": [
-    "@fanslib/apps/web",
-    "@fanslib/apps/server",
-    "@fanslib/apps/chrome-extension",
-    "@fanslib/apps/electron-companion",
-    "@fanslib/libraries/*",
-    "@fanslib/configs/*"
-  ],
   "dependencies": {
     "@tanstack/react-router": "^1.161.3",
     "@tanstack/react-router-devtools": "^1.161.3",
@@ -40,5 +30,22 @@
     "fkill-cli": "^9.0.0",
     "sqlite3": "^5.1.7",
     "vite-plugin-node-polyfills": "^0.24.0"
-  }
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "@typescript-eslint/eslint-plugin": "^8.43.0",
+    "@typescript-eslint/parser": "^8.43.0",
+    "eslint": "^9.35.0",
+    "eslint-plugin-functional": "^9.0.4",
+    "eslint-plugin-oxlint": "^1.56.0",
+    "eslint-plugin-prefer-arrow-functions": "^3.9.1",
+    "oxfmt": "^0.41.0",
+    "oxlint": "^1.56.0",
+    "turbo": "^2.5.6",
+    "typescript": "^5.9.2"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  },
+  "packageManager": "bun@1.2.19"
 }

@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Home, Settings, Users, FileText } from 'lucide-react';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Home, Settings, Users, FileText } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -13,15 +13,15 @@ import {
   SidebarInset,
   SidebarHeader,
   SidebarFooter,
-} from './Sidebar';
+} from "./Sidebar";
 
 const meta: Meta<typeof Sidebar> = {
-  title: 'UI/Sidebar',
+  title: "UI/Sidebar",
   component: Sidebar,
   parameters: {
-    layout: 'fullscreen',
+    layout: "fullscreen",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
@@ -68,7 +68,10 @@ export const Default: Story = {
       <SidebarInset>
         <div className="p-6">
           <h1 className="text-2xl font-bold mb-4">Main Content</h1>
-          <p>This is the main content area. The sidebar can be toggled using the button or Ctrl/Cmd+B.</p>
+          <p>
+            This is the main content area. The sidebar can be toggled using the button or
+            Ctrl/Cmd+B.
+          </p>
         </div>
       </SidebarInset>
     </SidebarProvider>
@@ -152,5 +155,3 @@ export const DefaultCollapsed: Story = {
     </SidebarProvider>
   ),
 };
-
-

@@ -1,10 +1,6 @@
 import { z } from "zod";
 import { db } from "../../../../lib/db";
-import {
-  Subreddit,
-  SubredditSchema,
-  VERIFICATION_STATUS,
-} from "../../entity";
+import { Subreddit, SubredditSchema, VERIFICATION_STATUS } from "../../entity";
 import { Channel } from "../../../channels/entity";
 
 export const CreateSubredditRequestBodySchema = SubredditSchema.omit({

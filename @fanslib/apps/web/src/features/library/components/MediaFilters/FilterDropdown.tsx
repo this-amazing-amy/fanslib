@@ -54,9 +54,9 @@ export const FilterDropdown = ({
 
   const handleAction = (key: string | number) => {
     if (filters.length === 0 || groupIndex === undefined) {
-      addGroupWithFilterType(key as typeof FILTER_TYPE_OPTIONS[number]["value"]);
+      addGroupWithFilterType(key as (typeof FILTER_TYPE_OPTIONS)[number]["value"]);
     } else {
-      addFilterWithTypeToGroup(groupIndex, key as typeof FILTER_TYPE_OPTIONS[number]["value"]);
+      addFilterWithTypeToGroup(groupIndex, key as (typeof FILTER_TYPE_OPTIONS)[number]["value"]);
     }
   };
 
@@ -76,7 +76,11 @@ export const FilterDropdown = ({
             {FILTER_TYPE_OPTIONS.map((option) => {
               const Icon = option.icon;
               return (
-                <DropdownMenuItem key={option.value} id={option.value} className="flex items-center gap-2">
+                <DropdownMenuItem
+                  key={option.value}
+                  id={option.value}
+                  className="flex items-center gap-2"
+                >
                   <Icon className="h-4 w-4" />
                   <span>{option.label}</span>
                 </DropdownMenuItem>
@@ -90,12 +94,7 @@ export const FilterDropdown = ({
 
   return (
     <DropdownMenuTrigger>
-        <Button
-          variant="ghost"
-          size="icon"
-          isDisabled={disabled}
-          className={className}
-      >
+      <Button variant="ghost" size="icon" isDisabled={disabled} className={className}>
         <Filter className="h-4 w-4" />
       </Button>
       <DropdownMenuPopover placement="bottom start">
@@ -103,7 +102,11 @@ export const FilterDropdown = ({
           {FILTER_TYPE_OPTIONS.map((option) => {
             const Icon = option.icon;
             return (
-              <DropdownMenuItem key={option.value} id={option.value} className="flex items-center gap-2">
+              <DropdownMenuItem
+                key={option.value}
+                id={option.value}
+                className="flex items-center gap-2"
+              >
                 <Icon className="h-4 w-4" />
                 <span>{option.label}</span>
               </DropdownMenuItem>

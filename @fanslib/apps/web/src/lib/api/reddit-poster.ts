@@ -1,6 +1,5 @@
-import type { Media, Subreddit } from '@fanslib/server/schemas';
-import { api } from './hono-client';
-
+import type { Media, Subreddit } from "@fanslib/server/schemas";
+import { api } from "./hono-client";
 
 type GeneratedPost = {
   id: string;
@@ -76,37 +75,41 @@ export type CheckRedditPosterLoginResponse = {
 
 export const redditPosterApi = {
   generateRandomPost: async (request: GenerateRandomPostRequest) => {
-    const response = await api.api['reddit-automation']['generate-random-post'].$post({ json: request });
+    const response = await api.api["reddit-automation"]["generate-random-post"].$post({
+      json: request,
+    });
     return response.json();
   },
 
   generatePosts: async (request: GeneratePostsRequest) => {
-    const response = await api.api['reddit-automation']['generate-posts'].$post({ json: request });
+    const response = await api.api["reddit-automation"]["generate-posts"].$post({ json: request });
     return response.json();
   },
 
   regenerateMedia: async (request: RegenerateMediaRequest) => {
-    const response = await api.api['reddit-automation']['regenerate-media'].$post({ json: request });
+    const response = await api.api["reddit-automation"]["regenerate-media"].$post({
+      json: request,
+    });
     return response.json();
   },
 
   schedulePosts: async (request: SchedulePostsRequest) => {
-    const response = await api.api['reddit-automation']['schedule-posts'].$post({ json: request });
+    const response = await api.api["reddit-automation"]["schedule-posts"].$post({ json: request });
     return response.json();
   },
 
   getScheduledPosts: async () => {
-    const response = await api.api['reddit-automation']['scheduled-posts'].$get();
+    const response = await api.api["reddit-automation"]["scheduled-posts"].$get();
     return response.json();
   },
 
   login: async (request: RedditPosterLoginRequest) => {
-    const response = await api.api['reddit-automation'].login.$post({ json: request });
+    const response = await api.api["reddit-automation"].login.$post({ json: request });
     return response.json();
   },
 
   checkLogin: async (request: CheckRedditPosterLoginRequest) => {
-    const response = await api.api['reddit-automation']['check-login'].$post({ json: request });
+    const response = await api.api["reddit-automation"]["check-login"].$post({ json: request });
     return response.json();
   },
 };

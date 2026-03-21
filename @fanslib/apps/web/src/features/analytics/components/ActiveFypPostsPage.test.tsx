@@ -42,7 +42,7 @@ const makePosts = () => [
   },
 ];
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 const mockQuery = (overrides: { data: any; isLoading: boolean }) =>
   mockUseActiveFypPostsQuery.mockReturnValue(overrides as ReturnType<typeof useActiveFypPostsQuery>);
 

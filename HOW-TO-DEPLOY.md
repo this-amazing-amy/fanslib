@@ -2,29 +2,29 @@
 
 ## Variables (set these for your environment)
 
-| Variable | Example | Description |
-|----------|---------|-------------|
-| `DEPLOY_HOST` | `user@hostname` | SSH target (user@host or host from ~/.ssh/config) |
-| `DEPLOY_ROOT` | `/var/www/apps/fanslib` | Root of deploy directory on server |
-| `APPDATA_PATH` | `/mnt/data/fanslib` | Persistent data (DB, uploads) |
-| `LIBRARY_SOURCE` | `/path/to/your/media/library` | Source path for library symlink |
-| `YOUR_DOMAIN` | `fanslib.example.com` | Public domain for Caddy |
-| `BUILD_WORKSPACE` | `/workspace/projects/fanslib` | Local build workspace (where you run `bun run build`) |
-| `SQL_WASM_SERVER_PATH` | *(see Known Issues)* | Path on server where sql-wasm.wasm must live (hardcoded in bundle) |
+| Variable               | Example                       | Description                                                        |
+| ---------------------- | ----------------------------- | ------------------------------------------------------------------ |
+| `DEPLOY_HOST`          | `user@hostname`               | SSH target (user@host or host from ~/.ssh/config)                  |
+| `DEPLOY_ROOT`          | `/var/www/apps/fanslib`       | Root of deploy directory on server                                 |
+| `APPDATA_PATH`         | `/mnt/data/fanslib`           | Persistent data (DB, uploads)                                      |
+| `LIBRARY_SOURCE`       | `/path/to/your/media/library` | Source path for library symlink                                    |
+| `YOUR_DOMAIN`          | `fanslib.example.com`         | Public domain for Caddy                                            |
+| `BUILD_WORKSPACE`      | `/workspace/projects/fanslib` | Local build workspace (where you run `bun run build`)              |
+| `SQL_WASM_SERVER_PATH` | _(see Known Issues)_          | Path on server where sql-wasm.wasm must live (hardcoded in bundle) |
 
 ## Architecture
 
-| Component | Port | Description |
-|-----------|------|-------------|
-| Web (TanStack Start) | 7000 | Frontend + SSR |
-| API (Hono/Bun) | 7500 | Backend API |
-| Caddy | 80 | Reverse proxy → 7000 |
+| Component            | Port | Description          |
+| -------------------- | ---- | -------------------- |
+| Web (TanStack Start) | 7000 | Frontend + SSR       |
+| API (Hono/Bun)       | 7500 | Backend API          |
+| Caddy                | 80   | Reverse proxy → 7000 |
 
 ## Port Schema
 
-| Environment | Web | API |
-|-------------|-----|-----|
-| Production | 7000 | 7500 |
+| Environment  | Web  | API  |
+| ------------ | ---- | ---- |
+| Production   | 7000 | 7500 |
 | Preview pr-1 | 7001 | 7501 |
 | Preview pr-2 | 7002 | 7502 |
 
@@ -58,6 +58,7 @@ $APPDATA_PATH/
 ## ENV Variables
 
 `$DEPLOY_ROOT/production/.env`:
+
 ```env
 PORT=7000
 API_URL=http://localhost:7500
@@ -92,6 +93,7 @@ bun run build:dev
 ```
 
 Build output:
+
 - Web: `@fanslib/apps/web/dist/` (client + server dirs)
 - API: `@fanslib/apps/server/dist/index.js`
 
@@ -141,16 +143,17 @@ ssh -o StrictHostKeyChecking=no $DEPLOY_HOST '
 
 ## PM2 Processes
 
-| Name | Script | CWD |
-|------|--------|-----|
+| Name        | Script                             | CWD                    |
+| ----------- | ---------------------------------- | ---------------------- |
 | fanslib-web | start-web.sh (→ bun run server.js) | .../current/web/server |
-| fanslib-api | start-api.sh (→ bun run index.js) | .../current/api |
+| fanslib-api | start-api.sh (→ bun run index.js)  | .../current/api        |
 
 Start scripts source `.env` before running bun.
 
 ## Caddy Config
 
 In `/etc/caddy/Caddyfile`:
+
 ```caddyfile
 http://your-domain.com {
     reverse_proxy localhost:7000

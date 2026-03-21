@@ -23,7 +23,7 @@ export const ColorPicker = ({ value, onChange, className }: ColorPickerProps) =>
   const displayColor = colorDef.background;
 
   // Determine which preset is selected
-  const selectedPresetId = value?.startsWith('preset:') ? value.substring(7) : null;
+  const selectedPresetId = value?.startsWith("preset:") ? value.substring(7) : null;
 
   return (
     <PopoverTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
@@ -47,11 +47,11 @@ export const ColorPicker = ({ value, onChange, className }: ColorPickerProps) =>
               onClick={() => handleColorSelect(preset.id)}
               className={cn(
                 "w-8 h-8 rounded-md border-2 transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary",
-                selectedPresetId === preset.id ? "ring-2 ring-offset-1" : ""
+                selectedPresetId === preset.id ? "ring-2 ring-offset-1" : "",
               )}
               style={{
                 backgroundColor: preset.background,
-                borderColor: selectedPresetId === preset.id ? preset.foreground : 'transparent',
+                borderColor: selectedPresetId === preset.id ? preset.foreground : "transparent",
               }}
               aria-label={preset.name}
               title={preset.name}

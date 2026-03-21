@@ -1,4 +1,8 @@
-import type { CreateContentScheduleRequestBody, MediaFilter, ScheduleChannel } from '@fanslib/server/schemas';
+import type {
+  CreateContentScheduleRequestBody,
+  MediaFilter,
+  ScheduleChannel,
+} from "@fanslib/server/schemas";
 import { ChevronDown, ChevronUp, Plus, Settings2, X } from "lucide-react";
 import { useState } from "react";
 import { ChannelBadge } from "~/components/ChannelBadge";
@@ -8,7 +12,13 @@ import { Button } from "~/components/ui/Button/Button";
 import { ColorPicker } from "~/components/ui/ColorPicker";
 import { EmojiPicker } from "~/components/ui/EmojiPicker";
 import { Input } from "~/components/ui/Input/Input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/Select/Select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/Select/Select";
 import { FilterPresetProvider } from "~/contexts/FilterPresetContext";
 import { MediaFilters as MediaFiltersComponent } from "~/features/library/components/MediaFilters/MediaFilters";
 import { MediaFiltersProvider } from "~/features/library/components/MediaFilters/MediaFiltersContext";
@@ -51,7 +61,7 @@ const DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "S
 
 const initializeScheduleChannels = (
   schedule: ContentScheduleWithChannels | undefined,
-  channelId: string | undefined
+  channelId: string | undefined,
 ): ScheduleChannelInput[] => {
   if (schedule?.scheduleChannels && schedule.scheduleChannels.length > 0) {
     return schedule.scheduleChannels.map((sc, index) => ({
@@ -83,10 +93,10 @@ export const ContentScheduleForm = ({
   const [preferredTimes, setPreferredTimes] = useState<string[]>(schedule?.preferredTimes ?? []);
   const [newTime, setNewTime] = useState("");
   const [mediaFilters, setMediaFilters] = useState<MediaFilters>(
-    schedule?.mediaFilters ? parseMediaFilters(schedule.mediaFilters) ?? [] : []
+    schedule?.mediaFilters ? (parseMediaFilters(schedule.mediaFilters) ?? []) : [],
   );
   const [scheduleChannels, setScheduleChannels] = useState<ScheduleChannelInput[]>(
-    initializeScheduleChannels(schedule, channelId)
+    initializeScheduleChannels(schedule, channelId),
   );
   const [expandedChannelFilters, setExpandedChannelFilters] = useState<string | null>(null);
 
@@ -107,14 +117,14 @@ export const ContentScheduleForm = ({
       prev.map((sc) =>
         sc.channelId === channelId
           ? { ...sc, mediaFilterOverrides: filters.length > 0 ? filters : null }
-          : sc
-      )
+          : sc,
+      ),
     );
   };
 
   const handleDayToggle = (day: string) => {
     setPreferredDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day],
     );
   };
 
@@ -156,18 +166,9 @@ export const ContentScheduleForm = ({
       {/* Schedule Name & Identity */}
       <div className="space-y-4">
         <div className="flex gap-2">
-          <EmojiPicker
-            value={emoji}
-            onChange={setEmoji}
-            placeholder="📅"
-          />
+          <EmojiPicker value={emoji} onChange={setEmoji} placeholder="📅" />
           <ColorPicker value={color} onChange={setColor} />
-          <Input
-            value={name}
-            onChange={setName}
-            placeholder="Schedule name"
-            className="flex-1"
-          />
+          <Input value={name} onChange={setName} placeholder="Schedule name" className="flex-1" />
         </div>
         <div>
           <ContentScheduleBadge
@@ -239,7 +240,9 @@ export const ContentScheduleForm = ({
                         Additional filters for {channel?.name} (e.g., censored content only)
                       </div>
                       <FilterPresetProvider
-                        onFiltersChange={(filters) => handleChannelFilterChange(sc.channelId, filters)}
+                        onFiltersChange={(filters) =>
+                          handleChannelFilterChange(sc.channelId, filters)
+                        }
                       >
                         <MediaFiltersProvider
                           value={sc.mediaFilterOverrides ?? []}
@@ -315,7 +318,7 @@ export const ContentScheduleForm = ({
                 onClick={() => handleDayToggle(day)}
                 className={cn(
                   "btn btn-sm",
-                  preferredDays.includes(day) ? "btn-primary" : "btn-ghost"
+                  preferredDays.includes(day) ? "btn-primary" : "btn-ghost",
                 )}
               >
                 {day.slice(0, 3)}
@@ -338,12 +341,7 @@ export const ContentScheduleForm = ({
               onChange={(value) => setNewTime(value)}
               className="flex-1"
             />
-            <Button
-              type="button"
-              variant="secondary"
-              onPress={handleAddTime}
-              isDisabled={!newTime}
-            >
+            <Button type="button" variant="secondary" onPress={handleAddTime} isDisabled={!newTime}>
               <Plus className="w-4 h-4" />
             </Button>
           </div>

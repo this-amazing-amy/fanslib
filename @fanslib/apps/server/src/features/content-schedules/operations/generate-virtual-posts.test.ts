@@ -345,9 +345,7 @@ describe("fetchVirtualPosts", () => {
       toDate: "2026-01-25T23:59:59Z",
     });
 
-    const mondaySlot = virtualPosts.find((p) =>
-      p.date.toISOString().includes("2026-01-20")
-    );
+    const mondaySlot = virtualPosts.find((p) => p.date.toISOString().includes("2026-01-20"));
     expect(mondaySlot).toBeUndefined();
   });
 
@@ -382,9 +380,7 @@ describe("fetchVirtualPosts", () => {
       toDate: "2026-01-25T23:59:59Z",
     });
 
-    const mondaySlot = virtualPosts.find((p) =>
-      p.date.toISOString().includes("2026-01-20")
-    );
+    const mondaySlot = virtualPosts.find((p) => p.date.toISOString().includes("2026-01-20"));
     expect(mondaySlot).toBeUndefined();
   });
 
@@ -471,7 +467,7 @@ describe("fetchVirtualPosts - multi-channel schedules", () => {
         sortOrder: index,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-      })
+      }),
     );
     await scheduleChannelRepo.save(scheduleChannels);
 
@@ -568,7 +564,7 @@ describe("fetchVirtualPosts - multi-channel schedules", () => {
         sortOrder: 0,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-      })
+      }),
     );
 
     const virtualPosts = await fetchVirtualPosts({
@@ -861,7 +857,7 @@ describe("fetchVirtualPosts - multi-channel schedules", () => {
       skippedRepo.create({
         scheduleId: "skipped-multi-schedule",
         date: new Date("2026-01-19T12:00:00.000Z"),
-      })
+      }),
     );
 
     const virtualPosts = await fetchVirtualPosts({

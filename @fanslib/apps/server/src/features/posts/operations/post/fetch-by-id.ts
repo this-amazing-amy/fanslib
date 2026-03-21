@@ -53,4 +53,3 @@ export const fetchPostById = async (id: string): Promise<PostWithRelations | nul
     subreddit: post.subreddit ?? null,
   };
 };
-

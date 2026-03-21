@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { ImagePlus } from "lucide-react";
-import type { AssignMediaResponse, Media } from '@fanslib/server/schemas';
+import type { AssignMediaResponse, Media } from "@fanslib/server/schemas";
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
@@ -38,7 +38,7 @@ export const UnfilledSlotDropzone = ({
       className={cn(
         "rounded-lg border-2 border-dashed p-4 transition-colors",
         isOver ? "border-primary bg-primary/10" : "border-base-300",
-        isDragging && "border-primary/60"
+        isDragging && "border-primary/60",
       )}
     >
       <div className="flex items-start gap-3">
