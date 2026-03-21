@@ -1,14 +1,6 @@
-import { parse as devalueParse } from 'devalue';
 import { addLogEntry } from '../lib/activity-log';
+import { eden } from '../lib/api';
 import type { CandidateItem } from '../content/fansly-interceptor';
-
-const parseResponse = async (response: Response): Promise<unknown> => {
-  const text = await response.text();
-  if (response.headers.get('X-Serialization') === 'devalue') {
-    return devalueParse(text);
-  }
-  return JSON.parse(text);
-};
 
 type Message =
   | {
@@ -118,17 +110,12 @@ const sendCredentialsToServer = async (credentials: {
   }
 
   const apiUrl = await getApiUrl();
-  const endpoint = `${apiUrl}/api/settings/fansly-credentials`;
-
-  const bodyString = JSON.stringify(filteredCredentials);
+  if (!apiUrl) return;
+  const api = eden(apiUrl);
 
   try {
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: bodyString,
+    const response = await api.api.settings['fansly-credentials'].$post({
+      json: filteredCredentials,
     });
 
     if (!response.ok) {
@@ -164,22 +151,19 @@ const sendCandidates = async (candidates: CandidateItem[]): Promise<void> => {
   });
 
   const apiUrl = await getApiUrl();
+  if (!apiUrl) return;
+  const api = eden(apiUrl);
 
-  const endpoint = `${apiUrl}/api/analytics/candidates`;
   debug('info', 'Sending POST request to API', {
-    endpoint,
+    endpoint: `${apiUrl}/api/analytics/candidates`,
     candidateCount: candidates.length,
   });
 
   await chrome.storage.local.set({ isSyncing: true });
 
   try {
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ items: candidates }),
+    const response = await api.api.analytics.candidates.$post({
+      json: { items: candidates },
     });
 
     debug('info', 'API response received', {
@@ -192,7 +176,7 @@ const sendCandidates = async (candidates: CandidateItem[]): Promise<void> => {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    const result = (await parseResponse(response)) as Array<{
+    const result = (await response.json()) as Array<{
       candidate: unknown;
       status: 'created' | 'existing' | 'already_matched';
     }>;
@@ -402,22 +386,19 @@ const sendScheduleCapture = async (
   debug('info', 'Sending schedule capture to server', { contentId, captionLength: caption.length });
 
   const apiUrl = await getApiUrl();
-  const endpoint = `${apiUrl}/api/posts/schedule-capture`;
+  if (!apiUrl) return { matched: false, postId: null };
+  const api = eden(apiUrl);
 
   try {
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ contentId, caption }),
+    const response = await api.api.posts['schedule-capture'].$post({
+      json: { contentId, caption },
     });
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    const result = (await parseResponse(response)) as { matched: boolean; postId: string | null };
+    const result = (await response.json()) as { matched: boolean; postId: string | null };
 
     debug('info', 'Schedule capture result', { matched: result.matched, postId: result.postId });
 

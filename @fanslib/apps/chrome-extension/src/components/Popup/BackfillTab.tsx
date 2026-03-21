@@ -1,17 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
-import { parse as devalueParse } from 'devalue';
 import { Image, Video, Check, X, Loader2, ArrowRight } from 'lucide-react';
 import { getSettings } from '../../lib/storage';
 import { addLogEntry } from '../../lib/activity-log';
+import { eden } from '../../lib/api';
 import { getMediaThumbnailUrl } from '../../lib/utils';
-
-const parseResponse = async (response: Response): Promise<unknown> => {
-  const text = await response.text();
-  if (response.headers.get('X-Serialization') === 'devalue') {
-    return devalueParse(text);
-  }
-  return JSON.parse(text);
-};
 
 type Suggestion = {
   postMediaId: string;
@@ -47,20 +39,19 @@ export const BackfillTab = () => {
     setLoading(true);
     try {
       const settings = await getSettings();
-      const apiUrl = settings.apiUrl.replace(/\/+$/, '');
-      setApiUrl(apiUrl);
-      const response = await fetch(
-        `${apiUrl}/api/analytics/candidates?status=pending&limit=20`
-      );
+      const currentApiUrl = settings.apiUrl;
+      setApiUrl(currentApiUrl);
+      const api = eden(currentApiUrl);
+      const response = await api.api.analytics.candidates.$get({
+        query: { status: 'pending', limit: '20' },
+      });
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
 
-      const parsed = (await parseResponse(response)) as
-        | RawCandidate[]
-        | { items: RawCandidate[]; total: number };
-      const data = Array.isArray(parsed) ? parsed : parsed.items;
+      const parsed = await response.json();
+      const data = parsed.items as RawCandidate[];
 
       const initial: Candidate[] = data.map((c) => ({
         id: c.id,
@@ -75,7 +66,7 @@ export const BackfillTab = () => {
 
       // Fetch suggestions for each candidate
       data.forEach((c) => {
-        fetchSuggestions(apiUrl, c.id);
+        fetchSuggestions(currentApiUrl, c.id);
       });
     } catch (err) {
       console.error('Failed to load candidates:', err);
@@ -88,17 +79,18 @@ export const BackfillTab = () => {
     loadCandidates();
   }, [loadCandidates]);
 
-  const fetchSuggestions = async (apiUrl: string, candidateId: string) => {
+  const fetchSuggestions = async (suggestionsApiUrl: string, candidateId: string) => {
     try {
-      const response = await fetch(
-        `${apiUrl}/api/analytics/candidates/by-id/${candidateId}/suggestions`
-      );
+      const api = eden(suggestionsApiUrl);
+      const response = await api.api.analytics.candidates['by-id'][':id'].suggestions.$get({
+        param: { id: candidateId },
+      });
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
 
-      const suggestions = (await parseResponse(response)) as Suggestion[];
+      const suggestions = (await response.json()) as Suggestion[];
       const topSuggestion = suggestions.length > 0 ? suggestions[0] : null;
 
       setCandidates((prev) =>
@@ -123,16 +115,11 @@ export const BackfillTab = () => {
 
     try {
       const settings = await getSettings();
-      const response = await fetch(
-        `${settings.apiUrl.replace(/\/+$/, '')}/api/analytics/candidates/by-id/${candidate.id}/match`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            postMediaId: candidate.topSuggestion.postMediaId,
-          }),
-        }
-      );
+      const api = eden(settings.apiUrl);
+      const response = await api.api.analytics.candidates['by-id'][':id'].match.$post({
+        param: { id: candidate.id },
+        json: { postMediaId: candidate.topSuggestion.postMediaId },
+      });
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
@@ -156,13 +143,10 @@ export const BackfillTab = () => {
 
     try {
       const settings = await getSettings();
-      const response = await fetch(
-        `${settings.apiUrl.replace(/\/+$/, '')}/api/analytics/candidates/by-id/${candidate.id}/ignore`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
+      const api = eden(settings.apiUrl);
+      const response = await api.api.analytics.candidates['by-id'][':id'].ignore.$post({
+        param: { id: candidate.id },
+      });
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);

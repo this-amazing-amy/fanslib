@@ -41,6 +41,7 @@ export const CreateCandidateSchema = z.object({
 
 export const MatchSuggestionSchema = z.object({
   postMediaId: z.string(),
+  mediaId: z.string(),
   confidence: z.number(),
   method: MatchMethodSchema,
   filename: z.string(),
