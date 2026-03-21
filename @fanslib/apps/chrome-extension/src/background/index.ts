@@ -110,7 +110,8 @@ const sendCredentialsToServer = async (credentials: {
   }
 
   const apiUrl = await getApiUrl();
-  const api = eden(apiUrl!);
+  if (!apiUrl) return;
+  const api = eden(apiUrl);
 
   try {
     const response = await api.api.settings['fansly-credentials'].$post({
@@ -150,7 +151,8 @@ const sendCandidates = async (candidates: CandidateItem[]): Promise<void> => {
   });
 
   const apiUrl = await getApiUrl();
-  const api = eden(apiUrl!);
+  if (!apiUrl) return;
+  const api = eden(apiUrl);
 
   debug('info', 'Sending POST request to API', {
     endpoint: `${apiUrl}/api/analytics/candidates`,
@@ -384,7 +386,8 @@ const sendScheduleCapture = async (
   debug('info', 'Sending schedule capture to server', { contentId, captionLength: caption.length });
 
   const apiUrl = await getApiUrl();
-  const api = eden(apiUrl!);
+  if (!apiUrl) return { matched: false, postId: null };
+  const api = eden(apiUrl);
 
   try {
     const response = await api.api.posts['schedule-capture'].$post({
