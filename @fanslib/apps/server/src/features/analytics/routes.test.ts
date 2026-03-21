@@ -342,6 +342,43 @@ describe("Analytics Routes", () => {
       expect(item.averageEngagementSeconds).toBe(30);
     });
 
+    test("includes datapoints array for sparkline rendering", async () => {
+      const dataSource = getTestDataSource();
+      const dpRepo = dataSource.getRepository(FanslyAnalyticsDatapoint);
+
+      const { postMedia } = await createActivePost();
+
+      // Seed datapoints
+      const baseTime = Date.now() - 5 * 24 * 60 * 60 * 1000;
+      const dayMs = 24 * 60 * 60 * 1000;
+      await Promise.all(
+        [0, 50, 80, 95, 100].map((views, i) =>
+          dpRepo.save(
+            dpRepo.create({
+              timestamp: baseTime + i * dayMs,
+              views,
+              interactionTime: views * 1000,
+              postMedia,
+              postMediaId: postMedia.id,
+            }),
+          ),
+        ),
+      );
+
+      const res = await app.request("/api/analytics/active-fyp-posts");
+      expect(res.status).toBe(200);
+
+      type PostWithDatapoints = {
+        datapoints: Array<{ timestamp: number; views: number; interactionTime: number }>;
+      };
+      const data = (await parseResponse<PostWithDatapoints[]>(res)) as PostWithDatapoints[];
+      expect(data).toHaveLength(1);
+      expect(data[0].datapoints).toBeArray();
+      expect(data[0].datapoints).toHaveLength(5);
+      expect(data[0].datapoints[0].views).toBe(0);
+      expect(data[0].datapoints[4].views).toBe(100);
+    });
+
     test("excludes manually removed posts", async () => {
       await createActivePost({ fypManuallyRemoved: true });
 

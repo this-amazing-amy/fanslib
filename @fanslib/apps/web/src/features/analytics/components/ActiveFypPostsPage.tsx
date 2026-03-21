@@ -56,6 +56,8 @@ export const ActiveFypPostsPage = () => {
               totalViews={post.totalViews}
               averageEngagementPercent={post.averageEngagementPercent}
               averageEngagementSeconds={post.averageEngagementSeconds}
+              datapoints={(post as { datapoints?: Array<{ timestamp: number; views: number; interactionTime: number }> }).datapoints}
+              sortMetric={sortBy}
               actionSlot={
                 <Button
                   variant="ghost"
