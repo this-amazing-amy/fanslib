@@ -24,13 +24,13 @@ export const useScan = (onScanComplete?: () => void): UseScanResult => {
 
       if (!status) return;
 
-      if ('isScanning' in status && status.isScanning && status.progress) {
-        setScanProgress(status.progress);
-      }
-
-      if ('isScanning' in status && !status.isScanning && status.result) {
+      if ('isScanning' in status && status.isScanning) {
+        setScanProgress(status.progress ?? null);
+      } else if ('isScanning' in status && !status.isScanning) {
         setScanProgress(null);
-        setScanResult(status.result);
+        if (status.result) {
+          setScanResult(status.result);
+        }
         setIsScanning(false);
         onScanComplete?.();
       }
@@ -56,7 +56,7 @@ export const useScan = (onScanComplete?: () => void): UseScanResult => {
   return {
     scanProgress,
     scanResult,
-    isScanning: scanProgress !== null,
+    isScanning,
     handleScan,
     resetScan,
   };
