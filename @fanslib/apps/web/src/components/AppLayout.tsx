@@ -1,6 +1,7 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { type ReactNode, useEffect } from 'react';
+import { CredentialStatusBadge } from '~/components/CredentialStatusBadge';
 import { Logo } from '~/components/Logo';
 import { NavigationMenu } from '~/components/NavigationMenu';
 import { BurgerIcon } from '~/components/ui/BurgerIcon';
@@ -77,6 +78,9 @@ const LayoutContent = ({ children }: AppLayoutProps) => {
               <BurgerIcon />
             </label>
             <Logo isCollapsed={false} className="h-8" />
+            <div className="ml-auto">
+              <CredentialStatusBadge />
+            </div>
           </header>
 
           <MainContent>{children}</MainContent>
@@ -95,6 +99,10 @@ const LayoutContent = ({ children }: AppLayoutProps) => {
             </div>
 
             <NavigationMenu isCollapsed={isCollapsed} />
+
+            <div className={cn('mt-auto p-4 border-t border-base-300', isCollapsed && 'lg:flex lg:justify-center')}>
+              <CredentialStatusBadge />
+            </div>
           </aside>
         </div>
       </div>
