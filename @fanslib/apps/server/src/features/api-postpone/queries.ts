@@ -35,6 +35,3 @@ export const SCHEDULE_BLUESKY_POST = `
     }
   }
 `;
-
-
-

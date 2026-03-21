@@ -16,16 +16,16 @@ export const FetchPostsByShootIdResponseSchema = z.array(
     postMedia: z.array(
       PostMediaSchema.extend({
         media: MediaSchema,
-      })
+      }),
     ),
     channel: ChannelSchema.extend({
       type: ChannelTypeSchema,
     }),
-  })
+  }),
 );
 
 export const fetchPostsByShootId = async (
-  shootId: string
+  shootId: string,
 ): Promise<z.infer<typeof FetchPostsByShootIdResponseSchema>> => {
   const repository = (await db()).getRepository(Post);
 
@@ -80,4 +80,3 @@ export const fetchPostsByShootId = async (
 
   return posts;
 };
-

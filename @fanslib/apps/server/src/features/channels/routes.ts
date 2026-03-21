@@ -31,15 +31,19 @@ export const channelsRoutes = new Hono()
     const result = await createChannel(body);
     return c.json(result);
   })
-  .patch("/by-id/:id", zValidator("json", UpdateChannelRequestBodySchema, validationError), async (c) => {
-    const id = c.req.param("id");
-    const body = c.req.valid("json");
-    const channel = await updateChannel(id, body);
-    if (!channel) {
-      return notFound(c, "Channel not found");
-    }
-    return c.json(channel);
-  })
+  .patch(
+    "/by-id/:id",
+    zValidator("json", UpdateChannelRequestBodySchema, validationError),
+    async (c) => {
+      const id = c.req.param("id");
+      const body = c.req.valid("json");
+      const channel = await updateChannel(id, body);
+      if (!channel) {
+        return notFound(c, "Channel not found");
+      }
+      return c.json(channel);
+    },
+  )
   .delete("/by-id/:id", async (c) => {
     const id = c.req.param("id");
     const success = await deleteChannel(id);
@@ -48,4 +52,3 @@ export const channelsRoutes = new Hono()
     }
     return c.json({ success: true });
   });
-

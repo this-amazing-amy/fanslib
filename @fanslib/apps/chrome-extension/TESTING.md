@@ -17,10 +17,10 @@ This guide explains how to test the Chrome extension functionality (especially t
 3. **Configure settings in browser console:**
 
    ```javascript
-   localStorage.setItem('fanslib_api_url', 'http://localhost:6970');
-   localStorage.setItem('fanslib_web_url', 'http://localhost:6969');
-   localStorage.setItem('fanslib_bridge_url', 'http://localhost:6971');
-   localStorage.setItem('fanslib_library_path', '/path/to/your/library');
+   localStorage.setItem("fanslib_api_url", "http://localhost:6970");
+   localStorage.setItem("fanslib_web_url", "http://localhost:6969");
+   localStorage.setItem("fanslib_bridge_url", "http://localhost:6971");
+   localStorage.setItem("fanslib_library_path", "/path/to/your/library");
    ```
 
 4. **Reload the page** to load posts
@@ -76,7 +76,7 @@ Look for the PATCH request to `/api/posts/by-id/:id`:
 
 ```javascript
 // Set invalid API URL
-localStorage.setItem('fanslib_api_url', 'http://invalid-url:9999');
+localStorage.setItem("fanslib_api_url", "http://invalid-url:9999");
 // Reload page - should show error
 ```
 
@@ -84,7 +84,7 @@ localStorage.setItem('fanslib_api_url', 'http://invalid-url:9999');
 
 ```javascript
 // Set correct API URL
-localStorage.setItem('fanslib_api_url', 'http://localhost:6970');
+localStorage.setItem("fanslib_api_url", "http://localhost:6970");
 // Click "Mark Posted" - should update and reload posts
 ```
 

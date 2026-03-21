@@ -221,8 +221,16 @@ describe("Analytics Routes", () => {
       const viewCounts = [0, 100, 200, 300, 303, 305, 306, 307, 308, 309];
       await Promise.all(
         viewCounts.map((views, i) =>
-          dpRepo.save(dpRepo.create({ timestamp: baseTime + i * dayMs, views, interactionTime: views * 1000, postMedia, postMediaId: postMedia.id }))
-        )
+          dpRepo.save(
+            dpRepo.create({
+              timestamp: baseTime + i * dayMs,
+              views,
+              interactionTime: views * 1000,
+              postMedia,
+              postMediaId: postMedia.id,
+            }),
+          ),
+        ),
       );
 
       await initializeAnalyticsAggregates();
@@ -251,8 +259,16 @@ describe("Analytics Routes", () => {
       const viewCounts = [0, 100, 300, 700];
       await Promise.all(
         viewCounts.map((views, i) =>
-          dpRepo.save(dpRepo.create({ timestamp: baseTime + i * dayMs, views, interactionTime: views * 1000, postMedia, postMediaId: postMedia.id }))
-        )
+          dpRepo.save(
+            dpRepo.create({
+              timestamp: baseTime + i * dayMs,
+              views,
+              interactionTime: views * 1000,
+              postMedia,
+              postMediaId: postMedia.id,
+            }),
+          ),
+        ),
       );
 
       await initializeAnalyticsAggregates();

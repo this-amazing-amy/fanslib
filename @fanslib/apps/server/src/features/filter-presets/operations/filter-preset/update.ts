@@ -13,14 +13,15 @@ export const UpdateFilterPresetRequestBodySchema = z.object({
   filters: MediaFilterSchema.optional(),
 });
 
-export const UpdateFilterPresetResponseSchema = FilterPresetSchema.omit({ filtersJson: true }).extend({
+export const UpdateFilterPresetResponseSchema = FilterPresetSchema.omit({
+  filtersJson: true,
+}).extend({
   filters: MediaFilterSchema,
 });
 
-
 export const updateFilterPreset = async (
   id: string,
-  payload: z.infer<typeof UpdateFilterPresetRequestBodySchema>
+  payload: z.infer<typeof UpdateFilterPresetRequestBodySchema>,
 ): Promise<z.infer<typeof UpdateFilterPresetResponseSchema> | null> => {
   const database = await db();
   const repository = database.getRepository(FilterPreset);
@@ -44,4 +45,3 @@ export const updateFilterPreset = async (
     filters: validatedFilters,
   };
 };
-

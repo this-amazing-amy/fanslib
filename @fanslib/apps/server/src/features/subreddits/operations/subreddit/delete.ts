@@ -20,21 +20,18 @@ export const deleteSubreddit = async (id: string): Promise<boolean> => {
     const channelRepo = manager.getRepository(Channel);
     const postRepo = manager.getRepository(Post);
 
-    const subreddit = await subredditRepo.findOne({ 
+    const subreddit = await subredditRepo.findOne({
       where: { id },
       relations: ["channel"],
     });
-    
+
     if (!subreddit) {
       return false;
     }
 
     // Update posts to remove subreddit reference
     // (Setting to null instead of deleting to preserve post history)
-    await postRepo.update(
-      { subredditId: id },
-      { subredditId: null }
-    );
+    await postRepo.update({ subredditId: id }, { subredditId: null });
 
     await subredditRepo.delete({ id });
 

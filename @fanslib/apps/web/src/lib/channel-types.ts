@@ -47,4 +47,3 @@ export const CHANNEL_TYPES = {
 } as const;
 
 export type ChannelTypeId = keyof typeof CHANNEL_TYPES;
-

@@ -16,22 +16,17 @@ type ScanButtonProps = {
 
 export const ScanButton = ({ isScanning, onScan, onUpload }: ScanButtonProps) => (
   <DropdownMenuTrigger>
-    <Button
-      isDisabled={isScanning}
-      size="icon"
-      variant="ghost"
-    >
+    <Button isDisabled={isScanning} size="icon" variant="ghost">
       <MoreVertical className="h-4 w-4" />
     </Button>
     <DropdownMenuPopover placement="bottom end" className="w-48">
-      <DropdownMenu onAction={(key) => {
-        if (key === "scan") onScan();
-        if (key === "upload") onUpload();
-      }}>
-        <DropdownMenuItem
-          id="upload"
-          className="flex items-center gap-2 text-sm font-medium"
-        >
+      <DropdownMenu
+        onAction={(key) => {
+          if (key === "scan") onScan();
+          if (key === "upload") onUpload();
+        }}
+      >
+        <DropdownMenuItem id="upload" className="flex items-center gap-2 text-sm font-medium">
           <Upload className="h-4 w-4" />
           Upload Files
         </DropdownMenuItem>

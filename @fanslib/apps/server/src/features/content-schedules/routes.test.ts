@@ -23,9 +23,7 @@ describe("Content Schedules Routes", () => {
   beforeAll(async () => {
     await setupTestDatabase();
     fixtures = await resetAllFixtures();
-    app = new Hono()
-      .use("*", devalueMiddleware())
-      .route("/", contentSchedulesRoutes);
+    app = new Hono().use("*", devalueMiddleware()).route("/", contentSchedulesRoutes);
   });
 
   afterAll(async () => {
@@ -86,7 +84,9 @@ describe("Content Schedules Routes", () => {
         throw new Error("No channel fixtures available");
       }
 
-      const response = await app.request(`/api/content-schedules/by-channel-id/${fixtureChannel.id}`);
+      const response = await app.request(
+        `/api/content-schedules/by-channel-id/${fixtureChannel.id}`,
+      );
       const data = await parseResponse<ContentSchedule[]>(response);
 
       expect(Array.isArray(data)).toBe(true);
@@ -203,7 +203,7 @@ describe("Content Schedules Routes", () => {
       const toDate = addDays(new Date(), 30).toISOString();
 
       const response = await app.request(
-        `/api/content-schedules/virtual-posts?channelIds=${channel.id}&fromDate=${fromDate}&toDate=${toDate}`
+        `/api/content-schedules/virtual-posts?channelIds=${channel.id}&fromDate=${fromDate}&toDate=${toDate}`,
       );
       expect(response.status).toBe(200);
 
@@ -222,7 +222,7 @@ describe("Content Schedules Routes", () => {
       const toDate = addDays(new Date(), 30).toISOString();
 
       const response = await app.request(
-        `/api/content-schedules/virtual-posts?channelIds=${channelIds}&fromDate=${fromDate}&toDate=${toDate}`
+        `/api/content-schedules/virtual-posts?channelIds=${channelIds}&fromDate=${fromDate}&toDate=${toDate}`,
       );
       expect(response.status).toBe(200);
 
@@ -235,7 +235,7 @@ describe("Content Schedules Routes", () => {
       const toDate = addDays(new Date(), 30).toISOString();
 
       const response = await app.request(
-        `/api/content-schedules/virtual-posts?fromDate=${fromDate}&toDate=${toDate}`
+        `/api/content-schedules/virtual-posts?fromDate=${fromDate}&toDate=${toDate}`,
       );
       expect(response.status).toBe(422);
 
@@ -244,4 +244,3 @@ describe("Content Schedules Routes", () => {
     });
   });
 });
-

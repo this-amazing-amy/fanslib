@@ -1,4 +1,9 @@
-import type { CreateShootRequestBody, FetchAllShootsRequestBody, ShootFilters, ShootSummary } from '@fanslib/server/schemas';
+import type {
+  CreateShootRequestBody,
+  FetchAllShootsRequestBody,
+  ShootFilters,
+  ShootSummary,
+} from "@fanslib/server/schemas";
 import { createContext, useCallback, useContext, useState } from "react";
 import {
   useCreateShootMutation,
@@ -64,7 +69,7 @@ export const ShootProvider = ({ children, params }: ShootProviderProps) => {
       await updateMutation.mutateAsync({ id: shootId, updates: { mediaIds } });
       await refetch();
     },
-    [updateMutation, refetch]
+    [updateMutation, refetch],
   );
 
   const createShoot = useCallback(
@@ -72,7 +77,7 @@ export const ShootProvider = ({ children, params }: ShootProviderProps) => {
       await createMutation.mutateAsync(params);
       await refetch();
     },
-    [createMutation, refetch]
+    [createMutation, refetch],
   );
 
   const value = {

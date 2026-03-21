@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { cn } from '~/lib/cn';
+import type { ReactNode } from "react";
+import { cn } from "~/lib/cn";
 import {
   Dialog,
   DialogBody,
@@ -9,7 +9,7 @@ import {
   DialogModal,
   DialogTitle,
   DialogTrigger,
-} from '../Dialog';
+} from "../Dialog";
 
 export type FormDialogProps = {
   open: boolean;
@@ -19,7 +19,7 @@ export type FormDialogProps = {
   children: ReactNode;
   footer?: ReactNode;
   contentClassName?: string;
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
+  maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
   isDismissable?: boolean;
 };
 
@@ -31,7 +31,7 @@ export const FormDialog = ({
   children,
   footer,
   contentClassName,
-  maxWidth = 'lg',
+  maxWidth = "lg",
   isDismissable = true,
 }: FormDialogProps) => (
   <DialogTrigger isOpen={open} onOpenChange={onOpenChange}>
@@ -43,7 +43,7 @@ export const FormDialog = ({
               <DialogTitle>{title}</DialogTitle>
               {description ? <DialogDescription>{description}</DialogDescription> : null}
             </DialogHeader>
-            <DialogBody className={cn('grid gap-4')}>{children}</DialogBody>
+            <DialogBody className={cn("grid gap-4")}>{children}</DialogBody>
             {footer ? <DialogFooter>{footer}</DialogFooter> : null}
           </>
         )}

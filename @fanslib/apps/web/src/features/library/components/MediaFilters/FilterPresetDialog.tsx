@@ -3,13 +3,13 @@ import { useEffect, useState } from "react";
 import { MediaFilterSummary } from "~/components/MediaFilterSummary";
 import { Button } from "~/components/ui/Button";
 import {
-    Dialog,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogModal,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogModal,
+  DialogTitle,
+  DialogTrigger,
 } from "~/components/ui/Dialog";
 import { Input } from "~/components/ui/Input";
 import { Label } from "~/components/ui/Label";
@@ -113,7 +113,9 @@ export const FilterPresetDialog = ({ disabled = false }: FilterPresetDialogProps
                         size="sm"
                         variant="ghost"
                         onPress={savePreset}
-                        isDisabled={!hasActiveFilters || !isHydrated || !presetName.trim() || isSaving}
+                        isDisabled={
+                          !hasActiveFilters || !isHydrated || !presetName.trim() || isSaving
+                        }
                         className="flex items-center gap-2"
                       >
                         <Save className="h-4 w-4" />
@@ -167,7 +169,9 @@ export const FilterPresetDialog = ({ disabled = false }: FilterPresetDialogProps
                                     <Button
                                       size="icon"
                                       variant={isArmed ? "error" : "ghost"}
-                                      aria-label={isArmed ? "Confirm delete preset" : "Delete preset"}
+                                      aria-label={
+                                        isArmed ? "Confirm delete preset" : "Delete preset"
+                                      }
                                       className={!isArmed ? "text-destructive" : undefined}
                                       onPress={() => armOrDeletePreset(preset.id)}
                                       isDisabled={isDeleting}

@@ -43,10 +43,7 @@ export const AllEmojis: Story = {
       <h3 className="font-medium">Available Preset Emojis ({PRESET_EMOJIS.length})</h3>
       <div className="grid grid-cols-10 gap-2">
         {PRESET_EMOJIS.map((emoji) => (
-          <div
-            key={emoji}
-            className="w-8 h-8 flex items-center justify-center text-lg"
-          >
+          <div key={emoji} className="w-8 h-8 flex items-center justify-center text-lg">
             {emoji}
           </div>
         ))}

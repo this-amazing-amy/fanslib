@@ -15,7 +15,7 @@ type ValidationError = {
 
 export const validatePost = async (
   caption: string | null,
-  media: Media[]
+  media: Media[],
 ): Promise<{ valid: boolean; errors: ValidationError[] }> => {
   const errors: ValidationError[] = [];
 
@@ -24,7 +24,8 @@ export const validatePost = async (
   if (!settings.blueskyUsername || !settings.blueskyAppPassword) {
     errors.push({
       field: "credentials",
-      message: "Bluesky credentials not configured. Please set blueskyUsername and blueskyAppPassword in settings.",
+      message:
+        "Bluesky credentials not configured. Please set blueskyUsername and blueskyAppPassword in settings.",
     });
   }
 

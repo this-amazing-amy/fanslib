@@ -10,12 +10,12 @@ import { cn } from "~/lib/cn";
 import { VERIFICATION_STATUS_COLORS } from "~/lib/colors";
 
 export const VERIFICATION_STATUS = {
-  UNKNOWN: 'UNKNOWN',
-  NOT_NEEDED: 'NOT_NEEDED',
-  NEEDED: 'NEEDED',
-  APPLIED: 'APPLIED',
-  REJECTED: 'REJECTED',
-  VERIFIED: 'VERIFIED',
+  UNKNOWN: "UNKNOWN",
+  NOT_NEEDED: "NOT_NEEDED",
+  NEEDED: "NEEDED",
+  APPLIED: "APPLIED",
+  REJECTED: "REJECTED",
+  VERIFIED: "VERIFIED",
 } as const;
 
 export type VerificationStatusType = (typeof VERIFICATION_STATUS)[keyof typeof VERIFICATION_STATUS];

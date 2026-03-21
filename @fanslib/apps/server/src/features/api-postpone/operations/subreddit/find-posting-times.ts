@@ -31,7 +31,9 @@ type FindSubredditPostingTimesQueryVariables = {
   timezone: string;
 };
 
-export const findSubredditPostingTimes = async (data: z.infer<typeof FindSubredditPostingTimesRequestBodySchema>): Promise<z.infer<typeof FindSubredditPostingTimesResponseSchema>> => {
+export const findSubredditPostingTimes = async (
+  data: z.infer<typeof FindSubredditPostingTimesRequestBodySchema>,
+): Promise<z.infer<typeof FindSubredditPostingTimesResponseSchema>> => {
   const timezone = data.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   const result = await fetchPostpone<
@@ -51,7 +53,7 @@ export const findSubredditPostingTimes = async (data: z.infer<typeof FindSubredd
   }
 
   const posts = result.analytics.posts.filter(
-    (p) => p?.day !== null && p?.hour !== null && p?.posts !== null
+    (p) => p?.day !== null && p?.hour !== null && p?.posts !== null,
   );
   const maxPosts = Math.max(...posts.map((p) => p?.posts ?? 0));
 
@@ -68,4 +70,3 @@ export const findSubredditPostingTimes = async (data: z.infer<typeof FindSubredd
     timezone,
   };
 };
-

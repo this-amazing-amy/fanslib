@@ -51,7 +51,10 @@ const trimDataAtPlateau = (dataPoints: DataPoint[]): DataPoint[] => {
   return dataPoints;
 };
 
-export const aggregatePostMediaAnalyticsData = (postMedia: PostMedia, trimPlateau = true): DataPoint[] => {
+export const aggregatePostMediaAnalyticsData = (
+  postMedia: PostMedia,
+  trimPlateau = true,
+): DataPoint[] => {
   if (postMedia.fanslyAnalyticsDatapoints?.length === 0) {
     return [];
   }
@@ -61,7 +64,7 @@ export const aggregatePostMediaAnalyticsData = (postMedia: PostMedia, trimPlatea
   postDate.setHours(0, 0, 0, 0);
 
   const sortedDatapoints = [...postMedia.fanslyAnalyticsDatapoints].sort(
-    (a, b) => a.timestamp - b.timestamp
+    (a, b) => a.timestamp - b.timestamp,
   );
 
   const formatter = new Intl.DateTimeFormat("en-US", {
@@ -102,7 +105,7 @@ export const aggregatePostMediaAnalyticsData = (postMedia: PostMedia, trimPlatea
     datapointDate.setHours(0, 0, 0, 0);
 
     const daysSincePost = Math.floor(
-      (datapointDate.getTime() - postDate.getTime()) / (1000 * 60 * 60 * 24)
+      (datapointDate.getTime() - postDate.getTime()) / (1000 * 60 * 60 * 24),
     );
 
     const dateKey = datapointDate.toISOString().split("T")[0] ?? "";

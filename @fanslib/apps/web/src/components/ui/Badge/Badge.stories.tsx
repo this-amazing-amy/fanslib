@@ -1,21 +1,31 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Badge } from './Badge';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Badge } from "./Badge";
 
 const meta: Meta<typeof Badge> = {
-  title: 'UI/Badge',
+  title: "UI/Badge",
   component: Badge,
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {
     variant: {
-      control: 'select',
-      options: ['primary', 'secondary', 'accent', 'ghost', 'info', 'success', 'warning', 'error', 'neutral'],
+      control: "select",
+      options: [
+        "primary",
+        "secondary",
+        "accent",
+        "ghost",
+        "info",
+        "success",
+        "warning",
+        "error",
+        "neutral",
+      ],
     },
     size: {
-      control: 'select',
-      options: ['xs', 'sm', 'md', 'lg'],
+      control: "select",
+      options: ["xs", "sm", "md", "lg"],
     },
     outline: {
-      control: 'boolean',
+      control: "boolean",
     },
   },
 };
@@ -25,57 +35,57 @@ type Story = StoryObj<typeof Badge>;
 
 export const Default: Story = {
   args: {
-    children: 'Badge',
-    variant: 'neutral',
+    children: "Badge",
+    variant: "neutral",
   },
 };
 
 export const Primary: Story = {
   args: {
-    children: 'Primary',
-    variant: 'primary',
+    children: "Primary",
+    variant: "primary",
   },
 };
 
 export const Secondary: Story = {
   args: {
-    children: 'Secondary',
-    variant: 'secondary',
+    children: "Secondary",
+    variant: "secondary",
   },
 };
 
 export const Success: Story = {
   args: {
-    children: 'Success',
-    variant: 'success',
+    children: "Success",
+    variant: "success",
   },
 };
 
 export const Error: Story = {
   args: {
-    children: 'Error',
-    variant: 'error',
+    children: "Error",
+    variant: "error",
   },
 };
 
 export const Warning: Story = {
   args: {
-    children: 'Warning',
-    variant: 'warning',
+    children: "Warning",
+    variant: "warning",
   },
 };
 
 export const Info: Story = {
   args: {
-    children: 'Info',
-    variant: 'info',
+    children: "Info",
+    variant: "info",
   },
 };
 
 export const Outline: Story = {
   args: {
-    children: 'Outline',
-    variant: 'primary',
+    children: "Outline",
+    variant: "primary",
     outline: true,
   },
 };
@@ -106,4 +116,3 @@ export const AllVariants: Story = {
     </div>
   ),
 };
-

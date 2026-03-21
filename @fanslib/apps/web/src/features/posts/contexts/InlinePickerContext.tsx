@@ -1,7 +1,7 @@
-import type { MediaFilter } from '@fanslib/server/schemas';
-import type { ReactNode } from 'react';
-import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
-import type { VirtualPost } from '~/lib/virtual-posts';
+import type { MediaFilter } from "@fanslib/server/schemas";
+import type { ReactNode } from "react";
+import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
+import type { VirtualPost } from "~/lib/virtual-posts";
 
 type FloatingPost = {
   virtualPost: VirtualPost;
@@ -18,7 +18,11 @@ type InlinePickerState = {
 
 // Actions context - stable references, never causes re-renders
 type InlinePickerActionsContextValue = {
-  openPicker: (virtualPost: VirtualPost, initialFilters: MediaFilter, anchorBounds?: DOMRect) => void;
+  openPicker: (
+    virtualPost: VirtualPost,
+    initialFilters: MediaFilter,
+    anchorBounds?: DOMRect,
+  ) => void;
   closePicker: () => void;
   setFilters: (filters: MediaFilter) => void;
   selectVirtualPost: (virtualPost: VirtualPost, filters: MediaFilter) => void;
@@ -53,23 +57,26 @@ export const InlinePickerProvider = ({ children }: InlinePickerProviderProps) =>
     floatingPost: null,
   });
   const [onPostCreated, setOnPostCreated] = useState<(() => void) | null>(null);
-  
+
   // Use ref to access onPostCreated without adding it as dependency
   const onPostCreatedRef = useRef(onPostCreated);
   onPostCreatedRef.current = onPostCreated;
 
-  const openPicker = useCallback((virtualPost: VirtualPost, initialFilters: MediaFilter, anchorBounds?: DOMRect) => {
-    setState(prev => ({
-      ...prev,
-      isOpen: true,
-      virtualPost,
-      anchorBounds: anchorBounds ?? null,
-      filters: initialFilters,
-    }));
-  }, []);
+  const openPicker = useCallback(
+    (virtualPost: VirtualPost, initialFilters: MediaFilter, anchorBounds?: DOMRect) => {
+      setState((prev) => ({
+        ...prev,
+        isOpen: true,
+        virtualPost,
+        anchorBounds: anchorBounds ?? null,
+        filters: initialFilters,
+      }));
+    },
+    [],
+  );
 
   const closePicker = useCallback(() => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       isOpen: false,
     }));
@@ -78,7 +85,7 @@ export const InlinePickerProvider = ({ children }: InlinePickerProviderProps) =>
   }, []);
 
   const setFilters = useCallback((filters: MediaFilter) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       filters,
     }));
@@ -86,7 +93,7 @@ export const InlinePickerProvider = ({ children }: InlinePickerProviderProps) =>
 
   // Select a virtual post without opening the bottom sheet (for large screens)
   const selectVirtualPost = useCallback((virtualPost: VirtualPost, filters: MediaFilter) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       virtualPost,
       filters,
@@ -95,7 +102,7 @@ export const InlinePickerProvider = ({ children }: InlinePickerProviderProps) =>
   }, []);
 
   const clearSelection = useCallback(() => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       virtualPost: null,
       filters: [],
@@ -104,40 +111,57 @@ export const InlinePickerProvider = ({ children }: InlinePickerProviderProps) =>
   }, []);
 
   // Set floating post with bounds for animation (large screens)
-  const setFloatingPost = useCallback((virtualPost: VirtualPost, initialBounds: DOMRect, filters: MediaFilter) => {
-    setState(prev => ({
-      ...prev,
-      virtualPost,
-      filters,
-      floatingPost: { virtualPost, initialBounds },
-      isOpen: false,
-    }));
-  }, []);
+  const setFloatingPost = useCallback(
+    (virtualPost: VirtualPost, initialBounds: DOMRect, filters: MediaFilter) => {
+      setState((prev) => ({
+        ...prev,
+        virtualPost,
+        filters,
+        floatingPost: { virtualPost, initialBounds },
+        isOpen: false,
+      }));
+    },
+    [],
+  );
 
   const clearFloatingPost = useCallback(() => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       floatingPost: null,
     }));
   }, []);
 
   // Actions are stable - never change reference
-  const actions = useMemo(() => ({
-    openPicker,
-    closePicker,
-    setFilters,
-    selectVirtualPost,
-    setFloatingPost,
-    clearFloatingPost,
-    clearSelection,
-    setOnPostCreated,
-  }), [openPicker, closePicker, setFilters, selectVirtualPost, setFloatingPost, clearFloatingPost, clearSelection]);
+  const actions = useMemo(
+    () => ({
+      openPicker,
+      closePicker,
+      setFilters,
+      selectVirtualPost,
+      setFloatingPost,
+      clearFloatingPost,
+      clearSelection,
+      setOnPostCreated,
+    }),
+    [
+      openPicker,
+      closePicker,
+      setFilters,
+      selectVirtualPost,
+      setFloatingPost,
+      clearFloatingPost,
+      clearSelection,
+    ],
+  );
 
   // State changes trigger re-renders for state subscribers only
-  const stateValue = useMemo(() => ({
-    state,
-    onPostCreated,
-  }), [state, onPostCreated]);
+  const stateValue = useMemo(
+    () => ({
+      state,
+      onPostCreated,
+    }),
+    [state, onPostCreated],
+  );
 
   return (
     <InlinePickerActionsContext.Provider value={actions}>
@@ -152,7 +176,7 @@ export const InlinePickerProvider = ({ children }: InlinePickerProviderProps) =>
 export const useInlinePickerActions = () => {
   const context = useContext(InlinePickerActionsContext);
   if (!context) {
-    throw new Error('useInlinePickerActions must be used within an InlinePickerProvider');
+    throw new Error("useInlinePickerActions must be used within an InlinePickerProvider");
   }
   return context;
 };
@@ -161,7 +185,7 @@ export const useInlinePickerActions = () => {
 export const useInlinePickerState = () => {
   const context = useContext(InlinePickerStateContext);
   if (!context) {
-    throw new Error('useInlinePickerState must be used within an InlinePickerProvider');
+    throw new Error("useInlinePickerState must be used within an InlinePickerProvider");
   }
   return context;
 };
@@ -171,7 +195,7 @@ export const useInlinePicker = (): InlinePickerContextValue => {
   const actions = useContext(InlinePickerActionsContext);
   const stateContext = useContext(InlinePickerStateContext);
   if (!actions || !stateContext) {
-    throw new Error('useInlinePicker must be used within an InlinePickerProvider');
+    throw new Error("useInlinePicker must be used within an InlinePickerProvider");
   }
   return { ...actions, ...stateContext };
 };

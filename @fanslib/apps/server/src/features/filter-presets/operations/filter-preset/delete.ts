@@ -20,4 +20,3 @@ export const deleteFilterPreset = async (id: string): Promise<boolean> => {
   await repository.delete(id);
   return true;
 };
-

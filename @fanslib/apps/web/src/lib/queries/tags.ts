@@ -1,17 +1,37 @@
-import type { AssignTagsToMediaRequestBody, BulkAssignTagsRequestBody, CreateTagDefinitionRequestBody, CreateTagDimensionRequestBody, DeleteTagDefinitionParams, DeleteTagDimensionParams, FetchMediaTagsRequestParams, FetchMediaTagsRequestQuery, FetchTagDefinitionByIdRequestParams, FetchTagDefinitionsByIdsRequestQuery, FetchTagDimensionByIdRequestParams, FetchTagsByDimensionQuery, MediaTag, RemoveTagsFromMediaRequestBody, RemoveTagsFromMediaRequestParams, UpdateTagDefinitionParams, UpdateTagDefinitionRequestBody, UpdateTagDimensionParams, UpdateTagDimensionRequestBody } from '@fanslib/server/schemas';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '../api/hono-client';
-import { QUERY_KEYS } from './query-keys';
+import type {
+  AssignTagsToMediaRequestBody,
+  BulkAssignTagsRequestBody,
+  CreateTagDefinitionRequestBody,
+  CreateTagDimensionRequestBody,
+  DeleteTagDefinitionParams,
+  DeleteTagDimensionParams,
+  FetchMediaTagsRequestParams,
+  FetchMediaTagsRequestQuery,
+  FetchTagDefinitionByIdRequestParams,
+  FetchTagDefinitionsByIdsRequestQuery,
+  FetchTagDimensionByIdRequestParams,
+  FetchTagsByDimensionQuery,
+  MediaTag,
+  RemoveTagsFromMediaRequestBody,
+  RemoveTagsFromMediaRequestParams,
+  UpdateTagDefinitionParams,
+  UpdateTagDefinitionRequestBody,
+  UpdateTagDimensionParams,
+  UpdateTagDimensionRequestBody,
+} from "@fanslib/server/schemas";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { api } from "../api/hono-client";
+import { QUERY_KEYS } from "./query-keys";
 
 export const usePageMediaTagsQuery = (mediaIds: string[]) =>
   useQuery({
     queryKey: QUERY_KEYS.tags.media.bulk(mediaIds, undefined),
     queryFn: async (): Promise<Map<string, MediaTag[]>> => {
       if (mediaIds.length === 0) return new Map();
-      const result = await api.api.tags.media['bulk-by-media-ids'].$post({
+      const result = await api.api.tags.media["bulk-by-media-ids"].$post({
         json: { mediaIds },
       });
-      const record = await result.json() as unknown as Record<string, MediaTag[]>;
+      const record = (await result.json()) as unknown as Record<string, MediaTag[]>;
       return new Map(Object.entries(record));
     },
     enabled: mediaIds.length > 0,
@@ -32,7 +52,9 @@ export const useTagDimensionQuery = (params: FetchTagDimensionByIdRequestParams)
   useQuery({
     queryKey: QUERY_KEYS.tags.dimensions.byId(params.id),
     queryFn: async () => {
-      const result = await api.api.tags.dimensions['by-id'][':id'].$get({ param: { id: String(params.id) } });
+      const result = await api.api.tags.dimensions["by-id"][":id"].$get({
+        param: { id: String(params.id) },
+      });
       return result.json();
     },
     enabled: !!params.id,
@@ -61,7 +83,10 @@ export const useUpdateTagDimensionMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdateTagDimensionInput) => {
-      const result = await api.api.tags.dimensions['by-id'][':id'].$patch({ param: { id: String(id) }, json: updates });
+      const result = await api.api.tags.dimensions["by-id"][":id"].$patch({
+        param: { id: String(id) },
+        json: updates,
+      });
       return result.json();
     },
     onSuccess: (data, variables) => {
@@ -77,7 +102,9 @@ export const useDeleteTagDimensionMutation = () => {
 
   return useMutation({
     mutationFn: async (params: DeleteTagDimensionParams) => {
-      const result = await api.api.tags.dimensions['by-id'][':id'].$delete({ param: { id: String(params.id) } });
+      const result = await api.api.tags.dimensions["by-id"][":id"].$delete({
+        param: { id: String(params.id) },
+      });
       return result.json();
     },
     onSuccess: () => {
@@ -93,11 +120,11 @@ export const useTagDefinitionsByDimensionQuery = (query: FetchTagsByDimensionQue
   useQuery({
     queryKey: QUERY_KEYS.tags.definitions.byDimension(query),
     queryFn: async () => {
-      const result = await api.api.tags.definitions.$get({ 
+      const result = await api.api.tags.definitions.$get({
         query: {
           dimensionId: query.dimensionId?.toString(),
-          dimensionName: query.dimensionName
-        }
+          dimensionName: query.dimensionName,
+        },
       });
       return result.json();
     },
@@ -108,7 +135,9 @@ export const useTagDefinitionQuery = (params: FetchTagDefinitionByIdRequestParam
   useQuery({
     queryKey: QUERY_KEYS.tags.definitions.byId(params.id),
     queryFn: async () => {
-      const result = await api.api.tags.definitions['by-id'][':id'].$get({ param: { id: String(params.id) } });
+      const result = await api.api.tags.definitions["by-id"][":id"].$get({
+        param: { id: String(params.id) },
+      });
       return result.json();
     },
     enabled: !!params.id,
@@ -118,7 +147,9 @@ export const useTagDefinitionsByIdsQuery = (query: FetchTagDefinitionsByIdsReque
   useQuery({
     queryKey: QUERY_KEYS.tags.definitions.byIds(query),
     queryFn: async () => {
-      const result = await api.api.tags.definitions['by-ids'].$get({ query: { ids: query.ids.join(',') } });
+      const result = await api.api.tags.definitions["by-ids"].$get({
+        query: { ids: query.ids.join(",") },
+      });
       return result.json();
     },
     enabled: query.ids.length > 0,
@@ -139,7 +170,7 @@ export const useCreateTagDefinitionMutation = () => {
       queryClient.setQueryData(QUERY_KEYS.tags.dimensions.all(), (oldData: unknown) => {
         if (!oldData || !Array.isArray(oldData) || !data) return oldData;
 
-        return oldData.map(dimension => {
+        return oldData.map((dimension) => {
           if (dimension.id !== data.dimensionId) return dimension;
 
           return {
@@ -168,7 +199,10 @@ export const useUpdateTagDefinitionMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdateTagDefinitionInput) => {
-      const result = await api.api.tags.definitions['by-id'][':id'].$patch({ param: { id: String(id) }, json: updates });
+      const result = await api.api.tags.definitions["by-id"][":id"].$patch({
+        param: { id: String(id) },
+        json: updates,
+      });
       return result.json();
     },
     onSuccess: (data, variables) => {
@@ -178,13 +212,13 @@ export const useUpdateTagDefinitionMutation = () => {
       queryClient.setQueryData(QUERY_KEYS.tags.dimensions.all(), (oldData: unknown) => {
         if (!oldData || !Array.isArray(oldData)) return oldData;
 
-        return oldData.map(dimension => {
+        return oldData.map((dimension) => {
           if (!dimension.tags) return dimension;
 
           return {
             ...dimension,
             tags: dimension.tags.map((tag: { id: number }) =>
-              tag.id === Number(variables.id) ? data : tag
+              tag.id === Number(variables.id) ? data : tag,
             ),
           };
         });
@@ -193,7 +227,7 @@ export const useUpdateTagDefinitionMutation = () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.dimensions.all() });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tags.media.all() });
       queryClient.setQueryData(QUERY_KEYS.tags.definitions.byId(variables.id), data);
-      if (data && 'dimensionId' in data && data.dimensionId) {
+      if (data && "dimensionId" in data && data.dimensionId) {
         queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.tags.definitions.byDimension({ dimensionId: data.dimensionId }),
         });
@@ -207,7 +241,9 @@ export const useDeleteTagDefinitionMutation = () => {
 
   return useMutation({
     mutationFn: async (params: DeleteTagDefinitionParams) => {
-      const result = await api.api.tags.definitions['by-id'][':id'].$delete({ param: { id: String(params.id) } });
+      const result = await api.api.tags.definitions["by-id"][":id"].$delete({
+        param: { id: String(params.id) },
+      });
       return result.json();
     },
     onSuccess: () => {
@@ -221,14 +257,14 @@ export const useDeleteTagDefinitionMutation = () => {
 // Media Tags
 export const useMediaTagsQuery = (
   params: FetchMediaTagsRequestParams,
-  query?: FetchMediaTagsRequestQuery
+  query?: FetchMediaTagsRequestQuery,
 ) =>
   useQuery({
     queryKey: QUERY_KEYS.tags.media.byMediaId(params.mediaId, query),
     queryFn: async () => {
-      const result = await api.api.tags.media['by-media-id'][':mediaId'].$get({ 
+      const result = await api.api.tags.media["by-media-id"][":mediaId"].$get({
         param: { mediaId: params.mediaId },
-        query: { dimensionId: query?.dimensionId?.toString() }
+        query: { dimensionId: query?.dimensionId?.toString() },
       });
       return result.json();
     },
@@ -242,7 +278,7 @@ export const useBulkMediaTagsQuery = (mediaIds: string[], dimensionId?: number) 
       if (mediaIds.length === 0) return [];
 
       const tagPromises = mediaIds.map(async (mediaId) => {
-        const result = await api.api.tags.media['by-media-id'][':mediaId'].$get({
+        const result = await api.api.tags.media["by-media-id"][":mediaId"].$get({
           param: { mediaId },
           query: { dimensionId: dimensionId?.toString() },
         });
@@ -261,9 +297,9 @@ export const useTagsForMediasQuery = (mediaIds: string[]) =>
       if (mediaIds.length === 0) return [];
 
       const tagPromises = mediaIds.map(async (mediaId) => {
-        const result = await api.api.tags.media['by-media-id'][':mediaId'].$get({ 
+        const result = await api.api.tags.media["by-media-id"][":mediaId"].$get({
           param: { mediaId },
-          query: { dimensionId: undefined }
+          query: { dimensionId: undefined },
         });
         return result.json();
       });
@@ -278,7 +314,7 @@ export const useAssignTagsToMediaMutation = () => {
 
   return useMutation({
     mutationFn: async (data: AssignTagsToMediaRequestBody) => {
-      const result = await api.api.tags.media['assign'].$post({ json: data });
+      const result = await api.api.tags.media["assign"].$post({ json: data });
       return result.json();
     },
     onSuccess: (_, variables) => {
@@ -293,7 +329,7 @@ export const useBulkAssignTagsMutation = () => {
 
   return useMutation({
     mutationFn: async (data: BulkAssignTagsRequestBody) => {
-      const result = await api.api.tags.media['assign-bulk'].$post({ json: data });
+      const result = await api.api.tags.media["assign-bulk"].$post({ json: data });
       return result.json();
     },
     onSuccess: (_, variables) => {
@@ -313,9 +349,9 @@ export const useRemoveTagsFromMediaMutation = () => {
 
   return useMutation({
     mutationFn: async ({ mediaId, tagIds }: RemoveTagsFromMediaParams) => {
-      const result = await api.api.tags.media['by-media-id'][':mediaId'].$delete({ 
+      const result = await api.api.tags.media["by-media-id"][":mediaId"].$delete({
         param: { mediaId },
-        json: { tagIds }
+        json: { tagIds },
       });
       return result.json();
     },
@@ -331,7 +367,7 @@ export const useDriftPreventionStatsQuery = () =>
   useQuery({
     queryKey: QUERY_KEYS.tags.driftPrevention.stats(),
     queryFn: async () => {
-      const result = await api.api.tags['drift-prevention'].stats.$get();
+      const result = await api.api.tags["drift-prevention"].stats.$get();
       return result.json();
     },
   });
@@ -341,7 +377,7 @@ export const usePerformCleanupMutation = () => {
 
   return useMutation({
     mutationFn: async () => {
-      const result = await api.api.tags['drift-prevention'].cleanup.$post();
+      const result = await api.api.tags["drift-prevention"].cleanup.$post();
       return result.json();
     },
     onSuccess: () => {
@@ -356,7 +392,7 @@ export const useSyncStickerDisplayMutation = () => {
 
   return useMutation({
     mutationFn: async () => {
-      const result = await api.api.tags['drift-prevention']['sync-sticker-display'].$post();
+      const result = await api.api.tags["drift-prevention"]["sync-sticker-display"].$post();
       return result.json();
     },
     onSuccess: () => {

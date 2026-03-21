@@ -10,7 +10,7 @@ export const UpdatePostMediaRequestBodySchema = z.object({
 export const updatePostMedia = async (
   postId: string,
   postMediaId: string,
-  updates: z.infer<typeof UpdatePostMediaRequestBodySchema>
+  updates: z.infer<typeof UpdatePostMediaRequestBodySchema>,
 ): Promise<z.infer<typeof PostMediaSchema> | null> => {
   const dataSource = await db();
   const postMediaRepository = dataSource.getRepository(PostMedia);
@@ -28,4 +28,3 @@ export const updatePostMedia = async (
 
   return postMedia;
 };
-

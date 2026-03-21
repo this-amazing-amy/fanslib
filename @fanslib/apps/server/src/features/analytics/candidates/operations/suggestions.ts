@@ -5,7 +5,7 @@ import { computeMatchSuggestions } from "../matching";
 import type { FetchCandidateSuggestionsResponseSchema } from "../schema";
 
 export const fetchCandidateSuggestions = async (
-  id: string
+  id: string,
 ): Promise<z.infer<typeof FetchCandidateSuggestionsResponseSchema> | null> => {
   const dataSource = await db();
   const candidateRepository = dataSource.getRepository(FanslyMediaCandidate);
@@ -17,4 +17,3 @@ export const fetchCandidateSuggestions = async (
 
   return computeMatchSuggestions(candidate);
 };
-

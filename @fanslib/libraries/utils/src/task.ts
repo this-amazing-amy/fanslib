@@ -11,10 +11,7 @@ const splitEvery = <T>(n: number, arr: T[]): T[][] => {
 
 // JS doesn't have tail-call optimization, so we need to write this non-recursive, or else 💥☹️
 export const inParallelChunksOf =
-  <T>(
-    n: number,
-    chunkEffectCallback?: (chunkResults: T[], chunkNumber: number) => unknown
-  ) =>
+  <T>(n: number, chunkEffectCallback?: (chunkResults: T[], chunkNumber: number) => unknown) =>
   async (tasks: Array<Task<T>>): Promise<T[]> => {
     // eslint-disable-next-line functional/no-let
     let results: T[] = [];
@@ -34,9 +31,7 @@ export const inParallelChunksOf =
   };
 
 // Like Promise.all, but with tasks
-export const inParallel = <T>(tasks: Array<Task<T>>) =>
-  inParallelChunksOf<T>(tasks.length)(tasks);
+export const inParallel = <T>(tasks: Array<Task<T>>) => inParallelChunksOf<T>(tasks.length)(tasks);
 
 // Like Promise.all, but with tasks and sequentially
-export const sequentially = <T>(tasks: Array<Task<T>>) =>
-  inParallelChunksOf<T>(1)(tasks);
+export const sequentially = <T>(tasks: Array<Task<T>>) => inParallelChunksOf<T>(1)(tasks);

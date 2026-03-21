@@ -12,5 +12,4 @@ export {
   type DialogFooterProps,
   type DialogHeaderProps,
   type DialogTitleProps,
-} from './Dialog';
-
+} from "./Dialog";

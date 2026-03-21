@@ -1,4 +1,4 @@
-import type { Media, MediaFilter } from '@fanslib/server/schemas';
+import type { Media, MediaFilter } from "@fanslib/server/schemas";
 import { Check, ChevronLeftIcon, ChevronRightIcon, GripVertical } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MediaFilterSummary } from "~/components/MediaFilterSummary";
@@ -10,7 +10,6 @@ import { useBulkMediaPostingHistoryQuery, useMediaListQuery } from "~/lib/querie
 import { MediaFilters } from "./MediaFilters/MediaFilters";
 import { MediaFiltersProvider } from "./MediaFilters/MediaFiltersContext";
 import { MediaTileLite } from "./MediaTile/MediaTileLite";
-
 
 type MediaFilterType = MediaFilter;
 
@@ -58,7 +57,10 @@ export const CombinedMediaSelection = ({
 
   // Combine user filters with initial filters for the query
   // Initial filters are pre-applied, user filters are additional refinements
-  const combinedFilters = useMemo(() => [...initialFilters, ...userFilters], [initialFilters, userFilters]);
+  const combinedFilters = useMemo(
+    () => [...initialFilters, ...userFilters],
+    [initialFilters, userFilters],
+  );
 
   const { data: mediaResponse } = useMediaListQuery({
     limit: pageLimit,
@@ -83,12 +85,12 @@ export const CombinedMediaSelection = ({
   // Merge selected media with filtered media, sorting selected items first
   const combinedMedia = useMemo(() => {
     const selectedIds = new Set(selectedMedia.map((m) => m.id));
-    const selectedInLibrary = selectedMedia.filter((m) => 
-      !excludeMediaIds.includes(m.id) && filteredMedia.some((fm) => fm.id === m.id)
+    const selectedInLibrary = selectedMedia.filter(
+      (m) => !excludeMediaIds.includes(m.id) && filteredMedia.some((fm) => fm.id === m.id),
     );
     const unselectedInLibrary = filteredMedia.filter((m) => !selectedIds.has(m.id));
-    const selectedNotInLibrary = selectedMedia.filter((m) => 
-      !excludeMediaIds.includes(m.id) && !filteredMedia.some((fm) => fm.id === m.id)
+    const selectedNotInLibrary = selectedMedia.filter(
+      (m) => !excludeMediaIds.includes(m.id) && !filteredMedia.some((fm) => fm.id === m.id),
     );
 
     // Sort: selected items from current page first, then selected items not in current page, then unselected
@@ -144,11 +146,11 @@ export const CombinedMediaSelection = ({
     newOrder.splice(targetIndex, 0, draggedItem);
 
     // Update selection order
-    const selectedIds = new Set(selectedMedia.map(m => m.id));
-    const reorderedSelected = newOrder.filter(m => selectedIds.has(m.id));
-    
+    const selectedIds = new Set(selectedMedia.map((m) => m.id));
+    const reorderedSelected = newOrder.filter((m) => selectedIds.has(m.id));
+
     // Call onMediaSelect for each selected item in new order
-    reorderedSelected.forEach(media => {
+    reorderedSelected.forEach((media) => {
       onMediaSelect(media);
     });
 
@@ -158,7 +160,7 @@ export const CombinedMediaSelection = ({
 
   const handleMediaClick = (e: React.MouseEvent, item: Media, itemIndex: number) => {
     // Don't trigger selection if clicking on drag handle
-    if ((e.target as HTMLElement).closest('.drag-handle')) {
+    if ((e.target as HTMLElement).closest(".drag-handle")) {
       return;
     }
 
@@ -171,9 +173,9 @@ export const CombinedMediaSelection = ({
       const start = Math.min(lastClickedIndex, itemIndex);
       const end = Math.max(lastClickedIndex, itemIndex);
       const rangeItems = combinedMedia.slice(start, end + 1);
-      
+
       // Add all items in range to selection
-      rangeItems.forEach(media => {
+      rangeItems.forEach((media) => {
         if (!isSelected(media.id)) {
           onMediaSelect(media);
         }
@@ -192,12 +194,12 @@ export const CombinedMediaSelection = ({
     // clear all others and keep only this one. If not selected, toggle it.
     if (itemIsSelected && selectedMedia.length > 1) {
       // Clear all other selections, keep only this one
-      selectedMedia.filter(m => m.id !== item.id).forEach(m => onMediaSelect(m));
+      selectedMedia.filter((m) => m.id !== item.id).forEach((m) => onMediaSelect(m));
     } else {
       // Toggle this item
       onMediaSelect(item);
     }
-    
+
     setLastClickedIndex(itemIndex);
   };
 
@@ -209,7 +211,15 @@ export const CombinedMediaSelection = ({
           <div className="mb-3 px-2">
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2 text-xs text-base-content/70">
-                <span className="font-medium">🎯 Pre-applied filters from {scheduleId && channelId ? "schedule and channel" : scheduleId ? "schedule" : "channel"}:</span>
+                <span className="font-medium">
+                  🎯 Pre-applied filters from{" "}
+                  {scheduleId && channelId
+                    ? "schedule and channel"
+                    : scheduleId
+                      ? "schedule"
+                      : "channel"}
+                  :
+                </span>
               </div>
               <div className="bg-base-200/30 px-3 py-2 rounded-md border border-base-300/50">
                 <MediaFilterSummary mediaFilters={initialFilters} />
@@ -246,11 +256,9 @@ export const CombinedMediaSelection = ({
                     key={item.id}
                     className={cn(
                       "relative aspect-square cursor-pointer rounded-lg overflow-hidden transition-all",
-                      itemIsSelected
-                        ? "ring-2 ring-primary"
-                        : "hover:ring-2 hover:ring-primary",
+                      itemIsSelected ? "ring-2 ring-primary" : "hover:ring-2 hover:ring-primary",
                       isDragging && "opacity-50",
-                      isDragOver && "ring-2 ring-primary ring-offset-2"
+                      isDragOver && "ring-2 ring-primary ring-offset-2",
                     )}
                     draggable={itemIsSelected}
                     onDragStart={(e) => handleDragStart(e, item)}
@@ -297,14 +305,15 @@ export const CombinedMediaSelection = ({
                 <div className="space-y-1.5 text-sm text-base-content/60">
                   {initialFilters.length > 0 && (
                     <p>
-                      • Pre-applied filters from {scheduleId && channelId ? "schedule and channel" : scheduleId ? "schedule" : "channel"}
+                      • Pre-applied filters from{" "}
+                      {scheduleId && channelId
+                        ? "schedule and channel"
+                        : scheduleId
+                          ? "schedule"
+                          : "channel"}
                     </p>
                   )}
-                  {userFilters.length > 0 && (
-                    <p>
-                      • Additional custom filters applied
-                    </p>
-                  )}
+                  {userFilters.length > 0 && <p>• Additional custom filters applied</p>}
                 </div>
                 <p className="text-sm text-base-content/60 pt-2">
                   Try adjusting your filters or skip this slot
@@ -345,4 +354,3 @@ export const CombinedMediaSelection = ({
     </div>
   );
 };
-

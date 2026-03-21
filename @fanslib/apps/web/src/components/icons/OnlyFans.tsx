@@ -26,4 +26,3 @@ export const OnlyFansIcon = (props: SVGProps<SVGSVGElement>) => (
     />
   </svg>
 );
-

@@ -1,16 +1,26 @@
 import { CalendarDate } from "@internationalized/date";
 import { format, isSameDay } from "date-fns";
-import { CalendarIcon, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Moon, Sun, Sunrise, Sunset } from "lucide-react";
+import {
+  CalendarIcon,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  Moon,
+  Sun,
+  Sunrise,
+  Sunset,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { I18nProvider } from "react-aria";
 import {
-    Button as AriaButton,
-    Calendar as AriaCalendar,
-    CalendarCell,
-    CalendarGrid,
-    CalendarGridBody,
-    CalendarGridHeader,
-    CalendarHeaderCell,
+  Button as AriaButton,
+  Calendar as AriaCalendar,
+  CalendarCell,
+  CalendarGrid,
+  CalendarGridBody,
+  CalendarGridHeader,
+  CalendarHeaderCell,
 } from "react-aria-components";
 import { Button } from "~/components/ui/Button";
 import { Popover, PopoverTrigger } from "~/components/ui/Popover";
@@ -23,7 +33,12 @@ type DateTimePickerProps = {
   preferredTimes?: string[];
 };
 
-export const DateTimePicker = ({ date, setDate, minValue, preferredTimes = [] }: DateTimePickerProps) => {
+export const DateTimePicker = ({
+  date,
+  setDate,
+  minValue,
+  preferredTimes = [],
+}: DateTimePickerProps) => {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<"date" | "time" | "year">("date");
   const [tempDate, setTempDate] = useState<Date>(date);
@@ -88,7 +103,7 @@ export const DateTimePicker = ({ date, setDate, minValue, preferredTimes = [] }:
     // Wrap around: -1 becomes 23, 24 becomes 0
     const clampedHour = hour < 0 ? 23 : hour > 23 ? 0 : hour;
     updated.setHours(clampedHour);
-    
+
     // Check if this hour is disabled
     if (minValue && isSameDay(date, minValue)) {
       const minHour = minValue.getHours();
@@ -100,7 +115,7 @@ export const DateTimePicker = ({ date, setDate, minValue, preferredTimes = [] }:
         updated.setMinutes(minValue.getMinutes());
       }
     }
-    
+
     setTempDate(updated);
     handleTimeChange(updated.getHours(), updated.getMinutes());
     // Focus minutes input after selecting an hour
@@ -114,18 +129,18 @@ export const DateTimePicker = ({ date, setDate, minValue, preferredTimes = [] }:
     // Wrap around: -1 becomes 59, 60 becomes 0
     const clampedMinute = minute < 0 ? 59 : minute > 59 ? 0 : minute;
     updated.setMinutes(clampedMinute);
-    
+
     // Check if this minute is disabled
     if (minValue && isSameDay(date, minValue)) {
       const selectedHour = updated.getHours();
       const minHour = minValue.getHours();
       const minMinute = minValue.getMinutes();
-      
+
       if (selectedHour < minHour || (selectedHour === minHour && clampedMinute < minMinute)) {
         return;
       }
     }
-    
+
     setTempDate(updated);
     handleTimeChange(updated.getHours(), updated.getMinutes());
   };
@@ -160,7 +175,6 @@ export const DateTimePicker = ({ date, setDate, minValue, preferredTimes = [] }:
     handleYearChange(tempDate.getFullYear() - 1);
   };
 
-
   const incrementHour = () => {
     handleHourChange(tempDate.getHours() + 1);
   };
@@ -190,19 +204,19 @@ export const DateTimePicker = ({ date, setDate, minValue, preferredTimes = [] }:
     const [hoursStr, minutesStr] = timeString.split(":");
     const hours = hoursStr ? parseInt(hoursStr, 10) : 0;
     const minutes = minutesStr ? parseInt(minutesStr, 10) : 0;
-    
+
     if (isNaN(hours) || isNaN(minutes)) return;
-    
+
     // Check if this time would be disabled
     if (minValue && isSameDay(date, minValue)) {
       const minHour = minValue.getHours();
       const minMinute = minValue.getMinutes();
-      
+
       if (hours < minHour || (hours === minHour && minutes < minMinute)) {
         return;
       }
     }
-    
+
     const newDate = new Date(date);
     newDate.setHours(hours);
     newDate.setMinutes(minutes);
@@ -219,8 +233,6 @@ export const DateTimePicker = ({ date, setDate, minValue, preferredTimes = [] }:
     setDate(newDate);
     switchToTimeMode();
   };
-
-
 
   const commonMinutes = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
   const currentTime = format(date, "HH:mm");
@@ -239,7 +251,7 @@ export const DateTimePicker = ({ date, setDate, minValue, preferredTimes = [] }:
     const selectedHour = tempDate.getHours();
     const minHour = minValue.getHours();
     const minMinute = minValue.getMinutes();
-    
+
     if (selectedHour < minHour) return true;
     if (selectedHour === minHour) return minute < minMinute;
     return false;
@@ -247,16 +259,16 @@ export const DateTimePicker = ({ date, setDate, minValue, preferredTimes = [] }:
 
   const isTimeStringDisabled = (timeString: string): boolean => {
     if (!minValue || !isSameDay(date, minValue)) return false;
-    
+
     const [hoursStr, minutesStr] = timeString.split(":");
     const hours = hoursStr ? parseInt(hoursStr, 10) : 0;
     const minutes = minutesStr ? parseInt(minutesStr, 10) : 0;
-    
+
     if (isNaN(hours) || isNaN(minutes)) return true;
-    
+
     const minHour = minValue.getHours();
     const minMinute = minValue.getMinutes();
-    
+
     return hours < minHour || (hours === minHour && minutes < minMinute);
   };
 
@@ -267,7 +279,7 @@ export const DateTimePicker = ({ date, setDate, minValue, preferredTimes = [] }:
         className={cn(
           "border-black",
           "w-full justify-start text-left font-normal",
-          !date && "text-muted-foreground"
+          !date && "text-muted-foreground",
         )}
       >
         <CalendarIcon className="mr-2 h-4 w-4" />
@@ -275,29 +287,27 @@ export const DateTimePicker = ({ date, setDate, minValue, preferredTimes = [] }:
       </Button>
       <Popover className="w-auto p-0">
         <div className="p-3 relative" style={{ minWidth: "350px", minHeight: "400px" }}>
-          <div 
+          <div
             className={cn(
               "flex flex-col absolute inset-0 p-3",
-              view === "date" ? "pointer-events-auto" : "pointer-events-none"
+              view === "date" ? "pointer-events-auto" : "pointer-events-none",
             )}
             style={{ visibility: view === "date" ? "visible" : "hidden" }}
           >
             <div>
               <I18nProvider locale="de-DE">
                 <AriaCalendar
-                  value={
-                    new CalendarDate(
-                      date.getFullYear(),
-                      date.getMonth() + 1,
-                      date.getDate()
-                    )
-                  }
+                  value={new CalendarDate(date.getFullYear(), date.getMonth() + 1, date.getDate())}
                   onChange={handleCalendarChange}
-                  minValue={minValue ? new CalendarDate(
-                    minValue.getFullYear(),
-                    minValue.getMonth() + 1,
-                    minValue.getDate()
-                  ) : undefined}
+                  minValue={
+                    minValue
+                      ? new CalendarDate(
+                          minValue.getFullYear(),
+                          minValue.getMonth() + 1,
+                          minValue.getDate(),
+                        )
+                      : undefined
+                  }
                   className="p-3"
                 >
                   <header className="flex items-center justify-between pb-2">
@@ -328,13 +338,13 @@ export const DateTimePicker = ({ date, setDate, minValue, preferredTimes = [] }:
                         <CalendarCell
                           date={date}
                           className={cn(
-                            'h-9 w-9 p-0 font-normal cursor-pointer flex items-center justify-center text-sm',
-                            'outline-none',
-                            'hover:bg-base-200',
-                            'data-[selected]:bg-primary data-[selected]:text-primary-content data-[selected]:rounded-lg',
-                            'data-[outside-month]:text-base-content/30',
-                            'data-[disabled]:text-base-content/30 data-[disabled]:cursor-not-allowed',
-                            'data-[unavailable]:text-error data-[unavailable]:line-through'
+                            "h-9 w-9 p-0 font-normal cursor-pointer flex items-center justify-center text-sm",
+                            "outline-none",
+                            "hover:bg-base-200",
+                            "data-[selected]:bg-primary data-[selected]:text-primary-content data-[selected]:rounded-lg",
+                            "data-[outside-month]:text-base-content/30",
+                            "data-[disabled]:text-base-content/30 data-[disabled]:cursor-not-allowed",
+                            "data-[unavailable]:text-error data-[unavailable]:line-through",
                           )}
                         />
                       )}
@@ -358,10 +368,10 @@ export const DateTimePicker = ({ date, setDate, minValue, preferredTimes = [] }:
               </Button>
             </div>
           </div>
-          <div 
+          <div
             className={cn(
               "flex flex-col absolute inset-0 p-3",
-              view === "time" ? "pointer-events-auto" : "pointer-events-none"
+              view === "time" ? "pointer-events-auto" : "pointer-events-none",
             )}
             style={{ visibility: view === "time" ? "visible" : "hidden" }}
           >
@@ -555,10 +565,10 @@ export const DateTimePicker = ({ date, setDate, minValue, preferredTimes = [] }:
               </div>
             </div>
           </div>
-          <div 
+          <div
             className={cn(
               "flex flex-col absolute inset-0 p-3",
-              view === "year" ? "pointer-events-auto" : "pointer-events-none"
+              view === "year" ? "pointer-events-auto" : "pointer-events-none",
             )}
             style={{ visibility: view === "year" ? "visible" : "hidden" }}
           >

@@ -12,7 +12,7 @@ export const validateTagDefinitionExists = async (tagDefinitionId: number): Prom
 };
 
 export const validateTagDefinitionsExist = async (
-  tagDefinitionIds: number[]
+  tagDefinitionIds: number[],
 ): Promise<{
   valid: number[];
   invalid: number[];
@@ -123,7 +123,7 @@ export const findOutdatedStickerDisplayProperties = async (): Promise<MediaTag[]
         "(mt.stickerDisplay IS NOT NULL AND dim.stickerDisplay IS NULL)) OR " +
         "(mt.shortRepresentation != td.shortRepresentation OR " +
         "(mt.shortRepresentation IS NULL AND td.shortRepresentation IS NOT NULL) OR " +
-        "(mt.shortRepresentation IS NOT NULL AND td.shortRepresentation IS NULL))"
+        "(mt.shortRepresentation IS NOT NULL AND td.shortRepresentation IS NULL))",
     )
     .getMany();
 
@@ -287,6 +287,3 @@ export const validateStickerDisplayConsistency = async (): Promise<{
     totalChecked: totalMediaTags,
   };
 };
-
-
-

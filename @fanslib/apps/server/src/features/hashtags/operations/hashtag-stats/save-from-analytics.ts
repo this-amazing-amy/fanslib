@@ -10,7 +10,7 @@ type TagData = {
 
 export const saveHashtagsFromAnalytics = async (
   channelId: string,
-  response: FanslyAnalyticsResponse
+  response: FanslyAnalyticsResponse,
 ): Promise<HashtagChannelStats[]> => {
   const dataSource = await db();
   const hashtagRepo = dataSource.getRepository(Hashtag);
@@ -24,7 +24,7 @@ export const saveHashtagsFromAnalytics = async (
   }
 
   const tags: TagData[] = response.response.aggregationData.tags.filter(
-    (tag) => tag && typeof tag.tag === "string" && tag.tag.trim() !== "" && tag.viewCount > 0
+    (tag) => tag && typeof tag.tag === "string" && tag.tag.trim() !== "" && tag.viewCount > 0,
   );
 
   const savedStats = (
@@ -59,10 +59,9 @@ export const saveHashtagsFromAnalytics = async (
           views: tagData.viewCount,
         });
         return statsRepo.save(newStats);
-      })
+      }),
     )
   ).filter(Boolean);
 
   return savedStats;
 };
-

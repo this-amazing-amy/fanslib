@@ -1,26 +1,28 @@
-import type { CreateContentScheduleRequestBody, UpdateContentScheduleRequestBody } from '@fanslib/server/schemas';
-import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '../api/hono-client';
-import { QUERY_KEYS } from './query-keys';
+import type {
+  CreateContentScheduleRequestBody,
+  UpdateContentScheduleRequestBody,
+} from "@fanslib/server/schemas";
+import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { api } from "../api/hono-client";
+import { QUERY_KEYS } from "./query-keys";
 
 // Reusable query options for route loaders
 export const contentSchedulesQueryOptions = () =>
   queryOptions({
     queryKey: QUERY_KEYS.contentSchedules.list(),
     queryFn: async () => {
-      const result = await api.api['content-schedules'].all.$get();
+      const result = await api.api["content-schedules"].all.$get();
       return result.json();
     },
   });
 
-export const useContentSchedulesQuery = () =>
-  useQuery(contentSchedulesQueryOptions());
+export const useContentSchedulesQuery = () => useQuery(contentSchedulesQueryOptions());
 
 export const useContentScheduleQuery = (id: string) =>
   useQuery({
     queryKey: QUERY_KEYS.contentSchedules.byId(id),
     queryFn: async () => {
-      const result = await api.api['content-schedules']['by-id'][':id'].$get({ param: { id } });
+      const result = await api.api["content-schedules"]["by-id"][":id"].$get({ param: { id } });
       return result.json();
     },
     enabled: !!id,
@@ -30,7 +32,9 @@ export const useContentSchedulesByChannelQuery = (channelId: string) =>
   useQuery({
     queryKey: QUERY_KEYS.contentSchedules.byChannel(channelId),
     queryFn: async () => {
-      const result = await api.api['content-schedules']['by-channel-id'][':channelId'].$get({ param: { channelId } });
+      const result = await api.api["content-schedules"]["by-channel-id"][":channelId"].$get({
+        param: { channelId },
+      });
       return result.json();
     },
     enabled: !!channelId,
@@ -42,8 +46,8 @@ export const useVirtualPostsQuery = (params: {
   toDate: Date;
 }) => {
   // Convert array to comma-separated string for query parameter serialization
-  const channelIdsStr = params.channelIds.join(',');
-  
+  const channelIdsStr = params.channelIds.join(",");
+
   return useQuery({
     queryKey: QUERY_KEYS.contentSchedules.virtualPosts({
       channelIds: params.channelIds,
@@ -56,10 +60,10 @@ export const useVirtualPostsQuery = (params: {
         fromDate: params.fromDate.toISOString(),
         toDate: params.toDate.toISOString(),
       };
-      const result = await api.api['content-schedules']['virtual-posts'].$get({ query });
+      const result = await api.api["content-schedules"]["virtual-posts"].$get({ query });
       if (!result.ok) {
-        const errorData = await result.json().catch(() => ({ error: 'Unknown error' }));
-        console.error('Failed to fetch virtual posts:', errorData);
+        const errorData = await result.json().catch(() => ({ error: "Unknown error" }));
+        console.error("Failed to fetch virtual posts:", errorData);
         return [];
       }
       const data = await result.json();
@@ -74,12 +78,12 @@ export const useCreateContentScheduleMutation = () => {
 
   return useMutation({
     mutationFn: async (data: CreateContentScheduleRequestBody) => {
-      const result = await api.api['content-schedules'].$post({ json: data });
+      const result = await api.api["content-schedules"].$post({ json: data });
       return result.json();
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contentSchedules.list() });
-      if (data && 'channelId' in data && data.channelId) {
+      if (data && "channelId" in data && data.channelId) {
         queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.contentSchedules.byChannel(data.channelId),
         });
@@ -98,7 +102,10 @@ export const useUpdateContentScheduleMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdateContentScheduleParams) => {
-      const result = await api.api['content-schedules']['by-id'][':id'].$patch({ param: { id }, json: updates });
+      const result = await api.api["content-schedules"]["by-id"][":id"].$patch({
+        param: { id },
+        json: updates,
+      });
       return result.json();
     },
     onSuccess: (data, variables) => {
@@ -114,7 +121,7 @@ export const useDeleteContentScheduleMutation = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const result = await api.api['content-schedules']['by-id'][':id'].$delete({ param: { id } });
+      const result = await api.api["content-schedules"]["by-id"][":id"].$delete({ param: { id } });
       return result.json();
     },
     onSuccess: () => {
@@ -128,7 +135,9 @@ export const useSkipScheduleSlotMutation = () => {
 
   return useMutation({
     mutationFn: async ({ scheduleId, date }: { scheduleId: string; date: Date }) => {
-      const result = await api.api['content-schedules']['skipped-slots'].$post({ json: { scheduleId, date } });
+      const result = await api.api["content-schedules"]["skipped-slots"].$post({
+        json: { scheduleId, date },
+      });
       return result.json();
     },
     onSuccess: () => {
@@ -142,7 +151,9 @@ export const useUnskipScheduleSlotMutation = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const result = await api.api['content-schedules']['skipped-slots'][':id'].$delete({ param: { id } });
+      const result = await api.api["content-schedules"]["skipped-slots"][":id"].$delete({
+        param: { id },
+      });
       return result.json();
     },
     onSuccess: () => {
@@ -150,6 +161,3 @@ export const useUnskipScheduleSlotMutation = () => {
     },
   });
 };
-
-
-

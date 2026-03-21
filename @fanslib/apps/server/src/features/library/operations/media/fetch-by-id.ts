@@ -11,15 +11,19 @@ export const FetchMediaByIdRequestParamsSchema = z.object({
 });
 
 export const FetchMediaByIdResponseSchema = MediaSchema.extend({
-  postMedia: z.array(PostMediaSchema.extend({
-    post: PostSchema.extend({
-      channel: ChannelSchema,
-      subreddit: SubredditSchema.nullable().optional(),
+  postMedia: z.array(
+    PostMediaSchema.extend({
+      post: PostSchema.extend({
+        channel: ChannelSchema,
+        subreddit: SubredditSchema.nullable().optional(),
+      }),
     }),
-  })),
+  ),
 });
 
-export const fetchMediaById = async (id: string): Promise<z.infer<typeof FetchMediaByIdResponseSchema> | null> => {
+export const fetchMediaById = async (
+  id: string,
+): Promise<z.infer<typeof FetchMediaByIdResponseSchema> | null> => {
   const database = await db();
 
   const media = await database.manager.findOne(Media, {
@@ -31,9 +35,9 @@ export const fetchMediaById = async (id: string): Promise<z.infer<typeof FetchMe
           subreddit: true,
         },
       },
-    }
-  })
-  
+    },
+  });
+
   if (!media) {
     return null;
   }
@@ -43,4 +47,3 @@ export const fetchMediaById = async (id: string): Promise<z.infer<typeof FetchMe
     postMedia: media.postMedia.filter((pm) => pm.post !== null && pm.post !== undefined),
   };
 };
-

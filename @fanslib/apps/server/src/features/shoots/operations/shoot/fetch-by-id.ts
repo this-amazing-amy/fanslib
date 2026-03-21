@@ -11,7 +11,9 @@ export const FetchShootByIdResponseSchema = ShootSchema.extend({
   media: z.array(MediaSchema),
 });
 
-export const fetchShootById = async (id: string): Promise<z.infer<typeof FetchShootByIdResponseSchema> | null> => {
+export const fetchShootById = async (
+  id: string,
+): Promise<z.infer<typeof FetchShootByIdResponseSchema> | null> => {
   const database = await db();
   const shootRepository = database.getRepository(Shoot);
 
@@ -22,4 +24,3 @@ export const fetchShootById = async (id: string): Promise<z.infer<typeof FetchSh
 
   return shoot;
 };
-

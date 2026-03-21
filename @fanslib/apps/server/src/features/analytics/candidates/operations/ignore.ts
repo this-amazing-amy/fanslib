@@ -4,7 +4,7 @@ import { FanslyMediaCandidate } from "../../candidate-entity";
 import type { IgnoreCandidateResponseSchema } from "../schema";
 
 export const ignoreCandidate = async (
-  id: string
+  id: string,
 ): Promise<z.infer<typeof IgnoreCandidateResponseSchema> | null> => {
   const dataSource = await db();
   const candidateRepository = dataSource.getRepository(FanslyMediaCandidate);

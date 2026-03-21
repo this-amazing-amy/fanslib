@@ -1,5 +1,4 @@
-import type { Media } from '@fanslib/server/schemas';
-
+import type { Media } from "@fanslib/server/schemas";
 
 import { useState } from "react";
 

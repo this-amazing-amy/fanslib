@@ -1,11 +1,11 @@
-import { app, BrowserWindow, nativeImage, screen, shell, Tray } from 'electron';
-import fs from 'fs';
-import path from 'path';
-import { normalizeFilePath } from './paths';
-import { createServer } from './server';
+import { app, BrowserWindow, nativeImage, screen, shell, Tray } from "electron";
+import fs from "fs";
+import path from "path";
+import { normalizeFilePath } from "./paths";
+import { createServer } from "./server";
 
-if (process.platform === 'darwin') {
-  app.name = 'FansLib Companion';
+if (process.platform === "darwin") {
+  app.name = "FansLib Companion";
 }
 
 let tray: Tray | null = null;
@@ -16,22 +16,22 @@ const createHeartIcon = (): Electron.NativeImage => {
   const bitmap = Buffer.alloc(size * size * 4);
 
   const heartShape = [
-    '..####....####..',
-    '.##############.',
-    '################',
-    '################',
-    '################',
-    '################',
-    '.##############.',
-    '..############..',
-    '...##########...',
-    '....########....',
-    '.....######.....',
-    '......####......',
-    '.......##.......',
-    '................',
-    '................',
-    '................',
+    "..####....####..",
+    ".##############.",
+    "################",
+    "################",
+    "################",
+    "################",
+    ".##############.",
+    "..############..",
+    "...##########...",
+    "....########....",
+    ".....######.....",
+    "......####......",
+    ".......##.......",
+    "................",
+    "................",
+    "................",
   ];
 
   const color = { r: 255, g: 255, b: 255, a: 255 };
@@ -39,7 +39,7 @@ const createHeartIcon = (): Electron.NativeImage => {
   heartShape.forEach((row, y) => {
     [...row].forEach((char, x) => {
       const idx = (y * size + x) * 4;
-      if (char === '#') {
+      if (char === "#") {
         bitmap[idx] = color.r;
         bitmap[idx + 1] = color.g;
         bitmap[idx + 2] = color.b;
@@ -73,7 +73,7 @@ const createStatusWindow = () => {
     show: false,
     frame: false,
     transparent: false,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: "#1a1a1a",
     movable: true,
     webPreferences: {
       nodeIntegration: false,
@@ -81,10 +81,10 @@ const createStatusWindow = () => {
     },
   });
 
-  const htmlPath = path.join(__dirname, 'status-window.html');
+  const htmlPath = path.join(__dirname, "status-window.html");
   statusWindow.loadFile(htmlPath);
 
-  statusWindow.once('ready-to-show', () => {
+  statusWindow.once("ready-to-show", () => {
     if (statusWindow && !statusWindow.isDestroyed()) {
       if (tray) {
         const trayBounds = tray.getBounds();
@@ -93,17 +93,15 @@ const createStatusWindow = () => {
         const workArea = primaryDisplay.workArea;
 
         // Calculate x position (centered on tray icon)
-        let x = Math.round(
-          trayBounds.x + trayBounds.width / 2 - windowBounds.width / 2
-        );
+        let x = Math.round(trayBounds.x + trayBounds.width / 2 - windowBounds.width / 2);
 
         // Calculate y position based on platform
         let y: number;
 
-        if (process.platform === 'darwin') {
+        if (process.platform === "darwin") {
           // macOS: taskbar at top, position below tray
           y = Math.round(trayBounds.y + trayBounds.height + 4);
-        } else if (process.platform === 'win32') {
+        } else if (process.platform === "win32") {
           // Windows: taskbar typically at bottom, position above tray
           if (trayBounds.y > workArea.height / 2) {
             // Taskbar at bottom
@@ -124,14 +122,8 @@ const createStatusWindow = () => {
         }
 
         // Ensure window stays within screen bounds
-        x = Math.max(
-          workArea.x,
-          Math.min(x, workArea.x + workArea.width - windowBounds.width)
-        );
-        y = Math.max(
-          workArea.y,
-          Math.min(y, workArea.y + workArea.height - windowBounds.height)
-        );
+        x = Math.max(workArea.x, Math.min(x, workArea.x + workArea.width - windowBounds.width));
+        y = Math.max(workArea.y, Math.min(y, workArea.y + workArea.height - windowBounds.height));
 
         statusWindow.setPosition(x, y);
       }
@@ -139,7 +131,7 @@ const createStatusWindow = () => {
     }
   });
 
-  statusWindow.on('blur', () => {
+  statusWindow.on("blur", () => {
     if (statusWindow && !statusWindow.isDestroyed()) {
       statusWindow.hide();
     }
@@ -150,9 +142,9 @@ app.whenReady().then(async () => {
   const icon = createHeartIcon();
 
   tray = new Tray(icon);
-  tray.setToolTip('FansLib Companion');
+  tray.setToolTip("FansLib Companion");
 
-  tray.on('click', () => {
+  tray.on("click", () => {
     createStatusWindow();
   });
 
@@ -160,7 +152,7 @@ app.whenReady().then(async () => {
     const normalizedPath = normalizeFilePath(filePath);
 
     if (!fs.existsSync(normalizedPath)) {
-      throw new Error('File does not exist');
+      throw new Error("File does not exist");
     }
     shell.showItemInFolder(normalizedPath);
   };
@@ -170,8 +162,8 @@ app.whenReady().then(async () => {
   const port = 6971;
   server.listen(port);
 
-  app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
+  app.on("window-all-closed", () => {
+    if (process.platform !== "darwin") {
       app.quit();
     }
   });

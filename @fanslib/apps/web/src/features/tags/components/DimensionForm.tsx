@@ -2,7 +2,13 @@ import { useState } from "react";
 import { Button } from "~/components/ui/Button";
 import { Input } from "~/components/ui/Input";
 import { Label } from "~/components/ui/Label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/Select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/Select";
 import { Switch } from "~/components/ui/Switch";
 import { Textarea } from "~/components/ui/Textarea";
 import {
@@ -11,16 +17,15 @@ import {
   parseBooleanSchema,
   parseNumericSchema,
 } from "~/lib/tags/tagValidation";
-import type { CreateTagDimensionRequestBody, TagDimension, UpdateTagDimensionRequestBody } from '@fanslib/server/schemas';
-
+import type {
+  CreateTagDimensionRequestBody,
+  TagDimension,
+  UpdateTagDimensionRequestBody,
+} from "@fanslib/server/schemas";
 
 type DimensionFormProps = {
   initialData?: TagDimension;
-  onSubmit: (
-    data:
-      | CreateTagDimensionRequestBody
-      | UpdateTagDimensionRequestBody
-  ) => void;
+  onSubmit: (data: CreateTagDimensionRequestBody | UpdateTagDimensionRequestBody) => void;
   onCancel: () => void;
   isSubmitting?: boolean;
 };
@@ -35,7 +40,12 @@ type DimensionFormData = {
   isExclusive: boolean;
 };
 
-export const DimensionForm = ({ initialData, onSubmit, onCancel, isSubmitting = false }: DimensionFormProps) => {
+export const DimensionForm = ({
+  initialData,
+  onSubmit,
+  onCancel,
+  isSubmitting = false,
+}: DimensionFormProps) => {
   const isEditing = !!initialData;
 
   const [formData, setFormData] = useState<DimensionFormData>({
@@ -49,10 +59,10 @@ export const DimensionForm = ({ initialData, onSubmit, onCancel, isSubmitting = 
   });
 
   const [booleanSchema, setBooleanSchema] = useState<BooleanSchema>(() =>
-    parseBooleanSchema(formData.validationSchema)
+    parseBooleanSchema(formData.validationSchema),
   );
   const [numericSchema, setNumericSchema] = useState<NumericSchema>(() =>
-    parseNumericSchema(formData.validationSchema)
+    parseNumericSchema(formData.validationSchema),
   );
 
   const updateFormData = (updates: Partial<DimensionFormData>) => {
@@ -60,11 +70,12 @@ export const DimensionForm = ({ initialData, onSubmit, onCancel, isSubmitting = 
   };
 
   const handleDataTypeChange = (dataType: "categorical" | "numerical" | "boolean") => {
-    const validationSchema = dataType === "boolean"
-      ? JSON.stringify(booleanSchema)
-      : dataType === "numerical"
-        ? JSON.stringify(numericSchema)
-        : "";
+    const validationSchema =
+      dataType === "boolean"
+        ? JSON.stringify(booleanSchema)
+        : dataType === "numerical"
+          ? JSON.stringify(numericSchema)
+          : "";
 
     updateFormData({ dataType, validationSchema });
   };
@@ -130,7 +141,9 @@ export const DimensionForm = ({ initialData, onSubmit, onCancel, isSubmitting = 
           <Label htmlFor="dataType">Data Type *</Label>
           <Select
             value={formData.dataType}
-            onValueChange={(value) => handleDataTypeChange(value as "categorical" | "numerical" | "boolean")}
+            onValueChange={(value) =>
+              handleDataTypeChange(value as "categorical" | "numerical" | "boolean")
+            }
             aria-label="Data type"
           >
             <SelectTrigger>
@@ -149,7 +162,9 @@ export const DimensionForm = ({ initialData, onSubmit, onCancel, isSubmitting = 
         <Label htmlFor="stickerDisplay">Sticker Display Mode</Label>
         <Select
           value={formData.stickerDisplay ?? "none"}
-          onValueChange={(value) => updateFormData({ stickerDisplay: value as "none" | "color" | "short" })}
+          onValueChange={(value) =>
+            updateFormData({ stickerDisplay: value as "none" | "color" | "short" })
+          }
           aria-label="Sticker display mode"
         >
           <SelectTrigger>
@@ -174,7 +189,9 @@ export const DimensionForm = ({ initialData, onSubmit, onCancel, isSubmitting = 
               isDisabled={formData.dataType !== "categorical"}
             />
             <div className="flex-1">
-              <div className="font-medium">{formData.isExclusive ? "Single Selection" : "Multiple Selection"}</div>
+              <div className="font-medium">
+                {formData.isExclusive ? "Single Selection" : "Multiple Selection"}
+              </div>
             </div>
           </div>
         </div>
@@ -200,7 +217,9 @@ export const DimensionForm = ({ initialData, onSubmit, onCancel, isSubmitting = 
               <Input
                 id="trueLabel"
                 value={booleanSchema.trueLabel ?? "Yes"}
-                onChange={(value) => handleBooleanSchemaChange({ ...booleanSchema, trueLabel: value })}
+                onChange={(value) =>
+                  handleBooleanSchemaChange({ ...booleanSchema, trueLabel: value })
+                }
                 placeholder="e.g., Yes, Enabled, Featured"
               />
             </div>
@@ -209,7 +228,9 @@ export const DimensionForm = ({ initialData, onSubmit, onCancel, isSubmitting = 
               <Input
                 id="falseLabel"
                 value={booleanSchema.falseLabel ?? "No"}
-                onChange={(value) => handleBooleanSchemaChange({ ...booleanSchema, falseLabel: value })}
+                onChange={(value) =>
+                  handleBooleanSchemaChange({ ...booleanSchema, falseLabel: value })
+                }
                 placeholder="e.g., No, Disabled, Not Featured"
               />
             </div>
@@ -303,7 +324,10 @@ export const DimensionForm = ({ initialData, onSubmit, onCancel, isSubmitting = 
               <div className="mt-1 text-xs text-base-content/60">
                 Step: {numericSchema.step ?? 1}
                 {numericSchema.unit && ` ${numericSchema.unit}`} • Possible values:{" "}
-                {Math.floor(((numericSchema.max ?? 100) - (numericSchema.min ?? 0)) / (numericSchema.step ?? 1)) + 1}
+                {Math.floor(
+                  ((numericSchema.max ?? 100) - (numericSchema.min ?? 0)) /
+                    (numericSchema.step ?? 1),
+                ) + 1}
               </div>
             </div>
           </div>

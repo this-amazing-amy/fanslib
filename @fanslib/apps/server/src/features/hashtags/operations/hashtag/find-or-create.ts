@@ -14,7 +14,9 @@ export const FindOrCreateHashtagsByIdsRequestBodySchema = z.object({
 export const FindOrCreateHashtagResponseSchema = HashtagSchema;
 export const FindOrCreateHashtagsByIdsResponseSchema = z.array(HashtagSchema);
 
-export const findOrCreateHashtag = async (name: string): Promise<z.infer<typeof FindOrCreateHashtagResponseSchema>> => {
+export const findOrCreateHashtag = async (
+  name: string,
+): Promise<z.infer<typeof FindOrCreateHashtagResponseSchema>> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Hashtag);
   const normalizedName = normalizeHashtagName(name);
@@ -31,6 +33,7 @@ export const findOrCreateHashtag = async (name: string): Promise<z.infer<typeof 
   return repository.save(hashtag);
 };
 
-export const findOrCreateHashtags = async (names: string[]): Promise<z.infer<typeof FindOrCreateHashtagsByIdsResponseSchema>> =>
+export const findOrCreateHashtags = async (
+  names: string[],
+): Promise<z.infer<typeof FindOrCreateHashtagsByIdsResponseSchema>> =>
   Promise.all(names.map((name) => findOrCreateHashtag(name)));
-

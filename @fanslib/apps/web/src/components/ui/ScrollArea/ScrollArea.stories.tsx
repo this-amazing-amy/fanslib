@@ -1,14 +1,14 @@
-/* eslint-disable react/no-array-index-key */
-import type { Meta, StoryObj } from '@storybook/react';
-import { ScrollArea } from './ScrollArea';
+/* oxlint-disable react/no-array-index-key */
+import type { Meta, StoryObj } from "@storybook/react";
+import { ScrollArea } from "./ScrollArea";
 
 const meta: Meta<typeof ScrollArea> = {
-  title: 'UI/ScrollArea',
+  title: "UI/ScrollArea",
   component: ScrollArea,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
@@ -33,7 +33,10 @@ export const Horizontal: Story = {
     <ScrollArea orientation="horizontal" className="w-96 border border-base-300 rounded-lg p-4">
       <div className="flex gap-4">
         {Array.from({ length: 20 }).map((_, i) => (
-          <div key={`item-${i}`} className="flex-shrink-0 w-32 h-32 bg-base-200 rounded-lg flex items-center justify-center">
+          <div
+            key={`item-${i}`}
+            className="flex-shrink-0 w-32 h-32 bg-base-200 rounded-lg flex items-center justify-center"
+          >
             {i + 1}
           </div>
         ))}
@@ -48,7 +51,8 @@ export const Both: Story = {
       <div className="min-w-max space-y-4">
         {Array.from({ length: 20 }).map((_, i) => (
           <p key={`item-${i}`} className="text-sm whitespace-nowrap">
-            Item {i + 1}: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            Item {i + 1}: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
+            tempor incididunt ut labore et dolore magna aliqua.
           </p>
         ))}
       </div>
@@ -69,5 +73,3 @@ export const WithMaxHeight: Story = {
     </ScrollArea>
   ),
 };
-
-

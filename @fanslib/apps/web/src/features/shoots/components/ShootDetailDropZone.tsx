@@ -1,4 +1,4 @@
-import type { ShootSummary } from '@fanslib/server/schemas';
+import type { ShootSummary } from "@fanslib/server/schemas";
 import { Plus } from "lucide-react";
 import { type FC } from "react";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
@@ -6,7 +6,6 @@ import { useDragOver } from "~/hooks/useDragOver";
 import { cn } from "~/lib/cn";
 import { useMediaListQuery } from "~/lib/queries/library";
 import { useUpdateShootMutation } from "~/lib/queries/shoots";
-
 
 type ShootDetailDropZoneProps = {
   shoot: ShootSummary;
@@ -24,7 +23,7 @@ export const ShootDetailDropZone: FC<ShootDetailDropZoneProps> = ({ shoot, onUpd
 
       // Don't show copy cursor if all media items are already in the shoot
       const hasNewDraggedMedia = draggedMedias.some(
-        (media) => !shoot.media?.some((m) => m.id === media.id)
+        (media) => !shoot.media?.some((m) => m.id === media.id),
       );
       if (hasNewDraggedMedia) return;
 
@@ -65,7 +64,7 @@ export const ShootDetailDropZone: FC<ShootDetailDropZoneProps> = ({ shoot, onUpd
     <div
       className={cn(
         "aspect-square rounded-lg border-2 border-dashed flex items-center justify-center transition-colors",
-        isOver ? "border-primary bg-primary/10" : "border-muted"
+        isOver ? "border-primary bg-primary/10" : "border-muted",
       )}
       {...dragHandlers}
     >

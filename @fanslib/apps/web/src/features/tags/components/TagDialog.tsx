@@ -1,4 +1,9 @@
-import type { CreateTagDefinitionRequestBody, TagDefinition, TagDimension, UpdateTagDefinitionRequestBody } from '@fanslib/server/schemas';
+import type {
+  CreateTagDefinitionRequestBody,
+  TagDefinition,
+  TagDimension,
+  UpdateTagDefinitionRequestBody,
+} from "@fanslib/server/schemas";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "~/components/ui/Button";
 import {
@@ -23,8 +28,6 @@ import { BooleanValueInput } from "./BooleanValueInput";
 import { CategoricalValueInput } from "./CategoricalValueInput";
 import { NumericValueInput } from "./NumericValueInput";
 
-
-
 export type EditingTag =
   | {
       tag: TagDefinition;
@@ -41,11 +44,20 @@ type TagDialogProps = {
   dimension?: TagDimension;
   availableTags: TagDefinition[];
   onClose: () => void;
-  onSubmit: (data: CreateTagDefinitionRequestBody | { id: number; updates: UpdateTagDefinitionRequestBody }) => void;
+  onSubmit: (
+    data: CreateTagDefinitionRequestBody | { id: number; updates: UpdateTagDefinitionRequestBody },
+  ) => void;
   isSubmitting: boolean;
 };
 
-export const TagDialog = ({ editingTag, dimension, availableTags, onClose, onSubmit, isSubmitting }: TagDialogProps) => {
+export const TagDialog = ({
+  editingTag,
+  dimension,
+  availableTags,
+  onClose,
+  onSubmit,
+  isSubmitting,
+}: TagDialogProps) => {
   const isNumeric = dimension?.dataType === "numerical";
   const isBoolean = dimension?.dataType === "boolean";
   const isCategorical = dimension?.dataType === "categorical";
@@ -104,11 +116,12 @@ export const TagDialog = ({ editingTag, dimension, availableTags, onClose, onSub
       return;
     }
 
-    const finalValue = (isNumeric || isBoolean)
-      ? convertToTagValue(formData.typedValue, dimension.dataType)
-      : (isCategorical && !formData.value)
-        ? formData.displayName.toLowerCase().replace(/\s+/g, "-")
-        : formData.value;
+    const finalValue =
+      isNumeric || isBoolean
+        ? convertToTagValue(formData.typedValue, dimension.dataType)
+        : isCategorical && !formData.value
+          ? formData.displayName.toLowerCase().replace(/\s+/g, "-")
+          : formData.value;
 
     const baseData = {
       value: finalValue,
@@ -181,7 +194,9 @@ export const TagDialog = ({ editingTag, dimension, availableTags, onClose, onSub
           currentTagId={editingTag?.mode === "edit" ? editingTag.tag.id : undefined}
           onDisplayNameChange={(value) => setFormData((prev) => ({ ...prev, displayName: value }))}
           onDescriptionChange={(value) => setFormData((prev) => ({ ...prev, description: value }))}
-          onParentTagChange={(parentId) => setFormData((prev) => ({ ...prev, parentTagId: parentId }))}
+          onParentTagChange={(parentId) =>
+            setFormData((prev) => ({ ...prev, parentTagId: parentId }))
+          }
           onShortRepresentationChange={(value) => {
             setFormData((prev) => ({ ...prev, shortRepresentation: value }));
           }}
@@ -212,7 +227,9 @@ export const TagDialog = ({ editingTag, dimension, availableTags, onClose, onSub
                       id="displayName"
                       value={formData.displayName}
                       onChange={(value) => setFormData((prev) => ({ ...prev, displayName: value }))}
-                      placeholder={isNumeric ? "e.g., Duration, Count, Rating" : "e.g., Is Featured, Has Audio"}
+                      placeholder={
+                        isNumeric ? "e.g., Duration, Count, Rating" : "e.g., Is Featured, Has Audio"
+                      }
                       isRequired
                     />
                   </div>
@@ -246,7 +263,11 @@ export const TagDialog = ({ editingTag, dimension, availableTags, onClose, onSub
                   }}
                   isDisabled={isSubmitting || !!validationError || !formData.displayName.trim()}
                 >
-                  {isSubmitting ? "Saving..." : editingTag?.mode === "edit" ? "Update Tag" : "Create Tag"}
+                  {isSubmitting
+                    ? "Saving..."
+                    : editingTag?.mode === "edit"
+                      ? "Update Tag"
+                      : "Create Tag"}
                 </Button>
               </DialogFooter>
             </>

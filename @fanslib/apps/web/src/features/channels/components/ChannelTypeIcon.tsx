@@ -37,10 +37,6 @@ export const ChannelTypeIcon = ({ typeId, className, ...props }: ChannelTypeIcon
   if (!Icon) return null;
 
   return (
-    <Icon
-      className={cn("w-5 h-5", className)}
-      style={{ color: channelType?.color }}
-      {...props}
-    />
+    <Icon className={cn("w-5 h-5", className)} style={{ color: channelType?.color }} {...props} />
   );
 };

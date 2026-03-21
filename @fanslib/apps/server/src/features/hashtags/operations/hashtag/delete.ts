@@ -22,4 +22,3 @@ export const deleteHashtag = async (id: number): Promise<boolean> => {
   await hashtagRepository.delete({ id });
   return true;
 };
-

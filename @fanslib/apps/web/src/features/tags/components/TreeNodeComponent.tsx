@@ -1,4 +1,4 @@
-import type { TagDefinition } from '@fanslib/server/schemas';
+import type { TagDefinition } from "@fanslib/server/schemas";
 import { ChevronDown, ChevronRight, Edit, GripVertical, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
@@ -6,7 +6,6 @@ import { useTagDrag } from "~/contexts/TagDragContext";
 import { useTagDropZone } from "~/hooks/useTagDropZone";
 import { cn } from "~/lib/cn";
 import { TagBadge } from "~/features/library/components/MediaTagEditor/DimensionTagSelector/TagBadge";
-
 
 export type TreeNode = {
   id: number;
@@ -43,7 +42,7 @@ export const TreeNodeComponent = ({
 }: TreeNodeComponentProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const { startTagDrag } = useTagDrag();
-  
+
   // Convert TreeNode to TagDefinition format for useTagDropZone and drag
   const convertToTagDefinition = (treeNode: TreeNode): TagDefinition => ({
     id: treeNode.id,
@@ -59,9 +58,9 @@ export const TreeNodeComponent = ({
     createdAt: new Date(),
     updatedAt: new Date(),
   });
-  
+
   const targetTag = convertToTagDefinition(node);
-  
+
   const { isOver, dragHandlers } = useTagDropZone({
     targetTag,
     allTags,
@@ -77,7 +76,7 @@ export const TreeNodeComponent = ({
         className={cn(
           "flex items-center gap-2 py-1 px-2 rounded group transition-colors",
           isSelected && "ring-2 ring-primary/60",
-          isOver && "bg-secondary/20 border-2 border-secondary border-dashed"
+          isOver && "bg-secondary/20 border-2 border-secondary border-dashed",
         )}
         style={{ marginLeft: `${node.level * 20}px` }}
         {...dragHandlers}
@@ -102,7 +101,11 @@ export const TreeNodeComponent = ({
             }}
             aria-label={isExpanded ? "Collapse" : "Expand"}
           >
-            {isExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+            {isExpanded ? (
+              <ChevronDown className="w-3 h-3" />
+            ) : (
+              <ChevronRight className="w-3 h-3" />
+            )}
           </Button>
         ) : (
           <div className="w-4" />

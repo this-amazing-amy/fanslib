@@ -9,7 +9,7 @@ export const FetchBulkMediaTagsRequestBodySchema = z.object({
 export const FetchBulkMediaTagsResponseSchema = z.record(z.string(), z.array(MediaTagSchema));
 
 export const fetchBulkMediaTags = async (
-  mediaIds: string[]
+  mediaIds: string[],
 ): Promise<z.infer<typeof FetchBulkMediaTagsResponseSchema>> => {
   if (mediaIds.length === 0) return {};
 

@@ -13,6 +13,4 @@ export {
   SidebarFooter,
   SidebarInset,
   useSidebar,
-} from './Sidebar';
-
-
+} from "./Sidebar";

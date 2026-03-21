@@ -1,7 +1,17 @@
-import type { DeleteMediaRequestParams, FetchAllMediaRequestBody, FetchAllMediaResponse, FetchMediaByIdRequestParams, FetchMediaByIdResponse, FindAdjacentMediaBody, FindAdjacentMediaRequestParams, UpdateMediaRequestBody, UpdateMediaRequestParams } from '@fanslib/server/schemas';
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '../api/hono-client';
-import { QUERY_KEYS } from './query-keys';
+import type {
+  DeleteMediaRequestParams,
+  FetchAllMediaRequestBody,
+  FetchAllMediaResponse,
+  FetchMediaByIdRequestParams,
+  FetchMediaByIdResponse,
+  FindAdjacentMediaBody,
+  FindAdjacentMediaRequestParams,
+  UpdateMediaRequestBody,
+  UpdateMediaRequestParams,
+} from "@fanslib/server/schemas";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { api } from "../api/hono-client";
+import { QUERY_KEYS } from "./query-keys";
 
 export const useMediaListQuery = (params?: FetchAllMediaRequestBody) =>
   useQuery({
@@ -13,10 +23,7 @@ export const useMediaListQuery = (params?: FetchAllMediaRequestBody) =>
     placeholderData: keepPreviousData,
   });
 
-const listCachePlaceholder = (
-  queryClient: ReturnType<typeof useQueryClient>,
-  id: string
-) => {
+const listCachePlaceholder = (queryClient: ReturnType<typeof useQueryClient>, id: string) => {
   try {
     const listQueries = queryClient.getQueriesData<FetchAllMediaResponse>({
       queryKey: QUERY_KEYS.media.all,
@@ -38,11 +45,11 @@ export const useMediaQuery = (params: FetchMediaByIdRequestParams) => {
   return useQuery({
     queryKey: QUERY_KEYS.media.byId(params.id),
     queryFn: async () => {
-      const result = await api.api.media['by-id'][':id'].$get({ param: { id: params.id } });
+      const result = await api.api.media["by-id"][":id"].$get({ param: { id: params.id } });
       return result.json();
     },
     enabled: !!params.id,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     placeholderData: listCachePlaceholder(queryClient, params.id) as any,
   });
 };
@@ -51,8 +58,8 @@ export const useMediaPostingHistoryQuery = (mediaId: string) =>
   useQuery({
     queryKey: QUERY_KEYS.media.postingHistory(mediaId),
     queryFn: async () => {
-      const result = await api.api.media['by-id'][':id']['posting-history'].$get({ 
-        param: { id: mediaId } 
+      const result = await api.api.media["by-id"][":id"]["posting-history"].$get({
+        param: { id: mediaId },
       });
       return result.json();
     },
@@ -61,12 +68,13 @@ export const useMediaPostingHistoryQuery = (mediaId: string) =>
 
 export const useBulkMediaPostingHistoryQuery = (mediaIds: string[]) =>
   useQuery({
-    queryKey: ['media', 'posting-history', 'bulk', mediaIds],
+    queryKey: ["media", "posting-history", "bulk", mediaIds],
     queryFn: async () => {
       const historyPromises = mediaIds.map((id) =>
-        api.api.media['by-id'][':id']['posting-history'].$get({ param: { id } })
+        api.api.media["by-id"][":id"]["posting-history"]
+          .$get({ param: { id } })
           .then((res) => res.json())
-          .then((data) => ({ mediaId: id, history: data }))
+          .then((data) => ({ mediaId: id, history: data })),
       );
       const results = await Promise.all(historyPromises);
       return new Map(results.map((r) => [r.mediaId, r.history]));
@@ -77,12 +85,15 @@ export const useBulkMediaPostingHistoryQuery = (mediaIds: string[]) =>
 
 export const useMediaAdjacentQuery = (
   params: FindAdjacentMediaRequestParams,
-  body?: FindAdjacentMediaBody
+  body?: FindAdjacentMediaBody,
 ) =>
   useQuery({
     queryKey: QUERY_KEYS.media.adjacent(params.id, body),
     queryFn: async () => {
-      const result = await api.api.media['by-id'][':id'].adjacent.$post({ param: { id: params.id }, json: body ?? {} });
+      const result = await api.api.media["by-id"][":id"].adjacent.$post({
+        param: { id: params.id },
+        json: body ?? {},
+      });
       return result.json();
     },
     enabled: !!params.id,
@@ -97,7 +108,7 @@ export const useUpdateMediaMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdateMediaParams) => {
-      const result = await api.api.media['by-id'][':id'].$patch({ param: { id }, json: updates });
+      const result = await api.api.media["by-id"][":id"].$patch({ param: { id }, json: updates });
       return result.json();
     },
     onSuccess: (data, variables) => {
@@ -117,9 +128,9 @@ export const useDeleteMediaMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, deleteFile = false }: DeleteMediaParams) => {
-      const result = await api.api.media['by-id'][':id'].$delete({ 
-        param: { id }, 
-        query: { deleteFile: deleteFile ? 'true' : undefined } 
+      const result = await api.api.media["by-id"][":id"].$delete({
+        param: { id },
+        query: { deleteFile: deleteFile ? "true" : undefined },
       });
       return result.json();
     },

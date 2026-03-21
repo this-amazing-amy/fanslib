@@ -98,7 +98,7 @@ app.onError((error, c) => {
   if (isAppError(error)) {
     return c.json(
       { error: error.message, code: error.code },
-      error.statusCode as Parameters<typeof c.json>[1]
+      error.statusCode as Parameters<typeof c.json>[1],
     );
   }
 
@@ -139,7 +139,7 @@ if (isScheduledPostsCronEnabled) {
 }
 
 // Start server
-const port = parseInt(process.env.API_PORT ?? '6970', 10);
+const port = parseInt(process.env.API_PORT ?? "6970", 10);
 Bun.serve({
   fetch: app.fetch,
   port,

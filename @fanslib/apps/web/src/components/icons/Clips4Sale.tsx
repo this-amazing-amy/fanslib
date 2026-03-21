@@ -17,4 +17,3 @@ export const Clips4SaleIcon = (props: SVGProps<SVGSVGElement>) => (
     />
   </svg>
 );
-

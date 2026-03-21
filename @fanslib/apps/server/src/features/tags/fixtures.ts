@@ -1,12 +1,19 @@
 import { getTestDataSource } from "../../lib/test-db";
 import type { Media } from "../library/entity";
-import { MediaTag as MediaTagEntity, TagDefinition as TagDefinitionEntity, TagDimension as TagDimensionEntity } from "./entity";
+import {
+  MediaTag as MediaTagEntity,
+  TagDefinition as TagDefinitionEntity,
+  TagDimension as TagDimensionEntity,
+} from "./entity";
 
 type MediaTag = MediaTagEntity;
 type TagDefinition = TagDefinitionEntity;
 type TagDimension = TagDimensionEntity;
 
-export type TagDimensionFixture = Omit<TagDimension, "id" | "createdAt" | "updatedAt" | "validationSchema">;
+export type TagDimensionFixture = Omit<
+  TagDimension,
+  "id" | "createdAt" | "updatedAt" | "validationSchema"
+>;
 
 export const TAG_DIMENSION_FIXTURES: TagDimensionFixture[] = [
   {
@@ -38,18 +45,61 @@ export const TAG_DIMENSION_FIXTURES: TagDimensionFixture[] = [
   },
 ];
 
-export type TagDefinitionFixture = Omit<TagDefinition, "id" | "dimensionId" | "createdAt" | "updatedAt" | "description" | "metadata" | "shortRepresentation" | "parentTagId" | "dimension" | "children" | "mediaTags"> & {
+export type TagDefinitionFixture = Omit<
+  TagDefinition,
+  | "id"
+  | "dimensionId"
+  | "createdAt"
+  | "updatedAt"
+  | "description"
+  | "metadata"
+  | "shortRepresentation"
+  | "parentTagId"
+  | "dimension"
+  | "children"
+  | "mediaTags"
+> & {
   dimensionName: string;
 };
 
 export const TAG_DEFINITION_FIXTURES: TagDefinitionFixture[] = [
   { dimensionName: "Rating", value: "5", displayName: "5 Stars", color: "#FFD700", sortOrder: 0 },
   { dimensionName: "Rating", value: "4", displayName: "4 Stars", color: "#FFA500", sortOrder: 1 },
-  { dimensionName: "Category", value: "portrait", displayName: "Portrait", color: "#FF6B6B", sortOrder: 0 },
-  { dimensionName: "Category", value: "landscape", displayName: "Landscape", color: "#4ECDC4", sortOrder: 1 },
-  { dimensionName: "Category", value: "studio", displayName: "Studio", color: "#6C5CE7", sortOrder: 2 },
-  { dimensionName: "Category", value: "outdoor", displayName: "Outdoor", color: "#00B894", sortOrder: 3 },
-  { dimensionName: "Category", value: "macro", displayName: "Macro", color: "#E84393", sortOrder: 4 },
+  {
+    dimensionName: "Category",
+    value: "portrait",
+    displayName: "Portrait",
+    color: "#FF6B6B",
+    sortOrder: 0,
+  },
+  {
+    dimensionName: "Category",
+    value: "landscape",
+    displayName: "Landscape",
+    color: "#4ECDC4",
+    sortOrder: 1,
+  },
+  {
+    dimensionName: "Category",
+    value: "studio",
+    displayName: "Studio",
+    color: "#6C5CE7",
+    sortOrder: 2,
+  },
+  {
+    dimensionName: "Category",
+    value: "outdoor",
+    displayName: "Outdoor",
+    color: "#00B894",
+    sortOrder: 3,
+  },
+  {
+    dimensionName: "Category",
+    value: "macro",
+    displayName: "Macro",
+    color: "#E84393",
+    sortOrder: 4,
+  },
 ];
 
 export type MediaTagFixture = Pick<MediaTag, "mediaId" | "dimensionName" | "tagValue" | "source">;
@@ -82,7 +132,7 @@ export const seedTagFixtures = async (media: Media[]) => {
         isExclusive: fixture.isExclusive,
       });
       return dimensionRepo.save(dimension);
-    })
+    }),
   );
 
   const createdDefinitions = await Promise.all(
@@ -107,11 +157,13 @@ export const seedTagFixtures = async (media: Media[]) => {
         sortOrder: fixture.sortOrder,
       });
       return definitionRepo.save(definition);
-    })
+    }),
   ).then((defs) => defs.filter((d) => d !== null) as TagDefinition[]);
 
   const definitionsWithDimension = await definitionRepo.find({
-    where: createdDefinitions.map((d) => (d !== null ? { id: d.id } : null)).filter((d): d is { id: number } => d !== null),
+    where: createdDefinitions
+      .map((d) => (d !== null ? { id: d.id } : null))
+      .filter((d): d is { id: number } => d !== null),
     relations: { dimension: true },
   });
 
@@ -120,7 +172,7 @@ export const seedTagFixtures = async (media: Media[]) => {
       const mediaItem = media.find((m) => m.id === fixture.mediaId);
       const dimension = createdDimensions.find((d) => d.name === fixture.dimensionName);
       const definition = definitionsWithDimension.find(
-        (d) => d.value === fixture.tagValue && d.dimensionId === dimension?.id
+        (d) => d.value === fixture.tagValue && d.dimensionId === dimension?.id,
       );
 
       if (!mediaItem || !definition || !dimension) {
@@ -153,7 +205,7 @@ export const seedTagFixtures = async (media: Media[]) => {
         });
         await mediaTagRepo.save(mediaTag);
       }
-    })
+    }),
   );
 
   return {
@@ -162,4 +214,3 @@ export const seedTagFixtures = async (media: Media[]) => {
     mediaTags: await mediaTagRepo.find({ relations: { media: true, tag: true } }),
   };
 };
-

@@ -1,4 +1,4 @@
-import type { Media, PostWithRelations } from '@fanslib/server/schemas';
+import type { Media, PostWithRelations } from "@fanslib/server/schemas";
 import { Link } from "@tanstack/react-router";
 import { Trash2, X } from "lucide-react";
 import { memo, useEffect, useRef, useState } from "react";
@@ -33,7 +33,7 @@ export const PostCalendarPost = memo(({ post, onUpdate, allPosts = [] }: PostCal
   const [confirmSkip, setConfirmSkip] = useState(false);
   const captionPreview = post.caption ? getCaptionPreview(post.caption) : "";
   const cardRef = useRef<HTMLDivElement>(null);
-  
+
   // Pre-fetch filters for virtual posts so they're ready when picker opens
   const virtualPostFilters = useVirtualPostFilters({
     channelId: post.channelId,
@@ -46,7 +46,7 @@ export const PostCalendarPost = memo(({ post, onUpdate, allPosts = [] }: PostCal
   useEffect(() => {
     setIsLargeScreen(window.innerWidth >= 1600);
   }, []);
-  
+
   const [createPostData, setCreatePostData] = useState<{
     media: Media[];
     initialDate?: Date;
@@ -56,7 +56,7 @@ export const PostCalendarPost = memo(({ post, onUpdate, allPosts = [] }: PostCal
     allPosts?: (Post | VirtualPost)[];
     virtualPost?: VirtualPost;
   } | null>(null);
-  
+
   const virtualPostClick = useVirtualPostClick({
     post: isVirtualPost(post) ? post : ({} as VirtualPost),
     onOpenCreateDialog: (data) => {
@@ -77,14 +77,14 @@ export const PostCalendarPost = memo(({ post, onUpdate, allPosts = [] }: PostCal
       }
     },
   });
-  
+
   const closeCreatePostDialog = () => {
     setCreatePostData(null);
     if (onUpdate) {
       onUpdate();
     }
   };
-  
+
   const handleNavigateToSlot = (virtualPost: VirtualPost) => {
     setCreatePostData({
       media: [],
@@ -97,23 +97,23 @@ export const PostCalendarPost = memo(({ post, onUpdate, allPosts = [] }: PostCal
     });
   };
 
-  const status = post.status ?? 'draft';
+  const status = post.status ?? "draft";
   const virtual = isVirtualPost(post);
 
   // Extract channel typeId safely
-  const channelTypeId = post.channel?.type?.id ?? post.channel?.typeId ?? 'unknown';
+  const channelTypeId = post.channel?.type?.id ?? post.channel?.typeId ?? "unknown";
 
   const handleSkipClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (!virtual) return;
-    
+
     if (!confirmSkip) {
       setConfirmSkip(true);
       return;
     }
-    
+
     if (!post.scheduleId) {
       setConfirmSkip(false);
       return;
@@ -123,11 +123,11 @@ export const PostCalendarPost = memo(({ post, onUpdate, allPosts = [] }: PostCal
       scheduleId: post.scheduleId,
       date: post.date,
     });
-    
+
     if (onUpdate) {
       await onUpdate();
     }
-    
+
     setConfirmSkip(false);
   };
 
@@ -141,7 +141,7 @@ export const PostCalendarPost = memo(({ post, onUpdate, allPosts = [] }: PostCal
         "z-20",
         confirmSkip
           ? "bg-error/80 hover:bg-error text-error-content"
-          : "bg-base-200/80 hover:bg-base-300 text-base-content/60 hover:text-base-content"
+          : "bg-base-200/80 hover:bg-base-300 text-base-content/60 hover:text-base-content",
       )}
       title={confirmSkip ? "Click again to confirm skip" : "Skip this slot"}
     >
@@ -158,7 +158,7 @@ export const PostCalendarPost = memo(({ post, onUpdate, allPosts = [] }: PostCal
   const presentationContent = (
     <PostCalendarPostView
       date={new Date(post.date)}
-      status={status as 'posted' | 'scheduled' | 'draft'}
+      status={status as "posted" | "scheduled" | "draft"}
       channel={{
         name: post.channel?.name ?? "",
         typeId: channelTypeId,
@@ -166,19 +166,20 @@ export const PostCalendarPost = memo(({ post, onUpdate, allPosts = [] }: PostCal
       schedule={
         virtual || post.schedule
           ? {
-              name: virtual ? post.schedule?.name ?? "" : post.schedule?.name ?? "",
-              emoji: virtual ? post.schedule?.emoji ?? undefined : post.schedule?.emoji ?? undefined,
-              color: virtual ? post.schedule?.color ?? undefined : post.schedule?.color ?? undefined,
+              name: virtual ? (post.schedule?.name ?? "") : (post.schedule?.name ?? ""),
+              emoji: virtual
+                ? (post.schedule?.emoji ?? undefined)
+                : (post.schedule?.emoji ?? undefined),
+              color: virtual
+                ? (post.schedule?.color ?? undefined)
+                : (post.schedule?.color ?? undefined),
             }
           : undefined
       }
       caption={captionPreview}
       showCaption={preferences.view.showCaptions}
       mediaSlot={
-        <PostCalendarPostMedia
-          postMedia={virtual ? [] : post.postMedia}
-          isVirtual={virtual}
-        />
+        <PostCalendarPostMedia postMedia={virtual ? [] : post.postMedia} isVirtual={virtual} />
       }
       overlaySlot={overlay}
       actionSlot={skipButton}
@@ -215,7 +216,7 @@ export const PostCalendarPost = memo(({ post, onUpdate, allPosts = [] }: PostCal
       <PostCalendarDropzone post={post} onUpdate={onUpdate}>
         {viewContent}
       </PostCalendarDropzone>
-      
+
       {/* Full dialog for editing existing posts or when expanded */}
       <CreatePostDialog
         open={createPostData !== null}
@@ -233,4 +234,4 @@ export const PostCalendarPost = memo(({ post, onUpdate, allPosts = [] }: PostCal
   );
 });
 
-PostCalendarPost.displayName = 'PostCalendarPost';
+PostCalendarPost.displayName = "PostCalendarPost";

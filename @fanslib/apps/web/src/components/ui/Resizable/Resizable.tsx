@@ -1,21 +1,23 @@
-import { GripVertical } from 'lucide-react';
-import { type ReactNode, useState } from 'react';
+import { GripVertical } from "lucide-react";
+import { type ReactNode, useState } from "react";
 
 type ResizableProps = {
   children: ReactNode;
   className?: string;
-  direction?: 'horizontal' | 'vertical';
+  direction?: "horizontal" | "vertical";
 };
 
 export const Resizable = ({
   children,
-  className = '',
-  direction = 'horizontal',
-}: ResizableProps) => <div
-      className={`flex ${direction === 'vertical' ? 'flex-col' : 'flex-row'} h-full w-full ${className}`}
-    >
-      {children}
-    </div>;
+  className = "",
+  direction = "horizontal",
+}: ResizableProps) => (
+  <div
+    className={`flex ${direction === "vertical" ? "flex-col" : "flex-row"} h-full w-full ${className}`}
+  >
+    {children}
+  </div>
+);
 
 type ResizablePanelProps = {
   children: ReactNode;
@@ -30,15 +32,12 @@ export const ResizablePanel = ({
   defaultSize = 50,
   minSize: _minSize = 10,
   maxSize: _maxSize = 90,
-  className = '',
+  className = "",
 }: ResizablePanelProps) => {
   const [size, _setSize] = useState(defaultSize);
 
   return (
-    <div
-      className={`relative flex flex-col ${className}`}
-      style={{ flex: `0 0 ${size}%` }}
-    >
+    <div className={`relative flex flex-col ${className}`} style={{ flex: `0 0 ${size}%` }}>
       {children}
     </div>
   );
@@ -50,19 +49,16 @@ type ResizableHandleProps = {
   onResize?: (delta: number) => void;
 };
 
-export const ResizableHandle = ({
-  className = '',
-  withHandle = false,
-}: ResizableHandleProps) => {
+export const ResizableHandle = ({ className = "", withHandle = false }: ResizableHandleProps) => {
   const [isDragging, setIsDragging] = useState(false);
 
   return (
     <div
-      className={`relative flex items-center justify-center bg-border hover:bg-border/80 transition-colors ${isDragging ? 'bg-primary' : ''} ${className}`}
-      style={{ 
-        width: withHandle ? '4px' : '1px',
-        cursor: 'col-resize',
-        userSelect: 'none',
+      className={`relative flex items-center justify-center bg-border hover:bg-border/80 transition-colors ${isDragging ? "bg-primary" : ""} ${className}`}
+      style={{
+        width: withHandle ? "4px" : "1px",
+        cursor: "col-resize",
+        userSelect: "none",
       }}
       onMouseDown={() => setIsDragging(true)}
       onMouseUp={() => setIsDragging(false)}
@@ -75,4 +71,3 @@ export const ResizableHandle = ({
     </div>
   );
 };
-

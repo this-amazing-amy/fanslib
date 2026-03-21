@@ -1,7 +1,7 @@
-import { ParentSize } from '@visx/responsive';
-import { AreaSeries, Axis, Grid, Tooltip, XYChart, buildChartTheme } from '@visx/xychart';
-import { useMemo } from 'react';
-import { aggregateDatapoints } from '~/lib/analytics/aggregate';
+import { ParentSize } from "@visx/responsive";
+import { AreaSeries, Axis, Grid, Tooltip, XYChart, buildChartTheme } from "@visx/xychart";
+import { useMemo } from "react";
+import { aggregateDatapoints } from "~/lib/analytics/aggregate";
 
 type AnalyticsViewsChartProps = {
   datapoints: Array<{ timestamp: number; views: number; interactionTime: number }>;
@@ -10,10 +10,10 @@ type AnalyticsViewsChartProps = {
 };
 
 const chartTheme = buildChartTheme({
-  colors: ['hsl(var(--p))'],
-  gridColor: 'hsl(var(--bc) / 0.1)',
-  gridColorDark: 'hsl(var(--bc) / 0.1)',
-  backgroundColor: 'transparent',
+  colors: ["hsl(var(--p))"],
+  gridColor: "hsl(var(--bc) / 0.1)",
+  gridColorDark: "hsl(var(--bc) / 0.1)",
+  backgroundColor: "transparent",
   tickLength: 4,
 });
 
@@ -27,13 +27,10 @@ const formatNumber = (value: number): string => {
   return value.toString();
 };
 
-export const AnalyticsViewsChart = ({
-  datapoints,
-  postDate,
-}: AnalyticsViewsChartProps) => {
+export const AnalyticsViewsChart = ({ datapoints, postDate }: AnalyticsViewsChartProps) => {
   const aggregatedData = useMemo(
     () => aggregateDatapoints(datapoints, postDate),
-    [datapoints, postDate]
+    [datapoints, postDate],
   );
 
   if (aggregatedData.length === 0) {
@@ -48,8 +45,8 @@ export const AnalyticsViewsChart = ({
   }));
 
   const accessors = {
-    xAccessor: (d: typeof chartData[number]) => new Date(d.timestamp),
-    yAccessor: (d: typeof chartData[number]) => d.views,
+    xAccessor: (d: (typeof chartData)[number]) => new Date(d.timestamp),
+    yAccessor: (d: (typeof chartData)[number]) => d.views,
   };
 
   const sevenDayIndex = chartData.findIndex((d) => d.daysSincePost >= 7);
@@ -60,13 +57,13 @@ export const AnalyticsViewsChart = ({
   return (
     <div className="mt-6">
       <h3 className="text-lg font-semibold mb-4">Views Over Time</h3>
-      <div className="relative" style={{ minHeight: '300px' }}>
+      <div className="relative" style={{ minHeight: "300px" }}>
         <ParentSize>
           {({ width }) => (
             <XYChart
               theme={chartTheme}
-              xScale={{ type: 'time' }}
-              yScale={{ type: 'linear', domain: [0, maxViews * 1.1] }}
+              xScale={{ type: "time" }}
+              yScale={{ type: "linear", domain: [0, maxViews * 1.1] }}
               width={width}
               height={300}
               margin={{ top: 20, right: 20, bottom: 40, left: 60 }}
@@ -77,20 +74,11 @@ export const AnalyticsViewsChart = ({
                 numTicks={5}
                 tickFormat={(value) => {
                   const date = new Date(value);
-                  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
                 }}
               />
-              <Axis
-                orientation="left"
-                numTicks={5}
-                tickFormat={formatNumber}
-              />
-              <AreaSeries
-                dataKey="views"
-                data={chartData}
-                {...accessors}
-                fillOpacity={0.2}
-              />
+              <Axis orientation="left" numTicks={5} tickFormat={formatNumber} />
+              <AreaSeries dataKey="views" data={chartData} {...accessors} fillOpacity={0.2} />
               <Tooltip
                 snapTooltipToDatumX
                 snapTooltipToDatumY
@@ -98,16 +86,14 @@ export const AnalyticsViewsChart = ({
                 showSeriesGlyphs
                 renderTooltip={({ tooltipData }) => {
                   if (!tooltipData?.nearestDatum) return null;
-                  const datum = tooltipData.nearestDatum.datum as typeof chartData[number];
+                  const datum = tooltipData.nearestDatum.datum as (typeof chartData)[number];
                   return (
                     <div className="bg-base-100 border border-base-300 rounded-lg p-2 shadow-lg">
                       <div className="text-sm font-medium">{datum.date}</div>
                       <div className="text-sm text-base-content/70">
                         Views: {formatNumber(datum.views)}
                       </div>
-                      <div className="text-xs text-base-content/50">
-                        Day {datum.daysSincePost}
-                      </div>
+                      <div className="text-xs text-base-content/50">Day {datum.daysSincePost}</div>
                     </div>
                   );
                 }}

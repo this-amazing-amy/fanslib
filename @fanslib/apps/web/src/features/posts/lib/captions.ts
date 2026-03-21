@@ -4,7 +4,7 @@ type CaptionPreviewOptions = {
 
 export const getCaptionPreview = (
   caption: string,
-  { maxChars = 150 }: CaptionPreviewOptions = {}
+  { maxChars = 150 }: CaptionPreviewOptions = {},
 ): string => {
   const trimmedCaption = caption.trim();
   if (!trimmedCaption) return "";
@@ -18,4 +18,3 @@ export const getCaptionPreview = (
 
   return `${chars.slice(0, maxChars).join("").trimEnd()}…`;
 };
-
