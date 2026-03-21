@@ -21,7 +21,7 @@ export const MediaTileVideo = ({
   cover,
 }: MediaTileVideoProps) => {
   const isPreviewActive = useMediaHoverStore((s) => withPreview && s.hoveredMediaId === media.id);
-  const { videoRef } = useVideoPreview({
+  const { videoRef, isVideoReady } = useVideoPreview({
     isActive: isPreviewActive,
     mediaType: "video",
   });
@@ -29,20 +29,19 @@ export const MediaTileVideo = ({
 
   return (
     <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-      {!isPreviewActive && (
-        <img
-          src={getMediaThumbnailUrl(media.id)}
-          alt={media.name}
-          className={getBlurClassName(
-            cn(
-              "absolute inset-0 w-full h-full bg-base-300",
-              cover ? "object-cover" : "object-contain"
-            )
-          )}
-          loading="lazy"
-          draggable={false}
-        />
-      )}
+      <img
+        src={getMediaThumbnailUrl(media.id)}
+        alt={media.name}
+        className={getBlurClassName(
+          cn(
+            "absolute inset-0 w-full h-full bg-base-300",
+            cover ? "object-cover" : "object-contain",
+            isPreviewActive && isVideoReady && "invisible"
+          )
+        )}
+        loading="lazy"
+        draggable={false}
+      />
       <video
         ref={videoRef}
         src={getMediaFileUrl(media.id)}
