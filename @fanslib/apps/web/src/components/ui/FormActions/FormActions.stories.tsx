@@ -1,34 +1,34 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { FormActions } from './FormActions';
-import { Button } from '../Button';
+import type { Meta, StoryObj } from "@storybook/react";
+import { FormActions } from "./FormActions";
+import { Button } from "../Button";
 
 const meta: Meta<typeof FormActions> = {
-  title: 'Form Controls/FormActions',
+  title: "Form Controls/FormActions",
   component: FormActions,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {
     justify: {
-      control: { type: 'select' },
-      options: ['start', 'end', 'center', 'between'],
+      control: { type: "select" },
+      options: ["start", "end", "center", "between"],
     },
     direction: {
-      control: { type: 'select' },
-      options: ['row', 'col'],
+      control: { type: "select" },
+      options: ["row", "col"],
     },
     spacing: {
-      control: { type: 'select' },
-      options: ['none', 'sm', 'default', 'lg'],
+      control: { type: "select" },
+      options: ["none", "sm", "default", "lg"],
     },
     responsive: {
-      control: { type: 'boolean' },
+      control: { type: "boolean" },
     },
   },
   decorators: [
     (Story) => (
-      <div style={{ width: '500px' }}>
+      <div style={{ width: "500px" }}>
         <Story />
       </div>
     ),
@@ -123,4 +123,3 @@ export const MultipleButtons: Story = {
     </FormActions>
   ),
 };
-

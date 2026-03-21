@@ -16,7 +16,7 @@ export const getFanslyPostsWithAnalytics = async (
   sortBy = "date",
   sortDirection: "asc" | "desc" = "desc",
   startDate?: string,
-  endDate?: string
+  endDate?: string,
 ): Promise<z.infer<typeof GetFanslyPostsWithAnalyticsResponseSchema>> => {
   const dataSource = await db();
   const postRepository = dataSource.getRepository(Post);
@@ -72,4 +72,3 @@ export const getFanslyPostsWithAnalytics = async (
     };
   });
 };
-

@@ -1,10 +1,10 @@
-import { isSameDay } from 'date-fns';
-import type { ReactNode } from 'react';
-import { usePostDrag } from '~/contexts/PostDragContext';
-import { useDragOver } from '~/hooks/useDragOver';
-import { cn } from '~/lib/cn';
-import { useCreatePostMutation, useUpdatePostMutation } from '~/lib/queries/posts';
-import { isVirtualPost } from '~/lib/virtual-posts';
+import { isSameDay } from "date-fns";
+import type { ReactNode } from "react";
+import { usePostDrag } from "~/contexts/PostDragContext";
+import { useDragOver } from "~/hooks/useDragOver";
+import { cn } from "~/lib/cn";
+import { useCreatePostMutation, useUpdatePostMutation } from "~/lib/queries/posts";
+import { isVirtualPost } from "~/lib/virtual-posts";
 
 type PostCalendarDayContainerProps = {
   date: Date;
@@ -46,8 +46,8 @@ export const PostCalendarDayContainer = ({
           await createPostMutation.mutateAsync({
             date: newDate,
             channelId: draggedPost.channelId,
-            status: 'draft',
-            caption: '',
+            status: "draft",
+            caption: "",
             mediaIds: [],
             scheduleId: draggedPost.scheduleId ?? undefined,
           });
@@ -59,7 +59,7 @@ export const PostCalendarDayContainer = ({
         }
         await onUpdate();
       } catch (error) {
-        console.error('Failed to move post to new date:', error);
+        console.error("Failed to move post to new date:", error);
       }
 
       endPostDrag();
@@ -74,8 +74,8 @@ export const PostCalendarDayContainer = ({
       {...dragHandlers}
       className={cn(
         className,
-        'transition-colors',
-        showDropFeedback && isOver && 'bg-primary/10 ring-2 ring-primary ring-inset'
+        "transition-colors",
+        showDropFeedback && isOver && "bg-primary/10 ring-2 ring-primary ring-inset",
       )}
     >
       {children}

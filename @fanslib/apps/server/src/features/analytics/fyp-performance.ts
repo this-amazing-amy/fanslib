@@ -15,7 +15,7 @@ const calculateTimeSpanDays = (datapoints: FanslyAnalyticsDatapoint[]): number =
 };
 
 export const calculateUserPerformanceThreshold = async (
-  channelId: string
+  channelId: string,
 ): Promise<{
   averageViews: number;
   averageVelocity: number;
@@ -45,9 +45,15 @@ export const calculateUserPerformanceThreshold = async (
     };
   }
 
-  const totalViews = historicalPostMedia.reduce((sum, pm) => sum + (pm.fanslyAnalyticsAggregate?.totalViews ?? 0), 0);
+  const totalViews = historicalPostMedia.reduce(
+    (sum, pm) => sum + (pm.fanslyAnalyticsAggregate?.totalViews ?? 0),
+    0,
+  );
 
-  const totalEngagement = historicalPostMedia.reduce((sum, pm) => sum + (pm.fanslyAnalyticsAggregate?.averageEngagementSeconds ?? 0), 0);
+  const totalEngagement = historicalPostMedia.reduce(
+    (sum, pm) => sum + (pm.fanslyAnalyticsAggregate?.averageEngagementSeconds ?? 0),
+    0,
+  );
 
   const averageViews = totalViews / historicalPostMedia.length;
   const averageEngagement = totalEngagement / historicalPostMedia.length;
@@ -60,9 +66,8 @@ export const calculateUserPerformanceThreshold = async (
       return timeSpanDays > 0 ? pmViews / timeSpanDays : 0;
     });
 
-  const averageVelocity = velocities.length > 0
-    ? velocities.reduce((sum, v) => sum + v, 0) / velocities.length
-    : 10;
+  const averageVelocity =
+    velocities.length > 0 ? velocities.reduce((sum, v) => sum + v, 0) / velocities.length : 10;
 
   return {
     averageViews,

@@ -32,9 +32,9 @@
           system-ui,
           -apple-system,
           BlinkMacSystemFont,
-          'Segoe UI',
+          "Segoe UI",
           Roboto,
-          'Helvetica Neue',
+          "Helvetica Neue",
           Arial,
           sans-serif;
         background: var(--b1);
@@ -177,11 +177,7 @@
         <div class="status-content">
           <div class="status-label">Bridge Server</div>
           <div class="status-detail" id="bridge-detail">Checking...</div>
-          <div
-            class="error-message"
-            id="bridge-error"
-            style="display: none"
-          ></div>
+          <div class="error-message" id="bridge-error" style="display: none"></div>
         </div>
       </div>
 
@@ -198,21 +194,19 @@
 
     <script>
       const checkBridgeHealth = async () => {
-        const bridgeIndicator = document.getElementById('bridge-indicator');
-        const bridgeDetail = document.getElementById('bridge-detail');
-        const bridgeError = document.getElementById('bridge-error');
-        const clipboardIndicator = document.getElementById(
-          'clipboard-indicator'
-        );
-        const clipboardDetail = document.getElementById('clipboard-detail');
+        const bridgeIndicator = document.getElementById("bridge-indicator");
+        const bridgeDetail = document.getElementById("bridge-detail");
+        const bridgeError = document.getElementById("bridge-error");
+        const clipboardIndicator = document.getElementById("clipboard-indicator");
+        const clipboardDetail = document.getElementById("clipboard-detail");
 
-        bridgeIndicator.className = 'status-indicator loading';
-        bridgeDetail.textContent = 'Checking...';
-        bridgeError.style.display = 'none';
+        bridgeIndicator.className = "status-indicator loading";
+        bridgeDetail.textContent = "Checking...";
+        bridgeError.style.display = "none";
 
         try {
-          const response = await fetch('http://localhost:6971/health', {
-            method: 'GET',
+          const response = await fetch("http://localhost:6971/health", {
+            method: "GET",
             signal: AbortSignal.timeout(2000),
           });
 
@@ -222,23 +216,22 @@
 
           const data = await response.json();
 
-          if (data.status === 'ok') {
-            bridgeIndicator.className = 'status-indicator success';
-            bridgeDetail.textContent = 'Running on port 6971';
-            clipboardIndicator.className = 'status-indicator success';
-            clipboardDetail.textContent = 'Ready';
+          if (data.status === "ok") {
+            bridgeIndicator.className = "status-indicator success";
+            bridgeDetail.textContent = "Running on port 6971";
+            clipboardIndicator.className = "status-indicator success";
+            clipboardDetail.textContent = "Ready";
           } else {
-            throw new Error('Unexpected response');
+            throw new Error("Unexpected response");
           }
         } catch (error) {
-          bridgeIndicator.className = 'status-indicator error';
-          bridgeDetail.textContent = 'Not responding';
-          bridgeError.textContent =
-            error.message || 'Failed to connect to bridge server';
-          bridgeError.style.display = 'block';
+          bridgeIndicator.className = "status-indicator error";
+          bridgeDetail.textContent = "Not responding";
+          bridgeError.textContent = error.message || "Failed to connect to bridge server";
+          bridgeError.style.display = "block";
 
-          clipboardIndicator.className = 'status-indicator error';
-          clipboardDetail.textContent = 'Unavailable';
+          clipboardIndicator.className = "status-indicator error";
+          clipboardDetail.textContent = "Unavailable";
         }
       };
 

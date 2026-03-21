@@ -1,11 +1,11 @@
-import { parseDate } from '@internationalized/date';
-import { createFileRoute } from '@tanstack/react-router';
-import { Camera } from 'lucide-react';
-import { useState } from 'react';
-import { ContentScheduleBadge } from '~/components/ContentScheduleBadge';
-import { DateTimePicker } from '~/components/DateTimePicker';
-import { StatusBadge } from '~/components/StatusBadge';
-import { Alert } from '~/components/ui/Alert';
+import { parseDate } from "@internationalized/date";
+import { createFileRoute } from "@tanstack/react-router";
+import { Camera } from "lucide-react";
+import { useState } from "react";
+import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
+import { DateTimePicker } from "~/components/DateTimePicker";
+import { StatusBadge } from "~/components/StatusBadge";
+import { Alert } from "~/components/ui/Alert";
 import {
   AlertDialog,
   AlertDialogDescription,
@@ -14,13 +14,13 @@ import {
   AlertDialogModal,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '~/components/ui/AlertDialog';
-import { Badge } from '~/components/ui/Badge';
-import { Button } from '~/components/ui/Button';
-import { Card, CardActions, CardBody, CardTitle } from '~/components/ui/Card';
-import { Checkbox } from '~/components/ui/Checkbox';
-import { DatePicker } from '~/components/ui/DatePicker';
-import { DateRangePicker } from '~/components/ui/DateRangePicker';
+} from "~/components/ui/AlertDialog";
+import { Badge } from "~/components/ui/Badge";
+import { Button } from "~/components/ui/Button";
+import { Card, CardActions, CardBody, CardTitle } from "~/components/ui/Card";
+import { Checkbox } from "~/components/ui/Checkbox";
+import { DatePicker } from "~/components/ui/DatePicker";
+import { DateRangePicker } from "~/components/ui/DateRangePicker";
 import {
   Dialog,
   DialogDescription,
@@ -29,51 +29,62 @@ import {
   DialogModal,
   DialogTitle,
   DialogTrigger,
-} from '~/components/ui/Dialog';
+} from "~/components/ui/Dialog";
 import {
   DropdownMenu,
   DropdownMenuItem,
   DropdownMenuPopover,
   DropdownMenuTrigger,
-} from '~/components/ui/DropdownMenu';
-import { EmptyState } from '~/components/ui/EmptyState';
-import { ErrorState } from '~/components/ui/ErrorState';
-import { FormActions } from '~/components/ui/FormActions';
-import { FormField } from '~/components/ui/FormField';
-import { GridContainer } from '~/components/ui/GridContainer';
-import { Input } from '~/components/ui/Input';
-import { Label } from '~/components/ui/Label';
-import { PageContainer } from '~/components/ui/PageContainer';
-import { PageHeader } from '~/components/ui/PageHeader';
-import { Progress } from '~/components/ui/Progress';
-import { RadioGroup, RadioGroupItem } from '~/components/ui/RadioGroup';
-import { ScrollArea } from '~/components/ui/ScrollArea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/Select';
-import { Separator } from '~/components/ui/Separator';
-import { Skeleton } from '~/components/ui/Skeleton';
-import { Slider } from '~/components/ui/Slider';
-import { Status } from '~/components/ui/Status';
-import { Stepper } from '~/components/ui/Stepper';
-import { Sticker } from '~/components/ui/Sticker';
-import { Switch } from '~/components/ui/Switch';
-import { TabItem, Tabs } from '~/components/ui/Tabs';
-import { Textarea } from '~/components/ui/Textarea';
-import { Toggle } from '~/components/ui/Toggle';
-import { ToggleGroup } from '~/components/ui/ToggleGroup';
-import { Tooltip } from '~/components/ui/Tooltip';
-import { PostCalendarPostView } from '~/features/posts/components/PostCalendar/PostCalendarPostView';
-import { CHANNEL_COLORS, POST_STATUS_COLORS, TAG_TYPE_COLORS, USER_COLOR_PRESETS } from '~/lib/colors';
+} from "~/components/ui/DropdownMenu";
+import { EmptyState } from "~/components/ui/EmptyState";
+import { ErrorState } from "~/components/ui/ErrorState";
+import { FormActions } from "~/components/ui/FormActions";
+import { FormField } from "~/components/ui/FormField";
+import { GridContainer } from "~/components/ui/GridContainer";
+import { Input } from "~/components/ui/Input";
+import { Label } from "~/components/ui/Label";
+import { PageContainer } from "~/components/ui/PageContainer";
+import { PageHeader } from "~/components/ui/PageHeader";
+import { Progress } from "~/components/ui/Progress";
+import { RadioGroup, RadioGroupItem } from "~/components/ui/RadioGroup";
+import { ScrollArea } from "~/components/ui/ScrollArea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/Select";
+import { Separator } from "~/components/ui/Separator";
+import { Skeleton } from "~/components/ui/Skeleton";
+import { Slider } from "~/components/ui/Slider";
+import { Status } from "~/components/ui/Status";
+import { Stepper } from "~/components/ui/Stepper";
+import { Sticker } from "~/components/ui/Sticker";
+import { Switch } from "~/components/ui/Switch";
+import { TabItem, Tabs } from "~/components/ui/Tabs";
+import { Textarea } from "~/components/ui/Textarea";
+import { Toggle } from "~/components/ui/Toggle";
+import { ToggleGroup } from "~/components/ui/ToggleGroup";
+import { Tooltip } from "~/components/ui/Tooltip";
+import { PostCalendarPostView } from "~/features/posts/components/PostCalendar/PostCalendarPostView";
+import {
+  CHANNEL_COLORS,
+  POST_STATUS_COLORS,
+  TAG_TYPE_COLORS,
+  USER_COLOR_PRESETS,
+} from "~/lib/colors";
 
 const ComponentShowcase = () => {
   const [checkboxChecked, setCheckboxChecked] = useState(false);
   const [switchChecked, setSwitchChecked] = useState(false);
-  const [radioValue, setRadioValue] = useState('option1');
+  const [radioValue, setRadioValue] = useState("option1");
   const [sliderValue, setSliderValue] = useState([50]);
   const [date, setDate] = useState<Date>(new Date());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [alertDialogOpen, setAlertDialogOpen] = useState(false);
-  const [dataType, setDataType] = useState('categorical');
-  const [dialogSelectValue, setDialogSelectValue] = useState('option1');
+  const [dataType, setDataType] = useState("categorical");
+  const [dialogSelectValue, setDialogSelectValue] = useState("option1");
 
   return (
     <PageContainer>
@@ -147,10 +158,18 @@ const ComponentShowcase = () => {
           <div>
             <h3 className="text-lg font-semibold mb-2">Outline Badges</h3>
             <div className="flex flex-wrap gap-4">
-              <Badge variant="primary" outline>Primary</Badge>
-              <Badge variant="secondary" outline>Secondary</Badge>
-              <Badge variant="success" outline>Success</Badge>
-              <Badge variant="error" outline>Error</Badge>
+              <Badge variant="primary" outline>
+                Primary
+              </Badge>
+              <Badge variant="secondary" outline>
+                Secondary
+              </Badge>
+              <Badge variant="success" outline>
+                Success
+              </Badge>
+              <Badge variant="error" outline>
+                Error
+              </Badge>
             </div>
           </div>
         </section>
@@ -173,15 +192,24 @@ const ComponentShowcase = () => {
                   <h4 className="font-medium capitalize mb-2">{colors.name}</h4>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded border" style={{ backgroundColor: colors.background }} />
+                      <div
+                        className="w-6 h-6 rounded border"
+                        style={{ backgroundColor: colors.background }}
+                      />
                       <span className="text-xs font-mono">Bg: {colors.background}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded border" style={{ backgroundColor: colors.foreground }} />
+                      <div
+                        className="w-6 h-6 rounded border"
+                        style={{ backgroundColor: colors.foreground }}
+                      />
                       <span className="text-xs font-mono">Text: {colors.foreground}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded border" style={{ backgroundColor: colors.foreground }} />
+                      <div
+                        className="w-6 h-6 rounded border"
+                        style={{ backgroundColor: colors.foreground }}
+                      />
                       <span className="text-xs font-mono">Border: {colors.foreground}</span>
                     </div>
                   </div>
@@ -199,15 +227,24 @@ const ComponentShowcase = () => {
                   <h4 className="font-medium capitalize mb-2">{colors.name}</h4>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded border" style={{ backgroundColor: colors.background }} />
+                      <div
+                        className="w-6 h-6 rounded border"
+                        style={{ backgroundColor: colors.background }}
+                      />
                       <span className="text-xs font-mono">Bg: {colors.background}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded border" style={{ backgroundColor: colors.foreground }} />
+                      <div
+                        className="w-6 h-6 rounded border"
+                        style={{ backgroundColor: colors.foreground }}
+                      />
                       <span className="text-xs font-mono">Text: {colors.foreground}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded border" style={{ backgroundColor: colors.foreground }} />
+                      <div
+                        className="w-6 h-6 rounded border"
+                        style={{ backgroundColor: colors.foreground }}
+                      />
                       <span className="text-xs font-mono">Border: {colors.foreground}</span>
                     </div>
                   </div>
@@ -264,17 +301,17 @@ const ComponentShowcase = () => {
             <h3 className="text-lg font-semibold mb-3">DaisyUI Theme Colors</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {[
-                { name: 'Primary', class: 'bg-primary', textClass: 'text-primary-content' },
-                { name: 'Secondary', class: 'bg-secondary', textClass: 'text-secondary-content' },
-                { name: 'Accent', class: 'bg-accent', textClass: 'text-accent-content' },
-                { name: 'Neutral', class: 'bg-neutral', textClass: 'text-neutral-content' },
-                { name: 'Base 100', class: 'bg-base-100', textClass: 'text-base-content' },
-                { name: 'Base 200', class: 'bg-base-200', textClass: 'text-base-content' },
-                { name: 'Base 300', class: 'bg-base-300', textClass: 'text-base-content' },
-                { name: 'Info', class: 'bg-info', textClass: 'text-info-content' },
-                { name: 'Success', class: 'bg-success', textClass: 'text-success-content' },
-                { name: 'Warning', class: 'bg-warning', textClass: 'text-warning-content' },
-                { name: 'Error', class: 'bg-error', textClass: 'text-error-content' },
+                { name: "Primary", class: "bg-primary", textClass: "text-primary-content" },
+                { name: "Secondary", class: "bg-secondary", textClass: "text-secondary-content" },
+                { name: "Accent", class: "bg-accent", textClass: "text-accent-content" },
+                { name: "Neutral", class: "bg-neutral", textClass: "text-neutral-content" },
+                { name: "Base 100", class: "bg-base-100", textClass: "text-base-content" },
+                { name: "Base 200", class: "bg-base-200", textClass: "text-base-content" },
+                { name: "Base 300", class: "bg-base-300", textClass: "text-base-content" },
+                { name: "Info", class: "bg-info", textClass: "text-info-content" },
+                { name: "Success", class: "bg-success", textClass: "text-success-content" },
+                { name: "Warning", class: "bg-warning", textClass: "text-warning-content" },
+                { name: "Error", class: "bg-error", textClass: "text-error-content" },
               ].map((color) => (
                 <div key={color.name} className="space-y-2">
                   <div className={`${color.class} ${color.textClass} p-4 rounded-lg border`}>
@@ -282,10 +319,22 @@ const ComponentShowcase = () => {
                     <p className="text-xs opacity-80">Sample text</p>
                   </div>
                   <div className="flex gap-2">
-                    <div className={`${color.class} opacity-100 w-full h-8 rounded border`} title="100%" />
-                    <div className={`${color.class} opacity-75 w-full h-8 rounded border`} title="75%" />
-                    <div className={`${color.class} opacity-50 w-full h-8 rounded border`} title="50%" />
-                    <div className={`${color.class} opacity-25 w-full h-8 rounded border`} title="25%" />
+                    <div
+                      className={`${color.class} opacity-100 w-full h-8 rounded border`}
+                      title="100%"
+                    />
+                    <div
+                      className={`${color.class} opacity-75 w-full h-8 rounded border`}
+                      title="75%"
+                    />
+                    <div
+                      className={`${color.class} opacity-50 w-full h-8 rounded border`}
+                      title="50%"
+                    />
+                    <div
+                      className={`${color.class} opacity-25 w-full h-8 rounded border`}
+                      title="25%"
+                    />
                   </div>
                 </div>
               ))}
@@ -360,14 +409,54 @@ const ComponentShowcase = () => {
               <div>
                 <p className="text-xs font-medium mb-2">Medium Size with Emojis</p>
                 <div className="flex flex-wrap gap-2">
-                  <ContentScheduleBadge name="Daily Posts" emoji="📅" color={USER_COLOR_PRESETS[0].background} size="md" />
-                  <ContentScheduleBadge name="Premium" emoji="⭐" color={USER_COLOR_PRESETS[1].background} size="md" />
-                  <ContentScheduleBadge name="Exclusive" emoji="🔒" color={USER_COLOR_PRESETS[2].background} size="md" />
-                  <ContentScheduleBadge name="Promo" emoji="🎉" color={USER_COLOR_PRESETS[3].background} size="md" />
-                  <ContentScheduleBadge name="Updates" emoji="📢" color={USER_COLOR_PRESETS[4].background} size="md" />
-                  <ContentScheduleBadge name="Polls" emoji="📊" color={USER_COLOR_PRESETS[5].background} size="md" />
-                  <ContentScheduleBadge name="Q&A" emoji="❓" color={USER_COLOR_PRESETS[6].background} size="md" />
-                  <ContentScheduleBadge name="Live" emoji="🔴" color={USER_COLOR_PRESETS[7].background} size="md" />
+                  <ContentScheduleBadge
+                    name="Daily Posts"
+                    emoji="📅"
+                    color={USER_COLOR_PRESETS[0].background}
+                    size="md"
+                  />
+                  <ContentScheduleBadge
+                    name="Premium"
+                    emoji="⭐"
+                    color={USER_COLOR_PRESETS[1].background}
+                    size="md"
+                  />
+                  <ContentScheduleBadge
+                    name="Exclusive"
+                    emoji="🔒"
+                    color={USER_COLOR_PRESETS[2].background}
+                    size="md"
+                  />
+                  <ContentScheduleBadge
+                    name="Promo"
+                    emoji="🎉"
+                    color={USER_COLOR_PRESETS[3].background}
+                    size="md"
+                  />
+                  <ContentScheduleBadge
+                    name="Updates"
+                    emoji="📢"
+                    color={USER_COLOR_PRESETS[4].background}
+                    size="md"
+                  />
+                  <ContentScheduleBadge
+                    name="Polls"
+                    emoji="📊"
+                    color={USER_COLOR_PRESETS[5].background}
+                    size="md"
+                  />
+                  <ContentScheduleBadge
+                    name="Q&A"
+                    emoji="❓"
+                    color={USER_COLOR_PRESETS[6].background}
+                    size="md"
+                  />
+                  <ContentScheduleBadge
+                    name="Live"
+                    emoji="🔴"
+                    color={USER_COLOR_PRESETS[7].background}
+                    size="md"
+                  />
                 </div>
               </div>
             </div>
@@ -386,7 +475,9 @@ const ComponentShowcase = () => {
                 <p className="text-sm text-base-content/70 mb-4">Card description goes here</p>
                 <p>This is the card content area where you can put any content.</p>
                 <CardActions>
-                  <Button variant="primary" size="sm">Action</Button>
+                  <Button variant="primary" size="sm">
+                    Action
+                  </Button>
                 </CardActions>
               </CardBody>
             </Card>
@@ -411,7 +502,7 @@ const ComponentShowcase = () => {
         {/* Form Controls Section */}
         <section className="space-y-4">
           <h2 className="text-2xl font-bold">Form Controls</h2>
-          
+
           <div className="space-y-6 max-w-2xl">
             <FormField label="Input Field" description="This is a standard input field">
               <Input placeholder="Enter text here..." />
@@ -461,24 +552,26 @@ const ComponentShowcase = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <Switch
-                id="switch-demo"
-                isSelected={switchChecked}
-                onChange={setSwitchChecked}
-              />
+              <Switch id="switch-demo" isSelected={switchChecked} onChange={setSwitchChecked} />
               <Label htmlFor="switch-demo">Switch Example</Label>
             </div>
 
             <FormField label="Radio Group">
               <RadioGroup value={radioValue} onChange={setRadioValue}>
                 <div className="flex items-center gap-2">
-                  <RadioGroupItem value="option1" id="radio1">Option 1</RadioGroupItem>
+                  <RadioGroupItem value="option1" id="radio1">
+                    Option 1
+                  </RadioGroupItem>
                 </div>
                 <div className="flex items-center gap-2">
-                  <RadioGroupItem value="option2" id="radio2">Option 2</RadioGroupItem>
+                  <RadioGroupItem value="option2" id="radio2">
+                    Option 2
+                  </RadioGroupItem>
                 </div>
                 <div className="flex items-center gap-2">
-                  <RadioGroupItem value="option3" id="radio3">Option 3</RadioGroupItem>
+                  <RadioGroupItem value="option3" id="radio3">
+                    Option 3
+                  </RadioGroupItem>
                 </div>
               </RadioGroup>
             </FormField>
@@ -510,7 +603,7 @@ const ComponentShowcase = () => {
             <div>
               <h3 className="text-lg font-semibold mb-2">Date Picker</h3>
               <DatePicker
-                value={parseDate(date.toISOString().split('T')[0] ?? '')}
+                value={parseDate(date.toISOString().split("T")[0] ?? "")}
                 onChange={(d) => {
                   if (d) {
                     setDate(new Date(d.year, d.month - 1, d.day));
@@ -549,7 +642,7 @@ const ComponentShowcase = () => {
               This is an error alert message.
             </Alert>
           </div>
-          
+
           <div className="mt-6">
             <h3 className="text-lg font-semibold mb-2">Status Indicators</h3>
             <div className="flex flex-wrap gap-4">
@@ -567,16 +660,18 @@ const ComponentShowcase = () => {
             </p>
             <div className="space-y-4">
               <div>
-                <p className="text-sm font-medium mb-2">Color Dots (Multiple colors in one sticker)</p>
+                <p className="text-sm font-medium mb-2">
+                  Color Dots (Multiple colors in one sticker)
+                </p>
                 <div className="flex flex-wrap gap-2">
                   <Sticker>
-                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#ef4444' }} />
-                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#3b82f6' }} />
-                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#10b981' }} />
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: "#ef4444" }} />
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: "#3b82f6" }} />
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: "#10b981" }} />
                   </Sticker>
                   <Sticker>
-                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#f59e0b' }} />
-                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#8b5cf6' }} />
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: "#f59e0b" }} />
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: "#8b5cf6" }} />
                   </Sticker>
                 </div>
               </div>
@@ -593,8 +688,8 @@ const ComponentShowcase = () => {
                 <p className="text-sm font-medium mb-2">Mixed Example (As seen on media tiles)</p>
                 <div className="flex flex-wrap gap-2">
                   <Sticker>
-                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#ef4444' }} />
-                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#3b82f6' }} />
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: "#ef4444" }} />
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: "#3b82f6" }} />
                   </Sticker>
                   <Sticker className="text-xs">HD</Sticker>
                   <Sticker className="text-xs">BG</Sticker>
@@ -616,7 +711,7 @@ const ComponentShowcase = () => {
               <Progress value={66} className="mb-2" />
               <Progress value={100} />
             </div>
-            
+
             <div>
               <h3 className="text-lg font-semibold mb-2">Skeleton Loaders</h3>
               <div className="space-y-2">
@@ -625,7 +720,6 @@ const ComponentShowcase = () => {
                 <Skeleton className="h-4 w-4/6" />
               </div>
             </div>
-
           </div>
         </section>
 
@@ -649,7 +743,10 @@ const ComponentShowcase = () => {
                       </DialogHeader>
                       <div className="py-4 space-y-4">
                         <p>Dialog content goes here.</p>
-                        <FormField label="Select in Dialog" description="Test z-index fix - dropdown should appear above dialog">
+                        <FormField
+                          label="Select in Dialog"
+                          description="Test z-index fix - dropdown should appear above dialog"
+                        >
                           <Select value={dialogSelectValue} onValueChange={setDialogSelectValue}>
                             <SelectTrigger>
                               <SelectValue placeholder="Select an option" />
@@ -713,7 +810,7 @@ const ComponentShowcase = () => {
             <DropdownMenuTrigger>
               <Button>Open Menu</Button>
               <DropdownMenuPopover>
-                <DropdownMenu onAction={(key) => console.log('Selected:', key)}>
+                <DropdownMenu onAction={(key) => console.log("Selected:", key)}>
                   <DropdownMenuItem id="profile">Profile</DropdownMenuItem>
                   <DropdownMenuItem id="settings">Settings</DropdownMenuItem>
                   <DropdownMenuItem id="logout">Logout</DropdownMenuItem>
@@ -780,7 +877,9 @@ const ComponentShowcase = () => {
                   </td>
                   <td>Admin</td>
                   <td className="text-right">
-                    <Button variant="ghost" size="sm">Edit</Button>
+                    <Button variant="ghost" size="sm">
+                      Edit
+                    </Button>
                   </td>
                 </tr>
                 <tr>
@@ -790,7 +889,9 @@ const ComponentShowcase = () => {
                   </td>
                   <td>User</td>
                   <td className="text-right">
-                    <Button variant="ghost" size="sm">Edit</Button>
+                    <Button variant="ghost" size="sm">
+                      Edit
+                    </Button>
                   </td>
                 </tr>
                 <tr>
@@ -800,7 +901,9 @@ const ComponentShowcase = () => {
                   </td>
                   <td>User</td>
                   <td className="text-right">
-                    <Button variant="ghost" size="sm">Edit</Button>
+                    <Button variant="ghost" size="sm">
+                      Edit
+                    </Button>
                   </td>
                 </tr>
               </tbody>
@@ -819,9 +922,9 @@ const ComponentShowcase = () => {
               <Stepper
                 currentStep={1}
                 steps={[
-                  { label: 'Step 1', description: 'First step' },
-                  { label: 'Step 2', description: 'Current step' },
-                  { label: 'Step 3', description: 'Final step' },
+                  { label: "Step 1", description: "First step" },
+                  { label: "Step 2", description: "Current step" },
+                  { label: "Step 3", description: "Final step" },
                 ]}
               />
             </div>
@@ -831,10 +934,10 @@ const ComponentShowcase = () => {
                 currentStep={1}
                 orientation="vertical"
                 steps={[
-                  { label: 'Account Setup', description: 'Create your account' },
-                  { label: 'Profile Information', description: 'Add your details' },
-                  { label: 'Verification', description: 'Verify your email' },
-                  { label: 'Complete', description: 'All done!' },
+                  { label: "Account Setup", description: "Create your account" },
+                  { label: "Profile Information", description: "Add your details" },
+                  { label: "Verification", description: "Verify your email" },
+                  { label: "Complete", description: "All done!" },
                 ]}
               />
             </div>
@@ -856,9 +959,9 @@ const ComponentShowcase = () => {
               <ToggleGroup
                 aria-label="Text alignment"
                 options={[
-                  { value: 'left', label: 'Left' },
-                  { value: 'center', label: 'Center' },
-                  { value: 'right', label: 'Right' },
+                  { value: "left", label: "Left" },
+                  { value: "center", label: "Center" },
+                  { value: "right", label: "Right" },
                 ]}
               />
             </div>
@@ -868,9 +971,9 @@ const ComponentShowcase = () => {
                 aria-label="View mode"
                 variant="primary"
                 options={[
-                  { value: 'grid', label: 'Grid' },
-                  { value: 'list', label: 'List' },
-                  { value: 'table', label: 'Table' },
+                  { value: "grid", label: "Grid" },
+                  { value: "list", label: "List" },
+                  { value: "table", label: "Table" },
                 ]}
               />
             </div>
@@ -881,9 +984,9 @@ const ComponentShowcase = () => {
                 variant="outline"
                 size="sm"
                 options={[
-                  { value: 'small', label: 'Small' },
-                  { value: 'medium', label: 'Medium' },
-                  { value: 'large', label: 'Large' },
+                  { value: "small", label: "Small" },
+                  { value: "medium", label: "Medium" },
+                  { value: "large", label: "Large" },
                 ]}
               />
             </div>
@@ -900,7 +1003,7 @@ const ComponentShowcase = () => {
               <h3 className="text-lg font-semibold mb-2">Draft Post (No Media)</h3>
               <div className="max-w-[200px]">
                 <PostCalendarPostView
-                  date={new Date('2024-12-25T14:30:00')}
+                  date={new Date("2024-12-25T14:30:00")}
                   status="draft"
                   channel={{
                     name: "OnlyFans Main",
@@ -922,7 +1025,7 @@ const ComponentShowcase = () => {
               <h3 className="text-lg font-semibold mb-2">Scheduled Post with Schedule</h3>
               <div className="max-w-[200px]">
                 <PostCalendarPostView
-                  date={new Date('2024-12-25T18:00:00')}
+                  date={new Date("2024-12-25T18:00:00")}
                   status="scheduled"
                   channel={{
                     name: "Reddit GoneWild",
@@ -948,7 +1051,7 @@ const ComponentShowcase = () => {
               <h3 className="text-lg font-semibold mb-2">Posted</h3>
               <div className="max-w-[200px]">
                 <PostCalendarPostView
-                  date={new Date('2024-12-20T12:00:00')}
+                  date={new Date("2024-12-20T12:00:00")}
                   status="posted"
                   channel={{
                     name: "Fansly Premium",
@@ -974,7 +1077,7 @@ const ComponentShowcase = () => {
               <h3 className="text-lg font-semibold mb-2">Virtual Slot (Empty)</h3>
               <div className="max-w-[200px]">
                 <PostCalendarPostView
-                  date={new Date('2024-12-26T10:00:00')}
+                  date={new Date("2024-12-26T10:00:00")}
                   status="draft"
                   channel={{
                     name: "Twitter",
@@ -993,7 +1096,7 @@ const ComponentShowcase = () => {
                   }
                   actionSlot={
                     <button
-                      onClick={() => console.log('Skip clicked')}
+                      onClick={() => console.log("Skip clicked")}
                       className="absolute top-1 right-1 p-1 rounded-md transition-all opacity-0 group-hover:opacity-100 z-10 bg-base-200/80 hover:bg-base-300 text-base-content/60 hover:text-base-content"
                       title="Skip this slot"
                     >
@@ -1008,7 +1111,7 @@ const ComponentShowcase = () => {
               <h3 className="text-lg font-semibold mb-2">Multiple States Side-by-Side</h3>
               <div className="grid grid-cols-3 gap-4 max-w-3xl">
                 <PostCalendarPostView
-                  date={new Date('2024-12-25T09:00:00')}
+                  date={new Date("2024-12-25T09:00:00")}
                   status="draft"
                   channel={{ name: "OF Main", typeId: "onlyfans" }}
                   mediaSlot={
@@ -1016,7 +1119,7 @@ const ComponentShowcase = () => {
                   }
                 />
                 <PostCalendarPostView
-                  date={new Date('2024-12-25T15:00:00')}
+                  date={new Date("2024-12-25T15:00:00")}
                   status="scheduled"
                   channel={{ name: "Fansly", typeId: "fansly" }}
                   schedule={{ name: "Afternoon", emoji: "🌤️", color: "#f59e0b" }}
@@ -1025,7 +1128,7 @@ const ComponentShowcase = () => {
                   }
                 />
                 <PostCalendarPostView
-                  date={new Date('2024-12-25T21:00:00')}
+                  date={new Date("2024-12-25T21:00:00")}
                   status="posted"
                   channel={{ name: "Reddit", typeId: "reddit" }}
                   mediaSlot={
@@ -1114,8 +1217,6 @@ const ComponentShowcase = () => {
     </PageContainer>
   );
 };
-export const Route = createFileRoute('/component-showcase')({
+export const Route = createFileRoute("/component-showcase")({
   component: ComponentShowcase,
 });
-
-

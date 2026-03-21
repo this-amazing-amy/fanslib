@@ -1,5 +1,4 @@
-import type { TagDimension } from '@fanslib/server/schemas';
-
+import type { TagDimension } from "@fanslib/server/schemas";
 
 // Schema type definitions
 export type NumericSchema = {
@@ -59,7 +58,7 @@ export const parseBooleanSchema = (schemaString?: string | null): BooleanSchema 
 
 export const parseValidationSchema = (
   schemaString?: string,
-  dataType?: string
+  dataType?: string,
 ): ValidationSchema => {
   switch (dataType) {
     case "numerical":
@@ -156,7 +155,8 @@ export const convertFromTagValue = (tagValue: string, dataType: string): unknown
 };
 
 // Formatting utilities
-export const formatBooleanValue = (value: boolean, schema: BooleanSchema): string => value ? (schema.trueLabel ?? "Yes") : (schema.falseLabel ?? "No");
+export const formatBooleanValue = (value: boolean, schema: BooleanSchema): string =>
+  value ? (schema.trueLabel ?? "Yes") : (schema.falseLabel ?? "No");
 
 export const formatNumericValue = (value: number, schema: NumericSchema): string => {
   const formattedValue = schema.step && schema.step < 1 ? value.toFixed(2) : value.toString();

@@ -1,10 +1,10 @@
-declare module 'ffprobe' {
+declare module "ffprobe" {
   export interface FFProbeStream {
     index: number;
     codec_name?: string;
     codec_long_name?: string;
     profile?: string;
-    codec_type: 'video' | 'audio' | 'subtitle' | 'data' | 'attachment';
+    codec_type: "video" | "audio" | "subtitle" | "data" | "attachment";
     codec_time_base?: string;
     codec_tag_string?: string;
     codec_tag?: string;

@@ -32,4 +32,3 @@ export const seedSnippetFixtures = async (channels: Channel[]) => {
     relations: { channel: true },
   });
 };
-

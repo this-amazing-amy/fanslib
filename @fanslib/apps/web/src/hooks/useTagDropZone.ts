@@ -1,5 +1,4 @@
-import type { TagDefinition } from '@fanslib/server/schemas';
-
+import type { TagDefinition } from "@fanslib/server/schemas";
 
 import { useTagDrag } from "~/contexts/TagDragContext";
 import { useDragOver } from "./useDragOver";
@@ -61,7 +60,7 @@ export const useTagDropZone = ({
     onDrop: () => {
       if (!isDragging || !draggedTag || !canAcceptDrop()) return;
 
-      const newParentId = isRootDropZone ? null : targetTag?.id ?? null;
+      const newParentId = isRootDropZone ? null : (targetTag?.id ?? null);
       onUpdateParent(draggedTag.id, newParentId);
       endTagDrag();
     },

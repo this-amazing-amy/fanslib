@@ -10,7 +10,7 @@ export const FetchTagDefinitionsByIdsRequestQuerySchema = z.object({
 export const FetchTagDefinitionsByIdsResponseSchema = z.array(TagDefinitionSchema);
 
 export const fetchTagDefinitionsByIds = async (
-  payload: z.infer<typeof FetchTagDefinitionsByIdsRequestQuerySchema>
+  payload: z.infer<typeof FetchTagDefinitionsByIdsRequestQuerySchema>,
 ): Promise<z.infer<typeof FetchTagDefinitionsByIdsResponseSchema>> => {
   if (payload.ids?.length === 0) {
     return [];
@@ -34,4 +34,3 @@ export const fetchTagDefinitionsByIds = async (
 
   return tags;
 };
-

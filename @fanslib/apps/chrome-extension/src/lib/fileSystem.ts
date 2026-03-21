@@ -6,17 +6,17 @@ export type VerificationResult = {
 
 type DirectoryPicker = (options?: {
   id?: string;
-  mode?: 'read' | 'readwrite';
+  mode?: "read" | "readwrite";
   startIn?:
     | FileSystemHandle
     | FileSystemDirectoryHandle
     | FileSystemFileHandle
-    | 'desktop'
-    | 'documents'
-    | 'downloads'
-    | 'music'
-    | 'pictures'
-    | 'videos';
+    | "desktop"
+    | "documents"
+    | "downloads"
+    | "music"
+    | "pictures"
+    | "videos";
 }) => Promise<FileSystemDirectoryHandle>;
 
 type FileSystemWindow = Window &
@@ -28,22 +28,18 @@ const selectRootDirectory = (): Promise<FileSystemDirectoryHandle> => {
   const picker = (window as FileSystemWindow).showDirectoryPicker;
 
   if (!picker) {
-    throw new Error('File System Access API is unavailable');
+    throw new Error("File System Access API is unavailable");
   }
 
-  return picker({ startIn: 'documents' });
+  return picker({ startIn: "documents" });
 };
 
 export const parseRelativePath = (relativePath: string): string[] =>
-  relativePath
-    .replace(/\\/g, '/')
-    .replace(/^\//, '')
-    .split('/')
-    .filter(Boolean);
+  relativePath.replace(/\\/g, "/").replace(/^\//, "").split("/").filter(Boolean);
 
 const navigateToDirectory = async (
   rootHandle: FileSystemDirectoryHandle,
-  pathParts: string[]
+  pathParts: string[],
 ): Promise<FileSystemDirectoryHandle> => {
   const directoryParts = pathParts.slice(0, -1);
 
@@ -54,17 +50,17 @@ const navigateToDirectory = async (
   const traverse = async (
     directoryPromise: Promise<FileSystemDirectoryHandle>,
     part: string,
-    index: number
+    index: number,
   ): Promise<FileSystemDirectoryHandle> => {
     const currentHandle = await directoryPromise;
 
     try {
       return await currentHandle.getDirectoryHandle(part);
     } catch (err) {
-      const traversedPath = directoryParts.slice(0, index + 1).join('/');
-      if (err instanceof Error && err.name === 'NotFoundError') {
+      const traversedPath = directoryParts.slice(0, index + 1).join("/");
+      if (err instanceof Error && err.name === "NotFoundError") {
         throw new Error(
-          `Directory "${part}" not found.\nPath so far: "${traversedPath}"\nFull path: "${pathParts.join('/')}"`
+          `Directory "${part}" not found.\nPath so far: "${traversedPath}"\nFull path: "${pathParts.join("/")}"`,
         );
       }
       throw err;
@@ -73,35 +69,31 @@ const navigateToDirectory = async (
 
   return directoryParts.reduce(
     (directoryPromise, part, index) => traverse(directoryPromise, part, index),
-    Promise.resolve(rootHandle)
+    Promise.resolve(rootHandle),
   );
 };
 
 const verifyFileExists = async (
   directoryHandle: FileSystemDirectoryHandle,
-  fileName: string
+  fileName: string,
 ): Promise<{ size: number }> => {
   try {
     const fileHandle = await directoryHandle.getFileHandle(fileName);
     const file = await fileHandle.getFile();
     return { size: file.size };
   } catch (err) {
-    if (err instanceof Error && err.name === 'NotFoundError') {
-      throw new Error(
-        `File "${fileName}" not found in "${directoryHandle.name}"`
-      );
+    if (err instanceof Error && err.name === "NotFoundError") {
+      throw new Error(`File "${fileName}" not found in "${directoryHandle.name}"`);
     }
     throw err;
   }
 };
 
-export const verifyDirectoryAccess = async (
-  relativePath: string
-): Promise<VerificationResult> => {
+export const verifyDirectoryAccess = async (relativePath: string): Promise<VerificationResult> => {
   const pathParts = parseRelativePath(relativePath);
 
   if (pathParts.length === 0) {
-    throw new Error('Invalid media path: path is empty');
+    throw new Error("Invalid media path: path is empty");
   }
 
   const fileName = pathParts[pathParts.length - 1];

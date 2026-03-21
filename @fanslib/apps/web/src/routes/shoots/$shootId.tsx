@@ -1,4 +1,4 @@
-import type { Media, ShootSummary } from '@fanslib/server/schemas';
+import type { Media, ShootSummary } from "@fanslib/server/schemas";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { useCallback, useState } from "react";
@@ -24,7 +24,6 @@ import { ShootDetailMediaGrid } from "~/features/shoots/components/shoot-detail/
 import { ShootDetailTitleInput } from "~/features/shoots/components/shoot-detail/ShootDetailTitleInput";
 import { ShootPosts } from "~/features/shoots/components/shoot-detail/ShootPosts";
 import { useShootQuery, useUpdateShootMutation } from "~/lib/queries/shoots";
-
 
 const ShootDetailRoute = () => {
   const { shootId } = Route.useParams();
@@ -57,8 +56,8 @@ const ShootDetailRoute = () => {
   }, []);
 
   const handleAddMedia = useCallback(async () => {
-    if (selectedMedia.length === 0 || !shoot || 'error' in shoot) return;
-    
+    if (selectedMedia.length === 0 || !shoot || "error" in shoot) return;
+
     const existingMediaIds = shoot.media?.map((m) => m.id) ?? [];
     await updateShootMutation.mutateAsync({
       id: shoot.id,
@@ -78,11 +77,13 @@ const ShootDetailRoute = () => {
     );
   }
 
-  if (error || !shoot || 'error' in shoot) {
+  if (error || !shoot || "error" in shoot) {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-4">
         <h1 className="text-2xl font-semibold">Shoot not found</h1>
-        <Button variant="ghost" onClick={goBack}>Back</Button>
+        <Button variant="ghost" onClick={goBack}>
+          Back
+        </Button>
       </div>
     );
   }
@@ -183,4 +184,3 @@ const ShootDetailRoute = () => {
 export const Route = createFileRoute("/shoots/$shootId")({
   component: ShootDetailRoute,
 });
-

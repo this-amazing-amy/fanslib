@@ -1,6 +1,6 @@
-import type { Media } from '@fanslib/server/schemas';
-import { useEffect } from 'react';
-import { useMediaSelectionStore } from '~/stores/mediaSelectionStore';
+import type { Media } from "@fanslib/server/schemas";
+import { useEffect } from "react";
+import { useMediaSelectionStore } from "~/stores/mediaSelectionStore";
 
 export const useMediaSelectionSetup = (media: Media[] | Map<string, Media[]>) => {
   const setMedia = useMediaSelectionStore((s) => s.setMedia);
@@ -8,13 +8,19 @@ export const useMediaSelectionSetup = (media: Media[] | Map<string, Media[]>) =>
   const clearSelection = useMediaSelectionStore((s) => s.clearSelection);
   const selectAll = useMediaSelectionStore((s) => s.selectAll);
 
-  useEffect(() => { setMedia(media); }, [media, setMedia]);
+  useEffect(() => {
+    setMedia(media);
+  }, [media, setMedia]);
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "Shift") setShiftPressed(true);
 
-      if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") return;
+      if (
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA"
+      )
+        return;
 
       if ((e.metaKey || e.ctrlKey) && e.key === "a") {
         e.preventDefault();
@@ -25,7 +31,9 @@ export const useMediaSelectionSetup = (media: Media[] | Map<string, Media[]>) =>
         clearSelection();
       }
     };
-    const up = (e: KeyboardEvent) => { if (e.key === "Shift") setShiftPressed(false); };
+    const up = (e: KeyboardEvent) => {
+      if (e.key === "Shift") setShiftPressed(false);
+    };
     const blur = () => setShiftPressed(false);
 
     window.addEventListener("keydown", down);

@@ -7,7 +7,7 @@ import { TagDefinition } from "../tags/entity";
 
 type MediaFilters = z.infer<typeof MediaFilterSchema>;
 type FilterGroup = MediaFilters[number];
-type FilterItem = FilterGroup['items'][number];
+type FilterItem = FilterGroup["items"][number];
 
 const validateFilterItem = async (item: FilterItem): Promise<boolean> => {
   const database = await db();
@@ -77,6 +77,3 @@ export const validateAndCleanFilters = async (filters: MediaFilters): Promise<Me
 
   return cleanedFilters;
 };
-
-
-

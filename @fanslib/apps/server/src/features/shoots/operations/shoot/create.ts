@@ -16,7 +16,9 @@ export const CreateShootResponseSchema = ShootSchema.extend({
   media: z.array(MediaSchema),
 });
 
-export const createShoot = async (payload: z.infer<typeof CreateShootRequestBodySchema>): Promise<z.infer<typeof CreateShootResponseSchema>> => {
+export const createShoot = async (
+  payload: z.infer<typeof CreateShootRequestBodySchema>,
+): Promise<z.infer<typeof CreateShootResponseSchema>> => {
   const database = await db();
   const mediaRepository = database.getRepository(Media);
   const shootRepository = database.getRepository(Shoot);
@@ -37,4 +39,3 @@ export const createShoot = async (payload: z.infer<typeof CreateShootRequestBody
   await shootRepository.save(shoot);
   return shoot;
 };
-

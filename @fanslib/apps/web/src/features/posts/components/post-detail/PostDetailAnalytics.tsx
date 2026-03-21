@@ -1,10 +1,10 @@
-import type { PostWithRelations } from '@fanslib/server/schemas';
-import { useState } from 'react';
-import { MediaPreview } from '~/components/MediaPreview';
-import { Button } from '~/components/ui/Button';
-import { AnalyticsViewsChart } from '~/features/posts/components/post-detail/AnalyticsViewsChart';
-import { cn } from '~/lib/cn';
-import { useFetchFanslyDataMutation, usePostMediaAnalyticsQuery } from '~/lib/queries/analytics';
+import type { PostWithRelations } from "@fanslib/server/schemas";
+import { useState } from "react";
+import { MediaPreview } from "~/components/MediaPreview";
+import { Button } from "~/components/ui/Button";
+import { AnalyticsViewsChart } from "~/features/posts/components/post-detail/AnalyticsViewsChart";
+import { cn } from "~/lib/cn";
+import { useFetchFanslyDataMutation, usePostMediaAnalyticsQuery } from "~/lib/queries/analytics";
 
 type Post = PostWithRelations;
 
@@ -14,10 +14,10 @@ type PostDetailAnalyticsProps = {
 
 export const PostDetailAnalytics = ({ post }: PostDetailAnalyticsProps) => {
   const [selectedMediaId, setSelectedMediaId] = useState<string | null>(
-    post.postMedia[0]?.id ?? null
+    post.postMedia[0]?.id ?? null,
   );
 
-  if (post.channel.typeId !== 'fansly') {
+  if (post.channel.typeId !== "fansly") {
     return null;
   }
 
@@ -25,14 +25,13 @@ export const PostDetailAnalytics = ({ post }: PostDetailAnalyticsProps) => {
     return (
       <div className="mt-8">
         <h2 className="text-xl font-semibold mb-4">Analytics</h2>
-        <div className="text-sm text-base-content/70">
-          No media items in this post
-        </div>
+        <div className="text-sm text-base-content/70">No media items in this post</div>
       </div>
     );
   }
 
-  const selectedPostMedia = post.postMedia.find((pm) => pm.id === selectedMediaId) ?? post.postMedia[0];
+  const selectedPostMedia =
+    post.postMedia.find((pm) => pm.id === selectedMediaId) ?? post.postMedia[0];
 
   return (
     <div className="mt-8">
@@ -46,25 +45,20 @@ export const PostDetailAnalytics = ({ post }: PostDetailAnalyticsProps) => {
                 key={postMedia.id}
                 onClick={() => setSelectedMediaId(postMedia.id)}
                 className={cn(
-                  'flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all',
+                  "flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all",
                   isSelected
-                    ? 'border-primary ring-2 ring-primary/20'
-                    : 'border-base-300 hover:border-base-content/30'
+                    ? "border-primary ring-2 ring-primary/20"
+                    : "border-base-300 hover:border-base-content/30",
                 )}
                 aria-label={`View analytics for media ${index + 1}`}
               >
-                <MediaPreview
-                  media={postMedia.media}
-                  className="w-16 h-16"
-                />
+                <MediaPreview media={postMedia.media} className="w-16 h-16" />
               </button>
             );
           })}
         </div>
         {selectedPostMedia.fanslyStatisticsId && (
-          <PostMediaAnalyticsChart
-            postMediaId={selectedPostMedia.id}
-          />
+          <PostMediaAnalyticsChart postMediaId={selectedPostMedia.id} />
         )}
       </div>
     </div>
@@ -95,7 +89,7 @@ const PostMediaAnalyticsChart = ({ postMediaId }: PostMediaAnalyticsChartProps) 
           onClick={() => fetchAnalyticsMutation.mutate({ postMediaId })}
           isDisabled={fetchAnalyticsMutation.isPending}
         >
-          {fetchAnalyticsMutation.isPending ? 'Fetching...' : 'Fetch Analytics'}
+          {fetchAnalyticsMutation.isPending ? "Fetching..." : "Fetch Analytics"}
         </Button>
       </div>
     );

@@ -1,24 +1,20 @@
 /**
  * @deprecated This component is deprecated. Subreddit management is now handled
  * through the unified Channels page at /content/channels.
- * 
+ *
  * Reddit channels appear in the channels list with their subreddit-specific
  * settings accessible via the ChannelView component's expanded panel.
- * 
+ *
  * This file is kept for reference during migration but should not be used.
  */
-import type { Subreddit } from '@fanslib/server/schemas';
-import { ArrowDown, ArrowUp } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import { useLocalStorage } from '~/hooks/useLocalStorage';
-import { cn } from '~/lib/cn';
-import {
-    useDeleteSubredditMutation,
-    useLastPostDatesQuery,
-} from '~/lib/queries/subreddits';
-import { EditingSubredditRow } from './EditingSubredditRow';
-import { SubredditRow } from './SubredditRow';
-
+import type { Subreddit } from "@fanslib/server/schemas";
+import { ArrowDown, ArrowUp } from "lucide-react";
+import { useMemo, useState } from "react";
+import { useLocalStorage } from "~/hooks/useLocalStorage";
+import { cn } from "~/lib/cn";
+import { useDeleteSubredditMutation, useLastPostDatesQuery } from "~/lib/queries/subreddits";
+import { EditingSubredditRow } from "./EditingSubredditRow";
+import { SubredditRow } from "./SubredditRow";
 
 type SubredditTableProps = {
   subreddits: Subreddit[];
@@ -26,20 +22,17 @@ type SubredditTableProps = {
 };
 
 type SortConfig = {
-  key: keyof Subreddit | 'channelName' | null;
-  direction: 'asc' | 'desc';
+  key: keyof Subreddit | "channelName" | null;
+  direction: "asc" | "desc";
 };
 
-export const SubredditTable = ({
-  subreddits,
-  onSubredditUpdated,
-}: SubredditTableProps) => {
+export const SubredditTable = ({ subreddits, onSubredditUpdated }: SubredditTableProps) => {
   const deleteSubredditMutation = useDeleteSubredditMutation();
   const [editingSubredditId, setEditingSubredditId] = useState<string | null>(null);
 
   const { value: sortConfig, setValue: setSortConfig } = useLocalStorage<SortConfig>(
-    'subreddit-table-sort',
-    { key: 'channelName', direction: 'asc' }
+    "subreddit-table-sort",
+    { key: "channelName", direction: "asc" },
   );
 
   // Fetch last post dates for all subreddits
@@ -55,12 +48,12 @@ export const SubredditTable = ({
 
     return [...subreddits].sort((a, b) => {
       const getValue = (s: Subreddit) => {
-        if (key === 'channelName') {
+        if (key === "channelName") {
           return s.channel?.name;
         }
         return s[key];
       };
-      
+
       const aValue = getValue(a);
       const bValue = getValue(b);
 
@@ -68,31 +61,31 @@ export const SubredditTable = ({
       if (bValue === null || bValue === undefined) return -1;
 
       const comparison = aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
-      return sortConfig.direction === 'asc' ? comparison : -comparison;
+      return sortConfig.direction === "asc" ? comparison : -comparison;
     });
   }, [subreddits, sortConfig]);
 
-  const handleSort = (key: keyof Subreddit | 'channelName') => {
+  const handleSort = (key: keyof Subreddit | "channelName") => {
     setSortConfig({
       key,
-      direction: sortConfig.key === key && sortConfig.direction === 'asc' ? 'desc' : 'asc',
+      direction: sortConfig.key === key && sortConfig.direction === "asc" ? "desc" : "asc",
     });
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this subreddit?')) return;
+    if (!confirm("Are you sure you want to delete this subreddit?")) return;
 
     try {
       await deleteSubredditMutation.mutateAsync({ id });
       onSubredditUpdated();
     } catch (error) {
-      console.error('Failed to delete subreddit:', error);
+      console.error("Failed to delete subreddit:", error);
     }
   };
 
-  const SortIcon = ({ column }: { column: keyof Subreddit | 'channelName' }) => {
+  const SortIcon = ({ column }: { column: keyof Subreddit | "channelName" }) => {
     if (sortConfig.key !== column) return null;
-    return sortConfig.direction === 'asc' ? (
+    return sortConfig.direction === "asc" ? (
       <ArrowUp className="h-3 w-3" />
     ) : (
       <ArrowDown className="h-3 w-3" />
@@ -117,32 +110,32 @@ export const SubredditTable = ({
             className="grid"
             style={{
               gridTemplateColumns:
-                '[name] 200px [members] 100px [frequency] 120px [status] 140px [verification] 140px [flair] 150px [prefix] 150px [notes] 1fr [actions] 120px',
+                "[name] 200px [members] 100px [frequency] 120px [status] 140px [verification] 140px [flair] 150px [prefix] 150px [notes] 1fr [actions] 120px",
             }}
           >
             {/* Header Row */}
             <div className="contents font-medium border-b border-base-300">
               <button
-                onClick={() => handleSort('channelName')}
+                onClick={() => handleSort("channelName")}
                 className="p-2 pl-4 min-h-10 flex items-center gap-1 hover:bg-base-200 transition-colors"
               >
                 Name <SortIcon column="channelName" />
               </button>
               <button
-                onClick={() => handleSort('memberCount')}
+                onClick={() => handleSort("memberCount")}
                 className="p-2 min-h-10 flex items-center justify-center gap-1 hover:bg-base-200 transition-colors"
               >
                 Members <SortIcon column="memberCount" />
               </button>
               <button
-                onClick={() => handleSort('maxPostFrequencyHours')}
+                onClick={() => handleSort("maxPostFrequencyHours")}
                 className="p-2 min-h-10 flex items-center justify-center gap-1 hover:bg-base-200 transition-colors"
               >
                 Frequency <SortIcon column="maxPostFrequencyHours" />
               </button>
               <div className="p-2 min-h-10 flex items-center justify-center">Post Status</div>
               <button
-                onClick={() => handleSort('verificationStatus')}
+                onClick={() => handleSort("verificationStatus")}
                 className="p-2 min-h-10 flex items-center justify-center gap-1 hover:bg-base-200 transition-colors"
               >
                 Verification <SortIcon column="verificationStatus" />
@@ -157,10 +150,7 @@ export const SubredditTable = ({
             {sortedSubreddits.map((subreddit) => (
               <div
                 key={subreddit.id}
-                className={cn(
-                  'contents',
-                  editingSubredditId === subreddit.id && 'bg-base-200/50'
-                )}
+                className={cn("contents", editingSubredditId === subreddit.id && "bg-base-200/50")}
               >
                 {editingSubredditId === subreddit.id ? (
                   <EditingSubredditRow

@@ -1,4 +1,4 @@
-import type { TagDefinition, TagDimension } from '@fanslib/server/schemas';
+import type { TagDefinition, TagDimension } from "@fanslib/server/schemas";
 import { MoreVertical, PenLine, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
@@ -11,8 +11,6 @@ import {
 } from "~/components/ui/DropdownMenu";
 import { DeleteDimensionDialog } from "./DeleteDimensionDialog";
 import { TagTreeView } from "./TagTreeView";
-
-
 
 type TagDimensionWithTags = TagDimension & { tags?: TagDefinition[] };
 
@@ -71,7 +69,12 @@ export const DimensionCard = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onPress={() => onCreateTag(dimension.id)} className="h-8">
+            <Button
+              variant="outline"
+              size="sm"
+              onPress={() => onCreateTag(dimension.id)}
+              className="h-8"
+            >
               <Plus className="w-4 h-4 mr-1" />
               Add Tag
             </Button>
@@ -91,7 +94,10 @@ export const DimensionCard = ({
                     <PenLine className="w-4 h-4 mr-2 shrink-0" />
                     Edit Dimension
                   </DropdownMenuItem>
-                  <DropdownMenuItem id="delete" className="text-error flex items-center whitespace-nowrap">
+                  <DropdownMenuItem
+                    id="delete"
+                    className="text-error flex items-center whitespace-nowrap"
+                  >
                     <Trash2 className="w-4 h-4 mr-2 shrink-0" />
                     Delete Dimension
                   </DropdownMenuItem>
@@ -115,7 +121,12 @@ export const DimensionCard = ({
           ) : (
             <div className="text-center py-8 text-base-content/60">
               <p>No tags in this dimension yet.</p>
-              <Button variant="outline" size="sm" onPress={() => onCreateTag(dimension.id)} className="mt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onPress={() => onCreateTag(dimension.id)}
+                className="mt-2"
+              >
                 <Plus className="w-4 h-4 mr-1" />
                 Create First Tag
               </Button>

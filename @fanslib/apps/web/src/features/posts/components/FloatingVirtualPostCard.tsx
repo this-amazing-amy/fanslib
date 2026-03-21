@@ -24,13 +24,13 @@ export const FloatingVirtualPostCard = ({ calendarContainerRef }: FloatingVirtua
   // Close on escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && floatingPost) {
+      if (e.key === "Escape" && floatingPost) {
         clearFloatingPost();
       }
     };
-    
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [floatingPost, clearFloatingPost]);
 
   // Handle backdrop click
@@ -44,14 +44,14 @@ export const FloatingVirtualPostCard = ({ calendarContainerRef }: FloatingVirtua
 
   const { virtualPost, initialBounds } = floatingPost;
   const calendarContainer = calendarContainerRef?.current;
-  
+
   // Calculate calendar center for target position
   const calendarBounds = calendarContainer?.getBoundingClientRect();
-  const targetX = calendarBounds 
-    ? calendarBounds.left + calendarBounds.width / 2 
+  const targetX = calendarBounds
+    ? calendarBounds.left + calendarBounds.width / 2
     : window.innerWidth / 2;
-  const targetY = calendarBounds 
-    ? calendarBounds.top + calendarBounds.height / 2 
+  const targetY = calendarBounds
+    ? calendarBounds.top + calendarBounds.height / 2
     : window.innerHeight / 2;
 
   // Calculate scaled dimensions
@@ -71,39 +71,47 @@ export const FloatingVirtualPostCard = ({ calendarContainerRef }: FloatingVirtua
       className="absolute inset-0 bg-black/20 z-40 rounded-lg"
     />
   );
-  
+
   return (
     <AnimatePresence>
       {floatingPost && (
         <>
           {/* Backdrop - rendered into calendar container */}
           {calendarContainer && createPortal(backdropContent, calendarContainer)}
-          
+
           {/* Floating card - fixed positioning on viewport */}
           <motion.div
-            initial={prefersReducedMotion ? {
-              left: targetX,
-              top: targetY,
-              width: targetWidth,
-              height: targetHeight,
-            } : {
-              left: initialBounds.left + initialBounds.width / 2,
-              top: initialBounds.top + initialBounds.height / 2,
-              width: initialBounds.width,
-              height: initialBounds.height,
-            }}
+            initial={
+              prefersReducedMotion
+                ? {
+                    left: targetX,
+                    top: targetY,
+                    width: targetWidth,
+                    height: targetHeight,
+                  }
+                : {
+                    left: initialBounds.left + initialBounds.width / 2,
+                    top: initialBounds.top + initialBounds.height / 2,
+                    width: initialBounds.width,
+                    height: initialBounds.height,
+                  }
+            }
             animate={{
               left: targetX,
               top: targetY,
               width: targetWidth,
               height: targetHeight,
             }}
-            exit={prefersReducedMotion ? undefined : {
-              left: initialBounds.left + initialBounds.width / 2,
-              top: initialBounds.top + initialBounds.height / 2,
-              width: initialBounds.width,
-              height: initialBounds.height,
-            }}
+            exit={
+              prefersReducedMotion
+                ? undefined
+                : {
+                    left: initialBounds.left + initialBounds.width / 2,
+                    top: initialBounds.top + initialBounds.height / 2,
+                    width: initialBounds.width,
+                    height: initialBounds.height,
+                  }
+            }
             transition={{
               type: "spring",
               damping: 30,
@@ -112,9 +120,9 @@ export const FloatingVirtualPostCard = ({ calendarContainerRef }: FloatingVirtua
               duration: prefersReducedMotion ? 0 : undefined,
             }}
             style={{
-              position: 'fixed',
-              translateX: '-50%',
-              translateY: '-50%',
+              position: "fixed",
+              translateX: "-50%",
+              translateY: "-50%",
             }}
             className="z-50 @container"
           >
@@ -132,7 +140,7 @@ type FloatingCardContentProps = {
 
 const FloatingCardContent = ({ virtualPost }: FloatingCardContentProps) => {
   const time = format(new Date(virtualPost.date), "HH:mm");
-  const channelTypeId = virtualPost.channel.type?.id ?? virtualPost.channel.typeId ?? 'onlyfans';
+  const channelTypeId = virtualPost.channel.type?.id ?? virtualPost.channel.typeId ?? "onlyfans";
 
   return (
     <div className="h-full group flex flex-col relative p-2 @[150px]:p-2.5 @[180px]:p-3 rounded-xl bg-base-100 border shadow-2xl">

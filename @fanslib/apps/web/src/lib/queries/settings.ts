@@ -1,10 +1,10 @@
 import type {
-    SaveFanslyCredentialsRequestBody,
-    SaveSettingsRequestBody,
-} from '@fanslib/server/schemas';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '../api/hono-client';
-import { QUERY_KEYS } from './query-keys';
+  SaveFanslyCredentialsRequestBody,
+  SaveSettingsRequestBody,
+} from "@fanslib/server/schemas";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { api } from "../api/hono-client";
+import { QUERY_KEYS } from "./query-keys";
 
 export const useSettingsQuery = () =>
   useQuery({
@@ -34,7 +34,7 @@ export const useToggleSfwModeMutation = () => {
 
   return useMutation({
     mutationFn: async () => {
-      const result = await api.api.settings['toggle-sfw'].$post();
+      const result = await api.api.settings["toggle-sfw"].$post();
       return result.json();
     },
     onSuccess: () => {
@@ -47,7 +47,7 @@ export const useFanslyCredentialsQuery = () =>
   useQuery({
     queryKey: QUERY_KEYS.settings.fanslyCredentials(),
     queryFn: async () => {
-      const result = await api.api.settings['fansly-credentials'].$get();
+      const result = await api.api.settings["fansly-credentials"].$get();
       return result.json();
     },
   });
@@ -57,7 +57,7 @@ export const useSaveFanslyCredentialsMutation = () => {
 
   return useMutation({
     mutationFn: async (credentials: SaveFanslyCredentialsRequestBody) => {
-      const result = await api.api.settings['fansly-credentials'].$post({ json: credentials });
+      const result = await api.api.settings["fansly-credentials"].$post({ json: credentials });
       return result.json();
     },
     onSuccess: () => {
@@ -72,7 +72,7 @@ export const useClearFanslyCredentialsMutation = () => {
 
   return useMutation({
     mutationFn: async () => {
-      const result = await api.api.settings['fansly-credentials'].$delete();
+      const result = await api.api.settings["fansly-credentials"].$delete();
       return result.json();
     },
     onSuccess: () => {
@@ -85,7 +85,7 @@ export const useFanslyCredentialStatusQuery = () =>
   useQuery({
     queryKey: QUERY_KEYS.settings.fanslyCredentialStatus(),
     queryFn: async () => {
-      const result = await api.api.settings['fansly-credential-status'].$get();
+      const result = await api.api.settings["fansly-credential-status"].$get();
       return result.json();
     },
     refetchInterval: 60_000,
@@ -94,7 +94,7 @@ export const useFanslyCredentialStatusQuery = () =>
 export const useTestBlueskyCredentialsMutation = () =>
   useMutation({
     mutationFn: async () => {
-      const result = await api.api.bluesky['test-credentials'].$post();
+      const result = await api.api.bluesky["test-credentials"].$post();
       return result.json();
     },
   });

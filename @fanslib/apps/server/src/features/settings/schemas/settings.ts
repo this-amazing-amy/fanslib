@@ -8,21 +8,19 @@ export const SettingsSchema = z.object({
   blueskyDefaultExpiryDays: z.number().optional(),
   sfwMode: z.boolean(),
   sfwBlurIntensity: z.number(),
-  sfwDefaultMode: z.union([
-    z.literal("off"),
-    z.literal("on"),
-    z.literal("remember"),
-  ]),
+  sfwDefaultMode: z.union([z.literal("off"), z.literal("on"), z.literal("remember")]),
   sfwHoverDelay: z.number(),
   backgroundJobsServerUrl: z.string().optional(),
   libraryPath: z.string().optional(),
-  repostSettings: z.object({
-    useAnalytics: z.boolean(),
-    plateauConsecutiveDays: z.number().int(),
-    plateauThresholdPercent: z.number(),
-    minDatapointsForPlateau: z.number().int(),
-    defaultMediaRepostCooldownHours: z.number().int(),
-  }).optional(),
+  repostSettings: z
+    .object({
+      useAnalytics: z.boolean(),
+      plateauConsecutiveDays: z.number().int(),
+      plateauThresholdPercent: z.number(),
+      minDatapointsForPlateau: z.number().int(),
+      defaultMediaRepostCooldownHours: z.number().int(),
+    })
+    .optional(),
 });
 
 export type Settings = z.infer<typeof SettingsSchema>;

@@ -31,7 +31,7 @@ export const Route = createFileRoute("/plan/")({
             endDate: prefetchRange.endDate.toISOString(),
           },
         }),
-      })
+      }),
     );
     void context.queryClient.prefetchQuery(contentSchedulesQueryOptions());
 

@@ -24,16 +24,10 @@ export const fetchAnalyticsHealth = async () => {
           .from(FanslyAnalyticsDatapoint, "dp")
           .groupBy("dp.postMediaId"),
       "latestDp",
-      "latestDp.postMediaId = pm.id"
+      "latestDp.postMediaId = pm.id",
     )
     .where("channel.typeId = :typeId", { typeId: "fansly" })
-    .select([
-      "pm.id",
-      "pm.fanslyStatisticsId",
-      "post.date",
-      "media.name",
-      "media.id",
-    ])
+    .select(["pm.id", "pm.fanslyStatisticsId", "post.date", "media.name", "media.id"])
     .addSelect("latestDp.latestTimestamp", "lastDatapoint")
     .getRawMany();
 
@@ -42,11 +36,10 @@ export const fetchAnalyticsHealth = async () => {
   const matched = postMediaList.filter((pm) => pm.pm_fanslyStatisticsId);
   const matchedCount = matched.length;
   const unmatchedCount = totalCount - matchedCount;
-  const coveragePercent =
-    totalCount > 0 ? (matchedCount / totalCount) * 100 : 0;
+  const coveragePercent = totalCount > 0 ? (matchedCount / totalCount) * 100 : 0;
 
   const stale = matched.filter(
-    (pm) => pm.lastDatapoint && now - pm.lastDatapoint > STALE_THRESHOLD_MS
+    (pm) => pm.lastDatapoint && now - pm.lastDatapoint > STALE_THRESHOLD_MS,
   );
 
   const pendingMatches = await candidateRepository.count({
@@ -65,9 +58,7 @@ export const fetchAnalyticsHealth = async () => {
     postDate: pm.post_date,
     mediaName: pm.media_name,
     mediaId: pm.media_id,
-    daysSinceUpdate: Math.floor(
-      (now - pm.lastDatapoint) / (24 * 60 * 60 * 1000)
-    ),
+    daysSinceUpdate: Math.floor((now - pm.lastDatapoint) / (24 * 60 * 60 * 1000)),
   }));
 
   return {

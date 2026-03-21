@@ -1,3 +1,1 @@
-export { LoadingOverlay, LoadingOverlayPortal } from './LoadingOverlay';
-
-
+export { LoadingOverlay, LoadingOverlayPortal } from "./LoadingOverlay";

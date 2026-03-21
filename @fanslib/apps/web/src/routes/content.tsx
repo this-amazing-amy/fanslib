@@ -32,4 +32,3 @@ const ContentLayout = () => (
 export const Route = createFileRoute("/content")({
   component: ContentLayout,
 });
-

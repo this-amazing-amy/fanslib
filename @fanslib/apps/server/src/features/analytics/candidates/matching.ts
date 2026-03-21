@@ -28,7 +28,7 @@ const levenshteinDistance = (str1: string, str2: string): number => {
 
   // eslint-disable-next-line functional/no-loop-statements, functional/no-let
   for (let i = 1; i <= len1; i++) {
-  // eslint-disable-next-line functional/no-loop-statements, functional/no-let
+    // eslint-disable-next-line functional/no-loop-statements, functional/no-let
     for (let j = 1; j <= len2; j++) {
       if (str1[i - 1] === str2[j - 1]) {
         matrix[i][j] = matrix[i - 1][j - 1];
@@ -36,7 +36,7 @@ const levenshteinDistance = (str1: string, str2: string): number => {
         matrix[i][j] = Math.min(
           matrix[i - 1][j] + 1,
           matrix[i][j - 1] + 1,
-          matrix[i - 1][j - 1] + 1
+          matrix[i - 1][j - 1] + 1,
         );
       }
     }
@@ -52,13 +52,14 @@ export const calculateSimilarity = (str1: string, str2: string): number => {
   return 1 - distance / maxLen;
 };
 
-const normalizeFilename = (filename: string): string => filename
+const normalizeFilename = (filename: string): string =>
+  filename
     .toLowerCase()
     .replace(/[^a-z0-9]/g, "")
     .trim();
 
 export const computeMatchSuggestions = async (
-  candidate: FanslyMediaCandidate
+  candidate: FanslyMediaCandidate,
 ): Promise<MatchSuggestion[]> => {
   const dataSource = await db();
   const postMediaRepository = dataSource.getRepository(PostMedia);
@@ -113,4 +114,3 @@ export const computeMatchSuggestions = async (
 
   return suggestions.slice(0, 3);
 };
-

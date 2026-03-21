@@ -1,14 +1,14 @@
-import type { Media } from '@fanslib/server/schemas';
-import { format } from 'date-fns';
-import { AnimatePresence, motion } from 'framer-motion';
-import { Maximize2, X } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { ChannelBadge } from '~/components/ChannelBadge';
-import { ContentScheduleBadge } from '~/components/ContentScheduleBadge';
-import { useCreatePostMutation } from '~/lib/queries/posts';
-import type { VirtualPost } from '~/lib/virtual-posts';
-import { CombinedMediaSelection } from './CombinedMediaSelection';
+import type { Media } from "@fanslib/server/schemas";
+import { format } from "date-fns";
+import { AnimatePresence, motion } from "framer-motion";
+import { Maximize2, X } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { ChannelBadge } from "~/components/ChannelBadge";
+import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
+import { useCreatePostMutation } from "~/lib/queries/posts";
+import type { VirtualPost } from "~/lib/virtual-posts";
+import { CombinedMediaSelection } from "./CombinedMediaSelection";
 
 type VirtualPostMediaPanelProps = {
   virtualPost: VirtualPost;
@@ -29,8 +29,7 @@ export const VirtualPostMediaPanel = ({
   const { mutateAsync: createPost } = useCreatePostMutation();
 
   const prefersReducedMotion =
-    typeof window !== 'undefined' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const handleMediaSelect = (media: Media) => {
     setSelectedMedia((prev) => {
@@ -49,7 +48,7 @@ export const VirtualPostMediaPanel = ({
       await createPost({
         date: virtualPost.date,
         channelId: virtualPost.channelId,
-        status: 'draft',
+        status: "draft",
         caption: null,
         mediaIds: selectedMedia.map((m) => m.id),
         scheduleId: virtualPost.scheduleId ?? undefined,
@@ -58,22 +57,25 @@ export const VirtualPostMediaPanel = ({
 
       onClose();
     } catch (error) {
-      console.error('Failed to create post:', error);
+      console.error("Failed to create post:", error);
     }
   }, [selectedMedia, virtualPost, createPost, onClose]);
 
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      onClose();
-    } else if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-      handleCreatePost();
-    }
-  }, [onClose, handleCreatePost]);
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      } else if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+        handleCreatePost();
+      }
+    },
+    [onClose, handleCreatePost],
+  );
 
   useEffect(() => {
     if (isOpen) {
-      window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
     }
   }, [isOpen, handleKeyDown]);
 
@@ -104,10 +106,10 @@ export const VirtualPostMediaPanel = ({
           layoutId={cardBounds ? layoutId : undefined}
           className="relative z-10 flex flex-col bg-base-100 rounded-lg shadow-xl overflow-hidden"
           style={{
-            width: '42rem',
-            maxWidth: '85vw',
-            height: '32rem',
-            maxHeight: '32rem',
+            width: "42rem",
+            maxWidth: "85vw",
+            height: "32rem",
+            maxHeight: "32rem",
           }}
           initial={
             cardBounds && !prefersReducedMotion
@@ -122,8 +124,8 @@ export const VirtualPostMediaPanel = ({
           animate={{
             x: 0,
             y: 0,
-            width: '42rem',
-            height: '32rem',
+            width: "42rem",
+            height: "32rem",
           }}
           exit={
             cardBounds && !prefersReducedMotion
@@ -151,10 +153,10 @@ export const VirtualPostMediaPanel = ({
               {/* Date/Time */}
               <div className="flex items-center gap-2">
                 <div className="text-sm font-semibold">
-                  {format(new Date(virtualPost.date), 'EEE, MMM d')}
+                  {format(new Date(virtualPost.date), "EEE, MMM d")}
                 </div>
                 <div className="text-xs text-base-content/70">
-                  {format(new Date(virtualPost.date), 'h:mm a')}
+                  {format(new Date(virtualPost.date), "h:mm a")}
                 </div>
               </div>
 
@@ -215,16 +217,11 @@ export const VirtualPostMediaPanel = ({
           >
             {/* Selected Count */}
             <div className="mr-auto text-sm text-base-content/70">
-              {selectedMedia.length > 0
-                ? `${selectedMedia.length} selected`
-                : 'No media selected'}
+              {selectedMedia.length > 0 ? `${selectedMedia.length} selected` : "No media selected"}
             </div>
 
             {/* Expand Button */}
-            <button
-              className="btn btn-sm btn-ghost gap-2"
-              onClick={onExpand}
-            >
+            <button className="btn btn-sm btn-ghost gap-2" onClick={onExpand}>
               <Maximize2 className="w-4 h-4" />
               Expand
             </button>

@@ -93,7 +93,7 @@
         padding: 2px 6px;
         border-radius: 3px;
         font-size: 11px;
-        font-family: 'Monaco', 'Courier New', monospace;
+        font-family: "Monaco", "Courier New", monospace;
       }
       .test-tooltip-content pre {
         background: #1a1a1a;
@@ -125,33 +125,33 @@
           <code>chrome.storage</code>
         </p>
         <p>
-          <strong>Settings:</strong> Configure via browser console or edit
-          localStorage directly
+          <strong>Settings:</strong> Configure via browser console or edit localStorage directly
         </p>
         <p><strong>Example:</strong></p>
-        <pre>localStorage.setItem('fanslib_api_url', 'http://localhost:6970');
+        <pre>
+localStorage.setItem('fanslib_api_url', 'http://localhost:6970');
 localStorage.setItem('fanslib_web_url', 'http://localhost:6969');
 localStorage.setItem('fanslib_bridge_url', 'http://localhost:6971');
-localStorage.setItem('fanslib_library_path', '/path/to/library');</pre>
+localStorage.setItem('fanslib_library_path', '/path/to/library');</pre
+        >
         <p class="warning">
-          <strong>⚠️ Note:</strong> Check browser console for API errors and
-          network requests
+          <strong>⚠️ Note:</strong> Check browser console for API errors and network requests
         </p>
       </div>
     </div>
     <script>
       // Mock chrome API BEFORE any modules load
-      if (typeof window !== 'undefined' && !window.chrome) {
+      if (typeof window !== "undefined" && !window.chrome) {
         window.chrome = {
           runtime: {
             openOptionsPage: () => {
-              console.warn('[TEST MODE] chrome.runtime.openOptionsPage() called');
+              console.warn("[TEST MODE] chrome.runtime.openOptionsPage() called");
               alert(
-                'In test mode, settings are stored in localStorage.\n\n' +
-                  'Open browser console and run:\n' +
+                "In test mode, settings are stored in localStorage.\n\n" +
+                  "Open browser console and run:\n" +
                   "localStorage.setItem('fanslib_api_url', 'http://localhost:6970');\n" +
                   "localStorage.setItem('fanslib_web_url', 'http://localhost:6969');\n" +
-                  "localStorage.setItem('fanslib_bridge_url', 'http://localhost:6971');"
+                  "localStorage.setItem('fanslib_bridge_url', 'http://localhost:6971');",
               );
             },
           },

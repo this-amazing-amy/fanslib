@@ -10,9 +10,7 @@ export const RemoveSkippedSlotResponseSchema = z.object({
   success: z.boolean(),
 });
 
-export const removeSkippedSlot = async (
-  id: string
-): Promise<boolean> => {
+export const removeSkippedSlot = async (id: string): Promise<boolean> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(SkippedScheduleSlot);
 

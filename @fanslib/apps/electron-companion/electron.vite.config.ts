@@ -1,6 +1,6 @@
-import { defineConfig } from 'electron-vite';
-import { copyFileSync, mkdirSync } from 'fs';
-import { dirname, join } from 'path';
+import { defineConfig } from "electron-vite";
+import { copyFileSync, mkdirSync } from "fs";
+import { dirname, join } from "path";
 
 export default defineConfig({
   main: {
@@ -9,17 +9,16 @@ export default defineConfig({
         external: (id) => {
           // Externalize all dependencies except clip-filepaths
           return (
-            !id.includes('clip-filepaths') &&
-            (id.startsWith('node:') ||
-              (!id.startsWith('.') && !id.startsWith('/')))
+            !id.includes("clip-filepaths") &&
+            (id.startsWith("node:") || (!id.startsWith(".") && !id.startsWith("/")))
           );
         },
         plugins: [
           {
-            name: 'copy-html',
+            name: "copy-html",
             writeBundle() {
-              const src = join(__dirname, 'src/main/status-window.html');
-              const dest = join(__dirname, 'out/main/status-window.html');
+              const src = join(__dirname, "src/main/status-window.html");
+              const dest = join(__dirname, "out/main/status-window.html");
               mkdirSync(dirname(dest), { recursive: true });
               copyFileSync(src, dest);
             },

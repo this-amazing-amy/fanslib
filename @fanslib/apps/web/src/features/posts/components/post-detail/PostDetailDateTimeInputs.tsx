@@ -1,8 +1,8 @@
-import type { PostWithRelations } from '@fanslib/server/schemas';
-import { useState } from 'react';
-import { DateTimePicker } from '~/components/DateTimePicker';
-import { useDebounce } from '~/hooks/useDebounce';
-import { useUpdatePostMutation } from '~/lib/queries/posts';
+import type { PostWithRelations } from "@fanslib/server/schemas";
+import { useState } from "react";
+import { DateTimePicker } from "~/components/DateTimePicker";
+import { useDebounce } from "~/hooks/useDebounce";
+import { useUpdatePostMutation } from "~/lib/queries/posts";
 
 type Post = PostWithRelations;
 
@@ -25,7 +25,7 @@ export const PostDetailDateTimeInputs = ({ post }: PostDetailDateTimeInputsProps
         },
       });
     } catch (error) {
-      console.error('Failed to update date:', error);
+      console.error("Failed to update date:", error);
     } finally {
       setIsSaving(false);
     }
@@ -42,8 +42,8 @@ export const PostDetailDateTimeInputs = ({ post }: PostDetailDateTimeInputsProps
     <div className="flex flex-col gap-2">
       <label className="text-sm font-medium">Date & Time</label>
       <div className="relative">
-        <DateTimePicker 
-          date={localDate} 
+        <DateTimePicker
+          date={localDate}
           setDate={updateDate}
           preferredTimes={post.schedule?.preferredTimes ?? []}
         />
@@ -56,4 +56,3 @@ export const PostDetailDateTimeInputs = ({ post }: PostDetailDateTimeInputsProps
     </div>
   );
 };
-

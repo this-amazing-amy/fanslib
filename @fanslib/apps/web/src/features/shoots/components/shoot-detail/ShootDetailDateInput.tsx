@@ -1,9 +1,8 @@
-import type { ShootSummary } from '@fanslib/server/schemas';
+import type { ShootSummary } from "@fanslib/server/schemas";
 import { useState } from "react";
 import { DateTimePicker } from "~/components/DateTimePicker";
 import { useDebounce } from "~/hooks/useDebounce";
 import { useUpdateShootMutation } from "~/lib/queries/shoots";
-
 
 type ShootDetailDateInputProps = {
   shoot: ShootSummary;
@@ -48,4 +47,3 @@ export const ShootDetailDateInput = ({ shoot }: ShootDetailDateInputProps) => {
     </div>
   );
 };
-

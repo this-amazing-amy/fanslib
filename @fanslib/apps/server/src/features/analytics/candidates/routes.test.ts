@@ -55,10 +55,10 @@ describe("Analytics Candidates Routes", () => {
       };
 
       const response = await app.request("/api/analytics/candidates", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(candidateData),
-        });
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(candidateData),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<FanslyMediaCandidate[]>(response);
@@ -100,10 +100,10 @@ describe("Analytics Candidates Routes", () => {
       };
 
       const response = await app.request("/api/analytics/candidates", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(candidateData),
-        });
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(candidateData),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<FanslyMediaCandidate[]>(response);
@@ -201,7 +201,7 @@ describe("Analytics Candidates Routes", () => {
           position: 0,
           mediaType: "image" as const,
           status: "pending" as const,
-        })
+        }),
       );
       await candidateRepository.save(candidates);
 
@@ -243,10 +243,15 @@ describe("Analytics Candidates Routes", () => {
       });
       const savedCandidate = await candidateRepository.save(candidate);
 
-      const response = await app.request(`/api/analytics/candidates/by-id/${savedCandidate.id}/suggestions`);
+      const response = await app.request(
+        `/api/analytics/candidates/by-id/${savedCandidate.id}/suggestions`,
+      );
       expect(response.status).toBe(200);
 
-      const data = await parseResponse<Array<{ postMediaId: string; confidence: number; method: string; filename: string }>>(response);
+      const data =
+        await parseResponse<
+          Array<{ postMediaId: string; confidence: number; method: string; filename: string }>
+        >(response);
       expect(Array.isArray(data)).toBe(true);
       expect(data?.length).toBeGreaterThan(0);
       if (data && data.length > 0) {
@@ -258,7 +263,9 @@ describe("Analytics Candidates Routes", () => {
     });
 
     test("returns 404 for non-existent candidate", async () => {
-      const response = await app.request("/api/analytics/candidates/by-id/non-existent-id/suggestions");
+      const response = await app.request(
+        "/api/analytics/candidates/by-id/non-existent-id/suggestions",
+      );
       expect(response.status).toBe(404);
       const data = await parseResponse<{ error: string }>(response);
       expect(data?.error).toBe("Candidate not found");
@@ -293,11 +300,14 @@ describe("Analytics Candidates Routes", () => {
       });
       const savedCandidate = await candidateRepository.save(candidate);
 
-      const response = await app.request(`/api/analytics/candidates/by-id/${savedCandidate.id}/match`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ postMediaId: postMedia.id }),
-      });
+      const response = await app.request(
+        `/api/analytics/candidates/by-id/${savedCandidate.id}/match`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ postMediaId: postMedia.id }),
+        },
+      );
       expect(response.status).toBe(200);
 
       const data = await parseResponse<FanslyMediaCandidate>(response);
@@ -337,11 +347,14 @@ describe("Analytics Candidates Routes", () => {
       });
       const savedCandidate = await candidateRepository.save(candidate);
 
-      const response = await app.request(`/api/analytics/candidates/by-id/${savedCandidate.id}/match`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ postMediaId: postMedia.id }),
-      });
+      const response = await app.request(
+        `/api/analytics/candidates/by-id/${savedCandidate.id}/match`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ postMediaId: postMedia.id }),
+        },
+      );
       expect(response.status).toBe(200);
 
       const aggregate = await aggregateRepo.findOne({ where: { postMediaId: postMedia.id } });
@@ -365,10 +378,10 @@ describe("Analytics Candidates Routes", () => {
       await postMediaRepository.save(postMedia);
 
       const response = await app.request("/api/analytics/candidates/by-id/non-existent-id/match", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ postMediaId: postMedia.id }),
-        });
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postMediaId: postMedia.id }),
+      });
       expect(response.status).toBe(404);
       const data = await parseResponse<{ error: string }>(response);
       expect(data?.error).toBe("Candidate or post media not found");
@@ -390,11 +403,14 @@ describe("Analytics Candidates Routes", () => {
       });
       const savedCandidate = await candidateRepository.save(candidate);
 
-      const response = await app.request(`/api/analytics/candidates/by-id/${savedCandidate.id}/match`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ postMediaId: "non-existent-post-media-id" }),
-      });
+      const response = await app.request(
+        `/api/analytics/candidates/by-id/${savedCandidate.id}/match`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ postMediaId: "non-existent-post-media-id" }),
+        },
+      );
       expect(response.status).toBe(404);
       const data = await parseResponse<{ error: string }>(response);
       expect(data?.error).toBe("Candidate or post media not found");
@@ -418,9 +434,12 @@ describe("Analytics Candidates Routes", () => {
       });
       const savedCandidate = await candidateRepository.save(candidate);
 
-      const response = await app.request(`/api/analytics/candidates/by-id/${savedCandidate.id}/ignore`, {
-        method: "POST",
-      });
+      const response = await app.request(
+        `/api/analytics/candidates/by-id/${savedCandidate.id}/ignore`,
+        {
+          method: "POST",
+        },
+      );
       expect(response.status).toBe(200);
 
       const data = await parseResponse<FanslyMediaCandidate>(response);
@@ -429,8 +448,8 @@ describe("Analytics Candidates Routes", () => {
 
     test("returns 404 for non-existent candidate", async () => {
       const response = await app.request("/api/analytics/candidates/by-id/non-existent-id/ignore", {
-          method: "POST",
-        });
+        method: "POST",
+      });
       expect(response.status).toBe(404);
       const data = await parseResponse<{ error: string }>(response);
       expect(data?.error).toBe("Candidate not found");
@@ -488,10 +507,10 @@ describe("Analytics Candidates Routes", () => {
       await candidateRepository.save([candidate1, candidate2]);
 
       const response = await app.request("/api/analytics/candidates/bulk-confirm", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ threshold: 0.7 }),
-        });
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ threshold: 0.7 }),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<{ confirmed: number; failed: number }>(response);
@@ -520,10 +539,10 @@ describe("Analytics Candidates Routes", () => {
       await candidateRepository.save(candidate);
 
       const response = await app.request("/api/analytics/candidates/bulk-confirm", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ threshold: 0.9 }),
-        });
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ threshold: 0.9 }),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<{ confirmed: number; failed: number }>(response);
@@ -531,4 +550,3 @@ describe("Analytics Candidates Routes", () => {
     });
   });
 });
-

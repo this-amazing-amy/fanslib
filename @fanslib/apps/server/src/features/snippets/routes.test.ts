@@ -20,9 +20,7 @@ describe("Snippets Routes", () => {
   beforeAll(async () => {
     await setupTestDatabase();
     fixtures = await resetAllFixtures();
-    app = new Hono()
-      .use("*", devalueMiddleware())
-      .route("/", snippetsRoutes);
+    app = new Hono().use("*", devalueMiddleware()).route("/", snippetsRoutes);
   });
 
   afterAll(async () => {
@@ -37,11 +35,11 @@ describe("Snippets Routes", () => {
     test("returns all snippets", async () => {
       const response = await app.request("/api/snippets/all");
       expect(response.status).toBe(200);
-      
+
       const data = await parseResponse<CaptionSnippet[]>(response);
       expect(Array.isArray(data)).toBe(true);
       expect(data?.length).toBeGreaterThanOrEqual(CAPTION_SNIPPET_FIXTURES.length);
-      
+
       CAPTION_SNIPPET_FIXTURES.forEach((fixture) => {
         const snippet = data?.find((s: CaptionSnippet) => s.id === fixture.id);
         expect(snippet).toBeDefined();
@@ -203,6 +201,4 @@ describe("Snippets Routes", () => {
       expect(data?.error).toBe("Snippet not found");
     });
   });
-
 });
-

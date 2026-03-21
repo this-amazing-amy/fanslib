@@ -16,14 +16,16 @@ export const FetchAllShootsRequestBodySchema = z.object({
   filter: ShootFiltersSchema.optional(),
 });
 
-export const ShootSummarySchema = ShootSchema.extend({ 
+export const ShootSummarySchema = ShootSchema.extend({
   mediaCount: z.number(),
   media: z.array(MediaSchema),
 });
 
 export const FetchAllShootsResponseSchema = paginatedResponseSchema(ShootSummarySchema);
 
-export const listShoots = async (payload: z.infer<typeof FetchAllShootsRequestBodySchema>): Promise<z.infer<typeof FetchAllShootsResponseSchema>> => {
+export const listShoots = async (
+  payload: z.infer<typeof FetchAllShootsRequestBodySchema>,
+): Promise<z.infer<typeof FetchAllShootsResponseSchema>> => {
   const { page = 1, limit = 50, filter } = payload;
   const database = await db();
   const shootRepository = database.getRepository(Shoot);
@@ -70,4 +72,3 @@ export const listShoots = async (payload: z.infer<typeof FetchAllShootsRequestBo
     limit,
   };
 };
-

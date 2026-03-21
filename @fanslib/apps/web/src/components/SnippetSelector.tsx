@@ -31,7 +31,7 @@ export const SnippetSelector = ({
 }: SnippetSelectorProps) => {
   const { data: globalSnippets = [] } = useGlobalSnippetsQuery();
   const { data: channelSnippets = [] } = useSnippetsByChannelQuery({
-    channelId: channelId ?? ""
+    channelId: channelId ?? "",
   });
 
   const allSnippets = [...(globalSnippets ?? []), ...(channelSnippets ?? [])];
@@ -108,7 +108,9 @@ export const SnippetSelector = ({
             </>
           )}
 
-          {channelSnippetsList.length > 0 && globalSnippetsList.length > 0 && <DropdownMenuSeparator />}
+          {channelSnippetsList.length > 0 && globalSnippetsList.length > 0 && (
+            <DropdownMenuSeparator />
+          )}
 
           {channelSnippetsList.length > 0 && (
             <>

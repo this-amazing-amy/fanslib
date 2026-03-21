@@ -41,4 +41,3 @@ export const loadFanslyCredentials = async (): Promise<LoadFanslyCredentialsResp
     return null;
   }
 };
-

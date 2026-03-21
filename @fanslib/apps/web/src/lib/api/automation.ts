@@ -1,4 +1,4 @@
-import { api } from './hono-client';
+import { api } from "./hono-client";
 
 export type PostToRedditRequest = {
   subredditId: string;
@@ -18,12 +18,12 @@ export type IsAutomationRunningResponse = {
 
 export const automationApi = {
   postToReddit: async (request: PostToRedditRequest) => {
-    const response = await api.api['reddit-automation']['post-to-reddit'].$post({ json: request });
+    const response = await api.api["reddit-automation"]["post-to-reddit"].$post({ json: request });
     return response.json();
   },
 
   isRunning: async () => {
-    const response = await api.api['reddit-automation']['is-running'].$get();
+    const response = await api.api["reddit-automation"]["is-running"].$get();
     return response.json();
   },
 };

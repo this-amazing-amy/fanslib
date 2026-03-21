@@ -1,9 +1,8 @@
-import type { PostStatus } from '@fanslib/server/schemas';
+import type { PostStatus } from "@fanslib/server/schemas";
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { mergeDeep } from "remeda";
 import type { DeepPartial } from "~/lib/deep-partial";
 import type { PostTypeFilter } from "~/lib/virtual-posts";
-
 
 export type PostFilterPreferences = {
   search?: string;
@@ -57,7 +56,7 @@ export const PostPreferencesProvider = ({ children }: { children: React.ReactNod
   // Hydrate from localStorage after mount (after hydration)
   useEffect(() => {
     if (typeof window === "undefined") return;
-    
+
     const stored = window.localStorage.getItem(STORAGE_KEY);
     if (stored) {
       try {

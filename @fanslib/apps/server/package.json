@@ -27,10 +27,11 @@
     "dev": "bun run --watch src/index.ts",
     "start": "bun run dist/index.js",
     "test": "bun test",
-    "lint": "eslint src",
+    "lint": "oxlint src/ && eslint src/",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist",
-    "format": "prettier --write src"
+    "format": "oxfmt --write src/",
+    "format:check": "oxfmt --check src/"
   },
   "dependencies": {
     "@atproto/api": "^0.18.13",
@@ -56,16 +57,9 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@eslint/js": "^9.37.0",
-    "@fanslib/eslint": "workspace:*",
     "@fanslib/typescript": "workspace:*",
     "@types/ffprobe-static": "^2.0.3",
-    "@typescript-eslint/eslint-plugin": "^8.46.1",
-    "@typescript-eslint/parser": "^8.46.1",
     "bun-types": "^1.2.22",
-    "eslint": "^9.35.0",
-    "eslint-plugin-functional": "^9.0.2",
-    "eslint-plugin-prefer-arrow-functions": "^3.9.1",
     "typescript": "^5.9.2"
   }
 }

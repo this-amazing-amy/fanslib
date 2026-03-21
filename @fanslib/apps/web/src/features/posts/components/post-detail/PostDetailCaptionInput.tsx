@@ -1,13 +1,13 @@
-import type { PostWithRelations } from '@fanslib/server/schemas';
-import { Check, Copy } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { HashtagButton } from '~/components/HashtagButton';
-import { SnippetSelector } from '~/components/SnippetSelector';
-import { Button } from '~/components/ui/Button';
-import { Textarea } from '~/components/ui/Textarea';
-import { useCopyToClipboard } from '~/hooks/useCopyToClipboard';
-import { useDebounce } from '~/hooks/useDebounce';
-import { useUpdatePostMutation } from '~/lib/queries/posts';
+import type { PostWithRelations } from "@fanslib/server/schemas";
+import { Check, Copy } from "lucide-react";
+import { useEffect, useState } from "react";
+import { HashtagButton } from "~/components/HashtagButton";
+import { SnippetSelector } from "~/components/SnippetSelector";
+import { Button } from "~/components/ui/Button";
+import { Textarea } from "~/components/ui/Textarea";
+import { useCopyToClipboard } from "~/hooks/useCopyToClipboard";
+import { useDebounce } from "~/hooks/useDebounce";
+import { useUpdatePostMutation } from "~/lib/queries/posts";
 
 type Post = PostWithRelations;
 
@@ -16,13 +16,13 @@ type PostDetailCaptionInputProps = {
 };
 
 export const PostDetailCaptionInput = ({ post }: PostDetailCaptionInputProps) => {
-  const [localCaption, setLocalCaption] = useState(post.caption ?? '');
+  const [localCaption, setLocalCaption] = useState(post.caption ?? "");
   const [isSaving, setIsSaving] = useState(false);
   const { isCopied, copy } = useCopyToClipboard();
   const updatePostMutation = useUpdatePostMutation();
 
   useEffect(() => {
-    setLocalCaption(post.caption ?? '');
+    setLocalCaption(post.caption ?? "");
   }, [post.id, post.caption]);
 
   const saveCaption = async (caption: string) => {
@@ -35,7 +35,7 @@ export const PostDetailCaptionInput = ({ post }: PostDetailCaptionInputProps) =>
         },
       });
     } catch (error) {
-      console.error('Failed to update caption:', error);
+      console.error("Failed to update caption:", error);
     } finally {
       setIsSaving(false);
     }
@@ -101,12 +101,9 @@ export const PostDetailCaptionInput = ({ post }: PostDetailCaptionInputProps) =>
           />
         </div>
         {isSaving && (
-          <div className="absolute right-2 bottom-2 bg-base-100 p-1 rounded text-xs">
-            Saving...
-          </div>
+          <div className="absolute right-2 bottom-2 bg-base-100 p-1 rounded text-xs">Saving...</div>
         )}
       </div>
     </div>
   );
 };
-

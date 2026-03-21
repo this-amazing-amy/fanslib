@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
 import { Input } from "~/components/ui/Input";
-import { useSaveSettingsMutation, useSettingsQuery, useTestBlueskyCredentialsMutation } from "~/lib/queries/settings";
+import {
+  useSaveSettingsMutation,
+  useSettingsQuery,
+  useTestBlueskyCredentialsMutation,
+} from "~/lib/queries/settings";
 import { SettingRow } from "./SettingRow";
 
 export const BlueskySettings = () => {
@@ -67,7 +71,11 @@ export const BlueskySettings = () => {
           />
           <Button
             onClick={testCredentialsHandler}
-            isDisabled={testCredentials.isPending || !settings?.blueskyUsername || !settings?.blueskyAppPassword}
+            isDisabled={
+              testCredentials.isPending ||
+              !settings?.blueskyUsername ||
+              !settings?.blueskyAppPassword
+            }
             isLoading={testCredentials.isPending}
             variant="secondary"
             className="w-fit"
@@ -76,7 +84,9 @@ export const BlueskySettings = () => {
           </Button>
           {testResult && (
             <div className={`text-sm ${testResult.success ? "text-green-600" : "text-red-600"}`}>
-              {testResult.success ? "✓ Credentials are valid" : `✗ ${testResult.error ?? "Invalid credentials"}`}
+              {testResult.success
+                ? "✓ Credentials are valid"
+                : `✗ ${testResult.error ?? "Invalid credentials"}`}
             </div>
           )}
         </div>

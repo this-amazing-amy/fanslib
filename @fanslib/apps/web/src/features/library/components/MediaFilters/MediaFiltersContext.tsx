@@ -1,4 +1,4 @@
-import type { MediaFilter } from '@fanslib/server/schemas';
+import type { MediaFilter } from "@fanslib/server/schemas";
 import type { ReactNode } from "react";
 import { createContext, useContext } from "react";
 import {
@@ -105,7 +105,7 @@ export const MediaFiltersProvider = ({ value, onChange, children }: MediaFilters
 
   const updateGroupInclude = (groupIndex: number, include: boolean) => {
     const newFilters = filters.map((group, index) =>
-      index === groupIndex ? { ...group, include } : group
+      index === groupIndex ? { ...group, include } : group,
     );
     onChange(newFilters);
   };
@@ -173,9 +173,7 @@ export const MediaFiltersProvider = ({ value, onChange, children }: MediaFilters
       onChange(filters.filter((_, index) => index !== groupIndex));
       return;
     }
-    onChange(
-      filters.map((group, index) => (index === groupIndex ? updatedGroup : group))
-    );
+    onChange(filters.map((group, index) => (index === groupIndex ? updatedGroup : group)));
   };
 
   const clearFilters = () => {

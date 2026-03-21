@@ -57,9 +57,7 @@ export const AuthenticationStatus = ({
             {authStatus.text}
           </Status>
           {authStatus.isStale && (
-            <span className="text-xs bg-warning/20 text-warning px-1.5 py-0.5 rounded">
-              Stale
-            </span>
+            <span className="text-xs bg-warning/20 text-warning px-1.5 py-0.5 rounded">Stale</span>
           )}
         </div>
         <Tooltip content="Recheck status" openDelayMs={0}>
@@ -106,9 +104,7 @@ export const AuthenticationStatus = ({
           onPress={onRefresh}
           isDisabled={isLoading || isCheckingLogin}
         >
-          <RefreshCcw
-            className={`h-4 w-4 ${isLoading || isCheckingLogin ? "animate-spin" : ""}`}
-          />
+          <RefreshCcw className={`h-4 w-4 ${isLoading || isCheckingLogin ? "animate-spin" : ""}`} />
         </Button>
       </Tooltip>
     </div>

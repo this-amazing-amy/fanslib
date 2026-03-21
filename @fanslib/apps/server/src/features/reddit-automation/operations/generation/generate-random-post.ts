@@ -4,7 +4,13 @@ import { Channel } from "../../../channels/entity";
 import type { Media } from "../../../library/entity";
 import { fetchPostsByChannel } from "../../../posts/operations/post/fetch-by-channel";
 import type { Subreddit } from "../../../subreddits/entity";
-import { calculateOptimalScheduleDate, generateCaptionForMedia, getSubredditPosts, selectRandomMediaWithConflictChecking, selectSubreddit } from "./utils";
+import {
+  calculateOptimalScheduleDate,
+  generateCaptionForMedia,
+  getSubredditPosts,
+  selectRandomMediaWithConflictChecking,
+  selectSubreddit,
+} from "./utils";
 
 type GeneratedPost = {
   id: string;
@@ -16,7 +22,7 @@ type GeneratedPost = {
 
 export const generateRandomPost = async (
   subreddits: Subreddit[],
-  channelId: string
+  channelId: string,
 ): Promise<GeneratedPost> => {
   const channelRepo = (await db()).getRepository(Channel);
 
@@ -40,7 +46,7 @@ export const generateRandomPost = async (
 
   const { media: selectedMedia } = await selectRandomMediaWithConflictChecking(
     subreddit,
-    channelId
+    channelId,
   );
   if (!selectedMedia) {
     throw new Error("No suitable media found");

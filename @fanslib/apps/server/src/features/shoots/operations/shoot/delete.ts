@@ -20,4 +20,3 @@ export const deleteShoot = async (id: string): Promise<boolean> => {
   await shootRepository.delete(id);
   return true;
 };
-

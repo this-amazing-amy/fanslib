@@ -7,9 +7,11 @@ export const FetchFilterPresetByIdRequestParamsSchema = z.object({
   id: z.string(),
 });
 
-export const FetchFilterPresetByIdResponseSchema = FilterPresetSchema
+export const FetchFilterPresetByIdResponseSchema = FilterPresetSchema;
 
-export const fetchFilterPresetById = async (id: string): Promise<z.infer<typeof FetchFilterPresetByIdResponseSchema> | null> => {
+export const fetchFilterPresetById = async (
+  id: string,
+): Promise<z.infer<typeof FetchFilterPresetByIdResponseSchema> | null> => {
   const database = await db();
   const repository = database.getRepository(FilterPreset);
 
@@ -25,4 +27,3 @@ export const fetchFilterPresetById = async (id: string): Promise<z.infer<typeof 
 
   return preset;
 };
-

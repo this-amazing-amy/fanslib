@@ -1,10 +1,10 @@
-import type { PostWithRelations } from '@fanslib/server/schemas';
-import { Send } from 'lucide-react';
-import { useState } from 'react';
-import { Alert } from '~/components/ui/Alert';
-import { Button } from '~/components/ui/Button';
-import { useDraftBlueskyMutation } from '~/lib/queries/postpone';
-import { useSettingsQuery } from '~/lib/queries/settings';
+import type { PostWithRelations } from "@fanslib/server/schemas";
+import { Send } from "lucide-react";
+import { useState } from "react";
+import { Alert } from "~/components/ui/Alert";
+import { Button } from "~/components/ui/Button";
+import { useDraftBlueskyMutation } from "~/lib/queries/postpone";
+import { useSettingsQuery } from "~/lib/queries/settings";
 
 type Post = PostWithRelations;
 
@@ -18,7 +18,7 @@ export const PostDetailPostponeButton = ({ post }: PostDetailPostponeButtonProps
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (post.channel.typeId !== 'bluesky') {
+  if (post.channel.typeId !== "bluesky") {
     return null;
   }
 
@@ -30,7 +30,7 @@ export const PostDetailPostponeButton = ({ post }: PostDetailPostponeButtonProps
     );
   }
 
-  if (!settings?.postponeToken || !settings?.blueskyUsername || post.status !== 'draft') {
+  if (!settings?.postponeToken || !settings?.blueskyUsername || post.status !== "draft") {
     return null;
   }
 
@@ -43,9 +43,9 @@ export const PostDetailPostponeButton = ({ post }: PostDetailPostponeButtonProps
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 5000);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      const errorMessage = err instanceof Error ? err.message : "An unknown error occurred";
       setError(errorMessage);
-      console.error('Failed to send post to Postpone:', err);
+      console.error("Failed to send post to Postpone:", err);
     }
   };
 
@@ -73,4 +73,3 @@ export const PostDetailPostponeButton = ({ post }: PostDetailPostponeButtonProps
     </div>
   );
 };
-

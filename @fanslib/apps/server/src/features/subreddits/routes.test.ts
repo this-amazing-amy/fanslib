@@ -1,18 +1,7 @@
-import {
-  afterAll,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  test,
-} from "bun:test";
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
 import { Hono } from "hono";
 import "reflect-metadata";
-import {
-  getTestDataSource,
-  setupTestDatabase,
-  teardownTestDatabase,
-} from "../../lib/test-db";
+import { getTestDataSource, setupTestDatabase, teardownTestDatabase } from "../../lib/test-db";
 import { resetAllFixtures } from "../../lib/test-fixtures";
 import { devalueMiddleware } from "../../lib/devalue-middleware";
 import { parseResponse } from "../../test-utils/setup";
@@ -29,9 +18,7 @@ describe("Subreddits Routes", () => {
   beforeAll(async () => {
     await setupTestDatabase();
     fixtures = await resetAllFixtures();
-    app = new Hono()
-      .use("*", devalueMiddleware())
-      .route("/", subredditsRoutes);
+    app = new Hono().use("*", devalueMiddleware()).route("/", subredditsRoutes);
   });
 
   afterAll(async () => {
@@ -44,9 +31,7 @@ describe("Subreddits Routes", () => {
 
   describe("GET /api/subreddits/all", () => {
     test("returns all subreddits", async () => {
-      const response = await app.request(
-        "/api/subreddits/all"
-      );
+      const response = await app.request("/api/subreddits/all");
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Subreddit[]>(response);
@@ -70,9 +55,7 @@ describe("Subreddits Routes", () => {
         throw new Error("No subreddit fixtures available");
       }
 
-      const response = await app.request(
-        `/api/subreddits/by-id/${fixtureSubreddit.id}`
-      );
+      const response = await app.request(`/api/subreddits/by-id/${fixtureSubreddit.id}`);
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Subreddit>(response);
@@ -83,9 +66,7 @@ describe("Subreddits Routes", () => {
     });
 
     test("returns error for non-existent subreddit", async () => {
-      const response = await app.request(
-        "/api/subreddits/by-id/non-existent-id"
-      );
+      const response = await app.request("/api/subreddits/by-id/non-existent-id");
 
       const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
@@ -99,14 +80,11 @@ describe("Subreddits Routes", () => {
         name: "newsubreddit",
       };
 
-      const response = await app.request(
-        "/api/subreddits",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(subredditData),
-        }
-      );
+      const response = await app.request("/api/subreddits", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(subredditData),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Subreddit>(response);
@@ -126,14 +104,11 @@ describe("Subreddits Routes", () => {
         notes: "Updated notes",
       };
 
-      const response = await app.request(
-        `/api/subreddits/by-id/${fixtureSubreddit.id}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updateData),
-        }
-      );
+      const response = await app.request(`/api/subreddits/by-id/${fixtureSubreddit.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updateData),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Subreddit>(response);
@@ -150,12 +125,9 @@ describe("Subreddits Routes", () => {
         throw new Error("No subreddit fixtures available");
       }
 
-      const response = await app.request(
-        `/api/subreddits/by-id/${fixtureSubreddit.id}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await app.request(`/api/subreddits/by-id/${fixtureSubreddit.id}`, {
+        method: "DELETE",
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<{ success: boolean }>(response);
@@ -170,12 +142,9 @@ describe("Subreddits Routes", () => {
     });
 
     test("returns 404 when subreddit not found", async () => {
-      const response = await app.request(
-        "/api/subreddits/by-id/non-existent-id",
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await app.request("/api/subreddits/by-id/non-existent-id", {
+        method: "DELETE",
+      });
       expect(response.status).toBe(404);
 
       const data = await parseResponse<{ error: string }>(response);
@@ -191,16 +160,13 @@ describe("Subreddits Routes", () => {
         throw new Error("No subreddit fixtures available");
       }
 
-      const response = await app.request(
-        "/api/subreddits/last-post-dates",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            subredditIds: [subreddit1.id, subreddit2.id],
-          }),
-        }
-      );
+      const response = await app.request("/api/subreddits/last-post-dates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          subredditIds: [subreddit1.id, subreddit2.id],
+        }),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Record<string, Date | null>>(response);
@@ -209,14 +175,11 @@ describe("Subreddits Routes", () => {
     });
 
     test("handles empty subreddit list", async () => {
-      const response = await app.request(
-        "/api/subreddits/last-post-dates",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ subredditIds: [] }),
-        }
-      );
+      const response = await app.request("/api/subreddits/last-post-dates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subredditIds: [] }),
+      });
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Record<string, Date | null>>(response);
@@ -225,4 +188,3 @@ describe("Subreddits Routes", () => {
     });
   });
 });
-

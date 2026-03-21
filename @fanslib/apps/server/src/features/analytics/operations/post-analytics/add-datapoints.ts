@@ -10,7 +10,7 @@ import { gatherFanslyPostAnalyticsDatapoints } from "./helpers";
 
 export const addDatapointsToPostMedia = async (
   postMediaId: string,
-  response: FanslyAnalyticsResponse
+  response: FanslyAnalyticsResponse,
 ): Promise<FanslyAnalyticsDatapoint[]> => {
   const dataSource = await db();
   const postMediaRepository = dataSource.getRepository(PostMedia);
@@ -30,7 +30,7 @@ export const addDatapointsToPostMedia = async (
     try {
       await saveHashtagsFromAnalytics(postMedia.post.channel.id, response);
       console.log(
-        `Processed ${response.response.aggregationData.tags.length} hashtags from analytics`
+        `Processed ${response.response.aggregationData.tags.length} hashtags from analytics`,
       );
     } catch (error) {
       console.error("Failed to process hashtags from analytics:", error);
@@ -56,7 +56,7 @@ export const addDatapointsToPostMedia = async (
         postMediaId,
       });
       return dpRepo.save(newDatapoint);
-    })
+    }),
   );
 
   const postMediaWithDatapoints = await postMediaRepository.findOne({
@@ -103,4 +103,3 @@ export const addDatapointsToPostMedia = async (
 
   return savedDatapoints;
 };
-

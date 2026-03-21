@@ -39,14 +39,17 @@ export const useSfwMode = () => {
 
       return cn(additionalClasses, !showContent && blurClass, transitionClass);
     },
-    [sfwMode, blurIntensity, showContent]
+    [sfwMode, blurIntensity, showContent],
   );
 
-  useEffect(() => () => {
+  useEffect(
+    () => () => {
       if (hoverTimeout) {
         clearTimeout(hoverTimeout);
       }
-    }, [hoverTimeout]);
+    },
+    [hoverTimeout],
+  );
 
   return {
     sfwMode,

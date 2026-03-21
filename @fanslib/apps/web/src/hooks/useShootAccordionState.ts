@@ -26,7 +26,7 @@ export const useShootAccordionState = (shootId: string) => {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(openShoots)));
       setIsOpen(open);
     },
-    [shootId]
+    [shootId],
   );
 
   return {

@@ -1,17 +1,17 @@
-import { format } from 'date-fns';
-import { AnimatePresence, motion } from 'framer-motion';
-import { Loader2, X } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { ChannelBadge } from '~/components/ChannelBadge';
-import { ContentScheduleBadge } from '~/components/ContentScheduleBadge';
-import { MediaFilters } from '~/features/library/components/MediaFilters/MediaFilters';
-import { useMediaFilters } from '~/features/library/components/MediaFilters/MediaFiltersContext';
-import { cn } from '~/lib/cn';
-import { getMediaThumbnailUrl } from '~/lib/media-urls';
-import { useMediaListQuery } from '~/lib/queries/library';
-import { useCreatePostMutation } from '~/lib/queries/posts';
-import type { VirtualPost } from '~/lib/virtual-posts';
+import { format } from "date-fns";
+import { AnimatePresence, motion } from "framer-motion";
+import { Loader2, X } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { ChannelBadge } from "~/components/ChannelBadge";
+import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
+import { MediaFilters } from "~/features/library/components/MediaFilters/MediaFilters";
+import { useMediaFilters } from "~/features/library/components/MediaFilters/MediaFiltersContext";
+import { cn } from "~/lib/cn";
+import { getMediaThumbnailUrl } from "~/lib/media-urls";
+import { useMediaListQuery } from "~/lib/queries/library";
+import { useCreatePostMutation } from "~/lib/queries/posts";
+import type { VirtualPost } from "~/lib/virtual-posts";
 
 type VirtualPostInlinePickerProps = {
   virtualPost: VirtualPost | null;
@@ -25,56 +25,62 @@ export const VirtualPostInlinePicker = ({
   onClose,
 }: VirtualPostInlinePickerProps) => {
   const { mutateAsync: createPost, isPending: isCreating } = useCreatePostMutation();
-  
+
   // Consume filters from parent MediaFiltersProvider
   const { filters } = useMediaFilters();
 
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   useEffect(() => {
-    setPrefersReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    setPrefersReducedMotion(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   }, []);
 
   // Fetch 8 media candidates
   const { data: mediaResponse, isLoading } = useMediaListQuery({
     limit: 8,
     page: 1,
-    sort: { field: 'fileModificationDate', direction: 'DESC' },
+    sort: { field: "fileModificationDate", direction: "DESC" },
     filters,
     scheduleId: virtualPost?.scheduleId ?? undefined,
-    channelId: virtualPost?.channelId ?? '',
+    channelId: virtualPost?.channelId ?? "",
     autoApplyFilters: true,
   });
 
   const candidates = mediaResponse?.items ?? [];
 
-  const handleMediaClick = useCallback(async (mediaId: string) => {
-    if (!virtualPost) return;
-    try {
-      await createPost({
-        date: virtualPost.date,
-        channelId: virtualPost.channelId,
-        status: 'draft',
-        caption: null,
-        mediaIds: [mediaId],
-        scheduleId: virtualPost.scheduleId ?? undefined,
-        subredditId: undefined,
-      });
-      onClose();
-    } catch (error) {
-      console.error('Failed to create post:', error);
-    }
-  }, [virtualPost, createPost, onClose]);
+  const handleMediaClick = useCallback(
+    async (mediaId: string) => {
+      if (!virtualPost) return;
+      try {
+        await createPost({
+          date: virtualPost.date,
+          channelId: virtualPost.channelId,
+          status: "draft",
+          caption: null,
+          mediaIds: [mediaId],
+          scheduleId: virtualPost.scheduleId ?? undefined,
+          subredditId: undefined,
+        });
+        onClose();
+      } catch (error) {
+        console.error("Failed to create post:", error);
+      }
+    },
+    [virtualPost, createPost, onClose],
+  );
 
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      onClose();
-    }
-  }, [onClose]);
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    },
+    [onClose],
+  );
 
   useEffect(() => {
     if (isOpen) {
-      window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
     }
   }, [isOpen, handleKeyDown]);
 
@@ -97,14 +103,14 @@ export const VirtualPostInlinePicker = ({
           {/* Bottom sheet */}
           <motion.div
             className="fixed inset-x-0 bottom-0 z-50 bg-base-100 rounded-t-2xl shadow-2xl max-h-[70vh] flex flex-col"
-            initial={{ y: '100%' }}
+            initial={{ y: "100%" }}
             animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ 
-              type: 'spring', 
-              damping: 25, 
+            exit={{ y: "100%" }}
+            transition={{
+              type: "spring",
+              damping: 25,
               stiffness: 300,
-              duration: prefersReducedMotion ? 0 : undefined 
+              duration: prefersReducedMotion ? 0 : undefined,
             }}
           >
             {/* Handle bar */}
@@ -129,10 +135,10 @@ export const VirtualPostInlinePicker = ({
                   />
                 )}
                 <span className="text-base font-semibold text-base-content">
-                  {format(new Date(virtualPost.date), 'EEE, MMM d')}
+                  {format(new Date(virtualPost.date), "EEE, MMM d")}
                 </span>
                 <span className="text-sm text-base-content/60">
-                  {format(new Date(virtualPost.date), 'HH:mm')}
+                  {format(new Date(virtualPost.date), "HH:mm")}
                 </span>
               </div>
               <button
@@ -168,7 +174,7 @@ export const VirtualPostInlinePicker = ({
                         "relative aspect-square rounded-lg overflow-hidden",
                         "hover:ring-2 hover:ring-primary hover:scale-105 transition-all",
                         "focus:outline-none focus:ring-2 focus:ring-primary",
-                        isCreating && "opacity-50 pointer-events-none"
+                        isCreating && "opacity-50 pointer-events-none",
                       )}
                       onClick={() => handleMediaClick(media.id)}
                       disabled={isCreating}
@@ -178,7 +184,7 @@ export const VirtualPostInlinePicker = ({
                         alt={media.name}
                         className="w-full h-full object-cover"
                       />
-                      {media.type === 'video' && media.duration && (
+                      {media.type === "video" && media.duration && (
                         <div className="absolute bottom-1 right-1 px-1 py-0.5 bg-black/60 rounded text-[10px] text-white">
                           {formatDuration(media.duration)}
                         </div>
@@ -200,5 +206,5 @@ export const VirtualPostInlinePicker = ({
 const formatDuration = (seconds: number): string => {
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
 };

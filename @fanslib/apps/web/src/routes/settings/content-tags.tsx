@@ -6,4 +6,3 @@ const ContentTagsSettings = () => <TagDimensionsTab />;
 export const Route = createFileRoute("/settings/content-tags")({
   component: ContentTagsSettings,
 });
-

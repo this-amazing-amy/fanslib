@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { cn } from '~/lib/cn';
+import type { ReactNode } from "react";
+import { cn } from "~/lib/cn";
 
 export type PageHeaderProps = {
   title: string;
@@ -16,7 +16,7 @@ export const PageHeader = ({
   breadcrumbs,
   className,
 }: PageHeaderProps) => (
-  <div className={cn('mb-6', className)}>
+  <div className={cn("mb-6", className)}>
     {breadcrumbs && <div className="mb-2">{breadcrumbs}</div>}
     <div className="flex items-start justify-between gap-4">
       <div className="flex-1">
@@ -27,4 +27,3 @@ export const PageHeader = ({
     </div>
   </div>
 );
-

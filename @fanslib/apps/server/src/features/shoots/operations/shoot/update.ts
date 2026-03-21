@@ -22,7 +22,7 @@ export const UpdateShootResponseSchema = ShootSchema.extend({
 
 export const updateShoot = async (
   id: string,
-  payload: z.infer<typeof UpdateShootRequestBodySchema>
+  payload: z.infer<typeof UpdateShootRequestBodySchema>,
 ): Promise<z.infer<typeof UpdateShootResponseSchema> | null> => {
   const database = await db();
   const shootRepository = database.getRepository(Shoot);
@@ -53,4 +53,3 @@ export const updateShoot = async (
   await shootRepository.save(shoot);
   return shoot;
 };
-

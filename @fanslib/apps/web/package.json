@@ -1,16 +1,17 @@
 {
   "name": "@fanslib/web",
   "private": true,
-  "sideEffects": false,
   "type": "module",
+  "sideEffects": false,
   "scripts": {
     "dev": "vite dev",
     "start": "bun .output/server/index.mjs",
     "build": "vite build",
     "build:dev": "vite build --mode development",
-    "lint": "eslint src",
+    "lint": "oxlint src/ && eslint src/",
     "typecheck": "tsc --noEmit",
-    "format": "prettier --write . --config .prettierrc.cjs",
+    "format": "oxfmt --write src/",
+    "format:check": "oxfmt --check src/",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "clean": "rm -rf dist .output"
@@ -53,10 +54,8 @@
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^4.1.1",
-    "@eslint/js": "^9.37.0",
-    "@fanslib/eslint": "workspace:*",
-    "@fanslib/typescript": "workspace:*",
     "@fanslib/server": "workspace:*",
+    "@fanslib/typescript": "workspace:*",
     "@react-types/shared": "^3.32.1",
     "@storybook/addon-docs": "^9.1.7",
     "@storybook/addon-onboarding": "^9.1.7",
@@ -69,30 +68,15 @@
     "@types/node": "^22.5.4",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
-    "@typescript-eslint/eslint-plugin": "^8.46.1",
-    "@typescript-eslint/parser": "^8.46.1",
     "@vitejs/plugin-react": "^4.6.0",
     "@vitest/ui": "^3.2.4",
     "drizzle-kit": "^0.31.4",
-    "eslint": "^9.36.0",
-    "eslint-plugin-functional": "^9.0.2",
-    "eslint-plugin-prefer-arrow-functions": "^3.9.1",
-    "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-storybook": "^9.1.7",
     "jsdom": "^27.0.0",
-    "oxlint": "^1.23.0",
-    "prettier": "^3.6.2",
     "storybook": "^9.1.7",
     "tailwindcss": "^4.1.12",
     "typescript": "^5.7.2",
     "vite": "^6.0.0",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.4"
-  },
-  "eslintConfig": {
-    "extends": [
-      "plugin:storybook/recommended"
-    ]
   }
 }

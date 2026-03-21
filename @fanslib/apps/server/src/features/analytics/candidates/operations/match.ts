@@ -9,7 +9,7 @@ const INITIAL_FETCH_INTERVAL_DAYS = 1;
 
 export const confirmMatch = async (
   id: string,
-  body: z.infer<typeof ConfirmMatchRequestBodySchema>
+  body: z.infer<typeof ConfirmMatchRequestBodySchema>,
 ): Promise<z.infer<typeof ConfirmMatchResponseSchema> | null> => {
   const dataSource = await db();
   const candidateRepository = dataSource.getRepository(FanslyMediaCandidate);
@@ -60,7 +60,9 @@ export const confirmMatch = async (
   });
 
   if (existingAggregate) {
-    existingAggregate.nextFetchAt = new Date(Date.now() + INITIAL_FETCH_INTERVAL_DAYS * 24 * 60 * 60 * 1000);
+    existingAggregate.nextFetchAt = new Date(
+      Date.now() + INITIAL_FETCH_INTERVAL_DAYS * 24 * 60 * 60 * 1000,
+    );
     await aggregateRepository.save(existingAggregate);
   } else {
     const aggregate = aggregateRepository.create({

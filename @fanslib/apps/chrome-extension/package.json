@@ -9,7 +9,9 @@
     "pack": "bun run scripts/pack-crx.ts",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src"
+    "lint": "oxlint -c ../../../.oxlintrc.json src/ && eslint src/",
+    "format": "oxfmt -c ../../../.oxfmtrc.json --write src/",
+    "format:check": "oxfmt -c ../../../.oxfmtrc.json --check src/"
   },
   "dependencies": {
     "@fanslib/server": "workspace:*",
@@ -20,7 +22,6 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@fanslib/eslint": "workspace:*",
     "@fanslib/typescript": "workspace:*",
     "@tailwindcss/vite": "^4.0.0",
     "@types/chrome": "^0.0.286",
@@ -28,9 +29,9 @@
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.4",
     "bun-types": "latest",
+    "crx": "^5.0.1",
     "daisyui": "^5.1.14",
     "postcss-logical": "^6.1.0",
-    "crx": "^5.0.1",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.7.2",
     "vite": "^6.0.0"

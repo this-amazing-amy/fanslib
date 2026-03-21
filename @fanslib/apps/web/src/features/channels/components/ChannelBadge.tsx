@@ -1,5 +1,4 @@
-import type { Channel } from '@fanslib/server/schemas';
-
+import type { Channel } from "@fanslib/server/schemas";
 
 import { Badge } from "~/components/ui/Badge/Badge";
 import { cn } from "~/lib/cn";
@@ -20,11 +19,7 @@ export const ChannelBadge = ({
 }: ChannelBadgeProps) => (
   <Badge
     variant={selected ? "primary" : "neutral"}
-    className={cn(
-      "gap-1.5 cursor-pointer transition-all",
-      onClick && "hover:scale-105",
-      className
-    )}
+    className={cn("gap-1.5 cursor-pointer transition-all", onClick && "hover:scale-105", className)}
     onClick={onClick}
   >
     <ChannelTypeIcon typeId={channel.typeId} className="w-4 h-4" />

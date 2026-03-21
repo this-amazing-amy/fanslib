@@ -1,12 +1,12 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Plus, MoreVertical } from 'lucide-react';
-import { Button } from '../Button';
-import { SectionHeader } from './SectionHeader';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Plus, MoreVertical } from "lucide-react";
+import { Button } from "../Button";
+import { SectionHeader } from "./SectionHeader";
 
 const meta: Meta<typeof SectionHeader> = {
-  title: 'UI/SectionHeader',
+  title: "UI/SectionHeader",
   component: SectionHeader,
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
@@ -14,21 +14,21 @@ type Story = StoryObj<typeof SectionHeader>;
 
 export const Default: Story = {
   args: {
-    title: 'Section Title',
+    title: "Section Title",
   },
 };
 
 export const WithDescription: Story = {
   args: {
-    title: 'Recent Activity',
-    description: 'View your recent activity and notifications.',
+    title: "Recent Activity",
+    description: "View your recent activity and notifications.",
   },
 };
 
 export const WithActions: Story = {
   args: {
-    title: 'Team Members',
-    description: 'Manage team access and permissions.',
+    title: "Team Members",
+    description: "Manage team access and permissions.",
     actions: (
       <>
         <Button variant="ghost" size="xs">
@@ -70,4 +70,3 @@ export const InCard: Story = {
     </div>
   ),
 };
-

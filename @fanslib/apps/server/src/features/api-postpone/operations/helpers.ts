@@ -6,10 +6,7 @@ type PostponeResponseType<T> = {
   errors?: Array<{ message: string }>;
 };
 
-export const fetchPostpone = async <T, V = unknown>(
-  query: string,
-  variables: V
-): Promise<T> => {
+export const fetchPostpone = async <T, V = unknown>(query: string, variables: V): Promise<T> => {
   const settings = await loadSettings();
 
   if (!settings.postponeToken) {
@@ -47,4 +44,3 @@ export const fetchPostpone = async <T, V = unknown>(
 
   return result.data;
 };
-

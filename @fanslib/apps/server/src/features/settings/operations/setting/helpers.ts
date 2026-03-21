@@ -34,4 +34,3 @@ export const ensureSettingsFile = async (): Promise<void> => {
     await writeFile(settingsFilePath(), JSON.stringify(DEFAULT_SETTINGS, null, 2));
   }
 };
-

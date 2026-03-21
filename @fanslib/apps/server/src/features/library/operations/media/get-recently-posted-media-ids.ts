@@ -15,7 +15,7 @@ export const getRecentlyPostedMediaIds = async (
   }
 
   const database = await db();
-  
+
   // Calculate the cutoff timestamp
   const cutoffDate = new Date();
   cutoffDate.setHours(cutoffDate.getHours() - cooldownHours);

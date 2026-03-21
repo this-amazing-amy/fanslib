@@ -1,16 +1,16 @@
-import { getLocalTimeZone, today } from '@internationalized/date';
-import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
-import type { DateValue } from 'react-aria';
-import { DatePicker } from './DatePicker';
+import { getLocalTimeZone, today } from "@internationalized/date";
+import type { Meta, StoryObj } from "@storybook/react";
+import { useState } from "react";
+import type { DateValue } from "react-aria";
+import { DatePicker } from "./DatePicker";
 
 const meta: Meta<typeof DatePicker> = {
-  title: 'UI/DatePicker',
+  title: "UI/DatePicker",
   component: DatePicker,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
@@ -21,11 +21,7 @@ const DefaultComponent = () => {
 
   return (
     <div className="w-80">
-      <DatePicker
-        label="Select a date"
-        value={value}
-        onChange={(v) => setValue(v)}
-      />
+      <DatePicker label="Select a date" value={value} onChange={(v) => setValue(v)} />
     </div>
   );
 };
@@ -39,11 +35,7 @@ const WithDefaultValueComponent = () => {
 
   return (
     <div className="w-80">
-      <DatePicker
-        label="Birth date"
-        value={value}
-        onChange={(v) => v && setValue(v)}
-      />
+      <DatePicker label="Birth date" value={value} onChange={(v) => v && setValue(v)} />
     </div>
   );
 };
@@ -66,9 +58,7 @@ const WithMinMaxDatesComponent = () => {
         minValue={minValue}
         maxValue={maxValue}
       />
-      <p className="text-sm text-base-content/70 mt-2">
-        Only next 2 weeks are selectable
-      </p>
+      <p className="text-sm text-base-content/70 mt-2">Only next 2 weeks are selectable</p>
     </div>
   );
 };
@@ -99,11 +89,7 @@ export const WithError: Story = {
 export const Disabled: Story = {
   render: () => (
     <div className="w-80">
-      <DatePicker
-        label="Date"
-        value={today(getLocalTimeZone())}
-        isDisabled
-      />
+      <DatePicker label="Date" value={today(getLocalTimeZone())} isDisabled />
     </div>
   ),
 };
@@ -111,12 +97,7 @@ export const Disabled: Story = {
 export const ReadOnly: Story = {
   render: () => (
     <div className="w-80">
-      <DatePicker
-        label="Date"
-        value={today(getLocalTimeZone())}
-        isReadOnly
-      />
+      <DatePicker label="Date" value={today(getLocalTimeZone())} isReadOnly />
     </div>
   ),
 };
-

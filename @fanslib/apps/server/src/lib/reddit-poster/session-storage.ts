@@ -11,7 +11,7 @@ const ensureDirectoryExists = (dirPath: string): void => {
 
 export const createFileSessionStorage = (baseDir: string, username?: string): SessionStorage => {
   ensureDirectoryExists(baseDir);
-  
+
   const sessionPath = join(baseDir, `session-${username ?? "default"}.json`);
 
   return {
@@ -37,6 +37,3 @@ export const createFileSessionStorage = (baseDir: string, username?: string): Se
     },
   };
 };
-
-
-
