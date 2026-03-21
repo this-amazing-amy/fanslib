@@ -45,6 +45,26 @@ describe("AnalyticsPostCard", () => {
     expect(screen.getByText("2m")).toBeInTheDocument();
   });
 
+  test("renders sparkline when datapoints and sortMetric are provided", () => {
+    const datapoints = [
+      { timestamp: 1000, views: 0, interactionTime: 0 },
+      { timestamp: 2000, views: 50, interactionTime: 5000 },
+      { timestamp: 3000, views: 100, interactionTime: 10000 },
+    ];
+    const { container } = render(
+      <AnalyticsPostCard {...defaultProps} datapoints={datapoints} sortMetric="views" />
+    );
+    // Sparkline renders a path element, lucide icons don't
+    const sparklinePath = container.querySelector("svg > path[fill='none'][stroke='hsl(var(--p))']");
+    expect(sparklinePath).toBeInTheDocument();
+  });
+
+  test("does not render sparkline when no datapoints", () => {
+    const { container } = render(<AnalyticsPostCard {...defaultProps} />);
+    const sparklinePath = container.querySelector("svg > path[stroke='hsl(var(--p))']");
+    expect(sparklinePath).not.toBeInTheDocument();
+  });
+
   test("renders action slot when provided", () => {
     render(
       <AnalyticsPostCard

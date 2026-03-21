@@ -1,6 +1,13 @@
 import { Eye, Percent, Timer } from "lucide-react";
 import type { ReactNode } from "react";
 import { getMediaThumbnailUrl } from "~/lib/media-urls";
+import { Sparkline } from "./Sparkline";
+
+type Datapoint = {
+  timestamp: number;
+  views: number;
+  interactionTime: number;
+};
 
 type AnalyticsPostCardProps = {
   mediaId: string;
@@ -8,6 +15,9 @@ type AnalyticsPostCardProps = {
   totalViews: number;
   averageEngagementPercent: number;
   averageEngagementSeconds: number;
+  datapoints?: Datapoint[];
+  sortMetric?: "views" | "engagementPercent" | "engagementSeconds";
+  timesPosted?: number;
   actionSlot?: ReactNode;
 };
 
@@ -24,6 +34,9 @@ export const AnalyticsPostCard = ({
   totalViews,
   averageEngagementPercent,
   averageEngagementSeconds,
+  datapoints,
+  sortMetric,
+  timesPosted,
   actionSlot,
 }: AnalyticsPostCardProps) => (
   <div className="flex gap-3 p-3 rounded-xl bg-base-100 border">
@@ -41,6 +54,10 @@ export const AnalyticsPostCard = ({
         <div className="text-sm text-base-content line-clamp-2 mb-1">
           {caption}
         </div>
+      )}
+
+      {datapoints && datapoints.length >= 2 && sortMetric && (
+        <Sparkline datapoints={datapoints} metric={sortMetric} width={120} height={24} />
       )}
 
       <div className="flex items-center gap-3 text-xs text-base-content/60">

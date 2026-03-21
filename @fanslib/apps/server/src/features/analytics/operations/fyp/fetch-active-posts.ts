@@ -3,6 +3,12 @@ import { db } from "../../../../lib/db";
 import { Post } from "../../../posts/entity";
 import type { ActiveFypPostsQuerySchema } from "../../schemas/active-fyp-posts";
 
+type DatapointItem = {
+  timestamp: number;
+  views: number;
+  interactionTime: number;
+};
+
 type ActiveFypPostItem = {
   postMediaId: string;
   postId: string;
@@ -11,6 +17,7 @@ type ActiveFypPostItem = {
   totalViews: number;
   averageEngagementPercent: number;
   averageEngagementSeconds: number;
+  datapoints: DatapointItem[];
 };
 
 export const fetchActiveFypPosts = async (
@@ -25,6 +32,7 @@ export const fetchActiveFypPosts = async (
     .leftJoinAndSelect("post.postMedia", "pm")
     .leftJoinAndSelect("pm.media", "media")
     .leftJoinAndSelect("pm.fanslyAnalyticsAggregate", "agg")
+    .leftJoinAndSelect("pm.fanslyAnalyticsDatapoints", "dp")
     .leftJoin("post.channel", "channel")
     .where("channel.typeId = :typeId", { typeId: "fansly" })
     .andWhere("pm.fanslyStatisticsId IS NOT NULL")
@@ -42,6 +50,14 @@ export const fetchActiveFypPosts = async (
     const agg = pm?.fanslyAnalyticsAggregate;
     if (!pm || !agg) return;
 
+    const datapoints = (pm.fanslyAnalyticsDatapoints ?? [])
+      .sort((a, b) => a.timestamp - b.timestamp)
+      .map((dp) => ({
+        timestamp: dp.timestamp,
+        views: dp.views,
+        interactionTime: dp.interactionTime,
+      }));
+
     items.push({
       postMediaId: pm.id,
       postId: post.id,
@@ -50,6 +66,7 @@ export const fetchActiveFypPosts = async (
       totalViews: agg.totalViews,
       averageEngagementPercent: agg.averageEngagementPercent,
       averageEngagementSeconds: agg.averageEngagementSeconds,
+      datapoints,
     });
   });
 
