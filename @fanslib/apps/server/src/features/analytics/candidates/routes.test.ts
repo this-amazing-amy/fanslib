@@ -6,6 +6,7 @@ import { resetAllFixtures } from "../../../lib/test-fixtures";
 import { devalueMiddleware } from "../../../lib/devalue-middleware";
 import { parseResponse, createTestPost, createTestMedia } from "../../../test-utils/setup";
 import { PostMedia } from "../../posts/entity";
+import { ContentSchedule } from "../../content-schedules/entity";
 import type { FanslyMediaCandidate } from "../candidate-entity";
 import { FanslyMediaCandidate as FanslyMediaCandidateEntity } from "../candidate-entity";
 import { FanslyAnalyticsAggregate } from "../entity";
@@ -260,6 +261,93 @@ describe("Analytics Candidates Routes", () => {
         expect(data[0]).toHaveProperty("method");
         expect(data[0]).toHaveProperty("filename");
       }
+    });
+
+    test("includes scheduleName when post has a content schedule", async () => {
+      const dataSource = getTestDataSource();
+      const scheduleRepo = dataSource.getRepository(ContentSchedule);
+      const postMediaRepository = dataSource.getRepository(PostMedia);
+      const candidateRepository = dataSource.getRepository(FanslyMediaCandidateEntity);
+
+      const schedule = scheduleRepo.create({
+        id: `schedule-${Date.now()}`,
+        name: "Daily Tease",
+        type: "daily",
+      });
+      await scheduleRepo.save(schedule);
+
+      const media = await createTestMedia({ name: "scheduled-photo.jpg" });
+      const post = await createTestPost(undefined, { scheduleId: schedule.id });
+
+      const postMedia = postMediaRepository.create({
+        post,
+        media,
+        order: 0,
+        isFreePreview: false,
+      });
+      await postMediaRepository.save(postMedia);
+
+      const candidate = candidateRepository.create({
+        fanslyStatisticsId: "stats-schedule-test",
+        fanslyPostId: "post-schedule-test",
+        filename: "scheduled-photo.jpg",
+        caption: null,
+        fanslyCreatedAt: Date.now(),
+        position: 0,
+        mediaType: "image",
+        status: "pending",
+      });
+      const savedCandidate = await candidateRepository.save(candidate);
+
+      const response = await app.request(
+        `/api/analytics/candidates/by-id/${savedCandidate.id}/suggestions`,
+      );
+      expect(response.status).toBe(200);
+
+      const data =
+        await parseResponse<
+          Array<{ postMediaId: string; confidence: number; scheduleName?: string }>
+        >(response);
+      expect(data?.length).toBeGreaterThan(0);
+      expect(data?.[0]?.scheduleName).toBe("Daily Tease");
+    });
+
+    test("omits scheduleName when post has no content schedule", async () => {
+      const media = await createTestMedia({ name: "unscheduled-photo.jpg" });
+      const post = await createTestPost();
+      const dataSource = getTestDataSource();
+      const postMediaRepository = dataSource.getRepository(PostMedia);
+      const candidateRepository = dataSource.getRepository(FanslyMediaCandidateEntity);
+
+      const postMedia = postMediaRepository.create({
+        post,
+        media,
+        order: 0,
+        isFreePreview: false,
+      });
+      await postMediaRepository.save(postMedia);
+
+      const candidate = candidateRepository.create({
+        fanslyStatisticsId: "stats-no-schedule",
+        fanslyPostId: "post-no-schedule",
+        filename: "unscheduled-photo.jpg",
+        caption: null,
+        fanslyCreatedAt: Date.now(),
+        position: 0,
+        mediaType: "image",
+        status: "pending",
+      });
+      const savedCandidate = await candidateRepository.save(candidate);
+
+      const response = await app.request(
+        `/api/analytics/candidates/by-id/${savedCandidate.id}/suggestions`,
+      );
+      expect(response.status).toBe(200);
+
+      const data =
+        await parseResponse<Array<{ postMediaId: string; scheduleName?: string }>>(response);
+      expect(data?.length).toBeGreaterThan(0);
+      expect(data?.[0]?.scheduleName).toBeUndefined();
     });
 
     test("returns 404 for non-existent candidate", async () => {
