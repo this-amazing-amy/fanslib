@@ -8,10 +8,10 @@
     "start": "bun .output/server/index.mjs",
     "build": "vite build",
     "build:dev": "vite build --mode development",
-    "lint": "oxlint src/ && eslint src/",
+    "lint": "oxlint -c ../../../.oxlintrc.json src/ && eslint src/",
     "typecheck": "tsc --noEmit",
-    "format": "oxfmt --write src/",
-    "format:check": "oxfmt --check src/",
+    "format": "oxfmt -c ../../../.oxfmtrc.json --write src/",
+    "format:check": "oxfmt -c ../../../.oxfmtrc.json --check src/",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "clean": "rm -rf dist .output"

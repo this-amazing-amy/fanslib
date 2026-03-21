@@ -3,10 +3,10 @@
   "type": "module",
   "module": "index.ts",
   "scripts": {
-    "lint": "oxlint src/ && eslint src/",
+    "lint": "oxlint -c ../../../.oxlintrc.json src/ && eslint src/",
     "typecheck": "tsc",
-    "format": "oxfmt --write src/",
-    "format:check": "oxfmt --check src/"
+    "format": "oxfmt -c ../../../.oxfmtrc.json --write src/",
+    "format:check": "oxfmt -c ../../../.oxfmtrc.json --check src/"
   },
   "devDependencies": {
     "@types/bun": "latest"
