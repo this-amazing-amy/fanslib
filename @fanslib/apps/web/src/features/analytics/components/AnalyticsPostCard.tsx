@@ -1,4 +1,4 @@
-import { Eye, Percent, Timer } from "lucide-react";
+import { Eye, Percent, Repeat, Timer } from "lucide-react";
 import type { ReactNode } from "react";
 import { getMediaThumbnailUrl } from "~/lib/media-urls";
 
@@ -8,6 +8,7 @@ type AnalyticsPostCardProps = {
   totalViews: number;
   averageEngagementPercent: number;
   averageEngagementSeconds: number;
+  timesPosted?: number;
   actionSlot?: ReactNode;
 };
 
@@ -24,6 +25,7 @@ export const AnalyticsPostCard = ({
   totalViews,
   averageEngagementPercent,
   averageEngagementSeconds,
+  timesPosted,
   actionSlot,
 }: AnalyticsPostCardProps) => (
   <div className="flex gap-3 p-3 rounded-xl bg-base-100 border">
@@ -56,6 +58,12 @@ export const AnalyticsPostCard = ({
           <Timer className="w-3.5 h-3.5" />
           {formatEngagementSeconds(averageEngagementSeconds)}
         </span>
+        {timesPosted != null && (
+          <span className="flex items-center gap-1">
+            <Repeat className="w-3.5 h-3.5" />
+            {timesPosted}×
+          </span>
+        )}
       </div>
     </div>
 
