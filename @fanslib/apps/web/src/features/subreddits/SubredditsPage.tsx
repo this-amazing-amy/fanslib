@@ -11,7 +11,7 @@ import { SubredditTable } from "./components/SubredditTable";
  * @deprecated This page is deprecated. Subreddit management has been consolidated
  * into the Channels page at /content/channels. Reddit channels (subreddits) are now
  * managed as channels with typeId='reddit'.
- * 
+ *
  * The route now redirects to /content/channels. This component is kept for reference
  * but should not be used directly.
  */
@@ -39,9 +39,15 @@ export const SubredditsPage = () => {
 
       <Tabs>
         <TabItem key="bulk-posting" title="Post to Reddit">
-          <RedditBulkPostGenerator subreddits={subreddits as unknown as Array<typeof subreddits[number] & { postingTimesLastFetched: Date | null }> ?? []} />
+          <RedditBulkPostGenerator
+            subreddits={
+              (subreddits as unknown as Array<
+                (typeof subreddits)[number] & { postingTimesLastFetched: Date | null }
+              >) ?? []
+            }
+          />
         </TabItem>
-        
+
         <TabItem key="subreddits" title="Manage Subreddits">
           <div className="space-y-4">
             <div className="flex items-center justify-end">
@@ -52,7 +58,11 @@ export const SubredditsPage = () => {
             </div>
 
             <SubredditTable
-              subreddits={subreddits as unknown as Array<typeof subreddits[number] & { postingTimesLastFetched: Date | null }> ?? []}
+              subreddits={
+                (subreddits as unknown as Array<
+                  (typeof subreddits)[number] & { postingTimesLastFetched: Date | null }
+                >) ?? []
+              }
               onSubredditUpdated={handleSubredditUpdated}
             />
           </div>

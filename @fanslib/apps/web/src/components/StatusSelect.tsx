@@ -12,12 +12,14 @@ const STATUS_LABELS: Record<PostStatus, string> = {
   posted: "Posted",
 } as const;
 
-const STATUS_OPTIONS = (["draft", "ready", "scheduled", "posted"] as PostStatus[]).map((status) => ({
-  id: status,
-  label: STATUS_LABELS[status],
-  background: POST_STATUS_COLORS[status].background,
-  foreground: POST_STATUS_COLORS[status].foreground,
-}));
+const STATUS_OPTIONS = (["draft", "ready", "scheduled", "posted"] as PostStatus[]).map(
+  (status) => ({
+    id: status,
+    label: STATUS_LABELS[status],
+    background: POST_STATUS_COLORS[status].background,
+    foreground: POST_STATUS_COLORS[status].foreground,
+  }),
+);
 
 type StatusSelectProps = {
   value?: PostStatus[];
@@ -61,7 +63,7 @@ export const StatusSelect = ({
             responsive={false}
             className={cn(
               "rounded-full font-medium flex items-center gap-1.5 transition-colors cursor-pointer",
-              !multiple && values.length > 0 && !isSelected && "opacity-50"
+              !multiple && values.length > 0 && !isSelected && "opacity-50",
             )}
             onSelectionChange={() => toggleStatus(status.id)}
           />
@@ -72,7 +74,7 @@ export const StatusSelect = ({
           type="button"
           className={cn(
             "px-3 py-1 text-xs rounded-full border transition-colors cursor-pointer text-base-content/60",
-            values.length > 0 && "opacity-50"
+            values.length > 0 && "opacity-50",
           )}
           onClick={() => onChange([])}
         >
@@ -82,4 +84,3 @@ export const StatusSelect = ({
     </div>
   );
 };
-

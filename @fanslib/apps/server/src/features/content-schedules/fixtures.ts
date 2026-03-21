@@ -41,4 +41,3 @@ export const seedContentScheduleFixtures = async (channels: Channel[]) => {
     relations: { channel: true },
   });
 };
-

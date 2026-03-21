@@ -7,12 +7,13 @@ import "reflect-metadata";
 import initSqlJs from "sql.js";
 import { DataSource } from "typeorm";
 import { FanslyMediaCandidate } from "../features/analytics/candidate-entity";
-import {
-  FanslyAnalyticsAggregate,
-  FanslyAnalyticsDatapoint,
-} from "../features/analytics/entity";
+import { FanslyAnalyticsAggregate, FanslyAnalyticsDatapoint } from "../features/analytics/entity";
 import { Channel, ChannelType } from "../features/channels/entity";
-import { ContentSchedule, ScheduleChannel, SkippedScheduleSlot } from "../features/content-schedules/entity";
+import {
+  ContentSchedule,
+  ScheduleChannel,
+  SkippedScheduleSlot,
+} from "../features/content-schedules/entity";
 import { FilterPreset } from "../features/filter-presets/entity";
 import { Hashtag, HashtagChannelStats } from "../features/hashtags/entity";
 import { Media } from "../features/library/entity";
@@ -28,20 +29,21 @@ const resolveWasmPath = (): string => {
   if (process.env.SQL_WASM_PATH) return process.env.SQL_WASM_PATH;
 
   // When running from bundled dist/, the WASM file should be next to the script
-  const scriptDir = typeof import.meta.url === 'string'
-    ? dirname(fileURLToPath(import.meta.url))
-    : __dirname;
-  const bundledPath = join(scriptDir, 'sql-wasm.wasm');
+  const scriptDir =
+    typeof import.meta.url === "string" ? dirname(fileURLToPath(import.meta.url)) : __dirname;
+  const bundledPath = join(scriptDir, "sql-wasm.wasm");
   if (existsSync(bundledPath)) return bundledPath;
 
   // Fallback: resolve from node_modules (development)
   try {
-    const resolved = require.resolve('sql.js/dist/sql-wasm.wasm');
+    const resolved = require.resolve("sql.js/dist/sql-wasm.wasm");
     if (existsSync(resolved)) return resolved;
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 
   throw new Error(
-    'sql-wasm.wasm not found. Set SQL_WASM_PATH or place it next to the server bundle.'
+    "sql-wasm.wasm not found. Set SQL_WASM_PATH or place it next to the server bundle.",
   );
 };
 
@@ -130,13 +132,13 @@ export const db = async () => {
   if (testDataSource) {
     return testDataSource;
   }
-  
+
   if (!initialized) {
     const dbDir = dirname(getDbPath());
     if (!existsSync(dbDir)) {
       await mkdir(dbDir, { recursive: true });
     }
-    
+
     const driver = await loadSqlJsDriver();
     const source = createAppDataSource(driver);
     await source.initialize();
@@ -165,4 +167,3 @@ export const resetDatabase = async (): Promise<void> => {
     throw error;
   }
 };
-

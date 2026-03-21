@@ -1,17 +1,16 @@
-import type { MediaTag, TagDimension } from '@fanslib/server/schemas';
+import type { MediaTag, TagDimension } from "@fanslib/server/schemas";
 import { X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Slider } from "~/components/ui/Slider";
 import {
-    useCreateTagDefinitionMutation,
-    useTagDefinitionsByDimensionQuery,
+  useCreateTagDefinitionMutation,
+  useTagDefinitionsByDimensionQuery,
 } from "~/lib/queries/tags";
 import {
-    formatNumericValue,
-    parseNumericSchema,
-    validateNumericValue,
+  formatNumericValue,
+  parseNumericSchema,
+  validateNumericValue,
 } from "~/lib/tags/tagValidation";
-
 
 type NumericalTagSelectorProps = {
   dimension: TagDimension;
@@ -30,7 +29,9 @@ export const NumericalTagSelector = ({
   const lastSavedValueRef = useRef<number | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const { data: availableTags, refetch: refetchTags } = useTagDefinitionsByDimensionQuery({ dimensionId: dimension.id });
+  const { data: availableTags, refetch: refetchTags } = useTagDefinitionsByDimensionQuery({
+    dimensionId: dimension.id,
+  });
   const createTagMutation = useCreateTagDefinitionMutation();
 
   const schema = parseNumericSchema(dimension.validationSchema);
@@ -79,7 +80,7 @@ export const NumericalTagSelector = ({
         setIsCreating(false);
       }
     },
-    [schema, availableTags, dimension.id, dimension.name, createTagMutation, refetchTags]
+    [schema, availableTags, dimension.id, dimension.name, createTagMutation, refetchTags],
   );
 
   const handleRemoveTag = () => {
@@ -123,15 +124,18 @@ export const NumericalTagSelector = ({
         timeoutRef.current = null;
       }, 500);
     },
-    [selectedTag, schema.defaultValue, schema.min, onTagsChange, validateAndCreateTag]
+    [selectedTag, schema.defaultValue, schema.min, onTagsChange, validateAndCreateTag],
   );
 
   // Cleanup timeout on unmount
-  useEffect(() => () => {
+  useEffect(
+    () => () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
-    }, []);
+    },
+    [],
+  );
 
   return (
     <div>
@@ -153,12 +157,14 @@ export const NumericalTagSelector = ({
         <div className="space-y-3">
           <div className="space-y-2">
             <div className="text-sm text-center">
-              <span className="text-gray-600">{formatNumericValue(sliderValue[0] ?? 0, schema)}</span>
+              <span className="text-gray-600">
+                {formatNumericValue(sliderValue[0] ?? 0, schema)}
+              </span>
               {isCreating && <span className="text-xs text-gray-500 ml-2">Saving...</span>}
             </div>
             <Slider
               value={sliderValue}
-              onChangeEnd={value => {
+              onChangeEnd={(value) => {
                 if (Array.isArray(value)) {
                   handleSliderChange(value);
                 } else {

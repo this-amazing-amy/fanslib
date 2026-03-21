@@ -1,9 +1,8 @@
-import type { ShootSummary } from '@fanslib/server/schemas';
+import type { ShootSummary } from "@fanslib/server/schemas";
 import { Link } from "@tanstack/react-router";
 import { type FC } from "react";
 import { Card, CardBody } from "~/components/ui/Card";
 import { ShootHeader } from "./ShootHeader";
-
 
 type ShootDetailProps = {
   shoot: ShootSummary;

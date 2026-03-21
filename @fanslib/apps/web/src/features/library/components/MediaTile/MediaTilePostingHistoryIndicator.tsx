@@ -63,9 +63,7 @@ export const MediaTilePostingHistoryIndicator = ({
       )}
       {lastPostOverall && lastPostOverall.channelId !== currentChannelId && (
         <div className="text-xs">
-          <div className="text-white/90">
-            Last posted to {lastPostOverall.channel.name}:
-          </div>
+          <div className="text-white/90">Last posted to {lastPostOverall.channel.name}:</div>
           <div className="text-white/70">
             {formatDistanceToNow(new Date(lastPostOverall.date), { addSuffix: true })}
           </div>

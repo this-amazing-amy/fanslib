@@ -44,4 +44,3 @@ export const useTabNavigation = <T extends string>({
     updateActiveTab,
   };
 };
-

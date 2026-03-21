@@ -1,4 +1,4 @@
-import type { FilterPreset, MediaFilter } from '@fanslib/server/schemas';
+import type { FilterPreset, MediaFilter } from "@fanslib/server/schemas";
 import { createContext, useContext, type ReactNode } from "react";
 import {
   useCreateFilterPresetMutation,
@@ -6,7 +6,6 @@ import {
   useFilterPresetsQuery,
   useUpdateFilterPresetMutation,
 } from "~/lib/queries/filter-presets";
-
 
 type MediaFilters = MediaFilter;
 

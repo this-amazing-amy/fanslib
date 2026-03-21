@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import type { ShootFilters } from '@fanslib/server/schemas';
+import type { ShootFilters } from "@fanslib/server/schemas";
 
 type ShootFilter = ShootFilters;
 
@@ -32,7 +32,10 @@ const filtersToItems = (filters: ShootFilter): ShootFilterItem[] => {
     items.push({ type: "search", value: filters.name });
   }
   if (filters.startDate || filters.endDate) {
-    items.push({ type: "dateRange", value: { startDate: filters.startDate, endDate: filters.endDate } });
+    items.push({
+      type: "dateRange",
+      value: { startDate: filters.startDate, endDate: filters.endDate },
+    });
   }
 
   return items;
@@ -129,7 +132,9 @@ export const ShootFiltersProvider = ({ value, onChange, children }: ShootFilters
     hasActiveFilters,
   };
 
-  return <ShootFiltersContext.Provider value={contextValue}>{children}</ShootFiltersContext.Provider>;
+  return (
+    <ShootFiltersContext.Provider value={contextValue}>{children}</ShootFiltersContext.Provider>
+  );
 };
 
 export const useShootFilters = () => {
@@ -139,5 +144,3 @@ export const useShootFilters = () => {
   }
   return context;
 };
-
-

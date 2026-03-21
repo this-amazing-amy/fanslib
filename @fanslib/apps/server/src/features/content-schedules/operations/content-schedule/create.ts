@@ -2,7 +2,13 @@ import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { MediaFilterSchema } from "../../../library/schemas/media-filter";
 import { ChannelSchema } from "../../../channels/entity";
-import { ContentSchedule, ContentScheduleSchema, ContentScheduleTypeSchema, ScheduleChannel, ScheduleChannelSchema } from "../../entity";
+import {
+  ContentSchedule,
+  ContentScheduleSchema,
+  ContentScheduleTypeSchema,
+  ScheduleChannel,
+  ScheduleChannelSchema,
+} from "../../entity";
 
 export const ScheduleChannelInputSchema = z.object({
   channelId: z.string(),
@@ -36,7 +42,7 @@ const stringifyMediaFilters = (filters: Parameters<typeof JSON.stringify>[0]): s
   JSON.stringify(filters);
 
 export const createContentSchedule = async (
-  data: z.infer<typeof CreateContentScheduleRequestBodySchema>
+  data: z.infer<typeof CreateContentScheduleRequestBodySchema>,
 ): Promise<z.infer<typeof CreateContentScheduleResponseSchema>> => {
   const dataSource = await db();
   const scheduleRepo = dataSource.getRepository(ContentSchedule);
@@ -65,7 +71,8 @@ export const createContentSchedule = async (
 
   await scheduleRepo.save(schedule);
 
-  const scheduleChannelsInput = data.scheduleChannels ?? (data.channelId ? [{ channelId: data.channelId }] : []);
+  const scheduleChannelsInput =
+    data.scheduleChannels ?? (data.channelId ? [{ channelId: data.channelId }] : []);
 
   const scheduleChannelEntities = scheduleChannelsInput.map((sc, index) => {
     const entity = new ScheduleChannel();
@@ -98,4 +105,3 @@ export const createContentSchedule = async (
     scheduleChannels: result.scheduleChannels ?? [],
   };
 };
-

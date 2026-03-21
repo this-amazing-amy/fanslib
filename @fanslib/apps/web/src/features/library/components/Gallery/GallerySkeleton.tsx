@@ -16,12 +16,7 @@ export const GallerySkeleton = () => {
   return (
     <div className="h-full">
       <ScrollArea className="h-[calc(100%-3rem)] @container">
-        <div
-          className={cn(
-            "grid gap-4 p-0 grid-cols-3",
-            gridClasses,
-          )}
-        >
+        <div className={cn("grid gap-4 p-0 grid-cols-3", gridClasses)}>
           {items.map((index) => (
             <div key={`gallery-skeleton-${index}`} className="space-y-3">
               <Skeleton className="w-full aspect-square rounded-lg" />
@@ -36,5 +31,3 @@ export const GallerySkeleton = () => {
     </div>
   );
 };
-
-

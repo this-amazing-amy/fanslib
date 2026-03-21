@@ -1,3 +1,1 @@
-export { Sticker } from './Sticker';
-
-
+export { Sticker } from "./Sticker";

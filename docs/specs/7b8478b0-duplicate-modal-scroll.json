@@ -8,9 +8,7 @@
     "user_need": "Das Modal muss scrollbar sein wenn der Inhalt über 90vh geht."
   },
   "scope": {
-    "in_scope": [
-      "Fix der Flexbox-Klasse in CreatePostDialog.tsx (eine Zeile)"
-    ],
+    "in_scope": ["Fix der Flexbox-Klasse in CreatePostDialog.tsx (eine Zeile)"],
     "out_of_scope": [
       "Refactoring der ScrollArea-Komponente",
       "Änderungen an anderen Modals",

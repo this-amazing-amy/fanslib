@@ -1,11 +1,14 @@
-import type { AssignMediaRequestBody, FetchCaptionQueueRequestQuery } from '@fanslib/server/schemas';
+import type {
+  AssignMediaRequestBody,
+  FetchCaptionQueueRequestQuery,
+} from "@fanslib/server/schemas";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../api/hono-client";
-import { QUERY_KEYS } from './query-keys';
+import { QUERY_KEYS } from "./query-keys";
 
 export const useAssignMediaMutation = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (data: AssignMediaRequestBody) => {
       const result = await api.api.pipeline.assign.$post({ json: data });
@@ -20,9 +23,7 @@ export const useAssignMediaMutation = () => {
   });
 };
 
-export const useCaptionQueueQuery = (
-  params: FetchCaptionQueueRequestQuery
-) =>
+export const useCaptionQueueQuery = (params: FetchCaptionQueueRequestQuery) =>
   useQuery({
     queryKey: QUERY_KEYS.pipeline.captionQueue(params),
     queryFn: async () => {

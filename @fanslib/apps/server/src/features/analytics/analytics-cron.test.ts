@@ -7,7 +7,11 @@ import { saveFanslyCredentials } from "../settings/operations/credentials/save";
 import { loadFanslyCredentials } from "../settings/operations/credentials/load";
 import { PostMedia } from "../posts/entity";
 import { FanslyAnalyticsAggregate, FanslyAnalyticsDatapoint } from "./entity";
-import { computeGrowthRate, computeNextFetchInterval, processAnalyticsCronTick } from "./analytics-cron";
+import {
+  computeGrowthRate,
+  computeNextFetchInterval,
+  processAnalyticsCronTick,
+} from "./analytics-cron";
 import type { FanslyAnalyticsResponse } from "../../lib/fansly-analytics/fansly-analytics-response";
 
 describe("analytics-cron", () => {
@@ -79,7 +83,9 @@ describe("analytics-cron", () => {
 
     test("returns 0 when fewer than 2 datapoints", () => {
       expect(computeGrowthRate([])).toBe(0);
-      expect(computeGrowthRate([{ views: 100, timestamp: 1000 }] as FanslyAnalyticsDatapoint[])).toBe(0);
+      expect(
+        computeGrowthRate([{ views: 100, timestamp: 1000 }] as FanslyAnalyticsDatapoint[]),
+      ).toBe(0);
     });
 
     test("returns 0 when previous views are 0", () => {
@@ -117,10 +123,22 @@ describe("analytics-cron", () => {
         dateBefore: timestamp + 86400000,
         dateAfter: timestamp - 86400000,
         datapointLimit: 100,
-        datapoints: [{
-          timestamp,
-          stats: [{ type: 0, views, previewViews: 0, interactionTime: 5000, previewInteractionTime: 0, uniqueViewers: views, previewUniqueViewers: 0 }],
-        }],
+        datapoints: [
+          {
+            timestamp,
+            stats: [
+              {
+                type: 0,
+                views,
+                previewViews: 0,
+                interactionTime: 5000,
+                previewInteractionTime: 0,
+                uniqueViewers: views,
+                previewUniqueViewers: 0,
+              },
+            ],
+          },
+        ],
         topFypTags: [],
         datasetMediaOfferId: "test",
       },
@@ -143,13 +161,16 @@ describe("analytics-cron", () => {
     const dpRepo = dataSource.getRepository(FanslyAnalyticsDatapoint);
 
     const channel = await createTestChannel();
-    const post = await createTestPost(channel.id, { date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) });
+    const post = await createTestPost(channel.id, {
+      date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+    });
     const media = await createTestMedia();
     const postMedia = postMediaRepo.create({
       post,
       media,
       order: 0,
-      fanslyStatisticsId: opts.fanslyStatisticsId === undefined ? "test-stats-id" : opts.fanslyStatisticsId,
+      fanslyStatisticsId:
+        opts.fanslyStatisticsId === undefined ? "test-stats-id" : opts.fanslyStatisticsId,
     });
     await postMediaRepo.save(postMedia);
 
@@ -166,12 +187,17 @@ describe("analytics-cron", () => {
 
     if (opts.existingDatapoints) {
       await opts.existingDatapoints.reduce(
-        (prev, dp) => prev.then(() => dpRepo.save(dpRepo.create({
-          ...dp,
-          interactionTime: dp.views * 100,
-          postMedia,
-          postMediaId: postMedia.id,
-        }))),
+        (prev, dp) =>
+          prev.then(() =>
+            dpRepo.save(
+              dpRepo.create({
+                ...dp,
+                interactionTime: dp.views * 100,
+                postMedia,
+                postMediaId: postMedia.id,
+              }),
+            ),
+          ),
         Promise.resolve() as Promise<unknown>,
       );
     }
@@ -179,9 +205,14 @@ describe("analytics-cron", () => {
     return { postMedia, aggregate };
   };
 
-  const withMockFetch = async <T>(mockFn: ReturnType<typeof mock<() => Promise<Response>>>, fn: () => Promise<T>): Promise<T> => {
+  const withMockFetch = async <T>(
+    mockFn: ReturnType<typeof mock<() => Promise<Response>>>,
+    fn: () => Promise<T>,
+  ): Promise<T> => {
     const originalFetch = globalThis.fetch;
-    globalThis.fetch = Object.assign(mockFn, { preconnect: originalFetch.preconnect }) as typeof fetch;
+    globalThis.fetch = Object.assign(mockFn, {
+      preconnect: originalFetch.preconnect,
+    }) as typeof fetch;
     try {
       return await fn();
     } finally {
@@ -209,14 +240,23 @@ describe("analytics-cron", () => {
       const mockResponse = makeFanslyResponse(300, newTimestamp);
 
       const result = await withMockFetch(
-        mock(() => Promise.resolve(new Response(JSON.stringify(mockResponse), { status: 200, headers: { "Content-Type": "application/json" } }))),
+        mock(() =>
+          Promise.resolve(
+            new Response(JSON.stringify(mockResponse), {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            }),
+          ),
+        ),
         () => processAnalyticsCronTick(),
       );
 
       expect(result.processed).toBe(1);
       expect(result.skipped).toBe(0);
 
-      const updatedAggregate = await aggregateRepo.findOne({ where: { postMediaId: postMedia.id } });
+      const updatedAggregate = await aggregateRepo.findOne({
+        where: { postMediaId: postMedia.id },
+      });
       if (!updatedAggregate) throw new Error("aggregate not found");
       expect(updatedAggregate.nextFetchAt).toBeInstanceOf(Date);
       expect(updatedAggregate.nextFetchAt?.getTime()).toBeGreaterThan(Date.now());
@@ -225,7 +265,8 @@ describe("analytics-cron", () => {
     test("skips all fetches when credentials are stale", async () => {
       await saveFanslyCredentials({ fanslyAuth: "test-auth", fanslySessionId: "test-session" });
       // Mark stale
-      const { markCredentialsStale } = await import("../settings/operations/credentials/mark-stale");
+      const { markCredentialsStale } =
+        await import("../settings/operations/credentials/mark-stale");
       await markCredentialsStale();
 
       await createPostMediaWithAggregate({
@@ -298,11 +339,20 @@ describe("analytics-cron", () => {
       const mockResponse = makeFanslyResponse(302, newTimestamp);
 
       await withMockFetch(
-        mock(() => Promise.resolve(new Response(JSON.stringify(mockResponse), { status: 200, headers: { "Content-Type": "application/json" } }))),
+        mock(() =>
+          Promise.resolve(
+            new Response(JSON.stringify(mockResponse), {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            }),
+          ),
+        ),
         () => processAnalyticsCronTick(),
       );
 
-      const updatedAggregate = await aggregateRepo.findOne({ where: { postMediaId: postMedia.id } });
+      const updatedAggregate = await aggregateRepo.findOne({
+        where: { postMediaId: postMedia.id },
+      });
       if (!updatedAggregate) throw new Error("aggregate not found");
       expect(updatedAggregate.nextFetchAt).toBeNull();
     });
@@ -355,11 +405,20 @@ describe("analytics-cron", () => {
       const mockResponse = makeFanslyResponse(400, Date.now());
 
       await withMockFetch(
-        mock(() => Promise.resolve(new Response(JSON.stringify(mockResponse), { status: 200, headers: { "Content-Type": "application/json" } }))),
+        mock(() =>
+          Promise.resolve(
+            new Response(JSON.stringify(mockResponse), {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            }),
+          ),
+        ),
         () => processAnalyticsCronTick(),
       );
 
-      const updatedAggregate = await aggregateRepo.findOne({ where: { postMediaId: postMedia.id } });
+      const updatedAggregate = await aggregateRepo.findOne({
+        where: { postMediaId: postMedia.id },
+      });
       if (!updatedAggregate) throw new Error("aggregate not found");
       const expectedMin = Date.now() + 23 * 60 * 60 * 1000; // ~1 day minus tolerance
       const expectedMax = Date.now() + 25 * 60 * 60 * 1000; // ~1 day plus tolerance

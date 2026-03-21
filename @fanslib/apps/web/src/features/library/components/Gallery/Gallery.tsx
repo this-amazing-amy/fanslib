@@ -1,4 +1,4 @@
-import type { Media } from '@fanslib/server/schemas';
+import type { Media } from "@fanslib/server/schemas";
 
 import { useEffect, useMemo, useRef } from "react";
 import { ScrollArea } from "~/components/ui/ScrollArea";
@@ -40,7 +40,7 @@ const GalleryContent = ({ medias, error, onScan, onMediaClick }: GalleryProps) =
   const clearSelection = useMediaSelectionStore((s) => s.clearSelection);
   const selectedMediaItems = useMemo(
     () => medias.filter((m) => selectedIds.has(m.id)),
-    [medias, selectedIds]
+    [medias, selectedIds],
   );
 
   const mediaIds = useMemo(() => medias.map((m) => m.id), [medias]);
@@ -61,13 +61,16 @@ const GalleryContent = ({ medias, error, onScan, onMediaClick }: GalleryProps) =
         selectedMedia={selectedMediaItems}
         onClearSelection={clearSelection}
       />
-      <ScrollArea className="h-[calc(100%-3rem)] @container" ref={containerRef as React.RefObject<HTMLDivElement>}>
+      <ScrollArea
+        className="h-[calc(100%-3rem)] @container"
+        ref={containerRef as React.RefObject<HTMLDivElement>}
+      >
         <div
           className={cn(
             "grid gap-4 p-2 grid-cols-3",
             preferences.view.gridSize === "large"
               ? "@[48rem]:grid-cols-4 @[72rem]:grid-cols-6 @[128rem]:grid-cols-8"
-              : "@[48rem]:grid-cols-4 @[72rem]:grid-cols-8 @[128rem]:grid-cols-12"
+              : "@[48rem]:grid-cols-4 @[72rem]:grid-cols-8 @[128rem]:grid-cols-12",
           )}
         >
           {medias.map((media, index) => (
@@ -94,6 +97,4 @@ const GalleryContent = ({ medias, error, onScan, onMediaClick }: GalleryProps) =
   );
 };
 
-export const Gallery = (props: GalleryProps) => (
-  <GalleryContent {...props} />
-);
+export const Gallery = (props: GalleryProps) => <GalleryContent {...props} />;

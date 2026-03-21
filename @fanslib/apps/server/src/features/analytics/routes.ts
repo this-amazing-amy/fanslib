@@ -39,12 +39,17 @@ const FypActionsQuerySchema = z.object({
 
 export const analyticsRoutes = new Hono()
   .basePath("/api/analytics")
-  .get("/datapoints/:postMediaId", zValidator("param", FetchDatapointsRequestParamsSchema, validationError), async (c) => {
-    const { postMediaId } = c.req.valid("param");
-    const result = await fetchDatapoints(postMediaId);
-    return c.json(result);
-  })
-  .post("/fetch/by-id/:postMediaId", 
+  .get(
+    "/datapoints/:postMediaId",
+    zValidator("param", FetchDatapointsRequestParamsSchema, validationError),
+    async (c) => {
+      const { postMediaId } = c.req.valid("param");
+      const result = await fetchDatapoints(postMediaId);
+      return c.json(result);
+    },
+  )
+  .post(
+    "/fetch/by-id/:postMediaId",
     zValidator("param", FetchAnalyticsDataRequestParamsSchema, validationError),
     zValidator("json", FetchAnalyticsDataRequestBodySchema, validationError),
     async (c) => {
@@ -54,17 +59,22 @@ export const analyticsRoutes = new Hono()
       const end = body.endDate ? new Date(body.endDate) : undefined;
       const result = await fetchFanslyAnalyticsData(postMediaId, start, end);
       return c.json(result);
-    })
-  .get("/posts", zValidator("query", GetFanslyPostsWithAnalyticsQuerySchema, validationError), async (c) => {
-    const query = c.req.valid("query");
-    const result = await getFanslyPostsWithAnalytics(
-      query.sortBy,
-      query.sortDirection,
-      query.startDate,
-      query.endDate
-    );
-    return c.json(result);
-  })
+    },
+  )
+  .get(
+    "/posts",
+    zValidator("query", GetFanslyPostsWithAnalyticsQuerySchema, validationError),
+    async (c) => {
+      const query = c.req.valid("query");
+      const result = await getFanslyPostsWithAnalytics(
+        query.sortBy,
+        query.sortDirection,
+        query.startDate,
+        query.endDate,
+      );
+      return c.json(result);
+    },
+  )
   .post("/initialize-aggregates", async (c) => {
     await initializeAnalyticsAggregates();
     return c.json({ success: true });

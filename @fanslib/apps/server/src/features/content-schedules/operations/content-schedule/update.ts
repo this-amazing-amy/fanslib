@@ -3,7 +3,13 @@ import { In } from "typeorm";
 import { db } from "../../../../lib/db";
 import { MediaFilterSchema } from "../../../library/schemas/media-filter";
 import { ChannelSchema } from "../../../channels/entity";
-import { ContentSchedule, ContentScheduleSchema, ContentScheduleTypeSchema, ScheduleChannel, ScheduleChannelSchema } from "../../entity";
+import {
+  ContentSchedule,
+  ContentScheduleSchema,
+  ContentScheduleTypeSchema,
+  ScheduleChannel,
+  ScheduleChannelSchema,
+} from "../../entity";
 
 export const UpdateContentScheduleRequestParamsSchema = z.object({
   id: z.string(),
@@ -38,13 +44,12 @@ export const UpdateContentScheduleResponseSchema = ContentScheduleSchema.extend(
   scheduleChannels: z.array(ScheduleChannelWithChannelSchema),
 });
 
-
 const stringifyMediaFilters = (filters: Parameters<typeof JSON.stringify>[0]): string =>
   JSON.stringify(filters);
 
 export const updateContentSchedule = async (
   id: string,
-  updates: z.infer<typeof UpdateContentScheduleRequestBodySchema>
+  updates: z.infer<typeof UpdateContentScheduleRequestBodySchema>,
 ): Promise<z.infer<typeof UpdateContentScheduleResponseSchema> | null> => {
   const dataSource = await db();
   const scheduleRepo = dataSource.getRepository(ContentSchedule);
@@ -62,21 +67,26 @@ export const updateContentSchedule = async (
 
   const hasMediaFiltersUpdate = "mediaFilters" in updates;
   const mediaFiltersValue = hasMediaFiltersUpdate
-    ? updates.mediaFilters === null || (Array.isArray(updates.mediaFilters) && updates.mediaFilters.length === 0)
+    ? updates.mediaFilters === null ||
+      (Array.isArray(updates.mediaFilters) && updates.mediaFilters.length === 0)
       ? null
       : stringifyMediaFilters(updates.mediaFilters)
     : undefined;
 
   const hasPreferredDaysUpdate = "preferredDays" in updates;
   const preferredDaysValue = hasPreferredDaysUpdate
-    ? updates.preferredDays === null || updates.preferredDays === undefined || (Array.isArray(updates.preferredDays) && updates.preferredDays.length === 0)
+    ? updates.preferredDays === null ||
+      updates.preferredDays === undefined ||
+      (Array.isArray(updates.preferredDays) && updates.preferredDays.length === 0)
       ? null
       : updates.preferredDays
     : undefined;
 
   const hasPreferredTimesUpdate = "preferredTimes" in updates;
   const preferredTimesValue = hasPreferredTimesUpdate
-    ? updates.preferredTimes === null || updates.preferredTimes === undefined || (Array.isArray(updates.preferredTimes) && updates.preferredTimes.length === 0)
+    ? updates.preferredTimes === null ||
+      updates.preferredTimes === undefined ||
+      (Array.isArray(updates.preferredTimes) && updates.preferredTimes.length === 0)
       ? null
       : updates.preferredTimes
     : undefined;
@@ -95,7 +105,9 @@ export const updateContentSchedule = async (
 
   if (scheduleChannelsInput !== undefined) {
     const existingChannelIds = schedule.scheduleChannels.map((sc) => sc.id);
-    const inputIds = scheduleChannelsInput.map((sc) => sc.id).filter((scId): scId is string => !!scId);
+    const inputIds = scheduleChannelsInput
+      .map((sc) => sc.id)
+      .filter((scId): scId is string => !!scId);
     const idsToRemove = existingChannelIds.filter((existingId) => !inputIds.includes(existingId));
 
     if (idsToRemove.length > 0) {
@@ -136,4 +148,3 @@ export const updateContentSchedule = async (
     scheduleChannels: result.scheduleChannels ?? [],
   };
 };
-

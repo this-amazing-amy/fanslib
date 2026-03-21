@@ -38,7 +38,11 @@ export class RedditPoster {
     this.page = this.browser.pages()[0] ?? (await this.browser.newPage());
 
     const sessionData = await this.config.sessionStorage.read();
-    const { cookies, localStorage: localStorageData, sessionStorage: sessionStorageData } = JSON.parse(sessionData);
+    const {
+      cookies,
+      localStorage: localStorageData,
+      sessionStorage: sessionStorageData,
+    } = JSON.parse(sessionData);
 
     await this.page.context().addCookies(cookies);
 
@@ -52,7 +56,7 @@ export class RedditPoster {
           window.sessionStorage.setItem(key, value as string);
         });
       },
-      { localStorage: localStorageData, sessionStorage: sessionStorageData }
+      { localStorage: localStorageData, sessionStorage: sessionStorageData },
     );
   };
 
@@ -91,7 +95,9 @@ export class RedditPoster {
       await flairButton.click();
       await this.page.waitForTimeout(500);
 
-      const flairOption = this.page.locator(`[data-testid="flair-option"]:has-text("${draft.flair}")`);
+      const flairOption = this.page.locator(
+        `[data-testid="flair-option"]:has-text("${draft.flair}")`,
+      );
       await flairOption.click();
     }
   };
@@ -176,6 +182,3 @@ export class RedditPoster {
     this.isRunning = false;
   };
 }
-
-
-

@@ -11,11 +11,13 @@ export const FetchHashtagByIdResponseSchema = HashtagSchema.omit({ channelStats:
   channelStats: z.array(
     HashtagChannelStatsSchema.extend({
       channel: ChannelSchema,
-    })
+    }),
   ),
 });
 
-export const fetchHashtagById = async (id: number): Promise<z.infer<typeof FetchHashtagByIdResponseSchema> | null> => {
+export const fetchHashtagById = async (
+  id: number,
+): Promise<z.infer<typeof FetchHashtagByIdResponseSchema> | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Hashtag);
 
@@ -31,4 +33,3 @@ export const fetchHashtagById = async (id: number): Promise<z.infer<typeof Fetch
     },
   });
 };
-

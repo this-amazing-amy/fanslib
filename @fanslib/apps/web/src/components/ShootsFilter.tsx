@@ -20,7 +20,7 @@ export const ShootsFilter: FC<ShootsFilterProps> = ({ className }) => {
     const year = jsDate.getFullYear();
     const month = jsDate.getMonth() + 1;
     const day = jsDate.getDate();
-    return parseDate(`${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`);
+    return parseDate(`${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`);
   };
 
   const convertCalendarDateToJSDate = (calendarDate: DateValue) => {
@@ -60,11 +60,7 @@ export const ShootsFilter: FC<ShootsFilterProps> = ({ className }) => {
           placeholder="Filter by name"
         />
       </div>
-      <DateRangePicker
-        value={dateRangeValue}
-        onChange={handleDateRangeChange}
-        className="w-auto"
-      />
+      <DateRangePicker value={dateRangeValue} onChange={handleDateRangeChange} className="w-auto" />
       {hasFilters && (
         <Button variant="ghost" size="sm" onPress={clearFilter} className="h-9 w-9">
           <X className="h-4 w-4" />

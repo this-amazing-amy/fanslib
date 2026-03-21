@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Tabs, TabItem } from './Tabs';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Tabs, TabItem } from "./Tabs";
 
 const meta: Meta<typeof Tabs> = {
-  title: 'UI/Tabs',
+  title: "UI/Tabs",
   component: Tabs,
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
@@ -87,4 +87,3 @@ export const RichContent: Story = {
     </Tabs>
   ),
 };
-

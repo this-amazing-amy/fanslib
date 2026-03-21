@@ -29,7 +29,7 @@ export type CandidateItem = {
   caption: string | null;
   fanslyCreatedAt: number;
   position: number;
-  mediaType: 'image' | 'video';
+  mediaType: "image" | "video";
 };
 
 type FanslyCredentials = {
@@ -39,13 +39,9 @@ type FanslyCredentials = {
   fanslyClientId?: string;
 };
 
-const DEBUG_PREFIX = '[FansLib:Interceptor:MainWorld]';
+const DEBUG_PREFIX = "[FansLib:Interceptor:MainWorld]";
 
-const debug = (
-  level: 'info' | 'warn' | 'error',
-  message: string,
-  data?: unknown
-) => {
+const debug = (level: "info" | "warn" | "error", message: string, data?: unknown) => {
   const timestamp = new Date().toISOString();
   const logArgs =
     data !== undefined
@@ -53,20 +49,20 @@ const debug = (
       : [`[${timestamp}] ${DEBUG_PREFIX} ${message}`];
 
   switch (level) {
-    case 'info':
+    case "info":
       console.log(...logArgs);
       break;
-    case 'warn':
+    case "warn":
       console.warn(...logArgs);
       break;
-    case 'error':
+    case "error":
       console.error(...logArgs);
       break;
   }
 };
 
 const extractCandidates = (data: TimelineResponse): CandidateItem[] => {
-  debug('info', 'Starting candidate extraction from timeline data', {
+  debug("info", "Starting candidate extraction from timeline data", {
     postCount: data.response.posts.length,
     mediaCount: data.response.accountMedia.length,
   });
@@ -78,28 +74,24 @@ const extractCandidates = (data: TimelineResponse): CandidateItem[] => {
     mediaMap.set(am.id, { filename: am.media.filename });
   });
 
-  debug('info', 'Media map built', {
+  debug("info", "Media map built", {
     mediaMapSize: mediaMap.size,
     sampleMediaIds: Array.from(mediaMap.keys()).slice(0, 3),
   });
 
   data.response.posts.forEach((post, postIndex) => {
-    debug(
-      'info',
-      `Processing post ${postIndex + 1}/${data.response.posts.length}`,
-      {
-        postId: post.id,
-        attachmentCount: post.attachments.length,
-        hasCaption: !!post.content,
-        captionLength: post.content?.length,
-        createdAt: post.createdAt,
-      }
-    );
+    debug("info", `Processing post ${postIndex + 1}/${data.response.posts.length}`, {
+      postId: post.id,
+      attachmentCount: post.attachments.length,
+      hasCaption: !!post.content,
+      captionLength: post.content?.length,
+      createdAt: post.createdAt,
+    });
 
     post.attachments.forEach((attachment, attachmentIndex) => {
       const mediaInfo = mediaMap.get(attachment.contentId);
       if (!mediaInfo) {
-        debug('warn', `No media info found for attachment`, {
+        debug("warn", `No media info found for attachment`, {
           contentId: attachment.contentId,
           postId: post.id,
           attachmentIndex,
@@ -117,38 +109,34 @@ const extractCandidates = (data: TimelineResponse): CandidateItem[] => {
         caption: post.content,
         fanslyCreatedAt: post.createdAt,
         position: attachment.pos,
-        mediaType: isVideo ? 'video' : 'image',
+        mediaType: isVideo ? "video" : "image",
       };
 
-      debug(
-        'info',
-        `Extracted candidate ${attachmentIndex + 1}/${post.attachments.length}`,
-        {
-          statisticsId: candidate.fanslyStatisticsId,
-          filename: candidate.filename,
-          mediaType: candidate.mediaType,
-          position: candidate.position,
-        }
-      );
+      debug("info", `Extracted candidate ${attachmentIndex + 1}/${post.attachments.length}`, {
+        statisticsId: candidate.fanslyStatisticsId,
+        filename: candidate.filename,
+        mediaType: candidate.mediaType,
+        position: candidate.position,
+      });
 
       candidates.push(candidate);
     });
   });
 
-  debug('info', 'Candidate extraction complete', {
+  debug("info", "Candidate extraction complete", {
     totalCandidates: candidates.length,
-    imageCount: candidates.filter((c) => c.mediaType === 'image').length,
-    videoCount: candidates.filter((c) => c.mediaType === 'video').length,
+    imageCount: candidates.filter((c) => c.mediaType === "image").length,
+    videoCount: candidates.filter((c) => c.mediaType === "video").length,
   });
 
   return candidates;
 };
 
-debug('info', 'Content script starting in MAIN world', {
+debug("info", "Content script starting in MAIN world", {
   location: window.location.href,
   readyState: document.readyState,
-  hasChromeRuntime: typeof chrome !== 'undefined' && !!chrome?.runtime,
-  isMainWorld: typeof chrome === 'undefined' || !chrome?.runtime,
+  hasChromeRuntime: typeof chrome !== "undefined" && !!chrome?.runtime,
+  isMainWorld: typeof chrome === "undefined" || !chrome?.runtime,
 });
 
 const originalFetch = window.fetch;
@@ -167,26 +155,26 @@ let scheduleCaptureCount = 0;
 
 const processCandidates = (candidates: CandidateItem[]) => {
   if (candidates.length > 0) {
-    debug('info', 'Posting candidates to window for bridge', {
+    debug("info", "Posting candidates to window for bridge", {
       candidateCount: candidates.length,
     });
 
     window.postMessage(
       {
-        type: 'FANSLIB_TIMELINE_DATA',
+        type: "FANSLIB_TIMELINE_DATA",
         candidates,
       },
-      '*'
+      "*",
     );
 
-    debug('info', 'Candidates posted to window');
+    debug("info", "Candidates posted to window");
   } else {
-    debug('warn', 'No candidates extracted from timeline data');
+    debug("warn", "No candidates extracted from timeline data");
   }
 };
 
 const extractCredentialsFromHeaders = (
-  headers: HeadersInit | undefined
+  headers: HeadersInit | undefined,
 ): Partial<FanslyCredentials> => {
   const credentials: Partial<FanslyCredentials> = {};
 
@@ -208,39 +196,35 @@ const extractCredentialsFromHeaders = (
 
   const getHeader = (name: string): string | undefined => {
     const lowerName = name.toLowerCase();
-    const entry = Object.entries(headerMap).find(
-      ([key]) => key.toLowerCase() === lowerName
-    );
+    const entry = Object.entries(headerMap).find(([key]) => key.toLowerCase() === lowerName);
     return entry ? String(entry[1]) : undefined;
   };
 
-  const auth = getHeader('authorization');
+  const auth = getHeader("authorization");
   if (auth) credentials.fanslyAuth = auth;
 
-  const sessionId = getHeader('fansly-session-id');
+  const sessionId = getHeader("fansly-session-id");
   if (sessionId) credentials.fanslySessionId = sessionId;
 
-  const clientCheck = getHeader('fansly-client-check');
+  const clientCheck = getHeader("fansly-client-check");
   if (clientCheck) credentials.fanslyClientCheck = clientCheck;
 
-  const clientId = getHeader('fansly-client-id');
+  const clientId = getHeader("fansly-client-id");
   if (clientId) credentials.fanslyClientId = clientId;
 
   return credentials;
 };
 
-const sendCredentialsIfPresent = (
-  credentials: Partial<FanslyCredentials>
-): void => {
+const sendCredentialsIfPresent = (credentials: Partial<FanslyCredentials>): void => {
   const hasCredentials = Object.keys(credentials).length > 0;
 
   if (hasCredentials) {
     window.postMessage(
       {
-        type: 'FANSLIB_CREDENTIALS',
+        type: "FANSLIB_CREDENTIALS",
         credentials,
       },
-      '*'
+      "*",
     );
   }
 };
@@ -269,10 +253,10 @@ const processScheduleResponse = (url: string, responseText: string) => {
     const contentId = postData.attachments?.[0]?.contentId;
     if (!contentId) return;
 
-    const caption = postData.content ?? '';
+    const caption = postData.content ?? "";
 
     scheduleCaptureCount++;
-    debug('info', `Schedule capture detected (#${scheduleCaptureCount})`, {
+    debug("info", `Schedule capture detected (#${scheduleCaptureCount})`, {
       url,
       contentId,
       captionLength: caption.length,
@@ -280,16 +264,16 @@ const processScheduleResponse = (url: string, responseText: string) => {
 
     window.postMessage(
       {
-        type: 'FANSLIB_SCHEDULE_CAPTURE',
+        type: "FANSLIB_SCHEDULE_CAPTURE",
         contentId,
         caption,
       },
-      '*'
+      "*",
     );
 
-    debug('info', 'Schedule capture posted to window');
+    debug("info", "Schedule capture posted to window");
   } catch (error) {
-    debug('error', 'Failed to process schedule response', {
+    debug("error", "Failed to process schedule response", {
       error,
       errorMessage: error instanceof Error ? error.message : String(error),
     });
@@ -298,14 +282,14 @@ const processScheduleResponse = (url: string, responseText: string) => {
 
 const processTimelineResponse = (url: string, responseText: string) => {
   timelineInterceptCount++;
-  debug('info', `Timeline request detected (#${timelineInterceptCount})`, {
+  debug("info", `Timeline request detected (#${timelineInterceptCount})`, {
     url,
   });
 
   try {
     const data = JSON.parse(responseText) as TimelineResponse;
 
-    debug('info', 'Timeline response parsed', {
+    debug("info", "Timeline response parsed", {
       success: data.success,
       hasPosts: !!data.response?.posts,
       postCount: data.response?.posts?.length ?? 0,
@@ -317,14 +301,14 @@ const processTimelineResponse = (url: string, responseText: string) => {
       const candidates = extractCandidates(data);
       processCandidates(candidates);
     } else {
-      debug('warn', 'Timeline response invalid or unsuccessful', {
+      debug("warn", "Timeline response invalid or unsuccessful", {
         success: data.success,
         hasResponse: !!data.response,
         hasPosts: !!data.response?.posts,
       });
     }
   } catch (error) {
-    debug('error', 'Failed to process timeline response', {
+    debug("error", "Failed to process timeline response", {
       error,
       errorMessage: error instanceof Error ? error.message : String(error),
       errorStack: error instanceof Error ? error.stack : undefined,
@@ -335,24 +319,24 @@ const processTimelineResponse = (url: string, responseText: string) => {
 const interceptedFetch = (async (...args): Promise<Response> => {
   fetchInterceptCount++;
   const [input, init] = args;
-  const url = typeof input === 'string' ? input : (input?.toString() ?? '');
+  const url = typeof input === "string" ? input : (input?.toString() ?? "");
 
-  debug('info', `Fetch intercepted (#${fetchInterceptCount})`, {
+  debug("info", `Fetch intercepted (#${fetchInterceptCount})`, {
     url: url.substring(0, 100),
-    method: init?.method ?? 'GET',
-    isTimeline: url.includes('timelinenew'),
-    isFanslyApi: url.includes('fansly.com'),
+    method: init?.method ?? "GET",
+    isTimeline: url.includes("timelinenew"),
+    isFanslyApi: url.includes("fansly.com"),
   });
 
-  if (url.includes('fansly.com')) {
+  if (url.includes("fansly.com")) {
     const credentials = extractCredentialsFromHeaders(init?.headers);
     sendCredentialsIfPresent(credentials);
   }
 
   const response = await originalFetch(...args);
 
-  if (url.includes('apiv3.fansly.com/api/v1/timelinenew')) {
-    debug('info', 'Timeline request via fetch detected', {
+  if (url.includes("apiv3.fansly.com/api/v1/timelinenew")) {
+    debug("info", "Timeline request via fetch detected", {
       url,
       status: response.status,
       statusText: response.statusText,
@@ -364,24 +348,24 @@ const interceptedFetch = (async (...args): Promise<Response> => {
       const responseText = await clone.text();
       processTimelineResponse(url, responseText);
     } catch (error) {
-      debug('error', 'Failed to process fetch timeline response', {
+      debug("error", "Failed to process fetch timeline response", {
         error,
         errorMessage: error instanceof Error ? error.message : String(error),
       });
     }
   }
 
-  const method = (init?.method ?? 'GET').toUpperCase();
+  const method = (init?.method ?? "GET").toUpperCase();
   if (
-    url.includes('apiv3.fansly.com') &&
-    (method === 'POST' || method === 'PUT') &&
-    !url.includes('timelinenew')
+    url.includes("apiv3.fansly.com") &&
+    (method === "POST" || method === "PUT") &&
+    !url.includes("timelinenew")
   ) {
     try {
       const clone = response.clone();
       const responseText = await clone.text();
-      if (responseText.includes('postTemplate') || responseText.includes('"post"')) {
-        debug('info', 'Potential schedule response via fetch detected', {
+      if (responseText.includes("postTemplate") || responseText.includes('"post"')) {
+        debug("info", "Potential schedule response via fetch detected", {
           url,
           method,
           status: response.status,
@@ -389,7 +373,7 @@ const interceptedFetch = (async (...args): Promise<Response> => {
         processScheduleResponse(url, responseText);
       }
     } catch (error) {
-      debug('error', 'Failed to process fetch schedule response', {
+      debug("error", "Failed to process fetch schedule response", {
         error,
         errorMessage: error instanceof Error ? error.message : String(error),
       });
@@ -403,12 +387,8 @@ Object.assign(interceptedFetch, originalFetch);
 window.fetch = interceptedFetch;
 
 /* eslint-disable functional/no-this-expressions */
-XMLHttpRequest.prototype.open = function (
-  method: string,
-  url: string | URL,
-  ...rest: unknown[]
-) {
-  const urlString = typeof url === 'string' ? url : url.toString();
+XMLHttpRequest.prototype.open = function (method: string, url: string | URL, ...rest: unknown[]) {
+  const urlString = typeof url === "string" ? url : url.toString();
 
   (
     this as XMLHttpRequest & {
@@ -432,15 +412,10 @@ XMLHttpRequest.prototype.open = function (
     }
   )._headers = {};
 
-  return originalXHROpen.apply(this, [method, url, ...rest] as Parameters<
-    typeof originalXHROpen
-  >);
+  return originalXHROpen.apply(this, [method, url, ...rest] as Parameters<typeof originalXHROpen>);
 };
 
-XMLHttpRequest.prototype.setRequestHeader = function (
-  name: string,
-  value: string
-): void {
+XMLHttpRequest.prototype.setRequestHeader = function (name: string, value: string): void {
   const xhr = this as XMLHttpRequest & {
     _url?: string;
     _headers?: Record<string, string>;
@@ -458,46 +433,43 @@ XMLHttpRequest.prototype.send = function (...args: unknown[]) {
     _method?: string;
     _headers?: Record<string, string>;
   };
-  const url = xhr._url ?? '';
-  const method = xhr._method ?? 'GET';
+  const url = xhr._url ?? "";
+  const method = xhr._method ?? "GET";
 
   xhrInterceptCount++;
-  debug('info', `XHR intercepted (#${xhrInterceptCount})`, {
+  debug("info", `XHR intercepted (#${xhrInterceptCount})`, {
     url: url.substring(0, 100),
     method,
-    isTimeline: url.includes('timelinenew'),
-    isFanslyApi: url.includes('fansly.com'),
+    isTimeline: url.includes("timelinenew"),
+    isFanslyApi: url.includes("fansly.com"),
   });
 
-  if (url.includes('fansly.com') && xhr._headers) {
+  if (url.includes("fansly.com") && xhr._headers) {
     const credentials = extractCredentialsFromHeaders(xhr._headers);
     sendCredentialsIfPresent(credentials);
   }
 
-  const isTimelineRequest = url.includes('apiv3.fansly.com/api/v1/timelinenew');
+  const isTimelineRequest = url.includes("apiv3.fansly.com/api/v1/timelinenew");
   const isScheduleCandidate =
-    url.includes('apiv3.fansly.com') &&
-    (method === 'POST' || method === 'PUT') &&
-    !url.includes('timelinenew');
+    url.includes("apiv3.fansly.com") &&
+    (method === "POST" || method === "PUT") &&
+    !url.includes("timelinenew");
 
   if (isTimelineRequest || isScheduleCandidate) {
     if (isTimelineRequest) {
-      debug('info', 'Timeline request via XHR detected', { url, method });
+      debug("info", "Timeline request via XHR detected", { url, method });
     }
     if (isScheduleCandidate) {
-      debug('info', 'Potential schedule request via XHR detected', { url, method });
+      debug("info", "Potential schedule request via XHR detected", { url, method });
     }
 
     const originalOnLoad = xhr.onload;
     const originalOnReadyStateChange = xhr.onreadystatechange;
 
-    xhr.onreadystatechange = function (
-      this: XMLHttpRequest,
-      ...eventArgs: unknown[]
-    ) {
+    xhr.onreadystatechange = function (this: XMLHttpRequest, ...eventArgs: unknown[]) {
       if (this.readyState === 4 && this.status === 200) {
         if (isTimelineRequest) {
-          debug('info', 'XHR timeline request completed', {
+          debug("info", "XHR timeline request completed", {
             status: this.status,
             statusText: this.statusText,
             responseLength: this.responseText?.length,
@@ -506,10 +478,9 @@ XMLHttpRequest.prototype.send = function (...args: unknown[]) {
           try {
             processTimelineResponse(url, this.responseText);
           } catch (error) {
-            debug('error', 'Failed to process XHR timeline response', {
+            debug("error", "Failed to process XHR timeline response", {
               error,
-              errorMessage:
-                error instanceof Error ? error.message : String(error),
+              errorMessage: error instanceof Error ? error.message : String(error),
             });
           }
         }
@@ -517,8 +488,8 @@ XMLHttpRequest.prototype.send = function (...args: unknown[]) {
         if (isScheduleCandidate) {
           try {
             const responseText = this.responseText;
-            if (responseText.includes('postTemplate') || responseText.includes('"post"')) {
-              debug('info', 'XHR schedule response detected', {
+            if (responseText.includes("postTemplate") || responseText.includes('"post"')) {
+              debug("info", "XHR schedule response detected", {
                 url,
                 method,
                 status: this.status,
@@ -527,10 +498,9 @@ XMLHttpRequest.prototype.send = function (...args: unknown[]) {
               processScheduleResponse(url, responseText);
             }
           } catch (error) {
-            debug('error', 'Failed to process XHR schedule response', {
+            debug("error", "Failed to process XHR schedule response", {
               error,
-              errorMessage:
-                error instanceof Error ? error.message : String(error),
+              errorMessage: error instanceof Error ? error.message : String(error),
             });
           }
         }
@@ -543,7 +513,7 @@ XMLHttpRequest.prototype.send = function (...args: unknown[]) {
 
     xhr.onload = function (this: XMLHttpRequest, ...eventArgs: unknown[]) {
       if (isTimelineRequest) {
-        debug('info', 'XHR onload fired for timeline request', {
+        debug("info", "XHR onload fired for timeline request", {
           status: this.status,
           responseLength: this.responseText?.length,
         });
@@ -555,13 +525,10 @@ XMLHttpRequest.prototype.send = function (...args: unknown[]) {
     };
   }
 
-  return originalXHRSend.apply(
-    this,
-    args as Parameters<typeof originalXHRSend>
-  );
+  return originalXHRSend.apply(this, args as Parameters<typeof originalXHRSend>);
 };
 /* eslint-enable functional/no-this-expressions */
 
-debug('info', 'Fetch and XHR interception installed in main world');
+debug("info", "Fetch and XHR interception installed in main world");
 
 export {};

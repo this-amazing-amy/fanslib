@@ -31,7 +31,7 @@ export const ScheduleBreakdown = ({
 }: ScheduleBreakdownProps) => {
   const relevantSchedules = useMemo(
     () => schedules.filter((schedule) => selectedChannelIds.includes(schedule.channelId)),
-    [schedules, selectedChannelIds]
+    [schedules, selectedChannelIds],
   );
 
   const { data: virtualPosts = [] } = useVirtualPostsQuery({
@@ -50,9 +50,9 @@ export const ScheduleBreakdown = ({
                 [post.scheduleId]: (acc[post.scheduleId] ?? 0) + 1,
               }
             : acc,
-        {}
+        {},
       ),
-    [virtualPosts]
+    [virtualPosts],
   );
 
   if (selectedChannelIds.length === 0 || relevantSchedules.length === 0) {

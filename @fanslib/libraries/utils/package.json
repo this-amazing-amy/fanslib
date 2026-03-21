@@ -1,19 +1,15 @@
 {
   "name": "@fanslib/utils",
-  "module": "index.ts",
   "type": "module",
+  "module": "index.ts",
   "scripts": {
-    "lint": "eslint src",
+    "lint": "oxlint -c ../../../.oxlintrc.json src/ && eslint src/",
     "typecheck": "tsc",
-    "format": "prettier --write . --config .prettierrc.cjs"
+    "format": "oxfmt -c ../../../.oxfmtrc.json --write src/",
+    "format:check": "oxfmt -c ../../../.oxfmtrc.json --check src/"
   },
   "devDependencies": {
-    "@eslint/js": "^9.37.0",
-    "@fanslib/eslint": "workspace:*",
-    "@types/bun": "latest",
-    "@typescript-eslint/eslint-plugin": "^8.46.1",
-    "@typescript-eslint/parser": "^8.46.1",
-    "eslint": "^9.35.0"
+    "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"

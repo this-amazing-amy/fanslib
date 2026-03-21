@@ -39,7 +39,9 @@ type ScheduleBlueskyPostMutationVariables = {
   };
 };
 
-export const draftBlueskyPost = async (data: z.infer<typeof DraftBlueskyPostRequestBodySchema>): Promise<z.infer<typeof DraftBlueskyPostResponseSchema>> => {
+export const draftBlueskyPost = async (
+  data: z.infer<typeof DraftBlueskyPostRequestBodySchema>,
+): Promise<z.infer<typeof DraftBlueskyPostResponseSchema>> => {
   const dataSource = await db();
   const postRepository = dataSource.getRepository(Post);
 
@@ -110,4 +112,3 @@ export const draftBlueskyPost = async (data: z.infer<typeof DraftBlueskyPostRequ
 
   return { success: result.scheduleBlueskyPost.success };
 };
-

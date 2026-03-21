@@ -1,4 +1,4 @@
-import type { AssignMediaResponse, PostWithRelations } from '@fanslib/server/schemas';
+import type { AssignMediaResponse, PostWithRelations } from "@fanslib/server/schemas";
 import { useQuery } from "@tanstack/react-query";
 import { isSameMinute } from "date-fns";
 import { Loader2, Sparkles } from "lucide-react";
@@ -39,7 +39,7 @@ export const AssignmentStep = ({
   const { data: schedulesData } = useContentSchedulesQuery();
   const channels = useMemo(() => channelsData ?? [], [channelsData]);
   const schedules = (schedulesData ?? []).filter(
-    (schedule): schedule is (typeof schedule & { channelId: string }) => schedule.channelId !== null
+    (schedule): schedule is typeof schedule & { channelId: string } => schedule.channelId !== null,
   );
   const schedulesForBreakdown = schedules.map((schedule) => ({
     ...schedule,
@@ -49,10 +49,7 @@ export const AssignmentStep = ({
   }));
 
   // Always calculate slot counts for all channels, regardless of selection
-  const allChannelIds = useMemo(
-    () => channels.map((channel) => channel.id),
-    [channels]
-  );
+  const allChannelIds = useMemo(() => channels.map((channel) => channel.id), [channels]);
 
   const { data: virtualPosts = [] } = useVirtualPostsQuery({
     channelIds: allChannelIds,
@@ -75,7 +72,14 @@ export const AssignmentStep = ({
   const shouldFetchDrafts = assignmentResult !== null && selectedChannelIds.length > 0;
 
   const { data: draftsData, refetch: refetchDrafts } = useQuery({
-    queryKey: ['posts', 'list', 'drafts', selectedChannelIds, fromDate.toISOString(), toDate.toISOString()],
+    queryKey: [
+      "posts",
+      "list",
+      "drafts",
+      selectedChannelIds,
+      fromDate.toISOString(),
+      toDate.toISOString(),
+    ],
     queryFn: async () => {
       const result = await api.api.posts.all.$get({
         query: {
@@ -102,16 +106,16 @@ export const AssignmentStep = ({
           ...acc,
           [post.channelId]: (acc[post.channelId] ?? 0) + 1,
         }),
-        {}
+        {},
       ),
-    [virtualPosts]
+    [virtualPosts],
   );
 
   const toggleChannelSelection = (channelId: string) => {
     onSelectedChannelIdsChange(
       selectedChannelIds.includes(channelId)
         ? selectedChannelIds.filter((id) => id !== channelId)
-        : [...selectedChannelIds, channelId]
+        : [...selectedChannelIds, channelId],
     );
   };
 
@@ -122,13 +126,15 @@ export const AssignmentStep = ({
       fromDate: fromDate.toISOString(),
       toDate: toDate.toISOString(),
     });
-    const normalizedResult = result ? {
-      ...result,
-      unfilled: result.unfilled.map(slot => ({
-        ...slot,
-        date: typeof slot.date === 'string' ? new Date(slot.date) : slot.date
-      }))
-    } : null;
+    const normalizedResult = result
+      ? {
+          ...result,
+          unfilled: result.unfilled.map((slot) => ({
+            ...slot,
+            date: typeof slot.date === "string" ? new Date(slot.date) : slot.date,
+          })),
+        }
+      : null;
     setAssignmentResult(normalizedResult);
 
     setTimeout(() => {
@@ -144,18 +150,20 @@ export const AssignmentStep = ({
 
   const unfilledSlots = unfilledSlotsState;
   const hasUnfilledSlots = unfilledSlots.length > 0;
-  const virtualSlotPosts = virtualPosts.map(post => ({
+  const virtualSlotPosts = virtualPosts.map((post) => ({
     ...post,
-    date: typeof post.date === 'string' ? new Date(post.date) : post.date
+    date: typeof post.date === "string" ? new Date(post.date) : post.date,
   })) as unknown as VirtualPost[];
   const removeUnfilledSlot = (slot: AssignmentResult["unfilled"][number]) => {
     setUnfilledSlotsState((prev) =>
       prev.filter(
         (item) =>
-          !(item.channelId === slot.channelId &&
+          !(
+            item.channelId === slot.channelId &&
             item.scheduleId === slot.scheduleId &&
-            isSameMinute(new Date(item.date), new Date(slot.date)))
-      )
+            isSameMinute(new Date(item.date), new Date(slot.date))
+          ),
+      ),
     );
   };
 
@@ -195,35 +203,69 @@ export const AssignmentStep = ({
         <div className="space-y-4">
           {draftsData && (
             <CreatedDraftsList
-              drafts={draftsData.map(draft => ({
-                ...draft,
-                date: typeof draft.date === 'string' ? new Date(draft.date) : draft.date,
-                createdAt: typeof draft.createdAt === 'string' ? new Date(draft.createdAt) : draft.createdAt,
-                updatedAt: typeof draft.updatedAt === 'string' ? new Date(draft.updatedAt) : draft.updatedAt,
-                postMedia: draft.postMedia.map(pm => ({
-                  ...pm,
-                  createdAt: typeof pm.createdAt === 'string' ? new Date(pm.createdAt) : pm.createdAt,
-                  updatedAt: typeof pm.updatedAt === 'string' ? new Date(pm.updatedAt) : pm.updatedAt,
-                  media: {
-                    ...pm.media,
-                    createdAt: typeof pm.media.createdAt === 'string' ? new Date(pm.media.createdAt) : pm.media.createdAt,
-                    updatedAt: typeof pm.media.updatedAt === 'string' ? new Date(pm.media.updatedAt) : pm.media.updatedAt,
-                    fileCreationDate: typeof pm.media.fileCreationDate === 'string' ? new Date(pm.media.fileCreationDate) : pm.media.fileCreationDate,
-                    fileModificationDate: typeof pm.media.fileModificationDate === 'string' ? new Date(pm.media.fileModificationDate) : pm.media.fileModificationDate,
-                  },
-                })),
-                schedule: draft.schedule ? {
-                  ...draft.schedule,
-                  createdAt: typeof draft.schedule.createdAt === 'string' ? new Date(draft.schedule.createdAt) : draft.schedule.createdAt,
-                  updatedAt: typeof draft.schedule.updatedAt === 'string' ? new Date(draft.schedule.updatedAt) : draft.schedule.updatedAt,
-                } : null,
-                subreddit: draft.subreddit ? {
-                  ...draft.subreddit,
-                  postingTimesLastFetched: draft.subreddit.postingTimesLastFetched && typeof draft.subreddit.postingTimesLastFetched === 'string' 
-                    ? new Date(draft.subreddit.postingTimesLastFetched) 
-                    : draft.subreddit.postingTimesLastFetched,
-                } : null,
-              })) as unknown as PostWithRelations[]}
+              drafts={
+                draftsData.map((draft) => ({
+                  ...draft,
+                  date: typeof draft.date === "string" ? new Date(draft.date) : draft.date,
+                  createdAt:
+                    typeof draft.createdAt === "string"
+                      ? new Date(draft.createdAt)
+                      : draft.createdAt,
+                  updatedAt:
+                    typeof draft.updatedAt === "string"
+                      ? new Date(draft.updatedAt)
+                      : draft.updatedAt,
+                  postMedia: draft.postMedia.map((pm) => ({
+                    ...pm,
+                    createdAt:
+                      typeof pm.createdAt === "string" ? new Date(pm.createdAt) : pm.createdAt,
+                    updatedAt:
+                      typeof pm.updatedAt === "string" ? new Date(pm.updatedAt) : pm.updatedAt,
+                    media: {
+                      ...pm.media,
+                      createdAt:
+                        typeof pm.media.createdAt === "string"
+                          ? new Date(pm.media.createdAt)
+                          : pm.media.createdAt,
+                      updatedAt:
+                        typeof pm.media.updatedAt === "string"
+                          ? new Date(pm.media.updatedAt)
+                          : pm.media.updatedAt,
+                      fileCreationDate:
+                        typeof pm.media.fileCreationDate === "string"
+                          ? new Date(pm.media.fileCreationDate)
+                          : pm.media.fileCreationDate,
+                      fileModificationDate:
+                        typeof pm.media.fileModificationDate === "string"
+                          ? new Date(pm.media.fileModificationDate)
+                          : pm.media.fileModificationDate,
+                    },
+                  })),
+                  schedule: draft.schedule
+                    ? {
+                        ...draft.schedule,
+                        createdAt:
+                          typeof draft.schedule.createdAt === "string"
+                            ? new Date(draft.schedule.createdAt)
+                            : draft.schedule.createdAt,
+                        updatedAt:
+                          typeof draft.schedule.updatedAt === "string"
+                            ? new Date(draft.schedule.updatedAt)
+                            : draft.schedule.updatedAt,
+                      }
+                    : null,
+                  subreddit: draft.subreddit
+                    ? {
+                        ...draft.subreddit,
+                        postingTimesLastFetched:
+                          draft.subreddit.postingTimesLastFetched &&
+                          typeof draft.subreddit.postingTimesLastFetched === "string"
+                            ? new Date(draft.subreddit.postingTimesLastFetched)
+                            : draft.subreddit.postingTimesLastFetched,
+                      }
+                    : null,
+                })) as unknown as PostWithRelations[]
+              }
               fromDate={fromDate}
               toDate={toDate}
               assignmentResult={assignmentResult}
@@ -233,7 +275,7 @@ export const AssignmentStep = ({
                   setDraftToAssignMedia({
                     id: draft.id,
                     channelId: draft.channelId,
-                    date: typeof draft.date === 'string' ? new Date(draft.date) : draft.date,
+                    date: typeof draft.date === "string" ? new Date(draft.date) : draft.date,
                     scheduleId: draft.scheduleId,
                   });
                 }
@@ -250,7 +292,7 @@ export const AssignmentStep = ({
                   (post) =>
                     post.channelId === slot.channelId &&
                     post.scheduleId === slot.scheduleId &&
-                    isSameMinute(new Date(post.date), new Date(slot.date))
+                    isSameMinute(new Date(post.date), new Date(slot.date)),
                 );
 
                 if (!matchingVirtualPost) return;

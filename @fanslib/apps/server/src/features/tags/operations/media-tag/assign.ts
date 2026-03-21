@@ -14,8 +14,9 @@ export const AssignTagsToMediaRequestBodySchema = z.object({
 
 export const AssignTagsToMediaResponseSchema = z.array(MediaTagSchema);
 
-
-export const assignTagsToMedia = async (payload: z.infer<typeof AssignTagsToMediaRequestBodySchema>): Promise<z.infer<typeof AssignTagsToMediaResponseSchema>> => {
+export const assignTagsToMedia = async (
+  payload: z.infer<typeof AssignTagsToMediaRequestBodySchema>,
+): Promise<z.infer<typeof AssignTagsToMediaResponseSchema>> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(MediaTag);
 
@@ -59,13 +60,15 @@ export const assignTagsToMedia = async (payload: z.infer<typeof AssignTagsToMedi
     const dimension = tagsInDimension[0]?.dimension;
 
     if (!dimension) {
-      throw new Error(`Dimension relation not loaded for tag definitions in dimension ${dimensionId}`);
+      throw new Error(
+        `Dimension relation not loaded for tag definitions in dimension ${dimensionId}`,
+      );
     }
 
     if (dimension.isExclusive) {
       if (tagsInDimension.length > 1) {
         throw new Error(
-          `Only one tag allowed per exclusive dimension. Violations in dimension: ${dimension.name}`
+          `Only one tag allowed per exclusive dimension. Violations in dimension: ${dimension.name}`,
         );
       }
 
@@ -75,7 +78,7 @@ export const assignTagsToMedia = async (payload: z.infer<typeof AssignTagsToMedi
         .where("mediaId = :mediaId", { mediaId: payload.mediaId })
         .andWhere(
           "tagDefinitionId IN (SELECT id FROM tag_definition WHERE dimensionId = :dimensionId)",
-          { dimensionId }
+          { dimensionId },
         )
         .execute();
     } else {
@@ -106,4 +109,3 @@ export const assignTagsToMedia = async (payload: z.infer<typeof AssignTagsToMedi
 
   return repository.save(mediaTags);
 };
-

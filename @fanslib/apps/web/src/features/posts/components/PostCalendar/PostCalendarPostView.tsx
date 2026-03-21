@@ -7,12 +7,12 @@ import { StatusIcon } from "~/components/StatusIcon";
 type PostCalendarPostViewProps = {
   // Core data
   date: Date;
-  status: 'posted' | 'scheduled' | 'draft';
+  status: "posted" | "scheduled" | "draft";
   channel: {
     name: string;
     typeId: string;
   };
-  
+
   // Optional data
   schedule?: {
     name: string;
@@ -21,18 +21,17 @@ type PostCalendarPostViewProps = {
   };
   caption?: string;
   showCaption?: boolean;
-  
+
   // Rendering slots
   mediaSlot: ReactNode;
   overlaySlot?: ReactNode;
   actionSlot?: ReactNode;
-  
+
   // Event handlers
   onMouseLeave?: () => void;
-  
+
   // Wrapper (for drag/link behavior)
   wrapper?: (children: ReactNode) => ReactNode;
-  
 };
 
 export const PostCalendarPostView = ({

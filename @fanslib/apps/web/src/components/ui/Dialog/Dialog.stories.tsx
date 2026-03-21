@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Button } from '../Button';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Button } from "../Button";
 import {
   Dialog,
   DialogBody,
@@ -9,47 +9,49 @@ import {
   DialogModal,
   DialogTitle,
   DialogTrigger,
-} from './Dialog';
+} from "./Dialog";
 
 type DialogWrapperProps = {
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
+  maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
   isDismissable?: boolean;
 };
 
-const DialogWrapper = ({ maxWidth = 'lg', isDismissable = true }: DialogWrapperProps) => <DialogTrigger>
-      <Button>Open Dialog</Button>
-      <DialogModal isDismissable={isDismissable}>
-        <Dialog maxWidth={maxWidth}>
-          {({ close }) => (
-            <>
-              <DialogHeader>
-                <DialogTitle>Dialog Title</DialogTitle>
-                <DialogDescription>This is a dialog description.</DialogDescription>
-              </DialogHeader>
-              <DialogBody>
-                <p>Dialog content goes here.</p>
-              </DialogBody>
-              <DialogFooter>
-                <Button variant="ghost" onPress={close}>
-                  Cancel
-                </Button>
-                <Button variant="primary" onPress={close}>
-                  Confirm
-                </Button>
-              </DialogFooter>
-            </>
-          )}
-        </Dialog>
-      </DialogModal>
-    </DialogTrigger>;
+const DialogWrapper = ({ maxWidth = "lg", isDismissable = true }: DialogWrapperProps) => (
+  <DialogTrigger>
+    <Button>Open Dialog</Button>
+    <DialogModal isDismissable={isDismissable}>
+      <Dialog maxWidth={maxWidth}>
+        {({ close }) => (
+          <>
+            <DialogHeader>
+              <DialogTitle>Dialog Title</DialogTitle>
+              <DialogDescription>This is a dialog description.</DialogDescription>
+            </DialogHeader>
+            <DialogBody>
+              <p>Dialog content goes here.</p>
+            </DialogBody>
+            <DialogFooter>
+              <Button variant="ghost" onPress={close}>
+                Cancel
+              </Button>
+              <Button variant="primary" onPress={close}>
+                Confirm
+              </Button>
+            </DialogFooter>
+          </>
+        )}
+      </Dialog>
+    </DialogModal>
+  </DialogTrigger>
+);
 
 const meta: Meta<typeof DialogWrapper> = {
-  title: 'Overlays/Dialog',
+  title: "Overlays/Dialog",
   component: DialogWrapper,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
@@ -70,4 +72,3 @@ export const Large: Story = {
 export const NotDismissable: Story = {
   render: () => <DialogWrapper maxWidth="lg" isDismissable={false} />,
 };
-

@@ -1,10 +1,9 @@
-import type { TagDefinition, TagDimension } from '@fanslib/server/schemas';
+import type { TagDefinition, TagDimension } from "@fanslib/server/schemas";
 import { useTagDefinitionsByDimensionQuery } from "~/lib/queries/tags";
 import type { SelectionState } from "~/lib/tags/selection-state";
 import { BooleanTagSelector } from "./BooleanTagSelector";
 import { HierarchicalTagSelector } from "./HierarchicalTagSelector";
 import { NumericalTagSelector } from "./NumericalTagSelector";
-
 
 type DimensionTagSelectorProps = {
   dimension: TagDimension;

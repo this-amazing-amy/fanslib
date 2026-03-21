@@ -1,4 +1,4 @@
-import type { CreatePostRequestBody, Media, PostWithRelations } from '@fanslib/server/schemas';
+import type { CreatePostRequestBody, Media, PostWithRelations } from "@fanslib/server/schemas";
 import { useRef, useState } from "react";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
 import { usePostPreferences } from "~/contexts/PostPreferencesContext";
@@ -141,4 +141,3 @@ export const usePostPreviewDrag = ({
     handleDrop,
   };
 };
-

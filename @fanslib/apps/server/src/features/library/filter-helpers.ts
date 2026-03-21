@@ -6,7 +6,7 @@ import type { Settings } from "../settings/schemas/settings";
 
 type MediaFilters = z.infer<typeof MediaFilterSchema>;
 type FilterGroup = MediaFilters[number];
-type FilterItem = FilterGroup['items'][number];
+type FilterItem = FilterGroup["items"][number];
 
 export type FilterContext = {
   channelCooldownHours?: number;
@@ -34,7 +34,7 @@ export const buildFilterItemQuery = (
           WHERE pm.mediaId = media.id
           AND p.channelId = :channelId${paramIndex}
         )`,
-        { [`channelId${paramIndex}`]: item.id }
+        { [`channelId${paramIndex}`]: item.id },
       );
       break;
 
@@ -50,7 +50,7 @@ export const buildFilterItemQuery = (
           AND p.subredditId = :subredditId${paramIndex}
           AND p.status = 'posted'
         )`,
-        { [`subredditId${paramIndex}`]: item.id }
+        { [`subredditId${paramIndex}`]: item.id },
       );
       break;
 
@@ -64,7 +64,7 @@ export const buildFilterItemQuery = (
           WHERE mt.mediaId = media.id
           AND mt.tagDefinitionId = :tagId${paramIndex}
         )`,
-        { [`tagId${paramIndex}`]: item.id }
+        { [`tagId${paramIndex}`]: item.id },
       );
       break;
 
@@ -79,7 +79,7 @@ export const buildFilterItemQuery = (
             `NOT EXISTS (
               SELECT 1 FROM shoot_media sm
               WHERE sm.media_id = media.id
-            )`
+            )`,
           );
         }
         // Include "All shoots" = do nothing (no filter)
@@ -91,7 +91,7 @@ export const buildFilterItemQuery = (
           WHERE sm.media_id = media.id
           AND sm.shoot_id = :shootId${paramIndex}
         )`,
-        { [`shootId${paramIndex}`]: item.id }
+        { [`shootId${paramIndex}`]: item.id },
       );
       break;
 
@@ -115,7 +115,7 @@ export const buildFilterItemQuery = (
           WHERE pm.mediaId = media.id
           AND LOWER(p.caption) LIKE LOWER(:caption${paramIndex})
         )`,
-        { [`caption${paramIndex}`]: `%${item.value}%` }
+        { [`caption${paramIndex}`]: `%${item.value}%` },
       );
       break;
 
@@ -170,7 +170,7 @@ export const buildFilterItemQuery = (
           WHERE mt.mediaId = media.id
           AND mt.dimensionId = :dimensionId${paramIndex}
         )`,
-        { [`dimensionId${paramIndex}`]: item.dimensionId }
+        { [`dimensionId${paramIndex}`]: item.dimensionId },
       );
       break;
 
@@ -179,24 +179,21 @@ export const buildFilterItemQuery = (
         include
           ? `media.excluded = :excludedVal${paramIndex}`
           : `media.excluded != :excludedVal${paramIndex}`,
-        { [`excludedVal${paramIndex}`]: item.value ? 1 : 0 }
+        { [`excludedVal${paramIndex}`]: item.value ? 1 : 0 },
       );
       break;
 
     case "repostStatus": {
-      const cooldownHours = context?.channelCooldownHours
-        ?? context?.repostSettings?.defaultMediaRepostCooldownHours
-        ?? 504;
+      const cooldownHours =
+        context?.channelCooldownHours ??
+        context?.repostSettings?.defaultMediaRepostCooldownHours ??
+        504;
       const cutoffDate = new Date();
       cutoffDate.setHours(cutoffDate.getHours() - cooldownHours);
       const cutoffIso = cutoffDate.toISOString();
 
-      const channelCondition = item.channelId
-        ? `AND p.channelId = :rsChannelId${paramIndex}`
-        : "";
-      const channelParams = item.channelId
-        ? { [`rsChannelId${paramIndex}`]: item.channelId }
-        : {};
+      const channelCondition = item.channelId ? `AND p.channelId = :rsChannelId${paramIndex}` : "";
+      const channelParams = item.channelId ? { [`rsChannelId${paramIndex}`]: item.channelId } : {};
 
       // Subreddit-specific cooldown — uses the same channel cooldown window.
       // Each subreddit maps to its own channel row, so channelCooldownHours
@@ -250,10 +247,10 @@ export const buildFilterItemQuery = (
               { ...channelParams, [`rsCutoff${paramIndex}`]: cutoffIso, ...subredditParams },
             );
           } else {
-            queryBuilder.andWhere(
-              `${operator}${channelOnCooldown}`,
-              { ...channelParams, [`rsCutoff${paramIndex}`]: cutoffIso },
-            );
+            queryBuilder.andWhere(`${operator}${channelOnCooldown}`, {
+              ...channelParams,
+              [`rsCutoff${paramIndex}`]: cutoffIso,
+            });
           }
           break;
         }
@@ -447,15 +444,17 @@ export const mediaFiltersToString = (filters: MediaFilters): string => {
     return "No filters";
   }
 
-  const groupStrings = filters.filter((group: FilterGroup) => group.items.length > 0).map(filterGroupToString);
+  const groupStrings = filters
+    .filter((group: FilterGroup) => group.items.length > 0)
+    .map(filterGroupToString);
 
   return groupStrings.join(" | ");
 };
 
 export const addFilterItemToGroup = (group: FilterGroup, item: FilterItem): FilterGroup => ({
-    ...group,
-    items: [...group.items, item],
-  });
+  ...group,
+  items: [...group.items, item],
+});
 
 export const removeFilterItemFromGroup = (group: FilterGroup, index: number): FilterGroup => {
   if (index < 0 || index >= group.items.length) {
@@ -471,7 +470,7 @@ export const removeFilterItemFromGroup = (group: FilterGroup, index: number): Fi
 export const updateFilterItemInGroup = (
   group: FilterGroup,
   index: number,
-  newItem: FilterItem
+  newItem: FilterItem,
 ): FilterGroup => {
   if (index < 0 || index >= group.items.length) {
     return group;
@@ -485,9 +484,11 @@ export const updateFilterItemInGroup = (
 
 export const isFilterGroupEmpty = (group: FilterGroup): boolean => group.items.length === 0;
 
-export const getFilterItemsCount = (filters: MediaFilters): number => filters.reduce((count: number, group: FilterGroup) => count + group.items.length, 0);
+export const getFilterItemsCount = (filters: MediaFilters): number =>
+  filters.reduce((count: number, group: FilterGroup) => count + group.items.length, 0);
 
-export const hasFilterType = (filters: MediaFilters, type: FilterItem["type"]): boolean => filters.some((group: FilterGroup) => group.items.some((item: FilterItem) => item.type === type));
+export const hasFilterType = (filters: MediaFilters, type: FilterItem["type"]): boolean =>
+  filters.some((group: FilterGroup) => group.items.some((item: FilterItem) => item.type === type));
 
 // Legacy filter format support
 type LegacyFilter = {

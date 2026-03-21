@@ -17,7 +17,11 @@ type MediaFiltersProps = {
   onToggle?: () => void;
 };
 
-export const MediaFilters = ({ className = "", collapsed = false, onToggle }: MediaFiltersProps) => {
+export const MediaFilters = ({
+  className = "",
+  collapsed = false,
+  onToggle,
+}: MediaFiltersProps) => {
   const { filters } = useMediaFilters();
   const isHydrated = useHydrated();
 
@@ -26,7 +30,9 @@ export const MediaFilters = ({ className = "", collapsed = false, onToggle }: Me
   const hasFilters = displayFilters.length > 0;
 
   return (
-    <div className={cn("flex gap-2 w-full", !hasFilters ? "items-center" : "items-start", className)}>
+    <div
+      className={cn("flex gap-2 w-full", !hasFilters ? "items-center" : "items-start", className)}
+    >
       {!hasFilters ? (
         /* No filters: Show "Filter" button and preset dropdown */
         <div className="flex items-center gap-1">
@@ -68,13 +74,11 @@ export const MediaFilters = ({ className = "", collapsed = false, onToggle }: Me
           </div>
           <div className="flex items-center gap-1">
             {onToggle && (
-              <Tooltip content={<p>{collapsed ? "Expand filters" : "Collapse filters"}</p>} openDelayMs={0}>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9"
-                  onPress={onToggle}
-                >
+              <Tooltip
+                content={<p>{collapsed ? "Expand filters" : "Collapse filters"}</p>}
+                openDelayMs={0}
+              >
+                <Button variant="ghost" size="icon" className="h-9 w-9" onPress={onToggle}>
                   {collapsed ? (
                     <ChevronDown className="h-4 w-4" />
                   ) : (

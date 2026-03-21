@@ -43,14 +43,16 @@ export const tagAnalyticsQueryKeys = {
 
 // TODO: Implement tag analytics API endpoints in the backend
 // For now, these hooks return placeholder data
-export const useTagAnalytics = (params: TagAnalyticsParams) => useQuery<TagPerformanceMetrics[]>({
+export const useTagAnalytics = (params: TagAnalyticsParams) =>
+  useQuery<TagPerformanceMetrics[]>({
     queryKey: tagAnalyticsQueryKeys.tagAnalytics(params),
     queryFn: async () => [],
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false,
   });
 
-export const useTagPerformanceMetrics = (tagIds: number[], timeRange: { start: Date; end: Date }) => useQuery<TagPerformanceMetrics[]>({
+export const useTagPerformanceMetrics = (tagIds: number[], timeRange: { start: Date; end: Date }) =>
+  useQuery<TagPerformanceMetrics[]>({
     queryKey: tagAnalyticsQueryKeys.tagPerformanceMetrics(tagIds, timeRange),
     queryFn: async () => [],
     enabled: tagIds.length > 0,
@@ -58,14 +60,16 @@ export const useTagPerformanceMetrics = (tagIds: number[], timeRange: { start: D
     refetchOnWindowFocus: false,
   });
 
-export const useTagCorrelations = (dimensionId?: number) => useQuery<TagCorrelationData[]>({
+export const useTagCorrelations = (dimensionId?: number) =>
+  useQuery<TagCorrelationData[]>({
     queryKey: tagAnalyticsQueryKeys.tagCorrelations(dimensionId),
     queryFn: async () => [],
     staleTime: 10 * 60 * 1000, // 10 minutes
     refetchOnWindowFocus: false,
   });
 
-export const useTagTrends = (tagIds: number[], timeRange: { start: Date; end: Date }) => useQuery({
+export const useTagTrends = (tagIds: number[], timeRange: { start: Date; end: Date }) =>
+  useQuery({
     queryKey: tagAnalyticsQueryKeys.tagTrends(tagIds, timeRange),
     queryFn: async () => [],
     enabled: tagIds.length > 0,

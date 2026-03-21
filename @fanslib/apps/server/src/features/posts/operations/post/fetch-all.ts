@@ -18,7 +18,9 @@ export const FetchAllPostsResponseSchema = z.object({
   posts: z.array(PostWithRelationsSchema),
 });
 
-export const fetchAllPosts = async (filters?: z.infer<typeof PostFiltersSchema>): Promise<z.infer<typeof FetchAllPostsResponseSchema>> => {
+export const fetchAllPosts = async (
+  filters?: z.infer<typeof PostFiltersSchema>,
+): Promise<z.infer<typeof FetchAllPostsResponseSchema>> => {
   const dataSource = await db();
   const queryBuilder = dataSource
     .getRepository(Post)
@@ -32,10 +34,9 @@ export const fetchAllPosts = async (filters?: z.infer<typeof PostFiltersSchema>)
     .leftJoinAndSelect("post.schedule", "schedule");
 
   if (filters?.search) {
-    queryBuilder.andWhere(
-      "(post.caption LIKE :search OR channel.name LIKE :search)",
-      { search: `%${filters.search}%` }
-    );
+    queryBuilder.andWhere("(post.caption LIKE :search OR channel.name LIKE :search)", {
+      search: `%${filters.search}%`,
+    });
   }
 
   if (filters?.channels && filters.channels.length > 0) {
@@ -70,14 +71,13 @@ export const fetchAllPosts = async (filters?: z.infer<typeof PostFiltersSchema>)
   queryBuilder.take(100);
 
   const posts = await queryBuilder.getMany();
-  
+
   const filteredPosts = posts.map((post) => ({
     ...post,
     postMedia: post.postMedia.filter((pm) => pm.media !== null),
     subreddit: post.subreddit ?? null,
     schedule: post.schedule ?? null,
   }));
-  
+
   return { posts: filteredPosts };
 };
-

@@ -18,9 +18,7 @@ type CalendarDayColumnProps = {
 
 export const CalendarDayColumn = memo(
   ({ day, posts, allPosts, onUpdate, style }: CalendarDayColumnProps) => {
-    const dayPosts = posts.filter((post) =>
-      isSameDay(new Date(post.date), day)
-    );
+    const dayPosts = posts.filter((post) => isSameDay(new Date(post.date), day));
     const today = isToday(day);
 
     return (
@@ -33,7 +31,7 @@ export const CalendarDayColumn = memo(
           onUpdate={onUpdate}
           className={cn(
             "flex flex-col rounded-lg p-1.5 h-full min-h-0",
-            today && "bg-base-200 ring-2 ring-primary"
+            today && "bg-base-200 ring-2 ring-primary",
           )}
         >
           <div className="flex items-center gap-1 mb-1 flex-shrink-0">
@@ -41,31 +39,24 @@ export const CalendarDayColumn = memo(
               dateTime={format(day, "yyyy-MM-dd")}
               className={cn(
                 "font-medium text-xs w-5 h-5 flex items-center justify-center",
-                today && "bg-primary text-primary-content rounded-full"
+                today && "bg-primary text-primary-content rounded-full",
               )}
             >
               {format(day, "d")}
             </time>
-            <span className="text-[10px] text-base-content/50">
-              {format(day, "EEE")}
-            </span>
+            <span className="text-[10px] text-base-content/50">{format(day, "EEE")}</span>
           </div>
 
           <div className="flex flex-col gap-1.5 overflow-y-auto overflow-x-hidden scrollbar-thin flex-1 min-h-0">
             {dayPosts.map((post) => (
-              <PostCalendarPost
-                key={post.id}
-                post={post}
-                onUpdate={onUpdate}
-                allPosts={allPosts}
-              />
+              <PostCalendarPost key={post.id} post={post} onUpdate={onUpdate} allPosts={allPosts} />
             ))}
             <PostCalendarDayDropzone date={day} onUpdate={onUpdate} />
           </div>
         </PostCalendarDayContainer>
       </div>
     );
-  }
+  },
 );
 
 CalendarDayColumn.displayName = "CalendarDayColumn";

@@ -1,8 +1,7 @@
-import type { Media } from '@fanslib/server/schemas';
+import type { Media } from "@fanslib/server/schemas";
 import { format, isSameDay, parse } from "date-fns";
 import { useEffect, useRef, useState } from "react";
 import { DateTimePicker } from "~/components/DateTimePicker";
-
 
 import { Button } from "~/components/ui/Button";
 import {
@@ -96,7 +95,7 @@ export const CreateShootDialog = ({
 
     if (datesFromFilenames.length === selectedMedia.length) {
       const allSameFileNameDay = datesFromFilenames.every(
-        (date, i) => i === 0 || isSameDay(date, datesFromFilenames[0] ?? new Date())
+        (date, i) => i === 0 || isSameDay(date, datesFromFilenames[0] ?? new Date()),
       );
 
       if (allSameFileNameDay) {
@@ -109,7 +108,9 @@ export const CreateShootDialog = ({
 
     // If filename extraction fails, fall back to file creation dates
     const allSameCreationDay = selectedMedia.every(
-      (media, i) => i === 0 || isSameDay(media.fileCreationDate, selectedMedia[0]?.fileCreationDate ?? new Date())
+      (media, i) =>
+        i === 0 ||
+        isSameDay(media.fileCreationDate, selectedMedia[0]?.fileCreationDate ?? new Date()),
     );
 
     if (allSameCreationDay) {
@@ -150,7 +151,7 @@ export const CreateShootDialog = ({
                   <Input
                     value={shootName}
                     onChange={(value) => setShootName(value)}
-                  aria-label="Shoot name"
+                    aria-label="Shoot name"
                     placeholder="Enter shoot name"
                   />
                 </div>
@@ -159,7 +160,9 @@ export const CreateShootDialog = ({
                   <DateTimePicker date={shootDate} setDate={setShootDate} />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Media ({selectedMedia.length} items)</label>
+                  <label className="text-sm font-medium">
+                    Media ({selectedMedia.length} items)
+                  </label>
                   <ScrollArea className="h-[300px] border rounded-md p-2">
                     <div className="space-y-2">
                       {selectedMedia.map((media) => (
@@ -192,7 +195,8 @@ export const CreateShootDialog = ({
                     close();
                   }}
                 >
-                  Create Shoot with {selectedMedia.length} {selectedMedia.length === 1 ? "item" : "items"}
+                  Create Shoot with {selectedMedia.length}{" "}
+                  {selectedMedia.length === 1 ? "item" : "items"}
                 </Button>
               </DialogFooter>
             </>

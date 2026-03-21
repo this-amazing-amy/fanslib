@@ -13,7 +13,7 @@ export const AddMediaToPostRequestBodySchema = z.object({
 
 export const addMediaToPost = async (
   postId: string,
-  mediaIds: string[]
+  mediaIds: string[],
 ): Promise<PostWithRelations | null> => {
   const dataSource = await db();
   const postMediaRepo = dataSource.getRepository(PostMedia);
@@ -22,7 +22,7 @@ export const addMediaToPost = async (
   const post = await fetchPostById(postId);
   if (!post) return null;
 
-  const existingCount = !("error" in post) ? post.postMedia?.length ?? 0 : 0;
+  const existingCount = !("error" in post) ? (post.postMedia?.length ?? 0) : 0;
 
   const media = await mediaRepo.findBy({ id: In(mediaIds) });
   const postMedia = media.map((m, index) =>
@@ -30,11 +30,10 @@ export const addMediaToPost = async (
       post: { id: postId } as Post,
       media: m,
       order: existingCount + index,
-    })
+    }),
   );
 
   await postMediaRepo.save(postMedia);
 
   return fetchPostById(postId);
 };
-

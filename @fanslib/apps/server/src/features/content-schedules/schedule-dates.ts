@@ -42,12 +42,10 @@ const applyTime = (date: Date, time?: string | null): Date => {
 
 const distributeEvenly = (availableCount: number, desiredCount: number): number[] => {
   const count = Math.min(availableCount, desiredCount);
-  return Array.from({ length: count }, (_, i) =>
-    Math.floor((i * availableCount) / count)
-  );
+  return Array.from({ length: count }, (_, i) => Math.floor((i * availableCount) / count));
 };
 
-const selectEvenly = <T,>(items: T[], desiredCount: number): T[] => {
+const selectEvenly = <T>(items: T[], desiredCount: number): T[] => {
   if (items.length === 0) {
     return [];
   }
@@ -55,13 +53,12 @@ const selectEvenly = <T,>(items: T[], desiredCount: number): T[] => {
   return indices.map((index) => items[index]).filter((item): item is T => Boolean(item));
 };
 
-const sortDates = (dates: Date[]) =>
-  [...dates].sort((a, b) => a.getTime() - b.getTime());
+const sortDates = (dates: Date[]) => [...dates].sort((a, b) => a.getTime() - b.getTime());
 
 export const generateScheduleDates = (
   schedule: ScheduleConfig,
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ): Date[] => {
   const postsPerTimeframe = schedule.postsPerTimeframe ?? 1;
   const preferredTimes = schedule.preferredTimes?.length ? schedule.preferredTimes : ["12:00"];
@@ -69,9 +66,7 @@ export const generateScheduleDates = (
   if (schedule.type === "daily") {
     const days = eachDayOfInterval({ start: startDate, end: endDate });
     return days.flatMap((day) =>
-      selectEvenly(preferredTimes, postsPerTimeframe).map((time) =>
-        applyTime(day, time)
-      )
+      selectEvenly(preferredTimes, postsPerTimeframe).map((time) => applyTime(day, time)),
     );
   }
 
@@ -82,18 +77,16 @@ export const generateScheduleDates = (
     return weeks.flatMap((week) => {
       const weekStart = startOfWeek(week, WEEK_STARTS_ON_MONDAY);
       const weekDays = hasPreferredDays
-        ? schedule.preferredDays
+        ? (schedule.preferredDays
             ?.map((day) => DAY_NAME_TO_OFFSET[day])
             .filter((offset): offset is number => offset !== undefined)
-            .map((offset) => addDays(weekStart, offset)) ?? []
+            .map((offset) => addDays(weekStart, offset)) ?? [])
         : eachDayOfInterval({ start: weekStart, end: addDays(weekStart, 6) });
 
-      const slots = weekDays.flatMap((day) =>
-        preferredTimes.map((time) => applyTime(day, time))
-      );
+      const slots = weekDays.flatMap((day) => preferredTimes.map((time) => applyTime(day, time)));
       return selectEvenly(
         sortDates(slots.filter((slot) => slot >= startDate && slot <= endDate)),
-        postsPerTimeframe
+        postsPerTimeframe,
       );
     });
   }
@@ -108,24 +101,28 @@ export const generateScheduleDates = (
 
       const monthDays = hasPreferredDays
         ? (() => {
-            const monthWeeks = eachWeekOfInterval({ start: monthStart, end: monthEnd }, WEEK_STARTS_ON_MONDAY);
-            const dayOffsets = schedule.preferredDays
-              ?.map((day) => DAY_NAME_TO_OFFSET[day])
-              .filter((offset): offset is number => offset !== undefined) ?? [];
+            const monthWeeks = eachWeekOfInterval(
+              { start: monthStart, end: monthEnd },
+              WEEK_STARTS_ON_MONDAY,
+            );
+            const dayOffsets =
+              schedule.preferredDays
+                ?.map((day) => DAY_NAME_TO_OFFSET[day])
+                .filter((offset): offset is number => offset !== undefined) ?? [];
             return dayOffsets.flatMap((offset) =>
               monthWeeks
                 .map((w) => addDays(startOfWeek(w, WEEK_STARTS_ON_MONDAY), offset))
-                .filter((date) => date >= monthStart && date <= monthEnd)
+                .filter((date) => date >= monthStart && date <= monthEnd),
             );
           })()
         : eachDayOfInterval({ start: monthStart, end: monthEnd });
 
       const slots = monthDays.flatMap((date) =>
-        preferredTimes.map((time) => applyTime(date, time))
+        preferredTimes.map((time) => applyTime(date, time)),
       );
       return selectEvenly(
         sortDates(slots.filter((slot) => slot >= startDate && slot <= endDate)),
-        postsPerTimeframe
+        postsPerTimeframe,
       );
     });
   }

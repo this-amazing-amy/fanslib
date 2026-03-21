@@ -1,5 +1,5 @@
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
-import { I18nProvider } from 'react-aria';
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { I18nProvider } from "react-aria";
 import {
   DateRangePicker as AriaDateRangePicker,
   Button,
@@ -18,8 +18,8 @@ import {
   RangeCalendar,
   type DateRangePickerProps as AriaDateRangePickerProps,
   type DateValue,
-} from 'react-aria-components';
-import { cn } from '~/lib/cn';
+} from "react-aria-components";
+import { cn } from "~/lib/cn";
 
 export type DateRangePickerProps<T extends DateValue> = AriaDateRangePickerProps<T> & {
   label?: string;
@@ -32,11 +32,11 @@ export const DateRangePicker = <T extends DateValue>({
   label,
   className,
   error,
-  locale = 'de-DE',
+  locale = "de-DE",
   ...props
 }: DateRangePickerProps<T>) => (
   <I18nProvider locale={locale}>
-    <AriaDateRangePicker {...props} className={cn('form-control', className)}>
+    <AriaDateRangePicker {...props} className={cn("form-control", className)}>
       {label && (
         <Label className="label">
           <span className="label-text">{label}</span>
@@ -49,9 +49,9 @@ export const DateRangePicker = <T extends DateValue>({
               <DateSegment
                 segment={segment}
                 className={cn(
-                  'rounded text-sm tabular-nums outline-none',
-                  'focus:bg-primary focus:text-primary-content',
-                  'data-[placeholder]:text-base-content/50'
+                  "rounded text-sm tabular-nums outline-none",
+                  "focus:bg-primary focus:text-primary-content",
+                  "data-[placeholder]:text-base-content/50",
                 )}
               />
             )}
@@ -62,9 +62,9 @@ export const DateRangePicker = <T extends DateValue>({
               <DateSegment
                 segment={segment}
                 className={cn(
-                  'rounded text-sm tabular-nums outline-none',
-                  'focus:bg-primary focus:text-primary-content',
-                  'data-[placeholder]:text-base-content/50'
+                  "rounded text-sm tabular-nums outline-none",
+                  "focus:bg-primary focus:text-primary-content",
+                  "data-[placeholder]:text-base-content/50",
                 )}
               />
             )}
@@ -76,9 +76,9 @@ export const DateRangePicker = <T extends DateValue>({
       </Group>
       <Popover
         className={cn(
-          'z-50 bg-base-100 border border-base-300 rounded-lg shadow-lg',
-          'entering:animate-in entering:fade-in entering:zoom-in-95',
-          'exiting:animate-out exiting:fade-out exiting:zoom-out-95'
+          "z-50 bg-base-100 border border-base-300 rounded-lg shadow-lg",
+          "entering:animate-in entering:fade-in entering:zoom-in-95",
+          "exiting:animate-out exiting:fade-out exiting:zoom-out-95",
         )}
         offset={8}
       >
@@ -106,15 +106,15 @@ export const DateRangePicker = <T extends DateValue>({
                   <CalendarCell
                     date={date}
                     className={cn(
-                      'h-9 w-9 p-0 font-normal cursor-pointer flex items-center justify-center text-sm',
-                      'outline-none',
-                      'hover:bg-base-200',
-                      'data-[selected]:bg-primary/20',
-                      'data-[selection-start]:bg-primary data-[selection-start]:text-primary-content data-[selection-start]:rounded-lg',
-                      'data-[selection-end]:bg-primary data-[selection-end]:text-primary-content data-[selection-end]:rounded-lg',
-                      'data-[outside-month]:text-base-content/30',
-                      'data-[disabled]:text-base-content/30 data-[disabled]:cursor-not-allowed',
-                      'data-[unavailable]:text-error data-[unavailable]:line-through'
+                      "h-9 w-9 p-0 font-normal cursor-pointer flex items-center justify-center text-sm",
+                      "outline-none",
+                      "hover:bg-base-200",
+                      "data-[selected]:bg-primary/20",
+                      "data-[selection-start]:bg-primary data-[selection-start]:text-primary-content data-[selection-start]:rounded-lg",
+                      "data-[selection-end]:bg-primary data-[selection-end]:text-primary-content data-[selection-end]:rounded-lg",
+                      "data-[outside-month]:text-base-content/30",
+                      "data-[disabled]:text-base-content/30 data-[disabled]:cursor-not-allowed",
+                      "data-[unavailable]:text-error data-[unavailable]:line-through",
                     )}
                   />
                 )}
@@ -132,5 +132,4 @@ export const DateRangePicker = <T extends DateValue>({
   </I18nProvider>
 );
 
-DateRangePicker.displayName = 'DateRangePicker';
-
+DateRangePicker.displayName = "DateRangePicker";

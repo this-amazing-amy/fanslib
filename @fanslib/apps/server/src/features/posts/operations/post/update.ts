@@ -15,7 +15,7 @@ export const UpdatePostRequestBodySchema = PostSchema.partial().extend({
 
 export const updatePost = async (
   id: string,
-  updates: z.infer<typeof UpdatePostRequestBodySchema>
+  updates: z.infer<typeof UpdatePostRequestBodySchema>,
 ): Promise<PostWithRelations | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Post);
@@ -51,9 +51,7 @@ export const updatePost = async (
     const validation = await validatePost(postUpdates.caption ?? post.caption, media);
 
     if (!validation.valid) {
-      throw validationError(
-        validation.errors.map((e) => e.message).join("; ")
-      );
+      throw validationError(validation.errors.map((e) => e.message).join("; "));
     }
   }
 
@@ -92,11 +90,14 @@ export const updatePost = async (
     await Promise.all(
       syncedPosts.map(async (syncPost) => {
         const syncStatus = resolvePipelineStatus(syncPost.channel.typeId, postUpdates.status);
-        const syncUpdates =
-          syncStatus ? { ...postUpdates, status: syncStatus } : { ...postUpdates };
+        const syncUpdates = syncStatus
+          ? { ...postUpdates, status: syncStatus }
+          : { ...postUpdates };
 
         const shouldValidateBluesky =
-          syncStatus === "scheduled" && syncPost.status !== "scheduled" && syncPost.channel.typeId === CHANNEL_TYPES.bluesky.id;
+          syncStatus === "scheduled" &&
+          syncPost.status !== "scheduled" &&
+          syncPost.channel.typeId === CHANNEL_TYPES.bluesky.id;
 
         if (shouldValidateBluesky) {
           const media = syncPost.postMedia
@@ -107,9 +108,7 @@ export const updatePost = async (
           const validation = await validatePost(syncUpdates.caption ?? syncPost.caption, media);
 
           if (!validation.valid) {
-            throw validationError(
-              validation.errors.map((e) => e.message).join("; ")
-            );
+            throw validationError(validation.errors.map((e) => e.message).join("; "));
           }
         }
 
@@ -119,10 +118,9 @@ export const updatePost = async (
         });
 
         return repository.save(syncPost);
-      })
+      }),
     );
   }
 
   return fetchPostById(id);
 };
-

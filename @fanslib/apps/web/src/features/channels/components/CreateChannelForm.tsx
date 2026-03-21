@@ -42,7 +42,7 @@ export const CreateChannelForm = ({ onSuccess }: CreateChannelFormProps) => {
             "card bg-base-200 p-4 transition-all hover:bg-base-300 hover:scale-105",
             "flex flex-col items-center gap-3 cursor-pointer outline-none",
             selectedTypeId === typeId && "ring-2 ring-primary",
-            createChannel.isPending && "opacity-50 cursor-not-allowed"
+            createChannel.isPending && "opacity-50 cursor-not-allowed",
           )}
         >
           <ChannelTypeIcon typeId={typeId} className="w-12 h-12" />

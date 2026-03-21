@@ -28,15 +28,19 @@ export const shootsRoutes = new Hono()
     const result = await createShoot(body);
     return c.json(result);
   })
-  .patch("/by-id/:id", zValidator("json", UpdateShootRequestBodySchema, validationError), async (c) => {
-    const id = c.req.param("id");
-    const body = c.req.valid("json");
-    const shoot = await updateShoot(id, body);
-    if (!shoot) {
-      return notFound(c, "Shoot not found");
-    }
-    return c.json(shoot);
-  })
+  .patch(
+    "/by-id/:id",
+    zValidator("json", UpdateShootRequestBodySchema, validationError),
+    async (c) => {
+      const id = c.req.param("id");
+      const body = c.req.valid("json");
+      const shoot = await updateShoot(id, body);
+      if (!shoot) {
+        return notFound(c, "Shoot not found");
+      }
+      return c.json(shoot);
+    },
+  )
   .delete("/by-id/:id", async (c) => {
     const id = c.req.param("id");
     const success = await deleteShoot(id);
@@ -50,4 +54,3 @@ export const shootsRoutes = new Hono()
     const result = await fetchPostsByShootId(id);
     return c.json(result);
   });
-

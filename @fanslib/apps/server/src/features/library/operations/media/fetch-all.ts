@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
 import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { paginatedResponseSchema } from "../../../../lib/pagination";
@@ -29,9 +28,7 @@ export const FetchAllMediaResponseSchema = paginatedResponseSchema(MediaSchema);
 const hasRepostStatusFilter = (filters?: z.infer<typeof MediaFilterSchema>): boolean =>
   filters?.some((group) => group.items.some((item) => item.type === "repostStatus")) ?? false;
 
-const buildFilterContext = async (
-  channelId?: string,
-): Promise<FilterContext> => {
+const buildFilterContext = async (channelId?: string): Promise<FilterContext> => {
   const settings = await loadSettings();
   const context: FilterContext = {
     repostSettings: settings.repostSettings,
@@ -58,14 +55,11 @@ export const fetchAllMedia = async (
   const skip = (page - 1) * limit;
 
   const database = await db();
-  const queryBuilder = database.manager
-    .createQueryBuilder(Media, "media");
+  const queryBuilder = database.manager.createQueryBuilder(Media, "media");
 
   // Build filter context if any repostStatus filters are present
   const needsContext = hasRepostStatusFilter(params?.filters);
-  const filterContext = needsContext
-    ? await buildFilterContext(params?.channelId)
-    : undefined;
+  const filterContext = needsContext ? await buildFilterContext(params?.channelId) : undefined;
 
   // Auto-apply merged filters from schedule + channel if requested
   if (params?.autoApplyFilters && params?.scheduleId && params?.channelId) {
@@ -113,9 +107,10 @@ export const fetchAllMedia = async (
 
   // Add inline repostStatus computation when channelId is provided
   if (params?.channelId) {
-    const cooldownHours = filterContext?.channelCooldownHours
-      ?? filterContext?.repostSettings?.defaultMediaRepostCooldownHours
-      ?? 504;
+    const cooldownHours =
+      filterContext?.channelCooldownHours ??
+      filterContext?.repostSettings?.defaultMediaRepostCooldownHours ??
+      504;
     const cutoffDate = new Date();
     cutoffDate.setHours(cutoffDate.getHours() - cooldownHours);
 
@@ -156,7 +151,7 @@ export const fetchAllMedia = async (
                 .from("post", "p")
                 .innerJoin("post_media", "pm", "pm.postId = p.id")
                 .where("pm.mediaId = media.id"),
-            "lastPostDate"
+            "lastPostDate",
           )
           .orderBy("lastPostDate", direction, "NULLS LAST");
         break;
@@ -168,7 +163,7 @@ export const fetchAllMedia = async (
                 .select("COUNT(pm.id)")
                 .from("post_media", "pm")
                 .where("pm.mediaId = media.id"),
-            "postCount"
+            "postCount",
           )
           .orderBy("postCount", direction)
           .addOrderBy("media.fileModificationDate", "DESC");
@@ -190,12 +185,18 @@ export const fetchAllMedia = async (
 
     // Merge repostStatus from raw results onto entities
     type RepostStatusValue = "never_posted" | "repostable" | "on_cooldown" | "still_growing";
-    const validStatuses = new Set<string>(["never_posted", "repostable", "on_cooldown", "still_growing"]);
+    const validStatuses = new Set<string>([
+      "never_posted",
+      "repostable",
+      "on_cooldown",
+      "still_growing",
+    ]);
     const items = entities.map((entity, index) => {
       const rawStatus = raw[index]?.repostStatus as string | undefined;
       return {
         ...entity,
-        repostStatus: rawStatus && validStatuses.has(rawStatus) ? rawStatus as RepostStatusValue : undefined,
+        repostStatus:
+          rawStatus && validStatuses.has(rawStatus) ? (rawStatus as RepostStatusValue) : undefined,
       };
     });
 

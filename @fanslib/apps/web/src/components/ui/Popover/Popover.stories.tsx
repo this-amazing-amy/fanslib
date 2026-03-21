@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Button } from '../Button';
-import { Popover, PopoverTrigger } from './Popover';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Button } from "../Button";
+import { Popover, PopoverTrigger } from "./Popover";
 
 const PopoverWrapper = () => (
   <PopoverTrigger>
@@ -12,12 +12,12 @@ const PopoverWrapper = () => (
 );
 
 const meta: Meta<typeof PopoverWrapper> = {
-  title: 'Overlays/Popover',
+  title: "Overlays/Popover",
   component: PopoverWrapper,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
@@ -26,5 +26,3 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {},
 };
-
-

@@ -1,23 +1,23 @@
-import { Hono } from 'hono';
-import { zValidator } from '@hono/zod-validator';
-import { z } from 'zod';
-import { promises as fs } from 'fs';
-import path from 'path';
-import { validationError, notFound } from '../../lib/hono-utils';
-import { deleteMedia } from './operations/media/delete';
-import { fetchAllMedia } from './operations/media/fetch-all';
-import { fetchMediaById } from './operations/media/fetch-by-id';
-import { fetchMediaByPath } from './operations/media/fetch-by-path';
-import { findAdjacentMedia } from './operations/media/find-adjacent';
-import { updateMedia } from './operations/media/update';
-import { getMediaPostingHistory } from './operations/media/get-media-posting-history';
-import { getScanStatus, scanFile, scanLibrary } from './operations/scan/scan';
-import { getThumbnailPath } from './operations/scan/thumbnail';
-import { uploadMediaToShoot } from './operations/upload';
-import { resolveMediaPath } from './path-utils';
-import { MediaFilterSchema } from './schemas/media-filter';
-import { MediaSortSchema } from './schemas/media-sort';
-import { MediaTypeSchema } from './schema';
+import { Hono } from "hono";
+import { zValidator } from "@hono/zod-validator";
+import { z } from "zod";
+import { promises as fs } from "fs";
+import path from "path";
+import { validationError, notFound } from "../../lib/hono-utils";
+import { deleteMedia } from "./operations/media/delete";
+import { fetchAllMedia } from "./operations/media/fetch-all";
+import { fetchMediaById } from "./operations/media/fetch-by-id";
+import { fetchMediaByPath } from "./operations/media/fetch-by-path";
+import { findAdjacentMedia } from "./operations/media/find-adjacent";
+import { updateMedia } from "./operations/media/update";
+import { getMediaPostingHistory } from "./operations/media/get-media-posting-history";
+import { getScanStatus, scanFile, scanLibrary } from "./operations/scan/scan";
+import { getThumbnailPath } from "./operations/scan/thumbnail";
+import { uploadMediaToShoot } from "./operations/upload";
+import { resolveMediaPath } from "./path-utils";
+import { MediaFilterSchema } from "./schemas/media-filter";
+import { MediaSortSchema } from "./schemas/media-sort";
+import { MediaTypeSchema } from "./schema";
 
 // Zod Schemas for request/response validation
 const FetchAllMediaRequestBodySchema = z.object({
@@ -60,19 +60,19 @@ const ScanFileRequestBodySchema = z.object({
 const getMimeType = (filePath: string): string => {
   const ext = path.extname(filePath).toLowerCase();
   const mimeTypes: Record<string, string> = {
-    '.jpg': 'image/jpeg',
-    '.jpeg': 'image/jpeg',
-    '.png': 'image/png',
-    '.gif': 'image/gif',
-    '.webp': 'image/webp',
-    '.avif': 'image/avif',
-    '.mp4': 'video/mp4',
-    '.webm': 'video/webm',
-    '.mov': 'video/quicktime',
-    '.avi': 'video/x-msvideo',
-    '.mkv': 'video/x-matroska',
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".png": "image/png",
+    ".gif": "image/gif",
+    ".webp": "image/webp",
+    ".avif": "image/avif",
+    ".mp4": "video/mp4",
+    ".webm": "video/webm",
+    ".mov": "video/quicktime",
+    ".avi": "video/x-msvideo",
+    ".mkv": "video/x-matroska",
   };
-  return mimeTypes[ext] ?? 'application/octet-stream';
+  return mimeTypes[ext] ?? "application/octet-stream";
 };
 
 type ParsedRange = {
@@ -98,9 +98,9 @@ const parseRangeHeader = (rangeHeader: string | null, fileSize: number): ParsedR
 };
 
 export const libraryRoutes = new Hono()
-  .basePath('/api/media')
-  .post('/all', zValidator('json', FetchAllMediaRequestBodySchema, validationError), async (c) => {
-    const body = c.req.valid('json');
+  .basePath("/api/media")
+  .post("/all", zValidator("json", FetchAllMediaRequestBodySchema, validationError), async (c) => {
+    const body = c.req.valid("json");
     const result = await fetchAllMedia({
       page: body.page,
       limit: body.limit,
@@ -114,95 +114,103 @@ export const libraryRoutes = new Hono()
     });
     return c.json(result);
   })
-  .get('/by-id/:id', async (c) => {
-    const id = c.req.param('id');
+  .get("/by-id/:id", async (c) => {
+    const id = c.req.param("id");
     const media = await fetchMediaById(id);
     if (!media) {
-      return notFound(c, 'Media not found');
+      return notFound(c, "Media not found");
     }
     return c.json(media);
   })
-  .get('/by-path/:path', async (c) => {
-    const path = c.req.param('path');
+  .get("/by-path/:path", async (c) => {
+    const path = c.req.param("path");
     const media = await fetchMediaByPath(path);
     if (!media) {
-      return notFound(c, 'Media not found');
+      return notFound(c, "Media not found");
     }
     return c.json(media);
   })
-  .patch('/by-id/:id', zValidator('json', UpdateMediaRequestBodySchema, validationError), async (c) => {
-    const id = c.req.param('id');
-    const body = c.req.valid('json');
-    const media = await updateMedia(id, body);
-    if (!media) {
-      return notFound(c, 'Media not found');
-    }
-    return c.json(media);
-  })
-  .delete('/by-id/:id', zValidator('query', DeleteMediaQuerySchema, validationError), async (c) => {
-    const id = c.req.param('id');
-    const query = c.req.valid('query');
-    const deleteFile = query.deleteFile === 'true';
+  .patch(
+    "/by-id/:id",
+    zValidator("json", UpdateMediaRequestBodySchema, validationError),
+    async (c) => {
+      const id = c.req.param("id");
+      const body = c.req.valid("json");
+      const media = await updateMedia(id, body);
+      if (!media) {
+        return notFound(c, "Media not found");
+      }
+      return c.json(media);
+    },
+  )
+  .delete("/by-id/:id", zValidator("query", DeleteMediaQuerySchema, validationError), async (c) => {
+    const id = c.req.param("id");
+    const query = c.req.valid("query");
+    const deleteFile = query.deleteFile === "true";
     const success = await deleteMedia(id, deleteFile);
     if (!success) {
-      return notFound(c, 'Media not found');
+      return notFound(c, "Media not found");
     }
     return c.json({ success: true });
   })
-  .post('/by-id/:id/adjacent', zValidator('json', FindAdjacentMediaBodySchema, validationError), async (c) => {
-    const id = c.req.param('id');
-    const body = c.req.valid('json');
-    const result = await findAdjacentMedia(id, body);
-    return c.json(result);
-  })
-  .get('/by-id/:id/posting-history', async (c) => {
-    const id = c.req.param('id');
+  .post(
+    "/by-id/:id/adjacent",
+    zValidator("json", FindAdjacentMediaBodySchema, validationError),
+    async (c) => {
+      const id = c.req.param("id");
+      const body = c.req.valid("json");
+      const result = await findAdjacentMedia(id, body);
+      return c.json(result);
+    },
+  )
+  .get("/by-id/:id/posting-history", async (c) => {
+    const id = c.req.param("id");
     const result = await getMediaPostingHistory(id);
     return c.json(result);
   })
-  .post('/upload', async (c) => {
+  .post("/upload", async (c) => {
     const formData = await c.req.formData();
-    const shootId = formData.get('shootId');
-    const file = formData.get('file');
+    const shootId = formData.get("shootId");
+    const file = formData.get("file");
 
-    if (!shootId || typeof shootId !== 'string') {
-      return c.json({ error: 'shootId is required' }, 400);
+    if (!shootId || typeof shootId !== "string") {
+      return c.json({ error: "shootId is required" }, 400);
     }
     if (!file || !(file instanceof File)) {
-      return c.json({ error: 'file is required' }, 400);
+      return c.json({ error: "file is required" }, 400);
     }
 
     try {
       const media = await uploadMediaToShoot({ shootId, file });
       return c.json(media);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Upload failed';
-      if (message.includes('not found')) return c.json({ error: message }, 404);
-      if (message.includes('Unsupported')) return c.json({ error: message }, 422);
+      const message = error instanceof Error ? error.message : "Upload failed";
+      if (message.includes("not found")) return c.json({ error: message }, 404);
+      if (message.includes("Unsupported")) return c.json({ error: message }, 422);
       return c.json({ error: message }, 500);
     }
   })
-  .post('/scan', async (c) => {
+  .post("/scan", async (c) => {
     await scanLibrary();
     return c.json({
-      message: 'Scan started',
+      message: "Scan started",
       started: true,
     });
   })
-  .post('/scan/file', zValidator('json', ScanFileRequestBodySchema, validationError), async (c) => {
-    const body = c.req.valid('json');
+  .post("/scan/file", zValidator("json", ScanFileRequestBodySchema, validationError), async (c) => {
+    const body = c.req.valid("json");
     const result = await scanFile(body.filePath);
     return c.json(result);
   })
-  .get('/scan/status', async (c) => {
+  .get("/scan/status", async (c) => {
     const result = await getScanStatus();
     return c.json(result);
   })
-  .get('/:id/file', async (c) => {
-    const id = c.req.param('id');
+  .get("/:id/file", async (c) => {
+    const id = c.req.param("id");
     const media = await fetchMediaById(id);
     if (!media) {
-      return c.json({ error: 'Media not found' }, 404);
+      return c.json({ error: "Media not found" }, 404);
     }
 
     const filePath = resolveMediaPath(media.relativePath);
@@ -210,23 +218,23 @@ export const libraryRoutes = new Hono()
     try {
       await fs.access(filePath);
     } catch {
-      return c.json({ error: 'File not found' }, 404);
+      return c.json({ error: "File not found" }, 404);
     }
 
     const file = Bun.file(filePath);
     const mimeType = getMimeType(filePath);
     const fileSize = file.size;
-    
+
     // Check for Range header
-    const rangeHeader = c.req.header('Range');
+    const rangeHeader = c.req.header("Range");
     const range = parseRangeHeader(rangeHeader ?? null, fileSize);
 
     // If no range or invalid range, serve the full file
     if (!range) {
       return c.body(file.stream(), 200, {
-        'Content-Type': mimeType,
-        'Accept-Ranges': 'bytes',
-        'Content-Length': fileSize.toString(),
+        "Content-Type": mimeType,
+        "Accept-Ranges": "bytes",
+        "Content-Length": fileSize.toString(),
       });
     }
 
@@ -235,27 +243,26 @@ export const libraryRoutes = new Hono()
     const chunkSize = end - start + 1;
 
     return c.body(file.slice(start, end + 1).stream(), 206, {
-      'Content-Type': mimeType,
-      'Accept-Ranges': 'bytes',
-      'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-      'Content-Length': chunkSize.toString(),
+      "Content-Type": mimeType,
+      "Accept-Ranges": "bytes",
+      "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+      "Content-Length": chunkSize.toString(),
     });
   })
-  .get('/:id/thumbnail', async (c) => {
-    const id = c.req.param('id');
+  .get("/:id/thumbnail", async (c) => {
+    const id = c.req.param("id");
     const thumbnailPath = getThumbnailPath(id);
-    
+
     try {
       await fs.access(thumbnailPath);
     } catch {
-      return c.json({ error: 'Thumbnail not found' }, 404);
+      return c.json({ error: "Thumbnail not found" }, 404);
     }
 
     const file = Bun.file(thumbnailPath);
-    
+
     return c.body(file.stream(), 200, {
-      'Content-Type': 'image/jpeg',
-      'Cache-Control': 'public, max-age=31536000',
+      "Content-Type": "image/jpeg",
+      "Cache-Control": "public, max-age=31536000",
     });
   });
-

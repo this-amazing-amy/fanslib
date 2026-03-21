@@ -1,12 +1,14 @@
 import { CheckCircle2, FileX } from "lucide-react";
-import type { AssignMediaResponse } from '@fanslib/server/schemas';
+import type { AssignMediaResponse } from "@fanslib/server/schemas";
 
 type AssignmentResultsProps = {
   result: AssignMediaResponse;
 };
 
 export const AssignmentResults = ({ result }: AssignmentResultsProps) => {
-  const draftsWithoutMedia = result.unfilled.filter((slot) => slot.reason === "no_eligible_media").length;
+  const draftsWithoutMedia = result.unfilled.filter(
+    (slot) => slot.reason === "no_eligible_media",
+  ).length;
 
   return (
     <div className="p-4">

@@ -38,15 +38,14 @@ export const updateSnippet = async (
       throw new Error(
         data.channelId !== undefined
           ? "A snippet with this name already exists for this channel"
-          : "A global snippet with this name already exists"
+          : "A global snippet with this name already exists",
       );
     }
   }
 
   Object.assign(snippet, data);
   const savedSnippet = await repo.save(snippet);
-  
+
   const { channelId: _, ...snippetWithoutChannelId } = savedSnippet;
   return snippetWithoutChannelId;
 };
-

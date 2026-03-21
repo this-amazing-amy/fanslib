@@ -17,9 +17,7 @@ describe("Settings Routes", () => {
     await setupTestDatabase();
     fixtures = await resetAllFixtures();
     void fixtures;
-    app = new Hono()
-      .use("*", devalueMiddleware())
-      .route("/", settingsRoutes);
+    app = new Hono().use("*", devalueMiddleware()).route("/", settingsRoutes);
   });
 
   afterAll(async () => {
@@ -78,7 +76,10 @@ describe("Settings Routes", () => {
         const response = await app.request("/api/settings/fansly-credentials");
         expect(response.status).toBe(200);
 
-        const data = await parseResponse<{ credentials: Record<string, unknown>; lastUpdated: number | null } | null>(response);
+        const data = await parseResponse<{
+          credentials: Record<string, unknown>;
+          lastUpdated: number | null;
+        } | null>(response);
         if (data) {
           expect(typeof data).toBe("object");
           expect(data).toHaveProperty("credentials");
@@ -159,7 +160,10 @@ describe("Settings Routes", () => {
 
         // Verify stale is cleared
         const freshRes = await app.request("/api/settings/fansly-credentials");
-        const freshData = await parseResponse<{ stale: boolean; credentials: Record<string, unknown> }>(freshRes);
+        const freshData = await parseResponse<{
+          stale: boolean;
+          credentials: Record<string, unknown>;
+        }>(freshRes);
         expect(freshData?.stale).toBe(false);
         expect(freshData?.credentials?.fanslyAuth).toBe("new-auth");
       });
@@ -195,7 +199,11 @@ describe("Settings Routes", () => {
         const response = await app.request("/api/settings/fansly-credential-status");
         expect(response.status).toBe(200);
 
-        const data = await parseResponse<{ status: string; stale: boolean; lastUpdated: number | null }>(response);
+        const data = await parseResponse<{
+          status: string;
+          stale: boolean;
+          lastUpdated: number | null;
+        }>(response);
         expect(data?.status).toBe("green");
         expect(data?.stale).toBe(false);
         expect(data?.lastUpdated).toBeNumber();
@@ -241,4 +249,3 @@ describe("Settings Routes", () => {
     });
   });
 });
-

@@ -1,7 +1,13 @@
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "~/components/ui/Button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "~/components/ui/Command";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "~/components/ui/Command";
 import { Popover, PopoverTrigger } from "~/components/ui/Popover";
 import { cn } from "~/lib/cn";
 import { useChannelsQuery } from "~/lib/queries/channels";
@@ -17,7 +23,7 @@ export const ChannelFilterSelector = ({ value, onChange }: ChannelFilterSelector
 
   const selectedChannel = useMemo(
     () => (channels ?? []).find((channel) => channel.id === value),
-    [channels, value]
+    [channels, value],
   );
 
   const displayValue = selectedChannel ? selectedChannel.name : "Select channel...";
@@ -29,14 +35,8 @@ export const ChannelFilterSelector = ({ value, onChange }: ChannelFilterSelector
 
   return (
     <PopoverTrigger isOpen={open} onOpenChange={setOpen}>
-      <Button
-        variant="outline"
-        aria-expanded={open}
-        className="w-full justify-between"
-      >
-        <div className="flex items-center gap-2">
-          {isLoading ? "Loading..." : displayValue}
-        </div>
+      <Button variant="outline" aria-expanded={open} className="w-full justify-between">
+        <div className="flex items-center gap-2">{isLoading ? "Loading..." : displayValue}</div>
         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </Button>
       <Popover className="p-0 w-[min(480px,100vw-32px)]" placement="bottom start">
@@ -56,7 +56,7 @@ export const ChannelFilterSelector = ({ value, onChange }: ChannelFilterSelector
                     <Check
                       className={cn(
                         "mr-2 h-4 w-4",
-                        value === channel.id ? "opacity-100" : "opacity-0"
+                        value === channel.id ? "opacity-100" : "opacity-0",
                       )}
                     />
                     {channel.name}

@@ -43,7 +43,7 @@ const calculateColumnsForWidth = (width: number, gridSize: GridSize): number => 
 const calculateRowsForHeight = (
   containerHeight: number,
   containerWidth: number,
-  columns: number
+  columns: number,
 ): number => {
   if (containerHeight <= 0 || containerWidth <= 0 || columns <= 0) return 4; // Default fallback
 
@@ -77,7 +77,7 @@ const calculateRowsForHeight = (
 const calculateOptimalPageSize = (
   containerWidth: number,
   containerHeight: number,
-  gridSize: GridSize
+  gridSize: GridSize,
 ): number => {
   if (containerWidth <= 0 || containerHeight <= 0) return 50; // Default fallback
 
@@ -91,10 +91,10 @@ const calculateOptimalPageSize = (
 
 export const useDynamicPageSize = (
   containerRef: React.RefObject<HTMLElement | null>,
-  gridSize: GridSize
+  gridSize: GridSize,
 ) => {
   const [pageSize, setPageSize] = useState(
-    () => calculateOptimalPageSize(1024, 600, gridSize) // Default fallback
+    () => calculateOptimalPageSize(1024, 600, gridSize), // Default fallback
   );
 
   const debounceRef = useRef<number | undefined>(undefined);

@@ -21,7 +21,7 @@ export const AssignMediaResponseSchema = z.object({
       channelId: z.string(),
       date: z.coerce.date(),
       reason: UnfilledReasonSchema,
-    })
+    }),
   ),
   summary: z.array(
     z.object({
@@ -29,7 +29,7 @@ export const AssignMediaResponseSchema = z.object({
       channelName: z.string(),
       draftsCreated: z.number(),
       uniqueMediaUsed: z.number(),
-    })
+    }),
   ),
 });
 

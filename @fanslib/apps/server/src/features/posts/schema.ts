@@ -1,12 +1,7 @@
 import { z } from "zod";
 import { MediaSchema } from "../library/schema";
 
-export const PostStatusSchema = z.enum([
-  'draft',
-  'ready',
-  'scheduled',
-  'posted',
-]);
+export const PostStatusSchema = z.enum(["draft", "ready", "scheduled", "posted"]);
 
 export const PostMediaSchema = z.object({
   id: z.string(),
@@ -40,4 +35,3 @@ export const PostSchema = z.object({
   channelId: z.string(),
   subredditId: z.string().nullable(),
 });
-

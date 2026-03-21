@@ -1,8 +1,8 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef } from "react";
 
 export const useDebounce = <T extends (...args: Parameters<T>) => ReturnType<T>>(
   callback: T,
-  delay: number
+  delay: number,
 ) => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -16,10 +16,8 @@ export const useDebounce = <T extends (...args: Parameters<T>) => ReturnType<T>>
         callback(...args);
       }, delay);
     },
-    [callback, delay]
+    [callback, delay],
   );
 
   return debouncedCallback;
 };
-
-

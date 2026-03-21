@@ -1,4 +1,4 @@
-import type { MediaFilter } from '@fanslib/server/schemas';
+import type { MediaFilter } from "@fanslib/server/schemas";
 import { Calendar, Camera, FileText, Hash, Minus, Tag } from "lucide-react";
 import { useMemo } from "react";
 import { useTagFilterNames } from "~/hooks/useTagFilterNames";
@@ -41,11 +41,11 @@ const FilterItemBadge = ({
     if (!String(item.id ?? "").trim()) return null;
     const displayName = channelName?.trim() ?? String(item.id);
     return (
-      <Tooltip content={`${isInclude ? "Include" : "Exclude"} channel: ${displayName}`} openDelayMs={0}>
-        <Badge
-          variant={isInclude ? "primary" : "secondary"}
-          className="text-xs"
-        >
+      <Tooltip
+        content={`${isInclude ? "Include" : "Exclude"} channel: ${displayName}`}
+        openDelayMs={0}
+      >
+        <Badge variant={isInclude ? "primary" : "secondary"} className="text-xs">
           <span className="flex items-center gap-1">
             <IncludeIcon isInclude={isInclude} />
             <span>{displayName}</span>
@@ -60,11 +60,11 @@ const FilterItemBadge = ({
     if (!String(item.id ?? "").trim()) return null;
     const displayName = subredditName?.trim() ?? String(item.id);
     return (
-      <Tooltip content={`${isInclude ? "Include" : "Exclude"} subreddit: ${displayName}`} openDelayMs={0}>
-        <Badge
-          variant={isInclude ? "primary" : "secondary"}
-          className="text-xs"
-        >
+      <Tooltip
+        content={`${isInclude ? "Include" : "Exclude"} subreddit: ${displayName}`}
+        openDelayMs={0}
+      >
+        <Badge variant={isInclude ? "primary" : "secondary"} className="text-xs">
           <span className="flex items-center gap-1">
             <IncludeIcon isInclude={isInclude} />
             <span>r/{displayName}</span>
@@ -80,10 +80,7 @@ const FilterItemBadge = ({
     const displayName = tagName ?? `Tag ${item.id}`;
     return (
       <Tooltip content={`${isInclude ? "Include" : "Exclude"} tag: ${displayName}`} openDelayMs={0}>
-        <Badge
-          variant={isInclude ? "primary" : "secondary"}
-          className="text-xs"
-        >
+        <Badge variant={isInclude ? "primary" : "secondary"} className="text-xs">
           <span className="flex items-center gap-1">
             <IncludeIcon isInclude={isInclude} />
             <Tag className="h-3 w-3" />
@@ -99,10 +96,7 @@ const FilterItemBadge = ({
     if (!String(item.id ?? "").trim()) return null;
     return (
       <Tooltip content={`${isInclude ? "Include" : "Exclude"} shoot: ${item.id}`} openDelayMs={0}>
-        <Badge
-          variant={isInclude ? "primary" : "secondary"}
-          className="text-xs"
-        >
+        <Badge variant={isInclude ? "primary" : "secondary"} className="text-xs">
           <span className="flex items-center gap-1">
             <IncludeIcon isInclude={isInclude} />
             <span>Shoot {item.id}</span>
@@ -120,10 +114,7 @@ const FilterItemBadge = ({
         content={`${isInclude ? "Include" : "Exclude"} files matching: "${item.value}"`}
         openDelayMs={0}
       >
-        <Badge
-          variant="secondary"
-          className="text-xs"
-        >
+        <Badge variant="secondary" className="text-xs">
           <span className="flex items-center gap-1">
             <IncludeIcon isInclude={isInclude} />
             <FileText className="h-3 w-3" />
@@ -142,10 +133,7 @@ const FilterItemBadge = ({
         content={`${isInclude ? "Include" : "Exclude"} posts with caption: "${item.value}"`}
         openDelayMs={0}
       >
-        <Badge
-          variant="secondary"
-          className="text-xs"
-        >
+        <Badge variant="secondary" className="text-xs">
           <span className="flex items-center gap-1">
             <IncludeIcon isInclude={isInclude} />
             <span>{`Caption: "${item.value}"`}</span>
@@ -159,10 +147,7 @@ const FilterItemBadge = ({
   if (item.type === "posted") {
     return (
       <Tooltip content={`Only ${item.value ? "posted" : "unposted"} content`} openDelayMs={0}>
-        <Badge
-          variant="secondary"
-          className="text-xs"
-        >
+        <Badge variant="secondary" className="text-xs">
           <span className="flex items-center gap-1">
             <IncludeIcon isInclude={isInclude} />
             <span>{item.value ? "Posted" : "Unposted"}</span>
@@ -175,14 +160,8 @@ const FilterItemBadge = ({
   // Media type filter
   if (item.type === "mediaType") {
     return (
-      <Tooltip
-        content={`Only ${item.value === "image" ? "image" : "video"} files`}
-        openDelayMs={0}
-      >
-        <Badge
-          variant="secondary"
-          className="text-xs"
-        >
+      <Tooltip content={`Only ${item.value === "image" ? "image" : "video"} files`} openDelayMs={0}>
+        <Badge variant="secondary" className="text-xs">
           <span className="flex items-center gap-1">
             <IncludeIcon isInclude={isInclude} />
             <Camera className="h-3 w-3" />
@@ -196,18 +175,13 @@ const FilterItemBadge = ({
   // Date range filter
   if (item.type === "createdDateStart" || item.type === "createdDateEnd") {
     const dateStr =
-      item.value instanceof Date
-        ? item.value.toLocaleDateString()
-        : String(item.value);
+      item.value instanceof Date ? item.value.toLocaleDateString() : String(item.value);
     return (
       <Tooltip
         content={`Created ${item.type === "createdDateStart" ? "after" : "before"} ${dateStr}`}
         openDelayMs={0}
       >
-        <Badge
-          variant="secondary"
-          className="text-xs"
-        >
+        <Badge variant="secondary" className="text-xs">
           <span className="flex items-center gap-1">
             <IncludeIcon isInclude={isInclude} />
             <Calendar className="h-3 w-3" />
@@ -224,10 +198,7 @@ const FilterItemBadge = ({
   if (item.type === "dimensionEmpty") {
     return (
       <Tooltip content={`Tag dimension ${item.dimensionId} is empty`} openDelayMs={0}>
-        <Badge
-          variant="secondary"
-          className="text-xs"
-        >
+        <Badge variant="secondary" className="text-xs">
           <span className="flex items-center gap-1">
             <IncludeIcon isInclude={isInclude} />
             <Hash className="h-3 w-3" />
@@ -264,7 +235,7 @@ export const MediaFilterSummary = ({
         const name = typeof channel?.name === "string" ? channel.name : "";
         return id && name ? map.set(id, name) : map;
       }, new Map<string, string>()),
-    [channels]
+    [channels],
   );
 
   const subredditNameById = useMemo(
@@ -274,7 +245,7 @@ export const MediaFilterSummary = ({
         const name = typeof subreddit?.channel?.name === "string" ? subreddit.channel.name : "";
         return id && name ? map.set(id, name) : map;
       }, new Map<string, string>()),
-    [subreddits]
+    [subreddits],
   );
 
   if (filterGroups.length === 0) {
@@ -283,7 +254,7 @@ export const MediaFilterSummary = ({
 
   // Flatten all filter items with their groups
   const allItems = filterGroups.flatMap((group) =>
-    group.items.map((item: FilterItem) => ({ item, group }))
+    group.items.map((item: FilterItem) => ({ item, group })),
   );
 
   const visibleItems = maxItems !== undefined ? allItems.slice(0, maxItems) : allItems;
@@ -297,12 +268,17 @@ export const MediaFilterSummary = ({
           item={item}
           group={group}
           channelName={item.type === "channel" ? channelNameById.get(String(item.id)) : undefined}
-          subredditName={item.type === "subreddit" ? subredditNameById.get(String(item.id)) : undefined}
+          subredditName={
+            item.type === "subreddit" ? subredditNameById.get(String(item.id)) : undefined
+          }
           tagName={item.type === "tag" ? getTagName(item.id) : undefined}
         />
       ))}
       {remainingCount > 0 && (
-        <Tooltip content={`${remainingCount} more filter${remainingCount === 1 ? "" : "s"}`} openDelayMs={0}>
+        <Tooltip
+          content={`${remainingCount} more filter${remainingCount === 1 ? "" : "s"}`}
+          openDelayMs={0}
+        >
           <Badge variant="secondary" className="text-xs">
             +{remainingCount} more
           </Badge>

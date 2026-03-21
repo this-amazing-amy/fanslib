@@ -33,9 +33,7 @@ export const ContentScheduleSelect = ({
     <div className={cn("flex flex-wrap gap-2", className)}>
       {(schedules ?? []).length === 0 && (
         <div className="text-sm text-base-content/60">
-          {channelId
-            ? "No schedules configured for this channel."
-            : "No content schedules found."}
+          {channelId ? "No schedules configured for this channel." : "No content schedules found."}
         </div>
       )}
 

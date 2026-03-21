@@ -1,8 +1,7 @@
-import type { Channel } from '@fanslib/server/schemas';
+import type { Channel } from "@fanslib/server/schemas";
 import { Hash } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { Tooltip } from "~/components/ui/Tooltip";
-
 
 type HashtagButtonProps = {
   channel: Channel;
@@ -22,10 +21,12 @@ export const HashtagButton = ({
   const collectHashtags = () => {
     const channelHashtags = channel?.defaultHashtags ?? [];
 
-    const uniqueHashtags = Array.from(new Set(channelHashtags as unknown as Iterable<{ name: string }>));
+    const uniqueHashtags = Array.from(
+      new Set(channelHashtags as unknown as Iterable<{ name: string }>),
+    );
 
     return uniqueHashtags.map((hashtag) =>
-      hashtag.name.startsWith("#") ? hashtag.name : `#${hashtag.name}`
+      hashtag.name.startsWith("#") ? hashtag.name : `#${hashtag.name}`,
     );
   };
 
@@ -63,7 +64,11 @@ export const HashtagButton = ({
   if (collectHashtags().length === 0) return null;
 
   return (
-    <Tooltip content="Adds all channel default hashtags to the caption" placement="top" openDelayMs={0}>
+    <Tooltip
+      content="Adds all channel default hashtags to the caption"
+      placement="top"
+      openDelayMs={0}
+    >
       <Button variant="ghost" size="icon" className={className} onPress={addHashtags}>
         <Hash className="h-4 w-4" />
       </Button>

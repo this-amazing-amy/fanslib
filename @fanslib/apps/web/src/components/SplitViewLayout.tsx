@@ -1,5 +1,12 @@
 import { GripVertical, PanelRightClose, PanelRightOpen } from "lucide-react";
-import React, { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 import type { ImperativePanelGroupHandle } from "react-resizable-panels";
 import * as ResizablePrimitive from "react-resizable-panels";
 import { ScrollArea } from "~/components/ui/ScrollArea";
@@ -39,7 +46,7 @@ const ResizablePanelGroup = ({ className, id, ...props }: ResizablePanelGroupPro
         }}
         className={cn(
           "flex h-full w-full data-[panel-group-direction=vertical]:flex-col",
-          className
+          className,
         )}
         {...props}
       />
@@ -82,7 +89,9 @@ const ResizablePanel = ({
   defaultSize = 30,
   groupRef,
   panelIndex,
-  collapseIcon: _collapseIcon = <PanelRightClose className="h-4 w-4 transition-transform duration-300" />,
+  collapseIcon: _collapseIcon = (
+    <PanelRightClose className="h-4 w-4 transition-transform duration-300" />
+  ),
   expandIcon = <PanelRightOpen className="h-4 w-4 transition-transform duration-300" />,
   ...props
 }: ResizablePanelProps) => {
@@ -106,7 +115,7 @@ const ResizablePanel = ({
   const handleResize = useCallback(
     (size: number) => {
       if (!collapsible) return;
-      
+
       const autoCollapseThreshold = 10;
       if (!isCollapsed && size <= autoCollapseThreshold) {
         setIsCollapsed(true);
@@ -116,7 +125,7 @@ const ResizablePanel = ({
         onCollapsedChange?.(false);
       }
     },
-    [isCollapsed, onCollapsedChange, collapsible]
+    [isCollapsed, onCollapsedChange, collapsible],
   );
 
   const toggleCollapse = useCallback(() => {
@@ -160,7 +169,7 @@ const ResizablePanel = ({
         "relative flex h-full w-full data-[panel-group-direction=vertical]:flex-col",
         shouldAnimate && "transition-all duration-300 ease-in-out",
         isCollapsed && "cursor-pointer hover:bg-accent/50",
-        className
+        className,
       )}
       defaultSize={defaultSize}
       minSize={isCollapsed ? collapsedSize : props.minSize}
@@ -171,12 +180,7 @@ const ResizablePanel = ({
       <div className="h-full w-full flex flex-col">
         {collapsible && !isCollapsed && headerSlot && (
           <div className="flex items-center gap-2 py-6 px-6 flex-none">
-            <div
-              className={cn(
-                shouldAnimate && "transition-opacity duration-300",
-                "opacity-100"
-              )}
-            >
+            <div className={cn(shouldAnimate && "transition-opacity duration-300", "opacity-100")}>
               {headerSlot}
             </div>
           </div>
@@ -186,7 +190,7 @@ const ResizablePanel = ({
             "flex-1 min-h-0",
             !collapsible && "h-full",
             collapsible && !shouldAnimate && "transition-opacity duration-300",
-            collapsible && isCollapsed ? "opacity-0" : "opacity-100"
+            collapsible && isCollapsed ? "opacity-0" : "opacity-100",
           )}
         >
           {children}
@@ -198,7 +202,7 @@ const ResizablePanel = ({
               className={cn(
                 "rounded-full bg-accent/10 p-2",
                 !shouldAnimate && "transition-colors",
-                "hover:bg-accent/20"
+                "hover:bg-accent/20",
               )}
             >
               {expandIcon}
@@ -231,7 +235,7 @@ const ResizableHandle = ({
       <ResizablePrimitive.PanelResizeHandle
         className={cn(
           "relative flex w-3 h-full cursor-col-resize items-center justify-center rounded-full bg-primary/30 transition-colors hover:bg-primary/40 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100 data-[panel-group-direction=vertical]:h-3 data-[panel-group-direction=vertical]:w-full data-[panel-group-direction=vertical]:cursor-row-resize",
-          className
+          className,
         )}
         onDragging={(isDragging) => {
           setIsDragging(isDragging);
@@ -248,7 +252,7 @@ const ResizableHandle = ({
         <div
           className={cn(
             "absolute right-0 top-1/2 -translate-y-1/2 translate-x-full z-20 transition-opacity duration-200",
-            isHovered ? "opacity-100" : "opacity-0 pointer-events-none"
+            isHovered ? "opacity-100" : "opacity-0 pointer-events-none",
           )}
         >
           {collapseButton}
@@ -298,9 +302,7 @@ export const SplitViewLayout = ({
         >
           <div className="flex h-full w-full flex-col overflow-hidden bg-base-100">
             {mainContentHeader && (
-              <div className="flex items-center gap-2 py-6 px-6 flex-none">
-                {mainContentHeader}
-              </div>
+              <div className="flex items-center gap-2 py-6 px-6 flex-none">{mainContentHeader}</div>
             )}
             <ScrollArea className="flex-1 min-h-0">{mainContent}</ScrollArea>
           </div>
@@ -317,9 +319,7 @@ export const SplitViewLayout = ({
         >
           <div className="flex h-full w-full flex-col overflow-hidden bg-base-100">
             {sideContentHeader && (
-              <div className="flex items-center gap-2 py-6 px-6 flex-none">
-                {sideContentHeader}
-              </div>
+              <div className="flex items-center gap-2 py-6 px-6 flex-none">{sideContentHeader}</div>
             )}
             <ScrollArea className="flex-1 min-h-0">{sideContent}</ScrollArea>
           </div>

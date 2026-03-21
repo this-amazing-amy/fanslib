@@ -15,14 +15,16 @@ export const CreateSnippetResponseSchema = CaptionSnippetSchema.omit({ channelId
   channel: ChannelSchema.nullable(),
 });
 
-export const createSnippet = async (data: z.infer<typeof CreateSnippetRequestBodySchema>): Promise<z.infer<typeof CreateSnippetResponseSchema>> => {
+export const createSnippet = async (
+  data: z.infer<typeof CreateSnippetRequestBodySchema>,
+): Promise<z.infer<typeof CreateSnippetResponseSchema>> => {
   const database = await db();
   const repo = database.getRepository(CaptionSnippet);
 
   const existing = await repo.findOne({
     where: {
       name: data.name,
-      channelId: data.channelId ?? IsNull()
+      channelId: data.channelId ?? IsNull(),
     },
   });
 
@@ -30,7 +32,7 @@ export const createSnippet = async (data: z.infer<typeof CreateSnippetRequestBod
     throw new Error(
       data.channelId
         ? "A snippet with this name already exists for this channel"
-        : "A global snippet with this name already exists"
+        : "A global snippet with this name already exists",
     );
   }
 
@@ -41,9 +43,9 @@ export const createSnippet = async (data: z.infer<typeof CreateSnippetRequestBod
   // eslint-disable-next-line functional/no-let
   let channel: Channel | null = null;
   if (data.channelId) {
-    const foundChannel = await database.getRepository(Channel).findOne({ 
+    const foundChannel = await database.getRepository(Channel).findOne({
       where: { id: data.channelId },
-      relations: ['type', 'defaultHashtags']
+      relations: ["type", "defaultHashtags"],
     });
     if (!foundChannel) {
       throw new Error(`Channel with id ${data.channelId} not found`);
@@ -55,7 +57,7 @@ export const createSnippet = async (data: z.infer<typeof CreateSnippetRequestBod
   }
 
   const savedSnippet = await repo.save(snippet);
-  
+
   // Omit channelId as per the response schema and include the channel relation
   const { channelId: _, ...snippetWithoutChannelId } = savedSnippet;
   return {
@@ -63,4 +65,3 @@ export const createSnippet = async (data: z.infer<typeof CreateSnippetRequestBod
     channel,
   };
 };
-
