@@ -20,7 +20,7 @@ export const seedChannelFixtures = async () => {
           color: type.color,
         });
       }
-    })
+    }),
   );
 
   await Promise.all(
@@ -36,7 +36,7 @@ export const seedChannelFixtures = async () => {
           mediaRepostCooldownHours: fixture.mediaRepostCooldownHours,
         });
       }
-    })
+    }),
   );
 
   return {
@@ -46,4 +46,3 @@ export const seedChannelFixtures = async () => {
     }),
   };
 };
-

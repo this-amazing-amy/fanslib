@@ -20,7 +20,7 @@ export const PostWithChannelAndMediaSchema = PostSchema.extend({
 });
 
 export const fetchPostsByMediaId = async (
-  mediaId: string
+  mediaId: string,
 ): Promise<z.infer<typeof PostWithChannelAndMediaSchema>[]> => {
   const repository = (await db()).getRepository(Post);
 
@@ -61,4 +61,3 @@ export const fetchPostsByMediaId = async (
     postMedia: post.postMedia.filter((pm) => pm.media !== null),
   }));
 };
-

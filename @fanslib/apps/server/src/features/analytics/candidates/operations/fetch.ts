@@ -1,10 +1,13 @@
 import type { z } from "zod";
 import { db } from "../../../../lib/db";
 import { FanslyMediaCandidate } from "../../candidate-entity";
-import type { FetchAllCandidatesRequestQuerySchema, FetchAllCandidatesResponseSchema } from "../schema";
+import type {
+  FetchAllCandidatesRequestQuerySchema,
+  FetchAllCandidatesResponseSchema,
+} from "../schema";
 
 export const fetchAllCandidates = async (
-  params?: z.infer<typeof FetchAllCandidatesRequestQuerySchema>
+  params?: z.infer<typeof FetchAllCandidatesRequestQuerySchema>,
 ): Promise<z.infer<typeof FetchAllCandidatesResponseSchema>> => {
   const status = params?.status;
   const limit = params?.limit ?? 50;

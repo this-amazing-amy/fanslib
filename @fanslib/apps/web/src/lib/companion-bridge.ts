@@ -1,7 +1,7 @@
-const COMPANION_BASE_URL = 'http://localhost:6971';
+const COMPANION_BASE_URL = "http://localhost:6971";
 
 export type CompanionHealthResponse = {
-  status: 'ok';
+  status: "ok";
 };
 
 export type CompanionRevealResponse = {
@@ -15,26 +15,24 @@ export type CompanionErrorResponse = {
 export const checkCompanionHealth = async (): Promise<boolean> => {
   try {
     const response = await fetch(`${COMPANION_BASE_URL}/health`, {
-      method: 'GET',
+      method: "GET",
       signal: AbortSignal.timeout(1000),
     });
     if (!response.ok) {
       return false;
     }
     const data: CompanionHealthResponse = await response.json();
-    return data.status === 'ok';
+    return data.status === "ok";
   } catch {
     return false;
   }
 };
 
-export const revealInFinder = async (
-  filePath: string
-): Promise<CompanionRevealResponse> => {
+export const revealInFinder = async (filePath: string): Promise<CompanionRevealResponse> => {
   const response = await fetch(`${COMPANION_BASE_URL}/reveal`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({ filePath }),
     signal: AbortSignal.timeout(5000),
@@ -42,9 +40,8 @@ export const revealInFinder = async (
 
   if (!response.ok) {
     const error: CompanionErrorResponse = await response.json();
-    throw new Error(error.error || 'Failed to reveal file');
+    throw new Error(error.error || "Failed to reveal file");
   }
 
   return response.json();
 };
-

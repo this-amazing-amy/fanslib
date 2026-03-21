@@ -19,7 +19,9 @@ const DELAY_BETWEEN_CALLS_MS = 2000;
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export const computeGrowthRate = (datapoints: Pick<FanslyAnalyticsDatapoint, "views" | "timestamp">[]): number => {
+export const computeGrowthRate = (
+  datapoints: Pick<FanslyAnalyticsDatapoint, "views" | "timestamp">[],
+): number => {
   if (datapoints.length < 2) return 0;
 
   const sorted = [...datapoints].sort((a, b) => a.timestamp - b.timestamp);
@@ -58,16 +60,18 @@ const findDueAggregates = async (): Promise<FanslyAnalyticsAggregate[]> => {
   const dataSource = await db();
   const aggregateRepo = dataSource.getRepository(FanslyAnalyticsAggregate);
 
-  return aggregateRepo.find({
-    where: {
-      nextFetchAt: Not(IsNull()) as unknown as Date,
-    },
-    relations: {
-      postMedia: true,
-    },
-  }).then((aggregates) =>
-    aggregates.filter((a) => a.nextFetchAt && a.nextFetchAt.getTime() <= Date.now())
-  );
+  return aggregateRepo
+    .find({
+      where: {
+        nextFetchAt: Not(IsNull()) as unknown as Date,
+      },
+      relations: {
+        postMedia: true,
+      },
+    })
+    .then((aggregates) =>
+      aggregates.filter((a) => a.nextFetchAt && a.nextFetchAt.getTime() <= Date.now()),
+    );
 };
 
 const updateAggregateNextFetchAt = async (
@@ -131,7 +135,11 @@ export const processAnalyticsCronTick = async (): Promise<CronTickResult> => {
 
     try {
       await fetchFanslyAnalyticsData(aggregate.postMediaId);
-      await updateAggregateNextFetchAt(aggregate.id, aggregate.postMediaId, aggregate.plateauDetectedAt);
+      await updateAggregateNextFetchAt(
+        aggregate.id,
+        aggregate.postMediaId,
+        aggregate.plateauDetectedAt,
+      );
       result.processed++;
     } catch (error) {
       if (isAppError(error) && error.code === "CONFIGURATION_ERROR") {

@@ -1,7 +1,7 @@
-import { AlertCircle } from 'lucide-react';
-import type { ReactNode } from 'react';
-import { cn } from '~/lib/cn';
-import { Button } from '../Button';
+import { AlertCircle } from "lucide-react";
+import type { ReactNode } from "react";
+import { cn } from "~/lib/cn";
+import { Button } from "../Button";
 
 export type ErrorStateProps = {
   icon?: ReactNode;
@@ -27,7 +27,9 @@ export const ErrorState = ({
   const errorMessage = error instanceof Error ? error.message : error;
 
   return (
-    <div className={cn('flex flex-col items-center justify-center py-12 px-4 text-center', className)}>
+    <div
+      className={cn("flex flex-col items-center justify-center py-12 px-4 text-center", className)}
+    >
       <div className="mb-4">{displayIcon}</div>
       <h3 className="text-lg font-semibold mb-2 text-error">{title}</h3>
       {description && <p className="text-base-content/70 mb-2 max-w-sm">{description}</p>}
@@ -38,10 +40,9 @@ export const ErrorState = ({
       )}
       {retry && (
         <Button onPress={retry.onClick} variant="error">
-          {retry.label ?? 'Try Again'}
+          {retry.label ?? "Try Again"}
         </Button>
       )}
     </div>
   );
 };
-

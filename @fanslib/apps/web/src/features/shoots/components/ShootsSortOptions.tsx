@@ -1,11 +1,6 @@
 import { ArrowUpDown } from "lucide-react";
 import type { ShootSortDirection, ShootSortField } from "~/contexts/ShootPreferencesContext";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "~/components/ui/Select";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "~/components/ui/Select";
 
 type ShootSort = {
   field: ShootSortField;
@@ -39,7 +34,7 @@ const createSortOptions = () =>
         field: field.value,
         direction,
       };
-    })
+    }),
   );
 
 const sortOptions = createSortOptions();
@@ -61,11 +56,7 @@ export const ShootsSortOptions = ({ value, onChange }: ShootsSortOptionsProps) =
   };
 
   return (
-    <Select
-      value={currentValue}
-      onValueChange={handleValueChange}
-      aria-label="Sort shoots"
-    >
+    <Select value={currentValue} onValueChange={handleValueChange} aria-label="Sort shoots">
       <SelectTrigger className="h-9 gap-2 rounded-full border border-base-content px-4">
         <ArrowUpDown className="h-4 w-4" />
         <span>{selectedOption?.label ?? "Sort by..."}</span>
@@ -80,4 +71,3 @@ export const ShootsSortOptions = ({ value, onChange }: ShootsSortOptionsProps) =
     </Select>
   );
 };
-

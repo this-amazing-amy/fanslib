@@ -13,7 +13,7 @@ export type AggregatedDataPoint = {
 
 export const aggregateDatapoints = (
   datapoints: RawDatapoint[],
-  postDate: string
+  postDate: string,
 ): AggregatedDataPoint[] => {
   if (datapoints.length === 0) {
     return [];
@@ -47,34 +47,26 @@ export const aggregateDatapoints = (
     {
       cumulativeViews: 0,
       byDay: new Map<string, { views: number; timestamp: number }>(),
-    }
+    },
   ).byDay;
   const dayMs = 24 * 60 * 60 * 1000;
 
-  const lastDatapointDate = new Date(
-    sortedDatapoints[sortedDatapoints.length - 1]?.timestamp ?? 0
-  );
+  const lastDatapointDate = new Date(sortedDatapoints[sortedDatapoints.length - 1]?.timestamp ?? 0);
   lastDatapointDate.setHours(0, 0, 0, 0);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const endDate = new Date(Math.min(lastDatapointDate.getTime(), today.getTime()));
-  const totalDays = Math.max(
-    0,
-    Math.floor((endDate.getTime() - postDateObj.getTime()) / dayMs)
-  );
+  const totalDays = Math.max(0, Math.floor((endDate.getTime() - postDateObj.getTime()) / dayMs));
 
-  const allDateKeys = Array.from({ length: totalDays + 1 }, (_, index) =>
-    new Date(postDateObj.getTime() + index * dayMs)
-      .toISOString()
-      .split("T")[0] ?? ""
+  const allDateKeys = Array.from(
+    { length: totalDays + 1 },
+    (_, index) => new Date(postDateObj.getTime() + index * dayMs).toISOString().split("T")[0] ?? "",
   );
 
   const aggregated = allDateKeys.reduce(
     (acc, dateKey) => {
       const currentDate = new Date(`${dateKey}T00:00:00Z`);
-      const daysSincePost = Math.floor(
-        (currentDate.getTime() - postDateObj.getTime()) / dayMs
-      );
+      const daysSincePost = Math.floor((currentDate.getTime() - postDateObj.getTime()) / dayMs);
       const data = datapointsByDay.get(dateKey);
       const views = data?.views ?? acc.prevViews;
       const nextPoint: AggregatedDataPoint = {
@@ -89,9 +81,8 @@ export const aggregateDatapoints = (
         result: [...acc.result, nextPoint],
       };
     },
-    { prevViews: 0, result: [] as AggregatedDataPoint[] }
+    { prevViews: 0, result: [] as AggregatedDataPoint[] },
   );
 
   return aggregated.result;
 };
-

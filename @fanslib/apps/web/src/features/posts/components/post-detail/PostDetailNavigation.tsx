@@ -1,17 +1,17 @@
-import type { PostWithRelations } from '@fanslib/server/schemas';
-import { useNavigate } from '@tanstack/react-router';
-import { ChevronLeft, ChevronRight, Copy, MoreVertical, Trash2 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Button } from '~/components/ui/Button';
-import { DeleteConfirmDialog } from '~/components/ui/DeleteConfirmDialog';
+import type { PostWithRelations } from "@fanslib/server/schemas";
+import { useNavigate } from "@tanstack/react-router";
+import { ChevronLeft, ChevronRight, Copy, MoreVertical, Trash2 } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Button } from "~/components/ui/Button";
+import { DeleteConfirmDialog } from "~/components/ui/DeleteConfirmDialog";
 import {
   DropdownMenu,
   DropdownMenuItem,
   DropdownMenuPopover,
   DropdownMenuTrigger,
-} from '~/components/ui/DropdownMenu';
-import { CreatePostDialog } from '~/features/library/components/CreatePostDialog';
-import { useDeletePostMutation, usePostsQuery } from '~/lib/queries/posts';
+} from "~/components/ui/DropdownMenu";
+import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
+import { useDeletePostMutation, usePostsQuery } from "~/lib/queries/posts";
 
 type Post = PostWithRelations;
 
@@ -49,13 +49,13 @@ export const PostDetailNavigation = ({ post }: PostDetailNavigationProps) => {
 
   const navigateToPrevious = useCallback(() => {
     if (adjacentPosts.previous) {
-      navigate({ to: '/posts/$postId', params: { postId: adjacentPosts.previous.id } });
+      navigate({ to: "/posts/$postId", params: { postId: adjacentPosts.previous.id } });
     }
   }, [adjacentPosts.previous, navigate]);
 
   const navigateToNext = useCallback(() => {
     if (adjacentPosts.next) {
-      navigate({ to: '/posts/$postId', params: { postId: adjacentPosts.next.id } });
+      navigate({ to: "/posts/$postId", params: { postId: adjacentPosts.next.id } });
     }
   }, [adjacentPosts.next, navigate]);
 
@@ -63,17 +63,17 @@ export const PostDetailNavigation = ({ post }: PostDetailNavigationProps) => {
     const handleKeyDown = (event: KeyboardEvent) => {
       const activeElement = document.activeElement;
       const isInputFocused =
-        activeElement?.tagName === 'INPUT' ||
-        activeElement?.tagName === 'TEXTAREA' ||
-        activeElement?.getAttribute('contenteditable') === 'true';
+        activeElement?.tagName === "INPUT" ||
+        activeElement?.tagName === "TEXTAREA" ||
+        activeElement?.getAttribute("contenteditable") === "true";
 
       if (isInputFocused) return;
 
-      if ((event.key === 'ArrowLeft' || event.key === 'h') && (event.ctrlKey || event.metaKey)) {
+      if ((event.key === "ArrowLeft" || event.key === "h") && (event.ctrlKey || event.metaKey)) {
         event.preventDefault();
         navigateToPrevious();
       } else if (
-        (event.key === 'ArrowRight' || event.key === 'l') &&
+        (event.key === "ArrowRight" || event.key === "l") &&
         (event.ctrlKey || event.metaKey)
       ) {
         event.preventDefault();
@@ -81,8 +81,8 @@ export const PostDetailNavigation = ({ post }: PostDetailNavigationProps) => {
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [navigateToPrevious, navigateToNext]);
 
   const hasPrevious = !!adjacentPosts.previous;
@@ -90,10 +90,10 @@ export const PostDetailNavigation = ({ post }: PostDetailNavigationProps) => {
 
   const handleDelete = async () => {
     await deletePostMutation.mutateAsync(post.id);
-    if (typeof window !== 'undefined' && window.history.length > 1) {
+    if (typeof window !== "undefined" && window.history.length > 1) {
       window.history.back();
     } else {
-      navigate({ to: '/plan' });
+      navigate({ to: "/plan" });
     }
   };
 
@@ -164,5 +164,3 @@ export const PostDetailNavigation = ({ post }: PostDetailNavigationProps) => {
     </>
   );
 };
-
-

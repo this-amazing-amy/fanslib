@@ -30,7 +30,7 @@ export const ScanLibraryResponseSchema = z.object({
 });
 
 export const FileScanResultSchema = z.object({
-  action: z.enum(['added', 'updated', 'unchanged']),
+  action: z.enum(["added", "updated", "unchanged"]),
   media: MediaSchema,
 });
 
@@ -46,7 +46,7 @@ export const LibraryScanProgressSchema = z.object({
   total: z.number(),
 });
 
-export const ScanStatusResponseSchema = z.discriminatedUnion('isScanning', [
+export const ScanStatusResponseSchema = z.discriminatedUnion("isScanning", [
   z.object({
     isScanning: z.literal(true),
     progress: LibraryScanProgressSchema.nullable(),
@@ -72,7 +72,7 @@ const convertToRelativePath = (absolutePath: string, libraryPath: string): strin
 };
 
 const isMediaFile = (
-  filePath: string
+  filePath: string,
 ): { isSupported: boolean; type: "image" | "video" | null } => {
   const ext = path.extname(filePath).toLowerCase();
   if (IMAGE_EXTENSIONS.has(ext)) {
@@ -94,7 +94,8 @@ export const scanFile = async (filePath: string): Promise<z.infer<typeof FileSca
   const libraryPath = env().libraryPath;
   const relativePath = convertToRelativePath(filePath, libraryPath);
   const stats = await fs.stat(filePath);
-  const existingMedia = (await fetchMediaByPath(relativePath)) ?? (await findMediaByStats(stats, libraryPath));
+  const existingMedia =
+    (await fetchMediaByPath(relativePath)) ?? (await findMediaByStats(stats, libraryPath));
 
   if (!existingMedia) {
     const media = {
@@ -196,7 +197,6 @@ class LibraryScanner {
         libraryPath,
       });
 
-       
       for await (const filePath of walkDirectory(libraryPath)) {
         const { isSupported } = isMediaFile(filePath);
         if (isSupported) {

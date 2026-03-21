@@ -1,7 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { useOverlayTriggerState } from 'react-stately';
-import { Button } from '../Button';
-import { Sheet, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from './Sheet';
+import type { Meta, StoryObj } from "@storybook/react";
+import { useOverlayTriggerState } from "react-stately";
+import { Button } from "../Button";
+import { Sheet, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "./Sheet";
 
 const SheetWrapper = () => {
   const state = useOverlayTriggerState({});
@@ -33,19 +33,19 @@ const SheetWrapper = () => {
 };
 
 const meta: Meta<typeof Sheet> = {
-  title: 'Overlays/Sheet',
+  title: "Overlays/Sheet",
   component: SheetWrapper,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {
     side: {
-      control: { type: 'select' },
-      options: ['top', 'right', 'bottom', 'left'],
+      control: { type: "select" },
+      options: ["top", "right", "bottom", "left"],
     },
     isDismissable: {
-      control: { type: 'boolean' },
+      control: { type: "boolean" },
     },
   },
 };
@@ -55,29 +55,28 @@ type Story = StoryObj<typeof meta>;
 
 export const Right: Story = {
   args: {
-    side: 'right',
+    side: "right",
     isDismissable: true,
   },
 };
 
 export const Left: Story = {
   args: {
-    side: 'left',
+    side: "left",
     isDismissable: true,
   },
 };
 
 export const Top: Story = {
   args: {
-    side: 'top',
+    side: "top",
     isDismissable: true,
   },
 };
 
 export const Bottom: Story = {
   args: {
-    side: 'bottom',
+    side: "bottom",
     isDismissable: true,
   },
 };
-

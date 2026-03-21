@@ -1,4 +1,4 @@
-import type { LibraryScanProgress, LibraryScanResult } from '@fanslib/server/schemas';
+import type { LibraryScanProgress, LibraryScanResult } from "@fanslib/server/schemas";
 import { useEffect, useState } from "react";
 import { api } from "~/lib/api/hono-client";
 
@@ -24,9 +24,9 @@ export const useScan = (onScanComplete?: () => void): UseScanResult => {
 
       if (!status) return;
 
-      if ('isScanning' in status && status.isScanning) {
+      if ("isScanning" in status && status.isScanning) {
         setScanProgress(status.progress ?? null);
-      } else if ('isScanning' in status && !status.isScanning) {
+      } else if ("isScanning" in status && !status.isScanning) {
         setScanProgress(null);
         if (status.result) {
           setScanResult(status.result);

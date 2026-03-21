@@ -3,12 +3,16 @@ import { db } from "../../../../lib/db";
 import { FanslyMediaCandidate } from "../../candidate-entity";
 import { PostMedia } from "../../../posts/entity";
 import { computeMatchSuggestions } from "../matching";
-import type { CreateCandidateSchema, CreateCandidatesRequestBodySchema, CreateCandidatesResponseSchema } from "../schema";
+import type {
+  CreateCandidateSchema,
+  CreateCandidatesRequestBodySchema,
+  CreateCandidatesResponseSchema,
+} from "../schema";
 
 type CandidateItem = z.infer<typeof CreateCandidateSchema>;
 
 export const createCandidates = async (
-  body: z.infer<typeof CreateCandidatesRequestBodySchema>
+  body: z.infer<typeof CreateCandidatesRequestBodySchema>,
 ): Promise<z.infer<typeof CreateCandidatesResponseSchema>> => {
   const dataSource = await db();
   const candidateRepository = dataSource.getRepository(FanslyMediaCandidate);
@@ -64,7 +68,7 @@ export const createCandidates = async (
         candidate: saved,
         status: "created" as const,
       };
-    })
+    }),
   );
 
   return results;

@@ -109,7 +109,7 @@ const BulkAssignTagsBodySchema = z.array(
     tagDefinitionIds: z.array(z.number()),
     source: TagSourceSchema,
     confidence: z.number().optional(),
-  })
+  }),
 );
 
 const RemoveTagsFromMediaBodySchema = z.object({
@@ -133,7 +133,7 @@ export const tagsRoutes = new Hono()
         return notFound(c, "Tag dimension not found");
       }
       return c.json(dimension);
-    }
+    },
   )
   .post(
     "/dimensions",
@@ -142,7 +142,7 @@ export const tagsRoutes = new Hono()
       const body = c.req.valid("json");
       const result = await createTagDimension(body);
       return c.json(result);
-    }
+    },
   )
   .patch(
     "/dimensions/by-id/:id",
@@ -156,7 +156,7 @@ export const tagsRoutes = new Hono()
         return notFound(c, "Tag dimension not found");
       }
       return c.json(dimension);
-    }
+    },
   )
   .delete(
     "/dimensions/by-id/:id",
@@ -168,7 +168,7 @@ export const tagsRoutes = new Hono()
         return notFound(c, "Tag dimension not found");
       }
       return c.json({ success: true });
-    }
+    },
   )
   // Tag Definitions - 6 endpoints
   .get(
@@ -178,7 +178,7 @@ export const tagsRoutes = new Hono()
       const query = c.req.valid("query");
       const result = await fetchTagsByDimension(query);
       return c.json(result);
-    }
+    },
   )
   .get(
     "/definitions/by-ids",
@@ -187,7 +187,7 @@ export const tagsRoutes = new Hono()
       const query = c.req.valid("query");
       const result = await fetchTagDefinitionsByIds(query);
       return c.json(result);
-    }
+    },
   )
   .get(
     "/definitions/by-id/:id",
@@ -199,7 +199,7 @@ export const tagsRoutes = new Hono()
         return notFound(c, "Tag definition not found");
       }
       return c.json(tag);
-    }
+    },
   )
   .post(
     "/definitions",
@@ -208,7 +208,7 @@ export const tagsRoutes = new Hono()
       const body = c.req.valid("json");
       const result = await createTagDefinition(body);
       return c.json(result);
-    }
+    },
   )
   .patch(
     "/definitions/by-id/:id",
@@ -222,7 +222,7 @@ export const tagsRoutes = new Hono()
         return notFound(c, "Tag definition not found");
       }
       return c.json(tag);
-    }
+    },
   )
   .delete(
     "/definitions/by-id/:id",
@@ -234,7 +234,7 @@ export const tagsRoutes = new Hono()
         return notFound(c, "Tag definition not found");
       }
       return c.json({ success: true });
-    }
+    },
   )
   // Media Tags - 5 endpoints
   .post(
@@ -244,7 +244,7 @@ export const tagsRoutes = new Hono()
       const { mediaIds } = c.req.valid("json");
       const result = await fetchBulkMediaTags(mediaIds);
       return c.json(result);
-    }
+    },
   )
   .get(
     "/media/by-media-id/:mediaId",
@@ -255,7 +255,7 @@ export const tagsRoutes = new Hono()
       const query = c.req.valid("query");
       const result = await fetchMediaTags({ mediaId }, query);
       return c.json(result);
-    }
+    },
   )
   .post(
     "/media/assign",
@@ -264,7 +264,7 @@ export const tagsRoutes = new Hono()
       const body = c.req.valid("json");
       const result = await assignTagsToMedia(body);
       return c.json(result);
-    }
+    },
   )
   .post(
     "/media/assign-bulk",
@@ -273,7 +273,7 @@ export const tagsRoutes = new Hono()
       const body = c.req.valid("json");
       const result = await bulkAssignTags(body);
       return c.json(result);
-    }
+    },
   )
   .delete(
     "/media/by-media-id/:mediaId",
@@ -284,7 +284,7 @@ export const tagsRoutes = new Hono()
       const body = c.req.valid("json");
       const result = await removeTagsFromMedia({ mediaId }, body);
       return c.json(result);
-    }
+    },
   )
   // Drift Prevention - 3 endpoints
   .get("/drift-prevention/stats", async (c) => {
@@ -299,4 +299,3 @@ export const tagsRoutes = new Hono()
     const result = await driftPrevention.syncStickerDisplayProperties();
     return c.json(result);
   });
-

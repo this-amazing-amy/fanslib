@@ -39,4 +39,3 @@ export const deleteMedia = async (id: string, deleteFile = false): Promise<boole
 
   return true;
 };
-

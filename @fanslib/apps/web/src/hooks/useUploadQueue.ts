@@ -112,7 +112,7 @@ export const useUploadQueue = (): UseUploadQueueResult => {
       xhr.open("POST", `${BACKEND_BASE_URL}/api/media/upload`);
       xhr.send(formData);
     },
-    [updateFile]
+    [updateFile],
   );
 
   const drainQueue = useCallback(
@@ -126,7 +126,7 @@ export const useUploadQueue = (): UseUploadQueueResult => {
       const queued = current.filter((f) => f.status === "queued");
       queued.slice(0, slotsAvailable).forEach((f) => uploadFile(f, shootId));
     },
-    [uploadFile] // uploadFile is stable; drainQueueRef avoids circular dep
+    [uploadFile], // uploadFile is stable; drainQueueRef avoids circular dep
   );
 
   drainQueueRef.current = drainQueue;
@@ -151,14 +151,14 @@ export const useUploadQueue = (): UseUploadQueueResult => {
       const shootId = shootIdRef.current;
       if (shootId) setTimeout(() => drainQueue(shootId), 0);
     },
-    [updateFile, drainQueue]
+    [updateFile, drainQueue],
   );
 
   const retryAllFailed = useCallback(() => {
     setFiles((prev) =>
       prev.map((f) =>
-        f.status === "error" ? { ...f, status: "queued", progress: 0, error: undefined } : f
-      )
+        f.status === "error" ? { ...f, status: "queued", progress: 0, error: undefined } : f,
+      ),
     );
     const shootId = shootIdRef.current;
     if (shootId) setTimeout(() => drainQueue(shootId), 0);
@@ -169,7 +169,7 @@ export const useUploadQueue = (): UseUploadQueueResult => {
       shootIdRef.current = shootId;
       drainQueue(shootId);
     },
-    [drainQueue]
+    [drainQueue],
   );
 
   const cancelUpload = useCallback(() => {

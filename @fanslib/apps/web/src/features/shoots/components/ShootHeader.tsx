@@ -1,9 +1,8 @@
-import type { ShootSummary, UpdateShootRequestBody } from '@fanslib/server/schemas';
+import type { ShootSummary, UpdateShootRequestBody } from "@fanslib/server/schemas";
 import { ImageIcon, VideoIcon } from "lucide-react";
 import { MediaPreview } from "~/components/MediaPreview";
 import { ShootDetailDate } from "./ShootDetailDate";
 import { ShootDetailTitle } from "./ShootDetailTitle";
-
 
 type UpdateShootRequest = UpdateShootRequestBody;
 

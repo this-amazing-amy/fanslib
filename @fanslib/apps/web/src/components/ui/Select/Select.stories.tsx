@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
+import type { Meta, StoryObj } from "@storybook/react";
+import { useState } from "react";
 import {
   Select,
   SelectContent,
@@ -9,20 +9,19 @@ import {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
-} from './Select';
+} from "./Select";
 
 const meta: Meta<typeof Select> = {
-  title: 'Form Controls/Select',
+  title: "Form Controls/Select",
   component: Select,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
-  argTypes: {
-  },
+  tags: ["autodocs"],
+  argTypes: {},
   decorators: [
     (Story) => (
-      <div style={{ width: '300px', minHeight: '300px' }}>
+      <div style={{ width: "300px", minHeight: "300px" }}>
         <Story />
       </div>
     ),
@@ -145,7 +144,7 @@ export const WithGroups: Story = {
 };
 
 const ControlledExample = () => {
-  const [value, setValue] = useState<string>('option2');
+  const [value, setValue] = useState<string>("option2");
   return (
     <div className="space-y-4">
       <Select value={value} onValueChange={setValue}>
@@ -166,4 +165,3 @@ const ControlledExample = () => {
 export const Controlled: Story = {
   render: () => <ControlledExample />,
 };
-

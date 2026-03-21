@@ -1,6 +1,9 @@
 import type { Post, PostMedia } from "./entity";
 
-export type PostFixture = Pick<Post, "id" | "channelId" | "subredditId" | "caption" | "status" | "date">;
+export type PostFixture = Pick<
+  Post,
+  "id" | "channelId" | "subredditId" | "caption" | "status" | "date"
+>;
 
 export const POST_FIXTURES: PostFixture[] = [
   {
@@ -9,7 +12,7 @@ export const POST_FIXTURES: PostFixture[] = [
     caption: "Check out this amazing content!",
     status: "draft",
     date: new Date("2024-01-15"),
-    subredditId: null
+    subredditId: null,
   },
   {
     id: "post-2",
@@ -25,7 +28,7 @@ export const POST_FIXTURES: PostFixture[] = [
     caption: "Posted content",
     status: "posted",
     date: new Date("2024-01-17"),
-    subredditId: null
+    subredditId: null,
   },
 ];
 

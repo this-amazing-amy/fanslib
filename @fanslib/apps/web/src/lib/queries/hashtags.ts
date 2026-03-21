@@ -1,6 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '../api/hono-client';
-import { QUERY_KEYS } from './query-keys';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { api } from "../api/hono-client";
+import { QUERY_KEYS } from "./query-keys";
 
 export const useHashtagsQuery = () =>
   useQuery({
@@ -15,7 +15,7 @@ export const useHashtagQuery = (params: { id: string }) =>
   useQuery({
     queryKey: QUERY_KEYS.hashtags.byId(params.id),
     queryFn: async () => {
-      const result = await api.api.hashtags['by-id'][':id'].$get({ param: { id: params.id } });
+      const result = await api.api.hashtags["by-id"][":id"].$get({ param: { id: params.id } });
       return result.json();
     },
     enabled: !!params.id,
@@ -25,7 +25,7 @@ export const useHashtagsByIdsQuery = (query: { ids?: string }) =>
   useQuery({
     queryKey: QUERY_KEYS.hashtags.byIds(query.ids),
     queryFn: async () => {
-      const result = await api.api.hashtags['by-ids'].$get({ query: { ids: query.ids } });
+      const result = await api.api.hashtags["by-ids"].$get({ query: { ids: query.ids } });
       return result.json();
     },
     enabled: !!query.ids,
@@ -50,7 +50,7 @@ export const useCreateHashtagsBatchMutation = () => {
 
   return useMutation({
     mutationFn: async (data: { names: string[] }) => {
-      const result = await api.api.hashtags['by-ids'].$post({ json: data });
+      const result = await api.api.hashtags["by-ids"].$post({ json: data });
       return result.json();
     },
     onSuccess: () => {
@@ -64,7 +64,7 @@ export const useDeleteHashtagMutation = () => {
 
   return useMutation({
     mutationFn: async (params: { id: string }) => {
-      const result = await api.api.hashtags['by-id'][':id'].$delete({ param: { id: params.id } });
+      const result = await api.api.hashtags["by-id"][":id"].$delete({ param: { id: params.id } });
       return result.json();
     },
     onSuccess: () => {
@@ -77,7 +77,9 @@ export const useHashtagStatsQuery = (params: { id: string }) =>
   useQuery({
     queryKey: QUERY_KEYS.hashtags.stats(params.id),
     queryFn: async () => {
-      const result = await api.api.hashtags['by-id'][':id'].stats.$get({ param: { id: params.id } });
+      const result = await api.api.hashtags["by-id"][":id"].stats.$get({
+        param: { id: params.id },
+      });
       return result.json();
     },
     enabled: !!params.id,
@@ -96,9 +98,9 @@ export const useUpdateHashtagStatsMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdateHashtagStatsParams) => {
-      const result = await api.api.hashtags['by-id'][':id'].stats.$post({ 
+      const result = await api.api.hashtags["by-id"][":id"].stats.$post({
         param: { id },
-        json: updates 
+        json: updates,
       });
       return result.json();
     },
@@ -108,6 +110,3 @@ export const useUpdateHashtagStatsMutation = () => {
     },
   });
 };
-
-
-

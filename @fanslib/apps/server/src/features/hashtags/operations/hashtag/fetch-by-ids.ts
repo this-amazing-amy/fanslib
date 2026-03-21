@@ -8,7 +8,9 @@ export const FetchHashtagsByIdsQuerySchema = z.object({
 
 export const FetchHashtagsByIdsResponseSchema = z.array(HashtagSchema);
 
-export const fetchHashtagsByIds = async (ids: number[]): Promise<z.infer<typeof FetchHashtagsByIdsResponseSchema>> =>{
+export const fetchHashtagsByIds = async (
+  ids: number[],
+): Promise<z.infer<typeof FetchHashtagsByIdsResponseSchema>> => {
   if (ids.length === 0) return [];
 
   const dataSource = await db();
@@ -21,4 +23,3 @@ export const fetchHashtagsByIds = async (ids: number[]): Promise<z.infer<typeof 
     },
   });
 };
-

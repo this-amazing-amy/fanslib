@@ -12,7 +12,10 @@ export const FetchMediaTagsRequestQuerySchema = z.object({
 
 export const FetchMediaTagsResponseSchema = z.array(MediaTagSchema);
 
-export const fetchMediaTags = async (params: z.infer<typeof FetchMediaTagsRequestParamsSchema>, query: z.infer<typeof FetchMediaTagsRequestQuerySchema>): Promise<z.infer<typeof FetchMediaTagsResponseSchema>> => {
+export const fetchMediaTags = async (
+  params: z.infer<typeof FetchMediaTagsRequestParamsSchema>,
+  query: z.infer<typeof FetchMediaTagsRequestQuerySchema>,
+): Promise<z.infer<typeof FetchMediaTagsResponseSchema>> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(MediaTag);
 
@@ -29,4 +32,3 @@ export const fetchMediaTags = async (params: z.infer<typeof FetchMediaTagsReques
 
   return queryBuilder.getMany();
 };
-

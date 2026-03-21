@@ -1,4 +1,4 @@
-import type { ShootSummary } from '@fanslib/server/schemas';
+import type { ShootSummary } from "@fanslib/server/schemas";
 import { Trash2 } from "lucide-react";
 import { type FC } from "react";
 import {
@@ -13,7 +13,6 @@ import {
 import { Button } from "~/components/ui/Button";
 import { useLibraryPreferences } from "~/contexts/LibraryPreferencesContext";
 import { useDeleteShootMutation } from "~/lib/queries/shoots";
-
 
 type ShootDetailDeleteButtonProps = {
   shoot: ShootSummary;
@@ -38,7 +37,7 @@ export const ShootDetailDeleteButton: FC<ShootDetailDeleteButtonProps> = ({ shoo
     if (
       updatedFilters.length !== preferences.filter.length ||
       preferences.filter.some((group) =>
-        group.items.some((item) => item.type === "shoot" && item.id === shoot.id)
+        group.items.some((item) => item.type === "shoot" && item.id === shoot.id),
       )
     ) {
       updatePreferences({
@@ -61,8 +60,8 @@ export const ShootDetailDeleteButton: FC<ShootDetailDeleteButtonProps> = ({ shoo
               <AlertDialogHeader>
                 <AlertDialogTitle>Delete shoot?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will permanently delete the shoot &quot;{shoot.name}&quot;. This action cannot be
-                  undone.
+                  This will permanently delete the shoot &quot;{shoot.name}&quot;. This action
+                  cannot be undone.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

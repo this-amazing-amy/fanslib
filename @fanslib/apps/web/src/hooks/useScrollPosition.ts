@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 const STORAGE_KEY = "calendar:scroll:position";
 
 export const useScrollPosition = <T extends HTMLElement>(
-  setCondition: boolean
+  setCondition: boolean,
 ): React.RefCallback<T> => {
   const [element, setElement] = useState<T | null>(null);
   const [scrollYStorage, setScrollYStorage] = useState(() => {
@@ -11,7 +11,7 @@ export const useScrollPosition = <T extends HTMLElement>(
     const stored = window.localStorage.getItem(STORAGE_KEY);
     return stored ? parseInt(stored, 10) : 0;
   });
-  
+
   // Track if we're currently restoring scroll to prevent circular updates
   const isRestoringRef = useRef(false);
   // Track if we've already restored for this condition to prevent repeated restorations
@@ -39,7 +39,7 @@ export const useScrollPosition = <T extends HTMLElement>(
       isRestoringRef.current = true;
       element.scrollTop = scrollYStorage;
       hasRestoredRef.current = true;
-      
+
       // Reset the flag after a short delay to allow the scroll event to be ignored
       setTimeout(() => {
         isRestoringRef.current = false;
@@ -57,7 +57,7 @@ export const useScrollPosition = <T extends HTMLElement>(
     const handleScroll = () => {
       // Don't update state if we're currently restoring scroll position
       if (isRestoringRef.current) return;
-      
+
       clearTimeout(scrollTimeout);
       scrollTimeout = setTimeout(() => {
         if (typeof window === "undefined") return;

@@ -1,5 +1,4 @@
-import type { Media } from '@fanslib/server/schemas';
-
+import type { Media } from "@fanslib/server/schemas";
 
 import { memo, useCallback, useState } from "react";
 import { cn } from "~/lib/cn";
@@ -40,7 +39,7 @@ export const MediaPreview = memo(
         />
       </div>
     );
-  }
+  },
 );
 
 MediaPreview.displayName = "MediaPreview";

@@ -1,7 +1,10 @@
 import type { Subreddit } from "./entity";
 import { VERIFICATION_STATUS } from "./entity";
 
-export type SubredditFixture = Omit<Subreddit, "postingTimesData" | "postingTimesLastFetched" | "postingTimesTimezone" | "channel">;
+export type SubredditFixture = Omit<
+  Subreddit,
+  "postingTimesData" | "postingTimesLastFetched" | "postingTimesTimezone" | "channel"
+>;
 
 export const SUBREDDIT_FIXTURES: SubredditFixture[] = [
   {

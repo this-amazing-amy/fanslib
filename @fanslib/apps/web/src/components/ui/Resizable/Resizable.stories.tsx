@@ -1,13 +1,13 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Resizable, ResizableHandle, ResizablePanel } from './Resizable';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Resizable, ResizableHandle, ResizablePanel } from "./Resizable";
 
 const meta: Meta<typeof Resizable> = {
-  title: 'UI/Resizable',
+  title: "UI/Resizable",
   component: Resizable,
   parameters: {
-    layout: 'fullscreen',
+    layout: "fullscreen",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
@@ -56,5 +56,3 @@ export const Vertical: Story = {
     </div>
   ),
 };
-
-

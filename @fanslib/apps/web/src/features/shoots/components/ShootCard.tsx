@@ -1,4 +1,4 @@
-import type { ShootSummary } from '@fanslib/server/schemas';
+import type { ShootSummary } from "@fanslib/server/schemas";
 import { ImageIcon, Plus, VideoIcon } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
@@ -11,7 +11,6 @@ import { cn } from "~/lib/cn";
 import { useMediaListQuery } from "~/lib/queries/library";
 import { useUpdateShootMutation } from "~/lib/queries/shoots";
 
-
 type ShootCardProps = {
   shoot: ShootSummary;
   groupedMedia: Map<string, unknown[]>;
@@ -22,7 +21,7 @@ export const ShootCard: FC<ShootCardProps> = ({ shoot, onUpdate }) => {
   const imageCount = shoot.media?.filter((m) => m.type === "image").length ?? 0;
   const videoCount = shoot.media?.filter((m) => m.type === "video").length ?? 0;
   const mediaItems = shoot.media?.slice(0, 4) ?? [];
-  
+
   const shootDate = new Date(shoot.shootDate);
   const currentYear = new Date().getFullYear();
   const isCurrentYear = shootDate.getFullYear() === currentYear;
@@ -37,7 +36,7 @@ export const ShootCard: FC<ShootCardProps> = ({ shoot, onUpdate }) => {
       if (draggedMedias.length === 0) return;
 
       const hasNewDraggedMedia = draggedMedias.some(
-        (media) => !shoot.media?.some((m) => m.id === media.id)
+        (media) => !shoot.media?.some((m) => m.id === media.id),
       );
       if (hasNewDraggedMedia) return;
 
@@ -85,8 +84,8 @@ export const ShootCard: FC<ShootCardProps> = ({ shoot, onUpdate }) => {
         <Card className="overflow-hidden border-base-content cursor-pointer">
           <CardBody className="p-0">
             <div className="p-4">
-              {mediaItems.length > 0 && (
-                mediaItems.length === 1 ? (
+              {mediaItems.length > 0 &&
+                (mediaItems.length === 1 ? (
                   <div className="mb-3 aspect-square rounded-lg overflow-hidden bg-base-200">
                     <MediaPreview media={mediaItems[0]} className="w-full h-full" />
                   </div>
@@ -98,8 +97,7 @@ export const ShootCard: FC<ShootCardProps> = ({ shoot, onUpdate }) => {
                       </div>
                     ))}
                   </div>
-                )
-              )}
+                ))}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="text-base font-semibold">{shoot.name}</div>
@@ -130,11 +128,10 @@ export const ShootCard: FC<ShootCardProps> = ({ shoot, onUpdate }) => {
         <Plus
           className={cn(
             "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-6 w-6 transition-colors pointer-events-none",
-            "text-primary"
+            "text-primary",
           )}
         />
       )}
     </div>
   );
 };
-

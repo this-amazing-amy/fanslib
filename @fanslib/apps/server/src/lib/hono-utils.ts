@@ -9,7 +9,10 @@ type ValidationResult<T> =
  * Standard validation error handler for Zod validation failures.
  * Returns a 422 Unprocessable Entity response with error details.
  */
-export const validationError = <T>(result: ValidationResult<T> & { target: string }, c: Context) => {
+export const validationError = <T>(
+  result: ValidationResult<T> & { target: string },
+  c: Context,
+) => {
   if (result.success) return;
 
   const errors = result.error.issues.map((err) => ({
@@ -32,8 +35,7 @@ export const validationError = <T>(result: ValidationResult<T> & { target: strin
 /**
  * Standard 404 not found response helper.
  */
-export const notFound = (c: Context, message: string) =>
-  c.json({ error: message }, 404);
+export const notFound = (c: Context, message: string) => c.json({ error: message }, 404);
 
 /**
  * Generic error response helper.

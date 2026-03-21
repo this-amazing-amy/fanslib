@@ -1,11 +1,11 @@
-import type { Media } from '@fanslib/server/schemas';
-import { useRef, useState } from 'react';
-import { formatDistanceToNow } from 'date-fns';
-import { Send, Sparkle } from 'lucide-react';
-import { useMediaPostingHistoryQuery } from '~/lib/queries/library';
-import { Popover } from '~/components/ui/Popover/Popover';
-import { ChannelBadge } from '~/components/ChannelBadge';
-import { StatusBadge } from '~/components/StatusBadge';
+import type { Media } from "@fanslib/server/schemas";
+import { useRef, useState } from "react";
+import { formatDistanceToNow } from "date-fns";
+import { Send, Sparkle } from "lucide-react";
+import { useMediaPostingHistoryQuery } from "~/lib/queries/library";
+import { Popover } from "~/components/ui/Popover/Popover";
+import { ChannelBadge } from "~/components/ChannelBadge";
+import { StatusBadge } from "~/components/StatusBadge";
 
 type PostsPopoverProps = {
   media: Media;
@@ -50,7 +50,7 @@ export const MediaTilePostsPopover = ({ media }: PostsPopoverProps) => {
           <div className="space-y-3">
             <h3 className="font-semibold text-base">Posting History</h3>
             <div className="text-sm text-base-content/70">
-              Posted {data.totalPosts} {data.totalPosts === 1 ? 'time' : 'times'}
+              Posted {data.totalPosts} {data.totalPosts === 1 ? "time" : "times"}
               {data.lastPostedAt && (
                 <>, last {formatDistanceToNow(new Date(data.lastPostedAt), { addSuffix: true })}</>
               )}
@@ -64,14 +64,18 @@ export const MediaTilePostsPopover = ({ media }: PostsPopoverProps) => {
                 >
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <ChannelBadge name={post.channel.name} typeId={post.channel.typeId} size="sm" />
+                      <ChannelBadge
+                        name={post.channel.name}
+                        typeId={post.channel.typeId}
+                        size="sm"
+                      />
                       <StatusBadge status={post.status} size="sm" showIcon />
                     </div>
                     {post.caption && (
                       <p className="text-sm text-base-content/80 line-clamp-2">{post.caption}</p>
                     )}
                     <div className="text-xs text-base-content/60">
-                      {post.status === 'posted'
+                      {post.status === "posted"
                         ? `Posted ${formatDistanceToNow(new Date(post.date), { addSuffix: true })}`
                         : `Scheduled for ${new Date(post.date).toLocaleDateString()}`}
                     </div>

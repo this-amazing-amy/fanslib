@@ -1,17 +1,24 @@
-import type { ReactNode } from 'react';
-import { useRef } from 'react';
-import type { AriaTableProps } from 'react-aria';
-import { useTable, useTableCell, useTableColumnHeader, useTableRow, useTableRowGroup } from 'react-aria';
-import type { TableState, TableStateProps } from 'react-stately';
-import { useTableState } from 'react-stately';
-import type { Node } from '@react-types/shared';
-import { cn } from '~/lib/cn';
+import type { ReactNode } from "react";
+import { useRef } from "react";
+import type { AriaTableProps } from "react-aria";
+import {
+  useTable,
+  useTableCell,
+  useTableColumnHeader,
+  useTableRow,
+  useTableRowGroup,
+} from "react-aria";
+import type { TableState, TableStateProps } from "react-stately";
+import { useTableState } from "react-stately";
+import type { Node } from "@react-types/shared";
+import { cn } from "~/lib/cn";
 
-export type TableProps<T extends object = object> = AriaTableProps & TableStateProps<T> & {
-  className?: string;
-  zebra?: boolean;
-  compact?: boolean;
-};
+export type TableProps<T extends object = object> = AriaTableProps &
+  TableStateProps<T> & {
+    className?: string;
+    zebra?: boolean;
+    compact?: boolean;
+  };
 
 export const Table = <T extends object = object>({
   className,
@@ -29,12 +36,7 @@ export const Table = <T extends object = object>({
       <table
         {...gridProps}
         ref={ref}
-        className={cn(
-          'table',
-          zebra && 'table-zebra',
-          compact && 'table-sm',
-          className
-        )}
+        className={cn("table", zebra && "table-zebra", compact && "table-sm", className)}
       >
         <TableRowGroup type="thead">
           {collection.headerRows.map((headerRow) => (
@@ -60,7 +62,7 @@ export const Table = <T extends object = object>({
 };
 
 type TableRowGroupProps = {
-  type: 'thead' | 'tbody' | 'tfoot';
+  type: "thead" | "tbody" | "tfoot";
   children: ReactNode;
 };
 
@@ -136,4 +138,3 @@ const TableCell = <T extends object>({ cell, state }: TableCellProps<T>) => {
     </td>
   );
 };
-

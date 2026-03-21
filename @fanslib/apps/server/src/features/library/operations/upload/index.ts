@@ -44,8 +44,8 @@ const resolveUniqueFilename = async (dir: string, filename: string): Promise<str
       fs
         .access(path.join(dir, `${base}_${i + 1}${ext}`))
         .then(() => true)
-        .catch(() => false)
-    )
+        .catch(() => false),
+    ),
   );
 
   const firstAvailable = exists.findIndex((e) => !e);
@@ -103,11 +103,7 @@ export const uploadMediaToShoot = async ({ shootId, file }: UploadMediaInput) =>
     console.error(`Failed to generate thumbnail for ${absolutePath}:`, error);
   }
 
-  await database
-    .createQueryBuilder()
-    .relation(Shoot, "media")
-    .of(shootId)
-    .add(media.id);
+  await database.createQueryBuilder().relation(Shoot, "media").of(shootId).add(media.id);
 
   return media;
 };

@@ -14,7 +14,7 @@ export const FetchDatapointsResponseSchema = z.object({
       timestamp: z.number(),
       views: z.number(),
       interactionTime: z.number(),
-    })
+    }),
   ),
   lastDatapointDate: z.union([z.number(), z.null()]),
   hasGap: z.boolean(),
@@ -29,7 +29,7 @@ export const FetchDatapointsResponseSchema = z.object({
 });
 
 export const fetchDatapoints = async (
-  postMediaId: string
+  postMediaId: string,
 ): Promise<z.infer<typeof FetchDatapointsResponseSchema>> => {
   const dataSource = await db();
   const postMediaRepository = dataSource.getRepository(PostMedia);
@@ -53,10 +53,8 @@ export const fetchDatapoints = async (
   today.setHours(0, 0, 0, 0);
 
   const lastDatapointTimestamp =
-    datapoints.length > 0 ? datapoints[datapoints.length - 1]?.timestamp ?? null : null;
-  const lastDatapointDate = lastDatapointTimestamp
-    ? new Date(lastDatapointTimestamp)
-    : null;
+    datapoints.length > 0 ? (datapoints[datapoints.length - 1]?.timestamp ?? null) : null;
+  const lastDatapointDate = lastDatapointTimestamp ? new Date(lastDatapointTimestamp) : null;
 
   if (lastDatapointDate) {
     lastDatapointDate.setHours(0, 0, 0, 0);
@@ -64,15 +62,15 @@ export const fetchDatapoints = async (
 
   const gapThresholdMs = 24 * 60 * 60 * 1000;
   const hasGap =
-    lastDatapointDate !== null &&
-    today.getTime() - lastDatapointDate.getTime() > gapThresholdMs;
+    lastDatapointDate !== null && today.getTime() - lastDatapointDate.getTime() > gapThresholdMs;
 
-  const suggestedFetchRange = hasGap && lastDatapointDate
-    ? {
-        startDate: new Date(lastDatapointDate.getTime() + gapThresholdMs).toISOString(),
-        endDate: today.toISOString(),
-      }
-    : null;
+  const suggestedFetchRange =
+    hasGap && lastDatapointDate
+      ? {
+          startDate: new Date(lastDatapointDate.getTime() + gapThresholdMs).toISOString(),
+          endDate: today.toISOString(),
+        }
+      : null;
 
   return {
     datapoints: datapoints.map((dp) => ({
@@ -86,4 +84,3 @@ export const fetchDatapoints = async (
     postDate: postMedia.post.date.toISOString(),
   };
 };
-

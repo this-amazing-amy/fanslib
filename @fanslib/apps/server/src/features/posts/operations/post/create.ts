@@ -24,8 +24,8 @@ export const CreatePostRequestBodySchema = z.object({
 });
 
 export const createPost = async (
-  postData: Omit<z.infer<typeof CreatePostRequestBodySchema>, 'mediaIds'>,
-  mediaIds: string[]
+  postData: Omit<z.infer<typeof CreatePostRequestBodySchema>, "mediaIds">,
+  mediaIds: string[],
 ): Promise<PostWithRelations> => {
   const dataSource = await db();
   const postRepo = dataSource.getRepository(Post);
@@ -51,8 +51,7 @@ export const createPost = async (
     createdAt: new Date(),
     updatedAt: new Date(),
     fypRemovedAt:
-      typeof postData.fypRemovedAt === "undefined" &&
-      channel.type.id === CHANNEL_TYPES.fansly.id
+      typeof postData.fypRemovedAt === "undefined" && channel.type.id === CHANNEL_TYPES.fansly.id
         ? null
         : postData.fypRemovedAt,
   });
@@ -66,7 +65,7 @@ export const createPost = async (
         post,
         media: m,
         order: index,
-      })
+      }),
     );
     await postMediaRepo.save(postMedia);
   }
@@ -77,4 +76,3 @@ export const createPost = async (
   }
   return createdPost;
 };
-

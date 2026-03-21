@@ -3,7 +3,11 @@ import { FilterPresetProvider } from "~/contexts/FilterPresetContext";
 import { MediaDragProvider } from "~/contexts/MediaDragContext";
 import { PostDragProvider } from "~/contexts/PostDragContext";
 import { MediaFiltersProvider } from "~/features/library/components/MediaFilters/MediaFiltersContext";
-import { InlinePickerProvider, useInlinePickerActions, useInlinePickerState } from "../contexts/InlinePickerContext";
+import {
+  InlinePickerProvider,
+  useInlinePickerActions,
+  useInlinePickerState,
+} from "../contexts/InlinePickerContext";
 import { FloatingVirtualPostCard } from "./FloatingVirtualPostCard";
 import { PlanContent } from "./PlanContent";
 import { PlanLibraryPanel } from "./PlanLibraryPanel";
@@ -14,7 +18,7 @@ const MemoizedPlanContent = memo(PlanContent);
 const PickerPanelContainer = () => {
   const { state } = useInlinePickerState();
   const { closePicker, setFilters } = useInlinePickerActions();
-  
+
   return (
     <MediaFiltersProvider value={state.filters} onChange={setFilters}>
       <FilterPresetProvider onFiltersChange={setFilters}>

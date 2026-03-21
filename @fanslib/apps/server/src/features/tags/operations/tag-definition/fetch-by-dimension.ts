@@ -9,7 +9,9 @@ export const FetchTagsByDimensionQuerySchema = z.object({
 
 export const FetchTagsByDimensionResponseSchema = z.array(TagDefinitionSchema);
 
-export const fetchTagsByDimension = async (payload: z.infer<typeof FetchTagsByDimensionQuerySchema>): Promise<z.infer<typeof FetchTagsByDimensionResponseSchema>> => {
+export const fetchTagsByDimension = async (
+  payload: z.infer<typeof FetchTagsByDimensionQuerySchema>,
+): Promise<z.infer<typeof FetchTagsByDimensionResponseSchema>> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(TagDefinition);
 
@@ -23,4 +25,3 @@ export const fetchTagsByDimension = async (payload: z.infer<typeof FetchTagsByDi
     order: { sortOrder: "ASC", displayName: "ASC" },
   });
 };
-

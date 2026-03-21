@@ -5,10 +5,7 @@ import { HashtagsTab } from "~/features/tags/components/HashtagsTab";
 
 const HashtagsPage = () => (
   <PageContainer>
-    <PageHeader
-      title="Hashtags"
-      description="Manage hashtags for your content organization"
-    />
+    <PageHeader title="Hashtags" description="Manage hashtags for your content organization" />
     <HashtagsTab />
   </PageContainer>
 );
@@ -16,4 +13,3 @@ const HashtagsPage = () => (
 export const Route = createFileRoute("/hashtags")({
   component: HashtagsPage,
 });
-

@@ -46,7 +46,9 @@ describe("processScheduleCapture", () => {
     const postMediaRepo = dataSource.getRepository(PostMedia);
     const aggregateRepo = dataSource.getRepository(FanslyAnalyticsAggregate);
 
-    const { post, postMedia } = await createReadyFanslyPost("Hello world! This is my first post 🎉");
+    const { post, postMedia } = await createReadyFanslyPost(
+      "Hello world! This is my first post 🎉",
+    );
 
     const result = await processScheduleCapture({
       contentId: "fansly-content-123",
@@ -90,7 +92,7 @@ describe("processScheduleCapture", () => {
 
     const result = await processScheduleCapture({
       contentId: "fansly-content-789",
-      caption: "Check out my new photo shoot! link in bio",  // lowercase "link" vs "Link"
+      caption: "Check out my new photo shoot! link in bio", // lowercase "link" vs "Link"
     });
 
     expect(result.matched).toBe(true);

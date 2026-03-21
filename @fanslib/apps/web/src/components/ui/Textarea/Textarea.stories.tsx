@@ -1,30 +1,30 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Textarea } from './Textarea';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Textarea } from "./Textarea";
 
 const meta: Meta<typeof Textarea> = {
-  title: 'Form Controls/Textarea',
+  title: "Form Controls/Textarea",
   component: Textarea,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {
     isDisabled: {
-      control: { type: 'boolean' },
+      control: { type: "boolean" },
     },
     isRequired: {
-      control: { type: 'boolean' },
+      control: { type: "boolean" },
     },
     isReadOnly: {
-      control: { type: 'boolean' },
+      control: { type: "boolean" },
     },
     rows: {
-      control: { type: 'number' },
+      control: { type: "number" },
     },
   },
   decorators: [
     (Story: React.ComponentType) => (
-      <div style={{ width: '400px' }}>
+      <div style={{ width: "400px" }}>
         <Story />
       </div>
     ),
@@ -36,41 +36,40 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    placeholder: 'Enter your text here...',
+    placeholder: "Enter your text here...",
   },
 };
 
 export const WithValue: Story = {
   args: {
-    defaultValue: 'This is some text content in the textarea.',
+    defaultValue: "This is some text content in the textarea.",
   },
 };
 
 export const LargeRows: Story = {
   args: {
-    placeholder: 'Large textarea with 8 rows',
+    placeholder: "Large textarea with 8 rows",
     rows: 8,
   },
 };
 
 export const Disabled: Story = {
   args: {
-    placeholder: 'This textarea is disabled',
+    placeholder: "This textarea is disabled",
     isDisabled: true,
   },
 };
 
 export const Required: Story = {
   args: {
-    placeholder: 'This field is required',
+    placeholder: "This field is required",
     isRequired: true,
   },
 };
 
 export const ReadOnly: Story = {
   args: {
-    defaultValue: 'This text is read-only and cannot be edited.',
+    defaultValue: "This text is read-only and cannot be edited.",
     isReadOnly: true,
   },
 };
-

@@ -30,4 +30,3 @@ export const RedGifsIcon = (props: SVGProps<SVGSVGElement>) => (
     />
   </svg>
 );
-

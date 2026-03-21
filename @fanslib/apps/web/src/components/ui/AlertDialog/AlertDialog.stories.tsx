@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from "@storybook/react";
 import {
   AlertDialog,
   AlertDialogDescription,
@@ -7,48 +7,50 @@ import {
   AlertDialogModal,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from './AlertDialog';
-import { Button } from '../Button';
+} from "./AlertDialog";
+import { Button } from "../Button";
 
-const AlertDialogWrapper = () => <AlertDialogTrigger>
-      <Button>Open Alert Dialog</Button>
-      <AlertDialogModal isDismissable={false}>
-        <AlertDialog>
-          {({ close }) => (
-            <>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete your data.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <Button variant="ghost" onPress={close}>
-                  Cancel
-                </Button>
-                <Button
-                  variant="error"
-                  onPress={() => {
-                    console.log('Action confirmed');
-                    close();
-                  }}
-                >
-                  Continue
-                </Button>
-              </AlertDialogFooter>
-            </>
-          )}
-        </AlertDialog>
-      </AlertDialogModal>
-    </AlertDialogTrigger>;
+const AlertDialogWrapper = () => (
+  <AlertDialogTrigger>
+    <Button>Open Alert Dialog</Button>
+    <AlertDialogModal isDismissable={false}>
+      <AlertDialog>
+        {({ close }) => (
+          <>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete your data.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <Button variant="ghost" onPress={close}>
+                Cancel
+              </Button>
+              <Button
+                variant="error"
+                onPress={() => {
+                  console.log("Action confirmed");
+                  close();
+                }}
+              >
+                Continue
+              </Button>
+            </AlertDialogFooter>
+          </>
+        )}
+      </AlertDialog>
+    </AlertDialogModal>
+  </AlertDialogTrigger>
+);
 
 const meta: Meta<typeof AlertDialogWrapper> = {
-  title: 'Overlays/AlertDialog',
+  title: "Overlays/AlertDialog",
   component: AlertDialogWrapper,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;

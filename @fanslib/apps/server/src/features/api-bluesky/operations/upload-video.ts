@@ -24,7 +24,7 @@ type VideoJobStatus = {
 
 const getServiceAuthToken = async (): Promise<{ token: string; userDid: string }> => {
   const agent = await getBlueskyAgent();
-  
+
   // Get the user's DID from the session
   const userDid = agent.session?.did;
   if (!userDid) {
@@ -55,7 +55,12 @@ const extractJobStatus = (data: Record<string, unknown>, context: string): Video
   return status;
 };
 
-const uploadVideoToService = async (fileBuffer: Buffer, mimeType: string, serviceToken: string, userDid: string): Promise<VideoJobStatus> => {
+const uploadVideoToService = async (
+  fileBuffer: Buffer,
+  mimeType: string,
+  serviceToken: string,
+  userDid: string,
+): Promise<VideoJobStatus> => {
   const url = new URL(`${VIDEO_SERVICE_URL}/xrpc/app.bsky.video.uploadVideo`);
   url.searchParams.set("did", userDid);
   url.searchParams.set("name", `video_${Date.now()}.mp4`);
@@ -63,7 +68,7 @@ const uploadVideoToService = async (fileBuffer: Buffer, mimeType: string, servic
   const response = await fetch(url.toString(), {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${serviceToken}`,
+      Authorization: `Bearer ${serviceToken}`,
       "Content-Type": mimeType,
       "Content-Length": fileBuffer.length.toString(),
     },
@@ -72,27 +77,34 @@ const uploadVideoToService = async (fileBuffer: Buffer, mimeType: string, servic
 
   if (!response.ok && response.status !== 409) {
     const errorText = await response.text();
-    throw externalServiceError(`Video upload failed: ${response.status} ${response.statusText} - ${errorText}`);
+    throw externalServiceError(
+      `Video upload failed: ${response.status} ${response.statusText} - ${errorText}`,
+    );
   }
 
-  const data = await response.json() as Record<string, unknown>;
+  const data = (await response.json()) as Record<string, unknown>;
   return extractJobStatus(data, "uploadVideo");
 };
 
 const getJobStatus = async (jobId: string, serviceToken: string): Promise<VideoJobStatus> => {
-  const response = await fetch(`${VIDEO_SERVICE_URL}/xrpc/app.bsky.video.getJobStatus?jobId=${encodeURIComponent(jobId)}`, {
-    method: "GET",
-    headers: {
-      "Authorization": `Bearer ${serviceToken}`,
+  const response = await fetch(
+    `${VIDEO_SERVICE_URL}/xrpc/app.bsky.video.getJobStatus?jobId=${encodeURIComponent(jobId)}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${serviceToken}`,
+      },
     },
-  });
+  );
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw externalServiceError(`Failed to get job status: ${response.status} ${response.statusText} - ${errorText}`);
+    throw externalServiceError(
+      `Failed to get job status: ${response.status} ${response.statusText} - ${errorText}`,
+    );
   }
 
-  const data = await response.json() as Record<string, unknown>;
+  const data = (await response.json()) as Record<string, unknown>;
   return extractJobStatus(data, "getJobStatus");
 };
 
@@ -108,7 +120,9 @@ const waitForVideoProcessing = async (jobId: string, serviceToken: string): Prom
     }
 
     if (status.state === "JOB_STATE_FAILED") {
-      throw externalServiceError(`Video processing failed: ${status.error ?? status.message ?? "Unknown error"}`);
+      throw externalServiceError(
+        `Video processing failed: ${status.error ?? status.message ?? "Unknown error"}`,
+      );
     }
 
     await sleep(POLLING_INTERVAL_MS);
@@ -120,10 +134,10 @@ const waitForVideoProcessing = async (jobId: string, serviceToken: string): Prom
 const getMimeType = (filePath: string): string => {
   const ext = filePath.toLowerCase().split(".").pop();
   const mimeTypes: Record<string, string> = {
-    "mp4": "video/mp4",
-    "mov": "video/quicktime",
-    "webm": "video/webm",
-    "mpeg": "video/mpeg",
+    mp4: "video/mp4",
+    mov: "video/quicktime",
+    webm: "video/webm",
+    mpeg: "video/mpeg",
   };
   return mimeTypes[ext ?? ""] ?? "video/mp4";
 };

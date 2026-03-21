@@ -124,14 +124,12 @@ const formatPrice = (price: number) => `$${price.toFixed(2)}`;
 
 ```typescript
 // ❌ DON'T
-const formatPrice = (price: number, currency: string) =>
-  `${currency}${price.toFixed(2)}`;
-prices.map((price) => formatPrice(price, '€'));
+const formatPrice = (price: number, currency: string) => `${currency}${price.toFixed(2)}`;
+prices.map((price) => formatPrice(price, "€"));
 
 // ✅ DO
-const formatPrice = (currency: string) => (price: number) =>
-  `${currency}${price.toFixed(2)}`;
-prices.map(formatPrice('€'));
+const formatPrice = (currency: string) => (price: number) => `${currency}${price.toFixed(2)}`;
+prices.map(formatPrice("€"));
 ```
 
 **Organize files by feature or domain, not by technical role.** Group related components, types, and utilities together rather than separating by file type.
@@ -183,11 +181,7 @@ const processUser = (user: User | null) => {
 
 ```typescript
 // ✅ DO
-const userStatus = user.isBanned
-  ? 'banned'
-  : user.isVerified
-    ? 'active'
-    : 'pending';
+const userStatus = user.isBanned ? "banned" : user.isVerified ? "active" : "pending";
 ```
 
 ---
@@ -248,22 +242,22 @@ const discount = user.isPremium ? 0.2 : 0.1;
 ```typescript
 // ❌ DON'T
 let statusColor;
-if (status === 'success') {
-  statusColor = 'green';
-} else if (status === 'warning') {
-  statusColor = 'yellow';
+if (status === "success") {
+  statusColor = "green";
+} else if (status === "warning") {
+  statusColor = "yellow";
 } else {
-  statusColor = 'gray';
+  statusColor = "gray";
 }
 
 // ✅ DO
 const statusColorMap = {
-  success: 'green',
-  warning: 'yellow',
-  error: 'red',
+  success: "green",
+  warning: "yellow",
+  error: "red",
 } as const;
 
-const statusColor = statusColorMap[status] ?? 'gray';
+const statusColor = statusColorMap[status] ?? "gray";
 ```
 
 **Never use traditional loops.** Use array methods (`.map()`, `.filter()`, `.reduce()`, `.some()`, `.every()`, `.find()`) instead of `for`, `while`, `do/while`, or `for...in`. The only exception is `for await...of` with `AsyncIterable` types.
@@ -353,10 +347,7 @@ const processOrder = async (orderId: string) => {
 
 // ✅ DO use .then() for transformation pipelines
 const processOrder = (orderId: string) =>
-  fetchOrder(orderId)
-    .then(validateOrder)
-    .then(enrichOrderData)
-    .then(formatOrder);
+  fetchOrder(orderId).then(validateOrder).then(enrichOrderData).then(formatOrder);
 
 // ✅ DO use async/await when one result feeds multiple operations
 const createSummary = async (orderId: string) => {
@@ -402,22 +393,20 @@ const toOrder =
 **Use result types instead of throwing exceptions.** Libraries like `neverthrow` provide `Result<T, E>` types that make errors explicit in function signatures.
 
 ```typescript
-import { Result, ok, err } from 'neverthrow';
+import { Result, ok, err } from "neverthrow";
 
 // ❌ DON'T throw exceptions
 const parseUser = (data: unknown): User => {
-  if (!isValid(data)) throw new Error('Invalid data');
+  if (!isValid(data)) throw new Error("Invalid data");
   return data as User;
 };
 
 // ✅ DO return Result types
-type ParseError =
-  | { type: 'invalid_data' }
-  | { type: 'invalid_email'; email: unknown };
+type ParseError = { type: "invalid_data" } | { type: "invalid_email"; email: unknown };
 
 const parseUser = (data: unknown): Result<User, ParseError> => {
-  if (!data || typeof data !== 'object') {
-    return err({ type: 'invalid_data' });
+  if (!data || typeof data !== "object") {
+    return err({ type: "invalid_data" });
   }
   // ... validate and return ok(user)
 };
@@ -435,12 +424,12 @@ const processUser = (data: unknown) =>
 **Validate data at boundaries using schemas.** Use libraries like ArkType or Zod to define schemas at API endpoints, database queries, and external service calls. Once validated, trust the types throughout your codebase.
 
 ```typescript
-import { type } from 'arktype';
+import { type } from "arktype";
 
 const CreateUserRequest = type({
-  email: 'string.email',
-  'age>=': 18,
-  name: 'string',
+  email: "string.email",
+  "age>=": 18,
+  name: "string",
 });
 
 type CreateUserRequest = typeof CreateUserRequest.infer;
@@ -478,7 +467,7 @@ useEffect(() => {
 // ✅ DO use TanStack Query
 const useUser = (userId: string) =>
   useQuery({
-    queryKey: ['user', userId],
+    queryKey: ["user", userId],
     queryFn: () => fetch(`/api/users/${userId}`).then((res) => res.json()),
   });
 
@@ -566,8 +555,8 @@ const fetchUser = (config: ApiConfig) => (id: string) =>
     signal: AbortSignal.timeout(config.timeout),
   }).then((r) => r.json());
 
-const config: ApiConfig = { baseUrl: 'https://api.example.com', timeout: 5000 };
-const userPromise = fetchUser(config)('123');
+const config: ApiConfig = { baseUrl: "https://api.example.com", timeout: 5000 };
+const userPromise = fetchUser(config)("123");
 ```
 
 **Why this is problematic:** Classes hide dependencies in `this`, make testing harder, and encourage inheritance over composition. Methods can't be used without instantiating the class even when they don't need instance state.
@@ -578,23 +567,23 @@ const userPromise = fetchUser(config)('123');
 // ❌ DON'T use inheritance
 class Animal {
   makeSound(): string {
-    return 'Some sound';
+    return "Some sound";
   }
 }
 class Dog extends Animal {
   makeSound(): string {
-    return 'Woof!';
+    return "Woof!";
   }
 }
 
 // ✅ DO use union types with functions
-type Dog = { type: 'dog'; name: string; breed: string };
-type Cat = { type: 'cat'; name: string; indoor: boolean };
+type Dog = { type: "dog"; name: string; breed: string };
+type Cat = { type: "cat"; name: string; indoor: boolean };
 type Animal = Dog | Cat;
 
 const makeSound = (animal: Animal) => {
-  if (animal.type === 'dog') return 'Woof!';
-  if (animal.type === 'cat') return 'Meow!';
+  if (animal.type === "dog") return "Woof!";
+  if (animal.type === "cat") return "Meow!";
 };
 ```
 
@@ -605,7 +594,7 @@ const makeSound = (animal: Animal) => {
 ```typescript
 // ❌ DON'T throw exceptions
 const parseUser = (data: unknown): User => {
-  if (!isValid(data)) throw new Error('Invalid data');
+  if (!isValid(data)) throw new Error("Invalid data");
   return data as User;
 };
 
@@ -618,7 +607,7 @@ try {
 
 // ✅ DO use Result types
 const parseUser = (data: unknown): Result<User, ParseError> => {
-  if (!isValid(data)) return err({ type: 'invalid_data' });
+  if (!isValid(data)) return err({ type: "invalid_data" });
   return ok(data as User);
 };
 
@@ -661,12 +650,12 @@ parseUser(data)
 
 ```typescript
 // ❌ DON'T test that types work
-it('should return a number', () => {
-  expect(typeof add(1, 2)).toBe('number');
+it("should return a number", () => {
+  expect(typeof add(1, 2)).toBe("number");
 });
 
 // ✅ DO test business requirements
-it('should apply correct final total for premium user with $100 order', () => {
+it("should apply correct final total for premium user with $100 order", () => {
   expect(calculateOrderTotal({ isPremium: true }, { total: 100 })).toBe(80);
 });
 ```
@@ -710,9 +699,9 @@ useEffect(() => {
 // Stripe charges process immediately, but bank transfers take 3 business days
 // to clear. We can't show paid status until the transfer completes.
 const isPaid =
-  payment.method === 'card'
-    ? payment.status === 'succeeded'
-    : payment.status === 'succeeded' && payment.clearedAt !== null;
+  payment.method === "card"
+    ? payment.status === "succeeded"
+    : payment.status === "succeeded" && payment.clearedAt !== null;
 ```
 
 **Why this matters:** Code changes but comments don't. Comments that describe what code does become outdated immediately. WHY comments have lasting value because they explain context that code can't express: business rules, technical constraints, workarounds for external systems.
@@ -878,17 +867,17 @@ features/example-feature/
 
 ```typescript
 // In @fanslib/apps/server/src/features/example/routes.ts
-import { Hono } from 'hono';
-import { zValidator } from '@hono/zod-validator';
+import { Hono } from "hono";
+import { zValidator } from "@hono/zod-validator";
 
 export const exampleRoutes = new Hono().post(
-  '/create',
-  zValidator('json', CreateExampleRequestSchema, validationError),
+  "/create",
+  zValidator("json", CreateExampleRequestSchema, validationError),
   async (c) => {
-    const body = c.req.valid('json');
+    const body = c.req.valid("json");
     const result = await createExample(body);
     return c.json(result);
-  }
+  },
 );
 ```
 
@@ -896,11 +885,11 @@ export const exampleRoutes = new Hono().post(
 
 ```typescript
 // In @fanslib/apps/web/src/lib/queries/example.ts
-import { api } from '../api/hono-client';
+import { api } from "../api/hono-client";
 
 export const useExampleQuery = (params: ExampleParams) =>
   useQuery({
-    queryKey: ['example', params],
+    queryKey: ["example", params],
     queryFn: async () => {
       const result = await api.api.example.$get({ query: params });
       return result.json();

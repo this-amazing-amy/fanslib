@@ -1,15 +1,15 @@
 // Settings storage keys
 export const SETTINGS_KEYS = {
-  libraryPath: 'fanslib_library_path',
-  apiUrl: 'fanslib_api_url',
-  webUrl: 'fanslib_web_url',
-  bridgeUrl: 'fanslib_bridge_url',
+  libraryPath: "fanslib_library_path",
+  apiUrl: "fanslib_api_url",
+  webUrl: "fanslib_web_url",
+  bridgeUrl: "fanslib_bridge_url",
 } as const;
 
-export const DEFAULT_API_URL = 'http://localhost:6970';
-export const DEFAULT_WEB_URL = 'http://localhost:6969';
-export const DEFAULT_BRIDGE_URL = 'http://localhost:6971';
-export const FANSLY_HOME_URL = 'https://fansly.com/home';
+export const DEFAULT_API_URL = "http://localhost:6970";
+export const DEFAULT_WEB_URL = "http://localhost:6969";
+export const DEFAULT_BRIDGE_URL = "http://localhost:6971";
+export const FANSLY_HOME_URL = "https://fansly.com/home";
 
 // Settings type
 export type Settings = {
@@ -22,10 +22,10 @@ export type Settings = {
 // Get settings from Chrome storage (or localStorage in test mode)
 export const getSettings = async (): Promise<Settings> => {
   // Check if we're in test mode (chrome.storage not available)
-  if (typeof window !== 'undefined' && (!window.chrome?.storage)) {
+  if (typeof window !== "undefined" && !window.chrome?.storage) {
     // Use localStorage directly for test mode
     return {
-      libraryPath: localStorage.getItem(SETTINGS_KEYS.libraryPath) ?? '',
+      libraryPath: localStorage.getItem(SETTINGS_KEYS.libraryPath) ?? "",
       apiUrl: localStorage.getItem(SETTINGS_KEYS.apiUrl) ?? DEFAULT_API_URL,
       webUrl: localStorage.getItem(SETTINGS_KEYS.webUrl) ?? DEFAULT_WEB_URL,
       bridgeUrl: localStorage.getItem(SETTINGS_KEYS.bridgeUrl) ?? DEFAULT_BRIDGE_URL,
@@ -40,7 +40,7 @@ export const getSettings = async (): Promise<Settings> => {
   ]);
 
   return {
-    libraryPath: result[SETTINGS_KEYS.libraryPath] ?? '',
+    libraryPath: result[SETTINGS_KEYS.libraryPath] ?? "",
     apiUrl: result[SETTINGS_KEYS.apiUrl] ?? DEFAULT_API_URL,
     webUrl: result[SETTINGS_KEYS.webUrl] ?? DEFAULT_WEB_URL,
     bridgeUrl: result[SETTINGS_KEYS.bridgeUrl] ?? DEFAULT_BRIDGE_URL,
@@ -50,7 +50,7 @@ export const getSettings = async (): Promise<Settings> => {
 // Save settings to Chrome storage (or localStorage in test mode)
 export const saveSettings = async (settings: Partial<Settings>) => {
   // Check if we're in test mode (chrome.storage not available)
-  if (typeof window !== 'undefined' && (!window.chrome?.storage)) {
+  if (typeof window !== "undefined" && !window.chrome?.storage) {
     // Use localStorage directly for test mode
     if (settings.libraryPath !== undefined) {
       localStorage.setItem(SETTINGS_KEYS.libraryPath, settings.libraryPath);

@@ -1,4 +1,4 @@
-import type { Media } from '@fanslib/server/schemas';
+import type { Media } from "@fanslib/server/schemas";
 
 import { useMediaHoverStore } from "~/stores/mediaHoverStore";
 import { useSfwMode } from "~/hooks/useSfwMode";
@@ -36,8 +36,8 @@ export const MediaTileVideo = ({
           cn(
             "absolute inset-0 w-full h-full bg-base-300",
             cover ? "object-cover" : "object-contain",
-            isPreviewActive && isVideoReady && "invisible"
-          )
+            isPreviewActive && isVideoReady && "invisible",
+          ),
         )}
         loading="lazy"
         draggable={false}
@@ -49,8 +49,8 @@ export const MediaTileVideo = ({
           cn(
             "absolute inset-0 w-full h-full bg-base-300",
             cover ? "object-cover" : "object-contain",
-            !isPreviewActive && "hidden"
-          )
+            !isPreviewActive && "hidden",
+          ),
         )}
         preload="none"
         draggable={false}

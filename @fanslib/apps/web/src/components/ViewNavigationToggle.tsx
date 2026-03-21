@@ -35,7 +35,7 @@ export const ViewNavigationToggle = ({ position, to, label }: ViewNavigationTogg
         "shadow-lg",
         "transition-all duration-300 ease-in-out",
         position === "left" ? "hover:translate-x-[4px]" : "hover:translate-x-[-4px]",
-        "group"
+        "group",
       )}
       aria-label={label}
     >
@@ -43,4 +43,3 @@ export const ViewNavigationToggle = ({ position, to, label }: ViewNavigationTogg
     </button>
   );
 };
-

@@ -1,4 +1,4 @@
-import type { PostWithRelations } from '@fanslib/server/schemas';
+import type { PostWithRelations } from "@fanslib/server/schemas";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useRef } from "react";
 import type { VirtualPost } from "~/lib/virtual-posts";
@@ -9,9 +9,7 @@ type UsePostTimelineVirtualizerArgs = {
   posts: (Post | VirtualPost)[];
 };
 
-export const usePostTimelineVirtualizer = ({
-  posts,
-}: UsePostTimelineVirtualizerArgs) => {
+export const usePostTimelineVirtualizer = ({ posts }: UsePostTimelineVirtualizerArgs) => {
   const scrollElementRef = useRef<HTMLDivElement | null>(null);
 
   const virtualizer = useVirtualizer({
@@ -19,8 +17,7 @@ export const usePostTimelineVirtualizer = ({
     getScrollElement: () => scrollElementRef.current,
     estimateSize: () => 148,
     overscan: 6,
-    measureElement: (element) =>
-      element?.getBoundingClientRect().height ?? 0,
+    measureElement: (element) => element?.getBoundingClientRect().height ?? 0,
   });
 
   return {
@@ -28,5 +25,3 @@ export const usePostTimelineVirtualizer = ({
     virtualizer,
   };
 };
-
-

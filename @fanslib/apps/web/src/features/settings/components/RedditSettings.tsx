@@ -1,17 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
 import {
-    useClearRedditSessionMutation,
-    useRedditLoginMutation,
-    useRedditLoginStatusQuery,
-    useRedditSessionStatusQuery,
+  useClearRedditSessionMutation,
+  useRedditLoginMutation,
+  useRedditLoginStatusQuery,
+  useRedditSessionStatusQuery,
 } from "~/lib/queries/reddit";
 import {
-    getAuthenticationStatus,
-    isStatusStale,
-    loadCachedStatus,
-    saveCachedStatus,
-    type LoginStatus,
-    type SessionStatus,
+  getAuthenticationStatus,
+  isStatusStale,
+  loadCachedStatus,
+  saveCachedStatus,
+  type LoginStatus,
+  type SessionStatus,
 } from "~/lib/reddit/auth-status-utils";
 import { SettingRow } from "./SettingRow";
 import { AuthenticationActions } from "./reddit/AuthenticationActions";

@@ -36,4 +36,3 @@ export const deleteTagDimension = async (id: number): Promise<boolean> => {
 
   return true;
 };
-

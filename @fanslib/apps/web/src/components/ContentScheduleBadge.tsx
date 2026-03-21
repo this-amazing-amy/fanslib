@@ -7,7 +7,7 @@ type ContentScheduleBadgeProps = {
   emoji?: string | null;
   color?: string | null;
   size?: "sm" | "md" | "lg";
-  borderStyle?: 'visible' | 'none';
+  borderStyle?: "visible" | "none";
   selected?: boolean;
   selectable?: boolean;
   responsive?: boolean;
@@ -20,7 +20,7 @@ export const ContentScheduleBadge = ({
   emoji,
   color = DEFAULT_SCHEDULE_COLOR,
   size = "md",
-  borderStyle = 'visible',
+  borderStyle = "visible",
   selected = true,
   selectable = false,
   responsive,
@@ -33,10 +33,7 @@ export const ContentScheduleBadge = ({
   return (
     <Badge
       size={size}
-      className={cn(
-        "rounded-full font-medium",
-        className
-      )}
+      className={cn("rounded-full font-medium", className)}
       selected={isSelected}
       selectable={selectable}
       responsive={responsive}

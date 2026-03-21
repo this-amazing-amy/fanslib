@@ -42,6 +42,7 @@ When the user browses their Fansly profile/timeline, the extension intercepts `t
 An hourly cron job (using existing `croner` library) queries for aggregates where `nextFetchAt < now`. For each due aggregate, it checks credential freshness, fetches analytics from the Fansly API, upserts datapoints, updates the aggregate, and computes the next fetch interval based on growth velocity.
 
 Adaptive fetch intervals (hardcoded):
+
 - Sustained growth > 5%: next fetch in 1 day
 - Growth slowing (1-5%): next fetch in 3 days
 - Plateaued (< 1%): next fetch in 7 days
@@ -56,6 +57,7 @@ No batch size cap needed — at ~2 posts/day, the maximum active set is ~60-70 p
 The extension passively intercepts Fansly request headers (existing behavior, throttled to 60s). The server stores `credentialsLastRefreshedAt` and a `credentialsStale` flag. On any 401/403 from Fansly's API, the server sets `credentialsStale = true` and halts ALL analytics fetching (not just the failing post). When fresh credentials arrive from the extension, the flag clears and fetching resumes.
 
 Dashboard credential status indicator:
+
 - **Green**: last refreshed < 24 hours ago
 - **Yellow**: last refreshed 24–72 hours ago
 - **Red**: credentials marked stale (401/403 received), with a link to open fansly.com
@@ -63,6 +65,7 @@ Dashboard credential status indicator:
 ### Data Model Changes
 
 **`FanslyAnalyticsAggregate` — simplified:**
+
 - **Added:** `nextFetchAt` (datetime, nullable) — when the background fetcher should next pull data. Null means stop fetching. This column IS the fetch queue.
 - **Added:** `plateauDetectedAt` (datetime, nullable) — when growth plateau was first detected.
 - **Removed:** `fypPerformanceScore` — composite score with arbitrary weightings, not currently useful.
@@ -79,6 +82,7 @@ Dashboard credential status indicator:
 ### Extension Activity Log
 
 A persistent rolling log stored in `chrome.storage.local`, capped at 100 entries. Each entry has a timestamp, type (success/warning/error), and message. Examples:
+
 - `"Captured contentId for 'poolside vibes #summer'"`
 - `"Linked to PostMedia IMG_4821.mp4"`
 - `"Backfill: matched 3 posts from timeline"`
@@ -90,6 +94,7 @@ Displayed in the extension side panel as a scrollable list.
 ### Chrome Extension Architecture
 
 The extension codebase is in good shape (modular interceptor → bridge → background → UI flow). Changes follow existing patterns:
+
 - Expand `fansly-interceptor.ts` to also monitor Fansly's scheduling API endpoint (in addition to the existing `timelinenew` interception)
 - Add a new message type (`FANSLIB_SCHEDULE_CAPTURE`) through the existing bridge → background pipeline
 - Background script handles the server PATCH calls and activity log writes
@@ -99,6 +104,7 @@ The extension codebase is in good shape (modular interceptor → bridge → back
 ### API Changes
 
 **New/Modified server endpoints:**
+
 - Credential status stored with `credentialsLastRefreshedAt` timestamp and `credentialsStale` boolean, exposed via a health/status endpoint for the dashboard
 - Existing `PATCH /api/posts/by-id/:id` and `PATCH /api/posts/post-media/by-id/:id` are reused by the extension (no new endpoints needed for scheduling capture)
 - Background cron is a new server-side scheduled job, no new HTTP endpoint needed (it queries the database directly)
@@ -106,6 +112,7 @@ The extension codebase is in good shape (modular interceptor → bridge → back
 ### Code to Remove
 
 **Server-side:**
+
 - Insights engine (`operations/insights.ts`, `schemas/insights.ts`)
 - Hashtag analytics endpoint and operation
 - Time analytics endpoint and operation
@@ -118,6 +125,7 @@ The extension codebase is in good shape (modular interceptor → bridge → back
 - Corresponding query hooks
 
 **Frontend (web app):**
+
 - Matching tab and all components (`MatchingSection.tsx`, `CandidateCard.tsx`, `SelectPostMediaDialog.tsx`)
 - Manual "Fetch More" overlay from `AnalyticsViewsChart.tsx`
 - Manual statistics ID input (`PostDetailFanslyStatistics.tsx`)
@@ -144,6 +152,7 @@ A good test verifies **external behavior through the public interface** — give
 ### Modules to test
 
 **Background analytics cron (server):**
+
 - Given a PostMedia with `nextFetchAt` in the past and fresh credentials → fetches data, upserts datapoints, updates aggregate, computes correct next `nextFetchAt` based on growth rate
 - Given stale credentials → skips all fetches, does not call Fansly API
 - Given a 401/403 response → marks credentials stale, halts fetching, sets no `nextFetchAt`
@@ -151,16 +160,19 @@ A good test verifies **external behavior through the public interface** — give
 - Given growth rate at different thresholds → sets correct `nextFetchAt` interval (1d/3d/7d/null)
 
 **Datapoint aggregation (server, consolidated):**
+
 - Given raw datapoints → computes correct totalViews, averageEngagementSeconds, averageEngagementPercent
 - Given datapoints with gaps → handles interpolation correctly
 - Given monotonically non-decreasing views constraint → enforces it
 
 **Scheduling capture flow (extension → server integration):**
+
 - Given a scheduling API response with caption matching a queue post (similarity >= 0.9) → PATCHes post status and PostMedia `fanslyStatisticsId`
 - Given a scheduling API response with no matching queue post → no server mutations, activity log entry created
 - Given caption similarity exactly at boundary (0.89 vs 0.90) → correct match/no-match decision
 
 **Candidate matching (server):**
+
 - Given a candidate with `fanslyStatisticsId` matching an existing PostMedia → auto-matched
 - Given a candidate with no match → stays pending with computed suggestions
 

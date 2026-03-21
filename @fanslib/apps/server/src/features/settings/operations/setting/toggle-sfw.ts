@@ -13,4 +13,3 @@ export const toggleSfwMode = async (): Promise<ToggleSfwModeResponse> => {
   const saved = await saveSettings({ sfwMode: !currentSettings.sfwMode });
   return { sfwMode: saved.sfwMode };
 };
-

@@ -4,7 +4,7 @@
  */
 const createConfig = () =>
   Object.freeze({
-    baseUrl: '',
+    baseUrl: "",
   });
 
 /**

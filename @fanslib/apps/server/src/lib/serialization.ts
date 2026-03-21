@@ -3,7 +3,7 @@ import * as devalue from "devalue";
 /**
  * Recursively converts class instances to plain objects and converts ISO date strings to Date objects.
  * This is necessary because:
- * 1. TypeORM returns class instances, not POJOs  
+ * 1. TypeORM returns class instances, not POJOs
  * 2. SQLite returns dates as ISO strings, but we want actual Date objects
  * 3. devalue.stringify can handle Date objects natively
  */
@@ -30,7 +30,7 @@ export const mapResponse = ({
   responseValue,
   path,
 }: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   responseValue: any;
   path: string;
 }) => {

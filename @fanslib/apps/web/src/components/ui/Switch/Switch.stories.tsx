@@ -1,19 +1,19 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Switch } from './Switch';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Switch } from "./Switch";
 
 const meta: Meta<typeof Switch> = {
-  title: 'Form Controls/Switch',
+  title: "Form Controls/Switch",
   component: Switch,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {
     isDisabled: {
-      control: { type: 'boolean' },
+      control: { type: "boolean" },
     },
     isSelected: {
-      control: { type: 'boolean' },
+      control: { type: "boolean" },
     },
   },
 };
@@ -23,27 +23,27 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    children: 'Enable notifications',
+    children: "Enable notifications",
   },
 };
 
 export const Selected: Story = {
   args: {
-    children: 'Dark mode',
+    children: "Dark mode",
     isSelected: true,
   },
 };
 
 export const Disabled: Story = {
   args: {
-    children: 'Disabled switch',
+    children: "Disabled switch",
     isDisabled: true,
   },
 };
 
 export const DisabledSelected: Story = {
   args: {
-    children: 'Disabled and on',
+    children: "Disabled and on",
     isDisabled: true,
     isSelected: true,
   },
@@ -51,7 +51,6 @@ export const DisabledSelected: Story = {
 
 export const WithoutLabel: Story = {
   args: {
-    'aria-label': 'Toggle setting',
+    "aria-label": "Toggle setting",
   },
 };
-

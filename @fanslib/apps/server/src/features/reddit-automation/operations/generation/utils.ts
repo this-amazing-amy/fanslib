@@ -13,7 +13,7 @@ const MEDIA_REUSE_RESTRICTION_DAYS = 30;
 
 export const selectRandomMedia = async (
   eligibleMediaFilter: MediaFilters | null,
-  excludeMediaIds?: string[]
+  excludeMediaIds?: string[],
 ): Promise<{ media: Media | null; totalAvailable: number }> => {
   const mediaRepo = (await db()).getRepository(Media);
 
@@ -42,10 +42,9 @@ export const selectRandomMedia = async (
   return { media, totalAvailable };
 };
 
-
 export const selectRandomMediaWithConflictChecking = async (
   subreddit: Subreddit,
-  channelId: string
+  channelId: string,
 ): Promise<{ media: Media | null; totalAvailable: number; usedMediaCount: number }> => {
   const filters = subreddit.channel?.eligibleMediaFilter as MediaFilters | null;
 
@@ -71,7 +70,7 @@ export const generateCaptionForMedia = async (media: Media): Promise<string> => 
     .filter((post) => post.caption && post.caption.trim().length > 0)
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-  const caption = postsWithCaptions.length > 0 ? postsWithCaptions[0]?.caption ?? "" : "";
+  const caption = postsWithCaptions.length > 0 ? (postsWithCaptions[0]?.caption ?? "") : "";
   return removeHashtagsFromEnd(caption);
 };
 
@@ -82,19 +81,24 @@ export const selectSubreddit = (subreddits: Subreddit[]): Subreddit | undefined 
   return subreddits[randomIndex];
 };
 
-export const getSubredditPosts = <T extends { subredditId: string | null }>(channelPosts: T[], subredditId: string): T[] =>
-  channelPosts.filter((post) => post.subredditId === subredditId);
+export const getSubredditPosts = <T extends { subredditId: string | null }>(
+  channelPosts: T[],
+  subredditId: string,
+): T[] => channelPosts.filter((post) => post.subredditId === subredditId);
 
 export const getUsedMediaForSubreddit = async (
   subredditId: string,
   channelId: string,
-  restrictionDays: number = MEDIA_REUSE_RESTRICTION_DAYS
+  restrictionDays: number = MEDIA_REUSE_RESTRICTION_DAYS,
 ): Promise<string[]> => {
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - restrictionDays);
   const cutoffDateString = cutoffDate.toISOString();
 
-  const usedMediaResults = await (await db()).getRepository(PostMedia)
+  const usedMediaResults = await (
+    await db()
+  )
+    .getRepository(PostMedia)
     .createQueryBuilder("postMedia")
     .innerJoin("postMedia.post", "post")
     .innerJoin("postMedia.media", "media")
@@ -107,9 +111,15 @@ export const getUsedMediaForSubreddit = async (
   return usedMediaResults.map((result) => result.media_id);
 };
 
-const addMinutes = (date: Date, minutes: number): Date => new Date(date.getTime() + minutes * 60000);
+const addMinutes = (date: Date, minutes: number): Date =>
+  new Date(date.getTime() + minutes * 60000);
 
-const hasConflict = <T extends { date: Date }>(targetDate: Date, existingPosts: T[], minSpacingMinutes = 5): boolean => existingPosts.some((post) => {
+const hasConflict = <T extends { date: Date }>(
+  targetDate: Date,
+  existingPosts: T[],
+  minSpacingMinutes = 5,
+): boolean =>
+  existingPosts.some((post) => {
     const postDate = post.date;
     const timeDiff = Math.abs(targetDate.getTime() - postDate.getTime());
     return timeDiff < minSpacingMinutes * 60000;
@@ -134,7 +144,7 @@ const roundToNextHour = (date: Date): Date => {
 const calculateMinAllowedPostTime = <T extends { date: Date }>(
   searchStartDate: Date,
   subreddit: Subreddit,
-  subredditPosts: T[]
+  subredditPosts: T[],
 ): Date => {
   const minTimeBetweenPosts = subreddit.maxPostFrequencyHours ?? 0;
 
@@ -142,9 +152,7 @@ const calculateMinAllowedPostTime = <T extends { date: Date }>(
     return new Date(searchStartDate);
   }
 
-  const lastPost = subredditPosts
-    .map((p) => p.date)
-    .sort((a, b) => b.getTime() - a.getTime())[0];
+  const lastPost = subredditPosts.map((p) => p.date).sort((a, b) => b.getTime() - a.getTime())[0];
 
   const minNextPostTime = addMinutes(lastPost ?? new Date(), minTimeBetweenPosts * 60);
 
@@ -165,9 +173,15 @@ const createCandidateDate = (baseDate: Date, hour: number): Date => {
   return date;
 };
 
-const isValidTimeSlot = <T extends { date: Date }>(candidateDate: Date, now: Date, minAllowedPostTime: Date, channelPosts: T[]): boolean => candidateDate > now &&
-    candidateDate >= minAllowedPostTime &&
-    !hasConflict(candidateDate, channelPosts, 5);
+const isValidTimeSlot = <T extends { date: Date }>(
+  candidateDate: Date,
+  now: Date,
+  minAllowedPostTime: Date,
+  channelPosts: T[],
+): boolean =>
+  candidateDate > now &&
+  candidateDate >= minAllowedPostTime &&
+  !hasConflict(candidateDate, channelPosts, 5);
 
 type SubredditPostingTime = {
   day: number;
@@ -180,7 +194,7 @@ const getValidTimeSlotsForDay = <T extends { date: Date }>(
   postingTimes: SubredditPostingTime[],
   now: Date,
   minAllowedPostTime: Date,
-  channelPosts: T[]
+  channelPosts: T[],
 ): Array<{ date: Date; score: number }> => {
   const dayOfWeek = dayDate.getDay();
 
@@ -198,13 +212,20 @@ const getValidTimeSlotsForDay = <T extends { date: Date }>(
     .filter(({ date }) => isValidTimeSlot(date, now, minAllowedPostTime, channelPosts));
 };
 
-const getBestTimeSlotForDay = (timeSlots: Array<{ date: Date; score: number }>): { date: Date; score: number } | null => timeSlots.reduce(
+const getBestTimeSlotForDay = (
+  timeSlots: Array<{ date: Date; score: number }>,
+): { date: Date; score: number } | null =>
+  timeSlots.reduce(
     (best, current) => (!best || current.score > best.score ? current : best),
-    null as { date: Date; score: number } | null
+    null as { date: Date; score: number } | null,
   );
 
-const generateFallbackDate = <T extends { subredditId: string | null; date: Date }>(minAllowedPostTime: Date, channelPosts: T[]): Date => {
-  const generateCandidates = (startTime: Date): Date[] => Array.from({ length: 48 }, (_, i) => addMinutes(startTime, i * 30));
+const generateFallbackDate = <T extends { subredditId: string | null; date: Date }>(
+  minAllowedPostTime: Date,
+  channelPosts: T[],
+): Date => {
+  const generateCandidates = (startTime: Date): Date[] =>
+    Array.from({ length: 48 }, (_, i) => addMinutes(startTime, i * 30));
 
   return (
     generateCandidates(minAllowedPostTime).find((date) => !hasConflict(date, channelPosts, 5)) ??
@@ -215,13 +236,17 @@ const generateFallbackDate = <T extends { subredditId: string | null; date: Date
 export const calculateOptimalScheduleDate = <T extends { subredditId: string | null; date: Date }>(
   subreddit: Subreddit,
   subredditPosts: T[],
-  channelPosts: T[]
+  channelPosts: T[],
 ): Date => {
   const postingTimes = (subreddit.postingTimesData ?? []) as SubredditPostingTime[];
   const now = new Date();
   const maxDaysToLookAhead = 14;
   const searchStartDate = getSearchStartDate(now);
-  const minAllowedPostTime = calculateMinAllowedPostTime(searchStartDate, subreddit, subredditPosts);
+  const minAllowedPostTime = calculateMinAllowedPostTime(
+    searchStartDate,
+    subreddit,
+    subredditPosts,
+  );
 
   if (postingTimes.length === 0) {
     return generateFallbackDate(minAllowedPostTime, channelPosts);
@@ -232,7 +257,7 @@ export const calculateOptimalScheduleDate = <T extends { subredditId: string | n
   const bestTimeSlot = dayOffsets
     .map((dayOffset) => createDateForDay(searchStartDate, dayOffset))
     .map((dayDate) =>
-      getValidTimeSlotsForDay(dayDate, postingTimes, now, minAllowedPostTime, channelPosts)
+      getValidTimeSlotsForDay(dayDate, postingTimes, now, minAllowedPostTime, channelPosts),
     )
     .map(getBestTimeSlotForDay)
     .find((timeSlot) => timeSlot !== null);
@@ -243,6 +268,3 @@ export const calculateOptimalScheduleDate = <T extends { subredditId: string | n
 
   return bestTimeSlot?.date ?? generateFallbackDate(minAllowedPostTime, channelPosts);
 };
-
-
-

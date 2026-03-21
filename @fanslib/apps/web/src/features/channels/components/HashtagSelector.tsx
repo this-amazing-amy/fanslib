@@ -1,12 +1,17 @@
-import type { Hashtag } from '@fanslib/server/schemas';
+import type { Hashtag } from "@fanslib/server/schemas";
 import { X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Badge } from "~/components/ui/Badge";
 import { Button } from "~/components/ui/Button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "~/components/ui/Command/Command";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "~/components/ui/Command/Command";
 import { Popover, PopoverTrigger } from "~/components/ui/Popover/Popover";
 import { useCreateHashtagMutation, useHashtagsQuery } from "~/lib/queries/hashtags";
-
 
 type HashtagSelectorProps = {
   value: Hashtag[];
@@ -30,7 +35,7 @@ export const HashtagSelector = ({ value, onChange, disabled = false }: HashtagSe
 
   const availableHashtags = useMemo(
     () => allHashtags.filter((hashtag) => !selectedIds.has(hashtag.id)),
-    [allHashtags, selectedIds]
+    [allHashtags, selectedIds],
   );
 
   const filteredHashtags = useMemo(
@@ -38,9 +43,9 @@ export const HashtagSelector = ({ value, onChange, disabled = false }: HashtagSe
       !searchQuery.trim()
         ? availableHashtags
         : availableHashtags.filter((hashtag) =>
-            hashtag.name.toLowerCase().includes(searchQuery.toLowerCase())
+            hashtag.name.toLowerCase().includes(searchQuery.toLowerCase()),
           ),
-    [availableHashtags, searchQuery]
+    [availableHashtags, searchQuery],
   );
 
   const canCreateNew = useMemo(() => {
@@ -156,4 +161,3 @@ export const HashtagSelector = ({ value, onChange, disabled = false }: HashtagSe
     </div>
   );
 };
-

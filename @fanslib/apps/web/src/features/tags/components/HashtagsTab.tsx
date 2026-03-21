@@ -1,4 +1,4 @@
-import type { Hashtag, HashtagChannelStats } from '@fanslib/server/schemas';
+import type { Hashtag, HashtagChannelStats } from "@fanslib/server/schemas";
 import { Plus, Trash2 } from "lucide-react";
 import type { CSSProperties } from "react";
 import { useState } from "react";
@@ -176,7 +176,10 @@ export const HashtagsTab = () => {
   const fanslyChannels = (channels ?? []).filter((channel) => channel.typeId === "fansly");
 
   const updateHashtagStats = async (hashtagId: number, channelId: string, viewCount: number) => {
-    await updateHashtagStatsMutation.mutateAsync({ id: hashtagId.toString(), updates: { channelId, views: viewCount } });
+    await updateHashtagStatsMutation.mutateAsync({
+      id: hashtagId.toString(),
+      updates: { channelId, views: viewCount },
+    });
   };
 
   const getViewCount = (hashtag: Hashtag, channelId: string) => {
@@ -234,9 +237,15 @@ export const HashtagsTab = () => {
                 style={{ "--channel-count": fanslyChannels.length } as CSSProperties}
               >
                 {fanslyChannels.map((channel) => (
-                  <div key={channel.id} className="p-2 h-12 max-w-48 flex items-center justify-start">
+                  <div
+                    key={channel.id}
+                    className="p-2 h-12 max-w-48 flex items-center justify-start"
+                  >
                     <HashtagViewInput
-                      initialValue={getViewCount(hashtag as unknown as Hashtag & { createdAt: Date; updatedAt: Date }, channel.id)}
+                      initialValue={getViewCount(
+                        hashtag as unknown as Hashtag & { createdAt: Date; updatedAt: Date },
+                        channel.id,
+                      )}
                       onViewCountChange={(newValue) =>
                         updateHashtagStats(hashtag.id, channel.id, newValue)
                       }

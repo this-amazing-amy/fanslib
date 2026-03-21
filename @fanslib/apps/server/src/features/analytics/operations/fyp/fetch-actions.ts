@@ -20,22 +20,20 @@ const FYP_WINDOW_DAYS = 90;
 
 const calculatePlateauDaysSincePosted = (
   postDate: Date,
-  plateauDetectedAt?: Date | null
+  plateauDetectedAt?: Date | null,
 ): number | null => {
   if (!plateauDetectedAt) {
     return null;
   }
 
   const daysSincePosted = Math.floor(
-    (plateauDetectedAt.getTime() - postDate.getTime()) / (24 * 60 * 60 * 1000)
+    (plateauDetectedAt.getTime() - postDate.getTime()) / (24 * 60 * 60 * 1000),
   );
 
   return Math.max(0, daysSincePosted);
 };
 
-export const fetchFypActionItems = async (
-  query: z.infer<typeof FypActionsQuerySchema>
-) => {
+export const fetchFypActionItems = async (query: z.infer<typeof FypActionsQuerySchema>) => {
   const now = new Date();
   const dataSource = await db();
   const postRepository = dataSource.getRepository(Post);
@@ -84,7 +82,7 @@ export const fetchFypActionItems = async (
   posts.forEach((post) => {
     const postDate = new Date(post.date);
     const daysSincePosted = Math.floor(
-      (now.getTime() - postDate.getTime()) / (24 * 60 * 60 * 1000)
+      (now.getTime() - postDate.getTime()) / (24 * 60 * 60 * 1000),
     );
     const isWithinFypWindow = daysSincePosted <= FYP_WINDOW_DAYS;
     const wasManuallyRemoved = post.fypManuallyRemoved === true;
@@ -94,24 +92,18 @@ export const fetchFypActionItems = async (
 
     const plateauDaysSincePosted = calculatePlateauDaysSincePosted(
       postDate,
-      agg?.plateauDetectedAt
+      agg?.plateauDetectedAt,
     );
     const hasPlateaued = plateauDaysSincePosted !== null;
 
     const actualValue =
-      thresholdType === "views"
-        ? (agg?.totalViews ?? 0)
-        : (agg?.averageEngagementSeconds ?? 0);
+      thresholdType === "views" ? (agg?.totalViews ?? 0) : (agg?.averageEngagementSeconds ?? 0);
 
     const averageValue =
-      thresholdType === "views"
-        ? userAverages.averageViews
-        : userAverages.averageEngagementSeconds;
+      thresholdType === "views" ? userAverages.averageViews : userAverages.averageEngagementSeconds;
 
     const percentVsAverage =
-      averageValue > 0
-        ? ((actualValue - averageValue) / averageValue) * 100
-        : -100;
+      averageValue > 0 ? ((actualValue - averageValue) / averageValue) * 100 : -100;
 
     const belowThreshold = actualValue < thresholdValue;
 

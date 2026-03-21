@@ -5,7 +5,7 @@ import { FanslyMediaCandidate } from "../../candidate-entity";
 import type { UnmatchCandidateResponseSchema } from "../schema";
 
 export const unmatchCandidate = async (
-  id: string
+  id: string,
 ): Promise<z.infer<typeof UnmatchCandidateResponseSchema>> => {
   const dataSource = await db();
   const candidateRepository = dataSource.getRepository(FanslyMediaCandidate);
@@ -29,4 +29,3 @@ export const unmatchCandidate = async (
 
   return candidate;
 };
-

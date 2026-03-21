@@ -10,7 +10,9 @@ export const SaveSettingsResponseSchema = SettingsSchema;
 export type SaveSettingsRequestBody = z.infer<typeof SaveSettingsRequestBodySchema>;
 export type SaveSettingsResponse = z.infer<typeof SaveSettingsResponseSchema>;
 
-export const saveSettings = async (partialSettings: SaveSettingsRequestBody): Promise<SaveSettingsResponse> => {
+export const saveSettings = async (
+  partialSettings: SaveSettingsRequestBody,
+): Promise<SaveSettingsResponse> => {
   try {
     await mkdir(dirname(settingsFilePath()), { recursive: true });
 
@@ -26,4 +28,3 @@ export const saveSettings = async (partialSettings: SaveSettingsRequestBody): Pr
     throw error;
   }
 };
-

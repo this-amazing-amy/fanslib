@@ -1,21 +1,21 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { RadioGroup, RadioGroupItem } from './RadioGroup';
+import type { Meta, StoryObj } from "@storybook/react";
+import { RadioGroup, RadioGroupItem } from "./RadioGroup";
 
 const meta: Meta<typeof RadioGroup> = {
-  title: 'Form Controls/RadioGroup',
+  title: "Form Controls/RadioGroup",
   component: RadioGroup,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {
     isDisabled: {
-      control: { type: 'boolean' },
+      control: { type: "boolean" },
     },
   },
   decorators: [
     (Story: React.ComponentType) => (
-      <div style={{ width: '300px' }}>
+      <div style={{ width: "300px" }}>
         <Story />
       </div>
     ),
@@ -54,4 +54,3 @@ export const Disabled: Story = {
     </RadioGroup>
   ),
 };
-

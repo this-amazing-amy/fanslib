@@ -6,19 +6,19 @@ import { RedditLoginHandler } from "../../lib/reddit-poster/login-handler";
 import { createFileSessionStorage } from "../../lib/reddit-poster/session-storage";
 import type { RedditPostProgress } from "../../lib/reddit-poster/types";
 import { Channel } from "../channels/entity";
-import { Media, } from "../library/entity";
+import { Media } from "../library/entity";
 import type { MediaFilterSchema } from "../library/schemas/media-filter";
 import type { Post } from "../posts/entity";
 import { createPost } from "../posts/operations/post/create";
 import { fetchPostsByChannel } from "../posts/operations/post/fetch-by-channel";
 import { Subreddit } from "../subreddits/entity";
 import {
-    calculateOptimalScheduleDate,
-    generateCaptionForMedia,
-    getSubredditPosts,
-    selectRandomMedia,
-    selectRandomMediaWithConflictChecking,
-    selectSubreddit,
+  calculateOptimalScheduleDate,
+  generateCaptionForMedia,
+  getSubredditPosts,
+  selectRandomMedia,
+  selectRandomMediaWithConflictChecking,
+  selectSubreddit,
 } from "./operations/generation/utils";
 
 type MediaFilters = z.infer<typeof MediaFilterSchema>;
@@ -56,12 +56,11 @@ const CHANNEL_TYPES = {
 
 const BROWSER_DATA_DIR = browserDataPath();
 
-
 export const generatePosts = async (
   db: DataSource,
   count: number,
   subreddits: Subreddit[],
-  channelId: string
+  channelId: string,
 ): Promise<GeneratedPost[]> => {
   if (count <= 0) {
     throw new Error("Count must be greater than 0");
@@ -97,7 +96,7 @@ export const generatePosts = async (
 
     const { media: selectedMedia } = await selectRandomMediaWithConflictChecking(
       subreddit,
-      channelId
+      channelId,
     );
     if (!selectedMedia) {
       throw new Error(`Post ${index + 1}: No suitable media found`);
@@ -134,7 +133,7 @@ export const generatePosts = async (
 
 export const regenerateMedia = async (
   subredditId: string,
-  _channelId: string
+  _channelId: string,
 ): Promise<RegenerateMediaResult> => {
   const subredditRepo = (await db()).getRepository(Subreddit);
 
@@ -164,7 +163,7 @@ export const regenerateMedia = async (
 
 export const scheduleAllPosts = async (
   db: DataSource,
-  posts: GeneratedPost[]
+  posts: GeneratedPost[],
 ): Promise<string[]> => {
   const channelRepo = db.getRepository(Channel);
   const redditChannels = await channelRepo.find({
@@ -190,11 +189,11 @@ export const scheduleAllPosts = async (
           status: "scheduled",
           caption: post.caption,
         },
-        [post.media.id]
+        [post.media.id],
       );
 
       return createdPost.id;
-    })
+    }),
   );
 
   return postIds;
@@ -224,7 +223,9 @@ export const getScheduledPosts = async (db: DataSource): Promise<ScheduledPost[]
 
   const scheduledPostsWithDetails = await Promise.all(
     scheduledPosts.map(async (post) => {
-      const subreddit = await subredditRepo.findOne({ where: { id: post.subredditId ?? undefined } });
+      const subreddit = await subredditRepo.findOne({
+        where: { id: post.subredditId ?? undefined },
+      });
       const postMediaRepo = db.getRepository("PostMedia");
       const postMedia = await postMediaRepo.findOne({
         where: { postId: post.id },
@@ -251,13 +252,16 @@ export const getScheduledPosts = async (db: DataSource): Promise<ScheduledPost[]
         status: (post.status ?? "queued") as "queued" | "processing" | "posted" | "failed",
       };
 
-      return scheduledPost
-    })
+      return scheduledPost;
+    }),
   );
 
   return scheduledPostsWithDetails
     .filter((post): post is ScheduledPost => post?.status !== undefined)
-    .sort((a: ScheduledPost, b: ScheduledPost) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime());
+    .sort(
+      (a: ScheduledPost, b: ScheduledPost) =>
+        new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime(),
+    );
 };
 
 export const loginToReddit = async (userId?: string): Promise<boolean> => {
@@ -283,7 +287,7 @@ export const loginToReddit = async (userId?: string): Promise<boolean> => {
 
   if (result.success) {
     console.log(
-      `Reddit login completed successfully${result.username ? ` for user: u/${result.username}` : ""}`
+      `Reddit login completed successfully${result.username ? ` for user: u/${result.username}` : ""}`,
     );
     return true;
   }
@@ -293,7 +297,7 @@ export const loginToReddit = async (userId?: string): Promise<boolean> => {
 };
 
 export const checkLoginStatus = async (
-  userId?: string
+  userId?: string,
 ): Promise<{ isLoggedIn: boolean; username?: string }> => {
   console.log("Checking Reddit login status...");
 
@@ -316,7 +320,7 @@ export const checkLoginStatus = async (
 
   if (result.success) {
     console.log(
-      `Reddit login status: logged in${result.username ? ` as u/${result.username}` : ""}`
+      `Reddit login status: logged in${result.username ? ` as u/${result.username}` : ""}`,
     );
     return {
       isLoggedIn: true,
@@ -329,6 +333,3 @@ export const checkLoginStatus = async (
     isLoggedIn: false,
   };
 };
-
-
-

@@ -1,4 +1,4 @@
-import type { ShootFilters as ShootFiltersType } from '@fanslib/server/schemas';
+import type { ShootFilters as ShootFiltersType } from "@fanslib/server/schemas";
 import { ListX } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { Tooltip } from "~/components/ui/Tooltip";
@@ -53,5 +53,3 @@ export const ShootFilters = ({ value, onFilterChange }: ShootFiltersProps) => (
     <ShootFiltersContent />
   </ShootFiltersProvider>
 );
-
-

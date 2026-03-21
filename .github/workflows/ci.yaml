@@ -7,7 +7,7 @@ on:
     branches: [main, develop]
 
 env:
-  BUN_VERSION: '1.2.19'
+  BUN_VERSION: "1.2.19"
 
 jobs:
   checks:

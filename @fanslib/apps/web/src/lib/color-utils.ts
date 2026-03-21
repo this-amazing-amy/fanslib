@@ -33,9 +33,13 @@ type RGB = { r: number; g: number; b: number };
 const hexToRgb = (hex: string): RGB | null => {
   const cleanHex = hex.replace("#", "");
   if (![3, 6].includes(cleanHex.length)) return null;
-  const normalized = cleanHex.length === 3
-    ? cleanHex.split("").map((char) => char + char).join("")
-    : cleanHex;
+  const normalized =
+    cleanHex.length === 3
+      ? cleanHex
+          .split("")
+          .map((char) => char + char)
+          .join("")
+      : cleanHex;
   const num = parseInt(normalized, 16);
   if (Number.isNaN(num)) return null;
   return {

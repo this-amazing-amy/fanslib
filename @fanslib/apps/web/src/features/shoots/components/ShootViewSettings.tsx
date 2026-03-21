@@ -24,7 +24,10 @@ export const ShootViewSettings = () => {
               onChange={(value) => {
                 if (!value) return;
                 updatePreferences({
-                  view: { viewType: preferences.view.viewType, gridSize: value as "small" | "large" },
+                  view: {
+                    viewType: preferences.view.viewType,
+                    gridSize: value as "small" | "large",
+                  },
                 });
               }}
               options={[

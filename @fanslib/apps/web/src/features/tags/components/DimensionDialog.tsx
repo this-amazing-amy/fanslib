@@ -6,9 +6,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/Dialog";
-import type { CreateTagDimensionRequestBody, TagDimension, UpdateTagDimensionRequestBody } from '@fanslib/server/schemas';
+import type {
+  CreateTagDimensionRequestBody,
+  TagDimension,
+  UpdateTagDimensionRequestBody,
+} from "@fanslib/server/schemas";
 import { DimensionForm } from "./DimensionForm";
-
 
 export type EditingDimension =
   | {
@@ -23,9 +26,7 @@ type DimensionDialogProps = {
   editingDimension: EditingDimension | null;
   onClose: () => void;
   onSubmit: (
-    data:
-      | CreateTagDimensionRequestBody
-      | { id: number; updates: UpdateTagDimensionRequestBody }
+    data: CreateTagDimensionRequestBody | { id: number; updates: UpdateTagDimensionRequestBody },
   ) => void;
   isSubmitting: boolean;
 };
@@ -47,7 +48,7 @@ export const DimensionDialog = ({
   };
 
   const handleFormSubmit = (
-    data: CreateTagDimensionRequestBody | UpdateTagDimensionRequestBody
+    data: CreateTagDimensionRequestBody | UpdateTagDimensionRequestBody,
   ) => {
     if (editingDimension?.mode === "edit") {
       onSubmit({
@@ -71,7 +72,9 @@ export const DimensionDialog = ({
               </DialogHeader>
 
               <DimensionForm
-                initialData={editingDimension?.mode === "edit" ? editingDimension.dimension : undefined}
+                initialData={
+                  editingDimension?.mode === "edit" ? editingDimension.dimension : undefined
+                }
                 onSubmit={handleFormSubmit}
                 onCancel={close}
                 isSubmitting={isSubmitting}

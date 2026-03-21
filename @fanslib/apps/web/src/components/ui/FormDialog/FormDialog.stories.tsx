@@ -1,9 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { useOverlayTriggerState } from 'react-stately';
-import { Button } from '../Button';
-import { FormField } from '../FormField';
-import { Input } from '../Input';
-import { FormDialog } from './FormDialog';
+import type { Meta, StoryObj } from "@storybook/react";
+import { useOverlayTriggerState } from "react-stately";
+import { Button } from "../Button";
+import { FormField } from "../FormField";
+import { Input } from "../Input";
+import { FormDialog } from "./FormDialog";
 
 const FormDialogWrapper = () => {
   const state = useOverlayTriggerState({});
@@ -41,16 +41,16 @@ const FormDialogWrapper = () => {
 };
 
 const meta: Meta<typeof FormDialog> = {
-  title: 'Overlays/FormDialog',
+  title: "Overlays/FormDialog",
   component: FormDialogWrapper,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {
     maxWidth: {
-      control: { type: 'select' },
-      options: ['sm', 'md', 'lg', 'xl', '2xl', '3xl'],
+      control: { type: "select" },
+      options: ["sm", "md", "lg", "xl", "2xl", "3xl"],
     },
   },
 };
@@ -60,13 +60,12 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    maxWidth: 'lg',
+    maxWidth: "lg",
   },
 };
 
 export const Small: Story = {
   args: {
-    maxWidth: 'sm',
+    maxWidth: "sm",
   },
 };
-

@@ -20,10 +20,9 @@ export const FindAdjacentMediaResponseSchema = z.object({
   next: MediaSchema.nullable(),
 });
 
-
 export const findAdjacentMedia = async (
   mediaId: string,
-  params?: z.infer<typeof FindAdjacentMediaBodySchema>
+  params?: z.infer<typeof FindAdjacentMediaBodySchema>,
 ): Promise<z.infer<typeof FindAdjacentMediaResponseSchema>> => {
   const database = await db();
 
@@ -96,4 +95,3 @@ export const findAdjacentMedia = async (
 
   return { previous, next };
 };
-
