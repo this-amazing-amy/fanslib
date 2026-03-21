@@ -81,7 +81,7 @@ describe("AnalyticsPostCard", () => {
     expect(screen.queryByTestId("growth-chart")).not.toBeInTheDocument();
 
     // Click the card to expand
-    await user.click(container.querySelector("[data-testid='analytics-card']")!);
+    await user.click(container.querySelector("[data-testid='analytics-card']") as HTMLElement);
 
     // Chart area should now be visible
     expect(screen.getByTestId("growth-chart")).toBeInTheDocument();
@@ -99,11 +99,11 @@ describe("AnalyticsPostCard", () => {
     const user = userEvent.setup();
 
     // Expand
-    await user.click(container.querySelector("[data-testid='analytics-card']")!);
+    await user.click(container.querySelector("[data-testid='analytics-card']") as HTMLElement);
     expect(screen.getByTestId("growth-chart")).toBeInTheDocument();
 
     // Collapse
-    await user.click(container.querySelector("[data-testid='analytics-card']")!);
+    await user.click(container.querySelector("[data-testid='analytics-card']") as HTMLElement);
     expect(screen.queryByTestId("growth-chart")).not.toBeInTheDocument();
   });
 
@@ -111,7 +111,7 @@ describe("AnalyticsPostCard", () => {
     const { container } = render(<AnalyticsPostCard {...defaultProps} />);
     const user = userEvent.setup();
 
-    await user.click(container.querySelector("[data-testid='analytics-card']")!);
+    await user.click(container.querySelector("[data-testid='analytics-card']") as HTMLElement);
     expect(screen.queryByTestId("growth-chart")).not.toBeInTheDocument();
   });
 
