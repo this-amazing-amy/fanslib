@@ -46,6 +46,7 @@ export const MatchSuggestionSchema = z.object({
   method: MatchMethodSchema,
   filename: z.string(),
   caption: z.string().optional(),
+  scheduleName: z.string().optional(),
 });
 
 // Operation schemas

@@ -1,4 +1,4 @@
-import type { Media, PostWithRelations } from '@fanslib/server/schemas';
+import type { Media, PostWithRelations } from "@fanslib/server/schemas";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
@@ -10,7 +10,6 @@ import { cn } from "~/lib/cn";
 import { useAddMediaToPostMutation } from "~/lib/queries/posts";
 import { isVirtualPost, type VirtualPost } from "~/lib/virtual-posts";
 import { useCreatePostFromVirtualSlot } from "../../hooks/useCreatePostFromVirtualSlot";
-
 
 type Post = PostWithRelations;
 
@@ -72,9 +71,10 @@ export const PostCalendarDropzone = ({ post, children, onUpdate }: PostCalendarD
         }
         endMediaDrag();
       } else if (isPostDragging && draggedPost && isVirtualPost(post)) {
-        const media = !isVirtualPost(draggedPost) && draggedPost.postMedia
-          ? draggedPost.postMedia.map((pm) => pm.media)
-          : [];
+        const media =
+          !isVirtualPost(draggedPost) && draggedPost.postMedia
+            ? draggedPost.postMedia.map((pm) => pm.media)
+            : [];
 
         if (preferences.view.openDialogOnDrop) {
           setCreatePostData({
@@ -118,7 +118,7 @@ export const PostCalendarDropzone = ({ post, children, onUpdate }: PostCalendarD
           <Plus
             className={cn(
               "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-6 w-6 transition-colors pointer-events-none",
-              "text-primary"
+              "text-primary",
             )}
           />
         )}
@@ -135,4 +135,3 @@ export const PostCalendarDropzone = ({ post, children, onUpdate }: PostCalendarD
     </>
   );
 };
-

@@ -1,5 +1,4 @@
-import type { Media, TagDimension, TagDefinition } from '@fanslib/server/schemas';
-
+import type { Media, TagDimension, TagDefinition } from "@fanslib/server/schemas";
 
 import { useTagStates } from "~/hooks/useTagStates";
 import {
@@ -40,9 +39,11 @@ export const MediaTagEditor = ({ media, className }: MediaTagEditorProps) => {
         mediaId: m.id,
         tagIds: [tagId],
       }));
-      await Promise.all(removals.map(async (removal) => {
-        await removeMutation.mutateAsync(removal);
-      }));
+      await Promise.all(
+        removals.map(async (removal) => {
+          await removeMutation.mutateAsync(removal);
+        }),
+      );
     } else {
       // Indeterminate: assign to all media (making it consistent)
       const assignments = media.map((m) => ({
@@ -71,16 +72,16 @@ export const MediaTagEditor = ({ media, className }: MediaTagEditorProps) => {
           <div className="animate-pulse">
             <div className="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
             <div className="flex gap-2">
-              { }
+              {}
               {Array.from({ length: 3 }).map((_, i) => (
-                // eslint-disable-next-line react/no-array-index-key
+                // oxlint-disable-next-line react/no-array-index-key
                 <div key={`tag-skeleton-${i}`} className="h-6 bg-gray-200 rounded-full w-16"></div>
               ))}
             </div>
           </div>
-          { }
+          {}
           {Array.from({ length: 2 }).map((_, i) => (
-            // eslint-disable-next-line react/no-array-index-key
+            // oxlint-disable-next-line react/no-array-index-key
             <div key={`section-skeleton-${i}`} className="animate-pulse">
               <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
               <div className="h-8 bg-gray-200 rounded"></div>

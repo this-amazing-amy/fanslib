@@ -1,14 +1,14 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Button } from '../Button';
-import { Card, CardBody, CardTitle, CardActions } from './Card';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Button } from "../Button";
+import { Card, CardBody, CardTitle, CardActions } from "./Card";
 
 const meta: Meta<typeof Card> = {
-  title: 'UI/Card',
+  title: "UI/Card",
   component: Card,
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {
     compact: {
-      control: 'boolean',
+      control: "boolean",
     },
   },
 };
@@ -119,10 +119,7 @@ export const ComplexCard: Story = {
   render: () => (
     <Card className="w-96">
       <figure>
-        <img
-          src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400"
-          alt="Product"
-        />
+        <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400" alt="Product" />
       </figure>
       <CardBody>
         <CardTitle>
@@ -146,4 +143,3 @@ export const ComplexCard: Story = {
     </Card>
   ),
 };
-

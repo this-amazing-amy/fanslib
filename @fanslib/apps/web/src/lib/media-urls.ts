@@ -1,4 +1,4 @@
-import { backendBaseUrl } from './config';
+import { backendBaseUrl } from "./config";
 
 export const getMediaFileUrl = (id: string) => `${backendBaseUrl}/api/media/${id}/file`;
 

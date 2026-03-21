@@ -1,8 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
-import { useOverlayTriggerState } from 'react-stately';
-import { Button } from '../Button';
-import { DeleteConfirmDialog } from './DeleteConfirmDialog';
+import type { Meta, StoryObj } from "@storybook/react";
+import { useState } from "react";
+import { useOverlayTriggerState } from "react-stately";
+import { Button } from "../Button";
+import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
 
 const DeleteConfirmDialogWrapper = (_args: Record<string, unknown>) => {
   const state = useOverlayTriggerState({});
@@ -33,12 +33,12 @@ const DeleteConfirmDialogWrapper = (_args: Record<string, unknown>) => {
 };
 
 const meta: Meta<typeof DeleteConfirmDialog> = {
-  title: 'Overlays/DeleteConfirmDialog',
+  title: "Overlays/DeleteConfirmDialog",
   component: DeleteConfirmDialogWrapper,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
@@ -46,23 +46,22 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    itemName: 'Example Item',
-    itemType: 'item',
+    itemName: "Example Item",
+    itemType: "item",
   },
 };
 
 export const WithCustomText: Story = {
   args: {
-    title: 'Delete Post',
-    description: 'Are you absolutely sure you want to delete this post? All comments will be lost.',
-    confirmText: 'Delete Post',
-    cancelText: 'Keep Post',
+    title: "Delete Post",
+    description: "Are you absolutely sure you want to delete this post? All comments will be lost.",
+    confirmText: "Delete Post",
+    cancelText: "Keep Post",
   },
 };
 
 export const WithoutItemName: Story = {
   args: {
-    itemType: 'post',
+    itemType: "post",
   },
 };
-

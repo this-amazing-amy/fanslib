@@ -19,9 +19,9 @@ describe("updateOverdueScheduledNonRedditPosts", () => {
             id,
             name: id,
             color: null,
-          })
-        )
-      )
+          }),
+        ),
+      ),
     );
 
     const [fanslyChannel, redditChannel] = await Promise.all(
@@ -33,9 +33,9 @@ describe("updateOverdueScheduledNonRedditPosts", () => {
           channelRepo.create({
             name,
             typeId,
-          })
-        )
-      )
+          }),
+        ),
+      ),
     );
 
     const createdAt = new Date();
@@ -59,15 +59,17 @@ describe("updateOverdueScheduledNonRedditPosts", () => {
             status: "scheduled",
             channelId,
             subredditId: null,
-          })
-        )
-      )
+          }),
+        ),
+      ),
     );
 
     const result = await updateOverdueScheduledNonRedditPosts();
 
     const [updatedFanslyPost, updatedRedditPost] = await Promise.all(
-      [overdueFanslyPost.id, overdueRedditPost.id].map(async (id) => postRepo.findOneOrFail({ where: { id } }))
+      [overdueFanslyPost.id, overdueRedditPost.id].map(async (id) =>
+        postRepo.findOneOrFail({ where: { id } }),
+      ),
     );
 
     const updatedPostIds = result.updatedPosts.map((post) => post.postId);
@@ -83,4 +85,3 @@ describe("updateOverdueScheduledNonRedditPosts", () => {
     await teardownTestDatabase();
   });
 });
-

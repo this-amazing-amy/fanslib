@@ -1,10 +1,10 @@
-import type { PostWithRelations } from '@fanslib/server/schemas';
-import { useNavigate } from '@tanstack/react-router';
-import { Trash2 } from 'lucide-react';
-import { useState } from 'react';
-import { Button } from '~/components/ui/Button';
-import { DeleteConfirmDialog } from '~/components/ui/DeleteConfirmDialog';
-import { useDeletePostMutation } from '~/lib/queries/posts';
+import type { PostWithRelations } from "@fanslib/server/schemas";
+import { useNavigate } from "@tanstack/react-router";
+import { Trash2 } from "lucide-react";
+import { useState } from "react";
+import { Button } from "~/components/ui/Button";
+import { DeleteConfirmDialog } from "~/components/ui/DeleteConfirmDialog";
+import { useDeletePostMutation } from "~/lib/queries/posts";
 
 type Post = PostWithRelations;
 
@@ -20,13 +20,13 @@ export const PostDetailDeleteButton = ({ post }: PostDetailDeleteButtonProps) =>
   const handleDelete = async () => {
     try {
       await deletePostMutation.mutateAsync(post.id);
-      if (typeof window !== 'undefined' && window.history.length > 1) {
+      if (typeof window !== "undefined" && window.history.length > 1) {
         window.history.back();
       } else {
-        navigate({ to: '/plan' });
+        navigate({ to: "/plan" });
       }
     } catch (err) {
-      console.error('Failed to delete post:', err);
+      console.error("Failed to delete post:", err);
     }
   };
 
@@ -46,5 +46,3 @@ export const PostDetailDeleteButton = ({ post }: PostDetailDeleteButtonProps) =>
     </DeleteConfirmDialog>
   );
 };
-
-

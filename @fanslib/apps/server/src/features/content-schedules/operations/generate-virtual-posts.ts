@@ -47,7 +47,7 @@ export const VirtualPostSchema = z.object({
   blueskyPostUri: z.string().nullable(),
   blueskyPostError: z.string().nullable(),
   blueskyRetryCount: z.number(),
-  status: z.enum(['draft', 'ready', 'scheduled', 'posted']),
+  status: z.enum(["draft", "ready", "scheduled", "posted"]),
   channelId: z.string(),
   subredditId: z.string().nullable(),
   postMedia: z.array(z.unknown()),
@@ -84,12 +84,13 @@ const toVirtualPost = (
   schedule: ScheduleWithRelations,
   slotDate: Date,
   channel: Channel,
-  targetChannelIds: string[]
+  targetChannelIds: string[],
 ) => ({
   id: `virtual-${schedule.id}-${channel.id}-${slotDate.getTime()}`,
   createdAt: slotDate,
   updatedAt: slotDate,
-  postGroupId: targetChannelIds.length > 1 ? `virtual-group-${schedule.id}-${slotDate.getTime()}` : null,
+  postGroupId:
+    targetChannelIds.length > 1 ? `virtual-group-${schedule.id}-${slotDate.getTime()}` : null,
   scheduleId: schedule.id,
   caption: "",
   date: slotDate,
@@ -112,7 +113,7 @@ const toVirtualPost = (
 });
 
 export const fetchVirtualPosts = async (
-  params: z.infer<typeof FetchVirtualPostsRequestQuerySchema>
+  params: z.infer<typeof FetchVirtualPostsRequestQuerySchema>,
 ): Promise<z.infer<typeof FetchVirtualPostsResponseSchema>> => {
   const dataSource = await db();
   const scheduleRepo = dataSource.getRepository(ContentSchedule);
@@ -128,7 +129,7 @@ export const fetchVirtualPosts = async (
   });
   const scheduleIdsFromChannels = [...new Set(scheduleChannels.map((sc) => sc.scheduleId))];
 
-  const schedules = await scheduleRepo
+  const schedules = (await scheduleRepo
     .createQueryBuilder("schedule")
     .leftJoinAndSelect("schedule.channel", "channel")
     .leftJoinAndSelect("channel.type", "channelType")
@@ -138,10 +139,14 @@ export const fetchVirtualPosts = async (
     .leftJoinAndSelect("scheduleChannels.channel", "scChannel")
     .leftJoinAndSelect("scChannel.type", "scChannelType")
     .leftJoinAndSelect("scChannel.defaultHashtags", "scChannelHashtags")
-    .where("schedule.channelId IN (:...channelIds)", { channelIds: params.channelIds.length > 0 ? params.channelIds : ["__none__"] })
-    .orWhere("schedule.id IN (:...scheduleIds)", { scheduleIds: scheduleIdsFromChannels.length > 0 ? scheduleIdsFromChannels : ["__none__"] })
+    .where("schedule.channelId IN (:...channelIds)", {
+      channelIds: params.channelIds.length > 0 ? params.channelIds : ["__none__"],
+    })
+    .orWhere("schedule.id IN (:...scheduleIds)", {
+      scheduleIds: scheduleIdsFromChannels.length > 0 ? scheduleIdsFromChannels : ["__none__"],
+    })
     .orderBy("scheduleChannels.sortOrder", "ASC")
-    .getMany() as ScheduleWithRelations[];
+    .getMany()) as ScheduleWithRelations[];
 
   const scheduleIds = schedules.map((schedule) => schedule.id);
   if (scheduleIds.length === 0) {
@@ -162,19 +167,16 @@ export const fetchVirtualPosts = async (
   });
 
   return schedules.flatMap((schedule) => {
-    const targetChannels = schedule.scheduleChannels
-      ?.filter((sc) => params.channelIds.includes(sc.channelId))
-      .map((sc) => sc.channel) ?? [];
+    const targetChannels =
+      schedule.scheduleChannels
+        ?.filter((sc) => params.channelIds.includes(sc.channelId))
+        .map((sc) => sc.channel) ?? [];
 
-    const legacyChannel = schedule.channel && params.channelIds.includes(schedule.channel.id)
-      ? schedule.channel
-      : null;
+    const legacyChannel =
+      schedule.channel && params.channelIds.includes(schedule.channel.id) ? schedule.channel : null;
 
-    const channels = targetChannels.length > 0
-      ? targetChannels
-      : legacyChannel
-        ? [legacyChannel]
-        : [];
+    const channels =
+      targetChannels.length > 0 ? targetChannels : legacyChannel ? [legacyChannel] : [];
 
     if (channels.length === 0) {
       return [];
@@ -185,7 +187,7 @@ export const fetchVirtualPosts = async (
 
     return slots.flatMap((slotDate) => {
       const isSkipped = (schedule.skippedSlots ?? []).some((slot) =>
-        isSameMinute(new Date(slot.date), slotDate)
+        isSameMinute(new Date(slot.date), slotDate),
       );
       if (isSkipped) return [];
 
@@ -195,7 +197,7 @@ export const fetchVirtualPosts = async (
             (post) =>
               post.scheduleId === schedule.id &&
               post.channelId === channel.id &&
-              isSameMinute(new Date(post.date), slotDate)
+              isSameMinute(new Date(post.date), slotDate),
           );
           return !isTaken;
         })

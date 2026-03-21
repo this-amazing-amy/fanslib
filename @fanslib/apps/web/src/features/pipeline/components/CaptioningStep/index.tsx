@@ -1,6 +1,6 @@
 import { FileText } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import type { CaptionQueueItem } from '@fanslib/server/schemas';
+import type { CaptionQueueItem } from "@fanslib/server/schemas";
 import { EmptyState } from "~/components/ui/EmptyState";
 import { useCaptionQueueQuery } from "~/lib/queries/pipeline";
 import { CaptionItem } from "./CaptionItem";
@@ -22,7 +22,7 @@ export const CaptioningStep = ({
       channelIds: channelIds.join(","),
       // Don't filter by date - show all drafts
     }),
-    [channelIds]
+    [channelIds],
   );
 
   const { data: queue = [], isLoading } = useCaptionQueueQuery(queryParams);
@@ -40,7 +40,7 @@ export const CaptioningStep = ({
       setExpandedPostId(queue[0]?.post.id ?? null);
       setShouldAutoExpand(false);
     }
-    
+
     // If the currently expanded item no longer exists in the queue, expand the first available item
     if (expandedPostId && !queue.some((item) => item.post.id === expandedPostId)) {
       setExpandedPostId(queue[0]?.post.id ?? null);
@@ -50,7 +50,7 @@ export const CaptioningStep = ({
   const advanceFrom = (postId: string) => {
     const currentIndex = queue.findIndex((item) => item.post.id === postId);
     const nextIndex = currentIndex + 1;
-    
+
     if (nextIndex < queue.length) {
       // Move to next item in queue
       setExpandedPostId(queue[nextIndex].post.id);
@@ -74,40 +74,40 @@ export const CaptioningStep = ({
     );
   }
 
-type CaptionItemDateCasted = CaptionQueueItem & {
-  post: {
-    date: Date;
-    postMedia: Array<{
-      createdAt: Date;
-      updatedAt: Date;
-      media: {
+  type CaptionItemDateCasted = CaptionQueueItem & {
+    post: {
+      date: Date;
+      postMedia: Array<{
         createdAt: Date;
         updatedAt: Date;
-        fileCreationDate: Date;
-        fileModificationDate: Date;
-        shoots: Array<{
+        media: {
           createdAt: Date;
           updatedAt: Date;
-          shootDate: Date;
-        }>;
-      };
-    }>;
+          fileCreationDate: Date;
+          fileModificationDate: Date;
+          shoots: Array<{
+            createdAt: Date;
+            updatedAt: Date;
+            shootDate: Date;
+          }>;
+        };
+      }>;
+    };
   };
-};
 
   return (
     <LinkedPostsProvider>
-    <div className="space-y-3">
-      {queue.map((item) => (
-        <CaptionItem
-          key={item.post.id}
-          item={item as unknown as CaptionItemDateCasted}
-          isExpanded={item.post.id === expandedPostId}
-          onExpand={() => setExpandedPostId(item.post.id)}
-          onAdvance={() => advanceFrom(item.post.id)}
-        />
-      ))}
-    </div>
+      <div className="space-y-3">
+        {queue.map((item) => (
+          <CaptionItem
+            key={item.post.id}
+            item={item as unknown as CaptionItemDateCasted}
+            isExpanded={item.post.id === expandedPostId}
+            onExpand={() => setExpandedPostId(item.post.id)}
+            onAdvance={() => advanceFrom(item.post.id)}
+          />
+        ))}
+      </div>
     </LinkedPostsProvider>
   );
 };

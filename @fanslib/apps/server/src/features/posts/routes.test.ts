@@ -54,9 +54,7 @@ describe("Posts Routes", () => {
 
     test("supports filters", async () => {
       const filters = JSON.stringify({ statuses: ["draft"] });
-      const response = await app.request(
-        `/api/posts/all?filters=${encodeURIComponent(filters)}`
-      );
+      const response = await app.request(`/api/posts/all?filters=${encodeURIComponent(filters)}`);
       const data = await parseResponse<{ posts: Post[] }>(response);
 
       expect(Array.isArray(data?.posts)).toBe(true);
@@ -73,17 +71,15 @@ describe("Posts Routes", () => {
         throw new Error("No post fixtures available");
       }
 
-      const response = await app.request(
-        `/api/posts/by-id/${fixturePost.id}`
-      );
-      
+      const response = await app.request(`/api/posts/by-id/${fixturePost.id}`);
+
       // Log response body for debugging if status is not 200
       if (response.status !== 200) {
         const body = await response.clone().text();
         console.log("Response status:", response.status);
         console.log("Response body:", body);
       }
-      
+
       expect(response.status).toBe(200);
 
       const data = await parseResponse<Post>(response);
@@ -118,9 +114,7 @@ describe("Posts Routes", () => {
       expect(createdPost?.id).toBeDefined();
 
       // Fetch the post and check for validation errors
-      const response = await app.request(
-        `/api/posts/by-id/${createdPost?.id}`
-      );
+      const response = await app.request(`/api/posts/by-id/${createdPost?.id}`);
 
       // Log if we get a validation error (422)
       if (response.status === 422) {
@@ -136,9 +130,7 @@ describe("Posts Routes", () => {
     });
 
     test("returns error for non-existent post", async () => {
-      const response = await app.request(
-        "/api/posts/by-id/non-existent-id"
-      );
+      const response = await app.request("/api/posts/by-id/non-existent-id");
 
       const data = await parseResponse<{ error: string }>(response);
       expect(data).toHaveProperty("error");
@@ -153,9 +145,7 @@ describe("Posts Routes", () => {
         throw new Error("No channel fixtures available");
       }
 
-      const response = await app.request(
-        `/api/posts/by-channel-id/${fixtureChannel.id}`
-      );
+      const response = await app.request(`/api/posts/by-channel-id/${fixtureChannel.id}`);
       const data = await parseResponse<Post[]>(response);
 
       expect(Array.isArray(data)).toBe(true);
@@ -168,7 +158,7 @@ describe("Posts Routes", () => {
   describe("POST /api/posts", () => {
     test("creates a new post", async () => {
       const channel = fixtures.channels.channels.find(
-        (fixtureChannel) => fixtureChannel.typeId !== CHANNEL_TYPES.reddit.id
+        (fixtureChannel) => fixtureChannel.typeId !== CHANNEL_TYPES.reddit.id,
       );
       if (!channel) {
         throw new Error("No channel fixtures available");
@@ -361,4 +351,3 @@ describe("Posts Routes", () => {
     });
   });
 });
-

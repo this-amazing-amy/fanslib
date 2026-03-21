@@ -1,4 +1,4 @@
-import type { FilterPreset, MediaFilter } from '@fanslib/server/schemas';
+import type { FilterPreset, MediaFilter } from "@fanslib/server/schemas";
 
 type MediaFilters = MediaFilter;
 type FilterGroup = MediaFilters[number];
@@ -26,7 +26,7 @@ export const removeFilterItemFromGroup = (group: FilterGroup, index: number): Fi
 export const updateFilterItemInGroup = (
   group: FilterGroup,
   index: number,
-  newItem: FilterItem
+  newItem: FilterItem,
 ): FilterGroup => {
   if (index < 0 || index >= group.items.length) {
     return group;
@@ -44,8 +44,7 @@ export const getFilterItemsCount = (filters: MediaFilters): number =>
   filters.reduce((count: number, group: FilterGroup) => count + group.items.length, 0);
 
 export const hasFilterType = (filters: MediaFilters, type: FilterItem["type"]): boolean =>
-  filters.some((group: FilterGroup) =>
-    group.items.some((item: FilterItem) => item.type === type)
-  );
+  filters.some((group: FilterGroup) => group.items.some((item: FilterItem) => item.type === type));
 
-export const filtersFromFilterPreset = (preset: FilterPreset): MediaFilters => JSON.parse(preset.filtersJson);
+export const filtersFromFilterPreset = (preset: FilterPreset): MediaFilters =>
+  JSON.parse(preset.filtersJson);

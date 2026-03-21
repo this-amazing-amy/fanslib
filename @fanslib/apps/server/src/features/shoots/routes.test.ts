@@ -19,9 +19,7 @@ describe("Shoots Routes", () => {
     await setupTestDatabase();
     fixtures = await resetAllFixtures();
     void fixtures;
-    app = new Hono()
-      .use("*", devalueMiddleware())
-      .route("/", shootsRoutes);
+    app = new Hono().use("*", devalueMiddleware()).route("/", shootsRoutes);
   });
 
   afterAll(async () => {
@@ -41,7 +39,12 @@ describe("Shoots Routes", () => {
       });
       expect(response.status).toBe(200);
 
-      const data = await parseResponse<{ items: Shoot[]; total: number; page: number; limit: number }>(response);
+      const data = await parseResponse<{
+        items: Shoot[];
+        total: number;
+        page: number;
+        limit: number;
+      }>(response);
       expect(Array.isArray(data?.items)).toBe(true);
       expect(data?.items.length).toBeGreaterThanOrEqual(SHOOT_FIXTURES.length);
 
@@ -61,7 +64,12 @@ describe("Shoots Routes", () => {
           limit: 2,
         }),
       });
-      const data = await parseResponse<{ items: Shoot[]; total: number; page: number; limit: number }>(response);
+      const data = await parseResponse<{
+        items: Shoot[];
+        total: number;
+        page: number;
+        limit: number;
+      }>(response);
 
       expect(data?.items).toHaveLength(2);
       expect(data?.total).toBeGreaterThanOrEqual(SHOOT_FIXTURES.length);
@@ -169,4 +177,3 @@ describe("Shoots Routes", () => {
     });
   });
 });
-

@@ -1,4 +1,4 @@
-import type { Media, MediaFilter } from '@fanslib/server/schemas';
+import type { Media, MediaFilter } from "@fanslib/server/schemas";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/Button";
@@ -10,7 +10,6 @@ import { useMediaListQuery } from "~/lib/queries/library";
 import { MediaFilters } from "./MediaFilters/MediaFilters";
 import { MediaFiltersProvider } from "./MediaFilters/MediaFiltersContext";
 import { MediaTileLite } from "./MediaTile/MediaTileLite";
-
 
 type MediaFilterType = MediaFilter;
 
@@ -63,9 +62,7 @@ export const MediaSelection = ({
       <div className="flex-shrink-0">
         <div className="flex flex-col gap-4 py-4">
           <div className="flex justify-end items-center">
-            <span className="text-xs text-base-content/60">
-              {`${total} items available`}
-            </span>
+            <span className="text-xs text-base-content/60">{`${total} items available`}</span>
           </div>
           <FilterPresetProvider onFiltersChange={handleFilterChange}>
             <MediaFiltersProvider value={filters} onChange={handleFilterChange}>
@@ -86,7 +83,7 @@ export const MediaSelection = ({
                     "relative aspect-square cursor-pointer rounded-lg overflow-hidden transition-all",
                     selectedMedia.some((m) => m.id === item.id)
                       ? "ring-2 ring-primary"
-                      : "hover:ring-2 hover:ring-primary"
+                      : "hover:ring-2 hover:ring-primary",
                   )}
                   onClick={() => onMediaSelect(item)}
                   onMouseEnter={() => {

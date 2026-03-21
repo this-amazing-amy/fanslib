@@ -5,17 +5,71 @@ import { cn } from "~/lib/cn";
 
 export const PRESET_EMOJIS = [
   // Smileys
-  "😊", "😂", "🥰", "😎", "🤩", "😴", "🤔", "😅", "🥳", "😇",
+  "😊",
+  "😂",
+  "🥰",
+  "😎",
+  "🤩",
+  "😴",
+  "🤔",
+  "😅",
+  "🥳",
+  "😇",
   // Objects
-  "📅", "📆", "🗓️", "⏰", "🔔", "📌", "💡", "🎯", "🚀", "⭐",
+  "📅",
+  "📆",
+  "🗓️",
+  "⏰",
+  "🔔",
+  "📌",
+  "💡",
+  "🎯",
+  "🚀",
+  "⭐",
   // Nature
-  "🌸", "🌺", "🌻", "🍀", "🌙", "☀️", "🔥", "💧", "❄️", "🌈",
+  "🌸",
+  "🌺",
+  "🌻",
+  "🍀",
+  "🌙",
+  "☀️",
+  "🔥",
+  "💧",
+  "❄️",
+  "🌈",
   // Food
-  "🍕", "🍔", "🍩", "🍷", "☕", "🍓", "🍑", "🍒", "🥑", "🧁",
+  "🍕",
+  "🍔",
+  "🍩",
+  "🍷",
+  "☕",
+  "🍓",
+  "🍑",
+  "🍒",
+  "🥑",
+  "🧁",
   // Activities
-  "🎨", "🎬", "🎵", "🎮", "💃", "🏃", "💪", "🧘", "🎉", "🎁",
+  "🎨",
+  "🎬",
+  "🎵",
+  "🎮",
+  "💃",
+  "🏃",
+  "💪",
+  "🧘",
+  "🎉",
+  "🎁",
   // Symbols
-  "❤️", "💜", "💙", "💚", "💛", "🧡", "✨", "💫", "🏆", "👑",
+  "❤️",
+  "💜",
+  "💙",
+  "💚",
+  "💛",
+  "🧡",
+  "✨",
+  "💫",
+  "🏆",
+  "👑",
 ] as const;
 
 type EmojiPickerProps = {
@@ -42,10 +96,7 @@ export const EmojiPicker = ({
     <PopoverTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
       <Button
         variant="ghost"
-        className={cn(
-          "w-10 h-10 p-0 text-xl border border-base-content rounded-full",
-          className
-        )}
+        className={cn("w-10 h-10 p-0 text-xl border border-base-content rounded-full", className)}
         aria-label="Select emoji"
       >
         {value || placeholder}
@@ -59,7 +110,7 @@ export const EmojiPicker = ({
               onClick={() => handleEmojiSelect(emoji)}
               className={cn(
                 "w-8 h-8 rounded-md text-lg flex items-center justify-center transition-colors hover:bg-base-200 focus:outline-none focus:ring-2 focus:ring-primary",
-                value === emoji && "bg-base-200 ring-2 ring-primary"
+                value === emoji && "bg-base-200 ring-2 ring-primary",
               )}
               aria-label={emoji}
             >

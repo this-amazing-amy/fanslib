@@ -1,4 +1,4 @@
-import type { CreatePostRequestBody } from '@fanslib/server/schemas';
+import type { CreatePostRequestBody } from "@fanslib/server/schemas";
 import { useNavigate } from "@tanstack/react-router";
 import { usePostPreferences } from "~/contexts/PostPreferencesContext";
 import { useDraftBlueskyMutation } from "~/lib/queries/postpone";
@@ -63,4 +63,3 @@ export const useCreatePostFromVirtualSlot = () => {
 
   return { createPostFromVirtualSlot };
 };
-

@@ -14,7 +14,10 @@ import type { MediaTileProps } from "./types";
 
 import type { RepostStatus } from "./types";
 
-const REPOST_STATUS_CONFIG: Record<RepostStatus, { color: string; label: string; tooltip: string }> = {
+const REPOST_STATUS_CONFIG: Record<
+  RepostStatus,
+  { color: string; label: string; tooltip: string }
+> = {
   repostable: { color: "bg-green-500", label: "R", tooltip: "Repostable" },
   on_cooldown: { color: "bg-yellow-500", label: "C", tooltip: "On Cooldown" },
   still_growing: { color: "bg-blue-500", label: "G", tooltip: "Still Growing" },
@@ -59,7 +62,14 @@ export const MediaTile = memo((props: MediaTileProps) => {
       currentItem.globalIndex >= Math.min(lastClickedIndex, hoveredItem.globalIndex) &&
       currentItem.globalIndex <= Math.max(lastClickedIndex, hoveredItem.globalIndex)
     );
-  }, [lastClickedIndex, hoveredMediaId, selectedIds.size, isShiftPressed, flattenedMedia, media.id]);
+  }, [
+    lastClickedIndex,
+    hoveredMediaId,
+    selectedIds.size,
+    isShiftPressed,
+    flattenedMedia,
+    media.id,
+  ]);
 
   const activatePreview = () => {
     if (!withPreview) return;
@@ -100,7 +110,7 @@ export const MediaTile = memo((props: MediaTileProps) => {
 
   const selectedItems = useMemo(
     () => flattenedMedia.filter((m) => selectedIds.has(m.media.id)).map((m) => m.media),
-    [flattenedMedia, selectedIds]
+    [flattenedMedia, selectedIds],
   );
 
   const dragAndDropProps = withDragAndDrop && {
@@ -120,7 +130,7 @@ export const MediaTile = memo((props: MediaTileProps) => {
         "flex flex-col bg-white rounded-lg overflow-hidden group border cursor-pointer",
         isHighlighted && "ring-2 ring-primary border-primary",
         isSelected ? "ring-2 ring-primary border-primary" : "border-black",
-        props.className
+        props.className,
       )}
       style={withNavigation ? { viewTransitionName: `media-${media.id}` } : undefined}
       onMouseEnter={activatePreview}
@@ -141,7 +151,12 @@ export const MediaTile = memo((props: MediaTileProps) => {
           />
         )}
         {media.type === "image" && <MediaTileImage media={media} cover={true} />}
-        {withSelection && <MediaTileSelectionCircle mediaId={media.id} globalIndex={currentItem?.globalIndex ?? 0} />}
+        {withSelection && (
+          <MediaTileSelectionCircle
+            mediaId={media.id}
+            globalIndex={currentItem?.globalIndex ?? 0}
+          />
+        )}
         {withRepostStatus && props.repostStatus && REPOST_STATUS_CONFIG[props.repostStatus] && (
           <div
             className={cn(

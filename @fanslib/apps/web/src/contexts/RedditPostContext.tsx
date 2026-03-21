@@ -1,9 +1,7 @@
-import type { Media, Subreddit } from '@fanslib/server/schemas';
+import type { Media, Subreddit } from "@fanslib/server/schemas";
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { useChannelsQuery } from "~/lib/queries/channels";
 import { useCreatePostMutation, useUpdatePostMutation } from "~/lib/queries/posts";
-
-
 
 export type SubredditPostDraft = {
   subreddit: Subreddit;
@@ -44,7 +42,7 @@ export const RedditPostProvider = ({ children }: { children: ReactNode }) => {
 
   const updateDraft = (subredditId: string, updates: Partial<SubredditPostDraft>) => {
     setDrafts((prev) =>
-      prev.map((draft) => (draft.subreddit.id === subredditId ? { ...draft, ...updates } : draft))
+      prev.map((draft) => (draft.subreddit.id === subredditId ? { ...draft, ...updates } : draft)),
     );
   };
 

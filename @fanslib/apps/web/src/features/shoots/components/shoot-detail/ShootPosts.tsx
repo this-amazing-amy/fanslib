@@ -1,4 +1,4 @@
-import type { PostWithRelations } from '@fanslib/server/schemas';
+import type { PostWithRelations } from "@fanslib/server/schemas";
 import { FileText } from "lucide-react";
 import { useState } from "react";
 import { EmptyState } from "~/components/ui/EmptyState";
@@ -28,12 +28,7 @@ export const ShootPosts = ({ shootId }: ShootPostsProps) => {
   }
 
   if (!posts || posts.length === 0) {
-    return (
-      <EmptyState
-        icon={<FileText className="h-12 w-12" />}
-        title="No posts found"
-      />
-    );
+    return <EmptyState icon={<FileText className="h-12 w-12" />} title="No posts found" />;
   }
 
   return (
@@ -47,10 +42,11 @@ export const ShootPosts = ({ shootId }: ShootPostsProps) => {
           onOpenChange={(isOpen) => setOpenPostId(isOpen ? post.id : null)}
           onOpenCreateDialog={() => {}}
           previousPostInList={index > 0 ? (posts[index - 1] as unknown as Post) : undefined}
-          nextPostInList={index < posts.length - 1 ? (posts[index + 1] as unknown as Post) : undefined}
+          nextPostInList={
+            index < posts.length - 1 ? (posts[index + 1] as unknown as Post) : undefined
+          }
         />
       ))}
     </div>
   );
 };
-

@@ -51,5 +51,3 @@ export class FanslyAnalyticsAggregate {
   @Column("varchar")
   postMediaId!: string;
 }
-
-

@@ -21,9 +21,7 @@ describe("Hashtags Routes", () => {
   beforeAll(async () => {
     await setupTestDatabase();
     fixtures = await resetAllFixtures();
-    app = new Hono()
-      .use("*", devalueMiddleware())
-      .route("/", hashtagsRoutes);
+    app = new Hono().use("*", devalueMiddleware()).route("/", hashtagsRoutes);
   });
 
   afterAll(async () => {
@@ -230,4 +228,3 @@ describe("Hashtags Routes", () => {
     });
   });
 });
-

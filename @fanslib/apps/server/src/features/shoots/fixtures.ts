@@ -33,4 +33,3 @@ export const seedShootFixtures = async (media: Media[]) => {
     relations: { media: true },
   });
 };
-

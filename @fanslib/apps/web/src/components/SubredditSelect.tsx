@@ -1,7 +1,13 @@
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "~/components/ui/Command";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "~/components/ui/Command";
 import { Popover, PopoverTrigger } from "~/components/ui/Popover";
 import { cn } from "~/lib/cn";
 import { formatViewCount } from "~/lib/format-views";
@@ -21,7 +27,7 @@ export const SubredditSelect = ({ value, onChange, multiple = false }: Subreddit
 
   const displayValue =
     selectedSubreddits.length > 0
-      ? selectedSubreddits.map((s) => `r/${s.channel?.name ?? 'Unknown'}`).join(", ")
+      ? selectedSubreddits.map((s) => `r/${s.channel?.name ?? "Unknown"}`).join(", ")
       : "Select subreddit...";
 
   const selectSubreddit = (currentValue: string) => {
@@ -29,7 +35,7 @@ export const SubredditSelect = ({ value, onChange, multiple = false }: Subreddit
       onChange(
         value.includes(currentValue)
           ? value.filter((v) => v !== currentValue)
-          : [...value, currentValue]
+          : [...value, currentValue],
       );
       return;
     }
@@ -52,7 +58,7 @@ export const SubredditSelect = ({ value, onChange, multiple = false }: Subreddit
             {(subreddits ?? []).map((subreddit) => (
               <CommandItem
                 key={subreddit.id}
-                value={subreddit.channel?.name ?? 'Unknown'}
+                value={subreddit.channel?.name ?? "Unknown"}
                 onSelect={() => selectSubreddit(subreddit.id)}
                 className="flex items-center justify-between"
               >
@@ -60,10 +66,10 @@ export const SubredditSelect = ({ value, onChange, multiple = false }: Subreddit
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value.includes(subreddit.id) ? "opacity-100" : "opacity-0"
+                      value.includes(subreddit.id) ? "opacity-100" : "opacity-0",
                     )}
                   />
-                  r/{subreddit.channel?.name ?? 'Unknown'}
+                  r/{subreddit.channel?.name ?? "Unknown"}
                 </div>
                 <div className="text-sm text-muted-foreground">
                   {formatViewCount(subreddit.memberCount ?? 0)}

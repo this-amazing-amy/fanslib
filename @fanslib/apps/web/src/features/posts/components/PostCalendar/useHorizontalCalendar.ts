@@ -10,14 +10,7 @@ import {
   subDays,
 } from "date-fns";
 import { de } from "date-fns/locale";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type RefObject,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
 
 const weekStartOptions = { locale: de } as const;
 
@@ -36,19 +29,14 @@ const buildInitialDays = (anchor: Date, visibleDays: number): Date[] =>
   });
 
 const monthLabel = (days: Date[]): string => {
-  const months = days.reduce<Array<{ month: number; year: number }>>(
-    (acc, day) => {
-      const month = getMonth(day);
-      const year = getYear(day);
-      const exists = acc.some((m) => m.month === month && m.year === year);
-      return exists ? acc : [...acc, { month, year }];
-    },
-    []
-  );
+  const months = days.reduce<Array<{ month: number; year: number }>>((acc, day) => {
+    const month = getMonth(day);
+    const year = getYear(day);
+    const exists = acc.some((m) => m.month === month && m.year === year);
+    return exists ? acc : [...acc, { month, year }];
+  }, []);
 
-  return months
-    .map(({ month, year }) => format(new Date(year, month, 1), "MMMM yyyy"))
-    .join(" / ");
+  return months.map(({ month, year }) => format(new Date(year, month, 1), "MMMM yyyy")).join(" / ");
 };
 
 export type UseHorizontalCalendarReturn = {
@@ -106,7 +94,7 @@ export const useHorizontalCalendar = (): UseHorizontalCalendarReturn => {
     if (!el) return;
     const dayWidth = el.scrollWidth / days.length;
     el.scrollLeft = BUFFER_DAYS * dayWidth;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react/exhaustive-deps
   }, []);
 
   // Scroll event listener
@@ -128,8 +116,7 @@ export const useHorizontalCalendar = (): UseHorizontalCalendarReturn => {
       // Extend buffer when near edges
       if (!isExtendingRef.current) {
         const nearStart = el.scrollLeft < dayWidth * 3;
-        const nearEnd =
-          el.scrollLeft + el.clientWidth > totalWidth - dayWidth * 3;
+        const nearEnd = el.scrollLeft + el.clientWidth > totalWidth - dayWidth * 3;
 
         if (nearStart) {
           isExtendingRef.current = true;
@@ -147,9 +134,7 @@ export const useHorizontalCalendar = (): UseHorizontalCalendarReturn => {
           requestAnimationFrame(() => {
             const newDayWidth = el.scrollWidth / (days.length + prependCount);
             el.scrollLeft = currentScrollLeft + prependCount * newDayWidth;
-            firstVisibleIndexRef.current = Math.round(
-              el.scrollLeft / newDayWidth
-            );
+            firstVisibleIndexRef.current = Math.round(el.scrollLeft / newDayWidth);
             setFirstVisibleIndex(firstVisibleIndexRef.current);
             isExtendingRef.current = false;
           });
@@ -215,9 +200,7 @@ export const useHorizontalCalendar = (): UseHorizontalCalendarReturn => {
 
     const now = new Date();
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const todayIdx = days.findIndex(
-      (d) => d.getTime() === todayStart.getTime()
-    );
+    const todayIdx = days.findIndex((d) => d.getTime() === todayStart.getTime());
 
     const centerOffset = Math.floor(visibleDaysCount / 2);
 
@@ -243,28 +226,20 @@ export const useHorizontalCalendar = (): UseHorizontalCalendarReturn => {
 
   const visibleDays = useMemo(
     () => days.slice(firstVisibleIndex, firstVisibleIndex + visibleDaysCount),
-    [days, firstVisibleIndex, visibleDaysCount]
+    [days, firstVisibleIndex, visibleDaysCount],
   );
 
-  const todayInView = useMemo(
-    () => visibleDays.some((d) => isToday(d)),
-    [visibleDays]
-  );
+  const todayInView = useMemo(() => visibleDays.some((d) => isToday(d)), [visibleDays]);
 
   const visibleRange = useMemo(
     () => ({
       startDate: visibleDays[0] ?? days[0],
-      endDate: endOfDay(
-        visibleDays[visibleDays.length - 1] ?? days[days.length - 1]
-      ),
+      endDate: endOfDay(visibleDays[visibleDays.length - 1] ?? days[days.length - 1]),
     }),
-    [visibleDays, days]
+    [visibleDays, days],
   );
 
-  const currentMonthLabel = useMemo(
-    () => monthLabel(visibleDays),
-    [visibleDays]
-  );
+  const currentMonthLabel = useMemo(() => monthLabel(visibleDays), [visibleDays]);
 
   return {
     days,

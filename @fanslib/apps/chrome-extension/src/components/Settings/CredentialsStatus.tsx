@@ -1,7 +1,7 @@
-import { CheckCircle, Clock, XCircle } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
-import { eden } from '../../lib/api';
-import { DEFAULT_API_URL } from '../../lib/storage';
+import { CheckCircle, Clock, XCircle } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { eden } from "../../lib/api";
+import { DEFAULT_API_URL } from "../../lib/storage";
 
 type CredentialsStatusProps = {
   apiUrl: string;
@@ -24,31 +24,28 @@ export const CredentialsStatus = ({ apiUrl }: CredentialsStatusProps) => {
 
   const loadStatus = useCallback(async () => {
     const trimmedApiUrl = apiUrl.trim();
-    const urlToCheck = trimmedApiUrl === '' ? DEFAULT_API_URL : trimmedApiUrl;
+    const urlToCheck = trimmedApiUrl === "" ? DEFAULT_API_URL : trimmedApiUrl;
     setState((prev) => ({ ...prev, loading: true, error: null }));
 
     try {
       const api = eden(urlToCheck);
-      const credentialsResponse =
-        await api.api.settings['fansly-credentials'].$get();
+      const credentialsResponse = await api.api.settings["fansly-credentials"].$get();
 
       if (!credentialsResponse.ok) {
-        throw new Error('Failed to fetch credentials');
+        throw new Error("Failed to fetch credentials");
       }
 
       const responseData = await credentialsResponse.json();
       const credentials = responseData?.credentials ?? null;
       const hasCredentials = Boolean(
         credentials &&
-          typeof credentials === 'object' &&
-          [credentials.fanslyAuth, credentials.fanslySessionId].some(
-            (value) => value !== undefined && value !== null && value !== ''
-          )
+        typeof credentials === "object" &&
+        [credentials.fanslyAuth, credentials.fanslySessionId].some(
+          (value) => value !== undefined && value !== null && value !== "",
+        ),
       );
 
-      const storageResult = await chrome.storage.local.get([
-        'lastCredentialsUpdateAt',
-      ]);
+      const storageResult = await chrome.storage.local.get(["lastCredentialsUpdateAt"]);
       const lastUpdateAt = storageResult.lastCredentialsUpdateAt ?? null;
 
       setState({
@@ -62,7 +59,7 @@ export const CredentialsStatus = ({ apiUrl }: CredentialsStatusProps) => {
         hasCredentials: false,
         lastUpdateAt: null,
         loading: false,
-        error: err instanceof Error ? err.message : 'Unknown error',
+        error: err instanceof Error ? err.message : "Unknown error",
       });
     }
   }, [apiUrl]);
@@ -74,10 +71,8 @@ export const CredentialsStatus = ({ apiUrl }: CredentialsStatusProps) => {
       loadStatus();
     }, 5000);
 
-    const storageListener = (
-      changes: Record<string, chrome.storage.StorageChange>
-    ) => {
-      if ('lastCredentialsUpdateAt' in changes) {
+    const storageListener = (changes: Record<string, chrome.storage.StorageChange>) => {
+      if ("lastCredentialsUpdateAt" in changes) {
         loadStatus();
       }
     };
@@ -91,7 +86,7 @@ export const CredentialsStatus = ({ apiUrl }: CredentialsStatusProps) => {
   }, [loadStatus]);
 
   const formatTimestamp = (timestamp: number | null): string => {
-    if (!timestamp) return 'Never';
+    if (!timestamp) return "Never";
     const date = new Date(timestamp);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
@@ -101,25 +96,25 @@ export const CredentialsStatus = ({ apiUrl }: CredentialsStatusProps) => {
     const diffDays = Math.floor(diffHours / 24);
 
     if (diffSeconds < 60) {
-      return `${diffSeconds} second${diffSeconds !== 1 ? 's' : ''} ago`;
+      return `${diffSeconds} second${diffSeconds !== 1 ? "s" : ""} ago`;
     }
     if (diffMinutes < 60) {
-      return `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
+      return `${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""} ago`;
     }
     if (diffHours < 24) {
-      return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+      return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
     }
     if (diffDays < 7) {
-      return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+      return `${diffDays} day${diffDays !== 1 ? "s" : ""} ago`;
     }
     return date.toLocaleString();
   };
 
   if (state.loading) {
     return (
-      <div className='bg-base-200 rounded-xl p-4 border border-base-300'>
-        <div className='flex items-center gap-2 text-sm text-base-content/60'>
-          <Clock className='w-4 h-4 animate-pulse' />
+      <div className="bg-base-200 rounded-xl p-4 border border-base-300">
+        <div className="flex items-center gap-2 text-sm text-base-content/60">
+          <Clock className="w-4 h-4 animate-pulse" />
           <span>Checking credentials status...</span>
         </div>
       </div>
@@ -128,9 +123,9 @@ export const CredentialsStatus = ({ apiUrl }: CredentialsStatusProps) => {
 
   if (state.error) {
     return (
-      <div className='bg-base-200 rounded-xl p-4 border border-error/20'>
-        <div className='flex items-center gap-2 text-sm text-error'>
-          <XCircle className='w-4 h-4' />
+      <div className="bg-base-200 rounded-xl p-4 border border-error/20">
+        <div className="flex items-center gap-2 text-sm text-error">
+          <XCircle className="w-4 h-4" />
           <span>Error checking credentials: {state.error}</span>
         </div>
       </div>
@@ -138,23 +133,23 @@ export const CredentialsStatus = ({ apiUrl }: CredentialsStatusProps) => {
   }
 
   return (
-    <div className='bg-base-200 rounded-xl p-4 border border-base-300'>
-      <div className='flex items-start gap-3'>
+    <div className="bg-base-200 rounded-xl p-4 border border-base-300">
+      <div className="flex items-start gap-3">
         {state.hasCredentials ? (
-          <CheckCircle className='w-5 h-5 text-success flex-shrink-0 mt-0.5' />
+          <CheckCircle className="w-5 h-5 text-success flex-shrink-0 mt-0.5" />
         ) : (
-          <XCircle className='w-5 h-5 text-error flex-shrink-0 mt-0.5' />
+          <XCircle className="w-5 h-5 text-error flex-shrink-0 mt-0.5" />
         )}
-        <div className='flex-1 min-w-0'>
-          <div className='text-sm font-medium mb-1'>
-            {state.hasCredentials ? 'Credentials Active' : 'No Credentials'}
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-medium mb-1">
+            {state.hasCredentials ? "Credentials Active" : "No Credentials"}
           </div>
-          <div className='text-xs text-base-content/60 flex items-center gap-1'>
-            <Clock className='w-3 h-3' />
+          <div className="text-xs text-base-content/60 flex items-center gap-1">
+            <Clock className="w-3 h-3" />
             <span>Last received: {formatTimestamp(state.lastUpdateAt)}</span>
           </div>
           {state.hasCredentials && (
-            <div className='text-xs text-base-content/50 mt-2'>
+            <div className="text-xs text-base-content/50 mt-2">
               Credentials are automatically captured when you browse Fansly
             </div>
           )}

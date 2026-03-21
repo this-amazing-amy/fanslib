@@ -1,7 +1,13 @@
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "~/components/ui/Command";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "~/components/ui/Command";
 import { Popover, PopoverTrigger } from "~/components/ui/Popover";
 import { cn } from "~/lib/cn";
 import { useTagDimensionsQuery } from "~/lib/queries/tags";
@@ -24,11 +30,7 @@ export const DimensionFilterSelector = ({ value, onChange }: DimensionFilterSele
 
   return (
     <PopoverTrigger isOpen={open} onOpenChange={setOpen}>
-      <Button
-        variant="outline"
-        aria-expanded={open}
-        className="w-full justify-between"
-      >
+      <Button variant="outline" aria-expanded={open} className="w-full justify-between">
         {isLoading
           ? "Loading..."
           : selectedDimension
@@ -51,7 +53,7 @@ export const DimensionFilterSelector = ({ value, onChange }: DimensionFilterSele
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === dimension.id ? "opacity-100" : "opacity-0"
+                      value === dimension.id ? "opacity-100" : "opacity-0",
                     )}
                   />
                   {dimension.name} tags

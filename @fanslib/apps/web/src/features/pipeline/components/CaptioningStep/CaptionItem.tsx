@@ -1,4 +1,4 @@
-import type { CaptionQueueItem, Media, PostStatus } from '@fanslib/server/schemas';
+import type { CaptionQueueItem, Media, PostStatus } from "@fanslib/server/schemas";
 import type { Key } from "@react-types/shared";
 import { format } from "date-fns";
 import { ExternalLink, Link2, MoreVertical, Trash2 } from "lucide-react";
@@ -31,7 +31,6 @@ import { CaptionSyncControl } from "~/features/pipeline/components/CaptionSyncCo
 import { RelatedCaptionsPanel } from "~/features/pipeline/components/RelatedCaptionsPanel";
 import { useLinkedPostsContext } from "./LinkedPostsContext";
 
-
 const getCompletionStatus = (channelTypeId: string): PostStatus =>
   ["bluesky", "reddit"].includes(channelTypeId) ? "scheduled" : "ready";
 
@@ -49,17 +48,17 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
   const deletePostMutation = useDeletePostMutation();
   const [localCaption, setLocalCaption] = useState(item.post.caption ?? "");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  
+
   const postMedia = item.post.postMedia ?? [];
-  
+
   // Fetch tags for all media items using useQueries
   const mediaTagQueries = useQueries({
     queries: postMedia.map((pm) => ({
       queryKey: ["tags", "media", pm.media.id],
       queryFn: async () => {
-        const result = await api.api.tags.media['by-media-id'][':mediaId'].$get({ 
+        const result = await api.api.tags.media["by-media-id"][":mediaId"].$get({
           param: { mediaId: pm.media.id },
-          query: {}
+          query: {},
         });
         return result.json();
       },
@@ -69,7 +68,7 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
 
   const linkedPostIds = useMemo(
     () => item.linkedPosts.map((linked) => linked.postId),
-    [item.linkedPosts]
+    [item.linkedPosts],
   );
   const [selectedLinkedPostIds, setSelectedLinkedPostIds] = useState<string[]>(linkedPostIds);
 
@@ -80,7 +79,7 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
   useEffect(() => {
     setSelectedLinkedPostIds(linkedPostIds);
     setLinkedPostIds(item.post.id, linkedPostIds);
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- linkedPostIds and setLinkedPostIds are stable references, including them causes infinite re-renders
+    // oxlint-disable-next-line react/exhaustive-deps -- linkedPostIds and setLinkedPostIds are stable references, including them causes infinite re-renders
   }, [item.post.id]);
 
   useEffect(() => {
@@ -110,7 +109,7 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
         console.error("Failed to save caption:", error);
       }
     },
-    [item.post.id, updatePostMutation]
+    [item.post.id, updatePostMutation],
   );
 
   const debouncedSaveCaption = useDebounce(saveCaption, 1000);
@@ -127,7 +126,7 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
       status,
       syncToPostIds: selectedLinkedPostIds.length > 0 ? selectedLinkedPostIds : undefined,
     };
-    
+
     try {
       await updatePostMutation.mutateAsync({
         id: item.post.id,
@@ -165,10 +164,16 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
     }
   };
 
-  const channel = item.post.channel as { name: string; id: string; typeId: string; type?: { id: string } } | undefined;
-  const schedule = item.post.schedule as { name: string; emoji: string | null; color: string | null } | null | undefined;
+  const channel = item.post.channel as
+    | { name: string; id: string; typeId: string; type?: { id: string } }
+    | undefined;
+  const schedule = item.post.schedule as
+    | { name: string; emoji: string | null; color: string | null }
+    | null
+    | undefined;
   const subreddit = item.post.subreddit as { name: string } | null | undefined;
-  const channelName = channel?.typeId === "reddit" && subreddit?.name ? `r/${subreddit.name}` : channel?.name ?? "";
+  const channelName =
+    channel?.typeId === "reddit" && subreddit?.name ? `r/${subreddit.name}` : (channel?.name ?? "");
 
   return (
     <>
@@ -177,7 +182,7 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
           className={cn(
             "flex flex-col justify-center flex-shrink-0 overflow-hidden ease-out",
             isLinkedToExpanded ? "w-9" : "w-0 min-w-0",
-            !prefersReducedMotion && "transition-[width] duration-200"
+            !prefersReducedMotion && "transition-[width] duration-200",
           )}
         >
           <Link2 className="w-6 h-6 text-primary flex-shrink-0" />
@@ -185,164 +190,169 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
         <div
           className={cn(
             "border rounded-lg relative flex-1 min-w-0",
-            isLinkedToExpanded ? "ring-2 ring-primary border-primary" : "border-black"
+            isLinkedToExpanded ? "ring-2 ring-primary border-primary" : "border-black",
           )}
         >
-        <div className="absolute top-3 right-3 flex items-center gap-2">
-          <Link
-            to="/posts/$postId"
-            params={{ postId: item.post.id }}
-            className="text-base-content/60 hover:text-base-content transition-colors"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <ExternalLink className="w-4 h-4" />
-          </Link>
-          <DropdownMenuTrigger>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 text-base-content/60 hover:text-base-content hover:bg-base-200"
+          <div className="absolute top-3 right-3 flex items-center gap-2">
+            <Link
+              to="/posts/$postId"
+              params={{ postId: item.post.id }}
+              className="text-base-content/60 hover:text-base-content transition-colors"
               onClick={(e) => e.stopPropagation()}
             >
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-            <DropdownMenuPopover placement="bottom end" className="w-48">
-              <DropdownMenu onAction={handleMenuAction}>
-                <DropdownMenuItem
-                  id="delete"
-                  className="flex items-center gap-2 text-sm font-medium text-destructive"
-                >
-                  <Trash2 className="h-4 w-4 shrink-0" />
-                  Delete Post
-                </DropdownMenuItem>
-              </DropdownMenu>
-            </DropdownMenuPopover>
-          </DropdownMenuTrigger>
-        </div>
-      <button
-        type="button"
-        onClick={onExpand}
-        className="w-full text-left px-4 py-3 flex items-center gap-3"
-      >
-        <div className="flex-1 space-y-1 min-w-0">
-          <div className="flex items-baseline gap-2">
-            <span className="text-base font-semibold">
-              {format(new Date(item.post.date), "EEE, MMM d")}
-            </span>
-            <span className="text-sm font-medium text-base-content/60">
-              {format(new Date(item.post.date), "HH:mm")}
-            </span>
+              <ExternalLink className="w-4 h-4" />
+            </Link>
+            <DropdownMenuTrigger>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 text-base-content/60 hover:text-base-content hover:bg-base-200"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+              <DropdownMenuPopover placement="bottom end" className="w-48">
+                <DropdownMenu onAction={handleMenuAction}>
+                  <DropdownMenuItem
+                    id="delete"
+                    className="flex items-center gap-2 text-sm font-medium text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4 shrink-0" />
+                    Delete Post
+                  </DropdownMenuItem>
+                </DropdownMenu>
+              </DropdownMenuPopover>
+            </DropdownMenuTrigger>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            {schedule && (
-              <ContentScheduleBadge
-                name={schedule.name}
-                emoji={schedule.emoji}
-                color={schedule.color}
-                size="sm"
-                borderStyle="none"
-                responsive={false}
-              />
-            )}
-            {channel && (
-              <ChannelBadge
-                name={channelName}
-                typeId={channel.type?.id ?? channel.typeId}
-                size="sm"
-                borderStyle="none"
-                responsive={false}
-              />
-            )}
-          </div>
-        </div>
-      </button>
-      {isExpanded && (
-        <div className="p-4 space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="space-y-3">
-              {postMedia.length > 0 && (
-                <div className="space-y-3">
-                  {postMedia.map((pm, index) => {
-                    const media = pm.media;
-                    const mediaTags = mediaTagQueries[index]?.data ?? [];
-                    
-                    return (
-                      <div key={pm.id} className="flex gap-4 items-start">
-                        <div className="w-full aspect-square max-w-xs flex-shrink-0">
-                          {media.type === "video" ? (
-                            <MediaView media={media as unknown as Media} controls />
-                          ) : (
-                            <MediaTileLite media={media as unknown as Media} />
-                          )}
-                        </div>
-                        <div className="flex flex-wrap gap-2 pt-2">
-                          {mediaTags
-                            .filter((tag) => tag.stickerDisplay && tag.stickerDisplay !== "none")
-                            .map((tag) => (
-                              <TagBadge
-                                key={tag.id}
-                                tag={{
-                                  id: tag.tagDefinitionId,
-                                  color: tag.color,
-                                  displayName: tag.shortRepresentation ?? tag.tagDisplayName ?? tag.tagValue,
-                                }}
-                                size="md"
-                                selectionMode="radio"
-                              />
-                            ))}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-              <div className="relative">
-                <Textarea
-                  value={localCaption}
-                  onChange={updateCaption}
-                  onKeyDown={onKeyDown}
-                  rows={10}
-                  className="pr-10"
-                  placeholder="Write a caption..."
-                />
-                <div className="absolute right-2 top-2 flex gap-1">
-                  <SnippetSelector
-                    channelId={item.post.channel.id}
-                    caption={localCaption}
-                    onCaptionChange={updateCaption}
-                    className="text-base-content/60 hover:text-base-content"
-                  />
-                  <HashtagButton
-                    channel={item.post.channel}
-                    caption={localCaption}
-                    onCaptionChange={updateCaption}
-                    className="text-base-content/60 hover:text-base-content"
-                  />
-                </div>
+          <button
+            type="button"
+            onClick={onExpand}
+            className="w-full text-left px-4 py-3 flex items-center gap-3"
+          >
+            <div className="flex-1 space-y-1 min-w-0">
+              <div className="flex items-baseline gap-2">
+                <span className="text-base font-semibold">
+                  {format(new Date(item.post.date), "EEE, MMM d")}
+                </span>
+                <span className="text-sm font-medium text-base-content/60">
+                  {format(new Date(item.post.date), "HH:mm")}
+                </span>
               </div>
-              <CaptionSyncControl
-                linkedPosts={item.linkedPosts}
-                selectedPostIds={selectedLinkedPostIds}
-                onSelectionChange={handleLinkedPostSelectionChange}
-              />
-              <div className="flex items-center justify-end gap-2">
-                <Button variant="ghost" size="sm" onClick={onAdvance}>
-                  Skip
-                </Button>
-                <Button size="sm" onClick={saveAndAdvance}>
-                  Save & Next
-                </Button>
+              <div className="flex items-center gap-2 flex-wrap">
+                {schedule && (
+                  <ContentScheduleBadge
+                    name={schedule.name}
+                    emoji={schedule.emoji}
+                    color={schedule.color}
+                    size="sm"
+                    borderStyle="none"
+                    responsive={false}
+                  />
+                )}
+                {channel && (
+                  <ChannelBadge
+                    name={channelName}
+                    typeId={channel.type?.id ?? channel.typeId}
+                    size="sm"
+                    borderStyle="none"
+                    responsive={false}
+                  />
+                )}
               </div>
             </div>
-            <RelatedCaptionsPanel
-              relatedByMedia={item.relatedByMedia}
-              relatedByShoot={item.relatedByShoot}
-              currentCaption={localCaption}
-              onUseCaption={updateCaption}
-            />
-          </div>
-        </div>
-      )}
+          </button>
+          {isExpanded && (
+            <div className="p-4 space-y-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  {postMedia.length > 0 && (
+                    <div className="space-y-3">
+                      {postMedia.map((pm, index) => {
+                        const media = pm.media;
+                        const mediaTags = mediaTagQueries[index]?.data ?? [];
+
+                        return (
+                          <div key={pm.id} className="flex gap-4 items-start">
+                            <div className="w-full aspect-square max-w-xs flex-shrink-0">
+                              {media.type === "video" ? (
+                                <MediaView media={media as unknown as Media} controls />
+                              ) : (
+                                <MediaTileLite media={media as unknown as Media} />
+                              )}
+                            </div>
+                            <div className="flex flex-wrap gap-2 pt-2">
+                              {mediaTags
+                                .filter(
+                                  (tag) => tag.stickerDisplay && tag.stickerDisplay !== "none",
+                                )
+                                .map((tag) => (
+                                  <TagBadge
+                                    key={tag.id}
+                                    tag={{
+                                      id: tag.tagDefinitionId,
+                                      color: tag.color,
+                                      displayName:
+                                        tag.shortRepresentation ??
+                                        tag.tagDisplayName ??
+                                        tag.tagValue,
+                                    }}
+                                    size="md"
+                                    selectionMode="radio"
+                                  />
+                                ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <div className="relative">
+                    <Textarea
+                      value={localCaption}
+                      onChange={updateCaption}
+                      onKeyDown={onKeyDown}
+                      rows={10}
+                      className="pr-10"
+                      placeholder="Write a caption..."
+                    />
+                    <div className="absolute right-2 top-2 flex gap-1">
+                      <SnippetSelector
+                        channelId={item.post.channel.id}
+                        caption={localCaption}
+                        onCaptionChange={updateCaption}
+                        className="text-base-content/60 hover:text-base-content"
+                      />
+                      <HashtagButton
+                        channel={item.post.channel}
+                        caption={localCaption}
+                        onCaptionChange={updateCaption}
+                        className="text-base-content/60 hover:text-base-content"
+                      />
+                    </div>
+                  </div>
+                  <CaptionSyncControl
+                    linkedPosts={item.linkedPosts}
+                    selectedPostIds={selectedLinkedPostIds}
+                    onSelectionChange={handleLinkedPostSelectionChange}
+                  />
+                  <div className="flex items-center justify-end gap-2">
+                    <Button variant="ghost" size="sm" onClick={onAdvance}>
+                      Skip
+                    </Button>
+                    <Button size="sm" onClick={saveAndAdvance}>
+                      Save & Next
+                    </Button>
+                  </div>
+                </div>
+                <RelatedCaptionsPanel
+                  relatedByMedia={item.relatedByMedia}
+                  relatedByShoot={item.relatedByShoot}
+                  currentCaption={localCaption}
+                  onUseCaption={updateCaption}
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

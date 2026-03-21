@@ -1,23 +1,21 @@
-import type { FetchShootByIdResponse, Media, Shoot } from '@fanslib/server/schemas';
+import type { FetchShootByIdResponse, Media, Shoot } from "@fanslib/server/schemas";
 import { format } from "date-fns";
 import { Check, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "~/components/ui/Button";
 import {
-    Dialog,
-    DialogFooter,
-    DialogHeader,
-    DialogModal,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogFooter,
+  DialogHeader,
+  DialogModal,
+  DialogTitle,
+  DialogTrigger,
 } from "~/components/ui/Dialog";
 import { ScrollArea } from "~/components/ui/ScrollArea";
 import { MediaTileLite } from "~/features/library/components/MediaTile/MediaTileLite";
 import { cn } from "~/lib/cn";
 import { useMediaListQuery } from "~/lib/queries/library";
 import { useShootQuery, useShootsQuery, useUpdateShootMutation } from "~/lib/queries/shoots";
-
-
 
 type ShootWithMedia = FetchShootByIdResponse;
 
@@ -41,10 +39,7 @@ export const AddToShootDialog = ({
   const { refetch: refetchLibrary } = useMediaListQuery();
   const updateMutation = useUpdateShootMutation();
 
-  const shoots = useMemo(
-    () => (shootsData?.items as Shoot[] | undefined) ?? [],
-    [shootsData]
-  );
+  const shoots = useMemo(() => (shootsData?.items as Shoot[] | undefined) ?? [], [shootsData]);
 
   const filteredShoots = useMemo(() => {
     if (!search) return shoots;
@@ -54,7 +49,7 @@ export const AddToShootDialog = ({
 
   const selectedShoot = useMemo(
     () => shoots.find((shoot) => shoot.id === selectedShootId),
-    [shoots, selectedShootId]
+    [shoots, selectedShootId],
   );
   const selectedShootDetails = selectedShootData as ShootWithMedia | null | undefined;
   const selectedShootMedia = selectedShootDetails?.media ?? [];
@@ -93,7 +88,8 @@ export const AddToShootDialog = ({
   };
 
   const mediaCountToAdd = selectedShoot
-    ? selectedMedia.filter((media) => !selectedShootMedia.some((item) => item.id === media.id)).length
+    ? selectedMedia.filter((media) => !selectedShootMedia.some((item) => item.id === media.id))
+        .length
     : selectedMedia.length;
 
   return (
@@ -133,13 +129,13 @@ export const AddToShootDialog = ({
                               className={cn(
                                 "flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
                                 "hover:bg-base-200",
-                                selectedShootId === shoot.id && "bg-base-200"
+                                selectedShootId === shoot.id && "bg-base-200",
                               )}
                             >
                               <Check
                                 className={cn(
                                   "h-4 w-4 shrink-0",
-                                  selectedShootId === shoot.id ? "opacity-100" : "opacity-0"
+                                  selectedShootId === shoot.id ? "opacity-100" : "opacity-0",
                                 )}
                               />
                               <span className="truncate">{shoot.name}</span>

@@ -1,13 +1,13 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Sticker } from './Sticker';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Sticker } from "./Sticker";
 
 const meta: Meta<typeof Sticker> = {
-  title: 'UI/Sticker',
+  title: "UI/Sticker",
   component: Sticker,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
@@ -15,13 +15,13 @@ type Story = StoryObj<typeof Sticker>;
 
 export const Default: Story = {
   args: {
-    children: '5',
+    children: "5",
   },
 };
 
 export const WithText: Story = {
   args: {
-    children: 'NEW',
+    children: "NEW",
   },
 };
 
@@ -44,5 +44,3 @@ export const CustomStyles: Story = {
     </div>
   ),
 };
-
-

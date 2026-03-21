@@ -3,7 +3,10 @@ import { zValidator } from "@hono/zod-validator";
 import { clearFanslyCredentials } from "./operations/credentials/clear";
 import { loadFanslyCredentials } from "./operations/credentials/load";
 import { markCredentialsStale } from "./operations/credentials/mark-stale";
-import { saveFanslyCredentials, SaveFanslyCredentialsRequestBodySchema } from "./operations/credentials/save";
+import {
+  saveFanslyCredentials,
+  SaveFanslyCredentialsRequestBodySchema,
+} from "./operations/credentials/save";
 import { getCredentialStatus } from "./operations/credentials/status";
 import { loadSettings } from "./operations/setting/load";
 import { saveSettings, SaveSettingsRequestBodySchema } from "./operations/setting/save";
@@ -29,11 +32,15 @@ export const settingsRoutes = new Hono()
     const result = await loadFanslyCredentials();
     return c.json(result);
   })
-  .post("/fansly-credentials", zValidator("json", SaveFanslyCredentialsRequestBodySchema, validationError), async (c) => {
-    const body = c.req.valid("json");
-    const result = await saveFanslyCredentials(body);
-    return c.json(result);
-  })
+  .post(
+    "/fansly-credentials",
+    zValidator("json", SaveFanslyCredentialsRequestBodySchema, validationError),
+    async (c) => {
+      const body = c.req.valid("json");
+      const result = await saveFanslyCredentials(body);
+      return c.json(result);
+    },
+  )
   .delete("/fansly-credentials", async (c) => {
     const result = await clearFanslyCredentials();
     return c.json(result);

@@ -1,4 +1,4 @@
-import type { Media, MediaTag } from '@fanslib/server/schemas';
+import type { Media, MediaTag } from "@fanslib/server/schemas";
 
 export type RepostStatus = "never_posted" | "repostable" | "on_cooldown" | "still_growing";
 

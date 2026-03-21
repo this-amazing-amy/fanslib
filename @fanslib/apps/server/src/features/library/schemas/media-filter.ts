@@ -1,75 +1,80 @@
 import { z } from "zod";
 
 export const FilterItemChannelSchema = z.object({
-  type: z.literal('channel'),
+  type: z.literal("channel"),
   id: z.string(),
 });
 
 export const FilterItemSubredditSchema = z.object({
-  type: z.literal('subreddit'),
+  type: z.literal("subreddit"),
   id: z.string(),
 });
 
 export const FilterItemTagSchema = z.object({
-  type: z.literal('tag'),
+  type: z.literal("tag"),
   id: z.string(),
 });
 
 export const FilterItemShootSchema = z.object({
-  type: z.literal('shoot'),
+  type: z.literal("shoot"),
   id: z.string(),
 });
 
 export const FilterItemFilenameSchema = z.object({
-  type: z.literal('filename'),
+  type: z.literal("filename"),
   value: z.string(),
 });
 
 export const FilterItemCaptionSchema = z.object({
-  type: z.literal('caption'),
+  type: z.literal("caption"),
   value: z.string(),
 });
 
 export const FilterItemPostedSchema = z.object({
-  type: z.literal('posted'),
+  type: z.literal("posted"),
   value: z.boolean(),
 });
 
 export const FilterItemCreatedDateStartSchema = z.object({
-  type: z.literal('createdDateStart'),
+  type: z.literal("createdDateStart"),
   value: z.coerce.date(),
 });
 
 export const FilterItemCreatedDateEndSchema = z.object({
-  type: z.literal('createdDateEnd'),
+  type: z.literal("createdDateEnd"),
   value: z.coerce.date(),
 });
 
 export const FilterItemMediaTypeSchema = z.object({
-  type: z.literal('mediaType'),
-  value: z.enum(['image', 'video']),
+  type: z.literal("mediaType"),
+  value: z.enum(["image", "video"]),
 });
 
 export const FilterItemDimensionEmptySchema = z.object({
-  type: z.literal('dimensionEmpty'),
+  type: z.literal("dimensionEmpty"),
   dimensionId: z.number(),
 });
 
-export const RepostStatusValueSchema = z.enum(['never_posted', 'repostable', 'on_cooldown', 'still_growing']);
+export const RepostStatusValueSchema = z.enum([
+  "never_posted",
+  "repostable",
+  "on_cooldown",
+  "still_growing",
+]);
 
 export const FilterItemRepostStatusSchema = z.object({
-  type: z.literal('repostStatus'),
+  type: z.literal("repostStatus"),
   value: RepostStatusValueSchema,
   channelId: z.string().optional(),
   subredditId: z.string().optional(),
 });
 
 export const FilterItemExcludedSchema = z.object({
-  type: z.literal('excluded'),
+  type: z.literal("excluded"),
   value: z.boolean(),
 });
 
-export const FilterItemSchema = z.discriminatedUnion('type', [
+export const FilterItemSchema = z.discriminatedUnion("type", [
   FilterItemChannelSchema,
   FilterItemSubredditSchema,
   FilterItemTagSchema,

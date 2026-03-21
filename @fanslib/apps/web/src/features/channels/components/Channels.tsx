@@ -1,11 +1,7 @@
 import { useState } from "react";
 import { PlusCircle } from "lucide-react";
 import { Button } from "~/components/ui/Button/Button";
-import {
-  Dialog,
-  DialogModal,
-  DialogTrigger,
-} from "~/components/ui/Dialog";
+import { Dialog, DialogModal, DialogTrigger } from "~/components/ui/Dialog";
 import { PageContainer } from "~/components/ui/PageContainer";
 import { useChannelsQuery } from "~/lib/queries/channels";
 import { ChannelView } from "./ChannelView";

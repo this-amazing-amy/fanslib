@@ -57,7 +57,8 @@ const settingsNavItems: SettingsNavItem[] = [
 export const SettingsLayout = () => {
   const location = useLocation();
 
-  const currentPath = location.pathname === "/settings" ? "/settings/appearance" : location.pathname;
+  const currentPath =
+    location.pathname === "/settings" ? "/settings/appearance" : location.pathname;
 
   return (
     <div className="flex h-full">
@@ -81,7 +82,7 @@ export const SettingsLayout = () => {
                     "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
                     isActive
                       ? "bg-base-300 text-base-content"
-                      : "text-base-content/60 hover:bg-base-300/50 hover:text-base-content"
+                      : "text-base-content/60 hover:bg-base-300/50 hover:text-base-content",
                   )}
                 >
                   <Icon className="h-4 w-4" />

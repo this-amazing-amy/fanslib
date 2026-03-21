@@ -14,7 +14,7 @@ const CHANNEL_TYPES = {
 export const postToReddit = async (
   subredditId: string,
   mediaId: string,
-  caption: string
+  caption: string,
 ): Promise<RedditPostResult> => {
   const subredditRepo = (await db()).getRepository(Subreddit);
   const subreddit = await subredditRepo.findOne({
@@ -104,7 +104,7 @@ export const postToReddit = async (
       status: "posted",
       caption: fullCaption,
     },
-    [media.id]
+    [media.id],
   );
 
   return {
@@ -112,4 +112,3 @@ export const postToReddit = async (
     url: result.url,
   };
 };
-

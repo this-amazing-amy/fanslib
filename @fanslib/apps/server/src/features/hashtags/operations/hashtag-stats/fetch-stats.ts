@@ -10,10 +10,12 @@ export const FetchHashtagStatsRequestParamsSchema = z.object({
 export const FetchHashtagStatsResponseSchema = z.array(
   HashtagChannelStatsSchema.extend({
     channel: ChannelSchema,
-  })
+  }),
 );
 
-export const fetchHashtagStats = async (hashtagId: number): Promise<z.infer<typeof FetchHashtagStatsResponseSchema>> => {
+export const fetchHashtagStats = async (
+  hashtagId: number,
+): Promise<z.infer<typeof FetchHashtagStatsResponseSchema>> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(HashtagChannelStats);
 
@@ -27,4 +29,3 @@ export const fetchHashtagStats = async (hashtagId: number): Promise<z.infer<type
     },
   });
 };
-

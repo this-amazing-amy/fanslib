@@ -1,28 +1,33 @@
-import { QueryClientProvider } from '@tanstack/react-query';
-import { useAtom } from 'jotai';
-import { type ReactNode, useEffect } from 'react';
-import { CredentialStatusBadge } from '~/components/CredentialStatusBadge';
-import { Logo } from '~/components/Logo';
-import { NavigationMenu } from '~/components/NavigationMenu';
-import { BurgerIcon } from '~/components/ui/BurgerIcon';
-import { ThemeProvider } from '~/contexts/ThemeContext';
-import { cn } from '~/lib/cn';
-import { useToggleSfwModeMutation } from '~/lib/queries/settings';
-import { queryClient } from '~/router';
-import { mobileNavigationDrawerOpenAtom, sidebarCollapsedAtom, STORAGE_KEY, toggleSidebarAtom } from '~/state/sidebar';
+import { QueryClientProvider } from "@tanstack/react-query";
+import { useAtom } from "jotai";
+import { type ReactNode, useEffect } from "react";
+import { CredentialStatusBadge } from "~/components/CredentialStatusBadge";
+import { Logo } from "~/components/Logo";
+import { NavigationMenu } from "~/components/NavigationMenu";
+import { BurgerIcon } from "~/components/ui/BurgerIcon";
+import { ThemeProvider } from "~/contexts/ThemeContext";
+import { cn } from "~/lib/cn";
+import { useToggleSfwModeMutation } from "~/lib/queries/settings";
+import { queryClient } from "~/router";
+import {
+  mobileNavigationDrawerOpenAtom,
+  sidebarCollapsedAtom,
+  STORAGE_KEY,
+  toggleSidebarAtom,
+} from "~/state/sidebar";
 
 export interface AppLayoutProps {
   children: ReactNode;
 }
 
-const MainContent = ({ children }: { children: ReactNode }) => <main 
-      className={cn(
-        'flex-1 min-h-0 overflow-y-auto pl-4 sm:pl-6 lg:pl-8 content-area'
-      )}
-      style={{ viewTransitionName: 'main-content' }}
-    >
-      {children}
-    </main>;
+const MainContent = ({ children }: { children: ReactNode }) => (
+  <main
+    className={cn("flex-1 min-h-0 overflow-y-auto pl-4 sm:pl-6 lg:pl-8 content-area")}
+    style={{ viewTransitionName: "main-content" }}
+  >
+    {children}
+  </main>
+);
 
 const LayoutContent = ({ children }: AppLayoutProps) => {
   const [sidebarOpen] = useAtom(mobileNavigationDrawerOpenAtom);
@@ -31,9 +36,7 @@ const LayoutContent = ({ children }: AppLayoutProps) => {
   const toggleSfwMode = useToggleSfwModeMutation();
 
   useEffect(() => {
-    const stored = typeof window !== 'undefined' 
-      ? window.localStorage.getItem(STORAGE_KEY)
-      : null;
+    const stored = typeof window !== "undefined" ? window.localStorage.getItem(STORAGE_KEY) : null;
     if (stored !== null) {
       try {
         setIsCollapsed(JSON.parse(stored));
@@ -45,36 +48,32 @@ const LayoutContent = ({ children }: AppLayoutProps) => {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 's') {
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === "s") {
         e.preventDefault();
         toggleSfwMode.mutate();
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [toggleSfwMode]);
-
 
   return (
     <ThemeProvider>
-      <div className='drawer lg:drawer-open'>
+      <div className="drawer lg:drawer-open">
         <input
-          id='drawer-toggle'
-          type='checkbox'
-          className='drawer-toggle'
+          id="drawer-toggle"
+          type="checkbox"
+          className="drawer-toggle"
           checked={sidebarOpen}
-          aria-label='Toggle navigation menu'
+          aria-label="Toggle navigation menu"
           onChange={() => toggleSidebar()}
         />
 
         {/* Page content */}
-        <div className='drawer-content flex flex-col h-[100svh]'>
-          <header className='main-header flex items-center bg-base-100 lg:hidden h-16 px-4 gap-2'>
-            <label
-              htmlFor='drawer-toggle'
-              className='btn btn-square btn-ghost'
-            >
+        <div className="drawer-content flex flex-col h-[100svh]">
+          <header className="main-header flex items-center bg-base-100 lg:hidden h-16 px-4 gap-2">
+            <label htmlFor="drawer-toggle" className="btn btn-square btn-ghost">
               <BurgerIcon />
             </label>
             <Logo isCollapsed={false} className="h-8" />
@@ -87,20 +86,28 @@ const LayoutContent = ({ children }: AppLayoutProps) => {
         </div>
 
         {/* Sidebar - Responsive width and touch-friendly */}
-        <div className='drawer-side z-40'>
-          <label
-            htmlFor='drawer-toggle'
-            className='drawer-overlay lg:hidden'
-          ></label>
-          <aside className={cn('sidebar min-h-full bg-base-200 text-base-content flex flex-col', 'w-64 sm:w-72', isCollapsed ? 'lg:w-20' : 'lg:w-80')}>
+        <div className="drawer-side z-40">
+          <label htmlFor="drawer-toggle" className="drawer-overlay lg:hidden"></label>
+          <aside
+            className={cn(
+              "sidebar min-h-full bg-base-200 text-base-content flex flex-col",
+              "w-64 sm:w-72",
+              isCollapsed ? "lg:w-20" : "lg:w-80",
+            )}
+          >
             {/* Sidebar header - Touch-friendly */}
-            <div className={cn('p-4 lg:p-6', isCollapsed && 'lg:p-4')}>
+            <div className={cn("p-4 lg:p-6", isCollapsed && "lg:p-4")}>
               <Logo isCollapsed={isCollapsed} />
             </div>
 
             <NavigationMenu isCollapsed={isCollapsed} />
 
-            <div className={cn('mt-auto p-4 border-t border-base-300', isCollapsed && 'lg:flex lg:justify-center')}>
+            <div
+              className={cn(
+                "mt-auto p-4 border-t border-base-300",
+                isCollapsed && "lg:flex lg:justify-center",
+              )}
+            >
               <CredentialStatusBadge />
             </div>
           </aside>

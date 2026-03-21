@@ -1,11 +1,25 @@
-import { Link, useLocation } from '@tanstack/react-router';
-import { useAtom } from 'jotai';
-import type { LucideIcon } from 'lucide-react';
-import { BarChart3, Calendar, Camera, ChevronDown, ChevronRight, Clapperboard, Hash, Home, MessageSquareText, PanelLeft, PanelLeftClose, Radio, Settings } from 'lucide-react';
-import type React from 'react';
-import { useState } from 'react';
-import { cn } from '~/lib/cn';
-import { closeSidebarAtom, toggleSidebarCollapsedAtom } from '~/state/sidebar';
+import { Link, useLocation } from "@tanstack/react-router";
+import { useAtom } from "jotai";
+import type { LucideIcon } from "lucide-react";
+import {
+  BarChart3,
+  Calendar,
+  Camera,
+  ChevronDown,
+  ChevronRight,
+  Clapperboard,
+  Hash,
+  Home,
+  MessageSquareText,
+  PanelLeft,
+  PanelLeftClose,
+  Radio,
+  Settings,
+} from "lucide-react";
+import type React from "react";
+import { useState } from "react";
+import { cn } from "~/lib/cn";
+import { closeSidebarAtom, toggleSidebarCollapsedAtom } from "~/state/sidebar";
 
 type MenuItem = {
   to: string;
@@ -15,22 +29,20 @@ type MenuItem = {
 };
 
 const menuItems: MenuItem[] = [
-  { to: '/', label: 'Dashboard', icon: Home },
-  { to: '/content/library/media', label: 'Library', icon: Clapperboard },
-  { to: '/content/shoots', label: 'Shoots', icon: Camera },
-  { to: '/plan', label: 'Plan', icon: Calendar },
-  { to: '/captioning', label: 'Captioning', icon: MessageSquareText },
-  { to: '/channels', label: 'Channels', icon: Radio },
-  { to: '/hashtags', label: 'Hashtags', icon: Hash },
+  { to: "/", label: "Dashboard", icon: Home },
+  { to: "/content/library/media", label: "Library", icon: Clapperboard },
+  { to: "/content/shoots", label: "Shoots", icon: Camera },
+  { to: "/plan", label: "Plan", icon: Calendar },
+  { to: "/captioning", label: "Captioning", icon: MessageSquareText },
+  { to: "/channels", label: "Channels", icon: Radio },
+  { to: "/hashtags", label: "Hashtags", icon: Hash },
   {
-    to: '/analytics',
-    label: 'Analytics',
+    to: "/analytics",
+    label: "Analytics",
     icon: BarChart3,
-    children: [
-      { to: '/analytics/matching', label: 'Matching' },
-    ],
+    children: [{ to: "/analytics/matching", label: "Matching" }],
   },
-  { to: '/settings', label: 'Settings', icon: Settings },
+  { to: "/settings", label: "Settings", icon: Settings },
 ];
 
 type NavigationMenuProps = {
@@ -41,7 +53,7 @@ export const NavigationMenu = ({ isCollapsed }: NavigationMenuProps) => {
   const [, closeSidebar] = useAtom(closeSidebarAtom);
   const [, toggleCollapsed] = useAtom(toggleSidebarCollapsedAtom);
   const location = useLocation();
-  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set(['/analytics']));
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set(["/analytics"]));
 
   const closeSidebarAfterNavigate = () => {
     closeSidebar();
@@ -70,7 +82,12 @@ export const NavigationMenu = ({ isCollapsed }: NavigationMenuProps) => {
   return (
     <>
       <nav className="flex-1 overflow-y-auto w-full">
-        <ul className={cn('menu w-full space-y-1 p-4 lg:p-6', isCollapsed && 'lg:p-2 lg:flex lg:flex-col lg:items-center mx-auto')}>
+        <ul
+          className={cn(
+            "menu w-full space-y-1 p-4 lg:p-6",
+            isCollapsed && "lg:p-2 lg:flex lg:flex-col lg:items-center mx-auto",
+          )}
+        >
           {menuItems.map((item) => {
             const { to, label, icon: Icon, children } = item;
             const hasChildren = children && children.length > 0;
@@ -79,15 +96,15 @@ export const NavigationMenu = ({ isCollapsed }: NavigationMenuProps) => {
 
             if (isCollapsed && hasChildren) {
               return (
-                <li key={to} className={cn('lg:w-full lg:flex lg:justify-center')}>
+                <li key={to} className={cn("lg:w-full lg:flex lg:justify-center")}>
                   <Link
                     to={children[0].to}
                     onClick={closeSidebarAfterNavigate}
                     aria-label={label}
                     className={cn(
-                      'flex items-center rounded-lg text-sm font-medium transition-colors hover:bg-base-300 [&.active]:bg-primary [&.active]:text-primary-content',
-                      'gap-3 px-4 py-3 min-h-12 lg:py-1',
-                      'lg:w-10 lg:h-10 lg:justify-center lg:gap-0 lg:px-3 lg:py-3 lg:min-h-0'
+                      "flex items-center rounded-lg text-sm font-medium transition-colors hover:bg-base-300 [&.active]:bg-primary [&.active]:text-primary-content",
+                      "gap-3 px-4 py-3 min-h-12 lg:py-1",
+                      "lg:w-10 lg:h-10 lg:justify-center lg:gap-0 lg:px-3 lg:py-3 lg:min-h-0",
                     )}
                   >
                     <Icon className="h-5 w-5 lg:h-6 lg:w-6 lg:h-8 lg:w-8" />
@@ -98,19 +115,24 @@ export const NavigationMenu = ({ isCollapsed }: NavigationMenuProps) => {
 
             if (!hasChildren) {
               return (
-                <li key={to} className={cn('w-full', isCollapsed && 'lg:flex lg:justify-center')}>
+                <li key={to} className={cn("w-full", isCollapsed && "lg:flex lg:justify-center")}>
                   <Link
                     to={to}
                     onClick={closeSidebarAfterNavigate}
                     aria-label={label}
                     className={cn(
-                      'flex items-center w-full rounded-lg text-sm font-medium transition-colors hover:bg-base-300 [&.active]:bg-primary [&.active]:text-primary-content',
-                      'gap-3 px-4 py-3 min-h-12 lg:py-1',
-                      isCollapsed && 'lg:w-10 lg:h-10 lg:justify-center lg:gap-0 lg:px-3 lg:py-3 lg:min-h-0'
+                      "flex items-center w-full rounded-lg text-sm font-medium transition-colors hover:bg-base-300 [&.active]:bg-primary [&.active]:text-primary-content",
+                      "gap-3 px-4 py-3 min-h-12 lg:py-1",
+                      isCollapsed &&
+                        "lg:w-10 lg:h-10 lg:justify-center lg:gap-0 lg:px-3 lg:py-3 lg:min-h-0",
                     )}
                   >
-                    <Icon className={cn('h-5 w-5 lg:h-6 lg:w-6', isCollapsed && 'lg:h-8 lg:w-8')} />
-                    <span className={cn('text-sm font-medium lg:text-base', isCollapsed && 'lg:hidden')}>{label}</span>
+                    <Icon className={cn("h-5 w-5 lg:h-6 lg:w-6", isCollapsed && "lg:h-8 lg:w-8")} />
+                    <span
+                      className={cn("text-sm font-medium lg:text-base", isCollapsed && "lg:hidden")}
+                    >
+                      {label}
+                    </span>
                   </Link>
                 </li>
               );
@@ -121,22 +143,29 @@ export const NavigationMenu = ({ isCollapsed }: NavigationMenuProps) => {
                 <button
                   onClick={() => toggleExpanded(to)}
                   className={cn(
-                    'flex items-center w-full gap-3 px-4 py-3 min-h-12 lg:py-1 rounded-lg text-sm font-medium transition-colors',
-                    'hover:bg-base-300',
-                    active && 'bg-primary/10',
-                    isCollapsed && 'lg:w-10 lg:h-10 lg:justify-center lg:gap-0 lg:px-3 lg:py-3 lg:min-h-0'
+                    "flex items-center w-full gap-3 px-4 py-3 min-h-12 lg:py-1 rounded-lg text-sm font-medium transition-colors",
+                    "hover:bg-base-300",
+                    active && "bg-primary/10",
+                    isCollapsed &&
+                      "lg:w-10 lg:h-10 lg:justify-center lg:gap-0 lg:px-3 lg:py-3 lg:min-h-0",
                   )}
                   aria-label={label}
                 >
-                  <Icon className={cn('h-5 w-5 lg:h-6 lg:w-6', isCollapsed && 'lg:h-8 lg:w-8')} />
-                  <span className={cn('text-sm font-medium lg:text-base flex-1 text-left', isCollapsed && 'lg:hidden')}>{label}</span>
-                  {!isCollapsed && (
-                    isExpanded ? (
+                  <Icon className={cn("h-5 w-5 lg:h-6 lg:w-6", isCollapsed && "lg:h-8 lg:w-8")} />
+                  <span
+                    className={cn(
+                      "text-sm font-medium lg:text-base flex-1 text-left",
+                      isCollapsed && "lg:hidden",
+                    )}
+                  >
+                    {label}
+                  </span>
+                  {!isCollapsed &&
+                    (isExpanded ? (
                       <ChevronDown className="h-4 w-4" />
                     ) : (
                       <ChevronRight className="h-4 w-4" />
-                    )
-                  )}
+                    ))}
                 </button>
                 {isExpanded && !isCollapsed && (
                   <ul className="ml-4 mt-1 space-y-1">
@@ -148,8 +177,8 @@ export const NavigationMenu = ({ isCollapsed }: NavigationMenuProps) => {
                             to={child.to}
                             onClick={closeSidebarAfterNavigate}
                             className={cn(
-                              'flex items-center w-full gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-base-300',
-                              childActive && 'bg-primary text-primary-content'
+                              "flex items-center w-full gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-base-300",
+                              childActive && "bg-primary text-primary-content",
                             )}
                           >
                             <span>{child.label}</span>
@@ -167,14 +196,10 @@ export const NavigationMenu = ({ isCollapsed }: NavigationMenuProps) => {
       <div className="hidden lg:flex justify-center p-2">
         <button
           onClick={() => toggleCollapsed()}
-          aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           className="flex items-center justify-center rounded-lg text-sm font-medium transition-colors hover:bg-base-300 p-2"
         >
-          {isCollapsed ? (
-            <PanelLeft className="h-5 w-5" />
-          ) : (
-            <PanelLeftClose className="h-5 w-5" />
-          )}
+          {isCollapsed ? <PanelLeft className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
         </button>
       </div>
     </>

@@ -1,14 +1,21 @@
-import { useRef } from 'react';
-import type { AriaSliderProps } from 'react-aria';
-import { mergeProps, useFocusRing, useNumberFormatter, useSlider, useSliderThumb, VisuallyHidden } from 'react-aria';
-import type { SliderState } from 'react-stately';
-import { useSliderState } from 'react-stately';
-import { cn } from '~/lib/cn';
+import { useRef } from "react";
+import type { AriaSliderProps } from "react-aria";
+import {
+  mergeProps,
+  useFocusRing,
+  useNumberFormatter,
+  useSlider,
+  useSliderThumb,
+  VisuallyHidden,
+} from "react-aria";
+import type { SliderState } from "react-stately";
+import { useSliderState } from "react-stately";
+import { cn } from "~/lib/cn";
 
 export type SliderProps = AriaSliderProps<number | number[]> & {
   label?: string;
   className?: string;
-  color?: 'primary' | 'secondary' | 'accent' | 'success' | 'warning' | 'error' | 'info';
+  color?: "primary" | "secondary" | "accent" | "success" | "warning" | "error" | "info";
 };
 
 export const Slider = (props: SliderProps) => {
@@ -18,55 +25,47 @@ export const Slider = (props: SliderProps) => {
     ...props,
     numberFormatter,
   });
-  const { groupProps, trackProps, labelProps, outputProps } = useSlider(
-    props,
-    state,
-    trackRef
-  );
+  const { groupProps, trackProps, labelProps, outputProps } = useSlider(props, state, trackRef);
 
   const colorClasses = {
-    primary: 'range-primary',
-    secondary: 'range-secondary',
-    accent: 'range-accent',
-    success: 'range-success',
-    warning: 'range-warning',
-    error: 'range-error',
-    info: 'range-info',
+    primary: "range-primary",
+    secondary: "range-secondary",
+    accent: "range-accent",
+    success: "range-success",
+    warning: "range-warning",
+    error: "range-error",
+    info: "range-info",
   };
 
   return (
-    <div {...groupProps} className={cn('form-control', props.className)}>
+    <div {...groupProps} className={cn("form-control", props.className)}>
       {props.label && (
         <div className="flex justify-between items-center mb-2">
           <label {...labelProps} className="label-text">
             {props.label}
           </label>
           <output {...outputProps} className="label-text-alt">
-            {state.values.map((v, i) => {
-              try {
-                return state.getThumbValueLabel(i);
-              } catch {
-                return String(v);
-              }
-            }).join(' – ')}
+            {state.values
+              .map((v, i) => {
+                try {
+                  return state.getThumbValueLabel(i);
+                } catch {
+                  return String(v);
+                }
+              })
+              .join(" – ")}
           </output>
         </div>
       )}
-      <div
-        {...trackProps}
-        ref={trackRef}
-        className="relative w-full h-2 rounded-full bg-base-300"
-      >
+      <div {...trackProps} ref={trackRef} className="relative w-full h-2 rounded-full bg-base-300">
         <div
-          className={cn(
-            'absolute h-full rounded-full',
-            colorClasses[props.color ?? 'primary']
-          )}
+          className={cn("absolute h-full rounded-full", colorClasses[props.color ?? "primary"])}
           style={{
             left: `${state.getThumbPercent(0) * 100}%`,
-            width: state.values.length > 1
-              ? `${(state.getThumbPercent(1) - state.getThumbPercent(0)) * 100}%`
-              : `${state.getThumbPercent(0) * 100}%`,
+            width:
+              state.values.length > 1
+                ? `${(state.getThumbPercent(1) - state.getThumbPercent(0)) * 100}%`
+                : `${state.getThumbPercent(0) * 100}%`,
           }}
         />
         {state.values.map((v, i) => (
@@ -81,10 +80,10 @@ type ThumbProps = {
   index: number;
   state: SliderState;
   trackRef: React.RefObject<HTMLDivElement | null>;
-  color?: SliderProps['color'];
+  color?: SliderProps["color"];
 };
 
-const Thumb = ({ index, state, trackRef, color = 'primary' }: ThumbProps) => {
+const Thumb = ({ index, state, trackRef, color = "primary" }: ThumbProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { thumbProps, inputProps } = useSliderThumb(
     {
@@ -92,19 +91,19 @@ const Thumb = ({ index, state, trackRef, color = 'primary' }: ThumbProps) => {
       trackRef,
       inputRef,
     },
-    state
+    state,
   );
 
   const { focusProps, isFocusVisible } = useFocusRing();
 
   const colorClasses = {
-    primary: 'bg-primary',
-    secondary: 'bg-secondary',
-    accent: 'bg-accent',
-    success: 'bg-success',
-    warning: 'bg-warning',
-    error: 'bg-error',
-    info: 'bg-info',
+    primary: "bg-primary",
+    secondary: "bg-secondary",
+    accent: "bg-accent",
+    success: "bg-success",
+    warning: "bg-warning",
+    error: "bg-error",
+    info: "bg-info",
   };
 
   return (
@@ -117,9 +116,9 @@ const Thumb = ({ index, state, trackRef, color = 'primary' }: ThumbProps) => {
     >
       <div
         className={cn(
-          'w-5 h-5 rounded-full shadow cursor-pointer transition-all',
+          "w-5 h-5 rounded-full shadow cursor-pointer transition-all",
           colorClasses[color],
-          isFocusVisible && 'ring-2 ring-offset-2 ring-primary'
+          isFocusVisible && "ring-2 ring-offset-2 ring-primary",
         )}
       >
         <VisuallyHidden>
@@ -130,5 +129,4 @@ const Thumb = ({ index, state, trackRef, color = 'primary' }: ThumbProps) => {
   );
 };
 
-Slider.displayName = 'Slider';
-
+Slider.displayName = "Slider";

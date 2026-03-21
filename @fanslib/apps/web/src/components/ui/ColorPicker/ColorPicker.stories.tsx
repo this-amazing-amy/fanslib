@@ -20,7 +20,7 @@ const ColorPickerWithState = () => {
   return (
     <div className="flex items-center gap-4">
       <ColorPicker value={color} onChange={setColor} />
-      <span className="text-sm text-base-content/70">Selected: {color ?? 'None'}</span>
+      <span className="text-sm text-base-content/70">Selected: {color ?? "None"}</span>
     </div>
   );
 };

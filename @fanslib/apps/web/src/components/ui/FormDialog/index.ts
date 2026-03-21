@@ -1,2 +1,1 @@
-export { FormDialog, type FormDialogProps } from './FormDialog';
-
+export { FormDialog, type FormDialogProps } from "./FormDialog";

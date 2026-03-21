@@ -1,7 +1,12 @@
-import type { TagDefinition } from '@fanslib/server/schemas';
+import type { TagDefinition } from "@fanslib/server/schemas";
 import { useMemo } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/Select";
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/Select";
 
 type ParentTagSelectorProps = {
   tags: TagDefinition[];
@@ -71,7 +76,10 @@ export const ParentTagSelector = ({
   onSelectParent,
   placeholder = "Select parent tag...",
 }: ParentTagSelectorProps) => {
-  const hierarchicalTags = useMemo(() => buildHierarchicalList(tags, currentTagId), [tags, currentTagId]);
+  const hierarchicalTags = useMemo(
+    () => buildHierarchicalList(tags, currentTagId),
+    [tags, currentTagId],
+  );
 
   const getDisplayValue = (item: HierarchicalTag) => {
     if (item.path.length > 1) {

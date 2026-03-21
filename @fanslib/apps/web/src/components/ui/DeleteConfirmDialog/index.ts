@@ -1,2 +1,1 @@
-export { DeleteConfirmDialog, type DeleteConfirmDialogProps } from './DeleteConfirmDialog';
-
+export { DeleteConfirmDialog, type DeleteConfirmDialogProps } from "./DeleteConfirmDialog";

@@ -7,7 +7,7 @@ const baseUrl = "";
 /**
  * Custom fetch wrapper that handles devalue deserialization.
  * Checks for X-Serialization header and parses response accordingly.
- * 
+ *
  * CRITICAL: We extend Response to include the parsed devalue data directly.
  * This preserves Date objects and other non-JSON types through the entire chain.
  */
@@ -28,11 +28,11 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
       statusText: response.statusText,
       headers: response.headers,
     });
-    
+
     // Override json() to return the already-parsed devalue data
     // @ts-ignore - we're intentionally extending Response
     extendedResponse.json = async () => data;
-    
+
     return extendedResponse;
   }
 

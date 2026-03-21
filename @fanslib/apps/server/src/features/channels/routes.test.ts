@@ -19,9 +19,7 @@ describe("Channels Routes", () => {
   beforeAll(async () => {
     await setupTestDatabase();
     fixtures = await resetAllFixtures();
-    app = new Hono()
-      .use("*", devalueMiddleware())
-      .route("/", channelsRoutes);
+    app = new Hono().use("*", devalueMiddleware()).route("/", channelsRoutes);
   });
 
   afterAll(async () => {
@@ -40,7 +38,7 @@ describe("Channels Routes", () => {
       const data = await parseResponse<Channel[]>(response);
       expect(Array.isArray(data)).toBe(true);
       expect(data?.length).toBeGreaterThanOrEqual(CHANNEL_FIXTURES.length);
-      
+
       CHANNEL_FIXTURES.forEach((fixture) => {
         const channel = data?.find((c: Channel) => c.id === fixture.id);
         expect(channel).toBeDefined();
@@ -183,4 +181,3 @@ describe("Channels Routes", () => {
     });
   });
 });
-

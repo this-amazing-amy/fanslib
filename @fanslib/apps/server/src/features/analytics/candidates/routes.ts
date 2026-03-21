@@ -28,19 +28,27 @@ export const candidatesRoutes = new Hono()
     const result = await createCandidates(body);
     return c.json(result);
   })
-  .get("/", zValidator("query", FetchAllCandidatesRequestQuerySchema, validationError), async (c) => {
-    const query = c.req.valid("query");
-    const result = await fetchAllCandidates(query);
-    return c.json(result);
-  })
-  .get("/by-id/:id/suggestions", zValidator("param", FetchCandidateSuggestionsRequestParamsSchema, validationError), async (c) => {
-    const { id } = c.req.valid("param");
-    const suggestions = await fetchCandidateSuggestions(id);
-    if (!suggestions) {
-      return c.json({ error: "Candidate not found" }, 404);
-    }
-    return c.json(suggestions);
-  })
+  .get(
+    "/",
+    zValidator("query", FetchAllCandidatesRequestQuerySchema, validationError),
+    async (c) => {
+      const query = c.req.valid("query");
+      const result = await fetchAllCandidates(query);
+      return c.json(result);
+    },
+  )
+  .get(
+    "/by-id/:id/suggestions",
+    zValidator("param", FetchCandidateSuggestionsRequestParamsSchema, validationError),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const suggestions = await fetchCandidateSuggestions(id);
+      if (!suggestions) {
+        return c.json({ error: "Candidate not found" }, 404);
+      }
+      return c.json(suggestions);
+    },
+  )
   .post(
     "/by-id/:id/match",
     zValidator("param", ConfirmMatchRequestParamsSchema, validationError),
@@ -51,26 +59,42 @@ export const candidatesRoutes = new Hono()
       const result = await confirmMatch(id, body);
       if (!result) return c.json({ error: "Candidate or post media not found" }, 404);
       return c.json(result);
-    }
+    },
   )
-  .post("/by-id/:id/ignore", zValidator("param", IgnoreCandidateRequestParamsSchema, validationError), async (c) => {
-    const { id } = c.req.valid("param");
-    const result = await ignoreCandidate(id);
-    if (!result) return c.json({ error: "Candidate not found" }, 404);
-    return c.json(result);
-  })
-  .post("/bulk-confirm", zValidator("json", BulkConfirmCandidatesRequestBodySchema, validationError), async (c) => {
-    const body = c.req.valid("json");
-    const result = await bulkConfirmCandidates(body);
-    return c.json(result);
-  })
-  .post("/by-id/:id/unmatch", zValidator("param", UnmatchCandidateRequestParamsSchema, validationError), async (c) => {
-    const { id } = c.req.valid("param");
-    const result = await unmatchCandidate(id);
-    return c.json(result);
-  })
-  .post("/by-id/:id/unignore", zValidator("param", UnignoreCandidateRequestParamsSchema, validationError), async (c) => {
-    const { id } = c.req.valid("param");
-    const result = await unignoreCandidate(id);
-    return c.json(result);
-  });
+  .post(
+    "/by-id/:id/ignore",
+    zValidator("param", IgnoreCandidateRequestParamsSchema, validationError),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const result = await ignoreCandidate(id);
+      if (!result) return c.json({ error: "Candidate not found" }, 404);
+      return c.json(result);
+    },
+  )
+  .post(
+    "/bulk-confirm",
+    zValidator("json", BulkConfirmCandidatesRequestBodySchema, validationError),
+    async (c) => {
+      const body = c.req.valid("json");
+      const result = await bulkConfirmCandidates(body);
+      return c.json(result);
+    },
+  )
+  .post(
+    "/by-id/:id/unmatch",
+    zValidator("param", UnmatchCandidateRequestParamsSchema, validationError),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const result = await unmatchCandidate(id);
+      return c.json(result);
+    },
+  )
+  .post(
+    "/by-id/:id/unignore",
+    zValidator("param", UnignoreCandidateRequestParamsSchema, validationError),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const result = await unignoreCandidate(id);
+      return c.json(result);
+    },
+  );

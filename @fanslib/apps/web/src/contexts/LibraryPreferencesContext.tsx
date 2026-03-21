@@ -1,4 +1,4 @@
-import type { MediaFilter, MediaSort } from '@fanslib/server/schemas';
+import type { MediaFilter, MediaSort } from "@fanslib/server/schemas";
 import { createContext, useCallback, useContext } from "react";
 import { mergeDeep } from "remeda";
 import { useLocalStorage } from "~/hooks/useLocalStorage";
@@ -49,7 +49,7 @@ type LibraryPreferencesContextValue = {
 };
 
 const LibraryPreferencesContext = createContext<LibraryPreferencesContextValue | undefined>(
-  undefined
+  undefined,
 );
 
 const STORAGE_KEY = "libraryPreferences";
@@ -66,12 +66,15 @@ export const LibraryPreferencesProvider = ({
   const { value: preferences, setValue: setPreferences } = useLocalStorage(
     storageKey ?? STORAGE_KEY,
     defaultPreferences,
-    (defaults, stored) => mergeDeep(defaults, stored)
+    (defaults, stored) => mergeDeep(defaults, stored),
   );
 
-  const updatePreferences = useCallback((updates: DeepPartial<LibraryPreferences>) => {
-    setPreferences((current) => mergeDeep(current, updates) as LibraryPreferences);
-  }, [setPreferences]);
+  const updatePreferences = useCallback(
+    (updates: DeepPartial<LibraryPreferences>) => {
+      setPreferences((current) => mergeDeep(current, updates) as LibraryPreferences);
+    },
+    [setPreferences],
+  );
 
   return (
     <LibraryPreferencesContext.Provider

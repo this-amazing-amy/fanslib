@@ -4,17 +4,20 @@ import { validateMediaTagAssignment } from "../../drift-prevention";
 import { MediaTagSchema, TagDefinition, TagSourceSchema } from "../../entity";
 import { assignTagsToMedia } from "./assign";
 
-export const BulkAssignTagsRequestBodySchema = z.array(z.object({
-  mediaId: z.string(),
-  tagDefinitionIds: z.array(z.number()),
-  source: TagSourceSchema,
-  confidence: z.number().optional(),
-}));
+export const BulkAssignTagsRequestBodySchema = z.array(
+  z.object({
+    mediaId: z.string(),
+    tagDefinitionIds: z.array(z.number()),
+    source: TagSourceSchema,
+    confidence: z.number().optional(),
+  }),
+);
 
 export const BulkAssignTagsResponseSchema = z.array(MediaTagSchema);
 
-
-export const bulkAssignTags = async (payload: z.infer<typeof BulkAssignTagsRequestBodySchema>): Promise<z.infer<typeof BulkAssignTagsResponseSchema>> => {
+export const bulkAssignTags = async (
+  payload: z.infer<typeof BulkAssignTagsRequestBodySchema>,
+): Promise<z.infer<typeof BulkAssignTagsResponseSchema>> => {
   const validationResults = await Promise.all(
     payload.map(async (assignment) => ({
       assignment,
@@ -22,13 +25,13 @@ export const bulkAssignTags = async (payload: z.infer<typeof BulkAssignTagsReque
         mediaId: assignment.mediaId,
         tagDefinitionIds: assignment.tagDefinitionIds,
       }),
-    }))
+    })),
   );
 
   const invalidAssignments = validationResults.filter((result) => !result.validation.isValid);
   if (invalidAssignments.length > 0) {
     const errors = invalidAssignments.map(
-      (result) => `Media ${result.assignment.mediaId}: ${result.validation.errors.join(", ")}`
+      (result) => `Media ${result.assignment.mediaId}: ${result.validation.errors.join(", ")}`,
     );
     throw new Error(`Bulk assignment validation failed:\n${errors.join("\n")}`);
   }
@@ -59,13 +62,13 @@ export const bulkAssignTags = async (payload: z.infer<typeof BulkAssignTagsReque
 
         if (!dimension) {
           throw new Error(
-            `Bulk assignment failed for media ${assignment.mediaId}: Dimension relation not loaded for dimension ${dimensionId}`
+            `Bulk assignment failed for media ${assignment.mediaId}: Dimension relation not loaded for dimension ${dimensionId}`,
           );
         }
 
         if (dimension.isExclusive && tagsInDimension.length > 1) {
           throw new Error(
-            `Bulk assignment failed for media ${assignment.mediaId}: Only one tag allowed per exclusive dimension. Violation in dimension: ${dimension.name}`
+            `Bulk assignment failed for media ${assignment.mediaId}: Only one tag allowed per exclusive dimension. Violation in dimension: ${dimension.name}`,
           );
         }
       }
@@ -76,4 +79,3 @@ export const bulkAssignTags = async (payload: z.infer<typeof BulkAssignTagsReque
 
   return results.flat();
 };
-

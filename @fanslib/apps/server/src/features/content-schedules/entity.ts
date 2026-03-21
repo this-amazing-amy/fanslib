@@ -92,7 +92,9 @@ export class ScheduleChannel {
   @UpdateDateColumn({ name: "updatedAt" })
   updatedAt!: Date;
 
-  @ManyToOne(() => ContentSchedule, (schedule) => schedule.scheduleChannels, { onDelete: "CASCADE" })
+  @ManyToOne(() => ContentSchedule, (schedule) => schedule.scheduleChannels, {
+    onDelete: "CASCADE",
+  })
   @JoinColumn({ name: "scheduleId" })
   schedule!: Relation<ContentSchedule>;
 
@@ -162,6 +164,3 @@ export const ContentScheduleWithChannelsSchema = ContentScheduleSchema.extend({
   skippedSlots: z.array(SkippedScheduleSlotSchema),
   scheduleChannels: z.array(ScheduleChannelSchema),
 });
-
-
-

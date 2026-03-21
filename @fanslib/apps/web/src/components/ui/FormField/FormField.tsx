@@ -1,6 +1,6 @@
-import type { HTMLAttributes } from 'react';
-import { cn } from '~/lib/cn';
-import { Label } from '../Label';
+import type { HTMLAttributes } from "react";
+import { cn } from "~/lib/cn";
+import { Label } from "../Label";
 
 export type FormFieldProps = HTMLAttributes<HTMLDivElement> & {
   label?: string;
@@ -9,12 +9,12 @@ export type FormFieldProps = HTMLAttributes<HTMLDivElement> & {
   required?: boolean;
   description?: string;
   helperText?: string;
-  spacing?: 'sm' | 'default' | 'lg';
+  spacing?: "sm" | "default" | "lg";
 };
 
 export const FormField = ({
   className,
-  spacing = 'default',
+  spacing = "default",
   label,
   htmlFor,
   error,
@@ -25,13 +25,13 @@ export const FormField = ({
   ...props
 }: FormFieldProps) => {
   const spacingClasses = {
-    sm: 'gap-1',
-    default: 'gap-3',
-    lg: 'gap-4',
+    sm: "gap-1",
+    default: "gap-3",
+    lg: "gap-4",
   };
 
   return (
-    <div className={cn('form-control', spacingClasses[spacing], className)} {...props}>
+    <div className={cn("form-control", spacingClasses[spacing], className)} {...props}>
       {label && (
         <Label htmlFor={htmlFor} required={required}>
           {label}
@@ -44,4 +44,3 @@ export const FormField = ({
     </div>
   );
 };
-

@@ -6,4 +6,3 @@ export const resolveMediaPath = (relativePath: string) => {
 };
 
 export const convertRelativeToAbsolute = (relativePath: string) => resolveMediaPath(relativePath);
-

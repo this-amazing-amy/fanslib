@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 import {
   AlertDialog,
   AlertDialogDescription,
@@ -7,8 +7,8 @@ import {
   AlertDialogModal,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '../AlertDialog';
-import { Button } from '../Button';
+} from "../AlertDialog";
+import { Button } from "../Button";
 
 export type DeleteConfirmDialogProps = {
   open: boolean;
@@ -30,10 +30,10 @@ export const DeleteConfirmDialog = ({
   title,
   description,
   itemName,
-  itemType = 'item',
+  itemType = "item",
   onConfirm,
-  confirmText = 'Delete',
-  cancelText = 'Cancel',
+  confirmText = "Delete",
+  cancelText = "Cancel",
   isLoading = false,
   children,
 }: DeleteConfirmDialogProps) => {
@@ -66,7 +66,7 @@ export const DeleteConfirmDialog = ({
                   isDisabled={isLoading}
                   isLoading={isLoading}
                 >
-                  {isLoading ? 'Deleting...' : confirmText}
+                  {isLoading ? "Deleting..." : confirmText}
                 </Button>
               </AlertDialogFooter>
             </>
@@ -76,4 +76,3 @@ export const DeleteConfirmDialog = ({
     </AlertDialogTrigger>
   );
 };
-

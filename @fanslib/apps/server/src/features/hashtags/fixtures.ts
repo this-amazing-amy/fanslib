@@ -1,6 +1,9 @@
 import { getTestDataSource } from "../../lib/test-db";
 import type { Channel } from "../channels/entity";
-import { Hashtag as HashtagEntity, HashtagChannelStats as HashtagChannelStatsEntity } from "./entity";
+import {
+  Hashtag as HashtagEntity,
+  HashtagChannelStats as HashtagChannelStatsEntity,
+} from "./entity";
 import { normalizeHashtagName } from "./operations/hashtag/helpers";
 import { HASHTAG_FIXTURES, HASHTAG_CHANNEL_STATS_FIXTURES } from "./fixtures-data";
 
@@ -20,7 +23,7 @@ export const seedHashtagFixtures = async (channels: Channel[]) => {
       }
       const hashtag = hashtagRepo.create({ name: normalizedName });
       return hashtagRepo.save(hashtag);
-    })
+    }),
   );
 
   await Promise.all(
@@ -45,7 +48,7 @@ export const seedHashtagFixtures = async (channels: Channel[]) => {
         });
         await statsRepo.save(stats);
       }
-    })
+    }),
   );
 
   return {
@@ -55,4 +58,3 @@ export const seedHashtagFixtures = async (channels: Channel[]) => {
     }),
   };
 };
-

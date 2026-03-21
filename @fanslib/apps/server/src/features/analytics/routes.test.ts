@@ -221,8 +221,16 @@ describe("Analytics Routes", () => {
       const viewCounts = [0, 100, 200, 300, 303, 305, 306, 307, 308, 309];
       await Promise.all(
         viewCounts.map((views, i) =>
-          dpRepo.save(dpRepo.create({ timestamp: baseTime + i * dayMs, views, interactionTime: views * 1000, postMedia, postMediaId: postMedia.id }))
-        )
+          dpRepo.save(
+            dpRepo.create({
+              timestamp: baseTime + i * dayMs,
+              views,
+              interactionTime: views * 1000,
+              postMedia,
+              postMediaId: postMedia.id,
+            }),
+          ),
+        ),
       );
 
       await initializeAnalyticsAggregates();
@@ -251,8 +259,16 @@ describe("Analytics Routes", () => {
       const viewCounts = [0, 100, 300, 700];
       await Promise.all(
         viewCounts.map((views, i) =>
-          dpRepo.save(dpRepo.create({ timestamp: baseTime + i * dayMs, views, interactionTime: views * 1000, postMedia, postMediaId: postMedia.id }))
-        )
+          dpRepo.save(
+            dpRepo.create({
+              timestamp: baseTime + i * dayMs,
+              views,
+              interactionTime: views * 1000,
+              postMedia,
+              postMediaId: postMedia.id,
+            }),
+          ),
+        ),
       );
 
       await initializeAnalyticsAggregates();
@@ -440,6 +456,302 @@ describe("Analytics Routes", () => {
 
     test("returns empty array when no active posts", async () => {
       const res = await app.request("/api/analytics/active-fyp-posts");
+      expect(res.status).toBe(200);
+
+      const data = await parseResponse<Array<Record<string, unknown>>>(res);
+      expect(data).toHaveLength(0);
+    });
+  });
+
+  describe("GET /api/analytics/repost-candidates", () => {
+    // Helper: create a PostMedia linked to a Media with an analytics aggregate.
+    // By default creates a naturally-plateaued PostMedia (eligible for repost).
+    const createPostMediaWithAggregate = async (opts: {
+      media: Awaited<ReturnType<typeof createTestMedia>>;
+      channelId: string;
+      caption?: string | null;
+      fypRemovedAt?: Date | null;
+      fypManuallyRemoved?: boolean;
+      totalViews?: number;
+      averageEngagementPercent?: number;
+      averageEngagementSeconds?: number;
+      plateauDetectedAt?: Date | null;
+      postDate?: Date;
+    }) => {
+      const dataSource = getTestDataSource();
+      const postMediaRepo = dataSource.getRepository(PostMedia);
+      const aggregateRepo = dataSource.getRepository(FanslyAnalyticsAggregate);
+
+      const post = await createTestPost(opts.channelId, {
+        caption: opts.caption ?? "Test caption",
+        fypRemovedAt: opts.fypRemovedAt ?? null,
+        fypManuallyRemoved: opts.fypManuallyRemoved ?? false,
+        date: opts.postDate ?? new Date(),
+      });
+
+      const postMedia = postMediaRepo.create({
+        post,
+        media: opts.media,
+        order: 0,
+        fanslyStatisticsId: `stats-${Date.now()}-${Math.random()}`,
+      });
+      await postMediaRepo.save(postMedia);
+
+      const aggregate = aggregateRepo.create({
+        postMedia,
+        postMediaId: postMedia.id,
+        totalViews: opts.totalViews ?? 100,
+        averageEngagementSeconds: opts.averageEngagementSeconds ?? 30,
+        averageEngagementPercent: opts.averageEngagementPercent ?? 50,
+        plateauDetectedAt: opts.plateauDetectedAt === null ? undefined : (opts.plateauDetectedAt ?? new Date()),
+      });
+      await aggregateRepo.save(aggregate);
+
+      return { post, postMedia, aggregate };
+    };
+
+    test("returns eligible Media with a single naturally-plateaued PostMedia", async () => {
+      const channel = await createTestChannel();
+      const media = await createTestMedia();
+      await createPostMediaWithAggregate({
+        media,
+        channelId: channel.id,
+        totalViews: 500,
+        averageEngagementPercent: 45,
+        averageEngagementSeconds: 60,
+      });
+
+      const res = await app.request("/api/analytics/repost-candidates");
+      expect(res.status).toBe(200);
+
+      const data = (await parseResponse<Array<Record<string, unknown>>>(res)) as Array<Record<string, unknown>>;
+      expect(data).toBeArray();
+      expect(data).toHaveLength(1);
+
+      const item = data[0];
+      expect(item.mediaId).toBe(media.id);
+      expect(item.caption).toBe("Test caption");
+      expect(item.totalViews).toBe(500);
+      expect(item.averageEngagementPercent).toBe(45);
+      expect(item.averageEngagementSeconds).toBe(60);
+      expect(item.timesPosted).toBe(1);
+    });
+    test("picks best-ever stats across multiple PostMedia for same Media", async () => {
+      const channel = await createTestChannel();
+      const media = await createTestMedia();
+
+      // PostMedia 1: best views, lower engagement
+      await createPostMediaWithAggregate({
+        media,
+        channelId: channel.id,
+        totalViews: 1000,
+        averageEngagementPercent: 20,
+        averageEngagementSeconds: 15,
+        postDate: new Date("2025-01-01"),
+      });
+
+      // PostMedia 2: lower views, best engagement
+      await createPostMediaWithAggregate({
+        media,
+        channelId: channel.id,
+        totalViews: 500,
+        averageEngagementPercent: 80,
+        averageEngagementSeconds: 120,
+        postDate: new Date("2025-02-01"),
+      });
+
+      const res = await app.request("/api/analytics/repost-candidates");
+      expect(res.status).toBe(200);
+
+      const data = (await parseResponse<Array<Record<string, unknown>>>(res)) as Array<Record<string, unknown>>;
+      expect(data).toHaveLength(1);
+      expect(data[0].totalViews).toBe(1000);
+      expect(data[0].averageEngagementPercent).toBe(80);
+      expect(data[0].averageEngagementSeconds).toBe(120);
+      expect(data[0].timesPosted).toBe(2);
+    });
+
+    test("uses caption from best-performing PostMedia", async () => {
+      const channel = await createTestChannel();
+      const media = await createTestMedia();
+
+      // Lower performing
+      await createPostMediaWithAggregate({
+        media,
+        channelId: channel.id,
+        caption: "Worse caption",
+        totalViews: 100,
+        postDate: new Date("2025-01-01"),
+      });
+
+      // Best performing (highest views)
+      await createPostMediaWithAggregate({
+        media,
+        channelId: channel.id,
+        caption: "Best caption",
+        totalViews: 900,
+        postDate: new Date("2025-02-01"),
+      });
+
+      const res = await app.request("/api/analytics/repost-candidates");
+      expect(res.status).toBe(200);
+
+      const data = (await parseResponse<Array<{ caption: string }>>(res)) as Array<{ caption: string }>;
+      expect(data).toHaveLength(1);
+      expect(data[0].caption).toBe("Best caption");
+    });
+
+    test("redemption rule — older manual removal + newer natural plateau = eligible", async () => {
+      const channel = await createTestChannel();
+      const media = await createTestMedia();
+
+      // Older PostMedia: manually removed
+      await createPostMediaWithAggregate({
+        media,
+        channelId: channel.id,
+        fypManuallyRemoved: true,
+        fypRemovedAt: new Date("2025-01-15"),
+        postDate: new Date("2025-01-01"),
+      });
+
+      // Newer PostMedia: naturally plateaued (redemption)
+      await createPostMediaWithAggregate({
+        media,
+        channelId: channel.id,
+        totalViews: 300,
+        postDate: new Date("2025-03-01"),
+      });
+
+      const res = await app.request("/api/analytics/repost-candidates");
+      expect(res.status).toBe(200);
+
+      const data = (await parseResponse<Array<Record<string, unknown>>>(res)) as Array<Record<string, unknown>>;
+      expect(data).toHaveLength(1);
+      expect(data[0].mediaId).toBe(media.id);
+      expect(data[0].timesPosted).toBe(2);
+    });
+
+    test("excludes Media where most recent PostMedia was manually removed", async () => {
+      const channel = await createTestChannel();
+      const media = await createTestMedia();
+
+      // Older PostMedia: naturally plateaued
+      await createPostMediaWithAggregate({
+        media,
+        channelId: channel.id,
+        postDate: new Date("2025-01-01"),
+      });
+
+      // Most recent PostMedia: manually removed
+      await createPostMediaWithAggregate({
+        media,
+        channelId: channel.id,
+        fypManuallyRemoved: true,
+        fypRemovedAt: new Date(),
+        postDate: new Date("2025-03-01"),
+      });
+
+      const res = await app.request("/api/analytics/repost-candidates");
+      expect(res.status).toBe(200);
+
+      const data = await parseResponse<Array<Record<string, unknown>>>(res);
+      expect(data).toHaveLength(0);
+    });
+
+    test("sorts by views descending (best-to-worst)", async () => {
+      const channel = await createTestChannel();
+
+      const media1 = await createTestMedia();
+      await createPostMediaWithAggregate({ media: media1, channelId: channel.id, totalViews: 200 });
+
+      const media2 = await createTestMedia();
+      await createPostMediaWithAggregate({ media: media2, channelId: channel.id, totalViews: 800 });
+
+      const media3 = await createTestMedia();
+      await createPostMediaWithAggregate({ media: media3, channelId: channel.id, totalViews: 400 });
+
+      const res = await app.request("/api/analytics/repost-candidates?sortBy=views");
+      expect(res.status).toBe(200);
+
+      const data = (await parseResponse<Array<{ totalViews: number }>>(res)) as Array<{ totalViews: number }>;
+      expect(data).toHaveLength(3);
+      expect(data[0].totalViews).toBe(800);
+      expect(data[1].totalViews).toBe(400);
+      expect(data[2].totalViews).toBe(200);
+    });
+
+    test("sorts by engagementPercent descending", async () => {
+      const channel = await createTestChannel();
+
+      const media1 = await createTestMedia();
+      await createPostMediaWithAggregate({ media: media1, channelId: channel.id, averageEngagementPercent: 30 });
+
+      const media2 = await createTestMedia();
+      await createPostMediaWithAggregate({ media: media2, channelId: channel.id, averageEngagementPercent: 90 });
+
+      const media3 = await createTestMedia();
+      await createPostMediaWithAggregate({ media: media3, channelId: channel.id, averageEngagementPercent: 60 });
+
+      const res = await app.request("/api/analytics/repost-candidates?sortBy=engagementPercent");
+      expect(res.status).toBe(200);
+
+      const data = (await parseResponse<Array<{ averageEngagementPercent: number }>>(res)) as Array<{ averageEngagementPercent: number }>;
+      expect(data).toHaveLength(3);
+      expect(data[0].averageEngagementPercent).toBe(90);
+      expect(data[1].averageEngagementPercent).toBe(60);
+      expect(data[2].averageEngagementPercent).toBe(30);
+    });
+
+    test("sorts by engagementSeconds descending", async () => {
+      const channel = await createTestChannel();
+
+      const media1 = await createTestMedia();
+      await createPostMediaWithAggregate({ media: media1, channelId: channel.id, averageEngagementSeconds: 15 });
+
+      const media2 = await createTestMedia();
+      await createPostMediaWithAggregate({ media: media2, channelId: channel.id, averageEngagementSeconds: 90 });
+
+      const media3 = await createTestMedia();
+      await createPostMediaWithAggregate({ media: media3, channelId: channel.id, averageEngagementSeconds: 45 });
+
+      const res = await app.request("/api/analytics/repost-candidates?sortBy=engagementSeconds");
+      expect(res.status).toBe(200);
+
+      const data = (await parseResponse<Array<{ averageEngagementSeconds: number }>>(res)) as Array<{ averageEngagementSeconds: number }>;
+      expect(data).toHaveLength(3);
+      expect(data[0].averageEngagementSeconds).toBe(90);
+      expect(data[1].averageEngagementSeconds).toBe(45);
+      expect(data[2].averageEngagementSeconds).toBe(15);
+    });
+
+    test("returns empty array when no eligible candidates", async () => {
+      const res = await app.request("/api/analytics/repost-candidates");
+      expect(res.status).toBe(200);
+
+      const data = await parseResponse<Array<Record<string, unknown>>>(res);
+      expect(data).toHaveLength(0);
+    });
+
+    test("excludes Media with any PostMedia still active on FYP", async () => {
+      const channel = await createTestChannel();
+      const media = await createTestMedia();
+
+      // First PostMedia: naturally plateaued
+      await createPostMediaWithAggregate({
+        media,
+        channelId: channel.id,
+        postDate: new Date("2025-01-01"),
+      });
+
+      // Second PostMedia: still active (no plateau, not removed)
+      await createPostMediaWithAggregate({
+        media,
+        channelId: channel.id,
+        plateauDetectedAt: null,
+        postDate: new Date("2025-02-01"),
+      });
+
+      const res = await app.request("/api/analytics/repost-candidates");
       expect(res.status).toBe(200);
 
       const data = await parseResponse<Array<Record<string, unknown>>>(res);

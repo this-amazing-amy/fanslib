@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Status } from './Status';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Status } from "./Status";
 
 const meta: Meta<typeof Status> = {
-  title: 'UI/Status',
+  title: "UI/Status",
   component: Status,
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
@@ -12,15 +12,15 @@ type Story = StoryObj<typeof Status>;
 
 export const Default: Story = {
   args: {
-    children: 'Neutral',
-    variant: 'neutral',
+    children: "Neutral",
+    variant: "neutral",
   },
 };
 
 export const Success: Story = {
   args: {
-    children: 'Active',
-    variant: 'success',
+    children: "Active",
+    variant: "success",
   },
 };
 
@@ -72,4 +72,3 @@ export const StatusExamples: Story = {
     </div>
   ),
 };
-

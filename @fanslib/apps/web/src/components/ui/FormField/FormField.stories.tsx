@@ -1,28 +1,28 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { FormField } from './FormField';
-import { Input } from '../Input';
-import { Textarea } from '../Textarea';
-import { Checkbox } from '../Checkbox';
+import type { Meta, StoryObj } from "@storybook/react";
+import { FormField } from "./FormField";
+import { Input } from "../Input";
+import { Textarea } from "../Textarea";
+import { Checkbox } from "../Checkbox";
 
 const meta: Meta<typeof FormField> = {
-  title: 'Form Controls/FormField',
+  title: "Form Controls/FormField",
   component: FormField,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {
     spacing: {
-      control: { type: 'select' },
-      options: ['sm', 'default', 'lg'],
+      control: { type: "select" },
+      options: ["sm", "default", "lg"],
     },
     required: {
-      control: { type: 'boolean' },
+      control: { type: "boolean" },
     },
   },
   decorators: [
     (Story) => (
-      <div style={{ width: '400px' }}>
+      <div style={{ width: "400px" }}>
         <Story />
       </div>
     ),
@@ -62,11 +62,7 @@ export const WithError: Story = {
 
 export const WithHelperText: Story = {
   render: () => (
-    <FormField
-      label="Bio"
-      htmlFor="bio"
-      helperText="Tell us a little about yourself"
-    >
+    <FormField label="Bio" htmlFor="bio" helperText="Tell us a little about yourself">
       <Textarea id="bio" placeholder="I love..." />
     </FormField>
   ),
@@ -95,4 +91,3 @@ export const LargeSpacing: Story = {
     </FormField>
   ),
 };
-

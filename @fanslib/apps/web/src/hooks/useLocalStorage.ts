@@ -12,7 +12,7 @@ type UseLocalStorageReturn<T> = {
 export const useLocalStorage = <T>(
   key: string,
   defaultValue: T,
-  merge?: (defaults: T, stored: T) => T
+  merge?: (defaults: T, stored: T) => T,
 ): UseLocalStorageReturn<T> => {
   const [value, setValueState] = useState<T>(defaultValue);
   const isHydrated = useHydrated();

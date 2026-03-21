@@ -5,10 +5,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { SectionHeader } from "~/components/ui/SectionHeader";
 import { usePostPreferences } from "~/contexts/PostPreferencesContext";
 import { useChannelsQuery } from "~/lib/queries/channels";
-import {
-  useContentSchedulesQuery,
-  useVirtualPostsQuery,
-} from "~/lib/queries/content-schedules";
+import { useContentSchedulesQuery, useVirtualPostsQuery } from "~/lib/queries/content-schedules";
 import { usePostsQuery } from "~/lib/queries/posts";
 import { filterPostsByType } from "~/lib/virtual-posts";
 import { PlanEmptyState } from "./PlanEmptyState";
@@ -38,28 +35,19 @@ export const PlanContent = ({ initialRange }: PlanContentProps) => {
   const calendarRef = useRef<PostCalendarHandle>(null);
 
   const [visibleRange, setVisibleRange] = useState<DateRange>(
-    () => initialRange ?? computeInitialRange()
+    () => initialRange ?? computeInitialRange(),
   );
 
-  const handleVisibleRangeChange = useCallback(
-    (startDate: Date, endDate: Date) => {
-      setVisibleRange((prev) => {
-        const expandedStart =
-          startDate.getTime() < prev.startDate.getTime()
-            ? startDate
-            : prev.startDate;
-        const expandedEnd =
-          endDate.getTime() > prev.endDate.getTime()
-            ? endDate
-            : prev.endDate;
+  const handleVisibleRangeChange = useCallback((startDate: Date, endDate: Date) => {
+    setVisibleRange((prev) => {
+      const expandedStart =
+        startDate.getTime() < prev.startDate.getTime() ? startDate : prev.startDate;
+      const expandedEnd = endDate.getTime() > prev.endDate.getTime() ? endDate : prev.endDate;
 
-        if (expandedStart === prev.startDate && expandedEnd === prev.endDate)
-          return prev;
-        return { startDate: expandedStart, endDate: expandedEnd };
-      });
-    },
-    []
-  );
+      if (expandedStart === prev.startDate && expandedEnd === prev.endDate) return prev;
+      return { startDate: expandedStart, endDate: expandedEnd };
+    });
+  }, []);
 
   const filtersQuery = useMemo(() => {
     const baseFilter = preferences.filter ? { ...preferences.filter } : {};
@@ -78,8 +66,7 @@ export const PlanContent = ({ initialRange }: PlanContentProps) => {
     isFetching: isPostsFetching,
   } = usePostsQuery({ filters: filtersQuery });
 
-  const { data: schedules, refetch: refetchSchedules } =
-    useContentSchedulesQuery();
+  const { data: schedules, refetch: refetchSchedules } = useContentSchedulesQuery();
 
   const channelIds = useMemo(() => {
     if (preferences.filter?.channels?.length) {
@@ -111,36 +98,27 @@ export const PlanContent = ({ initialRange }: PlanContentProps) => {
 
   const refetchAll = useCallback(
     () =>
-      Promise.all([
-        refetchFilteredPosts(),
-        refetchSchedules(),
-        refetchVirtualPosts(),
-      ]).then(() => undefined),
-    [refetchFilteredPosts, refetchSchedules, refetchVirtualPosts]
+      Promise.all([refetchFilteredPosts(), refetchSchedules(), refetchVirtualPosts()]).then(
+        () => undefined,
+      ),
+    [refetchFilteredPosts, refetchSchedules, refetchVirtualPosts],
   );
 
   const posts = useMemo(() => {
     const shouldShowDraftPosts =
-      !preferences.filter.statuses ||
-      preferences.filter.statuses.includes("draft");
+      !preferences.filter.statuses || preferences.filter.statuses.includes("draft");
 
     const visibleVirtualPosts = shouldShowDraftPosts ? virtualPosts : [];
 
-    const allPostsCombined = [
-      ...(filteredPosts ?? []),
-      ...visibleVirtualPosts,
-    ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const allPostsCombined = [...(filteredPosts ?? []), ...visibleVirtualPosts].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+    );
 
     return filterPostsByType(
       allPostsCombined as unknown as Post[],
-      preferences.view.postTypeFilter
+      preferences.view.postTypeFilter,
     );
-  }, [
-    filteredPosts,
-    virtualPosts,
-    preferences.filter.statuses,
-    preferences.view.postTypeFilter,
-  ]);
+  }, [filteredPosts, virtualPosts, preferences.filter.statuses, preferences.view.postTypeFilter]);
 
   const isLoading = isPostsFetching || isVirtualPostsFetching;
 

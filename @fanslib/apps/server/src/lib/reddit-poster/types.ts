@@ -70,6 +70,3 @@ export type RedditLoginHandlerConfig = {
   browserOptions?: BrowserConfig;
   loginTimeout?: number;
 };
-
-
-

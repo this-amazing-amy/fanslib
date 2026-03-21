@@ -1,8 +1,8 @@
-import type { PostWithRelations } from '@fanslib/server/schemas';
-import { useState } from 'react';
-import { Input } from '~/components/ui/Input';
-import { useDebounce } from '~/hooks/useDebounce';
-import { useUpdatePostMutation } from '~/lib/queries/posts';
+import type { PostWithRelations } from "@fanslib/server/schemas";
+import { useState } from "react";
+import { Input } from "~/components/ui/Input";
+import { useDebounce } from "~/hooks/useDebounce";
+import { useUpdatePostMutation } from "~/lib/queries/posts";
 
 type Post = PostWithRelations;
 
@@ -11,7 +11,7 @@ type PostDetailUrlInputProps = {
 };
 
 export const PostDetailUrlInput = ({ post }: PostDetailUrlInputProps) => {
-  const [localUrl, setLocalUrl] = useState(post.url ?? '');
+  const [localUrl, setLocalUrl] = useState(post.url ?? "");
   const [isSaving, setIsSaving] = useState(false);
   const updatePostMutation = useUpdatePostMutation();
 
@@ -25,7 +25,7 @@ export const PostDetailUrlInput = ({ post }: PostDetailUrlInputProps) => {
         },
       });
     } catch (error) {
-      console.error('Failed to update URL:', error);
+      console.error("Failed to update URL:", error);
     } finally {
       setIsSaving(false);
     }
@@ -62,4 +62,3 @@ export const PostDetailUrlInput = ({ post }: PostDetailUrlInputProps) => {
     </div>
   );
 };
-

@@ -1,7 +1,7 @@
-import type { PostWithRelations } from '@fanslib/server/schemas';
-import { useState } from 'react';
-import { ContentScheduleSelect } from '~/components/ContentScheduleSelect';
-import { useUpdatePostMutation } from '~/lib/queries/posts';
+import type { PostWithRelations } from "@fanslib/server/schemas";
+import { useState } from "react";
+import { ContentScheduleSelect } from "~/components/ContentScheduleSelect";
+import { useUpdatePostMutation } from "~/lib/queries/posts";
 
 type Post = PostWithRelations;
 
@@ -24,19 +24,18 @@ export const PostDetailScheduleSelect = ({ post }: PostDetailScheduleSelectProps
         },
       });
     } catch (error) {
-      console.error('Failed to update content schedule:', error);
+      console.error("Failed to update content schedule:", error);
     }
   };
 
   return (
     <div className="flex flex-col gap-2">
       <label className="text-sm font-medium">Content schedule</label>
-        <ContentScheduleSelect
-          value={localScheduleId}
-          onChange={updateSchedule}
+      <ContentScheduleSelect
+        value={localScheduleId}
+        onChange={updateSchedule}
         channelId={post.channelId}
       />
     </div>
   );
 };
-

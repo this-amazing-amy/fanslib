@@ -5,5 +5,4 @@ export {
   DropdownMenuPopover,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from './DropdownMenu';
-
+} from "./DropdownMenu";

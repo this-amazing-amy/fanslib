@@ -114,4 +114,3 @@ export const MatchSuggestionSchema = z.object({
   filename: z.string(),
   caption: z.string().optional(),
 });
-

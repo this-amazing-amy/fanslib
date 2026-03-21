@@ -25,4 +25,3 @@ export const loadSettings = async (): Promise<LoadSettingsResponse> => {
     };
   }
 };
-

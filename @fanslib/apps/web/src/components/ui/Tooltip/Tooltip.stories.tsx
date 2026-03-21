@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Button } from '../Button';
-import { Tooltip } from './Tooltip';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Button } from "../Button";
+import { Tooltip } from "./Tooltip";
 
 const TooltipWrapper = () => (
   <Tooltip content="This is a tooltip" openDelayMs={0}>
@@ -9,12 +9,12 @@ const TooltipWrapper = () => (
 );
 
 const meta: Meta<typeof TooltipWrapper> = {
-  title: 'Overlays/Tooltip',
+  title: "Overlays/Tooltip",
   component: TooltipWrapper,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
@@ -23,4 +23,3 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {},
 };
-

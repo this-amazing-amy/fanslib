@@ -40,7 +40,7 @@ describe("Pipeline Routes", () => {
       const response = await app.request(`/api/pipeline/caption-queue?channelIds=${channelId}`);
 
       console.log("Response status:", response.status);
-      
+
       if (response.status !== 200) {
         const text = await response.text();
         console.log("\n❌ ERROR RESPONSE:");
@@ -61,14 +61,14 @@ describe("Pipeline Routes", () => {
 
       const data = await parseResponse<z.infer<typeof FetchCaptionQueueResponseSchema>>(response);
       expect(Array.isArray(data)).toBe(true);
-      
+
       // Validate Date types are preserved
       if (data && data.length > 0) {
         const firstItem = data[0];
         console.log("\nDate type checks:");
         console.log("post.createdAt is Date?", firstItem?.post?.createdAt instanceof Date);
         console.log("post.createdAt value:", firstItem?.post?.createdAt);
-        
+
         if (firstItem?.post?.postMedia?.[0]) {
           const postMedia = firstItem.post.postMedia[0];
           console.log("postMedia.createdAt is Date?", postMedia.createdAt instanceof Date);
@@ -82,7 +82,7 @@ describe("Pipeline Routes", () => {
 
       console.log("\n=== CAPTION QUEUE TEST ===");
       console.log("Response status:", response.status);
-      
+
       if (response.status === 422) {
         const text = await response.text();
         console.log("\n❌ 422 VALIDATION ERROR");
@@ -109,7 +109,7 @@ describe("Pipeline Routes", () => {
 
       console.log("\n=== LIMIT TEST ===");
       console.log("Response status:", response.status);
-      
+
       if (response.status === 422) {
         const text = await response.text();
         console.log("\n❌ 422 VALIDATION ERROR ON FIRST POST");
@@ -129,7 +129,7 @@ describe("Pipeline Routes", () => {
       const data = await parseResponse<z.infer<typeof FetchCaptionQueueResponseSchema>>(response);
       expect(Array.isArray(data)).toBe(true);
       expect(data?.length).toBeLessThanOrEqual(1);
-      
+
       if (data && data.length > 0) {
         console.log("First post ID:", data[0]?.post?.id);
         console.log("First post has media:", data[0]?.post?.postMedia?.length);
@@ -141,7 +141,7 @@ describe("Pipeline Routes", () => {
 
       console.log("\n=== SKIP TEST (second post) ===");
       console.log("Response status:", response.status);
-      
+
       if (response.status === 422) {
         const text = await response.text();
         console.log("\n❌ 422 VALIDATION ERROR ON SECOND POST");

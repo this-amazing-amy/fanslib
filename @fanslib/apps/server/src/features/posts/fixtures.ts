@@ -10,7 +10,7 @@ export { POST_FIXTURES, POST_MEDIA_FIXTURES } from "./fixtures-data";
 export const seedPostFixtures = async (
   channels: Channel[],
   media: Media[],
-  subreddits?: Subreddit[]
+  subreddits?: Subreddit[],
 ) => {
   const dataSource = getTestDataSource();
   const postRepo = dataSource.getRepository(PostEntity);
@@ -81,4 +81,3 @@ export const seedPostFixtures = async (
     }),
   };
 };
-

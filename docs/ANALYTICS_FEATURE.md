@@ -90,63 +90,67 @@ The feature spans ~50 files across backend (Hono API), frontend (React + TanStac
 ### Core Entities
 
 #### `FanslyAnalyticsDatapoint`
+
 Raw time-series data, one record per timestamp per PostMedia.
 
-| Column           | Type    | Description                              |
-|------------------|---------|------------------------------------------|
-| id               | uuid    | Primary key                              |
-| timestamp        | int     | Unix timestamp (ms) of the data point    |
-| views            | int     | Views at this timestamp (full + preview, summed) |
-| interactionTime  | int     | Interaction time at this timestamp (ms, full + preview, summed) |
-| postMediaId      | varchar | FK → PostMedia                           |
+| Column          | Type    | Description                                                     |
+| --------------- | ------- | --------------------------------------------------------------- |
+| id              | uuid    | Primary key                                                     |
+| timestamp       | int     | Unix timestamp (ms) of the data point                           |
+| views           | int     | Views at this timestamp (full + preview, summed)                |
+| interactionTime | int     | Interaction time at this timestamp (ms, full + preview, summed) |
+| postMediaId     | varchar | FK → PostMedia                                                  |
 
 **Note on view summing:** Fansly distinguishes between "media views" (full content) and "preview views" (trailer/preview content). For free FYP posts, the media itself is shown. For paywalled posts, the preview is shown on FYP. Since the post type cannot be reliably determined from API data, both are summed to capture all FYP-visible engagement regardless of content surface.
 
 #### `FanslyAnalyticsAggregate`
+
 Pre-computed summary per PostMedia. Updated each time new datapoints arrive.
 
-| Column                    | Type      | Description                                                 |
-|---------------------------|-----------|-------------------------------------------------------------|
-| id                        | uuid      | Primary key                                                 |
-| totalViews                | int       | Latest cumulative views                                     |
-| averageEngagementSeconds  | float     | Average watch time in seconds                               |
-| averageEngagementPercent  | float     | Watch time as % of video duration                           |
-| fypPerformanceScore       | float?    | 0-100 composite score (views 50%, velocity 30%, engagement 20%) |
-| fypMetrics                | json?     | `{ viewVelocity, sustainedGrowth, plateauPoint, isUnderperforming }` |
-| fypPlateauDetectedAt      | datetime? | When growth plateau was first detected                      |
-| postMediaId               | varchar   | FK → PostMedia (1:1)                                        |
+| Column                   | Type      | Description                                                          |
+| ------------------------ | --------- | -------------------------------------------------------------------- |
+| id                       | uuid      | Primary key                                                          |
+| totalViews               | int       | Latest cumulative views                                              |
+| averageEngagementSeconds | float     | Average watch time in seconds                                        |
+| averageEngagementPercent | float     | Watch time as % of video duration                                    |
+| fypPerformanceScore      | float?    | 0-100 composite score (views 50%, velocity 30%, engagement 20%)      |
+| fypMetrics               | json?     | `{ viewVelocity, sustainedGrowth, plateauPoint, isUnderperforming }` |
+| fypPlateauDetectedAt     | datetime? | When growth plateau was first detected                               |
+| postMediaId              | varchar   | FK → PostMedia (1:1)                                                 |
 
 #### `AnalyticsFetchHistory`
+
 Designed to track fetched time windows to avoid redundant API calls. **Never used in application code — dead code.**
 
-| Column              | Type     | Description                          |
-|---------------------|----------|--------------------------------------|
-| id                  | uuid     | Primary key                          |
-| timeframeIdentifier | varchar  | Identifies the fetched time window   |
-| postMediaId         | varchar  | FK → PostMedia                       |
-| fetchedAt           | datetime | When the fetch happened               |
-| expiresAt           | datetime?| When this fetch result expires       |
-| timeframeType       | varchar  | `"rolling"` or `"fixed"`             |
+| Column              | Type      | Description                        |
+| ------------------- | --------- | ---------------------------------- |
+| id                  | uuid      | Primary key                        |
+| timeframeIdentifier | varchar   | Identifies the fetched time window |
+| postMediaId         | varchar   | FK → PostMedia                     |
+| fetchedAt           | datetime  | When the fetch happened            |
+| expiresAt           | datetime? | When this fetch result expires     |
+| timeframeType       | varchar   | `"rolling"` or `"fixed"`           |
 
 #### `FanslyMediaCandidate`
+
 Represents a media item discovered on Fansly that needs to be matched to a local PostMedia.
 
-| Column              | Type     | Description                                 |
-|---------------------|----------|---------------------------------------------|
-| id                  | uuid     | Primary key                                 |
-| fanslyStatisticsId  | varchar  | Fansly's media offer ID / contentId (unique) |
-| fanslyPostId        | varchar  | Fansly's post ID                            |
-| filename            | varchar  | Original filename on Fansly                 |
-| caption             | varchar? | Post caption                                |
-| fanslyCreatedAt     | bigint   | Fansly creation timestamp                   |
-| position            | int      | Position within the Fansly post             |
-| mediaType           | varchar  | `"image"` or `"video"`                      |
-| status              | varchar  | `"pending"` / `"matched"` / `"ignored"`     |
-| matchedPostMediaId  | varchar? | FK → PostMedia (when matched)               |
-| matchConfidence     | float?   | 0.0-1.0 confidence of the match             |
-| matchMethod         | varchar? | `exact_filename` / `fuzzy_filename` / `manual` / `auto_detected` |
-| capturedAt          | datetime | When the candidate was created               |
-| matchedAt           | datetime?| When the match was confirmed                 |
+| Column             | Type      | Description                                                      |
+| ------------------ | --------- | ---------------------------------------------------------------- |
+| id                 | uuid      | Primary key                                                      |
+| fanslyStatisticsId | varchar   | Fansly's media offer ID / contentId (unique)                     |
+| fanslyPostId       | varchar   | Fansly's post ID                                                 |
+| filename           | varchar   | Original filename on Fansly                                      |
+| caption            | varchar?  | Post caption                                                     |
+| fanslyCreatedAt    | bigint    | Fansly creation timestamp                                        |
+| position           | int       | Position within the Fansly post                                  |
+| mediaType          | varchar   | `"image"` or `"video"`                                           |
+| status             | varchar   | `"pending"` / `"matched"` / `"ignored"`                          |
+| matchedPostMediaId | varchar?  | FK → PostMedia (when matched)                                    |
+| matchConfidence    | float?    | 0.0-1.0 confidence of the match                                  |
+| matchMethod        | varchar?  | `exact_filename` / `fuzzy_filename` / `manual` / `auto_detected` |
+| capturedAt         | datetime  | When the candidate was created                                   |
+| matchedAt          | datetime? | When the match was confirmed                                     |
 
 ---
 
@@ -170,6 +174,7 @@ Before analytics can be fetched for a PostMedia, it must have a `fanslyStatistic
 **Manual**: The user enters a Fansly statistics URL or 18-digit ID directly in the post detail view.
 
 **Candidate Matching**: Media discovered on Fansly (via Chrome extension timeline interception) are imported as `FanslyMediaCandidate` records, then matched to local PostMedia:
+
 - **Exact filename match** → confidence 1.0
 - **Fuzzy filename match** → Levenshtein distance normalized to 0.0-1.0, threshold ≥0.5
 - **Manual match** → user drag-and-drops or selects from a dialog
@@ -191,6 +196,7 @@ GET https://apiv3.fansly.com/api/v1/it/moie/statsnew
 ```
 
 The response contains:
+
 - **Datapoints**: Array of `{ timestamp, stats: [{ type, views, previewViews, interactionTime, previewInteractionTime, uniqueViewers, previewUniqueViewers }] }`
 - **Top FYP Tags**: `{ tagId, views, interactionTime }` — which hashtags Fansly's algorithm surfaced the content through
 - **Aggregation Data**: `accountMedia` (like counts, media dimensions) and `tags` (tag labels + view counts)
@@ -302,7 +308,7 @@ The redesign eliminates all manual steps except the one thing the user already d
 2. **Minimize Fansly API calls**: The API is private and undocumented. Be conservative — fetch only when needed, back off when data stops changing, stop entirely when credentials expire.
 3. **Fail visibly**: When something goes wrong (stale credentials, failed fetch), surface it clearly in the UI. Never fail silently.
 4. **Compute on demand, not in advance**: Don't pre-compute derived metrics that go stale. Store raw data and aggregates; derive insights at query time.
-5. **No direct Fansly mutations**: Never use the Fansly API to *create* or *modify* data (scheduling, posting). Only read analytics data. The Chrome extension intercepts browser traffic passively — this is safe and undetectable.
+5. **No direct Fansly mutations**: Never use the Fansly API to _create_ or _modify_ data (scheduling, posting). Only read analytics data. The Chrome extension intercepts browser traffic passively — this is safe and undetectable.
 
 ## New Architecture Overview
 
@@ -375,27 +381,28 @@ The redesign eliminates all manual steps except the one thing the user already d
 
 ### `FanslyAnalyticsDatapoint` (unchanged)
 
-| Column           | Type    | Description                                    |
-|------------------|---------|------------------------------------------------|
-| id               | uuid    | Primary key                                    |
-| timestamp        | int     | Unix timestamp (ms) of the data point          |
-| views            | int     | Views at this timestamp (full + preview summed) |
-| interactionTime  | int     | Interaction time (ms, full + preview summed)   |
-| postMediaId      | varchar | FK → PostMedia                                 |
+| Column          | Type    | Description                                     |
+| --------------- | ------- | ----------------------------------------------- |
+| id              | uuid    | Primary key                                     |
+| timestamp       | int     | Unix timestamp (ms) of the data point           |
+| views           | int     | Views at this timestamp (full + preview summed) |
+| interactionTime | int     | Interaction time (ms, full + preview summed)    |
+| postMediaId     | varchar | FK → PostMedia                                  |
 
 ### `FanslyAnalyticsAggregate` (simplified)
 
-| Column                    | Type      | Description                                 |
-|---------------------------|-----------|---------------------------------------------|
-| id                        | uuid      | Primary key                                 |
-| totalViews                | int       | Latest cumulative views                     |
-| averageEngagementSeconds  | float     | Average watch time in seconds               |
-| averageEngagementPercent  | float     | Watch time as % of video duration            |
-| plateauDetectedAt         | datetime? | When growth plateau was first detected       |
-| nextFetchAt               | datetime? | When background fetcher should next pull data. Null = stop fetching. |
-| postMediaId               | varchar   | FK → PostMedia (1:1)                         |
+| Column                   | Type      | Description                                                          |
+| ------------------------ | --------- | -------------------------------------------------------------------- |
+| id                       | uuid      | Primary key                                                          |
+| totalViews               | int       | Latest cumulative views                                              |
+| averageEngagementSeconds | float     | Average watch time in seconds                                        |
+| averageEngagementPercent | float     | Watch time as % of video duration                                    |
+| plateauDetectedAt        | datetime? | When growth plateau was first detected                               |
+| nextFetchAt              | datetime? | When background fetcher should next pull data. Null = stop fetching. |
+| postMediaId              | varchar   | FK → PostMedia (1:1)                                                 |
 
 **Removed fields:**
+
 - `fypPerformanceScore` — composite score with wrong weightings; can be computed on demand if ever needed
 - `fypMetrics` JSON blob — derived values (velocity, sustained growth, etc.) that go stale; compute on demand from raw datapoints
 
@@ -414,6 +421,7 @@ Still used for **timeline backfill** (secondary flow). But matching UI moves fro
 **Handles ~90% of posts** — single-media posts scheduled through the normal workflow.
 
 ### Prerequisites
+
 - Chrome extension installed
 - FansLib side panel open while scheduling
 - Server accessible via Tailscale
@@ -517,7 +525,7 @@ This addresses the opacity problem — the user always knows what the extension 
 
 ### Adaptive baton-race scheduling
 
-Each analytics fetch decides when the *next* fetch should happen, based on what the data looks like:
+Each analytics fetch decides when the _next_ fetch should happen, based on what the data looks like:
 
 ```
 PostMedia gets fanslyStatisticsId linked
@@ -575,6 +583,7 @@ No persistent job queue needed — the `nextFetchAt` column on the aggregate IS 
 ## Credential Lifecycle
 
 ### Current state
+
 - Extension intercepts credentials on every Fansly API call
 - Sends to server throttled at 60-second intervals
 - Server stores via settings/credentials subsystem
@@ -611,6 +620,7 @@ User clicks link, browses Fansly briefly
 ### Dashboard visibility
 
 The FansLib web app's dashboard (home route) shows:
+
 - **Green**: "Credentials fresh (last updated 2 hours ago)"
 - **Yellow**: "Credentials aging (last updated 2 days ago)" — still working but may expire soon
 - **Red**: "Credentials expired — [open Fansly to refresh]" — link opens fansly.com
@@ -621,73 +631,83 @@ The FansLib web app's dashboard (home route) shows:
 
 ### Server-side code to remove
 
-| Component | Files | Reason |
-|-----------|-------|--------|
-| Insights engine | `operations/insights.ts`, `schemas/insights.ts` | Speculative feature, never surfaced in UI, not validated against user needs |
-| Hashtag analytics | `operations/post-analytics/fetch-hashtag-analytics.ts` | Speculative, no UI |
-| Time analytics | `operations/post-analytics/fetch-time-analytics.ts` | Speculative, no UI |
-| `AnalyticsFetchHistory` entity | `entity.ts` (partial) | Dead code, never used, replaced by `nextFetchAt` |
-| `fypPerformanceScore` column | `entity.ts` (partial) | Derived metric with wrong weightings, compute on demand |
-| `fypMetrics` JSON column | `entity.ts` (partial) | Derived metrics that go stale, compute on demand |
-| FYP performance score calculator | `fyp-performance.ts` (partial — keep plateau detection) | Unused after aggregate simplification |
-| Manual credential parser | `operations/credentials.ts` | Replaced by extension auto-capture |
-| Duplicate aggregation function | `lib/fansly-analytics/aggregate.ts` (`aggregatePostAnalyticsData`) | Near-identical to `aggregatePostMediaAnalyticsData`, consolidate |
-| Insights-related routes | `routes.ts` (3 endpoints: `/insights`, `/hashtags`, `/time`) | No UI, speculative |
-| Insights-related query hooks | `lib/queries/analytics.ts` (3 hooks) | Corresponding to removed endpoints |
+| Component                        | Files                                                              | Reason                                                                      |
+| -------------------------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------- |
+| Insights engine                  | `operations/insights.ts`, `schemas/insights.ts`                    | Speculative feature, never surfaced in UI, not validated against user needs |
+| Hashtag analytics                | `operations/post-analytics/fetch-hashtag-analytics.ts`             | Speculative, no UI                                                          |
+| Time analytics                   | `operations/post-analytics/fetch-time-analytics.ts`                | Speculative, no UI                                                          |
+| `AnalyticsFetchHistory` entity   | `entity.ts` (partial)                                              | Dead code, never used, replaced by `nextFetchAt`                            |
+| `fypPerformanceScore` column     | `entity.ts` (partial)                                              | Derived metric with wrong weightings, compute on demand                     |
+| `fypMetrics` JSON column         | `entity.ts` (partial)                                              | Derived metrics that go stale, compute on demand                            |
+| FYP performance score calculator | `fyp-performance.ts` (partial — keep plateau detection)            | Unused after aggregate simplification                                       |
+| Manual credential parser         | `operations/credentials.ts`                                        | Replaced by extension auto-capture                                          |
+| Duplicate aggregation function   | `lib/fansly-analytics/aggregate.ts` (`aggregatePostAnalyticsData`) | Near-identical to `aggregatePostMediaAnalyticsData`, consolidate            |
+| Insights-related routes          | `routes.ts` (3 endpoints: `/insights`, `/hashtags`, `/time`)       | No UI, speculative                                                          |
+| Insights-related query hooks     | `lib/queries/analytics.ts` (3 hooks)                               | Corresponding to removed endpoints                                          |
 
 ### Frontend code to remove
 
-| Component | Files | Reason |
-|-----------|-------|--------|
-| Matching tab + all components | `MatchingSection.tsx`, `CandidateCard.tsx`, `SelectPostMediaDialog.tsx` | Matching moves to Chrome extension |
-| Manual "Fetch More" overlay | `AnalyticsViewsChart.tsx` (partial) | Background fetcher handles this |
-| Manual statistics ID input | `PostDetailFanslyStatistics.tsx` | Scheduling capture handles this |
-| Insights/hashtag/time query hooks | `lib/queries/analytics.ts` (partial) | Endpoints removed |
+| Component                         | Files                                                                   | Reason                             |
+| --------------------------------- | ----------------------------------------------------------------------- | ---------------------------------- |
+| Matching tab + all components     | `MatchingSection.tsx`, `CandidateCard.tsx`, `SelectPostMediaDialog.tsx` | Matching moves to Chrome extension |
+| Manual "Fetch More" overlay       | `AnalyticsViewsChart.tsx` (partial)                                     | Background fetcher handles this    |
+| Manual statistics ID input        | `PostDetailFanslyStatistics.tsx`                                        | Scheduling capture handles this    |
+| Insights/hashtag/time query hooks | `lib/queries/analytics.ts` (partial)                                    | Endpoints removed                  |
 
 ### Code to keep and adapt
 
-| Component | Adaptation needed |
-|-----------|-------------------|
-| `FypActionItemsSection.tsx` | Keep — derives metrics on demand from datapoints instead of pre-computed scores |
-| `AnalyticsViewsChart.tsx` | Keep chart, remove "Fetch More" overlay |
-| `ConfidenceIndicator.tsx` | Adapt to also show credential freshness |
-| `HealthDetailsDrawer.tsx` | Adapt to show credential status + fetch schedule health |
-| Plateau detection (`plateau-detection.ts`) | Keep — used by background fetcher for adaptive scheduling |
-| Candidate system (server) | Keep — still used for timeline backfill |
-| Datapoint aggregation | Consolidate duplicates into one implementation |
+| Component                                  | Adaptation needed                                                               |
+| ------------------------------------------ | ------------------------------------------------------------------------------- |
+| `FypActionItemsSection.tsx`                | Keep — derives metrics on demand from datapoints instead of pre-computed scores |
+| `AnalyticsViewsChart.tsx`                  | Keep chart, remove "Fetch More" overlay                                         |
+| `ConfidenceIndicator.tsx`                  | Adapt to also show credential freshness                                         |
+| `HealthDetailsDrawer.tsx`                  | Adapt to show credential status + fetch schedule health                         |
+| Plateau detection (`plateau-detection.ts`) | Keep — used by background fetcher for adaptive scheduling                       |
+| Candidate system (server)                  | Keep — still used for timeline backfill                                         |
+| Datapoint aggregation                      | Consolidate duplicates into one implementation                                  |
 
 ---
 
 ## Key Architectural Decisions
 
 ### Decision 1: Intercept scheduling calls, not timeline calls, as primary linking mechanism
+
 **Why**: The scheduling response contains the `contentId` at the exact moment the user is already interacting with the post. No discovery step, no matching ambiguity. Timeline interception becomes a fallback, not the primary path.
 
 ### Decision 2: Caption matching via Levenshtein (≥ 0.9) as the safety gate
+
 **Why**: The user writes captions in FansLib and copies them to Fansly. Exact match would break on encoding differences, emoji additions, whitespace. Fuzzy matching at 90% threshold is tolerant of minor variations while preventing false positives. The existing `calculateSimilarity` implementation in `candidates/matching.ts` is reused.
 
 ### Decision 3: Auto-advance instead of "mark as scheduled" click
+
 **Why**: The "mark as scheduled" button was the last remaining manual step. Since the extension can detect the scheduling response and match it to the current queue post, the click becomes unnecessary. This makes the scheduling flow truly zero-friction — the side panel just keeps up as you work.
 
 ### Decision 4: `nextFetchAt` on aggregate instead of a job queue
+
 **Why**: The workload is small (20-50 posts, fetched at varying intervals). A proper job queue (BullMQ, pg-boss) adds infrastructure complexity for no benefit. The aggregate table IS the queue — the cron just queries `WHERE nextFetchAt < now`. Existing `croner` library handles the scheduling.
 
 ### Decision 5: Adaptive fetch intervals based on growth velocity
+
 **Why**: Not all posts need the same fetch frequency. A post gaining 500 views/day needs daily monitoring. A plateaued post needs weekly at most. A post past 90 days doesn't need fetching at all. This minimizes API calls to Fansly while keeping data fresh where it matters.
 
 ### Decision 6: Credential-gated fetching with immediate halt on 401/403
+
 **Why**: Fansly's API is private and undocumented. Hammering it with invalid credentials risks account flags. On first auth failure, stop ALL fetching immediately and surface the problem to the user. Resume only when fresh credentials arrive from the extension.
 
 ### Decision 7: Drop speculative insights engine
+
 **Why**: The insights engine (video length analysis, hashtag performance, content themes, posting times) was built speculatively without validating against user needs. The user has never seen this data. The FYP algorithm primarily optimizes for **average engagement percent** (50-60% being the sweet spot), which is already captured in `averageEngagementPercent` on the aggregate. Additional derived insights can be rebuilt later if there's actual demand.
 
 ### Decision 8: Keep views + preview views summed together
+
 **Why**: Fansly shows either the actual media (free posts) or the preview media (paywalled posts) on the FYP, depending on post permissions. Since the post type cannot be reliably determined from API data, summing both ensures all FYP-visible engagement is captured regardless of content surface. Splitting them would create a false precision problem.
 
 ### Decision 9: Move matching UI from web app to Chrome extension
+
 **Why**: Matching is needed when browsing Fansly — that's where the unmatched content is visible. Requiring a context switch to FansLib's web app for matching is unnecessary friction. The extension side panel is already open during scheduling and can show a simple match confirmation UI for backfill candidates.
 
 ### Decision 10: Server is always-on via Tailscale, not localhost
+
 **Why**: The server runs on a local server accessible via Tailscale, not on the user's development machine. This means the Chrome extension can always reach it, background crons always run, and there's no dependency on having a specific app open. This is a critical enabler for the background fetching design.
 
 ---
