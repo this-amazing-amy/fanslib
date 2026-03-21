@@ -14,6 +14,17 @@ export const usePostMediaAnalyticsQuery = (postMediaId: string) =>
     enabled: !!postMediaId,
   });
 
+export const useActiveFypPostsQuery = (sortBy?: "views" | "engagementPercent" | "engagementSeconds") =>
+  useQuery({
+    queryKey: QUERY_KEYS.analytics.activeFypPosts(sortBy),
+    queryFn: async () => {
+      const result = await api.api.analytics['active-fyp-posts'].$get({
+        query: { sortBy },
+      });
+      return result.json();
+    },
+  });
+
 export const useFetchFanslyDataMutation = () => {
   const queryClient = useQueryClient();
 

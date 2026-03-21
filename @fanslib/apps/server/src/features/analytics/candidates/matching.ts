@@ -9,6 +9,7 @@ type MatchSuggestion = {
   method: "exact_filename" | "fuzzy_filename" | "manual";
   filename: string;
   caption?: string;
+  scheduleName?: string;
 };
 
 const levenshteinDistance = (str1: string, str2: string): number => {
@@ -70,6 +71,7 @@ export const computeMatchSuggestions = async (
     .createQueryBuilder("postMedia")
     .innerJoinAndSelect("postMedia.post", "post")
     .innerJoinAndSelect("postMedia.media", "media")
+    .leftJoinAndSelect("post.schedule", "schedule")
     .where("postMedia.fanslyStatisticsId IS NULL")
     .getMany();
 
@@ -80,6 +82,7 @@ export const computeMatchSuggestions = async (
 
     const normalizedMediaFilename = normalizeFilename(postMedia.media.name);
     const caption = postMedia.post.caption ?? undefined;
+    const scheduleName = postMedia.post.schedule?.name ?? undefined;
 
     // media is fully loaded via innerJoinAndSelect
     const mediaId = (postMedia.media as { id: string }).id;
@@ -92,6 +95,7 @@ export const computeMatchSuggestions = async (
         method: "exact_filename",
         filename: postMedia.media.name,
         caption,
+        scheduleName,
       });
       return;
     }
@@ -106,6 +110,7 @@ export const computeMatchSuggestions = async (
         method: "fuzzy_filename",
         filename: postMedia.media.name,
         caption,
+        scheduleName,
       });
     }
   });

@@ -14,7 +14,8 @@
     "format:check": "oxfmt -c ../../../.oxfmtrc.json --check src/",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "clean": "rm -rf dist .output"
+    "clean": "rm -rf dist .output",
+    "test": "vitest run"
   },
   "dependencies": {
     "@fanslib/server": "workspace:*",

@@ -1,4 +1,4 @@
-/* oxlint-disable */
+/* eslint-disable */
 
 // @ts-nocheck
 
@@ -8,603 +8,625 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root";
-import { Route as SubredditsRouteImport } from "./routes/subreddits";
-import { Route as SettingsRouteImport } from "./routes/settings";
-import { Route as HashtagsRouteImport } from "./routes/hashtags";
-import { Route as ContentRouteImport } from "./routes/content";
-import { Route as ComponentShowcaseRouteImport } from "./routes/component-showcase";
-import { Route as ChannelsRouteImport } from "./routes/channels";
-import { Route as CaptioningRouteImport } from "./routes/captioning";
-import { Route as IndexRouteImport } from "./routes/index";
-import { Route as ShootsIndexRouteImport } from "./routes/shoots/index";
-import { Route as SettingsIndexRouteImport } from "./routes/settings/index";
-import { Route as PlanIndexRouteImport } from "./routes/plan/index";
-import { Route as LibraryIndexRouteImport } from "./routes/library/index";
-import { Route as ShootsShootIdRouteImport } from "./routes/shoots/$shootId";
-import { Route as SettingsSnippetsRouteImport } from "./routes/settings/snippets";
-import { Route as SettingsRepostRouteImport } from "./routes/settings/repost";
-import { Route as SettingsIntegrationsRouteImport } from "./routes/settings/integrations";
-import { Route as SettingsFilterPresetsRouteImport } from "./routes/settings/filter-presets";
-import { Route as SettingsContentTagsRouteImport } from "./routes/settings/content-tags";
-import { Route as SettingsContentSafetyRouteImport } from "./routes/settings/content-safety";
-import { Route as SettingsAppearanceRouteImport } from "./routes/settings/appearance";
-import { Route as PostsPostIdRouteImport } from "./routes/posts/$postId";
-import { Route as LibraryMediaIdRouteImport } from "./routes/library/$mediaId";
-import { Route as ContentShootsRouteImport } from "./routes/content/shoots";
-import { Route as ContentLibraryRouteImport } from "./routes/content/library";
-import { Route as ContentLibraryMediaRouteImport } from "./routes/content/library/media";
-import { Route as ContentLibraryMediaIndexRouteImport } from "./routes/content/library/media/index";
-import { Route as ContentLibraryMediaMediaIdRouteImport } from "./routes/content/library/media/$mediaId";
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as SubredditsRouteImport } from './routes/subreddits'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as HashtagsRouteImport } from './routes/hashtags'
+import { Route as ContentRouteImport } from './routes/content'
+import { Route as ComponentShowcaseRouteImport } from './routes/component-showcase'
+import { Route as ChannelsRouteImport } from './routes/channels'
+import { Route as CaptioningRouteImport } from './routes/captioning'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as ShootsIndexRouteImport } from './routes/shoots/index'
+import { Route as SettingsIndexRouteImport } from './routes/settings/index'
+import { Route as PlanIndexRouteImport } from './routes/plan/index'
+import { Route as LibraryIndexRouteImport } from './routes/library/index'
+import { Route as ShootsShootIdRouteImport } from './routes/shoots/$shootId'
+import { Route as SettingsSnippetsRouteImport } from './routes/settings/snippets'
+import { Route as SettingsRepostRouteImport } from './routes/settings/repost'
+import { Route as SettingsIntegrationsRouteImport } from './routes/settings/integrations'
+import { Route as SettingsFilterPresetsRouteImport } from './routes/settings/filter-presets'
+import { Route as SettingsContentTagsRouteImport } from './routes/settings/content-tags'
+import { Route as SettingsContentSafetyRouteImport } from './routes/settings/content-safety'
+import { Route as SettingsAppearanceRouteImport } from './routes/settings/appearance'
+import { Route as PostsPostIdRouteImport } from './routes/posts/$postId'
+import { Route as LibraryMediaIdRouteImport } from './routes/library/$mediaId'
+import { Route as ContentShootsRouteImport } from './routes/content/shoots'
+import { Route as ContentLibraryRouteImport } from './routes/content/library'
+import { Route as ContentLibraryMediaRouteImport } from './routes/content/library/media'
+import { Route as AnalyticsFypActiveRouteImport } from './routes/analytics/fyp/active'
+import { Route as ContentLibraryMediaIndexRouteImport } from './routes/content/library/media/index'
+import { Route as ContentLibraryMediaMediaIdRouteImport } from './routes/content/library/media/$mediaId'
 
 const SubredditsRoute = SubredditsRouteImport.update({
-  id: "/subreddits",
-  path: "/subreddits",
+  id: '/subreddits',
+  path: '/subreddits',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
-  id: "/settings",
-  path: "/settings",
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const HashtagsRoute = HashtagsRouteImport.update({
-  id: "/hashtags",
-  path: "/hashtags",
+  id: '/hashtags',
+  path: '/hashtags',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ContentRoute = ContentRouteImport.update({
-  id: "/content",
-  path: "/content",
+  id: '/content',
+  path: '/content',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ComponentShowcaseRoute = ComponentShowcaseRouteImport.update({
-  id: "/component-showcase",
-  path: "/component-showcase",
+  id: '/component-showcase',
+  path: '/component-showcase',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ChannelsRoute = ChannelsRouteImport.update({
-  id: "/channels",
-  path: "/channels",
+  id: '/channels',
+  path: '/channels',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const CaptioningRoute = CaptioningRouteImport.update({
-  id: "/captioning",
-  path: "/captioning",
+  id: '/captioning',
+  path: '/captioning',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const IndexRoute = IndexRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ShootsIndexRoute = ShootsIndexRouteImport.update({
-  id: "/shoots/",
-  path: "/shoots/",
+  id: '/shoots/',
+  path: '/shoots/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const SettingsIndexRoute = SettingsIndexRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => SettingsRoute,
-} as any);
+} as any)
 const PlanIndexRoute = PlanIndexRouteImport.update({
-  id: "/plan/",
-  path: "/plan/",
+  id: '/plan/',
+  path: '/plan/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const LibraryIndexRoute = LibraryIndexRouteImport.update({
-  id: "/library/",
-  path: "/library/",
+  id: '/library/',
+  path: '/library/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ShootsShootIdRoute = ShootsShootIdRouteImport.update({
-  id: "/shoots/$shootId",
-  path: "/shoots/$shootId",
+  id: '/shoots/$shootId',
+  path: '/shoots/$shootId',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const SettingsSnippetsRoute = SettingsSnippetsRouteImport.update({
-  id: "/snippets",
-  path: "/snippets",
+  id: '/snippets',
+  path: '/snippets',
   getParentRoute: () => SettingsRoute,
-} as any);
+} as any)
 const SettingsRepostRoute = SettingsRepostRouteImport.update({
-  id: "/repost",
-  path: "/repost",
+  id: '/repost',
+  path: '/repost',
   getParentRoute: () => SettingsRoute,
-} as any);
+} as any)
 const SettingsIntegrationsRoute = SettingsIntegrationsRouteImport.update({
-  id: "/integrations",
-  path: "/integrations",
+  id: '/integrations',
+  path: '/integrations',
   getParentRoute: () => SettingsRoute,
-} as any);
+} as any)
 const SettingsFilterPresetsRoute = SettingsFilterPresetsRouteImport.update({
-  id: "/filter-presets",
-  path: "/filter-presets",
+  id: '/filter-presets',
+  path: '/filter-presets',
   getParentRoute: () => SettingsRoute,
-} as any);
+} as any)
 const SettingsContentTagsRoute = SettingsContentTagsRouteImport.update({
-  id: "/content-tags",
-  path: "/content-tags",
+  id: '/content-tags',
+  path: '/content-tags',
   getParentRoute: () => SettingsRoute,
-} as any);
+} as any)
 const SettingsContentSafetyRoute = SettingsContentSafetyRouteImport.update({
-  id: "/content-safety",
-  path: "/content-safety",
+  id: '/content-safety',
+  path: '/content-safety',
   getParentRoute: () => SettingsRoute,
-} as any);
+} as any)
 const SettingsAppearanceRoute = SettingsAppearanceRouteImport.update({
-  id: "/appearance",
-  path: "/appearance",
+  id: '/appearance',
+  path: '/appearance',
   getParentRoute: () => SettingsRoute,
-} as any);
+} as any)
 const PostsPostIdRoute = PostsPostIdRouteImport.update({
-  id: "/posts/$postId",
-  path: "/posts/$postId",
+  id: '/posts/$postId',
+  path: '/posts/$postId',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const LibraryMediaIdRoute = LibraryMediaIdRouteImport.update({
-  id: "/library/$mediaId",
-  path: "/library/$mediaId",
+  id: '/library/$mediaId',
+  path: '/library/$mediaId',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ContentShootsRoute = ContentShootsRouteImport.update({
-  id: "/shoots",
-  path: "/shoots",
+  id: '/shoots',
+  path: '/shoots',
   getParentRoute: () => ContentRoute,
-} as any);
+} as any)
 const ContentLibraryRoute = ContentLibraryRouteImport.update({
-  id: "/library",
-  path: "/library",
+  id: '/library',
+  path: '/library',
   getParentRoute: () => ContentRoute,
-} as any);
+} as any)
 const ContentLibraryMediaRoute = ContentLibraryMediaRouteImport.update({
-  id: "/media",
-  path: "/media",
+  id: '/media',
+  path: '/media',
   getParentRoute: () => ContentLibraryRoute,
-} as any);
-const ContentLibraryMediaIndexRoute = ContentLibraryMediaIndexRouteImport.update({
-  id: "/",
-  path: "/",
-  getParentRoute: () => ContentLibraryMediaRoute,
-} as any);
-const ContentLibraryMediaMediaIdRoute = ContentLibraryMediaMediaIdRouteImport.update({
-  id: "/$mediaId",
-  path: "/$mediaId",
-  getParentRoute: () => ContentLibraryMediaRoute,
-} as any);
+} as any)
+const AnalyticsFypActiveRoute = AnalyticsFypActiveRouteImport.update({
+  id: '/analytics/fyp/active',
+  path: '/analytics/fyp/active',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContentLibraryMediaIndexRoute =
+  ContentLibraryMediaIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => ContentLibraryMediaRoute,
+  } as any)
+const ContentLibraryMediaMediaIdRoute =
+  ContentLibraryMediaMediaIdRouteImport.update({
+    id: '/$mediaId',
+    path: '/$mediaId',
+    getParentRoute: () => ContentLibraryMediaRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  "/": typeof IndexRoute;
-  "/captioning": typeof CaptioningRoute;
-  "/channels": typeof ChannelsRoute;
-  "/component-showcase": typeof ComponentShowcaseRoute;
-  "/content": typeof ContentRouteWithChildren;
-  "/hashtags": typeof HashtagsRoute;
-  "/settings": typeof SettingsRouteWithChildren;
-  "/subreddits": typeof SubredditsRoute;
-  "/content/library": typeof ContentLibraryRouteWithChildren;
-  "/content/shoots": typeof ContentShootsRoute;
-  "/library/$mediaId": typeof LibraryMediaIdRoute;
-  "/posts/$postId": typeof PostsPostIdRoute;
-  "/settings/appearance": typeof SettingsAppearanceRoute;
-  "/settings/content-safety": typeof SettingsContentSafetyRoute;
-  "/settings/content-tags": typeof SettingsContentTagsRoute;
-  "/settings/filter-presets": typeof SettingsFilterPresetsRoute;
-  "/settings/integrations": typeof SettingsIntegrationsRoute;
-  "/settings/repost": typeof SettingsRepostRoute;
-  "/settings/snippets": typeof SettingsSnippetsRoute;
-  "/shoots/$shootId": typeof ShootsShootIdRoute;
-  "/library/": typeof LibraryIndexRoute;
-  "/plan/": typeof PlanIndexRoute;
-  "/settings/": typeof SettingsIndexRoute;
-  "/shoots/": typeof ShootsIndexRoute;
-  "/content/library/media": typeof ContentLibraryMediaRouteWithChildren;
-  "/content/library/media/$mediaId": typeof ContentLibraryMediaMediaIdRoute;
-  "/content/library/media/": typeof ContentLibraryMediaIndexRoute;
+  '/': typeof IndexRoute
+  '/captioning': typeof CaptioningRoute
+  '/channels': typeof ChannelsRoute
+  '/component-showcase': typeof ComponentShowcaseRoute
+  '/content': typeof ContentRouteWithChildren
+  '/hashtags': typeof HashtagsRoute
+  '/settings': typeof SettingsRouteWithChildren
+  '/subreddits': typeof SubredditsRoute
+  '/content/library': typeof ContentLibraryRouteWithChildren
+  '/content/shoots': typeof ContentShootsRoute
+  '/library/$mediaId': typeof LibraryMediaIdRoute
+  '/posts/$postId': typeof PostsPostIdRoute
+  '/settings/appearance': typeof SettingsAppearanceRoute
+  '/settings/content-safety': typeof SettingsContentSafetyRoute
+  '/settings/content-tags': typeof SettingsContentTagsRoute
+  '/settings/filter-presets': typeof SettingsFilterPresetsRoute
+  '/settings/integrations': typeof SettingsIntegrationsRoute
+  '/settings/repost': typeof SettingsRepostRoute
+  '/settings/snippets': typeof SettingsSnippetsRoute
+  '/shoots/$shootId': typeof ShootsShootIdRoute
+  '/library/': typeof LibraryIndexRoute
+  '/plan/': typeof PlanIndexRoute
+  '/settings/': typeof SettingsIndexRoute
+  '/shoots/': typeof ShootsIndexRoute
+  '/analytics/fyp/active': typeof AnalyticsFypActiveRoute
+  '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
+  '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
+  '/content/library/media/': typeof ContentLibraryMediaIndexRoute
 }
 export interface FileRoutesByTo {
-  "/": typeof IndexRoute;
-  "/captioning": typeof CaptioningRoute;
-  "/channels": typeof ChannelsRoute;
-  "/component-showcase": typeof ComponentShowcaseRoute;
-  "/content": typeof ContentRouteWithChildren;
-  "/hashtags": typeof HashtagsRoute;
-  "/subreddits": typeof SubredditsRoute;
-  "/content/library": typeof ContentLibraryRouteWithChildren;
-  "/content/shoots": typeof ContentShootsRoute;
-  "/library/$mediaId": typeof LibraryMediaIdRoute;
-  "/posts/$postId": typeof PostsPostIdRoute;
-  "/settings/appearance": typeof SettingsAppearanceRoute;
-  "/settings/content-safety": typeof SettingsContentSafetyRoute;
-  "/settings/content-tags": typeof SettingsContentTagsRoute;
-  "/settings/filter-presets": typeof SettingsFilterPresetsRoute;
-  "/settings/integrations": typeof SettingsIntegrationsRoute;
-  "/settings/repost": typeof SettingsRepostRoute;
-  "/settings/snippets": typeof SettingsSnippetsRoute;
-  "/shoots/$shootId": typeof ShootsShootIdRoute;
-  "/library": typeof LibraryIndexRoute;
-  "/plan": typeof PlanIndexRoute;
-  "/settings": typeof SettingsIndexRoute;
-  "/shoots": typeof ShootsIndexRoute;
-  "/content/library/media/$mediaId": typeof ContentLibraryMediaMediaIdRoute;
-  "/content/library/media": typeof ContentLibraryMediaIndexRoute;
+  '/': typeof IndexRoute
+  '/captioning': typeof CaptioningRoute
+  '/channels': typeof ChannelsRoute
+  '/component-showcase': typeof ComponentShowcaseRoute
+  '/content': typeof ContentRouteWithChildren
+  '/hashtags': typeof HashtagsRoute
+  '/subreddits': typeof SubredditsRoute
+  '/content/library': typeof ContentLibraryRouteWithChildren
+  '/content/shoots': typeof ContentShootsRoute
+  '/library/$mediaId': typeof LibraryMediaIdRoute
+  '/posts/$postId': typeof PostsPostIdRoute
+  '/settings/appearance': typeof SettingsAppearanceRoute
+  '/settings/content-safety': typeof SettingsContentSafetyRoute
+  '/settings/content-tags': typeof SettingsContentTagsRoute
+  '/settings/filter-presets': typeof SettingsFilterPresetsRoute
+  '/settings/integrations': typeof SettingsIntegrationsRoute
+  '/settings/repost': typeof SettingsRepostRoute
+  '/settings/snippets': typeof SettingsSnippetsRoute
+  '/shoots/$shootId': typeof ShootsShootIdRoute
+  '/library': typeof LibraryIndexRoute
+  '/plan': typeof PlanIndexRoute
+  '/settings': typeof SettingsIndexRoute
+  '/shoots': typeof ShootsIndexRoute
+  '/analytics/fyp/active': typeof AnalyticsFypActiveRoute
+  '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
+  '/content/library/media': typeof ContentLibraryMediaIndexRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport;
-  "/": typeof IndexRoute;
-  "/captioning": typeof CaptioningRoute;
-  "/channels": typeof ChannelsRoute;
-  "/component-showcase": typeof ComponentShowcaseRoute;
-  "/content": typeof ContentRouteWithChildren;
-  "/hashtags": typeof HashtagsRoute;
-  "/settings": typeof SettingsRouteWithChildren;
-  "/subreddits": typeof SubredditsRoute;
-  "/content/library": typeof ContentLibraryRouteWithChildren;
-  "/content/shoots": typeof ContentShootsRoute;
-  "/library/$mediaId": typeof LibraryMediaIdRoute;
-  "/posts/$postId": typeof PostsPostIdRoute;
-  "/settings/appearance": typeof SettingsAppearanceRoute;
-  "/settings/content-safety": typeof SettingsContentSafetyRoute;
-  "/settings/content-tags": typeof SettingsContentTagsRoute;
-  "/settings/filter-presets": typeof SettingsFilterPresetsRoute;
-  "/settings/integrations": typeof SettingsIntegrationsRoute;
-  "/settings/repost": typeof SettingsRepostRoute;
-  "/settings/snippets": typeof SettingsSnippetsRoute;
-  "/shoots/$shootId": typeof ShootsShootIdRoute;
-  "/library/": typeof LibraryIndexRoute;
-  "/plan/": typeof PlanIndexRoute;
-  "/settings/": typeof SettingsIndexRoute;
-  "/shoots/": typeof ShootsIndexRoute;
-  "/content/library/media": typeof ContentLibraryMediaRouteWithChildren;
-  "/content/library/media/$mediaId": typeof ContentLibraryMediaMediaIdRoute;
-  "/content/library/media/": typeof ContentLibraryMediaIndexRoute;
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/captioning': typeof CaptioningRoute
+  '/channels': typeof ChannelsRoute
+  '/component-showcase': typeof ComponentShowcaseRoute
+  '/content': typeof ContentRouteWithChildren
+  '/hashtags': typeof HashtagsRoute
+  '/settings': typeof SettingsRouteWithChildren
+  '/subreddits': typeof SubredditsRoute
+  '/content/library': typeof ContentLibraryRouteWithChildren
+  '/content/shoots': typeof ContentShootsRoute
+  '/library/$mediaId': typeof LibraryMediaIdRoute
+  '/posts/$postId': typeof PostsPostIdRoute
+  '/settings/appearance': typeof SettingsAppearanceRoute
+  '/settings/content-safety': typeof SettingsContentSafetyRoute
+  '/settings/content-tags': typeof SettingsContentTagsRoute
+  '/settings/filter-presets': typeof SettingsFilterPresetsRoute
+  '/settings/integrations': typeof SettingsIntegrationsRoute
+  '/settings/repost': typeof SettingsRepostRoute
+  '/settings/snippets': typeof SettingsSnippetsRoute
+  '/shoots/$shootId': typeof ShootsShootIdRoute
+  '/library/': typeof LibraryIndexRoute
+  '/plan/': typeof PlanIndexRoute
+  '/settings/': typeof SettingsIndexRoute
+  '/shoots/': typeof ShootsIndexRoute
+  '/analytics/fyp/active': typeof AnalyticsFypActiveRoute
+  '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
+  '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
+  '/content/library/media/': typeof ContentLibraryMediaIndexRoute
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
+  fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | "/"
-    | "/captioning"
-    | "/channels"
-    | "/component-showcase"
-    | "/content"
-    | "/hashtags"
-    | "/settings"
-    | "/subreddits"
-    | "/content/library"
-    | "/content/shoots"
-    | "/library/$mediaId"
-    | "/posts/$postId"
-    | "/settings/appearance"
-    | "/settings/content-safety"
-    | "/settings/content-tags"
-    | "/settings/filter-presets"
-    | "/settings/integrations"
-    | "/settings/repost"
-    | "/settings/snippets"
-    | "/shoots/$shootId"
-    | "/library/"
-    | "/plan/"
-    | "/settings/"
-    | "/shoots/"
-    | "/content/library/media"
-    | "/content/library/media/$mediaId"
-    | "/content/library/media/";
-  fileRoutesByTo: FileRoutesByTo;
+    | '/'
+    | '/captioning'
+    | '/channels'
+    | '/component-showcase'
+    | '/content'
+    | '/hashtags'
+    | '/settings'
+    | '/subreddits'
+    | '/content/library'
+    | '/content/shoots'
+    | '/library/$mediaId'
+    | '/posts/$postId'
+    | '/settings/appearance'
+    | '/settings/content-safety'
+    | '/settings/content-tags'
+    | '/settings/filter-presets'
+    | '/settings/integrations'
+    | '/settings/repost'
+    | '/settings/snippets'
+    | '/shoots/$shootId'
+    | '/library/'
+    | '/plan/'
+    | '/settings/'
+    | '/shoots/'
+    | '/analytics/fyp/active'
+    | '/content/library/media'
+    | '/content/library/media/$mediaId'
+    | '/content/library/media/'
+  fileRoutesByTo: FileRoutesByTo
   to:
-    | "/"
-    | "/captioning"
-    | "/channels"
-    | "/component-showcase"
-    | "/content"
-    | "/hashtags"
-    | "/subreddits"
-    | "/content/library"
-    | "/content/shoots"
-    | "/library/$mediaId"
-    | "/posts/$postId"
-    | "/settings/appearance"
-    | "/settings/content-safety"
-    | "/settings/content-tags"
-    | "/settings/filter-presets"
-    | "/settings/integrations"
-    | "/settings/repost"
-    | "/settings/snippets"
-    | "/shoots/$shootId"
-    | "/library"
-    | "/plan"
-    | "/settings"
-    | "/shoots"
-    | "/content/library/media/$mediaId"
-    | "/content/library/media";
+    | '/'
+    | '/captioning'
+    | '/channels'
+    | '/component-showcase'
+    | '/content'
+    | '/hashtags'
+    | '/subreddits'
+    | '/content/library'
+    | '/content/shoots'
+    | '/library/$mediaId'
+    | '/posts/$postId'
+    | '/settings/appearance'
+    | '/settings/content-safety'
+    | '/settings/content-tags'
+    | '/settings/filter-presets'
+    | '/settings/integrations'
+    | '/settings/repost'
+    | '/settings/snippets'
+    | '/shoots/$shootId'
+    | '/library'
+    | '/plan'
+    | '/settings'
+    | '/shoots'
+    | '/analytics/fyp/active'
+    | '/content/library/media/$mediaId'
+    | '/content/library/media'
   id:
-    | "__root__"
-    | "/"
-    | "/captioning"
-    | "/channels"
-    | "/component-showcase"
-    | "/content"
-    | "/hashtags"
-    | "/settings"
-    | "/subreddits"
-    | "/content/library"
-    | "/content/shoots"
-    | "/library/$mediaId"
-    | "/posts/$postId"
-    | "/settings/appearance"
-    | "/settings/content-safety"
-    | "/settings/content-tags"
-    | "/settings/filter-presets"
-    | "/settings/integrations"
-    | "/settings/repost"
-    | "/settings/snippets"
-    | "/shoots/$shootId"
-    | "/library/"
-    | "/plan/"
-    | "/settings/"
-    | "/shoots/"
-    | "/content/library/media"
-    | "/content/library/media/$mediaId"
-    | "/content/library/media/";
-  fileRoutesById: FileRoutesById;
+    | '__root__'
+    | '/'
+    | '/captioning'
+    | '/channels'
+    | '/component-showcase'
+    | '/content'
+    | '/hashtags'
+    | '/settings'
+    | '/subreddits'
+    | '/content/library'
+    | '/content/shoots'
+    | '/library/$mediaId'
+    | '/posts/$postId'
+    | '/settings/appearance'
+    | '/settings/content-safety'
+    | '/settings/content-tags'
+    | '/settings/filter-presets'
+    | '/settings/integrations'
+    | '/settings/repost'
+    | '/settings/snippets'
+    | '/shoots/$shootId'
+    | '/library/'
+    | '/plan/'
+    | '/settings/'
+    | '/shoots/'
+    | '/analytics/fyp/active'
+    | '/content/library/media'
+    | '/content/library/media/$mediaId'
+    | '/content/library/media/'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
-  CaptioningRoute: typeof CaptioningRoute;
-  ChannelsRoute: typeof ChannelsRoute;
-  ComponentShowcaseRoute: typeof ComponentShowcaseRoute;
-  ContentRoute: typeof ContentRouteWithChildren;
-  HashtagsRoute: typeof HashtagsRoute;
-  SettingsRoute: typeof SettingsRouteWithChildren;
-  SubredditsRoute: typeof SubredditsRoute;
-  LibraryMediaIdRoute: typeof LibraryMediaIdRoute;
-  PostsPostIdRoute: typeof PostsPostIdRoute;
-  ShootsShootIdRoute: typeof ShootsShootIdRoute;
-  LibraryIndexRoute: typeof LibraryIndexRoute;
-  PlanIndexRoute: typeof PlanIndexRoute;
-  ShootsIndexRoute: typeof ShootsIndexRoute;
+  IndexRoute: typeof IndexRoute
+  CaptioningRoute: typeof CaptioningRoute
+  ChannelsRoute: typeof ChannelsRoute
+  ComponentShowcaseRoute: typeof ComponentShowcaseRoute
+  ContentRoute: typeof ContentRouteWithChildren
+  HashtagsRoute: typeof HashtagsRoute
+  SettingsRoute: typeof SettingsRouteWithChildren
+  SubredditsRoute: typeof SubredditsRoute
+  LibraryMediaIdRoute: typeof LibraryMediaIdRoute
+  PostsPostIdRoute: typeof PostsPostIdRoute
+  ShootsShootIdRoute: typeof ShootsShootIdRoute
+  LibraryIndexRoute: typeof LibraryIndexRoute
+  PlanIndexRoute: typeof PlanIndexRoute
+  ShootsIndexRoute: typeof ShootsIndexRoute
+  AnalyticsFypActiveRoute: typeof AnalyticsFypActiveRoute
 }
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/subreddits": {
-      id: "/subreddits";
-      path: "/subreddits";
-      fullPath: "/subreddits";
-      preLoaderRoute: typeof SubredditsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/settings": {
-      id: "/settings";
-      path: "/settings";
-      fullPath: "/settings";
-      preLoaderRoute: typeof SettingsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/hashtags": {
-      id: "/hashtags";
-      path: "/hashtags";
-      fullPath: "/hashtags";
-      preLoaderRoute: typeof HashtagsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/content": {
-      id: "/content";
-      path: "/content";
-      fullPath: "/content";
-      preLoaderRoute: typeof ContentRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/component-showcase": {
-      id: "/component-showcase";
-      path: "/component-showcase";
-      fullPath: "/component-showcase";
-      preLoaderRoute: typeof ComponentShowcaseRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/channels": {
-      id: "/channels";
-      path: "/channels";
-      fullPath: "/channels";
-      preLoaderRoute: typeof ChannelsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/captioning": {
-      id: "/captioning";
-      path: "/captioning";
-      fullPath: "/captioning";
-      preLoaderRoute: typeof CaptioningRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/": {
-      id: "/";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof IndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/shoots/": {
-      id: "/shoots/";
-      path: "/shoots";
-      fullPath: "/shoots/";
-      preLoaderRoute: typeof ShootsIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/settings/": {
-      id: "/settings/";
-      path: "/";
-      fullPath: "/settings/";
-      preLoaderRoute: typeof SettingsIndexRouteImport;
-      parentRoute: typeof SettingsRoute;
-    };
-    "/plan/": {
-      id: "/plan/";
-      path: "/plan";
-      fullPath: "/plan/";
-      preLoaderRoute: typeof PlanIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/library/": {
-      id: "/library/";
-      path: "/library";
-      fullPath: "/library/";
-      preLoaderRoute: typeof LibraryIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/shoots/$shootId": {
-      id: "/shoots/$shootId";
-      path: "/shoots/$shootId";
-      fullPath: "/shoots/$shootId";
-      preLoaderRoute: typeof ShootsShootIdRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/settings/snippets": {
-      id: "/settings/snippets";
-      path: "/snippets";
-      fullPath: "/settings/snippets";
-      preLoaderRoute: typeof SettingsSnippetsRouteImport;
-      parentRoute: typeof SettingsRoute;
-    };
-    "/settings/repost": {
-      id: "/settings/repost";
-      path: "/repost";
-      fullPath: "/settings/repost";
-      preLoaderRoute: typeof SettingsRepostRouteImport;
-      parentRoute: typeof SettingsRoute;
-    };
-    "/settings/integrations": {
-      id: "/settings/integrations";
-      path: "/integrations";
-      fullPath: "/settings/integrations";
-      preLoaderRoute: typeof SettingsIntegrationsRouteImport;
-      parentRoute: typeof SettingsRoute;
-    };
-    "/settings/filter-presets": {
-      id: "/settings/filter-presets";
-      path: "/filter-presets";
-      fullPath: "/settings/filter-presets";
-      preLoaderRoute: typeof SettingsFilterPresetsRouteImport;
-      parentRoute: typeof SettingsRoute;
-    };
-    "/settings/content-tags": {
-      id: "/settings/content-tags";
-      path: "/content-tags";
-      fullPath: "/settings/content-tags";
-      preLoaderRoute: typeof SettingsContentTagsRouteImport;
-      parentRoute: typeof SettingsRoute;
-    };
-    "/settings/content-safety": {
-      id: "/settings/content-safety";
-      path: "/content-safety";
-      fullPath: "/settings/content-safety";
-      preLoaderRoute: typeof SettingsContentSafetyRouteImport;
-      parentRoute: typeof SettingsRoute;
-    };
-    "/settings/appearance": {
-      id: "/settings/appearance";
-      path: "/appearance";
-      fullPath: "/settings/appearance";
-      preLoaderRoute: typeof SettingsAppearanceRouteImport;
-      parentRoute: typeof SettingsRoute;
-    };
-    "/posts/$postId": {
-      id: "/posts/$postId";
-      path: "/posts/$postId";
-      fullPath: "/posts/$postId";
-      preLoaderRoute: typeof PostsPostIdRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/library/$mediaId": {
-      id: "/library/$mediaId";
-      path: "/library/$mediaId";
-      fullPath: "/library/$mediaId";
-      preLoaderRoute: typeof LibraryMediaIdRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/content/shoots": {
-      id: "/content/shoots";
-      path: "/shoots";
-      fullPath: "/content/shoots";
-      preLoaderRoute: typeof ContentShootsRouteImport;
-      parentRoute: typeof ContentRoute;
-    };
-    "/content/library": {
-      id: "/content/library";
-      path: "/library";
-      fullPath: "/content/library";
-      preLoaderRoute: typeof ContentLibraryRouteImport;
-      parentRoute: typeof ContentRoute;
-    };
-    "/content/library/media": {
-      id: "/content/library/media";
-      path: "/media";
-      fullPath: "/content/library/media";
-      preLoaderRoute: typeof ContentLibraryMediaRouteImport;
-      parentRoute: typeof ContentLibraryRoute;
-    };
-    "/content/library/media/": {
-      id: "/content/library/media/";
-      path: "/";
-      fullPath: "/content/library/media/";
-      preLoaderRoute: typeof ContentLibraryMediaIndexRouteImport;
-      parentRoute: typeof ContentLibraryMediaRoute;
-    };
-    "/content/library/media/$mediaId": {
-      id: "/content/library/media/$mediaId";
-      path: "/$mediaId";
-      fullPath: "/content/library/media/$mediaId";
-      preLoaderRoute: typeof ContentLibraryMediaMediaIdRouteImport;
-      parentRoute: typeof ContentLibraryMediaRoute;
-    };
+    '/subreddits': {
+      id: '/subreddits'
+      path: '/subreddits'
+      fullPath: '/subreddits'
+      preLoaderRoute: typeof SubredditsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hashtags': {
+      id: '/hashtags'
+      path: '/hashtags'
+      fullPath: '/hashtags'
+      preLoaderRoute: typeof HashtagsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/content': {
+      id: '/content'
+      path: '/content'
+      fullPath: '/content'
+      preLoaderRoute: typeof ContentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/component-showcase': {
+      id: '/component-showcase'
+      path: '/component-showcase'
+      fullPath: '/component-showcase'
+      preLoaderRoute: typeof ComponentShowcaseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/channels': {
+      id: '/channels'
+      path: '/channels'
+      fullPath: '/channels'
+      preLoaderRoute: typeof ChannelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/captioning': {
+      id: '/captioning'
+      path: '/captioning'
+      fullPath: '/captioning'
+      preLoaderRoute: typeof CaptioningRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shoots/': {
+      id: '/shoots/'
+      path: '/shoots'
+      fullPath: '/shoots/'
+      preLoaderRoute: typeof ShootsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/': {
+      id: '/settings/'
+      path: '/'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof SettingsIndexRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/plan/': {
+      id: '/plan/'
+      path: '/plan'
+      fullPath: '/plan/'
+      preLoaderRoute: typeof PlanIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/library/': {
+      id: '/library/'
+      path: '/library'
+      fullPath: '/library/'
+      preLoaderRoute: typeof LibraryIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shoots/$shootId': {
+      id: '/shoots/$shootId'
+      path: '/shoots/$shootId'
+      fullPath: '/shoots/$shootId'
+      preLoaderRoute: typeof ShootsShootIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/snippets': {
+      id: '/settings/snippets'
+      path: '/snippets'
+      fullPath: '/settings/snippets'
+      preLoaderRoute: typeof SettingsSnippetsRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/settings/repost': {
+      id: '/settings/repost'
+      path: '/repost'
+      fullPath: '/settings/repost'
+      preLoaderRoute: typeof SettingsRepostRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/settings/integrations': {
+      id: '/settings/integrations'
+      path: '/integrations'
+      fullPath: '/settings/integrations'
+      preLoaderRoute: typeof SettingsIntegrationsRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/settings/filter-presets': {
+      id: '/settings/filter-presets'
+      path: '/filter-presets'
+      fullPath: '/settings/filter-presets'
+      preLoaderRoute: typeof SettingsFilterPresetsRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/settings/content-tags': {
+      id: '/settings/content-tags'
+      path: '/content-tags'
+      fullPath: '/settings/content-tags'
+      preLoaderRoute: typeof SettingsContentTagsRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/settings/content-safety': {
+      id: '/settings/content-safety'
+      path: '/content-safety'
+      fullPath: '/settings/content-safety'
+      preLoaderRoute: typeof SettingsContentSafetyRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/settings/appearance': {
+      id: '/settings/appearance'
+      path: '/appearance'
+      fullPath: '/settings/appearance'
+      preLoaderRoute: typeof SettingsAppearanceRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/posts/$postId': {
+      id: '/posts/$postId'
+      path: '/posts/$postId'
+      fullPath: '/posts/$postId'
+      preLoaderRoute: typeof PostsPostIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/library/$mediaId': {
+      id: '/library/$mediaId'
+      path: '/library/$mediaId'
+      fullPath: '/library/$mediaId'
+      preLoaderRoute: typeof LibraryMediaIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/content/shoots': {
+      id: '/content/shoots'
+      path: '/shoots'
+      fullPath: '/content/shoots'
+      preLoaderRoute: typeof ContentShootsRouteImport
+      parentRoute: typeof ContentRoute
+    }
+    '/content/library': {
+      id: '/content/library'
+      path: '/library'
+      fullPath: '/content/library'
+      preLoaderRoute: typeof ContentLibraryRouteImport
+      parentRoute: typeof ContentRoute
+    }
+    '/content/library/media': {
+      id: '/content/library/media'
+      path: '/media'
+      fullPath: '/content/library/media'
+      preLoaderRoute: typeof ContentLibraryMediaRouteImport
+      parentRoute: typeof ContentLibraryRoute
+    }
+    '/analytics/fyp/active': {
+      id: '/analytics/fyp/active'
+      path: '/analytics/fyp/active'
+      fullPath: '/analytics/fyp/active'
+      preLoaderRoute: typeof AnalyticsFypActiveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/content/library/media/': {
+      id: '/content/library/media/'
+      path: '/'
+      fullPath: '/content/library/media/'
+      preLoaderRoute: typeof ContentLibraryMediaIndexRouteImport
+      parentRoute: typeof ContentLibraryMediaRoute
+    }
+    '/content/library/media/$mediaId': {
+      id: '/content/library/media/$mediaId'
+      path: '/$mediaId'
+      fullPath: '/content/library/media/$mediaId'
+      preLoaderRoute: typeof ContentLibraryMediaMediaIdRouteImport
+      parentRoute: typeof ContentLibraryMediaRoute
+    }
   }
 }
 
 interface ContentLibraryMediaRouteChildren {
-  ContentLibraryMediaMediaIdRoute: typeof ContentLibraryMediaMediaIdRoute;
-  ContentLibraryMediaIndexRoute: typeof ContentLibraryMediaIndexRoute;
+  ContentLibraryMediaMediaIdRoute: typeof ContentLibraryMediaMediaIdRoute
+  ContentLibraryMediaIndexRoute: typeof ContentLibraryMediaIndexRoute
 }
 
 const ContentLibraryMediaRouteChildren: ContentLibraryMediaRouteChildren = {
   ContentLibraryMediaMediaIdRoute: ContentLibraryMediaMediaIdRoute,
   ContentLibraryMediaIndexRoute: ContentLibraryMediaIndexRoute,
-};
+}
 
-const ContentLibraryMediaRouteWithChildren = ContentLibraryMediaRoute._addFileChildren(
-  ContentLibraryMediaRouteChildren,
-);
+const ContentLibraryMediaRouteWithChildren =
+  ContentLibraryMediaRoute._addFileChildren(ContentLibraryMediaRouteChildren)
 
 interface ContentLibraryRouteChildren {
-  ContentLibraryMediaRoute: typeof ContentLibraryMediaRouteWithChildren;
+  ContentLibraryMediaRoute: typeof ContentLibraryMediaRouteWithChildren
 }
 
 const ContentLibraryRouteChildren: ContentLibraryRouteChildren = {
   ContentLibraryMediaRoute: ContentLibraryMediaRouteWithChildren,
-};
+}
 
 const ContentLibraryRouteWithChildren = ContentLibraryRoute._addFileChildren(
   ContentLibraryRouteChildren,
-);
+)
 
 interface ContentRouteChildren {
-  ContentLibraryRoute: typeof ContentLibraryRouteWithChildren;
-  ContentShootsRoute: typeof ContentShootsRoute;
+  ContentLibraryRoute: typeof ContentLibraryRouteWithChildren
+  ContentShootsRoute: typeof ContentShootsRoute
 }
 
 const ContentRouteChildren: ContentRouteChildren = {
   ContentLibraryRoute: ContentLibraryRouteWithChildren,
   ContentShootsRoute: ContentShootsRoute,
-};
+}
 
-const ContentRouteWithChildren = ContentRoute._addFileChildren(ContentRouteChildren);
+const ContentRouteWithChildren =
+  ContentRoute._addFileChildren(ContentRouteChildren)
 
 interface SettingsRouteChildren {
-  SettingsAppearanceRoute: typeof SettingsAppearanceRoute;
-  SettingsContentSafetyRoute: typeof SettingsContentSafetyRoute;
-  SettingsContentTagsRoute: typeof SettingsContentTagsRoute;
-  SettingsFilterPresetsRoute: typeof SettingsFilterPresetsRoute;
-  SettingsIntegrationsRoute: typeof SettingsIntegrationsRoute;
-  SettingsRepostRoute: typeof SettingsRepostRoute;
-  SettingsSnippetsRoute: typeof SettingsSnippetsRoute;
-  SettingsIndexRoute: typeof SettingsIndexRoute;
+  SettingsAppearanceRoute: typeof SettingsAppearanceRoute
+  SettingsContentSafetyRoute: typeof SettingsContentSafetyRoute
+  SettingsContentTagsRoute: typeof SettingsContentTagsRoute
+  SettingsFilterPresetsRoute: typeof SettingsFilterPresetsRoute
+  SettingsIntegrationsRoute: typeof SettingsIntegrationsRoute
+  SettingsRepostRoute: typeof SettingsRepostRoute
+  SettingsSnippetsRoute: typeof SettingsSnippetsRoute
+  SettingsIndexRoute: typeof SettingsIndexRoute
 }
 
 const SettingsRouteChildren: SettingsRouteChildren = {
@@ -616,9 +638,11 @@ const SettingsRouteChildren: SettingsRouteChildren = {
   SettingsRepostRoute: SettingsRepostRoute,
   SettingsSnippetsRoute: SettingsSnippetsRoute,
   SettingsIndexRoute: SettingsIndexRoute,
-};
+}
 
-const SettingsRouteWithChildren = SettingsRoute._addFileChildren(SettingsRouteChildren);
+const SettingsRouteWithChildren = SettingsRoute._addFileChildren(
+  SettingsRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -635,7 +659,17 @@ const rootRouteChildren: RootRouteChildren = {
   LibraryIndexRoute: LibraryIndexRoute,
   PlanIndexRoute: PlanIndexRoute,
   ShootsIndexRoute: ShootsIndexRoute,
-};
+  AnalyticsFypActiveRoute: AnalyticsFypActiveRoute,
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

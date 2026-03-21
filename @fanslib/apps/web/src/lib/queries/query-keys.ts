@@ -28,6 +28,7 @@ export const QUERY_KEYS = {
   analytics: {
     all: ["analytics"] as const,
     datapoints: (postMediaId: string) => ["analytics", "datapoints", postMediaId] as const,
+    activeFypPosts: (sortBy?: string) => ["analytics", "active-fyp-posts", sortBy] as const,
   },
 
   posts: {
