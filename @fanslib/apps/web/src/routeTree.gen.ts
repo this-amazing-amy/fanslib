@@ -34,6 +34,7 @@ import { Route as LibraryMediaIdRouteImport } from './routes/library/$mediaId'
 import { Route as ContentShootsRouteImport } from './routes/content/shoots'
 import { Route as ContentLibraryRouteImport } from './routes/content/library'
 import { Route as ContentLibraryMediaRouteImport } from './routes/content/library/media'
+import { Route as AnalyticsFypActiveRouteImport } from './routes/analytics/fyp/active'
 import { Route as ContentLibraryMediaIndexRouteImport } from './routes/content/library/media/index'
 import { Route as ContentLibraryMediaMediaIdRouteImport } from './routes/content/library/media/$mediaId'
 
@@ -162,6 +163,11 @@ const ContentLibraryMediaRoute = ContentLibraryMediaRouteImport.update({
   path: '/media',
   getParentRoute: () => ContentLibraryRoute,
 } as any)
+const AnalyticsFypActiveRoute = AnalyticsFypActiveRouteImport.update({
+  id: '/analytics/fyp/active',
+  path: '/analytics/fyp/active',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContentLibraryMediaIndexRoute =
   ContentLibraryMediaIndexRouteImport.update({
     id: '/',
@@ -200,6 +206,7 @@ export interface FileRoutesByFullPath {
   '/plan/': typeof PlanIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/shoots/': typeof ShootsIndexRoute
+  '/analytics/fyp/active': typeof AnalyticsFypActiveRoute
   '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
   '/content/library/media/': typeof ContentLibraryMediaIndexRoute
@@ -228,6 +235,7 @@ export interface FileRoutesByTo {
   '/plan': typeof PlanIndexRoute
   '/settings': typeof SettingsIndexRoute
   '/shoots': typeof ShootsIndexRoute
+  '/analytics/fyp/active': typeof AnalyticsFypActiveRoute
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
   '/content/library/media': typeof ContentLibraryMediaIndexRoute
 }
@@ -257,6 +265,7 @@ export interface FileRoutesById {
   '/plan/': typeof PlanIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/shoots/': typeof ShootsIndexRoute
+  '/analytics/fyp/active': typeof AnalyticsFypActiveRoute
   '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
   '/content/library/media/': typeof ContentLibraryMediaIndexRoute
@@ -288,6 +297,7 @@ export interface FileRouteTypes {
     | '/plan/'
     | '/settings/'
     | '/shoots/'
+    | '/analytics/fyp/active'
     | '/content/library/media'
     | '/content/library/media/$mediaId'
     | '/content/library/media/'
@@ -316,6 +326,7 @@ export interface FileRouteTypes {
     | '/plan'
     | '/settings'
     | '/shoots'
+    | '/analytics/fyp/active'
     | '/content/library/media/$mediaId'
     | '/content/library/media'
   id:
@@ -344,6 +355,7 @@ export interface FileRouteTypes {
     | '/plan/'
     | '/settings/'
     | '/shoots/'
+    | '/analytics/fyp/active'
     | '/content/library/media'
     | '/content/library/media/$mediaId'
     | '/content/library/media/'
@@ -364,6 +376,7 @@ export interface RootRouteChildren {
   LibraryIndexRoute: typeof LibraryIndexRoute
   PlanIndexRoute: typeof PlanIndexRoute
   ShootsIndexRoute: typeof ShootsIndexRoute
+  AnalyticsFypActiveRoute: typeof AnalyticsFypActiveRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -543,6 +556,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContentLibraryMediaRouteImport
       parentRoute: typeof ContentLibraryRoute
     }
+    '/analytics/fyp/active': {
+      id: '/analytics/fyp/active'
+      path: '/analytics/fyp/active'
+      fullPath: '/analytics/fyp/active'
+      preLoaderRoute: typeof AnalyticsFypActiveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/content/library/media/': {
       id: '/content/library/media/'
       path: '/'
@@ -639,7 +659,17 @@ const rootRouteChildren: RootRouteChildren = {
   LibraryIndexRoute: LibraryIndexRoute,
   PlanIndexRoute: PlanIndexRoute,
   ShootsIndexRoute: ShootsIndexRoute,
+  AnalyticsFypActiveRoute: AnalyticsFypActiveRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
