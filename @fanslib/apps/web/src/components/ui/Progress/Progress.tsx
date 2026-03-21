@@ -1,15 +1,15 @@
-import type { AriaProgressBarProps } from 'react-aria';
-import { useProgressBar } from 'react-aria';
-import { cn } from '~/lib/cn';
+import type { AriaProgressBarProps } from "react-aria";
+import { useProgressBar } from "react-aria";
+import { cn } from "~/lib/cn";
 
 export type ProgressProps = AriaProgressBarProps & {
-  variant?: 'primary' | 'secondary' | 'accent' | 'success' | 'warning' | 'error' | 'info';
+  variant?: "primary" | "secondary" | "accent" | "success" | "warning" | "error" | "info";
   className?: string;
   showLabel?: boolean;
 };
 
 export const Progress = ({
-  variant = 'primary',
+  variant = "primary",
   className,
   showLabel = false,
   ...props
@@ -17,18 +17,19 @@ export const Progress = ({
   const { progressBarProps, labelProps } = useProgressBar(props);
 
   const variantClasses = {
-    primary: 'progress-primary',
-    secondary: 'progress-secondary',
-    accent: 'progress-accent',
-    success: 'progress-success',
-    warning: 'progress-warning',
-    error: 'progress-error',
-    info: 'progress-info',
+    primary: "progress-primary",
+    secondary: "progress-secondary",
+    accent: "progress-accent",
+    success: "progress-success",
+    warning: "progress-warning",
+    error: "progress-error",
+    info: "progress-info",
   };
 
-  const percentage = props.value !== undefined && props.maxValue !== undefined
-    ? Math.round((props.value / props.maxValue) * 100)
-    : 0;
+  const percentage =
+    props.value !== undefined && props.maxValue !== undefined
+      ? Math.round((props.value / props.maxValue) * 100)
+      : 0;
 
   return (
     <div className="w-full">
@@ -46,11 +47,10 @@ export const Progress = ({
       )}
       <progress
         {...progressBarProps}
-        className={cn('progress w-full', variantClasses[variant], className)}
+        className={cn("progress w-full", variantClasses[variant], className)}
         value={props.value}
         max={props.maxValue}
       />
     </div>
   );
 };
-

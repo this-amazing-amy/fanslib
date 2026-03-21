@@ -8,7 +8,7 @@ type GalleryEmptyProps = {
 };
 
 export const GalleryEmpty = ({ onScan }: GalleryEmptyProps) => {
-  const { hasActiveFilters, clearFilters, } = useMediaFilters();
+  const { hasActiveFilters, clearFilters } = useMediaFilters();
   const isHydrated = useHydrated();
 
   // Only show "has filters" state if hydrated

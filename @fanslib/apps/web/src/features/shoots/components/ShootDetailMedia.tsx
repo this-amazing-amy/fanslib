@@ -1,4 +1,4 @@
-import type { ShootSummary } from '@fanslib/server/schemas';
+import type { ShootSummary } from "@fanslib/server/schemas";
 import { Trash2Icon } from "lucide-react";
 import { type FC, useState } from "react";
 import { Button } from "~/components/ui/Button";
@@ -6,7 +6,6 @@ import { Tooltip } from "~/components/ui/Tooltip";
 import { MediaTile } from "~/features/library/components/MediaTile";
 import { cn } from "~/lib/cn";
 import { useUpdateShootMutation } from "~/lib/queries/shoots";
-
 
 type ShootDetailMediaProps = {
   shootId: string;
@@ -53,7 +52,7 @@ export const ShootDetailMedia: FC<ShootDetailMediaProps> = ({
           size={confirmingDelete ? "sm" : "icon"}
           className={cn(
             "h-7 text-muted-foreground hover:text-destructive transition-all duration-100",
-            confirmingDelete ? "w-[72px] px-2" : "w-7"
+            confirmingDelete ? "w-[72px] px-2" : "w-7",
           )}
           onPress={() => {
             if (confirmingDelete) {

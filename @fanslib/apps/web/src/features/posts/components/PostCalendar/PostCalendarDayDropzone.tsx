@@ -1,8 +1,7 @@
-import type { Media } from '@fanslib/server/schemas';
+import type { Media } from "@fanslib/server/schemas";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
-
 
 import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
 import { useDragOver } from "~/hooks/useDragOver";
@@ -13,7 +12,10 @@ type PostCalendarDayDropzoneProps = {
   onUpdate: () => Promise<void>;
 };
 
-export const PostCalendarDayDropzone = ({ date: _date, onUpdate }: PostCalendarDayDropzoneProps) => {
+export const PostCalendarDayDropzone = ({
+  date: _date,
+  onUpdate,
+}: PostCalendarDayDropzoneProps) => {
   const { isDragging, draggedMedias, endMediaDrag } = useMediaDrag();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [droppedMedias, setDroppedMedias] = useState<Media[]>([]);
@@ -43,23 +45,18 @@ export const PostCalendarDayDropzone = ({ date: _date, onUpdate }: PostCalendarD
         {...dragHandlers}
         className={cn(
           "h-8 rounded-lg border-2 border-dashed flex items-center justify-center transition-colors mt-2",
-          isOver ? "border-primary bg-primary/10" : "border-base-300"
+          isOver ? "border-primary bg-primary/10" : "border-base-300",
         )}
       >
         <Plus
           className={cn(
             "h-4 w-4 transition-colors",
-            isOver ? "text-primary" : "text-base-content/60"
+            isOver ? "text-primary" : "text-base-content/60",
           )}
         />
       </div>
 
-      <CreatePostDialog
-        open={isDialogOpen}
-        onOpenChange={handleClose}
-        media={droppedMedias}
-      />
+      <CreatePostDialog open={isDialogOpen} onOpenChange={handleClose} media={droppedMedias} />
     </>
   );
 };
-

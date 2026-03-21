@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Progress } from './Progress';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Progress } from "./Progress";
 
 const meta: Meta<typeof Progress> = {
-  title: 'UI/Progress',
+  title: "UI/Progress",
   component: Progress,
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
@@ -21,7 +21,7 @@ export const WithLabel: Story = {
   args: {
     value: 75,
     maxValue: 100,
-    label: 'Uploading...',
+    label: "Uploading...",
     showLabel: true,
   },
 };
@@ -54,7 +54,6 @@ export const WithLabels: Story = {
 export const Indeterminate: Story = {
   args: {
     isIndeterminate: true,
-    variant: 'primary',
+    variant: "primary",
   },
 };
-

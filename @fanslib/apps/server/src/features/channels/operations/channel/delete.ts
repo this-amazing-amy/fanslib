@@ -26,16 +26,13 @@ export const deleteChannel = async (id: string): Promise<boolean> => {
   await dataSource.transaction(async (manager) => {
     const subredditRepo = manager.getRepository(Subreddit);
     const postRepo = manager.getRepository(Post);
-    
+
     // Find subreddit if it exists
     const subreddit = await subredditRepo.findOne({ where: { channelId: id } });
-    
+
     // If subreddit exists, nullify subredditId on all posts before deleting subreddit
     if (subreddit) {
-      await postRepo.update(
-        { subredditId: subreddit.id },
-        { subredditId: null }
-      );
+      await postRepo.update({ subredditId: subreddit.id }, { subredditId: null });
       await subredditRepo.delete({ id: subreddit.id });
     }
 

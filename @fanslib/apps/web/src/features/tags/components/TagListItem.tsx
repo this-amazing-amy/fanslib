@@ -1,8 +1,7 @@
-import type { TagDefinition } from '@fanslib/server/schemas';
+import type { TagDefinition } from "@fanslib/server/schemas";
 import { Edit, Trash2 } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { cn } from "~/lib/cn";
-
 
 type TagListItemProps = {
   tag: TagDefinition;
@@ -12,9 +11,19 @@ type TagListItemProps = {
   onDelete: () => void;
 };
 
-export const TagListItem = ({ tag, isSelected = false, onSelect, onEdit, onDelete }: TagListItemProps) => {
+export const TagListItem = ({
+  tag,
+  isSelected = false,
+  onSelect,
+  onEdit,
+  onDelete,
+}: TagListItemProps) => {
   const handleDelete = () => {
-    if (confirm(`Are you sure you want to delete the tag "${tag.displayName}"? This action cannot be undone.`)) {
+    if (
+      confirm(
+        `Are you sure you want to delete the tag "${tag.displayName}"? This action cannot be undone.`,
+      )
+    ) {
       onDelete();
     }
   };
@@ -23,13 +32,15 @@ export const TagListItem = ({ tag, isSelected = false, onSelect, onEdit, onDelet
     <div
       className={cn(
         "flex items-center justify-between p-3 rounded-lg border border-base-300 transition-colors group hover:bg-base-200/50",
-        isSelected && "bg-primary/10 border-primary/30"
+        isSelected && "bg-primary/10 border-primary/30",
       )}
       onClick={onSelect}
     >
       <div className="flex-1 min-w-0">
         <div className="font-medium text-sm">{tag.displayName}</div>
-        {tag.description && <div className="text-xs text-base-content/60 mt-1 truncate">{tag.description}</div>}
+        {tag.description && (
+          <div className="text-xs text-base-content/60 mt-1 truncate">{tag.description}</div>
+        )}
         <div className="text-xs text-base-content/40 mt-1">Value: {tag.value}</div>
       </div>
 

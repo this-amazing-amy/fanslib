@@ -1,6 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '../api/hono-client';
-import { QUERY_KEYS } from './query-keys';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { api } from "../api/hono-client";
+import { QUERY_KEYS } from "./query-keys";
 
 export const useChannelsQuery = () =>
   useQuery({
@@ -15,7 +15,7 @@ export const useChannelQuery = (params: { id: string }) =>
   useQuery({
     queryKey: QUERY_KEYS.channels.byId(params.id),
     queryFn: async () => {
-      const result = await api.api.channels['by-id'][':id'].$get({ param: { id: params.id } });
+      const result = await api.api.channels["by-id"][":id"].$get({ param: { id: params.id } });
       return result.json();
     },
     enabled: !!params.id,
@@ -65,7 +65,10 @@ export const useUpdateChannelMutation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: UpdateChannelParams) => {
-      const result = await api.api.channels['by-id'][':id'].$patch({ param: { id }, json: updates });
+      const result = await api.api.channels["by-id"][":id"].$patch({
+        param: { id },
+        json: updates,
+      });
       return result.json();
     },
     onSuccess: (data, variables) => {
@@ -84,7 +87,7 @@ export const useDeleteChannelMutation = () => {
 
   return useMutation({
     mutationFn: async (params: { id: string }) => {
-      const result = await api.api.channels['by-id'][':id'].$delete({ param: { id: params.id } });
+      const result = await api.api.channels["by-id"][":id"].$delete({ param: { id: params.id } });
       return result.json();
     },
     onSuccess: () => {

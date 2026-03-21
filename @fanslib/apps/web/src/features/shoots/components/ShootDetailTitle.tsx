@@ -1,7 +1,6 @@
-import type { ShootSummary, UpdateShootRequestBody } from '@fanslib/server/schemas';
+import type { ShootSummary, UpdateShootRequestBody } from "@fanslib/server/schemas";
 import { type FC, useState } from "react";
 import { Input } from "~/components/ui/Input";
-
 
 type UpdateShootRequest = UpdateShootRequestBody;
 

@@ -1,27 +1,27 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
-import { AlignLeft, AlignCenter, AlignRight, List, Grid } from 'lucide-react';
-import { ToggleGroup } from './ToggleGroup';
+import type { Meta, StoryObj } from "@storybook/react";
+import { useState } from "react";
+import { AlignLeft, AlignCenter, AlignRight, List, Grid } from "lucide-react";
+import { ToggleGroup } from "./ToggleGroup";
 
 const meta: Meta<typeof ToggleGroup> = {
-  title: 'UI/ToggleGroup',
+  title: "UI/ToggleGroup",
   component: ToggleGroup,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {
     variant: {
-      control: 'select',
-      options: ['primary', 'outline'],
+      control: "select",
+      options: ["primary", "outline"],
     },
     size: {
-      control: 'select',
-      options: ['sm', 'md', 'lg'],
+      control: "select",
+      options: ["sm", "md", "lg"],
     },
     orientation: {
-      control: 'select',
-      options: ['horizontal', 'vertical'],
+      control: "select",
+      options: ["horizontal", "vertical"],
     },
   },
 };
@@ -30,24 +30,24 @@ export default meta;
 type Story = StoryObj<typeof ToggleGroup>;
 
 const alignmentOptions = [
-  { value: 'left', label: 'Left', icon: <AlignLeft className="h-4 w-4" /> },
-  { value: 'center', label: 'Center', icon: <AlignCenter className="h-4 w-4" /> },
-  { value: 'right', label: 'Right', icon: <AlignRight className="h-4 w-4" /> },
+  { value: "left", label: "Left", icon: <AlignLeft className="h-4 w-4" /> },
+  { value: "center", label: "Center", icon: <AlignCenter className="h-4 w-4" /> },
+  { value: "right", label: "Right", icon: <AlignRight className="h-4 w-4" /> },
 ];
 
 const viewOptions = [
-  { value: 'list', label: 'List', icon: <List className="h-4 w-4" /> },
-  { value: 'grid', label: 'Grid', icon: <Grid className="h-4 w-4" /> },
+  { value: "list", label: "List", icon: <List className="h-4 w-4" /> },
+  { value: "grid", label: "Grid", icon: <Grid className="h-4 w-4" /> },
 ];
 
 const textOptions = [
-  { value: 'small', label: 'Small' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'large', label: 'Large' },
+  { value: "small", label: "Small" },
+  { value: "medium", label: "Medium" },
+  { value: "large", label: "Large" },
 ];
 
 const DefaultComponent = () => {
-  const [value, setValue] = useState('left');
+  const [value, setValue] = useState("left");
 
   return (
     <ToggleGroup
@@ -64,16 +64,9 @@ export const Default: Story = {
 };
 
 const WithLabelComponent = () => {
-  const [value, setValue] = useState('list');
+  const [value, setValue] = useState("list");
 
-  return (
-    <ToggleGroup
-      label="View mode"
-      options={viewOptions}
-      value={value}
-      onChange={setValue}
-    />
-  );
+  return <ToggleGroup label="View mode" options={viewOptions} value={value} onChange={setValue} />;
 };
 
 export const WithLabel: Story = {
@@ -81,8 +74,8 @@ export const WithLabel: Story = {
 };
 
 const VariantsComponent = () => {
-  const [value1, setValue1] = useState('left');
-  const [value2, setValue2] = useState('left');
+  const [value1, setValue1] = useState("left");
+  const [value2, setValue2] = useState("left");
 
   return (
     <div className="space-y-4">
@@ -113,30 +106,15 @@ export const Variants: Story = {
 };
 
 const SizesComponent = () => {
-  const [value1, setValue1] = useState('left');
-  const [value2, setValue2] = useState('left');
-  const [value3, setValue3] = useState('left');
+  const [value1, setValue1] = useState("left");
+  const [value2, setValue2] = useState("left");
+  const [value3, setValue3] = useState("left");
 
   return (
     <div className="space-y-4">
-      <ToggleGroup
-        options={alignmentOptions}
-        value={value1}
-        onChange={setValue1}
-        size="sm"
-      />
-      <ToggleGroup
-        options={alignmentOptions}
-        value={value2}
-        onChange={setValue2}
-        size="md"
-      />
-      <ToggleGroup
-        options={alignmentOptions}
-        value={value3}
-        onChange={setValue3}
-        size="lg"
-      />
+      <ToggleGroup options={alignmentOptions} value={value1} onChange={setValue1} size="sm" />
+      <ToggleGroup options={alignmentOptions} value={value2} onChange={setValue2} size="md" />
+      <ToggleGroup options={alignmentOptions} value={value3} onChange={setValue3} size="lg" />
     </div>
   );
 };
@@ -146,7 +124,7 @@ export const Sizes: Story = {
 };
 
 const TextOnlyComponent = () => {
-  const [value, setValue] = useState('medium');
+  const [value, setValue] = useState("medium");
 
   return (
     <ToggleGroup
@@ -164,12 +142,12 @@ export const TextOnly: Story = {
 };
 
 const IconOnlyComponent = () => {
-  const [value, setValue] = useState('left');
+  const [value, setValue] = useState("left");
 
   const iconOnlyOptions = [
-    { value: 'left', label: <AlignLeft className="h-4 w-4" /> },
-    { value: 'center', label: <AlignCenter className="h-4 w-4" /> },
-    { value: 'right', label: <AlignRight className="h-4 w-4" /> },
+    { value: "left", label: <AlignLeft className="h-4 w-4" /> },
+    { value: "center", label: <AlignCenter className="h-4 w-4" /> },
+    { value: "right", label: <AlignRight className="h-4 w-4" /> },
   ];
 
   return (
@@ -188,7 +166,7 @@ export const IconOnly: Story = {
 };
 
 const VerticalComponent = () => {
-  const [value, setValue] = useState('left');
+  const [value, setValue] = useState("left");
 
   return (
     <ToggleGroup
@@ -207,12 +185,12 @@ export const Vertical: Story = {
 };
 
 const WithDisabledOptionsComponent = () => {
-  const [value, setValue] = useState('left');
+  const [value, setValue] = useState("left");
 
   const optionsWithDisabled = [
-    { value: 'left', label: 'Left', icon: <AlignLeft className="h-4 w-4" /> },
-    { value: 'center', label: 'Center', icon: <AlignCenter className="h-4 w-4" />, disabled: true },
-    { value: 'right', label: 'Right', icon: <AlignRight className="h-4 w-4" /> },
+    { value: "left", label: "Left", icon: <AlignLeft className="h-4 w-4" /> },
+    { value: "center", label: "Center", icon: <AlignCenter className="h-4 w-4" />, disabled: true },
+    { value: "right", label: "Right", icon: <AlignRight className="h-4 w-4" /> },
   ];
 
   return (

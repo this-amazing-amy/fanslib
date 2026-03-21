@@ -1,4 +1,7 @@
-import { getPosterInstance, hasPosterInstance } from "../../../../lib/reddit-poster/poster-instance";
+import {
+  getPosterInstance,
+  hasPosterInstance,
+} from "../../../../lib/reddit-poster/poster-instance";
 
 export const isRedditAutomationRunning = (): boolean => {
   if (!hasPosterInstance()) {
@@ -8,4 +11,3 @@ export const isRedditAutomationRunning = (): boolean => {
   const posterInstance = getPosterInstance();
   return posterInstance.isCurrentlyRunning();
 };
-

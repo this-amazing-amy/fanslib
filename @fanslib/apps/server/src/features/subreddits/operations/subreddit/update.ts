@@ -29,11 +29,11 @@ export const updateSubreddit = async (
     const subredditRepo = manager.getRepository(Subreddit);
     const channelRepo = manager.getRepository(Channel);
 
-    const subreddit = await subredditRepo.findOne({ 
+    const subreddit = await subredditRepo.findOne({
       where: { id },
       relations: ["channel"],
     });
-    
+
     if (!subreddit) {
       return null;
     }
@@ -43,7 +43,7 @@ export const updateSubreddit = async (
 
     if (subreddit.channelId && subreddit.channel) {
       const channelUpdates: Partial<Channel> = {};
-      
+
       if (updates.name !== undefined) {
         channelUpdates.name = updates.name;
       }

@@ -12,7 +12,9 @@ export const ShootDetailEditButton: FC<ShootDetailEditButtonProps> = ({
   isEditing,
   onEdit,
   onCancel,
-}) => <Button variant={"outline"} onClick={isEditing ? onCancel : onEdit}>
-      {isEditing ? <X /> : <PenLine />}
-      {isEditing ? "Cancel" : "Edit"}
-    </Button>;
+}) => (
+  <Button variant={"outline"} onClick={isEditing ? onCancel : onEdit}>
+    {isEditing ? <X /> : <PenLine />}
+    {isEditing ? "Cancel" : "Edit"}
+  </Button>
+);

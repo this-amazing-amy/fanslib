@@ -1,23 +1,26 @@
-import type { Media, MediaFilter } from '@fanslib/server/schemas';
-import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useState } from 'react';
-import { FilterPresetProvider } from '~/contexts/FilterPresetContext';
-import { LibraryPreferencesProvider, useLibraryPreferences } from '~/contexts/LibraryPreferencesContext';
-import { usePostPreferences } from '~/contexts/PostPreferencesContext';
-import { ClientOnly } from '~/components/ClientOnly';
-import { CreatePostDialog } from '~/features/library/components/CreatePostDialog';
-import { Gallery } from '~/features/library/components/Gallery/Gallery';
-import { GalleryPagination } from '~/features/library/components/Gallery/GalleryPagination';
-import { GallerySkeleton } from '~/features/library/components/Gallery/GallerySkeleton';
-import { GalleryViewSettings } from '~/features/library/components/Gallery/GalleryViewSettings';
-import { LibrarySortOptions } from '~/features/library/components/Gallery/LibrarySortOptions';
-import { MediaFilters } from '~/features/library/components/MediaFilters/MediaFilters';
-import { MediaFiltersProvider } from '~/features/library/components/MediaFilters/MediaFiltersContext';
-import { useMediaListQuery } from '~/lib/queries/library';
-import { QUERY_KEYS } from '~/lib/queries/query-keys';
-import type { VirtualPost } from '~/lib/virtual-posts';
-import { useInlinePicker, useInlinePickerActions } from '../contexts/InlinePickerContext';
-import { useCreatePostFromVirtualSlot } from '../hooks/useCreatePostFromVirtualSlot';
+import type { Media, MediaFilter } from "@fanslib/server/schemas";
+import { useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useState } from "react";
+import { FilterPresetProvider } from "~/contexts/FilterPresetContext";
+import {
+  LibraryPreferencesProvider,
+  useLibraryPreferences,
+} from "~/contexts/LibraryPreferencesContext";
+import { usePostPreferences } from "~/contexts/PostPreferencesContext";
+import { ClientOnly } from "~/components/ClientOnly";
+import { CreatePostDialog } from "~/features/library/components/CreatePostDialog";
+import { Gallery } from "~/features/library/components/Gallery/Gallery";
+import { GalleryPagination } from "~/features/library/components/Gallery/GalleryPagination";
+import { GallerySkeleton } from "~/features/library/components/Gallery/GallerySkeleton";
+import { GalleryViewSettings } from "~/features/library/components/Gallery/GalleryViewSettings";
+import { LibrarySortOptions } from "~/features/library/components/Gallery/LibrarySortOptions";
+import { MediaFilters } from "~/features/library/components/MediaFilters/MediaFilters";
+import { MediaFiltersProvider } from "~/features/library/components/MediaFilters/MediaFiltersContext";
+import { useMediaListQuery } from "~/lib/queries/library";
+import { QUERY_KEYS } from "~/lib/queries/query-keys";
+import type { VirtualPost } from "~/lib/virtual-posts";
+import { useInlinePicker, useInlinePickerActions } from "../contexts/InlinePickerContext";
+import { useCreatePostFromVirtualSlot } from "../hooks/useCreatePostFromVirtualSlot";
 
 type PlanLibraryPanelInnerProps = {
   virtualPost: VirtualPost | null;
@@ -32,12 +35,13 @@ const PlanLibraryPanelInner = ({ virtualPost, externalFilters }: PlanLibraryPane
   const [dialogMedia, setDialogMedia] = useState<Media | null>(null);
   const queryClient = useQueryClient();
 
-  const invalidateCalendar = useCallback(() =>
-    Promise.all([
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all }),
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contentSchedules.all() }),
-    ]).then(() => undefined),
-    [queryClient]
+  const invalidateCalendar = useCallback(
+    () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.posts.all }),
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contentSchedules.all() }),
+      ]).then(() => undefined),
+    [queryClient],
   );
 
   const mediaClickHandler = useCallback(
@@ -54,7 +58,13 @@ const PlanLibraryPanelInner = ({ virtualPost, externalFilters }: PlanLibraryPane
         clearFloatingPost();
       }
     },
-    [virtualPost, postPreferences.view.openDialogOnDrop, createPostFromVirtualSlot, invalidateCalendar, clearFloatingPost]
+    [
+      virtualPost,
+      postPreferences.view.openDialogOnDrop,
+      createPostFromVirtualSlot,
+      invalidateCalendar,
+      clearFloatingPost,
+    ],
   );
 
   // Sync external filters (from virtual post selection) with library preferences
@@ -143,14 +153,19 @@ const PlanLibraryPanelInner = ({ virtualPost, externalFilters }: PlanLibraryPane
                 <ClientOnly fallback={<GallerySkeleton />}>
                   <Gallery
                     medias={(mediaList?.items as Media[] | undefined) ?? []}
-                    error={error ? (error instanceof Error ? error.message : 'Unknown error') : undefined}
+                    error={
+                      error ? (error instanceof Error ? error.message : "Unknown error") : undefined
+                    }
                     onScan={() => {}}
                     onMediaClick={virtualPost ? mediaClickHandler : undefined}
                   />
                 </ClientOnly>
               )}
             </div>
-            <GalleryPagination totalPages={mediaList?.totalPages ?? 0} totalItems={mediaList?.total ?? 0} />
+            <GalleryPagination
+              totalPages={mediaList?.totalPages ?? 0}
+              totalItems={mediaList?.total ?? 0}
+            />
           </div>
         </div>
       </MediaFiltersProvider>
@@ -163,10 +178,7 @@ export const PlanLibraryPanel = () => {
 
   return (
     <LibraryPreferencesProvider storageKey="planLibraryPreferences">
-      <PlanLibraryPanelInner 
-        virtualPost={state.virtualPost} 
-        externalFilters={state.filters}
-      />
+      <PlanLibraryPanelInner virtualPost={state.virtualPost} externalFilters={state.filters} />
     </LibraryPreferencesProvider>
   );
 };

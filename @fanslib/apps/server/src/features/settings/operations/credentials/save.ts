@@ -15,16 +15,18 @@ export const SaveFanslyCredentialsResponseSchema = z.object({
   success: z.boolean(),
 });
 
-export type SaveFanslyCredentialsRequestBody = z.infer<typeof SaveFanslyCredentialsRequestBodySchema>;
+export type SaveFanslyCredentialsRequestBody = z.infer<
+  typeof SaveFanslyCredentialsRequestBodySchema
+>;
 export type SaveFanslyCredentialsResponse = z.infer<typeof SaveFanslyCredentialsResponseSchema>;
 
 export const saveFanslyCredentials = async (
-  credentials: SaveFanslyCredentialsRequestBody
+  credentials: SaveFanslyCredentialsRequestBody,
 ): Promise<SaveFanslyCredentialsResponse> => {
   try {
     const existingData = await loadFanslyCredentials();
     const existingCredentials = existingData?.credentials ?? {};
-    
+
     const updatedCredentials = {
       ...existingCredentials,
       ...credentials,
@@ -40,4 +42,3 @@ export const saveFanslyCredentials = async (
   }
   return { success: true };
 };
-

@@ -18,7 +18,7 @@ const convertDateToCalendarDate = (jsDate: Date): DateValue => {
   const year = jsDate.getFullYear();
   const month = jsDate.getMonth() + 1;
   const day = jsDate.getDate();
-  return parseDate(`${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`);
+  return parseDate(`${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`);
 };
 
 const convertCalendarDateToJSDate = (calendarDate: DateValue): Date => {
@@ -95,7 +95,7 @@ export const ShootFilterItemRenderer = ({
           "border-0 hover:border-0 focus:border-0",
           "ring-0 hover:ring-0 focus:ring-0",
           "absolute top-1/2 -translate-y-1/2",
-          isDateRange ? "right-14" : "right-[0.625rem]"
+          isDateRange ? "right-14" : "right-[0.625rem]",
         )}
         onPress={onRemove}
         aria-label="Remove filter"
@@ -105,4 +105,3 @@ export const ShootFilterItemRenderer = ({
     </div>
   );
 };
-

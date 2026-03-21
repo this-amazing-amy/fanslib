@@ -36,7 +36,12 @@ describe("Library Routes", () => {
       });
       expect(response.status).toBe(200);
 
-      const data = await parseResponse<{ items: Media[]; total: number; page: number; limit: number }>(response);
+      const data = await parseResponse<{
+        items: Media[];
+        total: number;
+        page: number;
+        limit: number;
+      }>(response);
       expect(Array.isArray(data?.items)).toBe(true);
       expect(data?.items.length).toBeGreaterThanOrEqual(MEDIA_FIXTURES.length);
 
@@ -57,7 +62,12 @@ describe("Library Routes", () => {
           limit: 2,
         }),
       });
-      const data = await parseResponse<{ items: Media[]; total: number; page: number; limit: number }>(response);
+      const data = await parseResponse<{
+        items: Media[];
+        total: number;
+        page: number;
+        limit: number;
+      }>(response);
 
       expect(data?.items).toHaveLength(2);
       expect(data?.total).toBeGreaterThanOrEqual(MEDIA_FIXTURES.length);
@@ -99,7 +109,9 @@ describe("Library Routes", () => {
         throw new Error("No media fixtures available");
       }
 
-      const response = await app.request(`/api/media/by-path/${encodeURIComponent(fixtureMedia.relativePath)}`);
+      const response = await app.request(
+        `/api/media/by-path/${encodeURIComponent(fixtureMedia.relativePath)}`,
+      );
       expect(response.status).toBe(200);
       const data = await parseResponse<Media>(response);
       expect(data?.id).toBe(fixtureMedia.id);
@@ -253,6 +265,4 @@ describe("Library Routes", () => {
       expect(data).toHaveProperty("next");
     });
   });
-
 });
-

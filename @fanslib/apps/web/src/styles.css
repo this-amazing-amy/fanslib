@@ -1,7 +1,7 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @plugin 'daisyui' {
-  themes: pastel --default
+  themes: pastel --default;
 }
 
 @theme {
@@ -14,25 +14,23 @@
   --breakpoint-wide: 1440px;
 
   --font-family-sans:
-    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif,
-    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
   --font-family-mono:
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
-    'Courier New', monospace;
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
 
   --animate-fade-in: fadeIn 0.2s ease-in-out;
   --animate-slide-up: slideUp 0.3s ease-out;
   --animate-pulse-slow: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-
 /* Override DaisyUI accent color */
 :root {
   --a: 85% 0.12 35; /* Soft coral/peach accent */
   --ac: 25% 0.15 35; /* Dark coral for accent content */
 }
-
 
 @keyframes fadeIn {
   0% {
@@ -130,14 +128,34 @@
     transition: filter 0.3s ease-in-out;
   }
 
-  .sfw-blur-1 { filter: blur(2px); }
-  .sfw-blur-2 { filter: blur(4px); }
-  .sfw-blur-3 { filter: blur(6px); }
-  .sfw-blur-4 { filter: blur(8px); }
-  .sfw-blur-5 { filter: blur(10px); }
-  .sfw-blur-6 { filter: blur(12px); }
-  .sfw-blur-7 { filter: blur(14px); }
-  .sfw-blur-8 { filter: blur(16px); }
-  .sfw-blur-9 { filter: blur(18px); }
-  .sfw-blur-10 { filter: blur(20px); }
+  .sfw-blur-1 {
+    filter: blur(2px);
+  }
+  .sfw-blur-2 {
+    filter: blur(4px);
+  }
+  .sfw-blur-3 {
+    filter: blur(6px);
+  }
+  .sfw-blur-4 {
+    filter: blur(8px);
+  }
+  .sfw-blur-5 {
+    filter: blur(10px);
+  }
+  .sfw-blur-6 {
+    filter: blur(12px);
+  }
+  .sfw-blur-7 {
+    filter: blur(14px);
+  }
+  .sfw-blur-8 {
+    filter: blur(16px);
+  }
+  .sfw-blur-9 {
+    filter: blur(18px);
+  }
+  .sfw-blur-10 {
+    filter: blur(20px);
+  }
 }

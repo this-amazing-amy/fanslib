@@ -1,6 +1,5 @@
-import type { TagDefinition } from '@fanslib/server/schemas';
+import type { TagDefinition } from "@fanslib/server/schemas";
 import { TagListItem } from "./TagListItem";
-
 
 type TagListViewProps = {
   tags: TagDefinition[];
@@ -10,7 +9,13 @@ type TagListViewProps = {
   onDeleteTag: (tagId: number) => void;
 };
 
-export const TagListView = ({ tags, selectedTagId, onSelectTag, onEditTag, onDeleteTag }: TagListViewProps) => {
+export const TagListView = ({
+  tags,
+  selectedTagId,
+  onSelectTag,
+  onEditTag,
+  onDeleteTag,
+}: TagListViewProps) => {
   const sortedTags = [...tags].sort((a, b) => a.displayName.localeCompare(b.displayName));
 
   if (sortedTags.length === 0) {

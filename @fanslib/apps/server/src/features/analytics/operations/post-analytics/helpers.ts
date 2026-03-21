@@ -7,7 +7,7 @@ type CreateFanslyAnalyticsDatapointPayload = Omit<
 >;
 
 export const gatherFanslyPostAnalyticsDatapoints = (
-  response: FanslyAnalyticsResponse
+  response: FanslyAnalyticsResponse,
 ): CreateFanslyAnalyticsDatapointPayload[] =>
   response.response.dataset.datapoints.flatMap((datapoint) =>
     datapoint.stats.length === 0
@@ -18,6 +18,5 @@ export const gatherFanslyPostAnalyticsDatapoints = (
             timestamp: datapoint.timestamp,
             views: s.views + s.previewViews,
             interactionTime: s.interactionTime + s.previewInteractionTime,
-          }))
+          })),
   );
-

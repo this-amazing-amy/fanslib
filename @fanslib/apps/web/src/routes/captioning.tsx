@@ -11,10 +11,7 @@ const CaptioningRoute = () => {
   const { data: channelsData } = useChannelsQuery();
   const channels = useMemo(() => channelsData ?? [], [channelsData]);
 
-  const allChannelIds = useMemo(
-    () => channels.map((channel) => channel.id),
-    [channels]
-  );
+  const allChannelIds = useMemo(() => channels.map((channel) => channel.id), [channels]);
 
   const channelIds = allChannelIds;
 
@@ -23,11 +20,7 @@ const CaptioningRoute = () => {
       <MediaDragProvider>
         <Card className="border-none">
           <CardBody className="space-y-4">
-            <CaptioningStep
-              channelIds={channelIds}
-              fromDate={new Date()}
-              toDate={new Date()}
-            />
+            <CaptioningStep channelIds={channelIds} fromDate={new Date()} toDate={new Date()} />
           </CardBody>
         </Card>
       </MediaDragProvider>

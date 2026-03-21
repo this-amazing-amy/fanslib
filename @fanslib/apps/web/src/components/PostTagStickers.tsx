@@ -1,9 +1,8 @@
-import type { PostMediaWithMedia } from '@fanslib/server/schemas';
+import type { PostMediaWithMedia } from "@fanslib/server/schemas";
 import { memo, useMemo } from "react";
 import { groupBy } from "remeda";
 import { useTagsForMediasQuery } from "~/lib/queries/tags";
 import { Sticker } from "./ui/Sticker";
-
 
 type PostTagStickersProps = {
   postMedia: PostMediaWithMedia[];
@@ -11,11 +10,8 @@ type PostTagStickersProps = {
 
 export const PostTagStickers = memo(({ postMedia }: PostTagStickersProps) => {
   const mediaIds = useMemo(
-    () =>
-      postMedia
-        .map((pm) => pm?.media?.id)
-        .filter((id): id is string => id != null),
-    [postMedia]
+    () => postMedia.map((pm) => pm?.media?.id).filter((id): id is string => id != null),
+    [postMedia],
   );
   const { data: allMediaTags = [] } = useTagsForMediasQuery(mediaIds);
 
@@ -29,7 +25,7 @@ export const PostTagStickers = memo(({ postMedia }: PostTagStickersProps) => {
 
   const stickerTags = useMemo(
     () => aggregatedTags.filter((tag) => tag?.stickerDisplay && tag.stickerDisplay !== "none"),
-    [aggregatedTags]
+    [aggregatedTags],
   );
 
   if (!stickerTags.length) return null;
@@ -65,4 +61,3 @@ export const PostTagStickers = memo(({ postMedia }: PostTagStickersProps) => {
 });
 
 PostTagStickers.displayName = "PostTagStickers";
-

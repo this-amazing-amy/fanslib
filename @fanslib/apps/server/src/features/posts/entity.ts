@@ -108,30 +108,33 @@ export class PostMedia {
   @JoinColumn({ name: "postId" })
   post!: Post;
 
-  @ManyToOne(() => Media,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (media: any) => media.postMedia, { onDelete: "CASCADE" })
+  @ManyToOne(
+    () => Media,
+    // oxlint-disable-next-line typescript/no-explicit-any
+    (media: any) => media.postMedia,
+    { onDelete: "CASCADE" },
+  )
   @JoinColumn({ name: "mediaId" })
   media!: Relation<Media>;
 
   @OneToMany(
     "FanslyAnalyticsDatapoint",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (fanslyAnalyticsDatapoint: any) => fanslyAnalyticsDatapoint.postMedia
+    // oxlint-disable-next-line typescript/no-explicit-any
+    (fanslyAnalyticsDatapoint: any) => fanslyAnalyticsDatapoint.postMedia,
   )
   fanslyAnalyticsDatapoints!: Relation<FanslyAnalyticsDatapoint>[];
 
   @OneToOne(
     "FanslyAnalyticsAggregate",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (fanslyAnalyticsAggregate: any) => fanslyAnalyticsAggregate.postMedia
+    // oxlint-disable-next-line typescript/no-explicit-any
+    (fanslyAnalyticsAggregate: any) => fanslyAnalyticsAggregate.postMedia,
   )
   fanslyAnalyticsAggregate?: Relation<FanslyAnalyticsAggregate>;
 
   @OneToOne(
     "FanslyMediaCandidate",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (fanslyMediaCandidate: any) => fanslyMediaCandidate.matchedPostMedia
+    // oxlint-disable-next-line typescript/no-explicit-any
+    (fanslyMediaCandidate: any) => fanslyMediaCandidate.matchedPostMedia,
   )
   matchedFromCandidate?: Relation<FanslyMediaCandidate>;
 

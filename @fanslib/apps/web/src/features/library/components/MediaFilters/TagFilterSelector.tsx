@@ -1,8 +1,14 @@
-import type { TagDefinition, TagDimension } from '@fanslib/server/schemas';
+import type { TagDefinition, TagDimension } from "@fanslib/server/schemas";
 import { ChevronRight, ChevronsUpDown } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "~/components/ui/Button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "~/components/ui/Command";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "~/components/ui/Command";
 import { Popover, PopoverTrigger } from "~/components/ui/Popover";
 import { cn } from "~/lib/cn";
 import { useTagDimensionsQuery } from "~/lib/queries/tags";
@@ -24,15 +30,20 @@ export const TagFilterSelector = ({ value, onChange }: TagFilterSelectorProps) =
   const { data: dimensions = [], isLoading } = useTagDimensionsQuery();
 
   const categoricalDimensions = useMemo(
-    () => (dimensions as unknown as TagDimensionWithTags[] ?? []).filter((d) => d.dataType === "categorical"),
-    [dimensions]
+    () =>
+      ((dimensions as unknown as TagDimensionWithTags[]) ?? []).filter(
+        (d) => d.dataType === "categorical",
+      ),
+    [dimensions],
   );
 
   const selectedDimension = categoricalDimensions.find((d) =>
-    d.tags?.some((tag: TagDefinition) => tag.id.toString() === value)
+    d.tags?.some((tag: TagDefinition) => tag.id.toString() === value),
   );
 
-  const selectedTag = selectedDimension?.tags?.find((tag: TagDefinition) => tag.id.toString() === value);
+  const selectedTag = selectedDimension?.tags?.find(
+    (tag: TagDefinition) => tag.id.toString() === value,
+  );
 
   // Filter dimensions and tags based on search
   const filteredDimensionsWithTags = useMemo(() => {
@@ -51,12 +62,12 @@ export const TagFilterSelector = ({ value, onChange }: TagFilterSelectorProps) =
         const matchingTags = (dimension.tags ?? []).filter(
           (tag: TagDefinition) =>
             tag.displayName.toLowerCase().includes(lowerSearch) ??
-            dimension.name.toLowerCase().includes(lowerSearch)
+            dimension.name.toLowerCase().includes(lowerSearch),
         );
 
         return {
           dimension,
-          tags: dimensionMatches ? dimension.tags ?? [] : matchingTags,
+          tags: dimensionMatches ? (dimension.tags ?? []) : matchingTags,
           hasMatches: dimensionMatches ?? matchingTags.length > 0,
         };
       })
@@ -71,7 +82,7 @@ export const TagFilterSelector = ({ value, onChange }: TagFilterSelectorProps) =
         .map((item) => item.dimension.id);
       setExpandedDimensions(new Set(dimensionsWithMatches));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react/exhaustive-deps
   }, [searchValue]);
 
   const toggleDimension = (dimensionId: number) => {
@@ -108,11 +119,7 @@ export const TagFilterSelector = ({ value, onChange }: TagFilterSelectorProps) =
 
   return (
     <PopoverTrigger isOpen={open} onOpenChange={handleOpenChange}>
-      <Button
-        variant="outline"
-        aria-expanded={open}
-        className="w-full justify-between"
-      >
+      <Button variant="outline" aria-expanded={open} className="w-full justify-between">
         <span className="truncate">{getDisplayValue()}</span>
         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </Button>
@@ -152,7 +159,9 @@ export const TagFilterSelector = ({ value, onChange }: TagFilterSelectorProps) =
                     <CommandGroup>
                       <ul className="flex flex-wrap gap-1 px-2 py-1">
                         {tags
-                          .sort((a: TagDefinition, b: TagDefinition) => a.displayName.localeCompare(b.displayName))
+                          .sort((a: TagDefinition, b: TagDefinition) =>
+                            a.displayName.localeCompare(b.displayName),
+                          )
                           .map((tag: TagDefinition) => (
                             <CommandItem
                               key={tag.id}
@@ -167,7 +176,9 @@ export const TagFilterSelector = ({ value, onChange }: TagFilterSelectorProps) =
                                   displayName: tag.displayName,
                                 }}
                                 selectionMode="radio"
-                                selectionState={value === tag.id.toString() ? "checked" : "unchecked"}
+                                selectionState={
+                                  value === tag.id.toString() ? "checked" : "unchecked"
+                                }
                                 size="md"
                                 className="justify-start"
                                 onSelectionChange={() => handleSelectTag(tag.id.toString())}

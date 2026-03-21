@@ -1,10 +1,9 @@
 {
   "name": "@fanslib/electron-companion",
-  "productName": "FansLib Companion",
   "version": "1.0.0",
   "description": "Companion application for Chrome extension",
-  "main": "./out/main/index.js",
   "author": "Galatea Polymorph",
+  "main": "./out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",
@@ -15,9 +14,9 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "electron": "31.0.2",
     "@electron-toolkit/tsconfig": "^1.0.1",
     "@types/node": "^20.14.8",
+    "electron": "31.0.2",
     "electron-builder": "^24.13.3",
     "electron-vite": "^5.0.0",
     "typescript": "^5.5.2",
@@ -77,5 +76,6 @@
       "artifactName": "fanslib-companion-${version}-${arch}.${ext}"
     },
     "compression": "maximum"
-  }
+  },
+  "productName": "FansLib Companion"
 }

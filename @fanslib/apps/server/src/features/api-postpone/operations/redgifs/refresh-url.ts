@@ -25,7 +25,9 @@ type FindRedgifsUrlQueryVariables = {
   filename: string;
 };
 
-export const refreshRedgifsURL = async (data: z.infer<typeof RefreshRedgifsURLRequestBodySchema>): Promise<z.infer<typeof RefreshRedgifsURLResponseSchema>> => {
+export const refreshRedgifsURL = async (
+  data: z.infer<typeof RefreshRedgifsURLRequestBodySchema>,
+): Promise<z.infer<typeof RefreshRedgifsURLResponseSchema>> => {
   const dataSource = await db();
   const mediaRepository = dataSource.getRepository(Media);
   const media = await mediaRepository.findOne({ where: { id: data.mediaId } });
@@ -40,7 +42,7 @@ export const refreshRedgifsURL = async (data: z.infer<typeof RefreshRedgifsURLRe
     FIND_REDGIFS_URL,
     {
       filename: media.name,
-    }
+    },
   );
 
   const postponeMedia = result.media.objects[0];
@@ -57,4 +59,3 @@ export const refreshRedgifsURL = async (data: z.infer<typeof RefreshRedgifsURLRe
 
   return { url };
 };
-

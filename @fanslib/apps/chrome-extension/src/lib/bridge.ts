@@ -1,5 +1,5 @@
 export type BridgeHealthResponse = {
-  status: 'ok';
+  status: "ok";
 };
 
 export type BridgeVerifyResponse = {
@@ -16,19 +16,17 @@ export type BridgeErrorResponse = {
   error: string;
 };
 
-export const checkBridgeHealth = async (
-  bridgeUrl: string
-): Promise<boolean> => {
+export const checkBridgeHealth = async (bridgeUrl: string): Promise<boolean> => {
   try {
     const response = await fetch(`${bridgeUrl}/health`, {
-      method: 'GET',
+      method: "GET",
       signal: AbortSignal.timeout(1000),
     });
     if (!response.ok) {
       return false;
     }
     const data: BridgeHealthResponse = await response.json();
-    return data.status === 'ok';
+    return data.status === "ok";
   } catch {
     return false;
   }
@@ -36,12 +34,12 @@ export const checkBridgeHealth = async (
 
 export const verifyFile = async (
   bridgeUrl: string,
-  filePath: string
+  filePath: string,
 ): Promise<BridgeVerifyResponse> => {
   const response = await fetch(`${bridgeUrl}/verify`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({ filePath }),
     signal: AbortSignal.timeout(5000),
@@ -49,7 +47,7 @@ export const verifyFile = async (
 
   if (!response.ok) {
     const error: BridgeErrorResponse = await response.json();
-    throw new Error(error.error || 'Failed to verify file');
+    throw new Error(error.error || "Failed to verify file");
   }
 
   return response.json();
@@ -57,12 +55,12 @@ export const verifyFile = async (
 
 export const revealInFinder = async (
   bridgeUrl: string,
-  filePath: string
+  filePath: string,
 ): Promise<BridgeRevealResponse> => {
   const response = await fetch(`${bridgeUrl}/reveal`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({ filePath }),
     signal: AbortSignal.timeout(5000),
@@ -70,7 +68,7 @@ export const revealInFinder = async (
 
   if (!response.ok) {
     const error: BridgeErrorResponse = await response.json();
-    throw new Error(error.error || 'Failed to reveal file');
+    throw new Error(error.error || "Failed to reveal file");
   }
 
   return response.json();

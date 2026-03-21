@@ -34,6 +34,7 @@ import { Route as LibraryMediaIdRouteImport } from './routes/library/$mediaId'
 import { Route as ContentShootsRouteImport } from './routes/content/shoots'
 import { Route as ContentLibraryRouteImport } from './routes/content/library'
 import { Route as ContentLibraryMediaRouteImport } from './routes/content/library/media'
+import { Route as AnalyticsFypRepostRouteImport } from './routes/analytics/fyp/repost'
 import { Route as AnalyticsFypActiveRouteImport } from './routes/analytics/fyp/active'
 import { Route as ContentLibraryMediaIndexRouteImport } from './routes/content/library/media/index'
 import { Route as ContentLibraryMediaMediaIdRouteImport } from './routes/content/library/media/$mediaId'
@@ -163,6 +164,11 @@ const ContentLibraryMediaRoute = ContentLibraryMediaRouteImport.update({
   path: '/media',
   getParentRoute: () => ContentLibraryRoute,
 } as any)
+const AnalyticsFypRepostRoute = AnalyticsFypRepostRouteImport.update({
+  id: '/analytics/fyp/repost',
+  path: '/analytics/fyp/repost',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AnalyticsFypActiveRoute = AnalyticsFypActiveRouteImport.update({
   id: '/analytics/fyp/active',
   path: '/analytics/fyp/active',
@@ -207,6 +213,7 @@ export interface FileRoutesByFullPath {
   '/settings/': typeof SettingsIndexRoute
   '/shoots/': typeof ShootsIndexRoute
   '/analytics/fyp/active': typeof AnalyticsFypActiveRoute
+  '/analytics/fyp/repost': typeof AnalyticsFypRepostRoute
   '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
   '/content/library/media/': typeof ContentLibraryMediaIndexRoute
@@ -236,6 +243,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsIndexRoute
   '/shoots': typeof ShootsIndexRoute
   '/analytics/fyp/active': typeof AnalyticsFypActiveRoute
+  '/analytics/fyp/repost': typeof AnalyticsFypRepostRoute
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
   '/content/library/media': typeof ContentLibraryMediaIndexRoute
 }
@@ -266,6 +274,7 @@ export interface FileRoutesById {
   '/settings/': typeof SettingsIndexRoute
   '/shoots/': typeof ShootsIndexRoute
   '/analytics/fyp/active': typeof AnalyticsFypActiveRoute
+  '/analytics/fyp/repost': typeof AnalyticsFypRepostRoute
   '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
   '/content/library/media/': typeof ContentLibraryMediaIndexRoute
@@ -298,6 +307,7 @@ export interface FileRouteTypes {
     | '/settings/'
     | '/shoots/'
     | '/analytics/fyp/active'
+    | '/analytics/fyp/repost'
     | '/content/library/media'
     | '/content/library/media/$mediaId'
     | '/content/library/media/'
@@ -327,6 +337,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/shoots'
     | '/analytics/fyp/active'
+    | '/analytics/fyp/repost'
     | '/content/library/media/$mediaId'
     | '/content/library/media'
   id:
@@ -356,6 +367,7 @@ export interface FileRouteTypes {
     | '/settings/'
     | '/shoots/'
     | '/analytics/fyp/active'
+    | '/analytics/fyp/repost'
     | '/content/library/media'
     | '/content/library/media/$mediaId'
     | '/content/library/media/'
@@ -377,6 +389,7 @@ export interface RootRouteChildren {
   PlanIndexRoute: typeof PlanIndexRoute
   ShootsIndexRoute: typeof ShootsIndexRoute
   AnalyticsFypActiveRoute: typeof AnalyticsFypActiveRoute
+  AnalyticsFypRepostRoute: typeof AnalyticsFypRepostRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -556,6 +569,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContentLibraryMediaRouteImport
       parentRoute: typeof ContentLibraryRoute
     }
+    '/analytics/fyp/repost': {
+      id: '/analytics/fyp/repost'
+      path: '/analytics/fyp/repost'
+      fullPath: '/analytics/fyp/repost'
+      preLoaderRoute: typeof AnalyticsFypRepostRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/analytics/fyp/active': {
       id: '/analytics/fyp/active'
       path: '/analytics/fyp/active'
@@ -660,6 +680,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlanIndexRoute: PlanIndexRoute,
   ShootsIndexRoute: ShootsIndexRoute,
   AnalyticsFypActiveRoute: AnalyticsFypActiveRoute,
+  AnalyticsFypRepostRoute: AnalyticsFypRepostRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

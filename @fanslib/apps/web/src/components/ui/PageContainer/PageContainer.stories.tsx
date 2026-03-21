@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { PageContainer } from './PageContainer';
+import type { Meta, StoryObj } from "@storybook/react";
+import { PageContainer } from "./PageContainer";
 
 const meta: Meta<typeof PageContainer> = {
-  title: 'UI/PageContainer',
+  title: "UI/PageContainer",
   component: PageContainer,
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
@@ -56,4 +56,3 @@ export const AllSizes: Story = {
     </div>
   ),
 };
-

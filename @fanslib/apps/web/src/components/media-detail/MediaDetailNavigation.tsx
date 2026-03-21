@@ -20,7 +20,7 @@ export const MediaDetailNavigation = () => {
     {
       filters: adjacentParams.filters,
       sort: adjacentParams.sort,
-    }
+    },
   );
 
   const navigateToPrevious = useCallback(() => {
@@ -103,4 +103,3 @@ export const MediaDetailNavigation = () => {
     </div>
   );
 };
-

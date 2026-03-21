@@ -1,11 +1,10 @@
-import type { CaptionQueueItem } from '@fanslib/server/schemas';
+import type { CaptionQueueItem } from "@fanslib/server/schemas";
 import { format } from "date-fns";
 import { useQueries } from "@tanstack/react-query";
 import { Copy } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { MediaTileLite } from "~/features/library/components/MediaTile/MediaTileLite";
 import { api } from "~/lib/api/hono-client";
-
 
 type RelatedCaptionsPanelProps = {
   relatedByMedia: CaptionQueueItem["relatedByMedia"];
@@ -14,7 +13,7 @@ type RelatedCaptionsPanelProps = {
   onUseCaption: (caption: string) => void;
 };
 
-type RelatedItem = 
+type RelatedItem =
   | (CaptionQueueItem["relatedByMedia"][number] & { type: "media" })
   | (CaptionQueueItem["relatedByShoot"][number] & { type: "shoot" });
 
@@ -31,14 +30,17 @@ export const RelatedCaptionsPanel = ({
   ].filter((item) => (item.caption?.trim() ?? "") !== currentCaptionTrimmed);
 
   // Group by caption text to deduplicate
-  const groupedByCaption = allRelated.reduce((acc, item) => {
-    const key = item.caption?.trim() ?? "";
-    if (!acc[key]) {
-      acc[key] = [];
-    }
-    acc[key].push(item);
-    return acc;
-  }, {} as Record<string, RelatedItem[]>);
+  const groupedByCaption = allRelated.reduce(
+    (acc, item) => {
+      const key = item.caption?.trim() ?? "";
+      if (!acc[key]) {
+        acc[key] = [];
+      }
+      acc[key].push(item);
+      return acc;
+    },
+    {} as Record<string, RelatedItem[]>,
+  );
 
   // Create deduplicated items with aggregated info
   const deduplicatedItems = Object.entries(groupedByCaption).map(([caption, items]) => ({
@@ -52,7 +54,7 @@ export const RelatedCaptionsPanel = ({
     queries: deduplicatedItems.map((item) => ({
       queryKey: ["posts", item.postId],
       queryFn: async () => {
-        const result = await api.api.posts['by-id'][':id'].$get({ param: { id: item.postId } });
+        const result = await api.api.posts["by-id"][":id"].$get({ param: { id: item.postId } });
         if (!result.ok) {
           return null;
         }
@@ -62,7 +64,8 @@ export const RelatedCaptionsPanel = ({
     })),
   });
 
-  const renderCaption = (caption: string | null) => (caption ?? "").trim().length > 0 ? caption : "—";
+  const renderCaption = (caption: string | null) =>
+    (caption ?? "").trim().length > 0 ? caption : "—";
 
   if (deduplicatedItems.length === 0) {
     return (
@@ -79,10 +82,17 @@ export const RelatedCaptionsPanel = ({
       <div className="space-y-2">
         {deduplicatedItems.map((item, index) => {
           const postQuery = postQueries[index];
-          const post = postQuery.data && typeof postQuery.data === "object" && "id" in postQuery.data ? postQuery.data : null;
-          const firstMedia = post && "postMedia" in post && Array.isArray(post.postMedia) && post.postMedia.length > 0 
-            ? post.postMedia[0]?.media 
-            : null;
+          const post =
+            postQuery.data && typeof postQuery.data === "object" && "id" in postQuery.data
+              ? postQuery.data
+              : null;
+          const firstMedia =
+            post &&
+            "postMedia" in post &&
+            Array.isArray(post.postMedia) &&
+            post.postMedia.length > 0
+              ? post.postMedia[0]?.media
+              : null;
           const isLoading = postQuery.isLoading;
 
           // Aggregate channels and dates
@@ -91,16 +101,20 @@ export const RelatedCaptionsPanel = ({
           const dates = item.items.map((i) => new Date(i.date));
           const minDate = new Date(Math.min(...dates.map((d) => d.getTime())));
           const maxDate = new Date(Math.max(...dates.map((d) => d.getTime())));
-          const dateRange = minDate.getTime() === maxDate.getTime() 
-            ? format(minDate, "MMM d") 
-            : `${format(minDate, "MMM d")} - ${format(maxDate, "MMM d")}`;
-          
+          const dateRange =
+            minDate.getTime() === maxDate.getTime()
+              ? format(minDate, "MMM d")
+              : `${format(minDate, "MMM d")} - ${format(maxDate, "MMM d")}`;
+
           // Get shoot name if any item is from shoot
           const shootItem = item.items.find((i) => i.type === "shoot");
           const shootName = shootItem?.type === "shoot" ? shootItem.shootName : null;
 
           // Create unique key from all post IDs in this group
-          const groupKey = item.items.map((i) => i.postId).sort().join('-');
+          const groupKey = item.items
+            .map((i) => i.postId)
+            .sort()
+            .join("-");
 
           return (
             <div key={groupKey} className="space-y-2 p-3 rounded-lg border border-black">
@@ -134,7 +148,10 @@ export const RelatedCaptionsPanel = ({
                     )}
                     {uniqueChannels.join(", ")} • {dateRange}
                     {item.items.length > 1 && (
-                      <> • <span className="font-medium">{item.items.length} posts</span></>
+                      <>
+                        {" "}
+                        • <span className="font-medium">{item.items.length} posts</span>
+                      </>
                     )}
                   </div>
                   <div className="text-sm">{renderCaption(item.caption)}</div>

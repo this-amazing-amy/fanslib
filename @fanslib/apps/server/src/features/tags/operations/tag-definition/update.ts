@@ -21,7 +21,7 @@ export const UpdateTagDefinitionResponseSchema = TagDefinitionSchema.extend({
 
 export const updateTagDefinition = async (
   id: number,
-  payload: z.infer<typeof UpdateTagDefinitionRequestBodySchema>
+  payload: z.infer<typeof UpdateTagDefinitionRequestBodySchema>,
 ): Promise<z.infer<typeof UpdateTagDefinitionResponseSchema> | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(TagDefinition);
@@ -46,7 +46,7 @@ export const updateTagDefinition = async (
 
     if (existingTag && existingTag.id !== id) {
       throw new Error(
-        `Tag with value "${trimmedValue}" already exists in dimension "${currentTag.dimension.name}"`
+        `Tag with value "${trimmedValue}" already exists in dimension "${currentTag.dimension.name}"`,
       );
     }
 
@@ -61,7 +61,10 @@ export const updateTagDefinition = async (
   }
 
   const updatePayload = Object.fromEntries(
-    Object.entries(payload).filter(([key, value]) => value !== undefined && !["dimension", "parent", "children", "mediaTags"].includes(key))
+    Object.entries(payload).filter(
+      ([key, value]) =>
+        value !== undefined && !["dimension", "parent", "children", "mediaTags"].includes(key),
+    ),
   ) as Partial<Omit<TagDefinition, "dimension" | "parent" | "children" | "mediaTags">>;
 
   await repository.update(id, updatePayload);
@@ -78,4 +81,3 @@ export const updateTagDefinition = async (
 
   return tag as z.infer<typeof UpdateTagDefinitionResponseSchema>;
 };
-

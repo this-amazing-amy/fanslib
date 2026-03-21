@@ -1,14 +1,14 @@
-/* eslint-disable react/no-array-index-key */
-import type { Meta, StoryObj } from '@storybook/react';
-import { GridContainer } from './GridContainer';
+/* oxlint-disable react/no-array-index-key */
+import type { Meta, StoryObj } from "@storybook/react";
+import { GridContainer } from "./GridContainer";
 
 const meta: Meta<typeof GridContainer> = {
-  title: 'UI/GridContainer',
+  title: "UI/GridContainer",
   component: GridContainer,
   parameters: {
-    layout: 'padded',
+    layout: "padded",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
@@ -69,5 +69,3 @@ export const LargeGap: Story = {
     </GridContainer>
   ),
 };
-
-

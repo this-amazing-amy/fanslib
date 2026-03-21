@@ -69,7 +69,9 @@ export const processScheduleCapture = async (
     });
 
     if (existingAggregate) {
-      existingAggregate.nextFetchAt = new Date(Date.now() + INITIAL_FETCH_INTERVAL_DAYS * 24 * 60 * 60 * 1000);
+      existingAggregate.nextFetchAt = new Date(
+        Date.now() + INITIAL_FETCH_INTERVAL_DAYS * 24 * 60 * 60 * 1000,
+      );
       await aggregateRepo.save(existingAggregate);
     } else {
       const aggregate = aggregateRepo.create({

@@ -29,4 +29,3 @@ export const deleteTagDefinition = async (id: number): Promise<boolean> => {
   await repository.delete(id);
   return true;
 };
-

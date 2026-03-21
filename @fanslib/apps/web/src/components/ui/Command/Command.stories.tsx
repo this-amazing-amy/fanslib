@@ -1,24 +1,14 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import {
-  FileText,
-  Settings,
-  User,
-  Mail,
-  Calendar,
-  Folder,
-  Plus,
-  Edit,
-  Trash,
-} from 'lucide-react';
-import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem } from './Command';
+import type { Meta, StoryObj } from "@storybook/react";
+import { FileText, Settings, User, Mail, Calendar, Folder, Plus, Edit, Trash } from "lucide-react";
+import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem } from "./Command";
 
 const meta: Meta<typeof Command> = {
-  title: 'UI/Command',
+  title: "UI/Command",
   component: Command,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
@@ -29,23 +19,23 @@ export const Default: Story = {
     <Command>
       <CommandInput placeholder="Search..." />
       <CommandGroup>
-        <CommandItem value="new file" onSelect={() => console.log('New File selected')}>
+        <CommandItem value="new file" onSelect={() => console.log("New File selected")}>
           <FileText className="h-4 w-4 mr-2" />
           New File
         </CommandItem>
-        <CommandItem value="settings" onSelect={() => console.log('Settings selected')}>
+        <CommandItem value="settings" onSelect={() => console.log("Settings selected")}>
           <Settings className="h-4 w-4 mr-2" />
           Settings
         </CommandItem>
-        <CommandItem value="profile" onSelect={() => console.log('Profile selected')}>
+        <CommandItem value="profile" onSelect={() => console.log("Profile selected")}>
           <User className="h-4 w-4 mr-2" />
           Profile
         </CommandItem>
-        <CommandItem value="mail" onSelect={() => console.log('Mail selected')}>
+        <CommandItem value="mail" onSelect={() => console.log("Mail selected")}>
           <Mail className="h-4 w-4 mr-2" />
           Mail
         </CommandItem>
-        <CommandItem value="calendar" onSelect={() => console.log('Calendar selected')}>
+        <CommandItem value="calendar" onSelect={() => console.log("Calendar selected")}>
           <Calendar className="h-4 w-4 mr-2" />
           Calendar
         </CommandItem>
@@ -126,7 +116,8 @@ export const WithSearchKeywords: Story = {
   render: () => (
     <div className="space-y-4">
       <p className="text-sm text-base-content/70">
-        Try searching for: &quot;create&quot;, &quot;document&quot;, &quot;config&quot;, &quot;inbox&quot;, &quot;schedule&quot;
+        Try searching for: &quot;create&quot;, &quot;document&quot;, &quot;config&quot;,
+        &quot;inbox&quot;, &quot;schedule&quot;
       </p>
       <Command>
         <CommandInput />
@@ -166,7 +157,7 @@ export const WithCallbacks: Story = {
         <CommandItem
           value="new file"
           onSelect={() => {
-            alert('You selected: New File');
+            alert("You selected: New File");
           }}
         >
           <FileText className="h-4 w-4 mr-2" />
@@ -175,7 +166,7 @@ export const WithCallbacks: Story = {
         <CommandItem
           value="settings"
           onSelect={() => {
-            alert('You selected: Settings');
+            alert("You selected: Settings");
           }}
         >
           <Settings className="h-4 w-4 mr-2" />
@@ -184,7 +175,7 @@ export const WithCallbacks: Story = {
         <CommandItem
           value="profile"
           onSelect={() => {
-            alert('You selected: Profile');
+            alert("You selected: Profile");
           }}
         >
           <User className="h-4 w-4 mr-2" />

@@ -8,7 +8,9 @@ export const FetchTagDefinitionByIdRequestParamsSchema = z.object({
 
 export const FetchTagDefinitionByIdResponseSchema = TagDefinitionSchema;
 
-export const fetchTagDefinitionById = async (id: number): Promise<z.infer<typeof FetchTagDefinitionByIdResponseSchema> | null> => {
+export const fetchTagDefinitionById = async (
+  id: number,
+): Promise<z.infer<typeof FetchTagDefinitionByIdResponseSchema> | null> => {
   const dataSource = await db();
   const repository = dataSource.getRepository(TagDefinition);
 
@@ -17,4 +19,3 @@ export const fetchTagDefinitionById = async (id: number): Promise<z.infer<typeof
     relations: ["dimension"],
   });
 };
-

@@ -22,9 +22,7 @@ describe("Filter Presets Routes", () => {
     await setupTestDatabase();
     fixtures = await resetAllFixtures();
     void fixtures;
-    app = new Hono()
-      .use("*", devalueMiddleware())
-      .route("/", filterPresetsRoutes);
+    app = new Hono().use("*", devalueMiddleware()).route("/", filterPresetsRoutes);
   });
 
   afterAll(async () => {
@@ -85,12 +83,12 @@ describe("Filter Presets Routes", () => {
       }
       const presetData: z.infer<typeof CreateFilterPresetRequestBodySchema> = {
         name: "New Preset",
-        filters: [    {
-          include: true,
-          items: [
-            { type: "channel", id: fixtureChannel.id },
-          ],
-        }],
+        filters: [
+          {
+            include: true,
+            items: [{ type: "channel", id: fixtureChannel.id }],
+          },
+        ],
       };
 
       const response = await app.request("/api/filter-presets", {
@@ -100,7 +98,9 @@ describe("Filter Presets Routes", () => {
       });
       expect(response.status).toBe(200);
 
-      const data = await parseResponse<Omit<FilterPreset, 'filtersJson'> & { filters: unknown }>(response);
+      const data = await parseResponse<Omit<FilterPreset, "filtersJson"> & { filters: unknown }>(
+        response,
+      );
 
       expect(data?.name).toBe("New Preset");
       expect(data?.filters).toBeDefined();
@@ -120,12 +120,12 @@ describe("Filter Presets Routes", () => {
 
       const updateData: z.infer<typeof UpdateFilterPresetRequestBodySchema> = {
         name: "Updated Preset",
-        filters: [{
-          include: true,
-          items: [
-            { type: "channel", id: fixtureChannel.id },
-          ],
-        }],
+        filters: [
+          {
+            include: true,
+            items: [{ type: "channel", id: fixtureChannel.id }],
+          },
+        ],
       };
 
       const response = await app.request(`/api/filter-presets/by-id/${fixturePreset.id}`, {
@@ -184,4 +184,3 @@ describe("Filter Presets Routes", () => {
     });
   });
 });
-

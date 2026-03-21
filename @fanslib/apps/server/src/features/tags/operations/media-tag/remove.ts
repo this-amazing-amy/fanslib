@@ -16,7 +16,10 @@ export const RemoveTagsFromMediaResponseSchema = z.object({
   success: z.boolean(),
 });
 
-export const removeTagsFromMedia = async (params: z.infer<typeof RemoveTagsFromMediaRequestParamsSchema>, payload: z.infer<typeof RemoveTagsFromMediaRequestBodySchema>): Promise<z.infer<typeof RemoveTagsFromMediaResponseSchema>> => {
+export const removeTagsFromMedia = async (
+  params: z.infer<typeof RemoveTagsFromMediaRequestParamsSchema>,
+  payload: z.infer<typeof RemoveTagsFromMediaRequestBodySchema>,
+): Promise<z.infer<typeof RemoveTagsFromMediaResponseSchema>> => {
   if (payload.tagIds.length === 0) {
     return { success: true };
   }
@@ -35,4 +38,3 @@ export const removeTagsFromMedia = async (params: z.infer<typeof RemoveTagsFromM
 
   return { success: true };
 };
-

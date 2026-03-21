@@ -29,7 +29,7 @@ export const PostFilterDropdown = ({
   const { filters, addFilter } = usePostFilters();
 
   const availableFilters = FILTER_TYPE_OPTIONS.filter(
-    (option) => !filters.some((f) => f.type === option.value)
+    (option) => !filters.some((f) => f.type === option.value),
   );
 
   const handleAction = (key: string | number) => {
@@ -53,7 +53,11 @@ export const PostFilterDropdown = ({
             {availableFilters.map((option) => {
               const Icon = option.icon;
               return (
-                <DropdownMenuItem key={option.value} id={option.value} className="flex items-center gap-2">
+                <DropdownMenuItem
+                  key={option.value}
+                  id={option.value}
+                  className="flex items-center gap-2"
+                >
                   <Icon className="h-4 w-4" />
                   <span>{option.label}</span>
                 </DropdownMenuItem>
@@ -80,7 +84,11 @@ export const PostFilterDropdown = ({
           {availableFilters.map((option) => {
             const Icon = option.icon;
             return (
-              <DropdownMenuItem key={option.value} id={option.value} className="flex items-center gap-2">
+              <DropdownMenuItem
+                key={option.value}
+                id={option.value}
+                className="flex items-center gap-2"
+              >
                 <Icon className="h-4 w-4" />
                 <span>{option.label}</span>
               </DropdownMenuItem>
@@ -91,4 +99,3 @@ export const PostFilterDropdown = ({
     </DropdownMenuTrigger>
   );
 };
-

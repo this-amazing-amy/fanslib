@@ -1,4 +1,4 @@
-import type { Media, PostWithRelations } from '@fanslib/server/schemas';
+import type { Media, PostWithRelations } from "@fanslib/server/schemas";
 import { CalendarDays } from "lucide-react";
 import { useState } from "react";
 import { ScrollArea } from "~/components/ui/ScrollArea";
@@ -10,7 +10,6 @@ import { cn } from "~/lib/cn";
 import { type VirtualPost } from "~/lib/virtual-posts";
 import { PostPreview } from "./PostPreview/PostPreview";
 import { usePostTimelineVirtualizer } from "./usePostTimelineVirtualizer";
-
 
 type Post = PostWithRelations;
 type TimelineVirtualizer = ReturnType<typeof usePostTimelineVirtualizer>["virtualizer"];
@@ -32,7 +31,12 @@ type PostTimelineProps = {
   matchedPostMediaIds?: Set<string>;
 };
 
-export const PostTimeline = ({ posts, className, onUpdate, matchedPostMediaIds }: PostTimelineProps) => {
+export const PostTimeline = ({
+  posts,
+  className,
+  onUpdate,
+  matchedPostMediaIds,
+}: PostTimelineProps) => {
   const [openPostId, setOpenPostId] = useState<string | null>(null);
   const { isDragging: isMediaDragging, draggedMedias, endMediaDrag } = useMediaDrag();
   const { isDragging: isPostDragging, draggedPost, endPostDrag } = usePostDrag();
@@ -69,7 +73,7 @@ export const PostTimeline = ({ posts, className, onUpdate, matchedPostMediaIds }
   };
 
   const sortedPosts = [...posts].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   );
 
   const { scrollElementRef, virtualizer } = usePostTimelineVirtualizer({
@@ -84,13 +88,13 @@ export const PostTimeline = ({ posts, className, onUpdate, matchedPostMediaIds }
           className={cn(
             "h-full w-full flex flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed transition-colors",
             isOver ? "border-primary bg-primary/10" : "border-base-300",
-            isDragging && "border-primary"
+            isDragging && "border-primary",
           )}
         >
           <CalendarDays
             className={cn(
               "h-12 w-12 transition-colors",
-              isOver ? "text-primary" : "text-base-content/30"
+              isOver ? "text-primary" : "text-base-content/30",
             )}
           />
           <div className="text-center">
@@ -126,8 +130,7 @@ export const PostTimeline = ({ posts, className, onUpdate, matchedPostMediaIds }
         {virtualizer.getVirtualItems().map((virtualRow: TimelineVirtualItem) => {
           const post = sortedPosts[virtualRow.index];
           const id = post.id;
-          const previousPost =
-            virtualRow.index > 0 ? sortedPosts[virtualRow.index - 1] : undefined;
+          const previousPost = virtualRow.index > 0 ? sortedPosts[virtualRow.index - 1] : undefined;
           const nextPost =
             virtualRow.index < sortedPosts.length - 1
               ? sortedPosts[virtualRow.index + 1]
@@ -174,4 +177,3 @@ export const PostTimeline = ({ posts, className, onUpdate, matchedPostMediaIds }
     </ScrollArea>
   );
 };
-

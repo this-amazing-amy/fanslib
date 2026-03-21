@@ -1,12 +1,12 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Cell, Column, Row, TableBody, TableHeader } from 'react-stately';
-import { Badge } from '../Badge';
-import { Table } from './Table';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Cell, Column, Row, TableBody, TableHeader } from "react-stately";
+import { Badge } from "../Badge";
+import { Table } from "./Table";
 
 const meta: Meta<typeof Table> = {
-  title: 'UI/Table',
+  title: "UI/Table",
   component: Table,
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
@@ -162,10 +162,7 @@ export const Empty: Story = {
         <Column>Email</Column>
         <Column>Status</Column>
       </TableHeader>
-      <TableBody>
-        {[]}
-      </TableBody>
+      <TableBody>{[]}</TableBody>
     </Table>
   ),
 };
-

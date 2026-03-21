@@ -1,4 +1,4 @@
-import type { Media, MediaFilter } from '@fanslib/server/schemas';
+import type { Media, MediaFilter } from "@fanslib/server/schemas";
 import { useState } from "react";
 import { FilterPresetProvider } from "~/contexts/FilterPresetContext";
 import { useLibraryPreferences } from "~/contexts/LibraryPreferencesContext";
@@ -88,9 +88,7 @@ export const LibraryContent = ({ showScan = true, contentClassName }: LibraryCon
               </div>
             </div>
 
-            {showScan ? (
-              <ScanProgress scanProgress={scanProgress} scanResult={scanResult} />
-            ) : null}
+            {showScan ? <ScanProgress scanProgress={scanProgress} scanResult={scanResult} /> : null}
 
             <div className="flex-1 min-h-0 overflow-auto">
               {isLoading || (isFetching && !mediaList) ? (
@@ -99,13 +97,18 @@ export const LibraryContent = ({ showScan = true, contentClassName }: LibraryCon
                 <ClientOnly fallback={<GallerySkeleton />}>
                   <Gallery
                     medias={(mediaList?.items as Media[] | undefined) ?? []}
-                    error={error ? (error instanceof Error ? error.message : "Unknown error") : undefined}
+                    error={
+                      error ? (error instanceof Error ? error.message : "Unknown error") : undefined
+                    }
                     onScan={showScan ? handleScan : () => {}}
                   />
                 </ClientOnly>
               )}
             </div>
-            <GalleryPagination totalPages={mediaList?.totalPages ?? 0} totalItems={mediaList?.total ?? 0} />
+            <GalleryPagination
+              totalPages={mediaList?.totalPages ?? 0}
+              totalItems={mediaList?.total ?? 0}
+            />
           </div>
         </div>
         <UploadDialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen} />
@@ -113,4 +116,3 @@ export const LibraryContent = ({ showScan = true, contentClassName }: LibraryCon
     </FilterPresetProvider>
   );
 };
-

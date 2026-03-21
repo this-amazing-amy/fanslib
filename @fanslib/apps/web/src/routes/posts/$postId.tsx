@@ -1,21 +1,21 @@
-import type { PostWithRelations } from '@fanslib/server/schemas';
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { ArrowLeft } from 'lucide-react';
-import { useCallback } from 'react';
-import { ChannelBadge } from '~/components/ChannelBadge';
-import { Button } from '~/components/ui/Button';
-import { MediaDragProvider } from '~/contexts/MediaDragContext';
-import { PostDetailCaptionInput } from '~/features/posts/components/post-detail/PostDetailCaptionInput';
-import { PostDetailDateTimeInputs } from '~/features/posts/components/post-detail/PostDetailDateTimeInputs';
-import { PostDetailAnalytics } from '~/features/posts/components/post-detail/PostDetailAnalytics';
-import { PostDetailMedia } from '~/features/posts/components/post-detail/PostDetailMedia';
-import { PostDetailNavigation } from '~/features/posts/components/post-detail/PostDetailNavigation';
-import { PostDetailPostponeButton } from '~/features/posts/components/post-detail/PostDetailPostponeButton';
-import { PostDetailScheduleSelect } from '~/features/posts/components/post-detail/PostDetailScheduleSelect';
-import { PostDetailStatusButtons } from '~/features/posts/components/post-detail/PostDetailStatusButtons';
-import { PostDetailTemporalContext } from '~/features/posts/components/post-detail/PostDetailTemporalContext';
-import { PostDetailUrlInput } from '~/features/posts/components/post-detail/PostDetailUrlInput';
-import { usePostQuery } from '~/lib/queries/posts';
+import type { PostWithRelations } from "@fanslib/server/schemas";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { ArrowLeft } from "lucide-react";
+import { useCallback } from "react";
+import { ChannelBadge } from "~/components/ChannelBadge";
+import { Button } from "~/components/ui/Button";
+import { MediaDragProvider } from "~/contexts/MediaDragContext";
+import { PostDetailCaptionInput } from "~/features/posts/components/post-detail/PostDetailCaptionInput";
+import { PostDetailDateTimeInputs } from "~/features/posts/components/post-detail/PostDetailDateTimeInputs";
+import { PostDetailAnalytics } from "~/features/posts/components/post-detail/PostDetailAnalytics";
+import { PostDetailMedia } from "~/features/posts/components/post-detail/PostDetailMedia";
+import { PostDetailNavigation } from "~/features/posts/components/post-detail/PostDetailNavigation";
+import { PostDetailPostponeButton } from "~/features/posts/components/post-detail/PostDetailPostponeButton";
+import { PostDetailScheduleSelect } from "~/features/posts/components/post-detail/PostDetailScheduleSelect";
+import { PostDetailStatusButtons } from "~/features/posts/components/post-detail/PostDetailStatusButtons";
+import { PostDetailTemporalContext } from "~/features/posts/components/post-detail/PostDetailTemporalContext";
+import { PostDetailUrlInput } from "~/features/posts/components/post-detail/PostDetailUrlInput";
+import { usePostQuery } from "~/lib/queries/posts";
 
 type Post = PostWithRelations;
 
@@ -25,8 +25,8 @@ const PostDetailRoute = () => {
   const { data: post, isLoading, error } = usePostQuery({ id: postId });
 
   const goBack = useCallback(() => {
-    if (typeof window === 'undefined') {
-      navigate({ to: '/plan' });
+    if (typeof window === "undefined") {
+      navigate({ to: "/plan" });
       return;
     }
 
@@ -35,7 +35,7 @@ const PostDetailRoute = () => {
       return;
     }
 
-    navigate({ to: '/plan' });
+    navigate({ to: "/plan" });
   }, [navigate]);
 
   if (isLoading) {
@@ -46,11 +46,13 @@ const PostDetailRoute = () => {
     );
   }
 
-  if (error || !post || 'error' in post) {
+  if (error || !post || "error" in post) {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-4">
         <h1 className="text-2xl font-semibold">Post not found</h1>
-        <Button variant="ghost" onClick={goBack}>Back</Button>
+        <Button variant="ghost" onClick={goBack}>
+          Back
+        </Button>
       </div>
     );
   }
@@ -74,9 +76,14 @@ const PostDetailRoute = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 py-6">
             <div className="@container flex flex-col gap-4">
-                <ChannelBadge
-                  name={normalizedPost.channel.typeId === 'reddit' && normalizedPost.subreddit?.channel?.name ? `r/${normalizedPost.subreddit.channel.name}` : normalizedPost.channel.name}
-                  typeId={normalizedPost.channel.typeId}
+              <ChannelBadge
+                name={
+                  normalizedPost.channel.typeId === "reddit" &&
+                  normalizedPost.subreddit?.channel?.name
+                    ? `r/${normalizedPost.subreddit.channel.name}`
+                    : normalizedPost.channel.name
+                }
+                typeId={normalizedPost.channel.typeId}
                 size="md"
               />
               <PostDetailMedia post={normalizedPost} />
@@ -99,8 +106,6 @@ const PostDetailRoute = () => {
   );
 };
 
-export const Route = createFileRoute('/posts/$postId')({
+export const Route = createFileRoute("/posts/$postId")({
   component: PostDetailRoute,
 });
-
-

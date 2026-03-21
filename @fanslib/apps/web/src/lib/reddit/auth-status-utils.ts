@@ -1,4 +1,3 @@
-
 export type SessionStatus = {
   hasSession: boolean;
   isValid: boolean;
@@ -44,7 +43,7 @@ export const loadCachedStatus = (): CachedAuthStatus | null => {
 
 export const saveCachedStatus = (
   sessionStatus: SessionStatus | null,
-  loginStatus: LoginStatus | null
+  loginStatus: LoginStatus | null,
 ) => {
   try {
     const cached: CachedAuthStatus = {
@@ -62,7 +61,7 @@ export const getAuthenticationStatus = (
   sessionStatus: SessionStatus | null,
   loginStatus: LoginStatus | null,
   isLoading: boolean,
-  isStale: boolean
+  isStale: boolean,
 ): AuthStatus => {
   if (isLoading) {
     return {

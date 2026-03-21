@@ -8,7 +8,7 @@ type ChannelBadgeProps = {
   name?: string;
   typeId: string;
   size?: "sm" | "md" | "lg";
-  borderStyle?: 'visible' | 'none';
+  borderStyle?: "visible" | "none";
   selected?: boolean;
   selectable?: boolean;
   disabled?: boolean;
@@ -27,7 +27,7 @@ export const ChannelBadge = ({
   name = "",
   typeId,
   size = "md",
-  borderStyle = 'visible',
+  borderStyle = "visible",
   selected: selectedProp = false,
   selectable = false,
   disabled = false,
@@ -48,7 +48,7 @@ export const ChannelBadge = ({
       className={cn(
         "rounded-full font-medium",
         disabled && "opacity-30 cursor-not-allowed",
-        className
+        className,
       )}
       selected={isSelected}
       selectable={selectable}

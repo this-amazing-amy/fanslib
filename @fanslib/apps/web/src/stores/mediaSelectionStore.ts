@@ -1,5 +1,5 @@
-import type { Media } from '@fanslib/server/schemas';
-import { create } from 'zustand';
+import type { Media } from "@fanslib/server/schemas";
+import { create } from "zustand";
 
 export type FlattenedMedia = {
   media: Media;
@@ -55,8 +55,7 @@ export const useMediaSelectionStore = create<MediaSelectionStore>((set) => ({
 
   clearSelection: () => set({ selectedIds: new Set(), lastClickedIndex: null }),
 
-  selectAll: () =>
-    set((s) => ({ selectedIds: new Set(s.mediaList.map((m) => m.id)) })),
+  selectAll: () => set((s) => ({ selectedIds: new Set(s.mediaList.map((m) => m.id)) })),
 
   setShiftPressed: (v) => set({ isShiftPressed: v }),
 

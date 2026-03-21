@@ -1,18 +1,14 @@
-import type { ReactNode } from 'react';
-import { cn } from '~/lib/cn';
+import type { ReactNode } from "react";
+import { cn } from "~/lib/cn";
 
 export type SeparatorProps = {
-  orientation?: 'horizontal' | 'vertical';
+  orientation?: "horizontal" | "vertical";
   className?: string;
   children?: ReactNode;
 };
 
-export const Separator = ({
-  orientation = 'horizontal',
-  className,
-  children,
-}: SeparatorProps) => {
-  const orientationClass = orientation === 'vertical' ? 'divider-horizontal' : 'divider';
+export const Separator = ({ orientation = "horizontal", className, children }: SeparatorProps) => {
+  const orientationClass = orientation === "vertical" ? "divider-horizontal" : "divider";
 
   return children ? (
     <div className={cn(orientationClass, className)}>{children}</div>
@@ -20,4 +16,3 @@ export const Separator = ({
     <div className={cn(orientationClass, className)} />
   );
 };
-

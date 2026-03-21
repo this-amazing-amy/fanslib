@@ -20,15 +20,17 @@ export const GalleryViewSettings = () => {
           <div className="space-y-2">
             <div className="text-sm font-medium">Grid Size</div>
             <ToggleGroup
-              options={[{ value: "small", label: "Small" }, { value: "large", label: "Large" }]}
+              options={[
+                { value: "small", label: "Small" },
+                { value: "large", label: "Large" },
+              ]}
               value={preferences.view.gridSize}
               aria-label="Grid size"
               onChange={(value) => {
                 if (!value) return;
                 updatePreferences({ view: { gridSize: value as GridSize } });
               }}
-            >
-            </ToggleGroup>
+            ></ToggleGroup>
           </div>
         </div>
       </Popover>

@@ -1,5 +1,4 @@
-import type { Channel } from '@fanslib/server/schemas';
-
+import type { Channel } from "@fanslib/server/schemas";
 
 import { useChannelsQuery } from "~/lib/queries/channels";
 import { cn } from "~/lib/cn";
@@ -16,11 +15,7 @@ export const ChannelSelect = ({ value, onChange, className }: ChannelSelectProps
 
   const toggleChannel = (channelId: string) => {
     const isSelected = value.includes(channelId);
-    onChange(
-      isSelected
-        ? value.filter((id) => id !== channelId)
-        : [...value, channelId]
-    );
+    onChange(isSelected ? value.filter((id) => id !== channelId) : [...value, channelId]);
   };
 
   if (isLoading) {

@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { cn } from '~/lib/cn';
+import type { ReactNode } from "react";
+import { cn } from "~/lib/cn";
 
 export type SectionHeaderProps = {
   title: string;
@@ -8,13 +8,8 @@ export type SectionHeaderProps = {
   className?: string;
 };
 
-export const SectionHeader = ({
-  title,
-  description,
-  actions,
-  className,
-}: SectionHeaderProps) => (
-  <div className={cn('mb-4', className)}>
+export const SectionHeader = ({ title, description, actions, className }: SectionHeaderProps) => (
+  <div className={cn("mb-4", className)}>
     <div className="flex items-start justify-between gap-4">
       <div className="flex-1">
         <h2 className="text-xl font-semibold">{title}</h2>
@@ -24,4 +19,3 @@ export const SectionHeader = ({
     </div>
   </div>
 );
-

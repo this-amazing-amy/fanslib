@@ -1,9 +1,9 @@
-import { formatDistanceToNow } from 'date-fns';
-import { ChevronDown, ChevronRight } from 'lucide-react';
-import { useState } from 'react';
-import { useRecentPostsQuery } from '~/lib/queries/posts';
-import { StatusBadge } from '~/components/StatusBadge';
-import { MediaTileLite } from '~/features/library/components/MediaTile/MediaTileLite';
+import { formatDistanceToNow } from "date-fns";
+import { ChevronDown, ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { useRecentPostsQuery } from "~/lib/queries/posts";
+import { StatusBadge } from "~/components/StatusBadge";
+import { MediaTileLite } from "~/features/library/components/MediaTile/MediaTileLite";
 
 type RecentPostsPanelProps = {
   channelId: string;
@@ -11,8 +11,8 @@ type RecentPostsPanelProps = {
   defaultCollapsed?: boolean;
 };
 
-export const RecentPostsPanel = ({ 
-  channelId, 
+export const RecentPostsPanel = ({
+  channelId,
   limit = 3,
   defaultCollapsed = false,
 }: RecentPostsPanelProps) => {
@@ -46,18 +46,18 @@ export const RecentPostsPanel = ({
         className="w-full flex items-center justify-between p-3 hover:bg-base-200 transition-colors"
       >
         <h3 className="font-semibold text-sm">Recent Posts ({posts.length})</h3>
-        {isCollapsed ? (
-          <ChevronRight className="w-4 h-4" />
-        ) : (
-          <ChevronDown className="w-4 h-4" />
-        )}
+        {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
       </button>
 
       {!isCollapsed && (
         <div className="space-y-2 p-3 pt-0">
           {posts.map((post) => {
-            const hasPostMedia = 'postMedia' in post && post.postMedia && Array.isArray(post.postMedia) && post.postMedia.length > 0;
-            
+            const hasPostMedia =
+              "postMedia" in post &&
+              post.postMedia &&
+              Array.isArray(post.postMedia) &&
+              post.postMedia.length > 0;
+
             return (
               <div
                 key={post.id}
@@ -65,15 +65,13 @@ export const RecentPostsPanel = ({
               >
                 {hasPostMedia && Array.isArray(post.postMedia) ? (
                   <div className="flex gap-1">
-                    {post.postMedia.slice(0, 3).map((pm) => 
-                      pm.media ? (
-                        <MediaTileLite
-                          key={pm.media.id}
-                          media={pm.media}
-                          className="w-16 h-16"
-                        />
-                      ) : null
-                    )}
+                    {post.postMedia
+                      .slice(0, 3)
+                      .map((pm) =>
+                        pm.media ? (
+                          <MediaTileLite key={pm.media.id} media={pm.media} className="w-16 h-16" />
+                        ) : null,
+                      )}
                     {post.postMedia.length > 3 ? (
                       <div className="w-16 h-16 rounded-md bg-base-200 flex items-center justify-center text-xs font-semibold text-base-content/60">
                         +{post.postMedia.length - 3}
@@ -86,17 +84,15 @@ export const RecentPostsPanel = ({
                   <div className="flex items-center gap-2 mb-1">
                     <StatusBadge status={post.status} size="sm" showIcon />
                     <span className="text-xs text-base-content/60">
-                      {post.status === 'posted' || post.status === 'scheduled'
+                      {post.status === "posted" || post.status === "scheduled"
                         ? formatDistanceToNow(new Date(post.date), { addSuffix: true })
-                        : 'Draft'}
+                        : "Draft"}
                     </span>
                   </div>
 
                   {post.caption && (
                     <p className="text-sm text-base-content/80 line-clamp-2">
-                      {post.caption.length > 50
-                        ? `${post.caption.slice(0, 50)}...`
-                        : post.caption}
+                      {post.caption.length > 50 ? `${post.caption.slice(0, 50)}...` : post.caption}
                     </p>
                   )}
                 </div>

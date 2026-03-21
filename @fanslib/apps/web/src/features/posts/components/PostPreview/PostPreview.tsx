@@ -1,4 +1,4 @@
-import type { Media, PostWithRelations } from '@fanslib/server/schemas';
+import type { Media, PostWithRelations } from "@fanslib/server/schemas";
 import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Camera, Plus, Trash2, X } from "lucide-react";
@@ -55,7 +55,12 @@ export const PostPreview = ({
   const isVirtual = isVirtualPost(post);
   const { preferences } = usePostPreferences();
   const { createPostFromVirtualSlot } = useCreatePostFromVirtualSlot();
-  const { startPostDrag, endPostDrag: stopPostDrag, isDragging: isPostDragging, draggedPost } = usePostDrag();
+  const {
+    startPostDrag,
+    endPostDrag: stopPostDrag,
+    isDragging: isPostDragging,
+    draggedPost,
+  } = usePostDrag();
   const [hasSkipConfirmation, setHasSkipConfirmation] = useState(false);
   const skipSlotMutation = useSkipScheduleSlotMutation();
   const captionPreview = post.caption ? getCaptionPreview(post.caption) : "";
@@ -77,7 +82,8 @@ export const PostPreview = ({
     isOpen,
     onOpenChange,
     onUpdate,
-    onOpenCreateDialog: (data) => onOpenCreateDialog({ ...data, initialMediaSelectionExpanded: true }),
+    onOpenCreateDialog: (data) =>
+      onOpenCreateDialog({ ...data, initialMediaSelectionExpanded: true }),
   });
 
   const dragProps = isVirtual
@@ -90,7 +96,8 @@ export const PostPreview = ({
 
   const [isPostDraggedOver, setIsPostDraggedOver] = useState(false);
   const isAnyDragging = isMediaDragging || isPostDragging;
-  const isAnyDraggedOver = (isMediaDragging && isDraggedOver) || (isPostDragging && isPostDraggedOver);
+  const isAnyDraggedOver =
+    (isMediaDragging && isDraggedOver) || (isPostDragging && isPostDraggedOver);
 
   const updatePostDraggedOver = (e: React.DragEvent<HTMLDivElement>, nextValue: boolean) => {
     if (!isPostDragging) return;
@@ -173,18 +180,16 @@ export const PostPreview = ({
         onOpenCreateDialog={onOpenCreateDialog}
       />
     );
-  const nextDropZone = !shouldShowInsertionZones ? null : (
-    isVirtual || isNextVirtual ? null : (
-      <PostTimelineDropZone
-        className="absolute left-4 right-4 bottom-2 z-20 mx-0"
-        previousPostDate={new Date(post.date)}
-        dropTargetPost={post}
-        onOpenCreateDialog={onOpenCreateDialog}
-      />
-    )
+  const nextDropZone = !shouldShowInsertionZones ? null : isVirtual || isNextVirtual ? null : (
+    <PostTimelineDropZone
+      className="absolute left-4 right-4 bottom-2 z-20 mx-0"
+      previousPostDate={new Date(post.date)}
+      dropTargetPost={post}
+      onOpenCreateDialog={onOpenCreateDialog}
+    />
   );
 
-  const status = post.status ?? 'draft';
+  const status = post.status ?? "draft";
 
   const content = (
     <div
@@ -217,7 +222,7 @@ export const PostPreview = ({
             isVirtual && "opacity-60",
             isAnyDragging &&
               isAnyDraggedOver &&
-              "border-2 border-dashed border-primary bg-primary/10 opacity-100"
+              "border-2 border-dashed border-primary bg-primary/10 opacity-100",
           )}
           onMouseLeave={() => setHasSkipConfirmation(false)}
         >
@@ -237,7 +242,7 @@ export const PostPreview = ({
                 hasSkipConfirmation
                   ? "bg-error/80 hover:bg-error text-error-content"
                   : "bg-base-200/80 hover:bg-base-300 text-base-content/60 hover:text-base-content",
-                skipSlotMutation.isPending && "opacity-60 cursor-not-allowed"
+                skipSlotMutation.isPending && "opacity-60 cursor-not-allowed",
               )}
               title={
                 skipSlotMutation.isPending
@@ -250,13 +255,13 @@ export const PostPreview = ({
               {hasSkipConfirmation ? <Trash2 size={14} /> : <X size={14} />}
             </button>
           )}
-          
+
           <div className="flex items-stretch justify-between p-4 gap-4">
             <div className="flex flex-col justify-between gap-2 flex-1">
               <div className="flex flex-col gap-2">
                 <div className="flex items-start gap-2">
                   <div className="mt-1">
-                    <StatusIcon status={status as 'posted' | 'scheduled' | 'draft'} />
+                    <StatusIcon status={status as "posted" | "scheduled" | "draft"} />
                   </div>
                   <div className="flex flex-col">
                     <span className="text-base font-semibold text-base-content">
@@ -351,4 +356,3 @@ export const PostPreview = ({
 
   return wrappedContent;
 };
-

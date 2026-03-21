@@ -1,14 +1,26 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { validationError, notFound } from "../../lib/hono-utils";
-import { CreateContentScheduleRequestBodySchema, createContentSchedule } from "./operations/content-schedule/create";
+import {
+  CreateContentScheduleRequestBodySchema,
+  createContentSchedule,
+} from "./operations/content-schedule/create";
 import { deleteContentSchedule } from "./operations/content-schedule/delete";
 import { fetchAllContentSchedules } from "./operations/content-schedule/fetch-all";
 import { fetchContentSchedulesByChannel } from "./operations/content-schedule/fetch-by-channel";
 import { fetchContentScheduleById } from "./operations/content-schedule/fetch-by-id";
-import { UpdateContentScheduleRequestBodySchema, updateContentSchedule } from "./operations/content-schedule/update";
-import { FetchVirtualPostsRequestQuerySchema, fetchVirtualPosts } from "./operations/generate-virtual-posts";
-import { CreateSkippedSlotRequestBodySchema, createSkippedSlot } from "./operations/skipped-slots/create";
+import {
+  UpdateContentScheduleRequestBodySchema,
+  updateContentSchedule,
+} from "./operations/content-schedule/update";
+import {
+  FetchVirtualPostsRequestQuerySchema,
+  fetchVirtualPosts,
+} from "./operations/generate-virtual-posts";
+import {
+  CreateSkippedSlotRequestBodySchema,
+  createSkippedSlot,
+} from "./operations/skipped-slots/create";
 import { removeSkippedSlot } from "./operations/skipped-slots/remove";
 
 export const contentSchedulesRoutes = new Hono()
@@ -30,25 +42,37 @@ export const contentSchedulesRoutes = new Hono()
     }
     return c.json(schedule);
   })
-  .get("/virtual-posts", zValidator("query", FetchVirtualPostsRequestQuerySchema, validationError), async (c) => {
-    const query = c.req.valid("query");
-    const result = await fetchVirtualPosts(query);
-    return c.json(result);
-  })
-  .post("/", zValidator("json", CreateContentScheduleRequestBodySchema, validationError), async (c) => {
-    const body = c.req.valid("json");
-    const result = await createContentSchedule(body);
-    return c.json(result);
-  })
-  .patch("/by-id/:id", zValidator("json", UpdateContentScheduleRequestBodySchema, validationError), async (c) => {
-    const id = c.req.param("id");
-    const body = c.req.valid("json");
-    const schedule = await updateContentSchedule(id, body);
-    if (!schedule) {
-      return notFound(c, "Content schedule not found");
-    }
-    return c.json(schedule);
-  })
+  .get(
+    "/virtual-posts",
+    zValidator("query", FetchVirtualPostsRequestQuerySchema, validationError),
+    async (c) => {
+      const query = c.req.valid("query");
+      const result = await fetchVirtualPosts(query);
+      return c.json(result);
+    },
+  )
+  .post(
+    "/",
+    zValidator("json", CreateContentScheduleRequestBodySchema, validationError),
+    async (c) => {
+      const body = c.req.valid("json");
+      const result = await createContentSchedule(body);
+      return c.json(result);
+    },
+  )
+  .patch(
+    "/by-id/:id",
+    zValidator("json", UpdateContentScheduleRequestBodySchema, validationError),
+    async (c) => {
+      const id = c.req.param("id");
+      const body = c.req.valid("json");
+      const schedule = await updateContentSchedule(id, body);
+      if (!schedule) {
+        return notFound(c, "Content schedule not found");
+      }
+      return c.json(schedule);
+    },
+  )
   .delete("/by-id/:id", async (c) => {
     const id = c.req.param("id");
     const success = await deleteContentSchedule(id);
@@ -57,11 +81,15 @@ export const contentSchedulesRoutes = new Hono()
     }
     return c.json({ success: true });
   })
-  .post("/skipped-slots", zValidator("json", CreateSkippedSlotRequestBodySchema, validationError), async (c) => {
-    const body = c.req.valid("json");
-    const result = await createSkippedSlot(body);
-    return c.json(result);
-  })
+  .post(
+    "/skipped-slots",
+    zValidator("json", CreateSkippedSlotRequestBodySchema, validationError),
+    async (c) => {
+      const body = c.req.valid("json");
+      const result = await createSkippedSlot(body);
+      return c.json(result);
+    },
+  )
   .delete("/skipped-slots/:id", async (c) => {
     const id = c.req.param("id");
     const success = await removeSkippedSlot(id);
@@ -70,4 +98,3 @@ export const contentSchedulesRoutes = new Hono()
     }
     return c.json({ success: true });
   });
-

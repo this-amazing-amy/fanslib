@@ -1,8 +1,7 @@
-import type { PostStatus } from '@fanslib/server/schemas';
+import type { PostStatus } from "@fanslib/server/schemas";
 import type { ReactNode } from "react";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import type { PostFilterPreferences } from "~/contexts/PostPreferencesContext";
-
 
 export type PostFilterItem =
   | { type: "search"; value: string }
@@ -146,4 +145,3 @@ export const usePostFilters = () => {
   }
   return context;
 };
-

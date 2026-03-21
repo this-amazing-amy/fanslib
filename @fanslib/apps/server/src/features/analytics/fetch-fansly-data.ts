@@ -27,7 +27,7 @@ type FetchAnalyticsResult = {
 export const fetchFanslyAnalyticsData = async (
   postMediaId: string,
   analyticsStartDate?: Date,
-  analyticsEndDate?: Date
+  analyticsEndDate?: Date,
 ): Promise<FetchAnalyticsResult> => {
   const dataSource = await db();
   const postMediaRepository = dataSource.getRepository(PostMedia);
@@ -44,7 +44,7 @@ export const fetchFanslyAnalyticsData = async (
 
   if (!credentialsData?.credentials?.fanslyAuth || !credentialsData?.credentials?.fanslySessionId) {
     throw configurationError(
-      "Fansly credentials not configured. Please set up your Fansly authentication in settings."
+      "Fansly credentials not configured. Please set up your Fansly authentication in settings.",
     );
   }
 
@@ -96,7 +96,7 @@ export const fetchFanslyAnalyticsData = async (
     if (response.status === 401 || response.status === 403) {
       await markCredentialsStale();
       throw configurationError(
-        "Fansly authentication failed. Please update your credentials in settings."
+        "Fansly authentication failed. Please update your credentials in settings.",
       );
     }
     throw externalServiceError(`Fansly API returned ${response.status}: ${response.statusText}`);
@@ -112,6 +112,3 @@ export const fetchFanslyAnalyticsData = async (
     datapoints: data.response.dataset.datapoints.length,
   };
 };
-
-
-

@@ -1,10 +1,9 @@
-import type { Media } from '@fanslib/server/schemas';
+import type { Media } from "@fanslib/server/schemas";
 import { useDragOver } from "~/hooks/useDragOver";
 import { cn } from "~/lib/cn";
 import { Plus } from "lucide-react";
 import { type FC, useState } from "react";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
-
 
 import { CreateShootDialog } from "./CreateShootDialog";
 
@@ -40,14 +39,14 @@ export const ShootCreateDropZone: FC<ShootCreateDropZoneProps> = ({ className })
         className={cn(
           "aspect-square rounded-lg border-2 border-dashed flex items-center justify-center transition-colors",
           isOver ? "border-primary bg-primary/10" : "border-muted",
-          className
+          className,
         )}
         {...dragHandlers}
       >
         <Plus
           className={cn(
             "h-4 w-4 transition-colors",
-            isOver ? "text-primary" : "text-muted-foreground"
+            isOver ? "text-primary" : "text-muted-foreground",
           )}
         />
       </div>
