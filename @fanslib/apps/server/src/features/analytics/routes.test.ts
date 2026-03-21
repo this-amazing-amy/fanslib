@@ -312,11 +312,11 @@ describe("Analytics Routes", () => {
       const res = await app.request("/api/analytics/active-fyp-posts");
       expect(res.status).toBe(200);
 
-      const data = await parseResponse<Array<Record<string, unknown>>>(res);
+      const data = (await parseResponse<Array<Record<string, unknown>>>(res)) as Array<Record<string, unknown>>;
       expect(data).toBeArray();
       expect(data).toHaveLength(1);
 
-      const item = data![0]!;
+      const item = data[0];
       expect(item.postMediaId).toBe(postMedia.id);
       expect(item.postId).toBe(post.id);
       expect(item.mediaId).toBe(media.id);
@@ -364,11 +364,11 @@ describe("Analytics Routes", () => {
       const res = await app.request("/api/analytics/active-fyp-posts?sortBy=views");
       expect(res.status).toBe(200);
 
-      const data = await parseResponse<Array<{ totalViews: number }>>(res);
+      const data = (await parseResponse<Array<{ totalViews: number }>>(res)) as Array<{ totalViews: number }>;
       expect(data).toHaveLength(3);
-      expect(data![0]!.totalViews).toBe(100);
-      expect(data![1]!.totalViews).toBe(300);
-      expect(data![2]!.totalViews).toBe(500);
+      expect(data[0].totalViews).toBe(100);
+      expect(data[1].totalViews).toBe(300);
+      expect(data[2].totalViews).toBe(500);
     });
 
     test("sorts by engagementPercent ascending", async () => {
@@ -379,11 +379,11 @@ describe("Analytics Routes", () => {
       const res = await app.request("/api/analytics/active-fyp-posts?sortBy=engagementPercent");
       expect(res.status).toBe(200);
 
-      const data = await parseResponse<Array<{ averageEngagementPercent: number }>>(res);
+      const data = (await parseResponse<Array<{ averageEngagementPercent: number }>>(res)) as Array<{ averageEngagementPercent: number }>;
       expect(data).toHaveLength(3);
-      expect(data![0]!.averageEngagementPercent).toBe(20);
-      expect(data![1]!.averageEngagementPercent).toBe(50);
-      expect(data![2]!.averageEngagementPercent).toBe(80);
+      expect(data[0].averageEngagementPercent).toBe(20);
+      expect(data[1].averageEngagementPercent).toBe(50);
+      expect(data[2].averageEngagementPercent).toBe(80);
     });
 
     test("sorts by engagementSeconds ascending", async () => {
@@ -394,11 +394,11 @@ describe("Analytics Routes", () => {
       const res = await app.request("/api/analytics/active-fyp-posts?sortBy=engagementSeconds");
       expect(res.status).toBe(200);
 
-      const data = await parseResponse<Array<{ averageEngagementSeconds: number }>>(res);
+      const data = (await parseResponse<Array<{ averageEngagementSeconds: number }>>(res)) as Array<{ averageEngagementSeconds: number }>;
       expect(data).toHaveLength(3);
-      expect(data![0]!.averageEngagementSeconds).toBe(10);
-      expect(data![1]!.averageEngagementSeconds).toBe(35);
-      expect(data![2]!.averageEngagementSeconds).toBe(60);
+      expect(data[0].averageEngagementSeconds).toBe(10);
+      expect(data[1].averageEngagementSeconds).toBe(35);
+      expect(data[2].averageEngagementSeconds).toBe(60);
     });
 
     test("returns empty array when no active posts", async () => {
