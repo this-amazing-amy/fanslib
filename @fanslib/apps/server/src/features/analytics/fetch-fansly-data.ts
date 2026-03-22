@@ -51,12 +51,13 @@ export const fetchFanslyAnalyticsData = async (
   const credentials = credentialsData.credentials;
 
   const endDate = analyticsEndDate ?? new Date();
+  const ninetyDaysAgo = new Date(endDate.getTime() - 90 * 24 * 60 * 60 * 1000);
   const startDate =
     analyticsStartDate ??
     (() => {
       const postDate = new Date(postMedia.post.date);
       postDate.setHours(0, 0, 0, 0);
-      return postDate;
+      return postDate < ninetyDaysAgo ? ninetyDaysAgo : postDate;
     })();
 
   const beforeDate = endDate.getTime();
