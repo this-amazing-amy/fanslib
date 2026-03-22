@@ -85,6 +85,7 @@ export const useFetchFanslyDataMutation = () => {
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.analytics.datapoints(variables.postMediaId),
       });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.analytics.queue() });
     },
   });
 };

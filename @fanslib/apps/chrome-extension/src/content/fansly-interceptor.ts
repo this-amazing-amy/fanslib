@@ -282,6 +282,7 @@ const processScheduleResponse = (
     const data = JSON.parse(responseText) as {
       success: boolean;
       response?: {
+        postId?: string;
         postTemplate?: PostData | string;
         post?: PostData | string;
       };
@@ -315,6 +316,9 @@ const processScheduleResponse = (
     } else if (rawPostData && typeof rawPostData === "object") {
       postData = rawPostData;
     }
+
+    // Extract Fansly post ID from the top-level response
+    const fanslyPostId = data.response.postId;
 
     // Try to get contentId from response attachments
     // eslint-disable-next-line functional/no-let
@@ -369,6 +373,7 @@ const processScheduleResponse = (
     debug("info", `Schedule capture detected (#${scheduleCaptureCount})`, {
       url,
       contentId,
+      fanslyPostId,
       captionLength: caption.length,
       captionPreview: caption.substring(0, 80),
       source,
@@ -379,6 +384,7 @@ const processScheduleResponse = (
         type: "FANSLIB_SCHEDULE_CAPTURE",
         contentId,
         caption,
+        fanslyPostId,
       },
       "*",
     );

@@ -31,6 +31,7 @@ export const PostSchema = z.object({
   blueskyPostUri: z.string().nullable(),
   blueskyPostError: z.string().nullable(),
   blueskyRetryCount: z.number(),
+  fanslyPostId: z.string().nullable(),
   status: PostStatusSchema,
   channelId: z.string(),
   subredditId: z.string().nullable(),
