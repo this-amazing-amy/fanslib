@@ -18,6 +18,7 @@ import { fetchMediaByPath } from "../media/fetch-by-path";
 import { updateMedia } from "../media/update";
 import { findMediaByStats } from "./find-by-stats";
 import { generateThumbnail, thumbnailExists } from "./thumbnail";
+import { applyManagedMetadata } from "./managed-metadata";
 import { repairUppercaseExtension } from "./uppercase-extensions";
 
 export const ScanFileRequestBodySchema = z.object({
@@ -115,6 +116,7 @@ export const scanFile = async (filePath: string): Promise<z.infer<typeof FileSca
     } catch (error) {
       console.error(`Failed to generate thumbnail for ${filePath}:`, error);
     }
+    await applyManagedMetadata(newMedia.id);
     return { action: "added", media: newMedia };
   }
 
@@ -148,6 +150,7 @@ export const scanFile = async (filePath: string): Promise<z.infer<typeof FileSca
   } catch (error) {
     console.error(`Failed to generate thumbnail for ${filePath}:`, error);
   }
+  await applyManagedMetadata(updatedMedia.id);
 
   return { action: "updated", media: updatedMedia };
 };
