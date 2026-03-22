@@ -2,11 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageContainer } from "~/components/ui/PageContainer/PageContainer";
 import { PageHeader } from "~/components/ui/PageHeader/PageHeader";
 import { ActiveFypPostsPage } from "~/features/analytics/components/ActiveFypPostsPage";
+import { QueueStatusBar } from "~/features/analytics/components/QueueStatusBar";
 import { RepostCandidatesPage } from "~/features/analytics/components/RepostCandidatesPage";
 
 const FanslyFypRoute = () => (
   <PageContainer>
     <PageHeader title="FYP Analytics" description="Active FYP posts and repost candidates" />
+    <QueueStatusBar />
     <div className="space-y-8">
       <section>
         <h2 className="text-lg font-semibold mb-4">Active FYP Posts</h2>
