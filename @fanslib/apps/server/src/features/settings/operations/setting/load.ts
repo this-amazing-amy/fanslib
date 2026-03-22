@@ -15,13 +15,15 @@ export const loadSettings = async (): Promise<LoadSettingsResponse> => {
     const settings = JSON.parse(data) as LoadSettingsResponse;
     return {
       ...settings,
-      libraryPath: env().libraryPath,
+      mediaPath: env().mediaPath,
+      libraryPath: env().mediaPath,
     };
   } catch (error) {
     console.error("Error loading settings:", error);
     return {
       ...DEFAULT_SETTINGS,
-      libraryPath: env().libraryPath,
+      mediaPath: env().mediaPath,
+      libraryPath: env().mediaPath,
     };
   }
 };

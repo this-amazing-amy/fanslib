@@ -3,6 +3,7 @@ import { db } from "../../../../lib/db";
 import { ChannelSchema } from "../../../channels/entity";
 import { PostMediaSchema, PostSchema } from "../../../posts/schema";
 import { SubredditSchema } from "../../../subreddits/entity";
+import { ContentRatingSchema } from "../../content-rating";
 import { Media } from "../../entity";
 import { MediaSchema, MediaTypeSchema } from "../../schema";
 
@@ -19,6 +20,10 @@ export const UpdateMediaRequestBodySchema = z.object({
   redgifsUrl: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
   excluded: z.boolean().optional(),
+  contentRating: ContentRatingSchema.nullable().optional(),
+  package: z.string().nullable().optional(),
+  role: z.string().nullable().optional(),
+  isManaged: z.boolean().optional(),
   fileCreationDate: z.coerce.date().optional(),
   fileModificationDate: z.coerce.date().optional(),
 });

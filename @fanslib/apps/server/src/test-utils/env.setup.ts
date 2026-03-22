@@ -13,9 +13,10 @@ const ensureDir = async (dirPath: string) => {
 
 const cwd = process.cwd();
 process.env.APPDATA_PATH = process.env.APPDATA_PATH ?? `${cwd}/.test-data/appdata`;
-process.env.LIBRARY_PATH = process.env.LIBRARY_PATH ?? `${cwd}/.test-data/library`;
+process.env.MEDIA_PATH = process.env.MEDIA_PATH ?? `${cwd}/.test-data/library`;
+process.env.LIBRARY_PATH = process.env.LIBRARY_PATH ?? process.env.MEDIA_PATH;
 
 await ensureDir(process.env.APPDATA_PATH);
-await ensureDir(process.env.LIBRARY_PATH);
+await ensureDir(process.env.MEDIA_PATH);
 // Also ensure sqlite dir exists if db path nests
 await ensureDir(dirname(`${process.env.APPDATA_PATH}/fanslib.sqlite`));

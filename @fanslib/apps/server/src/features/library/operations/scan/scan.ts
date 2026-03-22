@@ -18,6 +18,7 @@ import { fetchMediaByPath } from "../media/fetch-by-path";
 import { updateMedia } from "../media/update";
 import { findMediaByStats } from "./find-by-stats";
 import { generateThumbnail, thumbnailExists } from "./thumbnail";
+import { applyManagedMetadata } from "./managed-metadata";
 import { repairUppercaseExtension } from "./uppercase-extensions";
 
 export const ScanFileRequestBodySchema = z.object({
@@ -64,11 +65,11 @@ const VIDEO_EXTENSIONS = new Set([".mp4", ".webm", ".mov", ".avi", ".mkv"]);
 let currentScanProgress: z.infer<typeof LibraryScanProgressSchema> | null = null;
 let currentScanResult: z.infer<typeof LibraryScanResultSchema> | null = null;
 
-const convertToRelativePath = (absolutePath: string, libraryPath: string): string => {
+const convertToRelativePath = (absolutePath: string, mediaPath: string): string => {
   if (!path.isAbsolute(absolutePath)) {
     return absolutePath;
   }
-  return path.relative(libraryPath, absolutePath);
+  return path.relative(mediaPath, absolutePath);
 };
 
 const isMediaFile = (
@@ -91,11 +92,11 @@ export const scanFile = async (filePath: string): Promise<z.infer<typeof FileSca
     throw new Error(`Unsupported file type: ${filePath}`);
   }
 
-  const libraryPath = env().libraryPath;
-  const relativePath = convertToRelativePath(filePath, libraryPath);
+  const mediaPath = env().mediaPath;
+  const relativePath = convertToRelativePath(filePath, mediaPath);
   const stats = await fs.stat(filePath);
   const existingMedia =
-    (await fetchMediaByPath(relativePath)) ?? (await findMediaByStats(stats, libraryPath));
+    (await fetchMediaByPath(relativePath)) ?? (await findMediaByStats(stats, mediaPath));
 
   if (!existingMedia) {
     const media = {
@@ -115,6 +116,7 @@ export const scanFile = async (filePath: string): Promise<z.infer<typeof FileSca
     } catch (error) {
       console.error(`Failed to generate thumbnail for ${filePath}:`, error);
     }
+    await applyManagedMetadata(newMedia.id);
     return { action: "added", media: newMedia };
   }
 
@@ -148,6 +150,7 @@ export const scanFile = async (filePath: string): Promise<z.infer<typeof FileSca
   } catch (error) {
     console.error(`Failed to generate thumbnail for ${filePath}:`, error);
   }
+  await applyManagedMetadata(updatedMedia.id);
 
   return { action: "updated", media: updatedMedia };
 };
@@ -191,13 +194,13 @@ class LibraryScanner {
     try {
       // First pass: collect all files
       const filesToProcess: string[] = [];
-      const libraryPath = env().libraryPath;
+      const mediaPath = env().mediaPath;
 
       console.log("Library scan starting", {
-        libraryPath,
+        mediaPath,
       });
 
-      for await (const filePath of walkDirectory(libraryPath)) {
+      for await (const filePath of walkDirectory(mediaPath)) {
         const { isSupported } = isMediaFile(filePath);
         if (isSupported) {
           filesToProcess.push(filePath);
@@ -205,7 +208,7 @@ class LibraryScanner {
       }
 
       console.log("Library scan files discovered", {
-        libraryPath,
+        mediaPath,
         totalFiles: filesToProcess.length,
         files: filesToProcess,
       });
@@ -273,7 +276,7 @@ class LibraryScanner {
 
         // Check if the file still exists using path resolution
         try {
-          const resolvedPath = convertRelativeToAbsolute(media.relativePath, libraryPath);
+          const resolvedPath = convertRelativeToAbsolute(media.relativePath, mediaPath);
           await fs.access(resolvedPath);
           // File exists, keep it
           continue;
