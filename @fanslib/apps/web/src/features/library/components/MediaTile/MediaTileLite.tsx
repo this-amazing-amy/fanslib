@@ -137,7 +137,7 @@ export const MediaTileLite = memo(
               ref={videoRef}
               src={getMediaFileUrl(media.id)}
               className={getBlurClassName(
-                cn("absolute inset-0 w-full h-full object-contain", !isActivePreview && "hidden"),
+                cn("absolute inset-0 w-full h-full object-contain", (!isActivePreview || !isVideoReady) && "hidden"),
               )}
               preload="none"
               draggable={false}
