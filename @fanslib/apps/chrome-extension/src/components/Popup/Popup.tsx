@@ -164,6 +164,16 @@ export const Popup = () => {
 
   const currentPost = posts[currentIndex];
 
+  // Send current post's caption to the active Fansly tab for auto-insert
+  useEffect(() => {
+    if (currentPost?.caption) {
+      chrome.runtime.sendMessage({
+        type: "FANSLIB_INSERT_CAPTION",
+        caption: currentPost.caption,
+      });
+    }
+  }, [currentPost?.id, currentPost?.caption]);
+
   return (
     <div className="w-full h-screen bg-base-100 text-base-content overflow-y-auto flex flex-col">
       <PopupHeader

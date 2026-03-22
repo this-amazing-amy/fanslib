@@ -173,4 +173,23 @@ window.addEventListener("message", (event) => {
 
 debug("info", "Bridge message listener installed");
 
+// Listen for messages from background script (reverse channel: background → content → MAIN world)
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.type === "FANSLIB_INSERT_CAPTION") {
+    debug("info", "Received insert-caption from background", {
+      captionLength: message.caption?.length,
+    });
+
+    window.postMessage(
+      {
+        type: "FANSLIB_INSERT_CAPTION",
+        caption: message.caption,
+      },
+      "*",
+    );
+  }
+});
+
+debug("info", "Bridge reverse-channel listener installed");
+
 export {};
