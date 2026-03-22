@@ -36,31 +36,6 @@ export const useRepostCandidatesQuery = (sortBy?: "views" | "engagementPercent" 
     },
   });
 
-export type QueueItem = {
-  postMediaId: string;
-  nextFetchAt: string;
-  caption: string | null;
-  thumbnailUrl: string;
-  overdue: boolean;
-};
-
-export type QueueState = {
-  totalPending: number;
-  nextFetchAt: string | null;
-  items: QueueItem[];
-};
-
-export const useQueueStateQuery = () =>
-  useQuery({
-    queryKey: QUERY_KEYS.analytics.queue(),
-    queryFn: async () => {
-      // oxlint-disable-next-line typescript/no-explicit-any
-      const result = await (api.api.analytics as any).queue.$get();
-      return result.json() as QueueState;
-    },
-    staleTime: 30_000,
-  });
-
 export const useFetchFanslyDataMutation = () => {
   const queryClient = useQueryClient();
 

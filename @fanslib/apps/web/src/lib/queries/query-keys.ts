@@ -30,7 +30,6 @@ export const QUERY_KEYS = {
     datapoints: (postMediaId: string) => ["analytics", "datapoints", postMediaId] as const,
     activeFypPosts: (sortBy?: string) => ["analytics", "active-fyp-posts", sortBy] as const,
     repostCandidates: (sortBy?: string) => ["analytics", "repost-candidates", sortBy] as const,
-    queue: () => ["analytics", "queue"] as const,
   },
 
   posts: {
