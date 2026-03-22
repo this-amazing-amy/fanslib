@@ -7,6 +7,7 @@ import { Post, PostMedia } from "../entity";
 export const ScheduleCaptureRequestBodySchema = z.object({
   contentId: z.string(),
   caption: z.string(),
+  fanslyPostId: z.string().optional(),
 });
 
 export type ScheduleCaptureResult = {
@@ -53,8 +54,11 @@ export const processScheduleCapture = async (
   const bestMatch = matches[0];
   const post = bestMatch.post;
 
-  // Update post status to "scheduled"
-  await postRepo.update(post.id, { status: "scheduled" });
+  // Update post status to "scheduled" and store fanslyPostId if provided
+  await postRepo.update(post.id, {
+    status: "scheduled",
+    ...(input.fanslyPostId ? { fanslyPostId: input.fanslyPostId } : {}),
+  });
 
   // Link first PostMedia (attachments[0]) with fanslyStatisticsId
   const firstPostMedia = [...post.postMedia].sort((a, b) => a.order - b.order)[0];

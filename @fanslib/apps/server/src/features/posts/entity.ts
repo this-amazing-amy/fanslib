@@ -67,6 +67,9 @@ export class Post {
   @Column({ type: "int", default: 0, name: "blueskyRetryCount" })
   blueskyRetryCount: number = 0;
 
+  @Column({ type: "varchar", nullable: true, name: "fanslyPostId" })
+  fanslyPostId: string | null = null;
+
   @Column({
     type: "varchar",
     enum: ["draft", "ready", "scheduled", "posted"],
