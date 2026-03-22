@@ -36,4 +36,11 @@ describe("NavigationMenu", () => {
     expect(screen.queryByText(/analytics/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/matching/i)).not.toBeInTheDocument();
   });
+
+  test("renders Organize nav link pointing to /content/library/organize", () => {
+    render(<NavigationMenu isCollapsed={false} />);
+
+    const organizeLink = screen.getByRole("link", { name: /organize/i });
+    expect(organizeLink).toHaveAttribute("href", "/content/library/organize");
+  });
 });
