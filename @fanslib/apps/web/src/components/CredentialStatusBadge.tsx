@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle, Clock, ExternalLink, XCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle, Clock, ExternalLink, RefreshCw, XCircle } from "lucide-react";
 import { useFanslyCredentialStatusQuery } from "~/lib/queries/settings";
 import { Tooltip } from "~/components/ui/Tooltip";
 
@@ -41,10 +41,12 @@ const TooltipContent = ({
   config,
   status,
   lastUpdated,
+  onRefresh,
 }: {
   config: (typeof statusConfig)[keyof typeof statusConfig];
   status: string;
   lastUpdated: number | null;
+  onRefresh: () => void;
 }) => {
   const Icon = config.icon;
 
@@ -58,6 +60,14 @@ const TooltipContent = ({
       <div className="text-base-content/50 flex items-center gap-1">
         <Clock className="h-3 w-3" />
         <span>Last refreshed: {formatAge(lastUpdated)}</span>
+        <button
+          type="button"
+          onClick={onRefresh}
+          className="ml-1 p-0.5 rounded hover:bg-base-content/10 transition-colors"
+          aria-label="Refresh credentials"
+        >
+          <RefreshCw className="h-3 w-3" />
+        </button>
       </div>
       {status === "red" && (
         <a
@@ -75,7 +85,7 @@ const TooltipContent = ({
 };
 
 export const CredentialStatusBadge = () => {
-  const { data, isLoading } = useFanslyCredentialStatusQuery();
+  const { data, isLoading, refetch } = useFanslyCredentialStatusQuery();
 
   if (isLoading || !data) return null;
 
@@ -85,7 +95,7 @@ export const CredentialStatusBadge = () => {
   return (
     <Tooltip
       content={
-        <TooltipContent config={config} status={status} lastUpdated={data.lastUpdated} />
+        <TooltipContent config={config} status={status} lastUpdated={data.lastUpdated} onRefresh={() => refetch()} />
       }
       placement="bottom"
     >
