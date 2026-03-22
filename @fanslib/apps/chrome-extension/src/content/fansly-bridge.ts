@@ -142,6 +142,7 @@ window.addEventListener("message", (event) => {
   if (event.data.type === "FANSLIB_SCHEDULE_CAPTURE") {
     debug("info", "Received schedule capture from MAIN world", {
       contentId: event.data.contentId,
+      fanslyPostId: event.data.fanslyPostId,
       captionLength: event.data.caption?.length,
     });
 
@@ -150,6 +151,7 @@ window.addEventListener("message", (event) => {
         type: "FANSLIB_SCHEDULE_CAPTURE",
         contentId: event.data.contentId,
         caption: event.data.caption,
+        fanslyPostId: event.data.fanslyPostId,
       },
       "schedule capture",
     );

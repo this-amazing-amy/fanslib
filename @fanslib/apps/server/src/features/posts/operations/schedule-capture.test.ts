@@ -208,6 +208,40 @@ describe("processScheduleCapture", () => {
     expect(updatedPm2?.fanslyStatisticsId).toBeNull();
   });
 
+  test("does not set fanslyPostId when not provided", async () => {
+    const dataSource = getTestDataSource();
+    const postRepo = dataSource.getRepository(Post);
+
+    const { post } = await createReadyFanslyPost("No post ID provided");
+
+    await processScheduleCapture({
+      contentId: "fansly-content-888",
+      caption: "No post ID provided",
+    });
+
+    const updatedPost = await postRepo.findOne({ where: { id: post.id } });
+    expect(updatedPost?.status).toBe("scheduled");
+    expect(updatedPost?.fanslyPostId).toBeNull();
+  });
+
+  test("stores fanslyPostId on matched post", async () => {
+    const dataSource = getTestDataSource();
+    const postRepo = dataSource.getRepository(Post);
+
+    const { post } = await createReadyFanslyPost("Store the post ID please");
+
+    const result = await processScheduleCapture({
+      contentId: "fansly-content-999",
+      caption: "Store the post ID please",
+      fanslyPostId: "892032980896215040",
+    });
+
+    expect(result.matched).toBe(true);
+
+    const updatedPost = await postRepo.findOne({ where: { id: post.id } });
+    expect(updatedPost?.fanslyPostId).toBe("892032980896215040");
+  });
+
   test("handles null caption in queue post gracefully", async () => {
     const channel = await createTestChannel({ typeId: "fansly" });
     const post = await createTestPost(channel.id, {
