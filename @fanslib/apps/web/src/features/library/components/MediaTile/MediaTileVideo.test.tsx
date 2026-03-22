@@ -49,25 +49,40 @@ const baseMedia = {
 };
 
 describe("MediaTileVideo", () => {
+  test("video element stays hidden when preview is active but video is not ready", () => {
+    mockUseVideoPreview.mockReturnValue({
+      videoRef: { current: null },
+      isVideoReady: false,
+    });
+
+    render(<MediaTileVideo media={baseMedia} withPreview withDuration={false} hoverKey="instance-A" />);
+
+    const video = document.querySelector("video");
+    expect(video).toHaveClass("hidden");
+  });
+
   test("activates preview only when hoverKey matches, not media.id", () => {
     mockUseVideoPreview.mockReturnValue({
       videoRef: { current: null },
       isVideoReady: false,
     });
 
-    // Render with hoverKey "instance-A" which matches the store's hoveredMediaId
-    const { container: containerA } = render(
+    // When isVideoReady is false, video is hidden regardless — test with isVideoReady=true
+    mockUseVideoPreview.mockReturnValue({
+      videoRef: { current: null },
+      isVideoReady: true,
+    });
+
+    const { container: containerA2 } = render(
       <MediaTileVideo media={baseMedia} withPreview withDuration={false} hoverKey="instance-A" />,
     );
-    // Video should NOT have hidden class (preview is active)
-    const videoA = containerA.querySelector("video");
+    const videoA = containerA2.querySelector("video");
     expect(videoA).not.toHaveClass("hidden");
 
     // Render with hoverKey "instance-B" which does NOT match
     const { container: containerB } = render(
       <MediaTileVideo media={baseMedia} withPreview withDuration={false} hoverKey="instance-B" />,
     );
-    // Video SHOULD have hidden class (preview not active)
     const videoB = containerB.querySelector("video");
     expect(videoB).toHaveClass("hidden");
   });
