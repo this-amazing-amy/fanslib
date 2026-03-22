@@ -463,6 +463,230 @@ describe("Analytics Routes", () => {
     });
   });
 
+  describe("GET /api/analytics/queue", () => {
+    test("returns empty queue state when no aggregates exist", async () => {
+      const res = await app.request("/api/analytics/queue");
+      expect(res.status).toBe(200);
+
+      const data = await parseResponse<{ totalPending: number; nextFetchAt: null; items: unknown[] }>(res);
+      expect(data?.totalPending).toBe(0);
+      expect(data?.nextFetchAt).toBeNull();
+      expect(data?.items).toEqual([]);
+    });
+
+    test("excludes items with nextFetchAt = null (halted/plateaued)", async () => {
+      const dataSource = getTestDataSource();
+      const postMediaRepo = dataSource.getRepository(PostMedia);
+      const aggregateRepo = dataSource.getRepository(FanslyAnalyticsAggregate);
+
+      const channel = await createTestChannel();
+      const post = await createTestPost(channel.id, { caption: "Halted post" });
+      const media = await createTestMedia();
+      const postMedia = postMediaRepo.create({ post, media, order: 0 });
+      await postMediaRepo.save(postMedia);
+
+      // Aggregate with no nextFetchAt (halted)
+      const aggregate = aggregateRepo.create({
+        postMedia,
+        postMediaId: postMedia.id,
+        totalViews: 100,
+        averageEngagementSeconds: 30,
+        averageEngagementPercent: 50,
+        nextFetchAt: undefined,
+      });
+      await aggregateRepo.save(aggregate);
+
+      const res = await app.request("/api/analytics/queue");
+      expect(res.status).toBe(200);
+
+      const data = await parseResponse<{ totalPending: number; items: unknown[] }>(res);
+      expect(data?.totalPending).toBe(0);
+      expect(data?.items).toEqual([]);
+    });
+
+    test("returns correct totalPending count for items with non-null nextFetchAt", async () => {
+      const dataSource = getTestDataSource();
+      const postMediaRepo = dataSource.getRepository(PostMedia);
+      const aggregateRepo = dataSource.getRepository(FanslyAnalyticsAggregate);
+      const channel = await createTestChannel();
+
+      // Create 2 items with nextFetchAt and 1 without
+      const createQueueItem = async (nextFetchAt?: Date) => {
+        const post = await createTestPost(channel.id);
+        const media = await createTestMedia();
+        const pm = postMediaRepo.create({ post, media, order: 0 });
+        await postMediaRepo.save(pm);
+        await aggregateRepo.save(
+          aggregateRepo.create({
+            postMedia: pm,
+            postMediaId: pm.id,
+            totalViews: 100,
+            averageEngagementSeconds: 30,
+            averageEngagementPercent: 50,
+            nextFetchAt,
+          }),
+        );
+      };
+      await createQueueItem(new Date(Date.now() + 60000));
+      await createQueueItem(new Date(Date.now() + 120000));
+      await createQueueItem(undefined);
+
+      const res = await app.request("/api/analytics/queue");
+      expect(res.status).toBe(200);
+
+      const data = await parseResponse<{ totalPending: number; items: unknown[] }>(res);
+      expect(data?.totalPending).toBe(2);
+      expect(data?.items).toHaveLength(2);
+    });
+
+    test("returns the earliest nextFetchAt as the top-level nextFetchAt", async () => {
+      const dataSource = getTestDataSource();
+      const postMediaRepo = dataSource.getRepository(PostMedia);
+      const aggregateRepo = dataSource.getRepository(FanslyAnalyticsAggregate);
+      const channel = await createTestChannel();
+
+      const earliest = new Date(Date.now() + 30000);
+      const later = new Date(Date.now() + 120000);
+
+      const createWithFetchAt = async (nextFetchAt: Date) => {
+        const post = await createTestPost(channel.id);
+        const media = await createTestMedia();
+        const pm = postMediaRepo.create({ post, media, order: 0 });
+        await postMediaRepo.save(pm);
+        await aggregateRepo.save(
+          aggregateRepo.create({
+            postMedia: pm,
+            postMediaId: pm.id,
+            totalViews: 100,
+            averageEngagementSeconds: 30,
+            averageEngagementPercent: 50,
+            nextFetchAt,
+          }),
+        );
+      };
+      await createWithFetchAt(later);
+      await createWithFetchAt(earliest);
+
+      const res = await app.request("/api/analytics/queue");
+      expect(res.status).toBe(200);
+
+      const data = await parseResponse<{ nextFetchAt: Date }>(res);
+      expect(new Date(data?.nextFetchAt as Date).toISOString()).toBe(earliest.toISOString());
+    });
+
+    test("each item includes postMediaId, nextFetchAt, caption, thumbnailUrl, overdue", async () => {
+      const dataSource = getTestDataSource();
+      const postMediaRepo = dataSource.getRepository(PostMedia);
+      const aggregateRepo = dataSource.getRepository(FanslyAnalyticsAggregate);
+      const channel = await createTestChannel();
+
+      const nextFetch = new Date(Date.now() + 60000);
+      const post = await createTestPost(channel.id, { caption: "My caption" });
+      const media = await createTestMedia();
+      const pm = postMediaRepo.create({ post, media, order: 0 });
+      await postMediaRepo.save(pm);
+      await aggregateRepo.save(
+        aggregateRepo.create({
+          postMedia: pm,
+          postMediaId: pm.id,
+          totalViews: 100,
+          averageEngagementSeconds: 30,
+          averageEngagementPercent: 50,
+          nextFetchAt: nextFetch,
+        }),
+      );
+
+      const res = await app.request("/api/analytics/queue");
+      expect(res.status).toBe(200);
+
+      type QueueItem = {
+        postMediaId: string;
+        nextFetchAt: string;
+        caption: string | null;
+        thumbnailUrl: string;
+        overdue: boolean;
+      };
+      const data = await parseResponse<{ items: QueueItem[] }>(res);
+      const item = data?.items[0];
+      expect(item?.postMediaId).toBe(pm.id);
+      expect(new Date(item?.nextFetchAt as string).toISOString()).toBe(nextFetch.toISOString());
+      expect(item?.caption).toBe("My caption");
+      expect(item?.thumbnailUrl).toBe(`thumbnail://${media.id}`);
+      expect(item?.overdue).toBe(false);
+    });
+
+    test("items where nextFetchAt <= now have overdue: true", async () => {
+      const dataSource = getTestDataSource();
+      const postMediaRepo = dataSource.getRepository(PostMedia);
+      const aggregateRepo = dataSource.getRepository(FanslyAnalyticsAggregate);
+      const channel = await createTestChannel();
+
+      // Past date = overdue
+      const pastDate = new Date(Date.now() - 60000);
+      const post = await createTestPost(channel.id);
+      const media = await createTestMedia();
+      const pm = postMediaRepo.create({ post, media, order: 0 });
+      await postMediaRepo.save(pm);
+      await aggregateRepo.save(
+        aggregateRepo.create({
+          postMedia: pm,
+          postMediaId: pm.id,
+          totalViews: 100,
+          averageEngagementSeconds: 30,
+          averageEngagementPercent: 50,
+          nextFetchAt: pastDate,
+        }),
+      );
+
+      const res = await app.request("/api/analytics/queue");
+      expect(res.status).toBe(200);
+
+      const data = await parseResponse<{ items: Array<{ overdue: boolean }> }>(res);
+      expect(data?.items[0]?.overdue).toBe(true);
+    });
+
+    test("items are sorted by nextFetchAt ascending", async () => {
+      const dataSource = getTestDataSource();
+      const postMediaRepo = dataSource.getRepository(PostMedia);
+      const aggregateRepo = dataSource.getRepository(FanslyAnalyticsAggregate);
+      const channel = await createTestChannel();
+
+      const times = [
+        new Date(Date.now() + 300000),
+        new Date(Date.now() + 60000),
+        new Date(Date.now() + 180000),
+      ];
+
+      const createSorted = async (nextFetchAt: Date) => {
+        const post = await createTestPost(channel.id);
+        const media = await createTestMedia();
+        const pm = postMediaRepo.create({ post, media, order: 0 });
+        await postMediaRepo.save(pm);
+        await aggregateRepo.save(
+          aggregateRepo.create({
+            postMedia: pm,
+            postMediaId: pm.id,
+            totalViews: 100,
+            averageEngagementSeconds: 30,
+            averageEngagementPercent: 50,
+            nextFetchAt,
+          }),
+        );
+      };
+      await createSorted(times[0]);
+      await createSorted(times[1]);
+      await createSorted(times[2]);
+
+      const res = await app.request("/api/analytics/queue");
+      expect(res.status).toBe(200);
+
+      const data = await parseResponse<{ items: Array<{ nextFetchAt: string | Date }> }>(res);
+      const fetchAts = data?.items.map((i) => new Date(i.nextFetchAt).toISOString()) ?? [];
+      const sorted = [...fetchAts].sort();
+      expect(fetchAts).toEqual(sorted);
+    });
+  });
+
   describe("GET /api/analytics/repost-candidates", () => {
     // Helper: create a PostMedia linked to a Media with an analytics aggregate.
     // By default creates a naturally-plateaued PostMedia (eligible for repost).
