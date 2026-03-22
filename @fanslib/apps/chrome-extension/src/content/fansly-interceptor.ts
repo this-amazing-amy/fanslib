@@ -272,17 +272,16 @@ const processScheduleResponse = (
   requestBody?: string | null,
 ) => {
   try {
+    type PostData = {
+      content?: string;
+      attachments?: Array<{ contentId: string }>;
+    };
+
     const data = JSON.parse(responseText) as {
       success: boolean;
       response?: {
-        postTemplate?: {
-          content?: string;
-          attachments?: Array<{ contentId: string }>;
-        };
-        post?: {
-          content?: string;
-          attachments?: Array<{ contentId: string }>;
-        };
+        postTemplate?: PostData | string;
+        post?: PostData | string;
       };
     };
 
@@ -297,8 +296,23 @@ const processScheduleResponse = (
       return;
     }
 
-    // Try response first (postTemplate or post)
-    const postData = data.response.postTemplate ?? data.response.post;
+    // postTemplate/post may be a JSON string (Fansly schedule response) or an object
+    const rawPostData = data.response.postTemplate ?? data.response.post;
+    // eslint-disable-next-line functional/no-let
+    let postData: PostData | undefined;
+    if (typeof rawPostData === "string") {
+      try {
+        postData = JSON.parse(rawPostData) as PostData;
+        debug("info", "Parsed postTemplate from JSON string", {
+          url,
+          keys: Object.keys(postData),
+        });
+      } catch {
+        debug("warn", "Failed to parse postTemplate JSON string", { url });
+      }
+    } else if (rawPostData && typeof rawPostData === "object") {
+      postData = rawPostData;
+    }
 
     // Try to get contentId from response attachments
     // eslint-disable-next-line functional/no-let
