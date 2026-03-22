@@ -1,5 +1,6 @@
 /// <reference types="@testing-library/jest-dom" />
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, test } from "vitest";
 import { AnalyticsPostCard } from "./AnalyticsPostCard";
 
@@ -63,6 +64,55 @@ describe("AnalyticsPostCard", () => {
     const { container } = render(<AnalyticsPostCard {...defaultProps} />);
     const sparklinePath = container.querySelector("svg > path[stroke='hsl(var(--p))']");
     expect(sparklinePath).not.toBeInTheDocument();
+  });
+
+  test("clicking card expands growth chart when datapoints exist", async () => {
+    const datapoints = [
+      { timestamp: 1000, views: 0, interactionTime: 0 },
+      { timestamp: 2000, views: 50, interactionTime: 5000 },
+      { timestamp: 3000, views: 100, interactionTime: 10000 },
+    ];
+    const { container } = render(
+      <AnalyticsPostCard {...defaultProps} datapoints={datapoints} sortMetric="views" />
+    );
+    const user = userEvent.setup();
+
+    // Chart area should not be visible initially
+    expect(screen.queryByTestId("growth-chart")).not.toBeInTheDocument();
+
+    // Click the card to expand
+    await user.click(container.querySelector("[data-testid='analytics-card']") as HTMLElement);
+
+    // Chart area should now be visible
+    expect(screen.getByTestId("growth-chart")).toBeInTheDocument();
+  });
+
+  test("clicking expanded card collapses the growth chart", async () => {
+    const datapoints = [
+      { timestamp: 1000, views: 0, interactionTime: 0 },
+      { timestamp: 2000, views: 50, interactionTime: 5000 },
+      { timestamp: 3000, views: 100, interactionTime: 10000 },
+    ];
+    const { container } = render(
+      <AnalyticsPostCard {...defaultProps} datapoints={datapoints} sortMetric="views" />
+    );
+    const user = userEvent.setup();
+
+    // Expand
+    await user.click(container.querySelector("[data-testid='analytics-card']") as HTMLElement);
+    expect(screen.getByTestId("growth-chart")).toBeInTheDocument();
+
+    // Collapse
+    await user.click(container.querySelector("[data-testid='analytics-card']") as HTMLElement);
+    expect(screen.queryByTestId("growth-chart")).not.toBeInTheDocument();
+  });
+
+  test("card without datapoints does not expand on click", async () => {
+    const { container } = render(<AnalyticsPostCard {...defaultProps} />);
+    const user = userEvent.setup();
+
+    await user.click(container.querySelector("[data-testid='analytics-card']") as HTMLElement);
+    expect(screen.queryByTestId("growth-chart")).not.toBeInTheDocument();
   });
 
   test("renders action slot when provided", () => {
