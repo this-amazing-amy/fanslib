@@ -9,6 +9,7 @@ export type AggregatedDataPoint = {
   daysSincePost: number;
   views: number;
   timestamp: number;
+  interactionTime: number;
 };
 
 export const aggregateDatapoints = (
@@ -33,20 +34,23 @@ export const aggregateDatapoints = (
   const datapointsByDay = sortedDatapoints.reduce(
     (acc, datapoint) => {
       const cumulativeViews = acc.cumulativeViews + datapoint.views;
+      const cumulativeInteractionTime = acc.cumulativeInteractionTime + datapoint.interactionTime;
       const datapointDate = new Date(datapoint.timestamp);
       datapointDate.setHours(0, 0, 0, 0);
       const dateKey = datapointDate.toISOString().split("T")[0] ?? "";
       const nextMap = new Map(acc.byDay);
       nextMap.set(dateKey, {
         views: cumulativeViews,
+        interactionTime: cumulativeInteractionTime,
         timestamp: datapoint.timestamp,
       });
 
-      return { cumulativeViews, byDay: nextMap };
+      return { cumulativeViews, cumulativeInteractionTime, byDay: nextMap };
     },
     {
       cumulativeViews: 0,
-      byDay: new Map<string, { views: number; timestamp: number }>(),
+      cumulativeInteractionTime: 0,
+      byDay: new Map<string, { views: number; interactionTime: number; timestamp: number }>(),
     },
   ).byDay;
   const dayMs = 24 * 60 * 60 * 1000;
@@ -69,19 +73,22 @@ export const aggregateDatapoints = (
       const daysSincePost = Math.floor((currentDate.getTime() - postDateObj.getTime()) / dayMs);
       const data = datapointsByDay.get(dateKey);
       const views = data?.views ?? acc.prevViews;
+      const interactionTime = data?.interactionTime ?? acc.prevInteractionTime;
       const nextPoint: AggregatedDataPoint = {
         date: formatter.format(currentDate),
         daysSincePost,
         views,
+        interactionTime,
         timestamp: data?.timestamp ?? currentDate.getTime(),
       };
 
       return {
         prevViews: views,
+        prevInteractionTime: interactionTime,
         result: [...acc.result, nextPoint],
       };
     },
-    { prevViews: 0, result: [] as AggregatedDataPoint[] },
+    { prevViews: 0, prevInteractionTime: 0, result: [] as AggregatedDataPoint[] },
   );
 
   return aggregated.result;

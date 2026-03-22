@@ -2,7 +2,10 @@ import type { PostWithRelations } from "@fanslib/server/schemas";
 import { useState } from "react";
 import { MediaPreview } from "~/components/MediaPreview";
 import { Button } from "~/components/ui/Button";
-import { AnalyticsViewsChart } from "~/features/posts/components/post-detail/AnalyticsViewsChart";
+import {
+  AnalyticsViewsChart,
+  type ChartMetric,
+} from "~/features/posts/components/post-detail/AnalyticsViewsChart";
 import { cn } from "~/lib/cn";
 import { useFetchFanslyDataMutation, usePostMediaAnalyticsQuery } from "~/lib/queries/analytics";
 
@@ -69,7 +72,14 @@ type PostMediaAnalyticsChartProps = {
   postMediaId: string;
 };
 
+const METRIC_OPTIONS = [
+  { value: "views", label: "Views" },
+  { value: "engagementPercent", label: "Engagement %" },
+  { value: "engagementSeconds", label: "Engagement Time" },
+] as const;
+
 const PostMediaAnalyticsChart = ({ postMediaId }: PostMediaAnalyticsChartProps) => {
+  const [metric, setMetric] = useState<ChartMetric>("views");
   const { data: analyticsData, isLoading } = usePostMediaAnalyticsQuery(postMediaId);
   const fetchAnalyticsMutation = useFetchFanslyDataMutation();
 
@@ -96,10 +106,26 @@ const PostMediaAnalyticsChart = ({ postMediaId }: PostMediaAnalyticsChartProps) 
   }
 
   return (
-    <AnalyticsViewsChart
-      datapoints={analyticsData.datapoints}
-      postDate={analyticsData.postDate}
-      postMediaId={postMediaId}
-    />
+    <div>
+      <div className="flex items-center gap-2 mb-2">
+        <div className="join">
+          {METRIC_OPTIONS.map((option) => (
+            <button
+              key={option.value}
+              className={`join-item btn btn-sm ${metric === option.value ? "btn-primary" : "btn-ghost"}`}
+              onClick={() => setMetric(option.value)}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <AnalyticsViewsChart
+        datapoints={analyticsData.datapoints}
+        postDate={analyticsData.postDate}
+        postMediaId={postMediaId}
+        metric={metric}
+      />
+    </div>
   );
 };
