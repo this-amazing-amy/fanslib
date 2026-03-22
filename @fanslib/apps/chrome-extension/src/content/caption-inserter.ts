@@ -1,8 +1,8 @@
 /**
  * Selector for Fansly's caption textarea.
- * Fansly uses a textarea with placeholder "Compose new post..." for post captions.
+ * Targets the textarea inside the `.new-post-content` container.
  */
-export const FANSLY_CAPTION_SELECTOR = 'textarea[placeholder="Compose new post..."]';
+export const FANSLY_CAPTION_SELECTOR = '.new-post-content textarea';
 
 /**
  * Insert a caption value into a DOM element, dispatching events
