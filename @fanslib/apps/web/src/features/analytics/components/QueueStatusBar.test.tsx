@@ -1,22 +1,48 @@
 /// <reference types="@testing-library/jest-dom" />
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 vi.mock("~/lib/queries/analytics", () => ({
   useQueueStateQuery: vi.fn(),
+  useFetchFanslyDataMutation: vi.fn(),
 }));
 
-import { useQueueStateQuery } from "~/lib/queries/analytics";
+import { useQueueStateQuery, useFetchFanslyDataMutation } from "~/lib/queries/analytics";
 import { QueueStatusBar } from "./QueueStatusBar";
 
 const mockUseQueueStateQuery = vi.mocked(useQueueStateQuery);
+const mockUseFetchFanslyDataMutation = vi.mocked(useFetchFanslyDataMutation);
+
+const defaultMutationReturn = {
+  mutate: vi.fn(),
+  isPending: false,
+  error: null,
+  variables: undefined,
+  isError: false,
+  isIdle: true,
+  isSuccess: false,
+  reset: vi.fn(),
+  mutateAsync: vi.fn(),
+  status: "idle" as const,
+  data: undefined,
+  failureCount: 0,
+  failureReason: null,
+  isPaused: false,
+  context: undefined,
+  submittedAt: 0,
+};
 
 // oxlint-disable-next-line typescript/no-explicit-any
 const mockQuery = (overrides: { data: any; isLoading: boolean }) =>
   mockUseQueueStateQuery.mockReturnValue(overrides as ReturnType<typeof useQueueStateQuery>);
 
 describe("QueueStatusBar", () => {
+  beforeEach(() => {
+    // oxlint-disable-next-line typescript/no-explicit-any
+    mockUseFetchFanslyDataMutation.mockReturnValue(defaultMutationReturn as any);
+  });
+
   afterEach(() => {
     vi.restoreAllMocks();
   });
@@ -195,5 +221,174 @@ describe("QueueStatusBar", () => {
 
     await user.click(screen.getByLabelText("Close drawer"));
     expect(screen.queryByText("Fetch Queue")).not.toBeInTheDocument();
+  });
+
+  test("each queue item has a Fetch Now button", async () => {
+    mockQuery({
+      data: {
+        totalPending: 2,
+        nextFetchAt: new Date(Date.now() + 60_000).toISOString(),
+        items: [
+          {
+            postMediaId: "pm-1",
+            nextFetchAt: new Date(Date.now() + 60_000).toISOString(),
+            caption: "First item",
+            thumbnailUrl: "thumbnail://media-1",
+            overdue: false,
+          },
+          {
+            postMediaId: "pm-2",
+            nextFetchAt: new Date(Date.now() + 120_000).toISOString(),
+            caption: "Second item",
+            thumbnailUrl: "thumbnail://media-2",
+            overdue: false,
+          },
+        ],
+      },
+      isLoading: false,
+    });
+
+    render(<QueueStatusBar />);
+    const user = userEvent.setup();
+    await user.click(screen.getByText(/2 pending/));
+
+    const fetchButtons = screen.getAllByRole("button", { name: "Fetch Now" });
+    expect(fetchButtons).toHaveLength(2);
+  });
+
+  test("clicking Fetch Now calls mutation with correct postMediaId", async () => {
+    const mockMutate = vi.fn();
+    // oxlint-disable-next-line typescript/no-explicit-any
+    mockUseFetchFanslyDataMutation.mockReturnValue({ ...defaultMutationReturn, mutate: mockMutate } as any);
+
+    mockQuery({
+      data: {
+        totalPending: 1,
+        nextFetchAt: new Date(Date.now() + 60_000).toISOString(),
+        items: [
+          {
+            postMediaId: "pm-42",
+            nextFetchAt: new Date(Date.now() + 60_000).toISOString(),
+            caption: "Test item",
+            thumbnailUrl: "thumbnail://media-42",
+            overdue: false,
+          },
+        ],
+      },
+      isLoading: false,
+    });
+
+    render(<QueueStatusBar />);
+    const user = userEvent.setup();
+    await user.click(screen.getByText(/1 pending/));
+    await user.click(screen.getByRole("button", { name: "Fetch Now" }));
+
+    expect(mockMutate).toHaveBeenCalledWith({ postMediaId: "pm-42" });
+  });
+
+  test("button shows loading state when fetch is pending for that item", async () => {
+    mockUseFetchFanslyDataMutation.mockReturnValue({
+      ...defaultMutationReturn,
+      isPending: true,
+      variables: { postMediaId: "pm-1" },
+      // oxlint-disable-next-line typescript/no-explicit-any
+    } as any);
+
+    mockQuery({
+      data: {
+        totalPending: 2,
+        nextFetchAt: new Date(Date.now() + 60_000).toISOString(),
+        items: [
+          {
+            postMediaId: "pm-1",
+            nextFetchAt: new Date(Date.now() + 60_000).toISOString(),
+            caption: "Fetching item",
+            thumbnailUrl: "thumbnail://media-1",
+            overdue: false,
+          },
+          {
+            postMediaId: "pm-2",
+            nextFetchAt: new Date(Date.now() + 120_000).toISOString(),
+            caption: "Other item",
+            thumbnailUrl: "thumbnail://media-2",
+            overdue: false,
+          },
+        ],
+      },
+      isLoading: false,
+    });
+
+    render(<QueueStatusBar />);
+    const user = userEvent.setup();
+    await user.click(screen.getByText(/2 pending/));
+
+    // The item being fetched should show "Fetching..." instead of "Fetch Now"
+    expect(screen.getByText("Fetching...")).toBeInTheDocument();
+    // The other item should still show "Fetch Now"
+    expect(screen.getByRole("button", { name: "Fetch Now" })).toBeInTheDocument();
+  });
+
+  test("shows error message when fetch fails", async () => {
+    mockUseFetchFanslyDataMutation.mockReturnValue({
+      ...defaultMutationReturn,
+      isError: true,
+      error: new Error("Network error"),
+      variables: { postMediaId: "pm-1" },
+      // oxlint-disable-next-line typescript/no-explicit-any
+    } as any);
+
+    mockQuery({
+      data: {
+        totalPending: 1,
+        nextFetchAt: new Date(Date.now() + 60_000).toISOString(),
+        items: [
+          {
+            postMediaId: "pm-1",
+            nextFetchAt: new Date(Date.now() + 60_000).toISOString(),
+            caption: "Failed item",
+            thumbnailUrl: "thumbnail://media-1",
+            overdue: false,
+          },
+        ],
+      },
+      isLoading: false,
+    });
+
+    render(<QueueStatusBar />);
+    const user = userEvent.setup();
+    await user.click(screen.getByText(/1 pending/));
+
+    expect(screen.getByText("Fetch failed")).toBeInTheDocument();
+  });
+
+  test("drawer stays open after successful fetch", async () => {
+    const mockMutate = vi.fn();
+    // oxlint-disable-next-line typescript/no-explicit-any
+    mockUseFetchFanslyDataMutation.mockReturnValue({ ...defaultMutationReturn, mutate: mockMutate } as any);
+
+    mockQuery({
+      data: {
+        totalPending: 1,
+        nextFetchAt: new Date(Date.now() + 60_000).toISOString(),
+        items: [
+          {
+            postMediaId: "pm-1",
+            nextFetchAt: new Date(Date.now() + 60_000).toISOString(),
+            caption: "Test item",
+            thumbnailUrl: "thumbnail://media-1",
+            overdue: false,
+          },
+        ],
+      },
+      isLoading: false,
+    });
+
+    render(<QueueStatusBar />);
+    const user = userEvent.setup();
+    await user.click(screen.getByText(/1 pending/));
+    await user.click(screen.getByRole("button", { name: "Fetch Now" }));
+
+    // Drawer heading should still be visible
+    expect(screen.getByText("Fetch Queue")).toBeInTheDocument();
   });
 });

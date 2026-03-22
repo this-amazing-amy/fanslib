@@ -1,6 +1,6 @@
 import { X } from "lucide-react";
 import { useState } from "react";
-import { useQueueStateQuery } from "~/lib/queries/analytics";
+import { useQueueStateQuery, useFetchFanslyDataMutation } from "~/lib/queries/analytics";
 import { getMediaThumbnailUrl } from "~/lib/media-urls";
 
 const formatRelativeTime = (isoDate: string): string => {
@@ -18,6 +18,7 @@ const extractMediaId = (thumbnailUrl: string): string =>
 
 export const QueueStatusBar = () => {
   const { data, isLoading } = useQueueStateQuery();
+  const fetchMutation = useFetchFanslyDataMutation();
   const [isOpen, setIsOpen] = useState(false);
 
   if (isLoading || !data) return null;
@@ -61,6 +62,20 @@ export const QueueStatusBar = () => {
                   <p className="text-xs text-base-content/60">
                     {formatRelativeTime(item.nextFetchAt)} · {new Date(item.nextFetchAt).toLocaleString()}
                   </p>
+                </div>
+                <div className="flex items-center gap-1">
+                  {fetchMutation.isError && fetchMutation.variables?.postMediaId === item.postMediaId && (
+                    <span className="text-xs text-error">Fetch failed</span>
+                  )}
+                  <button
+                    className="btn btn-xs btn-primary"
+                    disabled={fetchMutation.isPending && fetchMutation.variables?.postMediaId === item.postMediaId}
+                    onClick={() => fetchMutation.mutate({ postMediaId: item.postMediaId })}
+                  >
+                    {fetchMutation.isPending && fetchMutation.variables?.postMediaId === item.postMediaId
+                      ? "Fetching..."
+                      : "Fetch Now"}
+                  </button>
                 </div>
               </li>
             ))}
