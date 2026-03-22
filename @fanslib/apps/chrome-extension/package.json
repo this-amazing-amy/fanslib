@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@fanslib/typescript": "workspace:*",
+    "@happy-dom/global-registrator": "^20.8.4",
     "@tailwindcss/vite": "^4.0.0",
     "@types/chrome": "^0.0.286",
     "@types/react": "^19.0.0",
@@ -31,6 +32,7 @@
     "bun-types": "latest",
     "crx": "^5.0.1",
     "daisyui": "^5.1.14",
+    "happy-dom": "^20.8.4",
     "postcss-logical": "^6.1.0",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.7.2",
