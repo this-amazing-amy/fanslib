@@ -12,6 +12,7 @@ import { PostMedia } from "../posts/entity";
 import { FanslyAnalyticsAggregate, FanslyAnalyticsDatapoint } from "./entity";
 import { fetchFanslyAnalyticsData } from "./fetch-fansly-data";
 import { initializeAnalyticsAggregates } from "./operations/post-analytics/initialize-aggregates";
+import { deletePost } from "../posts/operations/post/delete";
 import { analyticsRoutes } from "./routes";
 
 describe("Analytics Routes", () => {
@@ -452,6 +453,31 @@ describe("Analytics Routes", () => {
       expect(data[0].averageEngagementSeconds).toBe(10);
       expect(data[1].averageEngagementSeconds).toBe(35);
       expect(data[2].averageEngagementSeconds).toBe(60);
+    });
+
+    test("deleting a post removes its PostMedia and analytics aggregate", async () => {
+      const dataSource = getTestDataSource();
+      const postMediaRepo = dataSource.getRepository(PostMedia);
+      const aggregateRepo = dataSource.getRepository(FanslyAnalyticsAggregate);
+
+      const { post, postMedia, aggregate } = await createActivePost();
+
+      // Verify records exist
+      expect(await postMediaRepo.findOne({ where: { id: postMedia.id } })).toBeTruthy();
+      expect(await aggregateRepo.findOne({ where: { id: aggregate.id } })).toBeTruthy();
+
+      // Delete via the actual deletePost operation
+      const deleted = await deletePost(post.id);
+      expect(deleted).toBe(true);
+
+      // PostMedia and aggregate should be gone
+      expect(await postMediaRepo.findOne({ where: { id: postMedia.id } })).toBeNull();
+      expect(await aggregateRepo.findOne({ where: { id: aggregate.id } })).toBeNull();
+
+      // And not in FYP queue
+      const res = await app.request("/api/analytics/active-fyp-posts");
+      const data = (await parseResponse<Array<Record<string, unknown>>>(res)) as Array<Record<string, unknown>>;
+      expect(data).toHaveLength(0);
     });
 
     test("returns empty array when no active posts", async () => {

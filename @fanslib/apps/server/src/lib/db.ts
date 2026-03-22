@@ -142,6 +142,10 @@ export const db = async () => {
     const driver = await loadSqlJsDriver();
     const source = createAppDataSource(driver);
     await source.initialize();
+
+    // Enable SQLite foreign key enforcement so ON DELETE CASCADE works
+    await source.query("PRAGMA foreign_keys = ON");
+
     initialized = true;
   }
 
