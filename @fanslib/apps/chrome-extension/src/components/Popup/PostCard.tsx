@@ -194,59 +194,67 @@ export const PostCard = ({
 
           if (hasError) {
             return (
-              <div
-                key={`${mediaKey}-fallback`}
-                onClick={() => canReveal && handleRevealInFinder(m.media.relativePath)}
-                className={`w-16 h-16 bg-base-100 rounded-lg flex items-center justify-center border-2 border-base-300 relative ${canReveal ? "cursor-pointer hover:bg-base-200" : ""}`}
-                title={
-                  hasError
-                    ? `Failed to load thumbnail\nURL: ${thumbnailUrl}\nMedia ID: ${m.media.id}`
-                    : canReveal
-                      ? "Click to reveal in folder"
-                      : isVideoFile
-                        ? "Video file"
-                        : "Image"
-                }
-              >
-                {isVideoFile ? (
-                  <Video className="w-6 h-6 text-base-content/60" />
-                ) : (
-                  <>
-                    <ImageIcon className="w-6 h-6 text-base-content/60" />
-                    <div className="absolute inset-0 flex items-center justify-center bg-error/10 rounded-lg">
-                      <span className="text-[8px] text-error font-bold">!</span>
-                    </div>
-                  </>
-                )}
+              <div key={`${mediaKey}-fallback`} className="flex flex-col items-center gap-1 max-w-20">
+                <div
+                  onClick={() => canReveal && handleRevealInFinder(m.media.relativePath)}
+                  className={`w-20 h-20 bg-base-100 rounded-lg flex items-center justify-center border-2 border-base-300 relative ${canReveal ? "cursor-pointer hover:bg-base-200" : ""}`}
+                  title={
+                    hasError
+                      ? `Failed to load thumbnail\nURL: ${thumbnailUrl}\nMedia ID: ${m.media.id}`
+                      : canReveal
+                        ? "Click to reveal in folder"
+                        : isVideoFile
+                          ? "Video file"
+                          : "Image"
+                  }
+                >
+                  {isVideoFile ? (
+                    <Video className="w-6 h-6 text-base-content/60" />
+                  ) : (
+                    <>
+                      <ImageIcon className="w-6 h-6 text-base-content/60" />
+                      <div className="absolute inset-0 flex items-center justify-center bg-error/10 rounded-lg">
+                        <span className="text-[8px] text-error font-bold">!</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+                <span className="text-[10px] text-base-content/60 text-center break-all leading-tight">
+                  {m.media.name}
+                </span>
               </div>
             );
           }
 
           return (
-            <div
-              key={mediaKey}
-              className="relative"
-              onClick={() => canReveal && handleRevealInFinder(m.media.relativePath)}
-            >
-              <img
-                src={thumbnailUrl}
-                onError={() => handleImageError(idx)}
-                onLoad={() => handleImageLoad(idx)}
-                onLoadStart={() => handleImageLoadStart(idx)}
-                className={`w-16 h-16 object-cover rounded-lg border-2 border-base-300 ${canReveal ? "cursor-pointer hover:opacity-80" : ""}`}
-                alt={`Media ${idx + 1}`}
-                title={canReveal ? "Click to reveal in folder" : thumbnailUrl}
-              />
-              {isVideoFile && (
-                <div className="absolute bottom-1 right-1 bg-base-100/80 rounded-full p-0.5">
-                  <Video className="w-3 h-3 text-base-content/80" />
-                </div>
-              )}
-              {loadState === "loading" && (
-                <div className="absolute inset-0 flex items-center justify-center bg-base-100/50 rounded-lg">
-                  <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                </div>
-              )}
+            <div key={mediaKey} className="flex flex-col items-center gap-1 max-w-20">
+              <div
+                className="relative"
+                onClick={() => canReveal && handleRevealInFinder(m.media.relativePath)}
+              >
+                <img
+                  src={thumbnailUrl}
+                  onError={() => handleImageError(idx)}
+                  onLoad={() => handleImageLoad(idx)}
+                  onLoadStart={() => handleImageLoadStart(idx)}
+                  className={`w-20 h-20 object-cover rounded-lg border-2 border-base-300 ${canReveal ? "cursor-pointer hover:opacity-80" : ""}`}
+                  alt={`Media ${idx + 1}`}
+                  title={canReveal ? "Click to reveal in folder" : thumbnailUrl}
+                />
+                {isVideoFile && (
+                  <div className="absolute bottom-1 right-1 bg-base-100/80 rounded-full p-0.5">
+                    <Video className="w-3 h-3 text-base-content/80" />
+                  </div>
+                )}
+                {loadState === "loading" && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-base-100/50 rounded-lg">
+                    <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
+              </div>
+              <span className="text-[10px] text-base-content/60 text-center break-all leading-tight">
+                {m.media.name}
+              </span>
             </div>
           );
         })}
