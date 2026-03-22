@@ -70,9 +70,11 @@ export const computeMatchSuggestions = async (
   const allPostMedia = await postMediaRepository
     .createQueryBuilder("postMedia")
     .innerJoinAndSelect("postMedia.post", "post")
+    .innerJoin("post.channel", "channel")
     .innerJoinAndSelect("postMedia.media", "media")
     .leftJoinAndSelect("post.schedule", "schedule")
     .where("postMedia.fanslyStatisticsId IS NULL")
+    .andWhere("channel.typeId = :typeId", { typeId: "fansly" })
     .getMany();
 
   const suggestions: MatchSuggestion[] = [];

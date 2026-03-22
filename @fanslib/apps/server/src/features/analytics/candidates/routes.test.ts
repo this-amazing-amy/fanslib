@@ -4,7 +4,7 @@ import "reflect-metadata";
 import { getTestDataSource, setupTestDatabase, teardownTestDatabase } from "../../../lib/test-db";
 import { resetAllFixtures } from "../../../lib/test-fixtures";
 import { devalueMiddleware } from "../../../lib/devalue-middleware";
-import { parseResponse, createTestPost, createTestMedia } from "../../../test-utils/setup";
+import { parseResponse, createTestPost, createTestMedia, createTestChannel } from "../../../test-utils/setup";
 import { PostMedia } from "../../posts/entity";
 import { ContentSchedule } from "../../content-schedules/entity";
 import type { FanslyMediaCandidate } from "../candidate-entity";
@@ -357,6 +357,105 @@ describe("Analytics Candidates Routes", () => {
       expect(response.status).toBe(404);
       const data = await parseResponse<{ error: string }>(response);
       expect(data?.error).toBe("Candidate not found");
+    });
+
+    test("only suggests matches from Fansly channel posts", async () => {
+      const dataSource = getTestDataSource();
+      const postMediaRepository = dataSource.getRepository(PostMedia);
+      const candidateRepository = dataSource.getRepository(FanslyMediaCandidateEntity);
+
+      // Create a post in a non-Fansly channel (e.g. reddit) with a matching filename
+      const redditChannel = await createTestChannel({ typeId: "reddit", name: "Test Reddit" });
+      const redditMedia = await createTestMedia({ name: "channel-filter-test.jpg" });
+      const redditPost = await createTestPost(redditChannel.id);
+      const redditPostMedia = postMediaRepository.create({
+        post: redditPost,
+        media: redditMedia,
+        order: 0,
+        isFreePreview: false,
+      });
+      await postMediaRepository.save(redditPostMedia);
+
+      // Create a post in a Fansly channel with the same matching filename
+      const fanslyChannel = await createTestChannel({ typeId: "fansly", name: "Test Fansly" });
+      const fanslyMedia = await createTestMedia({ name: "channel-filter-test.jpg" });
+      const fanslyPost = await createTestPost(fanslyChannel.id);
+      const fanslyPostMedia = postMediaRepository.create({
+        post: fanslyPost,
+        media: fanslyMedia,
+        order: 0,
+        isFreePreview: false,
+      });
+      await postMediaRepository.save(fanslyPostMedia);
+
+      // Create a candidate with the matching filename
+      const candidate = candidateRepository.create({
+        fanslyStatisticsId: "stats-channel-filter",
+        fanslyPostId: "post-channel-filter",
+        filename: "channel-filter-test.jpg",
+        caption: null,
+        fanslyCreatedAt: Date.now(),
+        position: 0,
+        mediaType: "image",
+        status: "pending",
+      });
+      const savedCandidate = await candidateRepository.save(candidate);
+
+      const response = await app.request(
+        `/api/analytics/candidates/by-id/${savedCandidate.id}/suggestions`,
+      );
+      expect(response.status).toBe(200);
+
+      const data =
+        await parseResponse<
+          Array<{ postMediaId: string; confidence: number; method: string; filename: string }>
+        >(response);
+      expect(Array.isArray(data)).toBe(true);
+      // Should only contain the Fansly post media, not the Reddit one
+      expect(data?.length).toBe(1);
+      expect(data?.[0]?.postMediaId).toBe(fanslyPostMedia.id);
+    });
+
+    test("returns no suggestions when matching filename only exists in non-Fansly channels", async () => {
+      const dataSource = getTestDataSource();
+      const postMediaRepository = dataSource.getRepository(PostMedia);
+      const candidateRepository = dataSource.getRepository(FanslyMediaCandidateEntity);
+
+      // Create a post in a non-Fansly channel with a matching filename
+      const redditChannel = await createTestChannel({ typeId: "reddit", name: "Reddit Only" });
+      const media = await createTestMedia({ name: "reddit-only-file.jpg" });
+      const post = await createTestPost(redditChannel.id);
+      const postMedia = postMediaRepository.create({
+        post,
+        media,
+        order: 0,
+        isFreePreview: false,
+      });
+      await postMediaRepository.save(postMedia);
+
+      const candidate = candidateRepository.create({
+        fanslyStatisticsId: "stats-no-fansly-match",
+        fanslyPostId: "post-no-fansly-match",
+        filename: "reddit-only-file.jpg",
+        caption: null,
+        fanslyCreatedAt: Date.now(),
+        position: 0,
+        mediaType: "image",
+        status: "pending",
+      });
+      const savedCandidate = await candidateRepository.save(candidate);
+
+      const response = await app.request(
+        `/api/analytics/candidates/by-id/${savedCandidate.id}/suggestions`,
+      );
+      expect(response.status).toBe(200);
+
+      const data =
+        await parseResponse<
+          Array<{ postMediaId: string; confidence: number; method: string; filename: string }>
+        >(response);
+      expect(Array.isArray(data)).toBe(true);
+      expect(data?.length).toBe(0);
     });
   });
 
