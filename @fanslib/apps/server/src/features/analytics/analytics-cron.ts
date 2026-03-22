@@ -1,4 +1,3 @@
-import { IsNull, Not } from "typeorm";
 import { db } from "../../lib/db";
 import { isAppError } from "../../lib/errors";
 import { loadFanslyCredentials } from "../settings/operations/credentials/load";
@@ -58,20 +57,15 @@ export const computeNextFetchInterval = (
 
 const findDueAggregates = async (): Promise<FanslyAnalyticsAggregate[]> => {
   const dataSource = await db();
-  const aggregateRepo = dataSource.getRepository(FanslyAnalyticsAggregate);
+  const aggregates = await dataSource
+    .getRepository(FanslyAnalyticsAggregate)
+    .createQueryBuilder("agg")
+    .innerJoinAndSelect("agg.postMedia", "pm")
+    .where("agg.nextFetchAt IS NOT NULL")
+    .andWhere("pm.fanslyStatisticsId IS NOT NULL")
+    .getMany();
 
-  return aggregateRepo
-    .find({
-      where: {
-        nextFetchAt: Not(IsNull()) as unknown as Date,
-      },
-      relations: {
-        postMedia: true,
-      },
-    })
-    .then((aggregates) =>
-      aggregates.filter((a) => a.nextFetchAt && a.nextFetchAt.getTime() <= Date.now()),
-    );
+  return aggregates.filter((a) => a.nextFetchAt && a.nextFetchAt.getTime() <= Date.now());
 };
 
 const updateAggregateNextFetchAt = async (

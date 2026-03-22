@@ -5,6 +5,7 @@ import { aggregatePostMediaAnalyticsData } from "../../../../lib/fansly-analytic
 import { saveHashtagsFromAnalytics } from "../../../hashtags/operations/hashtag-stats/save-from-analytics";
 import { PostMedia } from "../../../posts/entity";
 import { FanslyAnalyticsAggregate, FanslyAnalyticsDatapoint } from "../../entity";
+import { computeGrowthRate, computeNextFetchInterval } from "../../analytics-cron";
 import { findPlateauDay } from "../../fyp-performance";
 import { gatherFanslyPostAnalyticsDatapoints } from "./helpers";
 
@@ -81,6 +82,16 @@ export const addDatapointsToPostMedia = async (
     where: { postMediaId },
   });
 
+  const allDatapoints = await dpRepo.find({
+    where: { postMediaId },
+    order: { timestamp: "ASC" },
+  });
+  const growthRate = computeGrowthRate(allDatapoints);
+  const interval = computeNextFetchInterval(growthRate, plateauDetectedAt);
+  const nextFetchAt = interval
+    ? new Date(Date.now() + interval.days * 24 * 60 * 60 * 1000)
+    : null;
+
   if (existingAggregate) {
     existingAggregate.totalViews = aggregatedData.at(-1)?.Views ?? 0;
     existingAggregate.averageEngagementSeconds =
@@ -88,6 +99,7 @@ export const addDatapointsToPostMedia = async (
     existingAggregate.averageEngagementPercent =
       aggregatedData.at(-1)?.averageWatchTimePercent ?? 0;
     existingAggregate.plateauDetectedAt = plateauDetectedAt;
+    (existingAggregate as { nextFetchAt: Date | null }).nextFetchAt = nextFetchAt;
     await aggregateRepo.save(existingAggregate);
   } else {
     const newAggregate = aggregateRepo.create({
@@ -97,6 +109,7 @@ export const addDatapointsToPostMedia = async (
       averageEngagementSeconds: aggregatedData.at(-1)?.averageWatchTimeSeconds ?? 0,
       averageEngagementPercent: aggregatedData.at(-1)?.averageWatchTimePercent ?? 0,
       plateauDetectedAt,
+      nextFetchAt: nextFetchAt ?? undefined,
     });
     await aggregateRepo.save(newAggregate);
   }

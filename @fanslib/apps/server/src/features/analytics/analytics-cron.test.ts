@@ -373,7 +373,7 @@ describe("analytics-cron", () => {
       expect(creds?.stale).toBe(true);
     });
 
-    test("skips aggregates where postMedia has no fanslyStatisticsId", async () => {
+    test("excludes aggregates where postMedia has no fanslyStatisticsId from fetch queue", async () => {
       await saveFanslyCredentials({ fanslyAuth: "test-auth", fanslySessionId: "test-session" });
 
       const pastDate = new Date(Date.now() - 60 * 60 * 1000);
@@ -383,7 +383,7 @@ describe("analytics-cron", () => {
 
       expect(result.credentialsStale).toBeUndefined();
       expect(result.processed).toBe(0);
-      expect(result.skipped).toBe(1);
+      expect(result.skipped).toBe(0);
     });
 
     test("applies 1-day interval for high growth rate", async () => {

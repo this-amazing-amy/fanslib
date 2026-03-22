@@ -50,7 +50,6 @@ export const fetchFanslyAnalyticsData = async (
 
   const credentials = credentialsData.credentials;
 
-  const endDate = analyticsEndDate ?? new Date();
   const startDate =
     analyticsStartDate ??
     (() => {
@@ -58,6 +57,10 @@ export const fetchFanslyAnalyticsData = async (
       postDate.setHours(0, 0, 0, 0);
       return postDate;
     })();
+
+  const maxEndDate = new Date(startDate.getTime() + 90 * 24 * 60 * 60 * 1000);
+  const now = analyticsEndDate ?? new Date();
+  const endDate = now > maxEndDate ? maxEndDate : now;
 
   const beforeDate = endDate.getTime();
   const afterDate = startDate.getTime();
