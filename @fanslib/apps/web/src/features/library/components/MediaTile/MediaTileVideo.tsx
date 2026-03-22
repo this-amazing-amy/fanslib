@@ -49,7 +49,7 @@ export const MediaTileVideo = ({
           cn(
             "absolute inset-0 w-full h-full bg-base-300",
             cover ? "object-cover" : "object-contain",
-            !isPreviewActive && "hidden",
+            (!isPreviewActive || !isVideoReady) && "hidden",
           ),
         )}
         preload="none"
