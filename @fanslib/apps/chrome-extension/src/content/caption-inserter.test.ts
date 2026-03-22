@@ -87,10 +87,12 @@ describe("observeFanslyCaptionInput", () => {
     const found: Element[] = [];
     const disconnect = observeFanslyCaptionInput((el) => found.push(el));
 
-    // Simulate Fansly adding a caption textarea
+    // Simulate Fansly adding a caption textarea inside .new-post-content
+    const container = document.createElement("div");
+    container.className = "new-post-content";
     const textarea = document.createElement("textarea");
-    textarea.setAttribute("placeholder", "Compose new post...");
-    document.body.appendChild(textarea);
+    container.appendChild(textarea);
+    document.body.appendChild(container);
 
     // MutationObserver callbacks are async — wait a tick
     await new Promise((r) => setTimeout(r, 50));
@@ -104,10 +106,12 @@ describe("observeFanslyCaptionInput", () => {
   test("detects textarea that already exists in DOM", async () => {
     const { observeFanslyCaptionInput } = await import("./caption-inserter");
 
-    // Add textarea BEFORE starting observation
+    // Add textarea BEFORE starting observation inside .new-post-content
+    const container = document.createElement("div");
+    container.className = "new-post-content";
     const textarea = document.createElement("textarea");
-    textarea.setAttribute("placeholder", "Compose new post...");
-    document.body.appendChild(textarea);
+    container.appendChild(textarea);
+    document.body.appendChild(container);
 
     const found: Element[] = [];
     const disconnect = observeFanslyCaptionInput((el) => found.push(el));
@@ -124,9 +128,8 @@ describe("observeFanslyCaptionInput", () => {
     const found: Element[] = [];
     const disconnect = observeFanslyCaptionInput((el) => found.push(el));
 
-    // Add a non-matching textarea
+    // Add a textarea outside .new-post-content container
     const textarea = document.createElement("textarea");
-    textarea.setAttribute("placeholder", "Search...");
     document.body.appendChild(textarea);
 
     await new Promise((r) => setTimeout(r, 50));
