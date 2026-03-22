@@ -2,7 +2,6 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { useAtom } from "jotai";
 import type { LucideIcon } from "lucide-react";
 import {
-  BarChart3,
   Calendar,
   Camera,
   ChevronDown,
@@ -19,6 +18,7 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
+import { FanslyIcon } from "~/components/icons";
 import { cn } from "~/lib/cn";
 import { closeSidebarAtom, toggleSidebarCollapsedAtom } from "~/state/sidebar";
 
@@ -38,7 +38,7 @@ const menuItems: MenuItem[] = [
   { to: "/captioning", label: "Captioning", icon: MessageSquareText },
   { to: "/channels", label: "Channels", icon: Radio },
   { to: "/hashtags", label: "Hashtags", icon: Hash },
-  { to: "/fansly/fyp", label: "Fansly", icon: BarChart3 },
+  { to: "/fansly/fyp", label: "Fansly", icon: FanslyIcon },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 

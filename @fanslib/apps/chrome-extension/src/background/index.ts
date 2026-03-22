@@ -20,6 +20,11 @@ type Message =
       type: "FANSLIB_SCHEDULE_CAPTURE";
       contentId: string;
       caption: string;
+    }
+  | {
+      type: "FANSLIB_INSERT_CAPTION";
+      caption: string;
+      fanslyPostId?: string;
     };
 
 const BATCH_DELAY_MS = 2000;
@@ -366,8 +371,9 @@ const addToBuffer = (candidates: CandidateItem[]): void => {
 const sendScheduleCapture = async (
   contentId: string,
   caption: string,
+  fanslyPostId?: string,
 ): Promise<{ matched: boolean; postId: string | null }> => {
-  debug("info", "Sending schedule capture to server", { contentId, captionLength: caption.length });
+  debug("info", "Sending schedule capture to server", { contentId, fanslyPostId, captionLength: caption.length });
 
   const apiUrl = await getApiUrl();
   if (!apiUrl) return { matched: false, postId: null };
@@ -375,7 +381,7 @@ const sendScheduleCapture = async (
 
   try {
     const response = await api.api.posts["schedule-capture"].$post({
-      json: { contentId, caption },
+      json: { contentId, caption, ...(fanslyPostId ? { fanslyPostId } : {}) },
     });
 
     if (!response.ok) {
@@ -441,8 +447,25 @@ chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse) =
     return true;
   }
 
+  if (message.type === "FANSLIB_INSERT_CAPTION") {
+    // Forward caption to the active Fansly tab's content script
+    chrome.tabs.query({ url: "https://fansly.com/*" }, (tabs) => {
+      tabs
+        .map((tab) => tab.id)
+        .filter((id): id is number => id != null)
+        .forEach((tabId) => {
+          chrome.tabs.sendMessage(tabId, {
+            type: "FANSLIB_INSERT_CAPTION",
+            caption: message.caption,
+          });
+        });
+    });
+    sendResponse({ success: true });
+    return true;
+  }
+
   if (message.type === "FANSLIB_SCHEDULE_CAPTURE") {
-    sendScheduleCapture(message.contentId, message.caption)
+    sendScheduleCapture(message.contentId, message.caption, message.fanslyPostId)
       .then((result) => {
         sendResponse({ success: true, ...result });
       })

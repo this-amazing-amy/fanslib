@@ -1,3 +1,5 @@
+import { insertCaptionIntoElement, observeFanslyCaptionInput } from "./caption-inserter";
+
 type TimelineResponse = {
   success: boolean;
   response: {
@@ -280,6 +282,7 @@ const processScheduleResponse = (
     const data = JSON.parse(responseText) as {
       success: boolean;
       response?: {
+        postId?: string;
         postTemplate?: PostData | string;
         post?: PostData | string;
       };
@@ -313,6 +316,9 @@ const processScheduleResponse = (
     } else if (rawPostData && typeof rawPostData === "object") {
       postData = rawPostData;
     }
+
+    // Extract Fansly post ID from the top-level response
+    const fanslyPostId = data.response.postId;
 
     // Try to get contentId from response attachments
     // eslint-disable-next-line functional/no-let
@@ -367,6 +373,7 @@ const processScheduleResponse = (
     debug("info", `Schedule capture detected (#${scheduleCaptureCount})`, {
       url,
       contentId,
+      fanslyPostId,
       captionLength: caption.length,
       captionPreview: caption.substring(0, 80),
       source,
@@ -377,6 +384,7 @@ const processScheduleResponse = (
         type: "FANSLIB_SCHEDULE_CAPTURE",
         contentId,
         caption,
+        fanslyPostId,
       },
       "*",
     );
@@ -706,4 +714,35 @@ XMLHttpRequest.prototype.send = function (...args: unknown[]) {
 
 debug("info", "Fetch and XHR interception installed in main world");
 
-export {};
+// --- Caption auto-insert ---
+
+// eslint-disable-next-line functional/no-let
+let pendingCaption: string | null = null;
+// eslint-disable-next-line functional/no-let
+let disconnectObserver: (() => void) | null = null;
+
+const startCaptionObserver = () => {
+  disconnectObserver?.();
+  disconnectObserver = observeFanslyCaptionInput((textarea) => {
+    if (pendingCaption) {
+      debug("info", "Caption textarea detected, inserting caption", {
+        captionLength: pendingCaption.length,
+      });
+      insertCaptionIntoElement(textarea, pendingCaption);
+    }
+  });
+};
+
+window.addEventListener("message", (event) => {
+  if (event.source !== window) return;
+
+  if (event.data.type === "FANSLIB_INSERT_CAPTION" && event.data.caption) {
+    debug("info", "Received insert-caption request", {
+      captionLength: event.data.caption.length,
+    });
+    pendingCaption = event.data.caption;
+    startCaptionObserver();
+  }
+});
+
+debug("info", "Caption auto-insert listener installed");

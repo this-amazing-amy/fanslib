@@ -142,6 +142,7 @@ window.addEventListener("message", (event) => {
   if (event.data.type === "FANSLIB_SCHEDULE_CAPTURE") {
     debug("info", "Received schedule capture from MAIN world", {
       contentId: event.data.contentId,
+      fanslyPostId: event.data.fanslyPostId,
       captionLength: event.data.caption?.length,
     });
 
@@ -150,6 +151,7 @@ window.addEventListener("message", (event) => {
         type: "FANSLIB_SCHEDULE_CAPTURE",
         contentId: event.data.contentId,
         caption: event.data.caption,
+        fanslyPostId: event.data.fanslyPostId,
       },
       "schedule capture",
     );
@@ -172,5 +174,24 @@ window.addEventListener("message", (event) => {
 });
 
 debug("info", "Bridge message listener installed");
+
+// Listen for messages from background script (reverse channel: background → content → MAIN world)
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.type === "FANSLIB_INSERT_CAPTION") {
+    debug("info", "Received insert-caption from background", {
+      captionLength: message.caption?.length,
+    });
+
+    window.postMessage(
+      {
+        type: "FANSLIB_INSERT_CAPTION",
+        caption: message.caption,
+      },
+      "*",
+    );
+  }
+});
+
+debug("info", "Bridge reverse-channel listener installed");
 
 export {};

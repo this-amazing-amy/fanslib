@@ -12,6 +12,7 @@ type MediaTileVideoProps = {
   withPreview: boolean;
   withDuration: boolean;
   cover?: boolean;
+  hoverKey?: string;
 };
 
 export const MediaTileVideo = ({
@@ -19,8 +20,10 @@ export const MediaTileVideo = ({
   withPreview,
   withDuration,
   cover,
+  hoverKey,
 }: MediaTileVideoProps) => {
-  const isPreviewActive = useMediaHoverStore((s) => withPreview && s.hoveredMediaId === media.id);
+  const key = hoverKey ?? media.id;
+  const isPreviewActive = useMediaHoverStore((s) => withPreview && s.hoveredInstanceId === key);
   const { videoRef, isVideoReady } = useVideoPreview({
     isActive: isPreviewActive,
     mediaType: "video",
