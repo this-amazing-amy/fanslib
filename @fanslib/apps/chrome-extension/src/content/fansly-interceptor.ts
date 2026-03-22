@@ -153,6 +153,37 @@ let timelineInterceptCount = 0;
 // eslint-disable-next-line functional/no-let
 let scheduleCaptureCount = 0;
 
+// Buffer for contentId from account/media creation — Fansly splits
+// media creation and post creation into separate API calls.
+const ACCOUNT_MEDIA_BUFFER_TTL_MS = 30_000;
+// eslint-disable-next-line functional/no-let
+let bufferedAccountMediaId: { contentId: string; timestamp: number } | null = null;
+
+const bufferAccountMediaId = (contentId: string) => {
+  bufferedAccountMediaId = { contentId, timestamp: Date.now() };
+  debug("info", "Buffered account media contentId for upcoming post", {
+    contentId,
+    ttlMs: ACCOUNT_MEDIA_BUFFER_TTL_MS,
+  });
+};
+
+const consumeBufferedAccountMediaId = (): string | null => {
+  if (!bufferedAccountMediaId) return null;
+  const age = Date.now() - bufferedAccountMediaId.timestamp;
+  if (age > ACCOUNT_MEDIA_BUFFER_TTL_MS) {
+    debug("warn", "Buffered account media contentId expired", {
+      contentId: bufferedAccountMediaId.contentId,
+      ageMs: age,
+    });
+    bufferedAccountMediaId = null;
+    return null;
+  }
+  const { contentId } = bufferedAccountMediaId;
+  bufferedAccountMediaId = null;
+  debug("info", "Consumed buffered account media contentId", { contentId, ageMs: age });
+  return contentId;
+};
+
 const processCandidates = (candidates: CandidateItem[]) => {
   if (candidates.length > 0) {
     debug("info", "Posting candidates to window for bridge", {
@@ -229,7 +260,17 @@ const sendCredentialsIfPresent = (credentials: Partial<FanslyCredentials>): void
   }
 };
 
-const processScheduleResponse = (url: string, responseText: string) => {
+type ScheduleRequestBody = {
+  content?: string;
+  attachments?: Array<{ contentId: string; contentType: number; pos: number }>;
+  scheduledFor?: number;
+};
+
+const processScheduleResponse = (
+  url: string,
+  responseText: string,
+  requestBody?: string | null,
+) => {
   try {
     const data = JSON.parse(responseText) as {
       success: boolean;
@@ -256,26 +297,57 @@ const processScheduleResponse = (url: string, responseText: string) => {
       return;
     }
 
+    // Try response first (postTemplate or post)
     const postData = data.response.postTemplate ?? data.response.post;
-    if (!postData) {
-      debug("info", "Schedule parse skipped — no postTemplate or post in response", {
-        url,
-        responseKeys: Object.keys(data.response),
-      });
-      return;
+
+    // Try to get contentId from response attachments
+    // eslint-disable-next-line functional/no-let
+    let contentId = postData?.attachments?.[0]?.contentId;
+    // eslint-disable-next-line functional/no-let
+    let caption = postData?.content ?? "";
+    // eslint-disable-next-line functional/no-let
+    let source: "response" | "request-body" | "buffered-media" = "response";
+
+    // Fallback: parse the request body — Fansly's POST /api/v1/post request
+    // contains attachments and content, but the response may strip them.
+    if (!contentId && requestBody) {
+      try {
+        const reqData = JSON.parse(requestBody) as ScheduleRequestBody;
+        debug("info", "Falling back to request body for schedule data", {
+          url,
+          hasAttachments: !!reqData.attachments,
+          attachmentCount: reqData.attachments?.length ?? 0,
+          hasContent: !!reqData.content,
+          hasScheduledFor: !!reqData.scheduledFor,
+        });
+
+        contentId = reqData.attachments?.[0]?.contentId;
+        caption = reqData.content ?? caption;
+        source = "request-body";
+      } catch {
+        debug("warn", "Failed to parse request body for schedule fallback", { url });
+      }
     }
 
-    const contentId = postData.attachments?.[0]?.contentId;
+    // Final fallback: use buffered contentId from a preceding account/media call
     if (!contentId) {
-      debug("info", "Schedule parse skipped — no contentId in first attachment", {
+      const buffered = consumeBufferedAccountMediaId();
+      if (buffered) {
+        contentId = buffered;
+        source = "buffered-media";
+      }
+    }
+
+    if (!contentId) {
+      debug("info", "Schedule parse skipped — no contentId from response, request body, or buffer", {
         url,
-        hasAttachments: !!postData.attachments,
-        attachmentCount: postData.attachments?.length ?? 0,
+        hasPostData: !!postData,
+        hasAttachments: !!postData?.attachments,
+        attachmentCount: postData?.attachments?.length ?? 0,
+        hadRequestBody: !!requestBody,
       });
       return;
     }
-
-    const caption = postData.content ?? "";
 
     scheduleCaptureCount++;
     debug("info", `Schedule capture detected (#${scheduleCaptureCount})`, {
@@ -283,6 +355,7 @@ const processScheduleResponse = (url: string, responseText: string) => {
       contentId,
       captionLength: caption.length,
       captionPreview: caption.substring(0, 80),
+      source,
     });
 
     window.postMessage(
@@ -394,6 +467,27 @@ const interceptedFetch = (async (...args): Promise<Response> => {
     (method === "POST" || method === "PUT") &&
     !url.includes("timelinenew")
   ) {
+    // Buffer contentId from account/media creation responses
+    if (url.includes("/api/v1/account/media") && method === "POST") {
+      try {
+        const amClone = response.clone();
+        const amText = await amClone.text();
+        const amData = JSON.parse(amText) as {
+          success: boolean;
+          response?: { accountMedia?: Array<{ id: string }> };
+        };
+        const amId = amData.response?.accountMedia?.[0]?.id;
+        if (amId) {
+          bufferAccountMediaId(amId);
+        }
+      } catch {
+        debug("warn", "Failed to parse fetch account/media response for buffering", { url });
+      }
+    }
+
+    // Capture request body for schedule parsing
+    const fetchRequestBody = typeof init?.body === "string" ? init.body : null;
+
     try {
       const clone = response.clone();
       const responseText = await clone.text();
@@ -405,10 +499,10 @@ const interceptedFetch = (async (...args): Promise<Response> => {
         responseLength: responseText.length,
         hasPostTemplate: responseText.includes("postTemplate"),
         hasPost: responseText.includes('"post"'),
-        responsePreview: responseText.substring(0, 200),
+        hasRequestBody: !!fetchRequestBody,
       });
 
-      processScheduleResponse(url, responseText);
+      processScheduleResponse(url, responseText, fetchRequestBody);
     } catch (error) {
       debug("error", "Failed to process fetch schedule response", {
         error,
@@ -473,6 +567,10 @@ XMLHttpRequest.prototype.send = function (...args: unknown[]) {
   const url = xhr._url ?? "";
   const method = xhr._method ?? "GET";
 
+  // Capture request body for schedule parsing
+  const requestBody =
+    typeof args[0] === "string" ? args[0] : args[0] instanceof Blob ? null : null;
+
   xhrInterceptCount++;
   debug("info", `XHR intercepted (#${xhrInterceptCount})`, {
     url: url.substring(0, 100),
@@ -487,6 +585,8 @@ XMLHttpRequest.prototype.send = function (...args: unknown[]) {
   }
 
   const isTimelineRequest = url.includes("apiv3.fansly.com/api/v1/timelinenew");
+  const isAccountMediaCreate =
+    url.includes("apiv3.fansly.com/api/v1/account/media") && method === "POST";
   const isScheduleCandidate =
     url.includes("apiv3.fansly.com") &&
     (method === "POST" || method === "PUT") &&
@@ -523,6 +623,27 @@ XMLHttpRequest.prototype.send = function (...args: unknown[]) {
         }
 
         if (isScheduleCandidate) {
+          // Buffer contentId from account/media creation responses
+          if (isAccountMediaCreate) {
+            try {
+              const amData = JSON.parse(this.responseText) as {
+                success: boolean;
+                response?: { accountMedia?: Array<{ id: string }> };
+              };
+              const amId = amData.response?.accountMedia?.[0]?.id;
+              if (amId) {
+                bufferAccountMediaId(amId);
+              } else {
+                debug("info", "account/media response — no accountMedia id found", {
+                  url,
+                  responseKeys: amData.response ? Object.keys(amData.response) : [],
+                });
+              }
+            } catch {
+              debug("warn", "Failed to parse account/media response for buffering", { url });
+            }
+          }
+
           try {
             const responseText = this.responseText;
 
@@ -533,10 +654,10 @@ XMLHttpRequest.prototype.send = function (...args: unknown[]) {
               responseLength: responseText?.length,
               hasPostTemplate: responseText?.includes("postTemplate"),
               hasPost: responseText?.includes('"post"'),
-              responsePreview: responseText?.substring(0, 200),
+              hasRequestBody: !!requestBody,
             });
 
-            processScheduleResponse(url, responseText);
+            processScheduleResponse(url, responseText, requestBody);
           } catch (error) {
             debug("error", "Failed to process XHR schedule response", {
               error,
