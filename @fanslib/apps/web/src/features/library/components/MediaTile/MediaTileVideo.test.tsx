@@ -9,8 +9,8 @@ vi.mock("~/hooks/useVideoPreview", () => ({
 }));
 
 vi.mock("~/stores/mediaHoverStore", () => ({
-  useMediaHoverStore: (selector: (s: { hoveredMediaId: string | null }) => unknown) =>
-    selector({ hoveredMediaId: "media-1" }),
+  useMediaHoverStore: (selector: (s: { hoveredMediaId: string | null; hoveredInstanceId: string | null }) => unknown) =>
+    selector({ hoveredMediaId: "media-1", hoveredInstanceId: "instance-A" }),
 }));
 
 vi.mock("~/hooks/useSfwMode", () => ({
@@ -55,9 +55,35 @@ describe("MediaTileVideo", () => {
       isVideoReady: false,
     });
 
-    render(<MediaTileVideo media={baseMedia} withPreview withDuration={false} />);
+    render(<MediaTileVideo media={baseMedia} withPreview withDuration={false} hoverKey="instance-A" />);
 
     const video = document.querySelector("video");
     expect(video).toHaveClass("hidden");
+  });
+
+  test("activates preview only when hoverKey matches, not media.id", () => {
+    mockUseVideoPreview.mockReturnValue({
+      videoRef: { current: null },
+      isVideoReady: false,
+    });
+
+    // When isVideoReady is false, video is hidden regardless — test with isVideoReady=true
+    mockUseVideoPreview.mockReturnValue({
+      videoRef: { current: null },
+      isVideoReady: true,
+    });
+
+    const { container: containerA2 } = render(
+      <MediaTileVideo media={baseMedia} withPreview withDuration={false} hoverKey="instance-A" />,
+    );
+    const videoA = containerA2.querySelector("video");
+    expect(videoA).not.toHaveClass("hidden");
+
+    // Render with hoverKey "instance-B" which does NOT match
+    const { container: containerB } = render(
+      <MediaTileVideo media={baseMedia} withPreview withDuration={false} hoverKey="instance-B" />,
+    );
+    const videoB = containerB.querySelector("video");
+    expect(videoB).toHaveClass("hidden");
   });
 });
