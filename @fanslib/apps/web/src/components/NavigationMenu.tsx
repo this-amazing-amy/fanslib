@@ -40,7 +40,10 @@ const menuItems: MenuItem[] = [
     to: "/analytics",
     label: "Analytics",
     icon: BarChart3,
-    children: [{ to: "/analytics/matching", label: "Matching" }],
+    children: [
+      { to: "/analytics/fyp/active", label: "Active FYP" },
+      { to: "/analytics/fyp/repost", label: "Repost Candidates" },
+    ],
   },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
