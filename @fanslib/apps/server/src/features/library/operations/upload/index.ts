@@ -58,7 +58,7 @@ export type UploadMediaInput = {
 };
 
 export const uploadMediaToShoot = async ({ shootId, file }: UploadMediaInput) => {
-  const libraryPath = env().libraryPath;
+  const mediaPath = env().mediaPath;
 
   const database = await db();
   const shoot = await database.getRepository(Shoot).findOne({ where: { id: shootId } });
@@ -73,7 +73,7 @@ export const uploadMediaToShoot = async ({ shootId, file }: UploadMediaInput) =>
   if (!type) throw new Error(`Cannot determine media type for: ${ext}`);
 
   const folderName = shootFolderName(shoot);
-  const targetDir = path.join(libraryPath, "shoots", folderName);
+  const targetDir = path.join(mediaPath, "shoots", folderName);
   await fs.mkdir(targetDir, { recursive: true });
 
   const uniqueFilename = await resolveUniqueFilename(targetDir, file.name);

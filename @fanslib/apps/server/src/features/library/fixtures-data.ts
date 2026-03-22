@@ -11,6 +11,10 @@ export type MediaFixture = Omit<
   | "postMedia"
   | "shoots"
   | "mediaTags"
+  | "contentRating"
+  | "package"
+  | "role"
+  | "isManaged"
 >;
 
 export const MEDIA_FIXTURES: MediaFixture[] = [

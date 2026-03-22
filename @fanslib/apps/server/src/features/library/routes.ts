@@ -17,6 +17,7 @@ import { uploadMediaToShoot } from "./operations/upload";
 import { resolveMediaPath } from "./path-utils";
 import { MediaFilterSchema } from "./schemas/media-filter";
 import { MediaSortSchema } from "./schemas/media-sort";
+import { ContentRatingSchema } from "./content-rating";
 import { MediaTypeSchema } from "./schema";
 
 // Zod Schemas for request/response validation
@@ -43,9 +44,14 @@ const UpdateMediaRequestBodySchema = z.object({
   size: z.number().optional(),
   duration: z.number().optional(),
   redgifsUrl: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
   fileCreationDate: z.coerce.date().optional(),
   fileModificationDate: z.coerce.date().optional(),
   excluded: z.boolean().optional(),
+  contentRating: ContentRatingSchema.nullable().optional(),
+  package: z.string().nullable().optional(),
+  role: z.string().nullable().optional(),
+  isManaged: z.boolean().optional(),
 });
 
 const FindAdjacentMediaBodySchema = z.object({

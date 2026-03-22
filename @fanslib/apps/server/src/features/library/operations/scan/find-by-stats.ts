@@ -10,7 +10,7 @@ import { Media } from "../../entity";
  * This helps identify renamed files by matching size and creation time
  * Only considers it a match if the original file no longer exists at its old location
  */
-export const findMediaByStats = async (stats: Stats, libraryPath: string) => {
+export const findMediaByStats = async (stats: Stats, mediaPath: string) => {
   // Find all media with matching size and creation date
   const mediaRepo = (await db()).getRepository(Media);
   const potentialMatches = await mediaRepo.find({
@@ -25,7 +25,7 @@ export const findMediaByStats = async (stats: Stats, libraryPath: string) => {
     try {
       // Check if the original file still exists using path resolution
       try {
-        const resolvedPath = convertRelativeToAbsolute(media.relativePath, libraryPath);
+        const resolvedPath = convertRelativeToAbsolute(media.relativePath, mediaPath);
         await fs.access(resolvedPath);
         // If we can access the file, it still exists, so this is not our moved file
         continue;

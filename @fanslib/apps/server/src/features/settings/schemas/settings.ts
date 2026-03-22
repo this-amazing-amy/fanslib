@@ -11,6 +11,7 @@ export const SettingsSchema = z.object({
   sfwDefaultMode: z.union([z.literal("off"), z.literal("on"), z.literal("remember")]),
   sfwHoverDelay: z.number(),
   backgroundJobsServerUrl: z.string().optional(),
+  mediaPath: z.string().optional(),
   libraryPath: z.string().optional(),
   repostSettings: z
     .object({
