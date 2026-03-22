@@ -31,11 +31,10 @@ import { Route as SettingsContentSafetyRouteImport } from './routes/settings/con
 import { Route as SettingsAppearanceRouteImport } from './routes/settings/appearance'
 import { Route as PostsPostIdRouteImport } from './routes/posts/$postId'
 import { Route as LibraryMediaIdRouteImport } from './routes/library/$mediaId'
+import { Route as FanslyFypRouteImport } from './routes/fansly/fyp'
 import { Route as ContentShootsRouteImport } from './routes/content/shoots'
 import { Route as ContentLibraryRouteImport } from './routes/content/library'
 import { Route as ContentLibraryMediaRouteImport } from './routes/content/library/media'
-import { Route as AnalyticsFypRepostRouteImport } from './routes/analytics/fyp/repost'
-import { Route as AnalyticsFypActiveRouteImport } from './routes/analytics/fyp/active'
 import { Route as ContentLibraryMediaIndexRouteImport } from './routes/content/library/media/index'
 import { Route as ContentLibraryMediaMediaIdRouteImport } from './routes/content/library/media/$mediaId'
 
@@ -149,6 +148,11 @@ const LibraryMediaIdRoute = LibraryMediaIdRouteImport.update({
   path: '/library/$mediaId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FanslyFypRoute = FanslyFypRouteImport.update({
+  id: '/fansly/fyp',
+  path: '/fansly/fyp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContentShootsRoute = ContentShootsRouteImport.update({
   id: '/shoots',
   path: '/shoots',
@@ -163,16 +167,6 @@ const ContentLibraryMediaRoute = ContentLibraryMediaRouteImport.update({
   id: '/media',
   path: '/media',
   getParentRoute: () => ContentLibraryRoute,
-} as any)
-const AnalyticsFypRepostRoute = AnalyticsFypRepostRouteImport.update({
-  id: '/analytics/fyp/repost',
-  path: '/analytics/fyp/repost',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AnalyticsFypActiveRoute = AnalyticsFypActiveRouteImport.update({
-  id: '/analytics/fyp/active',
-  path: '/analytics/fyp/active',
-  getParentRoute: () => rootRouteImport,
 } as any)
 const ContentLibraryMediaIndexRoute =
   ContentLibraryMediaIndexRouteImport.update({
@@ -198,6 +192,7 @@ export interface FileRoutesByFullPath {
   '/subreddits': typeof SubredditsRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
   '/content/shoots': typeof ContentShootsRoute
+  '/fansly/fyp': typeof FanslyFypRoute
   '/library/$mediaId': typeof LibraryMediaIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/settings/appearance': typeof SettingsAppearanceRoute
@@ -212,8 +207,6 @@ export interface FileRoutesByFullPath {
   '/plan/': typeof PlanIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/shoots/': typeof ShootsIndexRoute
-  '/analytics/fyp/active': typeof AnalyticsFypActiveRoute
-  '/analytics/fyp/repost': typeof AnalyticsFypRepostRoute
   '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
   '/content/library/media/': typeof ContentLibraryMediaIndexRoute
@@ -228,6 +221,7 @@ export interface FileRoutesByTo {
   '/subreddits': typeof SubredditsRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
   '/content/shoots': typeof ContentShootsRoute
+  '/fansly/fyp': typeof FanslyFypRoute
   '/library/$mediaId': typeof LibraryMediaIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/settings/appearance': typeof SettingsAppearanceRoute
@@ -242,8 +236,6 @@ export interface FileRoutesByTo {
   '/plan': typeof PlanIndexRoute
   '/settings': typeof SettingsIndexRoute
   '/shoots': typeof ShootsIndexRoute
-  '/analytics/fyp/active': typeof AnalyticsFypActiveRoute
-  '/analytics/fyp/repost': typeof AnalyticsFypRepostRoute
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
   '/content/library/media': typeof ContentLibraryMediaIndexRoute
 }
@@ -259,6 +251,7 @@ export interface FileRoutesById {
   '/subreddits': typeof SubredditsRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
   '/content/shoots': typeof ContentShootsRoute
+  '/fansly/fyp': typeof FanslyFypRoute
   '/library/$mediaId': typeof LibraryMediaIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/settings/appearance': typeof SettingsAppearanceRoute
@@ -273,8 +266,6 @@ export interface FileRoutesById {
   '/plan/': typeof PlanIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/shoots/': typeof ShootsIndexRoute
-  '/analytics/fyp/active': typeof AnalyticsFypActiveRoute
-  '/analytics/fyp/repost': typeof AnalyticsFypRepostRoute
   '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
   '/content/library/media/': typeof ContentLibraryMediaIndexRoute
@@ -292,6 +283,7 @@ export interface FileRouteTypes {
     | '/subreddits'
     | '/content/library'
     | '/content/shoots'
+    | '/fansly/fyp'
     | '/library/$mediaId'
     | '/posts/$postId'
     | '/settings/appearance'
@@ -306,8 +298,6 @@ export interface FileRouteTypes {
     | '/plan/'
     | '/settings/'
     | '/shoots/'
-    | '/analytics/fyp/active'
-    | '/analytics/fyp/repost'
     | '/content/library/media'
     | '/content/library/media/$mediaId'
     | '/content/library/media/'
@@ -322,6 +312,7 @@ export interface FileRouteTypes {
     | '/subreddits'
     | '/content/library'
     | '/content/shoots'
+    | '/fansly/fyp'
     | '/library/$mediaId'
     | '/posts/$postId'
     | '/settings/appearance'
@@ -336,8 +327,6 @@ export interface FileRouteTypes {
     | '/plan'
     | '/settings'
     | '/shoots'
-    | '/analytics/fyp/active'
-    | '/analytics/fyp/repost'
     | '/content/library/media/$mediaId'
     | '/content/library/media'
   id:
@@ -352,6 +341,7 @@ export interface FileRouteTypes {
     | '/subreddits'
     | '/content/library'
     | '/content/shoots'
+    | '/fansly/fyp'
     | '/library/$mediaId'
     | '/posts/$postId'
     | '/settings/appearance'
@@ -366,8 +356,6 @@ export interface FileRouteTypes {
     | '/plan/'
     | '/settings/'
     | '/shoots/'
-    | '/analytics/fyp/active'
-    | '/analytics/fyp/repost'
     | '/content/library/media'
     | '/content/library/media/$mediaId'
     | '/content/library/media/'
@@ -382,14 +370,13 @@ export interface RootRouteChildren {
   HashtagsRoute: typeof HashtagsRoute
   SettingsRoute: typeof SettingsRouteWithChildren
   SubredditsRoute: typeof SubredditsRoute
+  FanslyFypRoute: typeof FanslyFypRoute
   LibraryMediaIdRoute: typeof LibraryMediaIdRoute
   PostsPostIdRoute: typeof PostsPostIdRoute
   ShootsShootIdRoute: typeof ShootsShootIdRoute
   LibraryIndexRoute: typeof LibraryIndexRoute
   PlanIndexRoute: typeof PlanIndexRoute
   ShootsIndexRoute: typeof ShootsIndexRoute
-  AnalyticsFypActiveRoute: typeof AnalyticsFypActiveRoute
-  AnalyticsFypRepostRoute: typeof AnalyticsFypRepostRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -548,6 +535,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryMediaIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/fansly/fyp': {
+      id: '/fansly/fyp'
+      path: '/fansly/fyp'
+      fullPath: '/fansly/fyp'
+      preLoaderRoute: typeof FanslyFypRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/content/shoots': {
       id: '/content/shoots'
       path: '/shoots'
@@ -568,20 +562,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/content/library/media'
       preLoaderRoute: typeof ContentLibraryMediaRouteImport
       parentRoute: typeof ContentLibraryRoute
-    }
-    '/analytics/fyp/repost': {
-      id: '/analytics/fyp/repost'
-      path: '/analytics/fyp/repost'
-      fullPath: '/analytics/fyp/repost'
-      preLoaderRoute: typeof AnalyticsFypRepostRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/analytics/fyp/active': {
-      id: '/analytics/fyp/active'
-      path: '/analytics/fyp/active'
-      fullPath: '/analytics/fyp/active'
-      preLoaderRoute: typeof AnalyticsFypActiveRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/content/library/media/': {
       id: '/content/library/media/'
@@ -673,14 +653,13 @@ const rootRouteChildren: RootRouteChildren = {
   HashtagsRoute: HashtagsRoute,
   SettingsRoute: SettingsRouteWithChildren,
   SubredditsRoute: SubredditsRoute,
+  FanslyFypRoute: FanslyFypRoute,
   LibraryMediaIdRoute: LibraryMediaIdRoute,
   PostsPostIdRoute: PostsPostIdRoute,
   ShootsShootIdRoute: ShootsShootIdRoute,
   LibraryIndexRoute: LibraryIndexRoute,
   PlanIndexRoute: PlanIndexRoute,
   ShootsIndexRoute: ShootsIndexRoute,
-  AnalyticsFypActiveRoute: AnalyticsFypActiveRoute,
-  AnalyticsFypRepostRoute: AnalyticsFypRepostRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

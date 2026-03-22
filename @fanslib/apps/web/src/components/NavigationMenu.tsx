@@ -36,12 +36,7 @@ const menuItems: MenuItem[] = [
   { to: "/captioning", label: "Captioning", icon: MessageSquareText },
   { to: "/channels", label: "Channels", icon: Radio },
   { to: "/hashtags", label: "Hashtags", icon: Hash },
-  {
-    to: "/analytics",
-    label: "Analytics",
-    icon: BarChart3,
-    children: [{ to: "/analytics/matching", label: "Matching" }],
-  },
+  { to: "/fansly/fyp", label: "Fansly", icon: BarChart3 },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 
