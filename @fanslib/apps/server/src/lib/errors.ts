@@ -1,44 +1,31 @@
-export type AppError = {
+export type AppError = Error & {
   readonly _tag: "AppError";
   readonly statusCode: number;
-  readonly message: string;
   readonly code: string;
 };
 
-export const notFoundError = (message = "Not found"): AppError => ({
-  _tag: "AppError",
-  statusCode: 404,
-  message,
-  code: "NOT_FOUND",
-});
+const createAppError = (message: string, statusCode: number, code: string): AppError => {
+  const error = new Error(message) as AppError;
+  (error as { _tag: "AppError" })._tag = "AppError";
+  (error as { statusCode: number }).statusCode = statusCode;
+  (error as { code: string }).code = code;
+  return error;
+};
 
-export const validationError = (message: string): AppError => ({
-  _tag: "AppError",
-  statusCode: 422,
-  message,
-  code: "VALIDATION_ERROR",
-});
+export const notFoundError = (message = "Not found") =>
+  createAppError(message, 404, "NOT_FOUND");
 
-export const configurationError = (message: string): AppError => ({
-  _tag: "AppError",
-  statusCode: 422,
-  message,
-  code: "CONFIGURATION_ERROR",
-});
+export const validationError = (message: string) =>
+  createAppError(message, 422, "VALIDATION_ERROR");
 
-export const externalServiceError = (message: string): AppError => ({
-  _tag: "AppError",
-  statusCode: 502,
-  message,
-  code: "EXTERNAL_SERVICE_ERROR",
-});
+export const configurationError = (message: string) =>
+  createAppError(message, 422, "CONFIGURATION_ERROR");
 
-export const conflictError = (message: string): AppError => ({
-  _tag: "AppError",
-  statusCode: 409,
-  message,
-  code: "CONFLICT",
-});
+export const externalServiceError = (message: string) =>
+  createAppError(message, 502, "EXTERNAL_SERVICE_ERROR");
+
+export const conflictError = (message: string) =>
+  createAppError(message, 409, "CONFLICT");
 
 export const isAppError = (err: unknown): err is AppError =>
-  typeof err === "object" && err !== null && (err as AppError)._tag === "AppError";
+  err instanceof Error && (err as AppError)._tag === "AppError";
