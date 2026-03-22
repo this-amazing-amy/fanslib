@@ -246,6 +246,97 @@ describe("Library Routes", () => {
     });
   });
 
+  describe("new fields in API responses", () => {
+    test("GET by-id returns new fields with defaults for existing media", async () => {
+      const fixtureMedia = MEDIA_FIXTURES[0];
+      if (!fixtureMedia) throw new Error("No media fixtures available");
+
+      const response = await app.request(`/api/media/by-id/${fixtureMedia.id}`);
+      expect(response.status).toBe(200);
+
+      const data = await parseResponse<Media>(response);
+      expect(data?.contentRating).toBeNull();
+      expect(data?.package).toBeNull();
+      expect(data?.role).toBeNull();
+      expect(data?.isManaged).toBe(false);
+    });
+
+    test("POST all returns new fields with defaults for existing media", async () => {
+      const response = await app.request("/api/media/all", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      expect(response.status).toBe(200);
+
+      const data = await parseResponse<{ items: Media[] }>(response);
+      const media = data?.items[0];
+      expect(media).toBeDefined();
+      expect(media?.contentRating).toBeNull();
+      expect(media?.package).toBeNull();
+      expect(media?.role).toBeNull();
+      expect(media?.isManaged).toBe(false);
+    });
+
+    test("PATCH can set contentRating on media", async () => {
+      const fixtureMedia = MEDIA_FIXTURES[0];
+      if (!fixtureMedia) throw new Error("No media fixtures available");
+
+      const response = await app.request(`/api/media/by-id/${fixtureMedia.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contentRating: "uc" }),
+      });
+      expect(response.status).toBe(200);
+
+      const data = await parseResponse<Media>(response);
+      expect(data?.contentRating).toBe("uc");
+    });
+
+    test("PATCH can set package and role on media", async () => {
+      const fixtureMedia = MEDIA_FIXTURES[0];
+      if (!fixtureMedia) throw new Error("No media fixtures available");
+
+      const response = await app.request(`/api/media/by-id/${fixtureMedia.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ package: "main", role: "content" }),
+      });
+      expect(response.status).toBe(200);
+
+      const data = await parseResponse<Media>(response);
+      expect(data?.package).toBe("main");
+      expect(data?.role).toBe("content");
+    });
+
+    test("PATCH can set isManaged on media", async () => {
+      const fixtureMedia = MEDIA_FIXTURES[0];
+      if (!fixtureMedia) throw new Error("No media fixtures available");
+
+      const response = await app.request(`/api/media/by-id/${fixtureMedia.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isManaged: true }),
+      });
+      expect(response.status).toBe(200);
+
+      const data = await parseResponse<Media>(response);
+      expect(data?.isManaged).toBe(true);
+    });
+
+    test("PATCH rejects invalid contentRating code", async () => {
+      const fixtureMedia = MEDIA_FIXTURES[0];
+      if (!fixtureMedia) throw new Error("No media fixtures available");
+
+      const response = await app.request(`/api/media/by-id/${fixtureMedia.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contentRating: "invalid" }),
+      });
+      expect(response.status).toBe(422);
+    });
+  });
+
   describe("POST /api/media/by-id/:id/adjacent", () => {
     test("returns adjacent media", async () => {
       const fixtureMedia = MEDIA_FIXTURES[1];

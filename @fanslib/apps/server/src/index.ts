@@ -32,24 +32,24 @@ import { seedDatabase } from "./lib/seed";
 import { walkDirectory } from "./lib/walkDirectory";
 
 const logStartupEnvironment = async (): Promise<void> => {
-  const { appdataPath, libraryPath, ffprobePath } = env();
+  const { appdataPath, mediaPath, ffprobePath } = env();
 
   console.log("Environment configuration", {
     APPDATA_PATH: appdataPath,
-    LIBRARY_PATH: libraryPath,
+    MEDIA_PATH: mediaPath,
     FFPROBE_PATH: ffprobePath ?? null,
   });
 
   try {
     const files: string[] = [];
     // eslint-disable-next-line functional/no-loop-statements
-    for await (const filePath of walkDirectory(libraryPath)) {
+    for await (const filePath of walkDirectory(mediaPath)) {
       if (!filePath) continue;
       files.push(filePath);
     }
 
     console.log("Library contents at startup", {
-      libraryPath,
+      mediaPath,
       totalFiles: files.length,
     });
   } catch (error) {

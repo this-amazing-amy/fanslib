@@ -28,8 +28,8 @@ export const deleteMedia = async (id: string, deleteFile = false): Promise<boole
 
   if (deleteFile) {
     try {
-      const libraryPath = env().libraryPath;
-      const filePath = `${libraryPath}/${media.relativePath}`;
+      const mediaPath = env().mediaPath;
+      const filePath = `${mediaPath}/${media.relativePath}`;
       await fs.unlink(filePath);
     } catch (error) {
       console.error("Failed to delete file:", error);

@@ -13,6 +13,7 @@ import {
 import { PostMedia } from "../posts/entity";
 import { Shoot } from "../shoots/entity";
 import { MediaTag } from "../tags/entity";
+import type { ContentRating } from "./content-rating";
 
 export type MediaType = "image" | "video";
 
@@ -46,6 +47,18 @@ export class Media {
   @Column({ type: "boolean", default: false, name: "excluded" })
   excluded: boolean = false;
 
+  @Column({ type: "varchar", nullable: true, name: "contentRating" })
+  contentRating: ContentRating | null = null;
+
+  @Column({ type: "varchar", nullable: true, name: "package" })
+  package: string | null = null;
+
+  @Column({ type: "varchar", nullable: true, name: "role" })
+  role: string | null = null;
+
+  @Column({ type: "boolean", default: false, name: "isManaged" })
+  isManaged: boolean = false;
+
   @CreateDateColumn({ type: "datetime", name: "createdAt" })
   createdAt!: Date;
 
@@ -76,3 +89,4 @@ export class Media {
 export type MediaWithoutRelations = Omit<Media, "id">;
 
 export { MediaSchema, MediaTypeSchema } from "./schema";
+export { ContentRatingSchema, type ContentRating } from "./content-rating";

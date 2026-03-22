@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ContentRatingSchema } from "./content-rating";
 import { RepostStatusValueSchema } from "./schemas/media-filter";
 
 export const MediaTypeSchema = z.enum(["image", "video"]);
@@ -13,6 +14,10 @@ export const MediaSchema = z.object({
   redgifsUrl: z.string().nullable(),
   description: z.string().nullable(),
   excluded: z.boolean().default(false),
+  contentRating: ContentRatingSchema.nullable().default(null),
+  package: z.string().nullable().default(null),
+  role: z.string().nullable().default(null),
+  isManaged: z.boolean().default(false),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   fileCreationDate: z.coerce.date(),
