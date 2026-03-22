@@ -1,4 +1,4 @@
-import { memo, useMemo } from "react";
+import { memo, useId, useMemo } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useMediaDrag } from "~/contexts/MediaDragContext";
 import { useMediaHoverStore } from "~/stores/mediaHoverStore";
@@ -37,7 +37,8 @@ export const MediaTile = memo((props: MediaTileProps) => {
   const toggleItem = useMediaSelectionStore((s) => s.toggleItem);
   const selectRange = useMediaSelectionStore((s) => s.selectRange);
 
-  const setHoveredMediaId = useMediaHoverStore((s) => s.setHoveredMediaId);
+  const instanceId = useId();
+  const setHovered = useMediaHoverStore((s) => s.setHovered);
   const hoveredMediaId = useMediaHoverStore((s) => s.hoveredMediaId);
 
   const withPostsPopover = props.withPostsPopover ?? false;
@@ -73,12 +74,12 @@ export const MediaTile = memo((props: MediaTileProps) => {
 
   const activatePreview = () => {
     if (!withPreview) return;
-    setHoveredMediaId(media.id);
+    setHovered(media.id, instanceId);
   };
 
   const deactivatePreview = () => {
     if (!withPreview) return;
-    setHoveredMediaId(null);
+    setHovered(null, null);
   };
 
   const currentItem = flattenedMedia.find((m) => m.media.id === media.id);
@@ -148,6 +149,7 @@ export const MediaTile = memo((props: MediaTileProps) => {
             withPreview={withPreview}
             withDuration={withDuration}
             cover={true}
+            hoverKey={instanceId}
           />
         )}
         {media.type === "image" && <MediaTileImage media={media} cover={true} />}
