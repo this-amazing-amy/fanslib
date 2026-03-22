@@ -245,13 +245,35 @@ const processScheduleResponse = (url: string, responseText: string) => {
       };
     };
 
-    if (!data.success || !data.response) return;
+    if (!data.success || !data.response) {
+      debug("info", "Schedule parse skipped — not a success response or no response body", {
+        url,
+        success: data.success,
+        hasResponse: !!data.response,
+        topLevelKeys: Object.keys(data),
+        responseKeys: data.response ? Object.keys(data.response) : [],
+      });
+      return;
+    }
 
     const postData = data.response.postTemplate ?? data.response.post;
-    if (!postData) return;
+    if (!postData) {
+      debug("info", "Schedule parse skipped — no postTemplate or post in response", {
+        url,
+        responseKeys: Object.keys(data.response),
+      });
+      return;
+    }
 
     const contentId = postData.attachments?.[0]?.contentId;
-    if (!contentId) return;
+    if (!contentId) {
+      debug("info", "Schedule parse skipped — no contentId in first attachment", {
+        url,
+        hasAttachments: !!postData.attachments,
+        attachmentCount: postData.attachments?.length ?? 0,
+      });
+      return;
+    }
 
     const caption = postData.content ?? "";
 
@@ -260,6 +282,7 @@ const processScheduleResponse = (url: string, responseText: string) => {
       url,
       contentId,
       captionLength: caption.length,
+      captionPreview: caption.substring(0, 80),
     });
 
     window.postMessage(
@@ -274,8 +297,10 @@ const processScheduleResponse = (url: string, responseText: string) => {
     debug("info", "Schedule capture posted to window");
   } catch (error) {
     debug("error", "Failed to process schedule response", {
+      url,
       error,
       errorMessage: error instanceof Error ? error.message : String(error),
+      responsePreview: responseText?.substring(0, 200),
     });
   }
 };
@@ -316,14 +341,22 @@ const processTimelineResponse = (url: string, responseText: string) => {
   }
 };
 
+const extractFetchUrl = (input: Parameters<typeof fetch>[0]): string => {
+  if (typeof input === "string") return input;
+  if (input instanceof Request) return input.url;
+  if (input instanceof URL) return input.toString();
+  return String(input ?? "");
+};
+
 const interceptedFetch = (async (...args): Promise<Response> => {
   fetchInterceptCount++;
   const [input, init] = args;
-  const url = typeof input === "string" ? input : (input?.toString() ?? "");
+  const url = extractFetchUrl(input);
 
   debug("info", `Fetch intercepted (#${fetchInterceptCount})`, {
     url: url.substring(0, 100),
     method: init?.method ?? "GET",
+    inputType: input instanceof Request ? "Request" : input instanceof URL ? "URL" : typeof input,
     isTimeline: url.includes("timelinenew"),
     isFanslyApi: url.includes("fansly.com"),
   });
@@ -364,14 +397,18 @@ const interceptedFetch = (async (...args): Promise<Response> => {
     try {
       const clone = response.clone();
       const responseText = await clone.text();
-      if (responseText.includes("postTemplate") || responseText.includes('"post"')) {
-        debug("info", "Potential schedule response via fetch detected", {
-          url,
-          method,
-          status: response.status,
-        });
-        processScheduleResponse(url, responseText);
-      }
+
+      debug("info", "Fansly POST/PUT response via fetch — attempting schedule parse", {
+        url,
+        method,
+        status: response.status,
+        responseLength: responseText.length,
+        hasPostTemplate: responseText.includes("postTemplate"),
+        hasPost: responseText.includes('"post"'),
+        responsePreview: responseText.substring(0, 200),
+      });
+
+      processScheduleResponse(url, responseText);
     } catch (error) {
       debug("error", "Failed to process fetch schedule response", {
         error,
@@ -488,15 +525,18 @@ XMLHttpRequest.prototype.send = function (...args: unknown[]) {
         if (isScheduleCandidate) {
           try {
             const responseText = this.responseText;
-            if (responseText.includes("postTemplate") || responseText.includes('"post"')) {
-              debug("info", "XHR schedule response detected", {
-                url,
-                method,
-                status: this.status,
-                responseLength: responseText?.length,
-              });
-              processScheduleResponse(url, responseText);
-            }
+
+            debug("info", "Fansly POST/PUT response via XHR — attempting schedule parse", {
+              url,
+              method,
+              status: this.status,
+              responseLength: responseText?.length,
+              hasPostTemplate: responseText?.includes("postTemplate"),
+              hasPost: responseText?.includes('"post"'),
+              responsePreview: responseText?.substring(0, 200),
+            });
+
+            processScheduleResponse(url, responseText);
           } catch (error) {
             debug("error", "Failed to process XHR schedule response", {
               error,
