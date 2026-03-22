@@ -371,9 +371,8 @@ const addToBuffer = (candidates: CandidateItem[]): void => {
 const sendScheduleCapture = async (
   contentId: string,
   caption: string,
-  fanslyPostId?: string,
 ): Promise<{ matched: boolean; postId: string | null }> => {
-  debug("info", "Sending schedule capture to server", { contentId, fanslyPostId, captionLength: caption.length });
+  debug("info", "Sending schedule capture to server", { contentId, captionLength: caption.length });
 
   const apiUrl = await getApiUrl();
   if (!apiUrl) return { matched: false, postId: null };
@@ -381,7 +380,7 @@ const sendScheduleCapture = async (
 
   try {
     const response = await api.api.posts["schedule-capture"].$post({
-      json: { contentId, caption, ...(fanslyPostId ? { fanslyPostId } : {}) },
+      json: { contentId, caption },
     });
 
     if (!response.ok) {
@@ -465,7 +464,7 @@ chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse) =
   }
 
   if (message.type === "FANSLIB_SCHEDULE_CAPTURE") {
-    sendScheduleCapture(message.contentId, message.caption, message.fanslyPostId)
+    sendScheduleCapture(message.contentId, message.caption)
       .then((result) => {
         sendResponse({ success: true, ...result });
       })
