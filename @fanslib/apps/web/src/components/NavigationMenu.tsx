@@ -7,6 +7,7 @@ import {
   ChevronDown,
   ChevronRight,
   Clapperboard,
+  FolderSync,
   Hash,
   Home,
   MessageSquareText,
@@ -31,6 +32,7 @@ type MenuItem = {
 const menuItems: MenuItem[] = [
   { to: "/", label: "Dashboard", icon: Home },
   { to: "/content/library/media", label: "Library", icon: Clapperboard },
+  { to: "/content/library/organize", label: "Organize", icon: FolderSync },
   { to: "/content/shoots", label: "Shoots", icon: Camera },
   { to: "/plan", label: "Plan", icon: Calendar },
   { to: "/captioning", label: "Captioning", icon: MessageSquareText },

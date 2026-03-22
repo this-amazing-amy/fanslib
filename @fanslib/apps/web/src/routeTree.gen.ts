@@ -34,6 +34,7 @@ import { Route as LibraryMediaIdRouteImport } from './routes/library/$mediaId'
 import { Route as FanslyFypRouteImport } from './routes/fansly/fyp'
 import { Route as ContentShootsRouteImport } from './routes/content/shoots'
 import { Route as ContentLibraryRouteImport } from './routes/content/library'
+import { Route as ContentLibraryOrganizeRouteImport } from './routes/content/library/organize'
 import { Route as ContentLibraryMediaRouteImport } from './routes/content/library/media'
 import { Route as ContentLibraryMediaIndexRouteImport } from './routes/content/library/media/index'
 import { Route as ContentLibraryMediaMediaIdRouteImport } from './routes/content/library/media/$mediaId'
@@ -163,6 +164,11 @@ const ContentLibraryRoute = ContentLibraryRouteImport.update({
   path: '/library',
   getParentRoute: () => ContentRoute,
 } as any)
+const ContentLibraryOrganizeRoute = ContentLibraryOrganizeRouteImport.update({
+  id: '/organize',
+  path: '/organize',
+  getParentRoute: () => ContentLibraryRoute,
+} as any)
 const ContentLibraryMediaRoute = ContentLibraryMediaRouteImport.update({
   id: '/media',
   path: '/media',
@@ -208,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/settings/': typeof SettingsIndexRoute
   '/shoots/': typeof ShootsIndexRoute
   '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
+  '/content/library/organize': typeof ContentLibraryOrganizeRoute
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
   '/content/library/media/': typeof ContentLibraryMediaIndexRoute
 }
@@ -236,6 +243,7 @@ export interface FileRoutesByTo {
   '/plan': typeof PlanIndexRoute
   '/settings': typeof SettingsIndexRoute
   '/shoots': typeof ShootsIndexRoute
+  '/content/library/organize': typeof ContentLibraryOrganizeRoute
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
   '/content/library/media': typeof ContentLibraryMediaIndexRoute
 }
@@ -267,6 +275,7 @@ export interface FileRoutesById {
   '/settings/': typeof SettingsIndexRoute
   '/shoots/': typeof ShootsIndexRoute
   '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
+  '/content/library/organize': typeof ContentLibraryOrganizeRoute
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
   '/content/library/media/': typeof ContentLibraryMediaIndexRoute
 }
@@ -299,6 +308,7 @@ export interface FileRouteTypes {
     | '/settings/'
     | '/shoots/'
     | '/content/library/media'
+    | '/content/library/organize'
     | '/content/library/media/$mediaId'
     | '/content/library/media/'
   fileRoutesByTo: FileRoutesByTo
@@ -327,6 +337,7 @@ export interface FileRouteTypes {
     | '/plan'
     | '/settings'
     | '/shoots'
+    | '/content/library/organize'
     | '/content/library/media/$mediaId'
     | '/content/library/media'
   id:
@@ -357,6 +368,7 @@ export interface FileRouteTypes {
     | '/settings/'
     | '/shoots/'
     | '/content/library/media'
+    | '/content/library/organize'
     | '/content/library/media/$mediaId'
     | '/content/library/media/'
   fileRoutesById: FileRoutesById
@@ -556,6 +568,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContentLibraryRouteImport
       parentRoute: typeof ContentRoute
     }
+    '/content/library/organize': {
+      id: '/content/library/organize'
+      path: '/organize'
+      fullPath: '/content/library/organize'
+      preLoaderRoute: typeof ContentLibraryOrganizeRouteImport
+      parentRoute: typeof ContentLibraryRoute
+    }
     '/content/library/media': {
       id: '/content/library/media'
       path: '/media'
@@ -595,10 +614,12 @@ const ContentLibraryMediaRouteWithChildren =
 
 interface ContentLibraryRouteChildren {
   ContentLibraryMediaRoute: typeof ContentLibraryMediaRouteWithChildren
+  ContentLibraryOrganizeRoute: typeof ContentLibraryOrganizeRoute
 }
 
 const ContentLibraryRouteChildren: ContentLibraryRouteChildren = {
   ContentLibraryMediaRoute: ContentLibraryMediaRouteWithChildren,
+  ContentLibraryOrganizeRoute: ContentLibraryOrganizeRoute,
 }
 
 const ContentLibraryRouteWithChildren = ContentLibraryRoute._addFileChildren(
