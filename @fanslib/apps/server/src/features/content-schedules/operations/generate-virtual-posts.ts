@@ -19,7 +19,6 @@ export const FetchVirtualPostsRequestQuerySchema = z.object({
 // Virtual post extends Post schema with additional properties
 export const VirtualPostScheduleSchema = z.object({
   id: z.string(),
-  channelId: z.string().nullable(),
   name: z.string(),
   emoji: z.string().nullable(),
   color: z.string().nullable(),
@@ -61,13 +60,11 @@ export const VirtualPostSchema = z.object({
 export const FetchVirtualPostsResponseSchema = z.array(VirtualPostSchema);
 
 type ScheduleWithRelations = ContentSchedule & {
-  channel: Channel | null;
   scheduleChannels: (ScheduleChannel & { channel: Channel })[];
 };
 
 const toScheduleResponse = (schedule: ContentSchedule) => ({
   id: schedule.id,
-  channelId: schedule.channelId,
   name: schedule.name,
   emoji: schedule.emoji,
   color: schedule.color,
@@ -129,21 +126,19 @@ export const fetchVirtualPosts = async (
   });
   const scheduleIdsFromChannels = [...new Set(scheduleChannels.map((sc) => sc.scheduleId))];
 
+  if (scheduleIdsFromChannels.length === 0) {
+    return [];
+  }
+
   const schedules = (await scheduleRepo
     .createQueryBuilder("schedule")
-    .leftJoinAndSelect("schedule.channel", "channel")
-    .leftJoinAndSelect("channel.type", "channelType")
-    .leftJoinAndSelect("channel.defaultHashtags", "channelHashtags")
     .leftJoinAndSelect("schedule.skippedSlots", "skippedSlots")
     .leftJoinAndSelect("schedule.scheduleChannels", "scheduleChannels")
     .leftJoinAndSelect("scheduleChannels.channel", "scChannel")
     .leftJoinAndSelect("scChannel.type", "scChannelType")
     .leftJoinAndSelect("scChannel.defaultHashtags", "scChannelHashtags")
-    .where("schedule.channelId IN (:...channelIds)", {
-      channelIds: params.channelIds.length > 0 ? params.channelIds : ["__none__"],
-    })
-    .orWhere("schedule.id IN (:...scheduleIds)", {
-      scheduleIds: scheduleIdsFromChannels.length > 0 ? scheduleIdsFromChannels : ["__none__"],
+    .where("schedule.id IN (:...scheduleIds)", {
+      scheduleIds: scheduleIdsFromChannels,
     })
     .orderBy("scheduleChannels.sortOrder", "ASC")
     .getMany()) as ScheduleWithRelations[];
@@ -167,16 +162,10 @@ export const fetchVirtualPosts = async (
   });
 
   return schedules.flatMap((schedule) => {
-    const targetChannels =
+    const channels =
       schedule.scheduleChannels
         ?.filter((sc) => params.channelIds.includes(sc.channelId))
         .map((sc) => sc.channel) ?? [];
-
-    const legacyChannel =
-      schedule.channel && params.channelIds.includes(schedule.channel.id) ? schedule.channel : null;
-
-    const channels =
-      targetChannels.length > 0 ? targetChannels : legacyChannel ? [legacyChannel] : [];
 
     if (channels.length === 0) {
       return [];

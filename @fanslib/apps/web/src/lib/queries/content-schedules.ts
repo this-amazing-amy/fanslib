@@ -81,13 +81,8 @@ export const useCreateContentScheduleMutation = () => {
       const result = await api.api["content-schedules"].$post({ json: data });
       return result.json();
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contentSchedules.list() });
-      if (data && "channelId" in data && data.channelId) {
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.contentSchedules.byChannel(data.channelId),
-        });
-      }
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contentSchedules.all() });
     },
   });
 };

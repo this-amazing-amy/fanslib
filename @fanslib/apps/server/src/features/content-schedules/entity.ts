@@ -20,9 +20,6 @@ export class ContentSchedule {
   @PrimaryColumn("varchar")
   id!: string;
 
-  @Column({ type: "varchar", nullable: true, name: "channelId" })
-  channelId: string | null = null;
-
   @Column({ type: "varchar", default: "Untitled Schedule", name: "name" })
   name!: string;
 
@@ -56,10 +53,6 @@ export class ContentSchedule {
 
   @Column({ type: "text", nullable: true, name: "mediaFilters" })
   mediaFilters: string | null = null;
-
-  @ManyToOne(() => Channel, { onDelete: "SET NULL", nullable: true })
-  @JoinColumn({ name: "channelId" })
-  channel: Relation<Channel> | null = null;
 
   @OneToMany(() => SkippedScheduleSlot, (slot) => slot.schedule)
   skippedSlots!: Relation<SkippedScheduleSlot>[];
@@ -137,7 +130,6 @@ export const ScheduleChannelSchema = z.object({
 
 export const ContentScheduleSchema = z.object({
   id: z.string(),
-  channelId: z.string().nullable(),
   name: z.string(),
   emoji: z.string().nullable(),
   color: z.string().nullable(),

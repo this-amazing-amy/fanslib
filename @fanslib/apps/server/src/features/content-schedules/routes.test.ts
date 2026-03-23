@@ -14,6 +14,10 @@ import { contentSchedulesRoutes } from "./routes";
 
 type VirtualPost = z.infer<typeof VirtualPostSchema>;
 
+type ScheduleResponse = ContentSchedule & {
+  scheduleChannels: Array<{ channelId: string }>;
+};
+
 describe("Content Schedules Routes", () => {
   // eslint-disable-next-line functional/no-let
   let app: Hono;
@@ -39,15 +43,18 @@ describe("Content Schedules Routes", () => {
       const response = await app.request("/api/content-schedules/all");
       expect(response.status).toBe(200);
 
-      const data = await parseResponse<ContentSchedule[]>(response);
+      const data = await parseResponse<ScheduleResponse[]>(response);
       expect(Array.isArray(data)).toBe(true);
       expect(data?.length).toBeGreaterThanOrEqual(CONTENT_SCHEDULE_FIXTURES.length);
 
       CONTENT_SCHEDULE_FIXTURES.forEach((fixture) => {
-        const schedule = data?.find((s: ContentSchedule) => s.id === fixture.id);
+        const schedule = data?.find((s) => s.id === fixture.id);
         expect(schedule).toBeDefined();
-        expect(schedule?.channelId).toBe(fixture.channelId);
         expect(schedule?.type).toBe(fixture.type);
+        expect(schedule?.scheduleChannels?.length).toBeGreaterThanOrEqual(1);
+        expect(
+          schedule?.scheduleChannels?.some((sc) => sc.channelId === fixture.fixtureChannelId),
+        ).toBe(true);
       });
     });
   });
@@ -62,10 +69,10 @@ describe("Content Schedules Routes", () => {
       const response = await app.request(`/api/content-schedules/by-id/${fixtureSchedule.id}`);
       expect(response.status).toBe(200);
 
-      const data = await parseResponse<ContentSchedule>(response);
+      const data = await parseResponse<ScheduleResponse>(response);
       expect(data?.id).toBe(fixtureSchedule.id);
-      expect(data?.channelId).toBe(fixtureSchedule.channelId);
       expect(data?.type).toBe(fixtureSchedule.type);
+      expect(data?.scheduleChannels?.length).toBeGreaterThanOrEqual(1);
     });
 
     test("returns error for non-existent schedule", async () => {
@@ -78,7 +85,7 @@ describe("Content Schedules Routes", () => {
   });
 
   describe("GET /api/content-schedules/by-channel-id/:channelId", () => {
-    test("returns schedules for specific channel", async () => {
+    test("returns schedules for specific channel via scheduleChannels", async () => {
       const fixtureChannel = fixtures.channels.channels[0];
       if (!fixtureChannel) {
         throw new Error("No channel fixtures available");
@@ -87,40 +94,53 @@ describe("Content Schedules Routes", () => {
       const response = await app.request(
         `/api/content-schedules/by-channel-id/${fixtureChannel.id}`,
       );
-      const data = await parseResponse<ContentSchedule[]>(response);
+      const data = await parseResponse<ScheduleResponse[]>(response);
 
       expect(Array.isArray(data)).toBe(true);
-      data?.forEach((schedule: ContentSchedule) => {
-        expect(schedule.channelId).toBe(fixtureChannel.id);
+      data?.forEach((schedule) => {
+        expect(
+          schedule.scheduleChannels?.some((sc) => sc.channelId === fixtureChannel.id),
+        ).toBe(true);
       });
     });
   });
 
   describe("POST /api/content-schedules", () => {
-    test("creates a new content schedule", async () => {
+    test("creates a schedule with scheduleChannels and fetches it by channel", async () => {
       const channel = fixtures.channels.channels[0];
       if (!channel) {
         throw new Error("No channel fixtures available");
       }
 
       const scheduleData = {
-        channelId: channel.id,
-        name: "Test Schedule",
+        name: "Multi-Channel Schedule",
         type: "daily",
         postsPerTimeframe: 2,
         preferredTimes: ["14:30"],
+        scheduleChannels: [{ channelId: channel.id }],
       };
 
-      const response = await app.request("/api/content-schedules", {
+      const createResponse = await app.request("/api/content-schedules", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(scheduleData),
       });
-      expect(response.status).toBe(200);
+      expect(createResponse.status).toBe(200);
 
-      const data = await parseResponse<ContentSchedule>(response);
-      expect(data?.type).toBe("daily");
-      expect(data?.channelId).toBe(channel.id);
+      const created = await parseResponse<ScheduleResponse>(createResponse);
+      expect(created?.type).toBe("daily");
+      expect(created?.scheduleChannels).toBeDefined();
+      expect(created?.scheduleChannels?.length).toBe(1);
+      expect(created?.scheduleChannels?.[0]?.channelId).toBe(channel.id);
+
+      // Verify it appears when fetching by channel
+      const fetchResponse = await app.request(
+        `/api/content-schedules/by-channel-id/${channel.id}`,
+      );
+      const fetched = await parseResponse<ScheduleResponse[]>(fetchResponse);
+      const match = fetched?.find((s) => s.id === created?.id);
+      expect(match).toBeDefined();
+      expect(match?.scheduleChannels?.some((sc) => sc.channelId === channel.id)).toBe(true);
     });
   });
 
@@ -142,7 +162,7 @@ describe("Content Schedules Routes", () => {
       });
       expect(response.status).toBe(200);
 
-      const data = await parseResponse<ContentSchedule>(response);
+      const data = await parseResponse<ScheduleResponse>(response);
       expect(Array.isArray(data?.preferredTimes)).toBe(true);
       expect(data?.id).toBe(fixtureSchedule.id);
     });

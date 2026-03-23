@@ -14,7 +14,6 @@ export const ScheduleChannelWithChannelSchema = ScheduleChannelSchema.extend({
 
 export const FetchAllContentSchedulesResponseSchema = z.array(
   ContentScheduleSchema.extend({
-    channel: ChannelSchema.nullable(),
     skippedSlots: z.array(SkippedScheduleSlotSchema),
     scheduleChannels: z.array(ScheduleChannelWithChannelSchema),
   }),
@@ -28,10 +27,6 @@ export const fetchAllContentSchedules = async (): Promise<
 
   const schedules = await repository.find({
     relations: {
-      channel: {
-        type: true,
-        defaultHashtags: true,
-      },
       skippedSlots: true,
       scheduleChannels: {
         channel: {
@@ -50,7 +45,6 @@ export const fetchAllContentSchedules = async (): Promise<
 
   return schedules.map((schedule) => ({
     ...schedule,
-    channel: schedule.channel ?? null,
     scheduleChannels: schedule.scheduleChannels ?? [],
   })) as never;
 };

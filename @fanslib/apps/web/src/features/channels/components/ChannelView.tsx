@@ -1,6 +1,6 @@
 import type {
   Channel,
-  ContentScheduleWithChannel,
+  ContentScheduleWithChannels,
   CreateContentScheduleRequestBody,
   Hashtag,
   MediaFilter,
@@ -32,7 +32,7 @@ type ChannelViewProps = {
   onDelete?: () => void;
 };
 
-type ContentSchedule = ContentScheduleWithChannel;
+type ContentSchedule = ContentScheduleWithChannels;
 
 export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
   const [isEditing, setIsEditing] = useState(false);

@@ -17,7 +17,6 @@ export const ScheduleChannelWithChannelSchema = ScheduleChannelSchema.extend({
 });
 
 export const FetchContentScheduleByIdResponseSchema = ContentScheduleSchema.extend({
-  channel: ChannelSchema.nullable(),
   skippedSlots: z.array(SkippedScheduleSlotSchema),
   scheduleChannels: z.array(ScheduleChannelWithChannelSchema),
 });
@@ -31,7 +30,6 @@ export const fetchContentScheduleById = async (
   const schedule = await repository.findOne({
     where: { id },
     relations: {
-      channel: { type: true, defaultHashtags: true },
       skippedSlots: true,
       scheduleChannels: {
         channel: { type: true, defaultHashtags: true },
@@ -43,7 +41,6 @@ export const fetchContentScheduleById = async (
 
   return {
     ...schedule,
-    channel: schedule.channel ?? null,
     scheduleChannels: schedule.scheduleChannels ?? [],
   };
 };

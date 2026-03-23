@@ -11,13 +11,13 @@ type ScheduleBreakdownProps = {
     name: string;
     emoji: string | null;
     color: string | null;
-    channelId: string;
     mediaFilters: string | null;
     type: "daily" | "weekly" | "monthly";
     postsPerTimeframe: number | null;
     preferredDays: string[] | null;
     preferredTimes: string[] | null;
     skippedSlots?: Array<{ date: string }>;
+    scheduleChannels: Array<{ channelId: string }>;
   }>;
   fromDate: Date;
   toDate: Date;
@@ -30,7 +30,10 @@ export const ScheduleBreakdown = ({
   toDate,
 }: ScheduleBreakdownProps) => {
   const relevantSchedules = useMemo(
-    () => schedules.filter((schedule) => selectedChannelIds.includes(schedule.channelId)),
+    () =>
+      schedules.filter((schedule) =>
+        schedule.scheduleChannels.some((sc) => selectedChannelIds.includes(sc.channelId)),
+      ),
     [schedules, selectedChannelIds],
   );
 
