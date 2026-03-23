@@ -41,27 +41,9 @@ type FanslyCredentials = {
   fanslyClientId?: string;
 };
 
-const DEBUG_PREFIX = "[FansLib:Interceptor:MainWorld]";
+import { createDebugLogger } from "../lib/debug";
 
-const debug = (level: "info" | "warn" | "error", message: string, data?: unknown) => {
-  const timestamp = new Date().toISOString();
-  const logArgs =
-    data !== undefined
-      ? [`[${timestamp}] ${DEBUG_PREFIX} ${message}`, data]
-      : [`[${timestamp}] ${DEBUG_PREFIX} ${message}`];
-
-  switch (level) {
-    case "info":
-      console.log(...logArgs);
-      break;
-    case "warn":
-      console.warn(...logArgs);
-      break;
-    case "error":
-      console.error(...logArgs);
-      break;
-  }
-};
+const debug = createDebugLogger("[FansLib:Interceptor:MainWorld]");
 
 const extractCandidates = (data: TimelineResponse): CandidateItem[] => {
   debug("info", "Starting candidate extraction from timeline data", {

@@ -42,27 +42,9 @@ const candidateBuffer: CandidateItem[] = [];
 // eslint-disable-next-line functional/no-let
 let batchTimeout: ReturnType<typeof setTimeout> | null = null;
 
-const DEBUG_PREFIX = "[FansLib:Background]";
+import { createDebugLogger } from "../lib/debug";
 
-const debug = (level: "info" | "warn" | "error", message: string, data?: unknown) => {
-  const timestamp = new Date().toISOString();
-  const logArgs =
-    data !== undefined
-      ? [`[${timestamp}] ${DEBUG_PREFIX} ${message}`, data]
-      : [`[${timestamp}] ${DEBUG_PREFIX} ${message}`];
-
-  switch (level) {
-    case "info":
-      console.log(...logArgs);
-      break;
-    case "warn":
-      console.warn(...logArgs);
-      break;
-    case "error":
-      console.error(...logArgs);
-      break;
-  }
-};
+const debug = createDebugLogger("[FansLib:Background]");
 
 const getApiUrl = async (): Promise<string | null> => {
   debug("info", "Fetching API URL from storage");

@@ -1,27 +1,9 @@
-const DEBUG_PREFIX = "[FansLib:Bridge]";
+import { createDebugLogger } from "../lib/debug";
+
+const debug = createDebugLogger("[FansLib:Bridge]");
 
 // eslint-disable-next-line functional/no-let
 let contextInvalidated = false;
-
-const debug = (level: "info" | "warn" | "error", message: string, data?: unknown) => {
-  const timestamp = new Date().toISOString();
-  const logArgs =
-    data !== undefined
-      ? [`[${timestamp}] ${DEBUG_PREFIX} ${message}`, data]
-      : [`[${timestamp}] ${DEBUG_PREFIX} ${message}`];
-
-  switch (level) {
-    case "info":
-      console.log(...logArgs);
-      break;
-    case "warn":
-      console.warn(...logArgs);
-      break;
-    case "error":
-      console.error(...logArgs);
-      break;
-  }
-};
 
 const BANNER_ID = "fanslib-context-invalidated-banner";
 
