@@ -20,6 +20,7 @@ type Message =
       type: "FANSLIB_SCHEDULE_CAPTURE";
       contentId: string;
       caption: string;
+      fanslyPostId?: string;
     }
   | {
       type: "FANSLIB_INSERT_CAPTION";

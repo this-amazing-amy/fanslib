@@ -115,7 +115,7 @@ describe("QueueStatusBar", () => {
     expect(screen.getByText("Fetch Queue")).toBeInTheDocument();
   });
 
-  test("clicking status bar again closes the drawer", async () => {
+  test("clicking the sheet backdrop closes the queue", async () => {
     mockQuery({
       data: {
         totalPending: 2,
@@ -131,7 +131,17 @@ describe("QueueStatusBar", () => {
     await user.click(screen.getByText(/2 pending/));
     expect(screen.getByText("Fetch Queue")).toBeInTheDocument();
 
-    await user.click(screen.getByText(/2 pending/));
+    const backdrops = [...document.querySelectorAll("div")].filter(
+      (el) =>
+        typeof el.className === "string" &&
+        el.className.includes("bg-black/50") &&
+        el.className.includes("inset-0"),
+    );
+    const backdrop = backdrops[0];
+    if (backdrop === undefined) {
+      throw new Error("Expected sheet backdrop in document");
+    }
+    await user.click(backdrop);
     expect(screen.queryByText("Fetch Queue")).not.toBeInTheDocument();
   });
 
@@ -219,7 +229,7 @@ describe("QueueStatusBar", () => {
     await user.click(screen.getByText(/1 pending/));
     expect(screen.getByText("Fetch Queue")).toBeInTheDocument();
 
-    await user.click(screen.getByLabelText("Close drawer"));
+    await user.click(screen.getByLabelText("Close fetch queue"));
     expect(screen.queryByText("Fetch Queue")).not.toBeInTheDocument();
   });
 

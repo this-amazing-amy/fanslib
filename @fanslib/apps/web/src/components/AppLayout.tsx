@@ -1,5 +1,5 @@
-import { QueryClientProvider } from "@tanstack/react-query";
 import { useAtom } from "jotai";
+import { useHydrateAtoms } from "jotai/utils";
 import { type ReactNode, useEffect } from "react";
 import { CredentialStatusBadge } from "~/components/CredentialStatusBadge";
 import { Logo } from "~/components/Logo";
@@ -8,17 +8,12 @@ import { BurgerIcon } from "~/components/ui/BurgerIcon";
 import { ThemeProvider } from "~/contexts/ThemeContext";
 import { cn } from "~/lib/cn";
 import { useToggleSfwModeMutation } from "~/lib/queries/settings";
-import { queryClient } from "~/router";
-import {
-  mobileNavigationDrawerOpenAtom,
-  sidebarCollapsedAtom,
-  STORAGE_KEY,
-  toggleSidebarAtom,
-} from "~/state/sidebar";
+import { mobileNavigationDrawerOpenAtom, sidebarCollapsedAtom, toggleSidebarAtom } from "~/state/sidebar";
 
-export interface AppLayoutProps {
+export type AppLayoutProps = {
   children: ReactNode;
-}
+  initialSidebarCollapsed: boolean;
+};
 
 const MainContent = ({ children }: { children: ReactNode }) => (
   <main
@@ -29,22 +24,12 @@ const MainContent = ({ children }: { children: ReactNode }) => (
   </main>
 );
 
-const LayoutContent = ({ children }: AppLayoutProps) => {
+const LayoutContent = ({ children, initialSidebarCollapsed }: AppLayoutProps) => {
+  useHydrateAtoms([[sidebarCollapsedAtom, initialSidebarCollapsed]]);
   const [sidebarOpen] = useAtom(mobileNavigationDrawerOpenAtom);
   const [, toggleSidebar] = useAtom(toggleSidebarAtom);
-  const [isCollapsed, setIsCollapsed] = useAtom(sidebarCollapsedAtom);
+  const [isCollapsed] = useAtom(sidebarCollapsedAtom);
   const toggleSfwMode = useToggleSfwModeMutation();
-
-  useEffect(() => {
-    const stored = typeof window !== "undefined" ? window.localStorage.getItem(STORAGE_KEY) : null;
-    if (stored !== null) {
-      try {
-        setIsCollapsed(JSON.parse(stored));
-      } catch {
-        // Ignore parse errors
-      }
-    }
-  }, [setIsCollapsed]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -117,8 +102,6 @@ const LayoutContent = ({ children }: AppLayoutProps) => {
   );
 };
 
-export const AppLayout = ({ children }: AppLayoutProps) => (
-  <QueryClientProvider client={queryClient}>
-    <LayoutContent>{children}</LayoutContent>
-  </QueryClientProvider>
+export const AppLayout = ({ children, initialSidebarCollapsed }: AppLayoutProps) => (
+  <LayoutContent initialSidebarCollapsed={initialSidebarCollapsed}>{children}</LayoutContent>
 );

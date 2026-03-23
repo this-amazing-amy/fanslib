@@ -31,6 +31,7 @@
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist",
     "seed:dev-fixtures": "bun run src/scripts/seed-dev-fixtures.ts",
+    "clear-appdata": "bun run src/scripts/clear-appdata.ts",
     "format": "oxfmt -c ../../../.oxfmtrc.json --write src/",
     "format:check": "oxfmt -c ../../../.oxfmtrc.json --check src/"
   },

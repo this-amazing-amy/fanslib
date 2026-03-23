@@ -12,6 +12,7 @@ type DatapointItem = {
 type ActiveFypPostItem = {
   postMediaId: string;
   postId: string;
+  fanslyPostId: string | null;
   mediaId: string;
   caption: string | null;
   totalViews: number;
@@ -23,7 +24,7 @@ type ActiveFypPostItem = {
 export const fetchActiveFypPosts = async (
   query: z.infer<typeof ActiveFypPostsQuerySchema>
 ): Promise<ActiveFypPostItem[]> => {
-  const sortBy = query.sortBy ?? "views";
+  const sortBy = query.sortBy ?? "engagementSeconds";
   const dataSource = await db();
   const postRepository = dataSource.getRepository(Post);
 
@@ -61,6 +62,7 @@ export const fetchActiveFypPosts = async (
     items.push({
       postMediaId: pm.id,
       postId: post.id,
+      fanslyPostId: post.fanslyPostId ?? null,
       mediaId: pm.media?.id ?? "",
       caption: post.caption,
       totalViews: agg.totalViews,

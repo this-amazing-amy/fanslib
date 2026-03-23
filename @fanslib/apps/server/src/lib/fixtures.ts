@@ -4,7 +4,7 @@ import { seedChannelFixtures } from "../features/channels/fixtures";
 import { seedContentScheduleFixtures } from "../features/content-schedules/fixtures";
 import { seedFilterPresetFixtures } from "../features/filter-presets/fixtures";
 import { seedHashtagFixtures } from "../features/hashtags/fixtures";
-import { seedMediaFixtures } from "../features/library/fixtures";
+import { seedFixtureThumbnails, seedMediaFixtures } from "../features/library/fixtures";
 import { seedPostFixtures } from "../features/posts/fixtures";
 import { seedShootFixtures } from "../features/shoots/fixtures";
 import { seedSnippetFixtures } from "../features/snippets/fixtures";
@@ -40,6 +40,7 @@ export const seedAllFixtures = async (dataSource?: DataSource): Promise<FixtureD
 
   if (process.env.FANSLIB_SEED_DEMO_DATA === "1") {
     await seedFanslyAnalyticsFixtures(ds);
+    await seedFixtureThumbnails();
   }
 
   return {

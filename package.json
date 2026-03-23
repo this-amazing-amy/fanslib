@@ -19,6 +19,7 @@
     "typecheck": "turbo run typecheck",
     "storybook": "turbo run storybook",
     "clean": "turbo run clean",
+    "clear-appdata": "bun run --cwd @fanslib/apps/server clear-appdata",
     "format": "turbo run format",
     "format:check": "turbo run format:check",
     "deploy": "./scripts/deploy.sh"

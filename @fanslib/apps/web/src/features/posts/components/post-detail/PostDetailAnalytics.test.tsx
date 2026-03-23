@@ -19,19 +19,24 @@ vi.mock("~/components/MediaPreview", () => ({
   MediaPreview: () => <div data-testid="media-preview" />,
 }));
 
-// Mock visx chart components to avoid rendering complexities in tests
-vi.mock("@visx/responsive", () => ({
-  ParentSize: ({ children }: { children: (args: { width: number }) => React.ReactNode }) =>
-    children({ width: 600 }),
-}));
-
-vi.mock("@visx/xychart", () => ({
-  XYChart: ({ children }: { children: React.ReactNode }) => <svg>{children}</svg>,
-  AreaSeries: () => null,
-  Axis: () => null,
-  Grid: () => null,
-  Tooltip: () => null,
-  buildChartTheme: () => ({}),
+vi.mock("./AnalyticsViewsChart", () => ({
+  AnalyticsViewsChart: ({
+    metric = "views",
+  }: {
+    metric?: "views" | "engagementPercent" | "engagementSeconds";
+  }) => {
+    const title =
+      metric === "engagementPercent"
+        ? "Engagement % Over Time"
+        : metric === "engagementSeconds"
+          ? "Engagement Time (s) Over Time"
+          : "Views Over Time";
+    return (
+      <div data-testid="analytics-views-chart">
+        <h3>{title}</h3>
+      </div>
+    );
+  },
 }));
 
 import { usePostMediaAnalyticsQuery } from "~/lib/queries/analytics";
