@@ -1,6 +1,7 @@
 import { ChannelBadge } from "~/components/ChannelBadge";
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
 import type { useContentSchedulesQuery } from "~/lib/queries/content-schedules";
+import { useScheduleHover } from "./ScheduleHoverContext";
 
 type Schedule = NonNullable<ReturnType<typeof useContentSchedulesQuery>["data"]>[number];
 
@@ -21,9 +22,14 @@ const formatCadence = (schedule: Schedule): string => {
 
 export const ScheduleCard = ({ schedule }: ScheduleCardProps) => {
   const cadence = formatCadence(schedule);
+  const { setHoveredScheduleId } = useScheduleHover();
 
   return (
-    <div className="p-3 space-y-2">
+    <div
+      className="p-3 space-y-2"
+      onMouseEnter={() => setHoveredScheduleId(schedule.id)}
+      onMouseLeave={() => setHoveredScheduleId(null)}
+    >
       <div className="flex items-center gap-2">
         <ContentScheduleBadge
           name={schedule.name}

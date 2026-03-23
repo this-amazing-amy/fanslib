@@ -1,11 +1,14 @@
 import { Outlet } from "@tanstack/react-router";
+import { ScheduleHoverProvider } from "./ScheduleHoverContext";
 import { SchedulesSidebar } from "./SchedulesSidebar";
 
 export const SchedulesLayout = () => (
-  <div className="flex h-full">
-    <SchedulesSidebar />
-    <div className="flex-1 overflow-auto">
-      <Outlet />
+  <ScheduleHoverProvider>
+    <div className="flex h-full">
+      <SchedulesSidebar />
+      <div className="flex-1 overflow-auto">
+        <Outlet />
+      </div>
     </div>
-  </div>
+  </ScheduleHoverProvider>
 );
