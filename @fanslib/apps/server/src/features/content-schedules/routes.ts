@@ -18,6 +18,11 @@ import {
   fetchVirtualPosts,
 } from "./operations/generate-virtual-posts";
 import {
+  LinkChannelRequestBodySchema,
+  linkChannelToSchedule,
+} from "./operations/schedule-channel/link";
+import { unlinkChannelFromSchedule } from "./operations/schedule-channel/unlink";
+import {
   CreateSkippedSlotRequestBodySchema,
   createSkippedSlot,
 } from "./operations/skipped-slots/create";
@@ -80,6 +85,30 @@ export const contentSchedulesRoutes = new Hono()
       return notFound(c, "Content schedule not found");
     }
     return c.json({ success: true });
+  })
+  .post(
+    "/:id/link-channel",
+    zValidator("json", LinkChannelRequestBodySchema, validationError),
+    async (c) => {
+      const id = c.req.param("id");
+      const { channelId } = c.req.valid("json");
+      const result = await linkChannelToSchedule(id, channelId);
+      if ("error" in result) {
+        if (result.error === "not-found") return notFound(c, "Content schedule not found");
+        return c.json({ error: "Channel already linked to this schedule" }, 409);
+      }
+      return c.json(result.data);
+    },
+  )
+  .delete("/:id/unlink-channel/:channelId", async (c) => {
+    const id = c.req.param("id");
+    const channelId = c.req.param("channelId");
+    const result = await unlinkChannelFromSchedule(id, channelId);
+    if ("error" in result) {
+      if (result.error === "not-found") return notFound(c, "Content schedule not found");
+      return notFound(c, "Channel is not linked to this schedule");
+    }
+    return c.json(result.data);
   })
   .post(
     "/skipped-slots",

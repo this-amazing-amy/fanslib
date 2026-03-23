@@ -1,7 +1,9 @@
 import { insertCaptionIntoElement, observeFanslyCaptionInput } from "./caption-inserter";
-import { debug } from "./debug-log";
 import { installFetchInterceptor } from "./fetch-interceptor";
 import { installXhrInterceptor } from "./xhr-interceptor";
+import { createDebugLogger } from "../lib/debug";
+
+const debug = createDebugLogger("[FansLib:Interceptor:MainWorld]");
 
 // Re-export CandidateItem so existing consumers can still import it from here
 export type { CandidateItem } from "./candidate-extractor";

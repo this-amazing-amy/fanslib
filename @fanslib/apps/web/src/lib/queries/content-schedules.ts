@@ -125,6 +125,43 @@ export const useDeleteContentScheduleMutation = () => {
   });
 };
 
+export const useLinkChannelToScheduleMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ scheduleId, channelId }: { scheduleId: string; channelId: string }) => {
+      const result = await api.api["content-schedules"][":id"]["link-channel"].$post({
+        param: { id: scheduleId },
+        json: { channelId },
+      });
+      return result.json();
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contentSchedules.all() });
+      queryClient.setQueryData(QUERY_KEYS.contentSchedules.byId(variables.scheduleId), data);
+    },
+  });
+};
+
+export const useUnlinkChannelFromScheduleMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ scheduleId, channelId }: { scheduleId: string; channelId: string }) => {
+      const result = await api.api["content-schedules"][":id"]["unlink-channel"][
+        ":channelId"
+      ].$delete({
+        param: { id: scheduleId, channelId },
+      });
+      return result.json();
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contentSchedules.all() });
+      queryClient.setQueryData(QUERY_KEYS.contentSchedules.byId(variables.scheduleId), data);
+    },
+  });
+};
+
 export const useSkipScheduleSlotMutation = () => {
   const queryClient = useQueryClient();
 
