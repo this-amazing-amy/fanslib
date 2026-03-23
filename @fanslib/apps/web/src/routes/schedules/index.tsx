@@ -1,10 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { ScheduleCalendarOverview } from "~/features/schedules/components/ScheduleCalendarOverview";
 
-const SchedulesIndex = () => (
-  <div className="flex items-center justify-center h-full text-base-content/50">
-    <p className="text-lg">Select a schedule from the sidebar to view details</p>
-  </div>
-);
+const SchedulesIndex = () => <ScheduleCalendarOverview />;
 
 export const Route = createFileRoute("/schedules/")({
   component: SchedulesIndex,
