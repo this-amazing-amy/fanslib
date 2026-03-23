@@ -62,6 +62,45 @@ describe("Posts Routes", () => {
         expect(post.status).toBe("draft");
       });
     });
+
+    test("search matches against post caption", async () => {
+      const filters = JSON.stringify({ search: "amazing content" });
+      const response = await app.request(`/api/posts/all?filters=${encodeURIComponent(filters)}`);
+      const data = await parseResponse<{ posts: Post[] }>(response);
+
+      expect(data?.posts?.length).toBeGreaterThanOrEqual(1);
+      expect(data?.posts?.some((p: Post) => p.caption?.includes("amazing content"))).toBe(true);
+    });
+
+    test("search matches against post title", async () => {
+      const channel = fixtures.channels.channels.find((c) => c.typeId === "manyvids");
+      if (!channel) {
+        throw new Error("No manyvids channel fixture available");
+      }
+
+      // Create a post with a unique title
+      const createResponse = await app.request("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: "UniqueSearchableTitle",
+          caption: "Some unrelated caption",
+          status: "draft" as const,
+          channelId: channel.id,
+          date: new Date().toISOString(),
+          mediaIds: [],
+        }),
+      });
+      expect(createResponse.status).toBe(200);
+
+      // Search for the title
+      const filters = JSON.stringify({ search: "UniqueSearchableTitle" });
+      const response = await app.request(`/api/posts/all?filters=${encodeURIComponent(filters)}`);
+      const data = await parseResponse<{ posts: Post[] }>(response);
+
+      expect(data?.posts?.length).toBeGreaterThanOrEqual(1);
+      expect(data?.posts?.some((p: Post) => p.title === "UniqueSearchableTitle")).toBe(true);
+    });
   });
 
   describe("GET /api/posts/by-id/:id", () => {
