@@ -7,6 +7,7 @@ import { Link2 } from "lucide-react";
 import { DeleteConfirmDialog } from "~/components/ui/DeleteConfirmDialog";
 import { useDebounce } from "~/hooks/useDebounce";
 import { usePrefersReducedMotion } from "~/hooks/usePrefersReducedMotion";
+import { TITLE_CHANNEL_TYPES } from "~/lib/channel-types";
 import { cn } from "~/lib/cn";
 import { api } from "~/lib/api/hono-client";
 import { useDeletePostMutation, useUpdatePostMutation } from "~/lib/queries/posts";
@@ -30,6 +31,7 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
   const updatePostMutation = useUpdatePostMutation();
   const deletePostMutation = useDeletePostMutation();
   const [localCaption, setLocalCaption] = useState(item.post.caption ?? "");
+  const [localTitle, setLocalTitle] = useState(item.post.title ?? "");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const postMedia = item.post.postMedia ?? [];
@@ -57,7 +59,8 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
 
   useEffect(() => {
     setLocalCaption(item.post.caption ?? "");
-  }, [item.post.id, item.post.caption]);
+    setLocalTitle(item.post.title ?? "");
+  }, [item.post.id, item.post.caption, item.post.title]);
 
   useEffect(() => {
     setSelectedLinkedPostIds(linkedPostIds);
@@ -78,13 +81,16 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
 
   const isLinkedToExpanded = linkedPostIdsForExpanded.has(item.post.id);
 
-  const saveCaption = useCallback(
-    async (caption: string, syncToPostIds: string[]) => {
+  const showTitleInput = TITLE_CHANNEL_TYPES.has(item.post.channel.type.id);
+
+  const saveCaptionAndTitle = useCallback(
+    async (caption: string, title: string, syncToPostIds: string[]) => {
       try {
         await updatePostMutation.mutateAsync({
           id: item.post.id,
           updates: {
             caption: caption.trim() || null,
+            title: title.trim() || null,
             syncToPostIds: syncToPostIds.length > 0 ? syncToPostIds : undefined,
           },
         });
@@ -95,17 +101,23 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
     [item.post.id, updatePostMutation],
   );
 
-  const debouncedSaveCaption = useDebounce(saveCaption, 1000);
+  const debouncedSave = useDebounce(saveCaptionAndTitle, 1000);
 
   const updateCaption = (nextCaption: string) => {
     setLocalCaption(nextCaption);
-    debouncedSaveCaption(nextCaption, selectedLinkedPostIds);
+    debouncedSave(nextCaption, localTitle, selectedLinkedPostIds);
+  };
+
+  const updateTitle = (nextTitle: string) => {
+    setLocalTitle(nextTitle);
+    debouncedSave(localCaption, nextTitle, selectedLinkedPostIds);
   };
 
   const saveAndAdvance = async () => {
     const status = getCompletionStatus(item.post.channel.type.id);
     const updates = {
       caption: localCaption.trim() ? localCaption.trim() : null,
+      title: localTitle.trim() ? localTitle.trim() : null,
       status,
       syncToPostIds: selectedLinkedPostIds.length > 0 ? selectedLinkedPostIds : undefined,
     };
@@ -192,6 +204,9 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
               mediaTagQueries={mediaTagQueries}
               localCaption={localCaption}
               updateCaption={updateCaption}
+              showTitleInput={showTitleInput}
+              localTitle={localTitle}
+              updateTitle={updateTitle}
               onKeyDown={onKeyDown}
               selectedLinkedPostIds={selectedLinkedPostIds}
               onLinkedPostSelectionChange={handleLinkedPostSelectionChange}

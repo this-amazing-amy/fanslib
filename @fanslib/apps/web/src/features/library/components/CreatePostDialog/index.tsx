@@ -18,6 +18,7 @@ import { Textarea } from "~/components/ui/Textarea";
 import { CombinedMediaSelection } from "~/features/library/components/CombinedMediaSelection";
 import { RecentPostsPanel } from "~/features/posts/components/RecentPostsPanel";
 import { usePrefersReducedMotion } from "~/hooks/usePrefersReducedMotion";
+import { TITLE_CHANNEL_TYPES } from "~/lib/channel-types";
 import { cn } from "~/lib/cn";
 import { findNextUnfilledSlot } from "~/lib/find-next-unfilled-slot";
 import { useChannelsQuery } from "~/lib/queries/channels";
@@ -52,8 +53,6 @@ type CreatePostDialogProps = {
 };
 
 const toast = () => {};
-
-const TITLE_CHANNEL_TYPES = new Set(["manyvids", "clips4sale"]);
 
 const CAPTION_MAX_LENGTH: Record<string, number> = {
   reddit: 40000,
