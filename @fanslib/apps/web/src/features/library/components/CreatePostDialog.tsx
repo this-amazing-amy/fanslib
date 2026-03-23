@@ -51,6 +51,8 @@ type CreatePostDialogProps = {
 
 const toast = () => {};
 
+const TITLE_CHANNEL_TYPES = new Set(["manyvids", "clips4sale"]);
+
 const CAPTION_MAX_LENGTH: Record<string, number> = {
   reddit: 40000,
   clips4sale: Infinity,
@@ -108,6 +110,7 @@ export const CreatePostDialog = ({
   const [status, setStatus] = useState<PostStatus>(initialStatus ?? "draft");
   const [selectedMedia, setSelectedMedia] = useState<Media[]>(media);
   const [caption, setCaption] = useState(initialCaption ?? "");
+  const [postTitle, setPostTitle] = useState("");
   const [isOtherCaptionsOpen, setIsOtherCaptionsOpen] = useState(false);
   const [shouldRedirect, setShouldRedirect] = useState(initialShouldRedirect);
 
@@ -125,6 +128,7 @@ export const CreatePostDialog = ({
 
   const selectedChannelData = (channels ?? []).find((c) => c.id === selectedChannel[0]);
   const isRedditChannel = selectedChannelData?.type.id === "reddit";
+  const showTitleInput = selectedChannelData ? TITLE_CHANNEL_TYPES.has(selectedChannelData.type.id) : false;
   const channelCaptionMaxLength = getCaptionMaxLength(selectedChannelData?.type.id);
 
   const minDateTime = useMemo(() => new Date(), []);
@@ -142,6 +146,7 @@ export const CreatePostDialog = ({
   useEffect(() => {
     if (!open) return;
     setCaption(initialCaption ?? "");
+    setPostTitle("");
   }, [open, initialCaption]);
 
   useEffect(() => {
@@ -227,6 +232,7 @@ export const CreatePostDialog = ({
           date: selectedDate,
           channelId: selectedChannel[0],
           status,
+          title: showTitleInput && postTitle ? postTitle : null,
           caption: caption || null,
           subredditId: isRedditChannel ? selectedSubreddits[0] : undefined,
           mediaIds: selectedMedia.map((m) => m.id),
@@ -246,6 +252,7 @@ export const CreatePostDialog = ({
             // Clear selection for next slot
             setSelectedMedia([]);
             setCaption("");
+            setPostTitle("");
             // Navigate to next slot
             onNavigateToSlot(nextSlot);
           } else {
@@ -270,6 +277,8 @@ export const CreatePostDialog = ({
       selectedMedia,
       onOpenChange,
       caption,
+      postTitle,
+      showTitleInput,
       navigate,
       shouldRedirect,
       isRedditChannel,
@@ -294,6 +303,7 @@ export const CreatePostDialog = ({
       // Clear selection for next slot
       setSelectedMedia([]);
       setCaption("");
+      setPostTitle("");
       // Navigate to next slot
       onNavigateToSlot(nextSlot);
     } else {
@@ -555,6 +565,18 @@ export const CreatePostDialog = ({
                         }
                       />
                     </div>
+                    {showTitleInput && (
+                      <div className="flex flex-col gap-2">
+                        <label className="text-sm font-medium">Title</label>
+                        <input
+                          type="text"
+                          value={postTitle}
+                          onChange={(e) => setPostTitle(e.target.value)}
+                          placeholder="Enter a title for this post..."
+                          className="input input-bordered w-full"
+                        />
+                      </div>
+                    )}
                     <div className="flex flex-col gap-2">
                       <label className="text-sm font-medium">Caption</label>
                       <div className="relative">
