@@ -6,6 +6,7 @@ import { ChannelBadge } from "~/components/ChannelBadge";
 import { Button } from "~/components/ui/Button";
 import { MediaDragProvider } from "~/contexts/MediaDragContext";
 import { PostDetailCaptionInput } from "~/features/posts/components/post-detail/PostDetailCaptionInput";
+import { PostDetailTitleInput } from "~/features/posts/components/post-detail/PostDetailTitleInput";
 import { PostDetailDateTimeInputs } from "~/features/posts/components/post-detail/PostDetailDateTimeInputs";
 import { PostDetailAnalytics } from "~/features/posts/components/post-detail/PostDetailAnalytics";
 import { PostDetailMedia } from "~/features/posts/components/post-detail/PostDetailMedia";
@@ -15,6 +16,7 @@ import { PostDetailScheduleSelect } from "~/features/posts/components/post-detai
 import { PostDetailStatusButtons } from "~/features/posts/components/post-detail/PostDetailStatusButtons";
 import { PostDetailTemporalContext } from "~/features/posts/components/post-detail/PostDetailTemporalContext";
 import { PostDetailUrlInput } from "~/features/posts/components/post-detail/PostDetailUrlInput";
+import { TITLE_CHANNEL_TYPES } from "~/lib/channel-types";
 import { usePostQuery } from "~/lib/queries/posts";
 
 type Post = PostWithRelations;
@@ -94,6 +96,9 @@ const PostDetailRoute = () => {
               <PostDetailScheduleSelect post={normalizedPost} />
               <PostDetailDateTimeInputs post={normalizedPost} />
               <PostDetailUrlInput post={normalizedPost} />
+              {TITLE_CHANNEL_TYPES.has(normalizedPost.channel.type.id) && (
+                <PostDetailTitleInput post={normalizedPost} />
+              )}
               <PostDetailCaptionInput post={normalizedPost} />
             </div>
           </div>

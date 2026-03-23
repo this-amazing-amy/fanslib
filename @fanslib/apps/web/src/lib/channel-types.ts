@@ -47,3 +47,5 @@ export const CHANNEL_TYPES = {
 } as const;
 
 export type ChannelTypeId = keyof typeof CHANNEL_TYPES;
+
+export const TITLE_CHANNEL_TYPES = new Set<string>(["manyvids", "clips4sale"]);
