@@ -38,7 +38,7 @@ export const seedAllFixtures = async (dataSource?: DataSource): Promise<FixtureD
   const snippets = await seedSnippetFixtures(ds, channels.channels);
   const filterPresets = await seedFilterPresetFixtures(ds);
 
-  if (process.env.FANSLY_DEV_ANALYTICS_FIXTURES === "1") {
+  if (process.env.FANSLIB_SEED_DEMO_DATA === "1") {
     await seedFanslyAnalyticsFixtures(ds);
   }
 
