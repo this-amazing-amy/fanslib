@@ -2,13 +2,16 @@ import type { ContentSchedule } from "./entity";
 
 export type ContentScheduleFixture = Omit<
   ContentSchedule,
-  "createdAt" | "updatedAt" | "mediaFilters" | "channel" | "scheduleChannels"
->;
+  "createdAt" | "updatedAt" | "mediaFilters" | "scheduleChannels"
+> & {
+  /** channelId used to seed ScheduleChannel rows in fixtures */
+  fixtureChannelId: string;
+};
 
 export const CONTENT_SCHEDULE_FIXTURES: ContentScheduleFixture[] = [
   {
     id: "schedule-1",
-    channelId: "channel-1",
+    fixtureChannelId: "channel-1",
     name: "Daily Posts",
     emoji: "📅",
     color: "#6366f1",
@@ -20,7 +23,7 @@ export const CONTENT_SCHEDULE_FIXTURES: ContentScheduleFixture[] = [
   },
   {
     id: "schedule-2",
-    channelId: "channel-2",
+    fixtureChannelId: "channel-2",
     name: "Weekly Content",
     emoji: "📆",
     color: "#22c55e",

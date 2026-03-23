@@ -45,23 +45,7 @@ export const assignStandardScheduleSlots = async (
 	slots: Date[],
 	existingUsedMediaIds: string[] = [],
 ): Promise<ScheduleAssignmentResult> => {
-	const targetChannels =
-		schedule.scheduleChannels.length > 0
-			? schedule.scheduleChannels
-			: schedule.channel
-				? [
-						{
-							channel: schedule.channel,
-							scheduleId: schedule.id,
-							channelId: schedule.channel.id,
-							mediaFilterOverrides: null,
-							sortOrder: 0,
-							id: "",
-							createdAt: new Date(),
-							updatedAt: new Date(),
-						} as ScheduleChannel & { channel: Channel },
-					]
-				: [];
+	const targetChannels = schedule.scheduleChannels;
 
 	if (targetChannels.length === 0) {
 		return { createdPosts: [], unfilled: [] };

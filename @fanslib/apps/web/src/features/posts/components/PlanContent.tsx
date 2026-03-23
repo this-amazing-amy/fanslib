@@ -78,9 +78,6 @@ export const PlanContent = ({ initialRange }: PlanContentProps) => {
           .filter((sc) => sc.channel != null)
           .map((sc) => sc.channel.id);
       }
-      if (schedule.channel) {
-        return [schedule.channel.id];
-      }
       return [];
     });
     return [...new Set(ids)];

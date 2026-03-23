@@ -13,14 +13,13 @@ export const ScheduleChannelWithChannelSchema = ScheduleChannelSchema.extend({
   channel: ChannelSchema,
 });
 
-export const ContentScheduleWithChannelSchema = ContentScheduleSchema.extend({
-  channel: ChannelSchema.nullable(),
+export const ContentScheduleWithChannelsSchema = ContentScheduleSchema.extend({
   skippedSlots: z.array(SkippedScheduleSlotSchema),
   scheduleChannels: z.array(ScheduleChannelWithChannelSchema),
 });
 
 export const FetchContentSchedulesByChannelResponseSchema = z.array(
-  ContentScheduleWithChannelSchema,
+  ContentScheduleWithChannelsSchema,
 );
 
 export const fetchContentSchedulesByChannel = async (
@@ -36,19 +35,19 @@ export const fetchContentSchedulesByChannel = async (
   });
   const scheduleIdsFromChannels = scheduleChannels.map((sc) => sc.scheduleId);
 
+  if (scheduleIdsFromChannels.length === 0) {
+    return [];
+  }
+
   const schedules = await scheduleRepo
     .createQueryBuilder("schedule")
-    .leftJoinAndSelect("schedule.channel", "channel")
-    .leftJoinAndSelect("channel.type", "channelType")
-    .leftJoinAndSelect("channel.defaultHashtags", "channelHashtags")
     .leftJoinAndSelect("schedule.skippedSlots", "skippedSlots")
     .leftJoinAndSelect("schedule.scheduleChannels", "scheduleChannels")
     .leftJoinAndSelect("scheduleChannels.channel", "scChannel")
     .leftJoinAndSelect("scChannel.type", "scChannelType")
     .leftJoinAndSelect("scChannel.defaultHashtags", "scChannelHashtags")
-    .where("schedule.channelId = :channelId", { channelId })
-    .orWhere("schedule.id IN (:...scheduleIds)", {
-      scheduleIds: scheduleIdsFromChannels.length > 0 ? scheduleIdsFromChannels : ["__none__"],
+    .where("schedule.id IN (:...scheduleIds)", {
+      scheduleIds: scheduleIdsFromChannels,
     })
     .orderBy("schedule.createdAt", "DESC")
     .addOrderBy("scheduleChannels.sortOrder", "ASC")
@@ -56,7 +55,6 @@ export const fetchContentSchedulesByChannel = async (
 
   return schedules.map((schedule) => ({
     ...schedule,
-    channel: schedule.channel ?? null,
     scheduleChannels: schedule.scheduleChannels ?? [],
   }));
 };

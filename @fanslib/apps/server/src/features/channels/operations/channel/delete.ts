@@ -3,7 +3,7 @@ import { db } from "../../../../lib/db";
 import { Channel } from "../../entity";
 import { Subreddit } from "../../../subreddits/entity";
 import { Post } from "../../../posts/entity";
-import { ContentSchedule, ScheduleChannel } from "../../../content-schedules/entity";
+import { ScheduleChannel } from "../../../content-schedules/entity";
 import { CaptionSnippet } from "../../../snippets/entity";
 
 export const DeleteChannelRequestParamsSchema = z.object({
@@ -46,10 +46,6 @@ export const deleteChannel = async (id: string): Promise<boolean> => {
 
     // Delete posts for this channel
     await postRepo.delete({ channelId: id });
-
-    // Delete content schedules (legacy single-channel schedules)
-    const scheduleRepo = manager.getRepository(ContentSchedule);
-    await scheduleRepo.delete({ channelId: id });
 
     // Finally delete the channel itself
     await manager.delete(Channel, { id });

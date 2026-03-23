@@ -654,12 +654,8 @@ export { FetchVirtualPostsRequestQuerySchema, FetchVirtualPostsResponseSchema };
 export type FetchVirtualPostsRequestQuery = z.infer<typeof FetchVirtualPostsRequestQuerySchema>;
 export type FetchVirtualPostsResponse = z.infer<typeof FetchVirtualPostsResponseSchema>;
 
-import {
-  ContentScheduleWithChannelSchema,
-  FetchContentSchedulesByChannelResponseSchema,
-} from "./features/content-schedules/operations/content-schedule/fetch-by-channel";
-export { ContentScheduleWithChannelSchema, FetchContentSchedulesByChannelResponseSchema };
-export type ContentScheduleWithChannel = z.infer<typeof ContentScheduleWithChannelSchema>;
+import { FetchContentSchedulesByChannelResponseSchema } from "./features/content-schedules/operations/content-schedule/fetch-by-channel";
+export { FetchContentSchedulesByChannelResponseSchema };
 export type FetchContentSchedulesByChannelResponse = z.infer<
   typeof FetchContentSchedulesByChannelResponseSchema
 >;
