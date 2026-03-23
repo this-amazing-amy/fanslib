@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SubredditsRouteImport } from './routes/subreddits'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SchedulesRouteImport } from './routes/schedules'
 import { Route as HashtagsRouteImport } from './routes/hashtags'
 import { Route as ContentRouteImport } from './routes/content'
 import { Route as ComponentShowcaseRouteImport } from './routes/component-showcase'
@@ -19,6 +20,8 @@ import { Route as CaptioningRouteImport } from './routes/captioning'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShootsIndexRouteImport } from './routes/shoots/index'
 import { Route as SettingsIndexRouteImport } from './routes/settings/index'
+import { Route as SchedulesIndexRouteImport } from './routes/schedules/index'
+import { Route as SchedulesIdRouteImport } from './routes/schedules/$id'
 import { Route as PlanIndexRouteImport } from './routes/plan/index'
 import { Route as LibraryIndexRouteImport } from './routes/library/index'
 import { Route as ShootsShootIdRouteImport } from './routes/shoots/$shootId'
@@ -47,6 +50,11 @@ const SubredditsRoute = SubredditsRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SchedulesRoute = SchedulesRouteImport.update({
+  id: '/schedules',
+  path: '/schedules',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HashtagsRoute = HashtagsRouteImport.update({
@@ -88,6 +96,16 @@ const SettingsIndexRoute = SettingsIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => SettingsRoute,
+} as any)
+const SchedulesIndexRoute = SchedulesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SchedulesRoute,
+} as any)
+const SchedulesIdRoute = SchedulesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => SchedulesRoute,
 } as any)
 const PlanIndexRoute = PlanIndexRouteImport.update({
   id: '/plan/',
@@ -194,8 +212,10 @@ export interface FileRoutesByFullPath {
   '/component-showcase': typeof ComponentShowcaseRoute
   '/content': typeof ContentRouteWithChildren
   '/hashtags': typeof HashtagsRoute
+  '/schedules': typeof SchedulesRouteWithChildren
   '/settings': typeof SettingsRouteWithChildren
   '/subreddits': typeof SubredditsRoute
+  '/schedules/$id': typeof SchedulesIdRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
   '/content/shoots': typeof ContentShootsRoute
   '/fansly/fyp': typeof FanslyFypRoute
@@ -211,6 +231,7 @@ export interface FileRoutesByFullPath {
   '/shoots/$shootId': typeof ShootsShootIdRoute
   '/library': typeof LibraryIndexRoute
   '/plan': typeof PlanIndexRoute
+  '/schedules/': typeof SchedulesIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/shoots': typeof ShootsIndexRoute
   '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
@@ -226,6 +247,7 @@ export interface FileRoutesByTo {
   '/content': typeof ContentRouteWithChildren
   '/hashtags': typeof HashtagsRoute
   '/subreddits': typeof SubredditsRoute
+  '/schedules/$id': typeof SchedulesIdRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
   '/content/shoots': typeof ContentShootsRoute
   '/fansly/fyp': typeof FanslyFypRoute
@@ -241,6 +263,7 @@ export interface FileRoutesByTo {
   '/shoots/$shootId': typeof ShootsShootIdRoute
   '/library': typeof LibraryIndexRoute
   '/plan': typeof PlanIndexRoute
+  '/schedules': typeof SchedulesIndexRoute
   '/settings': typeof SettingsIndexRoute
   '/shoots': typeof ShootsIndexRoute
   '/content/library/organize': typeof ContentLibraryOrganizeRoute
@@ -255,8 +278,10 @@ export interface FileRoutesById {
   '/component-showcase': typeof ComponentShowcaseRoute
   '/content': typeof ContentRouteWithChildren
   '/hashtags': typeof HashtagsRoute
+  '/schedules': typeof SchedulesRouteWithChildren
   '/settings': typeof SettingsRouteWithChildren
   '/subreddits': typeof SubredditsRoute
+  '/schedules/$id': typeof SchedulesIdRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
   '/content/shoots': typeof ContentShootsRoute
   '/fansly/fyp': typeof FanslyFypRoute
@@ -272,6 +297,7 @@ export interface FileRoutesById {
   '/shoots/$shootId': typeof ShootsShootIdRoute
   '/library/': typeof LibraryIndexRoute
   '/plan/': typeof PlanIndexRoute
+  '/schedules/': typeof SchedulesIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/shoots/': typeof ShootsIndexRoute
   '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
@@ -288,8 +314,10 @@ export interface FileRouteTypes {
     | '/component-showcase'
     | '/content'
     | '/hashtags'
+    | '/schedules'
     | '/settings'
     | '/subreddits'
+    | '/schedules/$id'
     | '/content/library'
     | '/content/shoots'
     | '/fansly/fyp'
@@ -305,6 +333,7 @@ export interface FileRouteTypes {
     | '/shoots/$shootId'
     | '/library'
     | '/plan'
+    | '/schedules/'
     | '/settings/'
     | '/shoots'
     | '/content/library/media'
@@ -320,6 +349,7 @@ export interface FileRouteTypes {
     | '/content'
     | '/hashtags'
     | '/subreddits'
+    | '/schedules/$id'
     | '/content/library'
     | '/content/shoots'
     | '/fansly/fyp'
@@ -335,6 +365,7 @@ export interface FileRouteTypes {
     | '/shoots/$shootId'
     | '/library'
     | '/plan'
+    | '/schedules'
     | '/settings'
     | '/shoots'
     | '/content/library/organize'
@@ -348,8 +379,10 @@ export interface FileRouteTypes {
     | '/component-showcase'
     | '/content'
     | '/hashtags'
+    | '/schedules'
     | '/settings'
     | '/subreddits'
+    | '/schedules/$id'
     | '/content/library'
     | '/content/shoots'
     | '/fansly/fyp'
@@ -365,6 +398,7 @@ export interface FileRouteTypes {
     | '/shoots/$shootId'
     | '/library/'
     | '/plan/'
+    | '/schedules/'
     | '/settings/'
     | '/shoots/'
     | '/content/library/media'
@@ -380,6 +414,7 @@ export interface RootRouteChildren {
   ComponentShowcaseRoute: typeof ComponentShowcaseRoute
   ContentRoute: typeof ContentRouteWithChildren
   HashtagsRoute: typeof HashtagsRoute
+  SchedulesRoute: typeof SchedulesRouteWithChildren
   SettingsRoute: typeof SettingsRouteWithChildren
   SubredditsRoute: typeof SubredditsRoute
   FanslyFypRoute: typeof FanslyFypRoute
@@ -398,6 +433,13 @@ declare module '@tanstack/react-router' {
       path: '/subreddits'
       fullPath: '/subreddits'
       preLoaderRoute: typeof SubredditsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/schedules': {
+      id: '/schedules'
+      path: '/schedules'
+      fullPath: '/schedules'
+      preLoaderRoute: typeof SchedulesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -455,6 +497,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/shoots'
       preLoaderRoute: typeof ShootsIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/schedules/': {
+      id: '/schedules/'
+      path: '/'
+      fullPath: '/schedules/'
+      preLoaderRoute: typeof SchedulesIndexRouteImport
+      parentRoute: typeof SchedulesRoute
+    }
+    '/schedules/$id': {
+      id: '/schedules/$id'
+      path: '/$id'
+      fullPath: '/schedules/$id'
+      preLoaderRoute: typeof SchedulesIdRouteImport
+      parentRoute: typeof SchedulesRoute
     }
     '/settings/': {
       id: '/settings/'
@@ -665,6 +721,20 @@ const SettingsRouteWithChildren = SettingsRoute._addFileChildren(
   SettingsRouteChildren,
 )
 
+interface SchedulesRouteChildren {
+  SchedulesIdRoute: typeof SchedulesIdRoute
+  SchedulesIndexRoute: typeof SchedulesIndexRoute
+}
+
+const SchedulesRouteChildren: SchedulesRouteChildren = {
+  SchedulesIdRoute: SchedulesIdRoute,
+  SchedulesIndexRoute: SchedulesIndexRoute,
+}
+
+const SchedulesRouteWithChildren = SchedulesRoute._addFileChildren(
+  SchedulesRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CaptioningRoute: CaptioningRoute,
@@ -672,6 +742,7 @@ const rootRouteChildren: RootRouteChildren = {
   ComponentShowcaseRoute: ComponentShowcaseRoute,
   ContentRoute: ContentRouteWithChildren,
   HashtagsRoute: HashtagsRoute,
+  SchedulesRoute: SchedulesRouteWithChildren,
   SettingsRoute: SettingsRouteWithChildren,
   SubredditsRoute: SubredditsRoute,
   FanslyFypRoute: FanslyFypRoute,

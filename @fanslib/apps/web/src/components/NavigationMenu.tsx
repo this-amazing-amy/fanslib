@@ -3,6 +3,7 @@ import { useAtom } from "jotai";
 import type { LucideIcon } from "lucide-react";
 import {
   Calendar,
+  CalendarClock,
   Camera,
   ChevronDown,
   ChevronRight,
@@ -36,6 +37,7 @@ const menuItems: MenuItem[] = [
   { to: "/content/shoots", label: "Shoots", icon: Camera },
   { to: "/plan", label: "Plan", icon: Calendar },
   { to: "/captioning", label: "Captioning", icon: MessageSquareText },
+  { to: "/schedules", label: "Schedules", icon: CalendarClock },
   { to: "/channels", label: "Channels", icon: Radio },
   { to: "/hashtags", label: "Hashtags", icon: Hash },
   { to: "/fansly/fyp", label: "Fansly", icon: FanslyIcon },
