@@ -14,7 +14,7 @@ export default defineConfig({
     viteReact(),
   ],
   resolve: {
-    dedupe: ["react", "react-dom"],
+    dedupe: ["react", "react-dom", "@tanstack/router-core"],
   },
   environments: {
     // TanStack Start uses 'ssr' as the server environment name

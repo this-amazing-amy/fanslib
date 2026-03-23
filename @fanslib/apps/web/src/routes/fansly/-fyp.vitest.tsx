@@ -18,7 +18,7 @@ vi.mock("~/lib/queries/analytics", async (importOriginal) => {
 });
 
 import { useActiveFypPostsQuery, useRepostCandidatesQuery } from "~/lib/queries/analytics";
-import { FanslyFypRoute } from "./fyp";
+import { FanslyFypRoute } from "./-fyp-page";
 
 const mockUseActiveFypPostsQuery = vi.mocked(useActiveFypPostsQuery);
 const mockUseRepostCandidatesQuery = vi.mocked(useRepostCandidatesQuery);

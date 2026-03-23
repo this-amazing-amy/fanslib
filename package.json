@@ -12,8 +12,8 @@
   "scripts": {
     "build": "turbo run build",
     "build:dev": "turbo run build --filter=!@fanslib/web && cd @fanslib/apps/web && bun run build:dev",
-    "dev": "turbo run dev --parallel",
-    "start": "turbo run start --parallel",
+    "dev": "turbo run dev",
+    "start": "turbo run start",
     "test": "turbo run test",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
@@ -25,9 +25,9 @@
     "deploy": "./scripts/deploy.sh"
   },
   "dependencies": {
-    "@tanstack/react-router": "^1.161.3",
-    "@tanstack/react-router-devtools": "^1.161.3",
-    "@tanstack/react-start": "^1.161.3",
+    "@tanstack/react-router": "^1.168.3",
+    "@tanstack/react-router-devtools": "^1.166.11",
+    "@tanstack/react-start": "^1.167.5",
     "fkill-cli": "^9.0.0",
     "sqlite3": "^5.1.7",
     "vite-plugin-node-polyfills": "^0.24.0"
@@ -47,6 +47,9 @@
   },
   "engines": {
     "bun": ">=1.0.0"
+  },
+  "overrides": {
+    "@tanstack/router-core": "1.168.3"
   },
   "packageManager": "bun@1.2.19"
 }
