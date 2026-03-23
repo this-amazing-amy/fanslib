@@ -32,6 +32,7 @@ import { Route as SettingsAppearanceRouteImport } from './routes/settings/appear
 import { Route as PostsPostIdRouteImport } from './routes/posts/$postId'
 import { Route as LibraryMediaIdRouteImport } from './routes/library/$mediaId'
 import { Route as FanslyFypRouteImport } from './routes/fansly/fyp'
+import { Route as DevMediaTileAspectRouteImport } from './routes/dev/media-tile-aspect'
 import { Route as ContentShootsRouteImport } from './routes/content/shoots'
 import { Route as ContentLibraryRouteImport } from './routes/content/library'
 import { Route as ContentLibraryOrganizeRouteImport } from './routes/content/library/organize'
@@ -154,6 +155,11 @@ const FanslyFypRoute = FanslyFypRouteImport.update({
   path: '/fansly/fyp',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DevMediaTileAspectRoute = DevMediaTileAspectRouteImport.update({
+  id: '/dev/media-tile-aspect',
+  path: '/dev/media-tile-aspect',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContentShootsRoute = ContentShootsRouteImport.update({
   id: '/shoots',
   path: '/shoots',
@@ -198,6 +204,7 @@ export interface FileRoutesByFullPath {
   '/subreddits': typeof SubredditsRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
   '/content/shoots': typeof ContentShootsRoute
+  '/dev/media-tile-aspect': typeof DevMediaTileAspectRoute
   '/fansly/fyp': typeof FanslyFypRoute
   '/library/$mediaId': typeof LibraryMediaIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
@@ -228,6 +235,7 @@ export interface FileRoutesByTo {
   '/subreddits': typeof SubredditsRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
   '/content/shoots': typeof ContentShootsRoute
+  '/dev/media-tile-aspect': typeof DevMediaTileAspectRoute
   '/fansly/fyp': typeof FanslyFypRoute
   '/library/$mediaId': typeof LibraryMediaIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
@@ -259,6 +267,7 @@ export interface FileRoutesById {
   '/subreddits': typeof SubredditsRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
   '/content/shoots': typeof ContentShootsRoute
+  '/dev/media-tile-aspect': typeof DevMediaTileAspectRoute
   '/fansly/fyp': typeof FanslyFypRoute
   '/library/$mediaId': typeof LibraryMediaIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
@@ -292,6 +301,7 @@ export interface FileRouteTypes {
     | '/subreddits'
     | '/content/library'
     | '/content/shoots'
+    | '/dev/media-tile-aspect'
     | '/fansly/fyp'
     | '/library/$mediaId'
     | '/posts/$postId'
@@ -322,6 +332,7 @@ export interface FileRouteTypes {
     | '/subreddits'
     | '/content/library'
     | '/content/shoots'
+    | '/dev/media-tile-aspect'
     | '/fansly/fyp'
     | '/library/$mediaId'
     | '/posts/$postId'
@@ -352,6 +363,7 @@ export interface FileRouteTypes {
     | '/subreddits'
     | '/content/library'
     | '/content/shoots'
+    | '/dev/media-tile-aspect'
     | '/fansly/fyp'
     | '/library/$mediaId'
     | '/posts/$postId'
@@ -382,6 +394,7 @@ export interface RootRouteChildren {
   HashtagsRoute: typeof HashtagsRoute
   SettingsRoute: typeof SettingsRouteWithChildren
   SubredditsRoute: typeof SubredditsRoute
+  DevMediaTileAspectRoute: typeof DevMediaTileAspectRoute
   FanslyFypRoute: typeof FanslyFypRoute
   LibraryMediaIdRoute: typeof LibraryMediaIdRoute
   PostsPostIdRoute: typeof PostsPostIdRoute
@@ -554,6 +567,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FanslyFypRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dev/media-tile-aspect': {
+      id: '/dev/media-tile-aspect'
+      path: '/dev/media-tile-aspect'
+      fullPath: '/dev/media-tile-aspect'
+      preLoaderRoute: typeof DevMediaTileAspectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/content/shoots': {
       id: '/content/shoots'
       path: '/shoots'
@@ -674,6 +694,7 @@ const rootRouteChildren: RootRouteChildren = {
   HashtagsRoute: HashtagsRoute,
   SettingsRoute: SettingsRouteWithChildren,
   SubredditsRoute: SubredditsRoute,
+  DevMediaTileAspectRoute: DevMediaTileAspectRoute,
   FanslyFypRoute: FanslyFypRoute,
   LibraryMediaIdRoute: LibraryMediaIdRoute,
   PostsPostIdRoute: PostsPostIdRoute,

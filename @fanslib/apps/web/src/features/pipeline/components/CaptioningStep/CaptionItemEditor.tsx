@@ -15,6 +15,9 @@ type CaptionItemEditorProps = {
   mediaTagQueries: { data?: MediaTagResult[] | undefined }[];
   localCaption: string;
   updateCaption: (caption: string) => void;
+  showTitleInput: boolean;
+  localTitle: string;
+  updateTitle: (title: string) => void;
   onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void;
   selectedLinkedPostIds: string[];
   onLinkedPostSelectionChange: (ids: string[]) => void;
@@ -28,6 +31,9 @@ export const CaptionItemEditor = ({
   mediaTagQueries,
   localCaption,
   updateCaption,
+  showTitleInput,
+  localTitle,
+  updateTitle,
   onKeyDown,
   selectedLinkedPostIds,
   onLinkedPostSelectionChange,
@@ -38,6 +44,18 @@ export const CaptionItemEditor = ({
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <div className="space-y-3">
         <MediaPreviewWithTags postMedia={postMedia} mediaTagQueries={mediaTagQueries} />
+        {showTitleInput && (
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium">Title</label>
+            <input
+              type="text"
+              value={localTitle}
+              onChange={(e) => updateTitle(e.target.value)}
+              placeholder="Add a title..."
+              className="input input-bordered w-full input-sm"
+            />
+          </div>
+        )}
         <div className="relative">
           <Textarea
             value={localCaption}

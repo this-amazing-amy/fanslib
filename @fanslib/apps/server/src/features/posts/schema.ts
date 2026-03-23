@@ -22,6 +22,7 @@ export const PostSchema = z.object({
   updatedAt: z.coerce.date(),
   postGroupId: z.string().nullable(),
   scheduleId: z.string().nullable(),
+  title: z.string().nullable(),
   caption: z.string().nullable(),
   date: z.coerce.date(),
   url: z.string().nullable(),

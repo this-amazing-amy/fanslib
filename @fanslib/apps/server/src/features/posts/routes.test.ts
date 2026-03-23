@@ -62,6 +62,45 @@ describe("Posts Routes", () => {
         expect(post.status).toBe("draft");
       });
     });
+
+    test("search matches against post caption", async () => {
+      const filters = JSON.stringify({ search: "amazing content" });
+      const response = await app.request(`/api/posts/all?filters=${encodeURIComponent(filters)}`);
+      const data = await parseResponse<{ posts: Post[] }>(response);
+
+      expect(data?.posts?.length).toBeGreaterThanOrEqual(1);
+      expect(data?.posts?.some((p: Post) => p.caption?.includes("amazing content"))).toBe(true);
+    });
+
+    test("search matches against post title", async () => {
+      const channel = fixtures.channels.channels.find((c) => c.typeId === "manyvids");
+      if (!channel) {
+        throw new Error("No manyvids channel fixture available");
+      }
+
+      // Create a post with a unique title
+      const createResponse = await app.request("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: "UniqueSearchableTitle",
+          caption: "Some unrelated caption",
+          status: "draft" as const,
+          channelId: channel.id,
+          date: new Date().toISOString(),
+          mediaIds: [],
+        }),
+      });
+      expect(createResponse.status).toBe(200);
+
+      // Search for the title
+      const filters = JSON.stringify({ search: "UniqueSearchableTitle" });
+      const response = await app.request(`/api/posts/all?filters=${encodeURIComponent(filters)}`);
+      const data = await parseResponse<{ posts: Post[] }>(response);
+
+      expect(data?.posts?.length).toBeGreaterThanOrEqual(1);
+      expect(data?.posts?.some((p: Post) => p.title === "UniqueSearchableTitle")).toBe(true);
+    });
   });
 
   describe("GET /api/posts/by-id/:id", () => {
@@ -187,6 +226,59 @@ describe("Posts Routes", () => {
       expect(data?.postMedia).toHaveLength(0);
     });
 
+    test("creates a post without title and stores null", async () => {
+      const channel = fixtures.channels.channels.find(
+        (fixtureChannel) => fixtureChannel.typeId !== CHANNEL_TYPES.reddit.id,
+      );
+      if (!channel) {
+        throw new Error("No channel fixtures available");
+      }
+
+      const postData = {
+        caption: "No title post",
+        status: "draft" as const,
+        channelId: channel.id,
+        date: new Date().toISOString(),
+        mediaIds: [],
+      };
+
+      const response = await app.request("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(postData),
+      });
+      expect(response.status).toBe(200);
+
+      const data = await parseResponse<Post>(response);
+      expect(data?.title).toBeNull();
+    });
+
+    test("creates a post with a title", async () => {
+      const channel = fixtures.channels.channels.find((c) => c.typeId === "manyvids");
+      if (!channel) {
+        throw new Error("No manyvids channel fixture available");
+      }
+
+      const postData = {
+        title: "My ManyVids Clip",
+        caption: "Check it out",
+        status: "draft" as const,
+        channelId: channel.id,
+        date: new Date().toISOString(),
+        mediaIds: [],
+      };
+
+      const response = await app.request("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(postData),
+      });
+      expect(response.status).toBe(200);
+
+      const data = await parseResponse<Post>(response);
+      expect(data?.title).toBe("My ManyVids Clip");
+    });
+
     test("creates post with media", async () => {
       const channel = fixtures.channels.channels.find((c) => c.typeId === CHANNEL_TYPES.fansly.id);
       const media1 = fixtures.media[0];
@@ -237,6 +329,28 @@ describe("Posts Routes", () => {
       const data = await parseResponse<Post>(response);
       expect(data?.caption).toBe("Updated caption");
       expect(data?.status).toBe("posted");
+      expect(data?.id).toBe(fixturePost.id);
+    });
+
+    test("updates post title", async () => {
+      const fixturePost = POST_FIXTURES[0];
+      if (!fixturePost) {
+        throw new Error("No post fixtures available");
+      }
+
+      const updateData = {
+        title: "Updated Title",
+      };
+
+      const response = await app.request(`/api/posts/by-id/${fixturePost.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updateData),
+      });
+      expect(response.status).toBe(200);
+
+      const data = await parseResponse<Post>(response);
+      expect(data?.title).toBe("Updated Title");
       expect(data?.id).toBe(fixturePost.id);
     });
 
