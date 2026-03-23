@@ -30,4 +30,13 @@ export const CHANNEL_FIXTURES: ChannelFixture[] = [
     mediaRepostCooldownHours: 720,
     defaultHashtags: [],
   },
+  {
+    id: "channel-4",
+    name: "ManyVids Store",
+    typeId: "manyvids",
+    description: "ManyVids channel",
+    postCooldownHours: null,
+    mediaRepostCooldownHours: null,
+    defaultHashtags: [],
+  },
 ];

@@ -51,7 +51,7 @@ export const MediaTile = memo((props: MediaTileProps) => {
   const withTags = props.withTags ?? false;
   const withFileName = props.withFileName ?? false;
   const withRepostStatus = props.withRepostStatus ?? false;
-  const { onMediaClick } = props;
+  const { onMediaClick, aspectFrameClassName } = props;
 
   const isHighlighted = useMemo(() => {
     if (lastClickedIndex === null || !hoveredMediaId) return false;
@@ -142,7 +142,7 @@ export const MediaTile = memo((props: MediaTileProps) => {
       }}
       {...dragAndDropProps}
     >
-      <div className="relative aspect-square overflow-hidden">
+      <div className={cn("relative overflow-hidden", aspectFrameClassName ?? "aspect-square")}>
         {media.type === "video" && (
           <MediaTileVideo
             media={media}
