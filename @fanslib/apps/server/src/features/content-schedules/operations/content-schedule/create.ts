@@ -17,8 +17,7 @@ export const ScheduleChannelInputSchema = z.object({
 });
 
 export const CreateContentScheduleRequestBodySchema = z.object({
-  channelId: z.string().optional(),
-  scheduleChannels: z.array(ScheduleChannelInputSchema).optional(),
+  scheduleChannels: z.array(ScheduleChannelInputSchema).min(1),
   name: z.string(),
   emoji: z.string().optional(),
   color: z.string().optional(),
@@ -34,7 +33,6 @@ export const ScheduleChannelWithChannelSchema = ScheduleChannelSchema.extend({
 });
 
 export const CreateContentScheduleResponseSchema = ContentScheduleSchema.extend({
-  channel: ChannelSchema.nullable(),
   scheduleChannels: z.array(ScheduleChannelWithChannelSchema),
 });
 
@@ -62,7 +60,6 @@ export const createContentSchedule = async (
     postsPerTimeframe: data.postsPerTimeframe,
     preferredDays: data.preferredDays,
     preferredTimes: data.preferredTimes,
-    channelId: data.channelId ?? null,
     id: scheduleId,
     createdAt: now,
     updatedAt: now,
@@ -71,8 +68,7 @@ export const createContentSchedule = async (
 
   await scheduleRepo.save(schedule);
 
-  const scheduleChannelsInput =
-    data.scheduleChannels ?? (data.channelId ? [{ channelId: data.channelId }] : []);
+  const scheduleChannelsInput = data.scheduleChannels;
 
   const scheduleChannelEntities = scheduleChannelsInput.map((sc, index) => {
     const entity = new ScheduleChannel();
@@ -87,21 +83,17 @@ export const createContentSchedule = async (
     return entity;
   });
 
-  if (scheduleChannelEntities.length > 0) {
-    await scheduleChannelRepo.save(scheduleChannelEntities);
-  }
+  await scheduleChannelRepo.save(scheduleChannelEntities);
 
   const result = await scheduleRepo.findOneOrFail({
     where: { id: scheduleId },
     relations: {
-      channel: { type: true, defaultHashtags: true },
       scheduleChannels: { channel: { type: true, defaultHashtags: true } },
     },
   });
 
   return {
     ...result,
-    channel: result.channel ?? null,
     scheduleChannels: result.scheduleChannels ?? [],
   };
 };

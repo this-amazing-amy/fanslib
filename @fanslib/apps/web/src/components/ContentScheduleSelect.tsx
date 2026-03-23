@@ -18,7 +18,9 @@ export const ContentScheduleSelect = ({
   const { data: allSchedules = [] } = useContentSchedulesQuery();
 
   const schedules = channelId
-    ? (allSchedules ?? []).filter((s) => s.channelId === channelId)
+    ? (allSchedules ?? []).filter((s) =>
+        s.scheduleChannels?.some((sc) => sc.channelId === channelId),
+      )
     : (allSchedules ?? []);
 
   const handleToggleSchedule = (scheduleId: string) => {

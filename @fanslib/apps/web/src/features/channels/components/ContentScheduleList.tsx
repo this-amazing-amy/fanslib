@@ -1,4 +1,4 @@
-import type { ContentScheduleWithChannel } from "@fanslib/server/schemas";
+import type { ContentScheduleWithChannels } from "@fanslib/server/schemas";
 import { Edit, Trash2 } from "lucide-react";
 import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
 import { MediaFilterSummary } from "~/components/MediaFilterSummary";
@@ -6,7 +6,7 @@ import { Button } from "~/components/ui/Button/Button";
 import { useDeleteContentScheduleMutation } from "~/lib/queries/content-schedules";
 import { parseMediaFilters } from "../content-schedule-helpers";
 
-type ContentSchedule = ContentScheduleWithChannel;
+type ContentSchedule = ContentScheduleWithChannels;
 
 type ContentScheduleListProps = {
   schedules: ContentSchedule[];

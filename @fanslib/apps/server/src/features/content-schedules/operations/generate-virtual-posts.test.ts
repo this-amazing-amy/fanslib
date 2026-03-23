@@ -7,6 +7,45 @@ import { createTestChannel, createTestPost } from "../../../test-utils/setup";
 import { ContentSchedule, ScheduleChannel, SkippedScheduleSlot } from "../entity";
 import { fetchVirtualPosts, generateScheduleDates } from "./generate-virtual-posts";
 
+const createScheduleWithChannel = async (
+  scheduleData: {
+    id: string;
+    name: string;
+    type: "daily" | "weekly" | "monthly";
+    postsPerTimeframe: number;
+    preferredDays?: string[] | null;
+    preferredTimes?: string[] | null;
+  },
+  channelId: string,
+) => {
+  const dataSource = getTestDataSource();
+  const scheduleRepo = dataSource.getRepository(ContentSchedule);
+  const scheduleChannelRepo = dataSource.getRepository(ScheduleChannel);
+
+  const schedule = scheduleRepo.create({
+    id: scheduleData.id,
+    name: scheduleData.name,
+    type: scheduleData.type,
+    postsPerTimeframe: scheduleData.postsPerTimeframe,
+    preferredDays: scheduleData.preferredDays ?? null,
+    preferredTimes: scheduleData.preferredTimes ?? null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  });
+  await scheduleRepo.save(schedule);
+
+  const sc = scheduleChannelRepo.create({
+    scheduleId: scheduleData.id,
+    channelId,
+    sortOrder: 0,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  });
+  await scheduleChannelRepo.save(sc);
+
+  return schedule;
+};
+
 describe("generateScheduleDates", () => {
   describe("daily schedules", () => {
     test("generates one slot per day at default time when no preferredTimes", () => {
@@ -288,21 +327,18 @@ describe("fetchVirtualPosts", () => {
 
   test("generates virtual posts for schedule", async () => {
     const channel = await createTestChannel();
-    const dataSource = getTestDataSource();
-    const scheduleRepo = dataSource.getRepository(ContentSchedule);
 
-    const schedule = scheduleRepo.create({
-      id: "test-schedule",
-      channelId: channel.id,
-      name: "Test Weekly",
-      type: "weekly",
-      postsPerTimeframe: 1,
-      preferredDays: ["Monday"],
-      preferredTimes: ["12:00"],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
-    await scheduleRepo.save(schedule);
+    await createScheduleWithChannel(
+      {
+        id: "test-schedule",
+        name: "Test Weekly",
+        type: "weekly",
+        postsPerTimeframe: 1,
+        preferredDays: ["Monday"],
+        preferredTimes: ["12:00"],
+      },
+      channel.id,
+    );
 
     const virtualPosts = await fetchVirtualPosts({
       channelIds: [channel.id],
@@ -318,21 +354,18 @@ describe("fetchVirtualPosts", () => {
 
   test("excludes slots where posts already exist", async () => {
     const channel = await createTestChannel();
-    const dataSource = getTestDataSource();
-    const scheduleRepo = dataSource.getRepository(ContentSchedule);
 
-    const schedule = scheduleRepo.create({
-      id: "test-schedule-existing",
-      channelId: channel.id,
-      name: "Test Weekly",
-      type: "weekly",
-      postsPerTimeframe: 2,
-      preferredDays: ["Monday", "Wednesday"],
-      preferredTimes: ["12:00"],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
-    await scheduleRepo.save(schedule);
+    await createScheduleWithChannel(
+      {
+        id: "test-schedule-existing",
+        name: "Test Weekly",
+        type: "weekly",
+        postsPerTimeframe: 2,
+        preferredDays: ["Monday", "Wednesday"],
+        preferredTimes: ["12:00"],
+      },
+      channel.id,
+    );
 
     await createTestPost(channel.id, {
       scheduleId: "test-schedule-existing",
@@ -352,21 +385,19 @@ describe("fetchVirtualPosts", () => {
   test("excludes skipped slots", async () => {
     const channel = await createTestChannel();
     const dataSource = getTestDataSource();
-    const scheduleRepo = dataSource.getRepository(ContentSchedule);
     const skippedRepo = dataSource.getRepository(SkippedScheduleSlot);
 
-    const schedule = scheduleRepo.create({
-      id: "test-schedule-skipped",
-      channelId: channel.id,
-      name: "Test Weekly",
-      type: "weekly",
-      postsPerTimeframe: 2,
-      preferredDays: ["Monday", "Wednesday"],
-      preferredTimes: ["12:00"],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
-    await scheduleRepo.save(schedule);
+    await createScheduleWithChannel(
+      {
+        id: "test-schedule-skipped",
+        name: "Test Weekly",
+        type: "weekly",
+        postsPerTimeframe: 2,
+        preferredDays: ["Monday", "Wednesday"],
+        preferredTimes: ["12:00"],
+      },
+      channel.id,
+    );
 
     const skipped = skippedRepo.create({
       scheduleId: "test-schedule-skipped",
@@ -386,22 +417,22 @@ describe("fetchVirtualPosts", () => {
 
   test("virtual posts have correct shape", async () => {
     const channel = await createTestChannel();
+
+    await createScheduleWithChannel(
+      {
+        id: "test-schedule-shape",
+        name: "Shape Test",
+        type: "daily",
+        postsPerTimeframe: 1,
+        preferredTimes: ["10:00"],
+      },
+      channel.id,
+    );
+
+    // Update emoji and color after creation
     const dataSource = getTestDataSource();
     const scheduleRepo = dataSource.getRepository(ContentSchedule);
-
-    const schedule = scheduleRepo.create({
-      id: "test-schedule-shape",
-      channelId: channel.id,
-      name: "Shape Test",
-      emoji: "📅",
-      color: "#ff0000",
-      type: "daily",
-      postsPerTimeframe: 1,
-      preferredTimes: ["10:00"],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
-    await scheduleRepo.save(schedule);
+    await scheduleRepo.update("test-schedule-shape", { emoji: "📅", color: "#ff0000" });
 
     const virtualPosts = await fetchVirtualPosts({
       channelIds: [channel.id],
@@ -449,7 +480,6 @@ describe("fetchVirtualPosts - multi-channel schedules", () => {
 
     const schedule = scheduleRepo.create({
       id: "multi-channel-schedule",
-      channelId: null,
       name: "Full-length Video",
       type: "weekly",
       postsPerTimeframe: 1,
@@ -499,7 +529,6 @@ describe("fetchVirtualPosts - multi-channel schedules", () => {
 
     const schedule = scheduleRepo.create({
       id: "grouped-schedule",
-      channelId: null,
       name: "Grouped Content",
       type: "daily",
       postsPerTimeframe: 1,
@@ -547,7 +576,6 @@ describe("fetchVirtualPosts - multi-channel schedules", () => {
 
     const schedule = scheduleRepo.create({
       id: "single-channel-new",
-      channelId: null,
       name: "Single Channel",
       type: "daily",
       postsPerTimeframe: 1,
@@ -586,7 +614,6 @@ describe("fetchVirtualPosts - multi-channel schedules", () => {
 
     const schedule = scheduleRepo.create({
       id: "filter-test-schedule",
-      channelId: null,
       name: "Filter Test",
       type: "daily",
       postsPerTimeframe: 1,
@@ -632,7 +659,6 @@ describe("fetchVirtualPosts - multi-channel schedules", () => {
 
     const schedule = scheduleRepo.create({
       id: "partial-filled-schedule",
-      channelId: null,
       name: "Partial Filled",
       type: "daily",
       postsPerTimeframe: 1,
@@ -684,7 +710,6 @@ describe("fetchVirtualPosts - multi-channel schedules", () => {
 
     const schedule = scheduleRepo.create({
       id: "target-channels-schedule",
-      channelId: null,
       name: "Target Channels Test",
       type: "daily",
       postsPerTimeframe: 1,
@@ -734,34 +759,6 @@ describe("fetchVirtualPosts - multi-channel schedules", () => {
     });
   });
 
-  test("legacy channelId schedule still works alongside new scheduleChannels", async () => {
-    const legacyChannel = await createTestChannel({ name: "Legacy Channel" });
-    const dataSource = getTestDataSource();
-    const scheduleRepo = dataSource.getRepository(ContentSchedule);
-
-    const schedule = scheduleRepo.create({
-      id: "legacy-schedule",
-      channelId: legacyChannel.id,
-      name: "Legacy Schedule",
-      type: "daily",
-      postsPerTimeframe: 1,
-      preferredTimes: ["09:00"],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
-    await scheduleRepo.save(schedule);
-
-    const virtualPosts = await fetchVirtualPosts({
-      channelIds: [legacyChannel.id],
-      fromDate: "2026-01-19T00:00:00Z",
-      toDate: "2026-01-19T23:59:59Z",
-    });
-
-    expect(virtualPosts.length).toBe(1);
-    expect(virtualPosts[0]?.channelId).toBe(legacyChannel.id);
-    expect(virtualPosts[0]?.scheduleId).toBe("legacy-schedule");
-  });
-
   test("multi-channel schedule with 2 posts/day generates correct slots", async () => {
     const channel1 = await createTestChannel({ name: "Multi A" });
     const channel2 = await createTestChannel({ name: "Multi B" });
@@ -771,7 +768,6 @@ describe("fetchVirtualPosts - multi-channel schedules", () => {
 
     const schedule = scheduleRepo.create({
       id: "multi-posts-schedule",
-      channelId: null,
       name: "Multiple Posts Per Day",
       type: "daily",
       postsPerTimeframe: 2,
@@ -826,7 +822,6 @@ describe("fetchVirtualPosts - multi-channel schedules", () => {
 
     const schedule = scheduleRepo.create({
       id: "skipped-multi-schedule",
-      channelId: null,
       name: "Skipped Multi",
       type: "daily",
       postsPerTimeframe: 1,

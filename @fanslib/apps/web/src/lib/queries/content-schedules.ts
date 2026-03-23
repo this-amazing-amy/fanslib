@@ -81,13 +81,8 @@ export const useCreateContentScheduleMutation = () => {
       const result = await api.api["content-schedules"].$post({ json: data });
       return result.json();
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contentSchedules.list() });
-      if (data && "channelId" in data && data.channelId) {
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.contentSchedules.byChannel(data.channelId),
-        });
-      }
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contentSchedules.all() });
     },
   });
 };
@@ -126,6 +121,43 @@ export const useDeleteContentScheduleMutation = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contentSchedules.all() });
+    },
+  });
+};
+
+export const useLinkChannelToScheduleMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ scheduleId, channelId }: { scheduleId: string; channelId: string }) => {
+      const result = await api.api["content-schedules"][":id"]["link-channel"].$post({
+        param: { id: scheduleId },
+        json: { channelId },
+      });
+      return result.json();
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contentSchedules.all() });
+      queryClient.setQueryData(QUERY_KEYS.contentSchedules.byId(variables.scheduleId), data);
+    },
+  });
+};
+
+export const useUnlinkChannelFromScheduleMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ scheduleId, channelId }: { scheduleId: string; channelId: string }) => {
+      const result = await api.api["content-schedules"][":id"]["unlink-channel"][
+        ":channelId"
+      ].$delete({
+        param: { id: scheduleId, channelId },
+      });
+      return result.json();
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.contentSchedules.all() });
+      queryClient.setQueryData(QUERY_KEYS.contentSchedules.byId(variables.scheduleId), data);
     },
   });
 };

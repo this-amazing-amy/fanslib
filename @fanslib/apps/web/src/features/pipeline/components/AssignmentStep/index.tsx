@@ -39,7 +39,7 @@ export const AssignmentStep = ({
   const { data: schedulesData } = useContentSchedulesQuery();
   const channels = useMemo(() => channelsData ?? [], [channelsData]);
   const schedules = (schedulesData ?? []).filter(
-    (schedule): schedule is typeof schedule & { channelId: string } => schedule.channelId !== null,
+    (schedule) => schedule.scheduleChannels.length > 0,
   );
   const schedulesForBreakdown = schedules.map((schedule) => ({
     ...schedule,

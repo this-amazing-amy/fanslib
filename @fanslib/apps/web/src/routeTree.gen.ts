@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SubredditsRouteImport } from './routes/subreddits'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SchedulesRouteImport } from './routes/schedules'
 import { Route as HashtagsRouteImport } from './routes/hashtags'
 import { Route as ContentRouteImport } from './routes/content'
 import { Route as ComponentShowcaseRouteImport } from './routes/component-showcase'
@@ -19,6 +20,7 @@ import { Route as CaptioningRouteImport } from './routes/captioning'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShootsIndexRouteImport } from './routes/shoots/index'
 import { Route as SettingsIndexRouteImport } from './routes/settings/index'
+import { Route as SchedulesIndexRouteImport } from './routes/schedules/index'
 import { Route as PlanIndexRouteImport } from './routes/plan/index'
 import { Route as LibraryIndexRouteImport } from './routes/library/index'
 import { Route as ShootsShootIdRouteImport } from './routes/shoots/$shootId'
@@ -29,6 +31,7 @@ import { Route as SettingsFilterPresetsRouteImport } from './routes/settings/fil
 import { Route as SettingsContentTagsRouteImport } from './routes/settings/content-tags'
 import { Route as SettingsContentSafetyRouteImport } from './routes/settings/content-safety'
 import { Route as SettingsAppearanceRouteImport } from './routes/settings/appearance'
+import { Route as SchedulesIdRouteImport } from './routes/schedules/$id'
 import { Route as PostsPostIdRouteImport } from './routes/posts/$postId'
 import { Route as LibraryMediaIdRouteImport } from './routes/library/$mediaId'
 import { Route as FanslyFypRouteImport } from './routes/fansly/fyp'
@@ -48,6 +51,11 @@ const SubredditsRoute = SubredditsRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SchedulesRoute = SchedulesRouteImport.update({
+  id: '/schedules',
+  path: '/schedules',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HashtagsRoute = HashtagsRouteImport.update({
@@ -89,6 +97,11 @@ const SettingsIndexRoute = SettingsIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => SettingsRoute,
+} as any)
+const SchedulesIndexRoute = SchedulesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SchedulesRoute,
 } as any)
 const PlanIndexRoute = PlanIndexRouteImport.update({
   id: '/plan/',
@@ -139,6 +152,11 @@ const SettingsAppearanceRoute = SettingsAppearanceRouteImport.update({
   id: '/appearance',
   path: '/appearance',
   getParentRoute: () => SettingsRoute,
+} as any)
+const SchedulesIdRoute = SchedulesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => SchedulesRoute,
 } as any)
 const PostsPostIdRoute = PostsPostIdRouteImport.update({
   id: '/posts/$postId',
@@ -200,6 +218,7 @@ export interface FileRoutesByFullPath {
   '/component-showcase': typeof ComponentShowcaseRoute
   '/content': typeof ContentRouteWithChildren
   '/hashtags': typeof HashtagsRoute
+  '/schedules': typeof SchedulesRouteWithChildren
   '/settings': typeof SettingsRouteWithChildren
   '/subreddits': typeof SubredditsRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
@@ -208,6 +227,7 @@ export interface FileRoutesByFullPath {
   '/fansly/fyp': typeof FanslyFypRoute
   '/library/$mediaId': typeof LibraryMediaIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
+  '/schedules/$id': typeof SchedulesIdRoute
   '/settings/appearance': typeof SettingsAppearanceRoute
   '/settings/content-safety': typeof SettingsContentSafetyRoute
   '/settings/content-tags': typeof SettingsContentTagsRoute
@@ -218,6 +238,7 @@ export interface FileRoutesByFullPath {
   '/shoots/$shootId': typeof ShootsShootIdRoute
   '/library': typeof LibraryIndexRoute
   '/plan': typeof PlanIndexRoute
+  '/schedules/': typeof SchedulesIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/shoots': typeof ShootsIndexRoute
   '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
@@ -239,6 +260,7 @@ export interface FileRoutesByTo {
   '/fansly/fyp': typeof FanslyFypRoute
   '/library/$mediaId': typeof LibraryMediaIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
+  '/schedules/$id': typeof SchedulesIdRoute
   '/settings/appearance': typeof SettingsAppearanceRoute
   '/settings/content-safety': typeof SettingsContentSafetyRoute
   '/settings/content-tags': typeof SettingsContentTagsRoute
@@ -249,6 +271,7 @@ export interface FileRoutesByTo {
   '/shoots/$shootId': typeof ShootsShootIdRoute
   '/library': typeof LibraryIndexRoute
   '/plan': typeof PlanIndexRoute
+  '/schedules': typeof SchedulesIndexRoute
   '/settings': typeof SettingsIndexRoute
   '/shoots': typeof ShootsIndexRoute
   '/content/library/organize': typeof ContentLibraryOrganizeRoute
@@ -263,6 +286,7 @@ export interface FileRoutesById {
   '/component-showcase': typeof ComponentShowcaseRoute
   '/content': typeof ContentRouteWithChildren
   '/hashtags': typeof HashtagsRoute
+  '/schedules': typeof SchedulesRouteWithChildren
   '/settings': typeof SettingsRouteWithChildren
   '/subreddits': typeof SubredditsRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
@@ -271,6 +295,7 @@ export interface FileRoutesById {
   '/fansly/fyp': typeof FanslyFypRoute
   '/library/$mediaId': typeof LibraryMediaIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
+  '/schedules/$id': typeof SchedulesIdRoute
   '/settings/appearance': typeof SettingsAppearanceRoute
   '/settings/content-safety': typeof SettingsContentSafetyRoute
   '/settings/content-tags': typeof SettingsContentTagsRoute
@@ -281,6 +306,7 @@ export interface FileRoutesById {
   '/shoots/$shootId': typeof ShootsShootIdRoute
   '/library/': typeof LibraryIndexRoute
   '/plan/': typeof PlanIndexRoute
+  '/schedules/': typeof SchedulesIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/shoots/': typeof ShootsIndexRoute
   '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
@@ -297,6 +323,7 @@ export interface FileRouteTypes {
     | '/component-showcase'
     | '/content'
     | '/hashtags'
+    | '/schedules'
     | '/settings'
     | '/subreddits'
     | '/content/library'
@@ -305,6 +332,7 @@ export interface FileRouteTypes {
     | '/fansly/fyp'
     | '/library/$mediaId'
     | '/posts/$postId'
+    | '/schedules/$id'
     | '/settings/appearance'
     | '/settings/content-safety'
     | '/settings/content-tags'
@@ -315,6 +343,7 @@ export interface FileRouteTypes {
     | '/shoots/$shootId'
     | '/library'
     | '/plan'
+    | '/schedules/'
     | '/settings/'
     | '/shoots'
     | '/content/library/media'
@@ -336,6 +365,7 @@ export interface FileRouteTypes {
     | '/fansly/fyp'
     | '/library/$mediaId'
     | '/posts/$postId'
+    | '/schedules/$id'
     | '/settings/appearance'
     | '/settings/content-safety'
     | '/settings/content-tags'
@@ -346,6 +376,7 @@ export interface FileRouteTypes {
     | '/shoots/$shootId'
     | '/library'
     | '/plan'
+    | '/schedules'
     | '/settings'
     | '/shoots'
     | '/content/library/organize'
@@ -359,6 +390,7 @@ export interface FileRouteTypes {
     | '/component-showcase'
     | '/content'
     | '/hashtags'
+    | '/schedules'
     | '/settings'
     | '/subreddits'
     | '/content/library'
@@ -367,6 +399,7 @@ export interface FileRouteTypes {
     | '/fansly/fyp'
     | '/library/$mediaId'
     | '/posts/$postId'
+    | '/schedules/$id'
     | '/settings/appearance'
     | '/settings/content-safety'
     | '/settings/content-tags'
@@ -377,6 +410,7 @@ export interface FileRouteTypes {
     | '/shoots/$shootId'
     | '/library/'
     | '/plan/'
+    | '/schedules/'
     | '/settings/'
     | '/shoots/'
     | '/content/library/media'
@@ -392,6 +426,7 @@ export interface RootRouteChildren {
   ComponentShowcaseRoute: typeof ComponentShowcaseRoute
   ContentRoute: typeof ContentRouteWithChildren
   HashtagsRoute: typeof HashtagsRoute
+  SchedulesRoute: typeof SchedulesRouteWithChildren
   SettingsRoute: typeof SettingsRouteWithChildren
   SubredditsRoute: typeof SubredditsRoute
   DevMediaTileAspectRoute: typeof DevMediaTileAspectRoute
@@ -418,6 +453,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/schedules': {
+      id: '/schedules'
+      path: '/schedules'
+      fullPath: '/schedules'
+      preLoaderRoute: typeof SchedulesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hashtags': {
@@ -475,6 +517,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/settings/'
       preLoaderRoute: typeof SettingsIndexRouteImport
       parentRoute: typeof SettingsRoute
+    }
+    '/schedules/': {
+      id: '/schedules/'
+      path: '/'
+      fullPath: '/schedules/'
+      preLoaderRoute: typeof SchedulesIndexRouteImport
+      parentRoute: typeof SchedulesRoute
     }
     '/plan/': {
       id: '/plan/'
@@ -545,6 +594,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/settings/appearance'
       preLoaderRoute: typeof SettingsAppearanceRouteImport
       parentRoute: typeof SettingsRoute
+    }
+    '/schedules/$id': {
+      id: '/schedules/$id'
+      path: '/$id'
+      fullPath: '/schedules/$id'
+      preLoaderRoute: typeof SchedulesIdRouteImport
+      parentRoute: typeof SchedulesRoute
     }
     '/posts/$postId': {
       id: '/posts/$postId'
@@ -659,6 +715,20 @@ const ContentRouteChildren: ContentRouteChildren = {
 const ContentRouteWithChildren =
   ContentRoute._addFileChildren(ContentRouteChildren)
 
+interface SchedulesRouteChildren {
+  SchedulesIdRoute: typeof SchedulesIdRoute
+  SchedulesIndexRoute: typeof SchedulesIndexRoute
+}
+
+const SchedulesRouteChildren: SchedulesRouteChildren = {
+  SchedulesIdRoute: SchedulesIdRoute,
+  SchedulesIndexRoute: SchedulesIndexRoute,
+}
+
+const SchedulesRouteWithChildren = SchedulesRoute._addFileChildren(
+  SchedulesRouteChildren,
+)
+
 interface SettingsRouteChildren {
   SettingsAppearanceRoute: typeof SettingsAppearanceRoute
   SettingsContentSafetyRoute: typeof SettingsContentSafetyRoute
@@ -692,6 +762,7 @@ const rootRouteChildren: RootRouteChildren = {
   ComponentShowcaseRoute: ComponentShowcaseRoute,
   ContentRoute: ContentRouteWithChildren,
   HashtagsRoute: HashtagsRoute,
+  SchedulesRoute: SchedulesRouteWithChildren,
   SettingsRoute: SettingsRouteWithChildren,
   SubredditsRoute: SubredditsRoute,
   DevMediaTileAspectRoute: DevMediaTileAspectRoute,

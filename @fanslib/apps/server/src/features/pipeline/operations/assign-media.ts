@@ -45,25 +45,6 @@ export const assignMediaToSchedules = async (
 		...new Set(scheduleChannels.map((sc) => sc.scheduleId)),
 	];
 
-	const schedules = (await scheduleRepo
-		.createQueryBuilder("schedule")
-		.leftJoinAndSelect("schedule.channel", "channel")
-		.leftJoinAndSelect("channel.type", "channelType")
-		.leftJoinAndSelect("schedule.scheduleChannels", "scheduleChannels")
-		.leftJoinAndSelect("scheduleChannels.channel", "scChannel")
-		.leftJoinAndSelect("scChannel.type", "scChannelType")
-		.where("schedule.channelId IN (:...channelIds)", {
-			channelIds:
-				payload.channelIds.length > 0 ? payload.channelIds : ["__none__"],
-		})
-		.orWhere("schedule.id IN (:...scheduleIds)", {
-			scheduleIds:
-				scheduleIdsFromChannels.length > 0
-					? scheduleIdsFromChannels
-					: ["__none__"],
-		})
-		.getMany()) as ScheduleWithChannels[];
-
 	const channels = uniqueById(
 		await channelRepo.find({
 			where: {
@@ -71,6 +52,29 @@ export const assignMediaToSchedules = async (
 			},
 		}),
 	);
+
+	if (scheduleIdsFromChannels.length === 0) {
+		return {
+			created: 0,
+			unfilled: [],
+			summary: channels.map((channel) => ({
+				channelId: channel.id,
+				channelName: channel.name,
+				draftsCreated: 0,
+				uniqueMediaUsed: 0,
+			})),
+		};
+	}
+
+	const schedules = (await scheduleRepo
+		.createQueryBuilder("schedule")
+		.leftJoinAndSelect("schedule.scheduleChannels", "scheduleChannels")
+		.leftJoinAndSelect("scheduleChannels.channel", "scChannel")
+		.leftJoinAndSelect("scChannel.type", "scChannelType")
+		.where("schedule.id IN (:...scheduleIds)", {
+			scheduleIds: scheduleIdsFromChannels,
+		})
+		.getMany()) as ScheduleWithChannels[];
 
 	if (schedules.length === 0) {
 		return {
@@ -112,12 +116,7 @@ export const assignMediaToSchedules = async (
 					payload.channelIds.includes(sc.channelId),
 				) ?? [];
 
-			const legacyChannel =
-				schedule.channel && payload.channelIds.includes(schedule.channel.id)
-					? schedule.channel
-					: null;
-
-			if (targetChannels.length === 0 && !legacyChannel) {
+			if (targetChannels.length === 0) {
 				return { createdPosts: [], unfilled: [] };
 			}
 
@@ -135,18 +134,14 @@ export const assignMediaToSchedules = async (
 					),
 			);
 
-			const hasRedditChannel =
-				targetChannels.some(
-					(sc) => sc.channel?.typeId === CHANNEL_TYPES.reddit.id,
-				) || legacyChannel?.typeId === CHANNEL_TYPES.reddit.id;
+			const redditChannel = targetChannels.find(
+				(sc) => sc.channel?.typeId === CHANNEL_TYPES.reddit.id,
+			);
 
-			if (
-				hasRedditChannel &&
-				legacyChannel?.typeId === CHANNEL_TYPES.reddit.id
-			) {
+			if (redditChannel) {
 				return assignRedditScheduleSlots(
 					schedule,
-					legacyChannel,
+					redditChannel.channel,
 					slots,
 					subreddits,
 					existingMediaIds,
@@ -155,23 +150,7 @@ export const assignMediaToSchedules = async (
 
 			const scheduleWithFilteredChannels: ScheduleWithChannels = {
 				...schedule,
-				scheduleChannels:
-					targetChannels.length > 0
-						? targetChannels
-						: legacyChannel
-							? [
-									{
-										id: "",
-										scheduleId: schedule.id,
-										channelId: legacyChannel.id,
-										channel: legacyChannel,
-										mediaFilterOverrides: null,
-										sortOrder: 0,
-										createdAt: new Date(),
-										updatedAt: new Date(),
-									} as ScheduleChannel & { channel: Channel },
-								]
-							: [],
+				scheduleChannels: targetChannels,
 			};
 
 			return assignStandardScheduleSlots(

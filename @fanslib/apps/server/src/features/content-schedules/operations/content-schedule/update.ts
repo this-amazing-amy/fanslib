@@ -23,7 +23,6 @@ export const ScheduleChannelUpdateInputSchema = z.object({
 });
 
 export const UpdateContentScheduleRequestBodySchema = z.object({
-  channelId: z.string().nullable().optional(),
   scheduleChannels: z.array(ScheduleChannelUpdateInputSchema).optional(),
   name: z.string().optional(),
   emoji: z.string().nullable().optional(),
@@ -40,7 +39,6 @@ export const ScheduleChannelWithChannelSchema = ScheduleChannelSchema.extend({
 });
 
 export const UpdateContentScheduleResponseSchema = ContentScheduleSchema.extend({
-  channel: ChannelSchema.nullable(),
   scheduleChannels: z.array(ScheduleChannelWithChannelSchema),
 });
 
@@ -58,7 +56,6 @@ export const updateContentSchedule = async (
   const schedule = await scheduleRepo.findOne({
     where: { id },
     relations: {
-      channel: { type: true, defaultHashtags: true },
       scheduleChannels: { channel: { type: true, defaultHashtags: true } },
     },
   });
@@ -137,14 +134,12 @@ export const updateContentSchedule = async (
   const result = await scheduleRepo.findOneOrFail({
     where: { id },
     relations: {
-      channel: { type: true, defaultHashtags: true },
       scheduleChannels: { channel: { type: true, defaultHashtags: true } },
     },
   });
 
   return {
     ...result,
-    channel: result.channel ?? null,
     scheduleChannels: result.scheduleChannels ?? [],
   };
 };
