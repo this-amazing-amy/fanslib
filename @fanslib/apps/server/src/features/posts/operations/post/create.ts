@@ -15,6 +15,7 @@ export const CreatePostRequestBodySchema = z.object({
   channelId: z.string(),
   status: PostStatusSchema,
   scheduleId: z.string().nullable().optional(),
+  title: z.string().nullable().optional(),
   caption: z.string().nullable().optional(),
   url: z.string().nullable().optional(),
   fypRemovedAt: z.coerce.date().nullable().optional(),

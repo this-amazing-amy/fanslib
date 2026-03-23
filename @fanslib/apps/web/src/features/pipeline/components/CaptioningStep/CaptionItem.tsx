@@ -1,35 +1,19 @@
 import type { CaptionQueueItem, Media, PostStatus } from "@fanslib/server/schemas";
 import type { Key } from "@react-types/shared";
-import { format } from "date-fns";
-import { ExternalLink, Link2, MoreVertical, Trash2 } from "lucide-react";
-import { Link } from "@tanstack/react-router";
 import type { KeyboardEvent } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQueries } from "@tanstack/react-query";
-import { SnippetSelector } from "~/components/SnippetSelector";
-import { HashtagButton } from "~/components/HashtagButton";
-import { MediaView } from "~/components/MediaView";
-import { Button } from "~/components/ui/Button";
-import { Textarea } from "~/components/ui/Textarea";
-import { ChannelBadge } from "~/components/ChannelBadge";
-import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
+import { Link2 } from "lucide-react";
 import { DeleteConfirmDialog } from "~/components/ui/DeleteConfirmDialog";
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuPopover,
-  DropdownMenuTrigger,
-} from "~/components/ui/DropdownMenu";
 import { useDebounce } from "~/hooks/useDebounce";
 import { usePrefersReducedMotion } from "~/hooks/usePrefersReducedMotion";
+import { TITLE_CHANNEL_TYPES } from "~/lib/channel-types";
 import { cn } from "~/lib/cn";
 import { api } from "~/lib/api/hono-client";
 import { useDeletePostMutation, useUpdatePostMutation } from "~/lib/queries/posts";
-import { MediaTileLite } from "~/features/library/components/MediaTile/MediaTileLite";
-import { TagBadge } from "~/features/library/components/MediaTagEditor/DimensionTagSelector/TagBadge";
-import { CaptionSyncControl } from "~/features/pipeline/components/CaptionSyncControl";
-import { RelatedCaptionsPanel } from "~/features/pipeline/components/RelatedCaptionsPanel";
 import { useLinkedPostsContext } from "./LinkedPostsContext";
+import { CaptionItemHeader } from "./CaptionItemHeader";
+import { CaptionItemEditor } from "./CaptionItemEditor";
 
 const getCompletionStatus = (channelTypeId: string): PostStatus =>
   ["bluesky", "reddit"].includes(channelTypeId) ? "scheduled" : "ready";
@@ -47,6 +31,7 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
   const updatePostMutation = useUpdatePostMutation();
   const deletePostMutation = useDeletePostMutation();
   const [localCaption, setLocalCaption] = useState(item.post.caption ?? "");
+  const [localTitle, setLocalTitle] = useState(item.post.title ?? "");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const postMedia = item.post.postMedia ?? [];
@@ -74,7 +59,8 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
 
   useEffect(() => {
     setLocalCaption(item.post.caption ?? "");
-  }, [item.post.id, item.post.caption]);
+    setLocalTitle(item.post.title ?? "");
+  }, [item.post.id, item.post.caption, item.post.title]);
 
   useEffect(() => {
     setSelectedLinkedPostIds(linkedPostIds);
@@ -95,13 +81,16 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
 
   const isLinkedToExpanded = linkedPostIdsForExpanded.has(item.post.id);
 
-  const saveCaption = useCallback(
-    async (caption: string, syncToPostIds: string[]) => {
+  const showTitleInput = TITLE_CHANNEL_TYPES.has(item.post.channel.type.id);
+
+  const saveCaptionAndTitle = useCallback(
+    async (caption: string, title: string, syncToPostIds: string[]) => {
       try {
         await updatePostMutation.mutateAsync({
           id: item.post.id,
           updates: {
             caption: caption.trim() || null,
+            title: title.trim() || null,
             syncToPostIds: syncToPostIds.length > 0 ? syncToPostIds : undefined,
           },
         });
@@ -112,17 +101,23 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
     [item.post.id, updatePostMutation],
   );
 
-  const debouncedSaveCaption = useDebounce(saveCaption, 1000);
+  const debouncedSave = useDebounce(saveCaptionAndTitle, 1000);
 
   const updateCaption = (nextCaption: string) => {
     setLocalCaption(nextCaption);
-    debouncedSaveCaption(nextCaption, selectedLinkedPostIds);
+    debouncedSave(nextCaption, localTitle, selectedLinkedPostIds);
+  };
+
+  const updateTitle = (nextTitle: string) => {
+    setLocalTitle(nextTitle);
+    debouncedSave(localCaption, nextTitle, selectedLinkedPostIds);
   };
 
   const saveAndAdvance = async () => {
     const status = getCompletionStatus(item.post.channel.type.id);
     const updates = {
       caption: localCaption.trim() ? localCaption.trim() : null,
+      title: localTitle.trim() ? localTitle.trim() : null,
       status,
       syncToPostIds: selectedLinkedPostIds.length > 0 ? selectedLinkedPostIds : undefined,
     };
@@ -193,165 +188,31 @@ export const CaptionItem = ({ item, isExpanded, onExpand, onAdvance }: CaptionIt
             isLinkedToExpanded ? "ring-2 ring-primary border-primary" : "border-black",
           )}
         >
-          <div className="absolute top-3 right-3 flex items-center gap-2">
-            <Link
-              to="/posts/$postId"
-              params={{ postId: item.post.id }}
-              className="text-base-content/60 hover:text-base-content transition-colors"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <ExternalLink className="w-4 h-4" />
-            </Link>
-            <DropdownMenuTrigger>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 text-base-content/60 hover:text-base-content hover:bg-base-200"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-              <DropdownMenuPopover placement="bottom end" className="w-48">
-                <DropdownMenu onAction={handleMenuAction}>
-                  <DropdownMenuItem
-                    id="delete"
-                    className="flex items-center gap-2 text-sm font-medium text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4 shrink-0" />
-                    Delete Post
-                  </DropdownMenuItem>
-                </DropdownMenu>
-              </DropdownMenuPopover>
-            </DropdownMenuTrigger>
-          </div>
-          <button
-            type="button"
-            onClick={onExpand}
-            className="w-full text-left px-4 py-3 flex items-center gap-3"
-          >
-            <div className="flex-1 space-y-1 min-w-0">
-              <div className="flex items-baseline gap-2">
-                <span className="text-base font-semibold">
-                  {format(new Date(item.post.date), "EEE, MMM d")}
-                </span>
-                <span className="text-sm font-medium text-base-content/60">
-                  {format(new Date(item.post.date), "HH:mm")}
-                </span>
-              </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                {schedule && (
-                  <ContentScheduleBadge
-                    name={schedule.name}
-                    emoji={schedule.emoji}
-                    color={schedule.color}
-                    size="sm"
-                    borderStyle="none"
-                    responsive={false}
-                  />
-                )}
-                {channel && (
-                  <ChannelBadge
-                    name={channelName}
-                    typeId={channel.type?.id ?? channel.typeId}
-                    size="sm"
-                    borderStyle="none"
-                    responsive={false}
-                  />
-                )}
-              </div>
-            </div>
-          </button>
+          <CaptionItemHeader
+            postId={item.post.id}
+            date={item.post.date}
+            channel={channel}
+            channelName={channelName}
+            schedule={schedule}
+            onExpand={onExpand}
+            onMenuAction={handleMenuAction}
+          />
           {isExpanded && (
-            <div className="p-4 space-y-4">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <div className="space-y-3">
-                  {postMedia.length > 0 && (
-                    <div className="space-y-3">
-                      {postMedia.map((pm, index) => {
-                        const media = pm.media;
-                        const mediaTags = mediaTagQueries[index]?.data ?? [];
-
-                        return (
-                          <div key={pm.id} className="flex gap-4 items-start">
-                            <div className="w-full aspect-square max-w-xs flex-shrink-0">
-                              {media.type === "video" ? (
-                                <MediaView media={media as unknown as Media} controls />
-                              ) : (
-                                <MediaTileLite media={media as unknown as Media} />
-                              )}
-                            </div>
-                            <div className="flex flex-wrap gap-2 pt-2">
-                              {mediaTags
-                                .filter(
-                                  (tag) => tag.stickerDisplay && tag.stickerDisplay !== "none",
-                                )
-                                .map((tag) => (
-                                  <TagBadge
-                                    key={tag.id}
-                                    tag={{
-                                      id: tag.tagDefinitionId,
-                                      color: tag.color,
-                                      displayName:
-                                        tag.shortRepresentation ??
-                                        tag.tagDisplayName ??
-                                        tag.tagValue,
-                                    }}
-                                    size="md"
-                                    selectionMode="radio"
-                                  />
-                                ))}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                  <div className="relative">
-                    <Textarea
-                      value={localCaption}
-                      onChange={updateCaption}
-                      onKeyDown={onKeyDown}
-                      rows={10}
-                      className="pr-10"
-                      placeholder="Write a caption..."
-                    />
-                    <div className="absolute right-2 top-2 flex gap-1">
-                      <SnippetSelector
-                        channelId={item.post.channel.id}
-                        caption={localCaption}
-                        onCaptionChange={updateCaption}
-                        className="text-base-content/60 hover:text-base-content"
-                      />
-                      <HashtagButton
-                        channel={item.post.channel}
-                        caption={localCaption}
-                        onCaptionChange={updateCaption}
-                        className="text-base-content/60 hover:text-base-content"
-                      />
-                    </div>
-                  </div>
-                  <CaptionSyncControl
-                    linkedPosts={item.linkedPosts}
-                    selectedPostIds={selectedLinkedPostIds}
-                    onSelectionChange={handleLinkedPostSelectionChange}
-                  />
-                  <div className="flex items-center justify-end gap-2">
-                    <Button variant="ghost" size="sm" onClick={onAdvance}>
-                      Skip
-                    </Button>
-                    <Button size="sm" onClick={saveAndAdvance}>
-                      Save & Next
-                    </Button>
-                  </div>
-                </div>
-                <RelatedCaptionsPanel
-                  relatedByMedia={item.relatedByMedia}
-                  relatedByShoot={item.relatedByShoot}
-                  currentCaption={localCaption}
-                  onUseCaption={updateCaption}
-                />
-              </div>
-            </div>
+            <CaptionItemEditor
+              item={item}
+              postMedia={postMedia as unknown as Array<{ id: string; media: Media }>}
+              mediaTagQueries={mediaTagQueries}
+              localCaption={localCaption}
+              updateCaption={updateCaption}
+              showTitleInput={showTitleInput}
+              localTitle={localTitle}
+              updateTitle={updateTitle}
+              onKeyDown={onKeyDown}
+              selectedLinkedPostIds={selectedLinkedPostIds}
+              onLinkedPostSelectionChange={handleLinkedPostSelectionChange}
+              onAdvance={onAdvance}
+              onSaveAndAdvance={saveAndAdvance}
+            />
           )}
         </div>
       </div>

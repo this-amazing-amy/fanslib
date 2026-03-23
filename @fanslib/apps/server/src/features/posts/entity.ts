@@ -40,6 +40,9 @@ export class Post {
   @JoinColumn({ name: "scheduleId" })
   schedule?: Relation<ContentSchedule>;
 
+  @Column({ type: "varchar", nullable: true, name: "title" })
+  title: string | null = null;
+
   @Column({ type: "varchar", nullable: true, name: "caption" })
   caption: string | null = null;
 

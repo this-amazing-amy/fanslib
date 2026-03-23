@@ -32,6 +32,8 @@ type PostingHistoryData = {
 export type MediaTileLiteProps = {
   media: MediaPreview;
   className?: string;
+  /** Replaces default `aspect-square` on the tile frame. */
+  aspectFrameClassName?: string;
   onImageError?: (error: boolean) => void;
   imageError?: boolean;
   isActivePreview?: boolean;
@@ -45,6 +47,7 @@ export const MediaTileLite = memo(
   ({
     media,
     className,
+    aspectFrameClassName,
     onImageError,
     imageError: controlledImageError,
     isActivePreview = false,
@@ -114,7 +117,11 @@ export const MediaTileLite = memo(
 
     return (
       <div
-        className={cn("relative aspect-square bg-base-300 rounded-lg overflow-hidden", className)}
+        className={cn(
+          "relative bg-base-300 rounded-lg overflow-hidden",
+          aspectFrameClassName ?? "aspect-square",
+          className,
+        )}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >

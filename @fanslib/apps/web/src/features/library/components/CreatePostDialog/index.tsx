@@ -1,12 +1,9 @@
 import type { Media, PostStatus, PostWithRelations } from "@fanslib/server/schemas";
-import { Link, useNavigate } from "@tanstack/react-router";
-import { format } from "date-fns";
+import { useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, ChevronUp, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChannelBadge } from "~/components/ChannelBadge";
 import { ChannelSelect } from "~/components/ChannelSelect";
-import { ContentScheduleBadge } from "~/components/ContentScheduleBadge";
 import { ContentScheduleSelect } from "~/components/ContentScheduleSelect";
 import { DateTimePicker } from "~/components/DateTimePicker";
 import { HashtagButton } from "~/components/HashtagButton";
@@ -21,6 +18,7 @@ import { Textarea } from "~/components/ui/Textarea";
 import { CombinedMediaSelection } from "~/features/library/components/CombinedMediaSelection";
 import { RecentPostsPanel } from "~/features/posts/components/RecentPostsPanel";
 import { usePrefersReducedMotion } from "~/hooks/usePrefersReducedMotion";
+import { TITLE_CHANNEL_TYPES } from "~/lib/channel-types";
 import { cn } from "~/lib/cn";
 import { findNextUnfilledSlot } from "~/lib/find-next-unfilled-slot";
 import { useChannelsQuery } from "~/lib/queries/channels";
@@ -30,6 +28,11 @@ import {
 } from "~/lib/queries/content-schedules";
 import { useCreatePostMutation } from "~/lib/queries/posts";
 import type { VirtualPost } from "~/lib/virtual-posts";
+
+import { CreatePostActions } from "./CreatePostActions";
+import { OtherCaptionsSection } from "./OtherCaptionsSection";
+import { useResetOnOpen } from "./useResetOnOpen";
+import { VirtualPostHeader } from "./VirtualPostHeader";
 
 type CreatePostDialogProps = {
   open: boolean;
@@ -85,33 +88,42 @@ export const CreatePostDialog = ({
   const [confirmSkip, setConfirmSkip] = useState(false);
   const prefersReducedMotion = usePrefersReducedMotion();
   const [showContent, setShowContent] = useState(false);
-
-  const [selectedChannel, setSelectedChannel] = useState<string[]>([]);
-  const [selectedSubreddits, setSelectedSubreddits] = useState<string[]>(
-    initialSubredditId ? [initialSubredditId] : [],
-  );
-  const [contentScheduleId, setContentScheduleId] = useState<string | null>(scheduleId ?? null);
-
-  const { data: contentSchedule } = useContentScheduleQuery(contentScheduleId ?? "");
-
-  const [selectedDate, setSelectedDate] = useState<Date>(() => {
-    if (initialDate) {
-      return new Date(initialDate);
-    }
-    const defaultDate = new Date();
-    defaultDate.setHours(12);
-    defaultDate.setMinutes(0);
-    defaultDate.setSeconds(0);
-    defaultDate.setMilliseconds(0);
-    return defaultDate;
-  });
-  const [status, setStatus] = useState<PostStatus>(initialStatus ?? "draft");
-  const [selectedMedia, setSelectedMedia] = useState<Media[]>(media);
-  const [caption, setCaption] = useState(initialCaption ?? "");
+  const [postTitle, setPostTitle] = useState("");
   const [isOtherCaptionsOpen, setIsOtherCaptionsOpen] = useState(false);
-  const [shouldRedirect, setShouldRedirect] = useState(initialShouldRedirect);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const {
+    selectedMedia,
+    setSelectedMedia,
+    caption,
+    setCaption,
+    selectedChannel,
+    setSelectedChannel,
+    selectedDate,
+    setSelectedDate,
+    status,
+    setStatus,
+    selectedSubreddits,
+    setSelectedSubreddits,
+    contentScheduleId,
+    setContentScheduleId,
+    shouldRedirect,
+    setShouldRedirect,
+  } = useResetOnOpen({
+    open,
+    media,
+    initialCaption,
+    initialChannelId,
+    initialDate,
+    initialStatus,
+    initialSubredditId,
+    initialShouldRedirect,
+    scheduleId,
+    channels,
+  });
+
+  const { data: contentSchedule } = useContentScheduleQuery(contentScheduleId ?? "");
 
   const otherCaptions = useMemo<
     Array<{
@@ -125,6 +137,7 @@ export const CreatePostDialog = ({
 
   const selectedChannelData = (channels ?? []).find((c) => c.id === selectedChannel[0]);
   const isRedditChannel = selectedChannelData?.type.id === "reddit";
+  const showTitleInput = selectedChannelData ? TITLE_CHANNEL_TYPES.has(selectedChannelData.type.id) : false;
   const channelCaptionMaxLength = getCaptionMaxLength(selectedChannelData?.type.id);
 
   const minDateTime = useMemo(() => new Date(), []);
@@ -136,58 +149,8 @@ export const CreatePostDialog = ({
 
   useEffect(() => {
     if (!open) return;
-    setSelectedMedia(media);
-  }, [open, media]);
-
-  useEffect(() => {
-    if (!open) return;
-    setCaption(initialCaption ?? "");
-  }, [open, initialCaption]);
-
-  useEffect(() => {
-    if (!open) return;
-    if (initialChannelId) {
-      setSelectedChannel([initialChannelId]);
-    } else if (!channels?.length || channels.length > 1) {
-      setSelectedChannel([]);
-    } else {
-      setSelectedChannel([channels[0]?.id ?? ""]);
-    }
-  }, [channels, initialChannelId, open]);
-
-  useEffect(() => {
-    if (!open) return;
-    if (initialDate) {
-      setSelectedDate(new Date(initialDate));
-    } else {
-      const defaultDate = new Date();
-      defaultDate.setHours(12);
-      defaultDate.setMinutes(0);
-      defaultDate.setSeconds(0);
-      defaultDate.setMilliseconds(0);
-      setSelectedDate(defaultDate);
-    }
-  }, [open, initialDate]);
-
-  useEffect(() => {
-    if (!open) return;
-    setContentScheduleId(scheduleId ?? null);
-  }, [open, scheduleId]);
-
-  useEffect(() => {
-    if (!open) return;
-    setSelectedSubreddits(initialSubredditId ? [initialSubredditId] : []);
-  }, [open, initialSubredditId]);
-
-  useEffect(() => {
-    if (!open) return;
-    setStatus(initialStatus ?? "draft");
-  }, [open, initialStatus]);
-
-  useEffect(() => {
-    if (!open) return;
-    setShouldRedirect(initialShouldRedirect);
-  }, [open, initialShouldRedirect]);
+    setPostTitle("");
+  }, [open]);
 
   useEffect(() => {
     if (!isRedditChannel) {
@@ -227,6 +190,7 @@ export const CreatePostDialog = ({
           date: selectedDate,
           channelId: selectedChannel[0],
           status,
+          title: showTitleInput && postTitle ? postTitle : null,
           caption: caption || null,
           subredditId: isRedditChannel ? selectedSubreddits[0] : undefined,
           mediaIds: selectedMedia.map((m) => m.id),
@@ -246,6 +210,7 @@ export const CreatePostDialog = ({
             // Clear selection for next slot
             setSelectedMedia([]);
             setCaption("");
+            setPostTitle("");
             // Navigate to next slot
             onNavigateToSlot(nextSlot);
           } else {
@@ -270,6 +235,8 @@ export const CreatePostDialog = ({
       selectedMedia,
       onOpenChange,
       caption,
+      postTitle,
+      showTitleInput,
       navigate,
       shouldRedirect,
       isRedditChannel,
@@ -294,6 +261,7 @@ export const CreatePostDialog = ({
       // Clear selection for next slot
       setSelectedMedia([]);
       setCaption("");
+      setPostTitle("");
       // Navigate to next slot
       onNavigateToSlot(nextSlot);
     } else {
@@ -443,35 +411,7 @@ export const CreatePostDialog = ({
             >
               <div className="flex-shrink-0 mb-2">
                 {virtualPost ? (
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-start justify-between">
-                      <div className="flex flex-col gap-1">
-                        <h2 className="font-bold text-lg">
-                          {format(new Date(virtualPost.date), "EEEE, MMMM d")}
-                        </h2>
-                        <div className="text-sm text-base-content/60 font-medium">
-                          {format(new Date(virtualPost.date), "h:mm a")}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <ChannelBadge
-                        name={virtualPost.channel.name}
-                        typeId={virtualPost.channel.type?.id ?? virtualPost.channel.typeId}
-                        size="sm"
-                        borderStyle="visible"
-                      />
-                      {virtualPost.schedule && (
-                        <ContentScheduleBadge
-                          name={virtualPost.schedule.name}
-                          emoji={virtualPost.schedule.emoji ?? undefined}
-                          color={virtualPost.schedule.color ?? undefined}
-                          size="sm"
-                          borderStyle="visible"
-                        />
-                      )}
-                    </div>
-                  </div>
+                  <VirtualPostHeader virtualPost={virtualPost} />
                 ) : (
                   <h2 className="font-bold text-lg">{title}</h2>
                 )}
@@ -555,6 +495,18 @@ export const CreatePostDialog = ({
                         }
                       />
                     </div>
+                    {showTitleInput && (
+                      <div className="flex flex-col gap-2">
+                        <label className="text-sm font-medium">Title</label>
+                        <input
+                          type="text"
+                          value={postTitle}
+                          onChange={(e) => setPostTitle(e.target.value)}
+                          placeholder="Enter a title for this post..."
+                          className="input input-bordered w-full"
+                        />
+                      </div>
+                    )}
                     <div className="flex flex-col gap-2">
                       <label className="text-sm font-medium">Caption</label>
                       <div className="relative">
@@ -598,52 +550,12 @@ export const CreatePostDialog = ({
                         </div>
                       </div>
                     </div>
-                    {otherCaptions.length > 0 && (
-                      <div className="flex flex-col gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="flex w-full items-center justify-between p-2 text-sm font-medium"
-                          onPress={() => setIsOtherCaptionsOpen(!isOtherCaptionsOpen)}
-                        >
-                          Captions from other posts using this media
-                          {isOtherCaptionsOpen ? (
-                            <ChevronUp className="h-4 w-4" />
-                          ) : (
-                            <ChevronDown className="h-4 w-4" />
-                          )}
-                        </Button>
-                        {isOtherCaptionsOpen && (
-                          <ScrollArea className="h-[200px] rounded-md border p-2">
-                            <div className="space-y-2">
-                              {otherCaptions.map((otherCaption) =>
-                                !otherCaption?.caption ? null : (
-                                  <div
-                                    key={otherCaption.channel?.id ?? otherCaption.caption}
-                                    className="group relative min-h-8 flex flex-col rounded-md border p-2"
-                                  >
-                                    <ChannelBadge
-                                      className="self-start"
-                                      name={otherCaption.channel?.name ?? ""}
-                                      typeId={otherCaption.channel?.typeId ?? ""}
-                                    />
-                                    <p className="text-sm pt-2">{otherCaption.caption}</p>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      className="absolute right-2 top-1 opacity-0 group-hover:opacity-100"
-                                      onPress={() => setCaption(otherCaption.caption ?? "")}
-                                    >
-                                      Use
-                                    </Button>
-                                  </div>
-                                ),
-                              )}
-                            </div>
-                          </ScrollArea>
-                        )}
-                      </div>
-                    )}
+                    <OtherCaptionsSection
+                      otherCaptions={otherCaptions}
+                      isOpen={isOtherCaptionsOpen}
+                      onToggle={() => setIsOtherCaptionsOpen(!isOtherCaptionsOpen)}
+                      onUseCaption={setCaption}
+                    />
                   </div>
                 </div>
               </ScrollArea>
@@ -658,63 +570,18 @@ export const CreatePostDialog = ({
                 </Checkbox>
               </div>
 
-              <div className="flex flex-col gap-2 flex-shrink-0 mt-2">
-                <div className="flex gap-2 w-full">
-                  {scheduleId && selectedMedia.length === 0 && (
-                    <Button
-                      variant="ghost"
-                      onPress={handleSkipSlot}
-                      className="flex-1"
-                      onMouseLeave={() => setConfirmSkip(false)}
-                    >
-                      {confirmSkip ? "Click again to confirm skip" : "Skip This Slot"}
-                    </Button>
-                  )}
-                  {virtualPost && onNavigateToSlot ? (
-                    <>
-                      <Button
-                        onPress={() => {
-                          handleCreatePost(false);
-                          onOpenChange(false);
-                        }}
-                        className="flex-1"
-                        isDisabled={disabled}
-                      >
-                        Create Post
-                      </Button>
-                      <Button
-                        onPress={() => {
-                          handleCreatePost(true);
-                        }}
-                        className="flex-1"
-                        isDisabled={disabled}
-                      >
-                        Create & Next
-                      </Button>
-                    </>
-                  ) : (
-                    <Button
-                      onPress={() => {
-                        handleCreatePost(false);
-                        onOpenChange(false);
-                      }}
-                      className={cn(scheduleId && selectedMedia.length === 0 ? "flex-1" : "w-full")}
-                      isDisabled={disabled}
-                    >
-                      Create post
-                    </Button>
-                  )}
-                </div>
-                {virtualPost && (
-                  <Link
-                    to="/content/library"
-                    className="text-sm text-center text-base-content/60 hover:text-base-content underline"
-                    onClick={() => onOpenChange(false)}
-                  >
-                    Browse Full Library
-                  </Link>
-                )}
-              </div>
+              <CreatePostActions
+                scheduleId={scheduleId}
+                selectedMediaCount={selectedMedia.length}
+                disabled={disabled}
+                confirmSkip={confirmSkip}
+                virtualPost={virtualPost}
+                onNavigateToSlot={onNavigateToSlot}
+                onSkipSlot={handleSkipSlot}
+                onConfirmSkipLeave={() => setConfirmSkip(false)}
+                onCreatePost={handleCreatePost}
+                onClose={() => onOpenChange(false)}
+              />
             </motion.div>
           </motion.div>
         </>
