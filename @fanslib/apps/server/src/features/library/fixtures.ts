@@ -1,11 +1,10 @@
-import { getTestDataSource } from "../../lib/test-db";
+import type { DataSource } from "typeorm";
 import { Media as MediaEntity } from "./entity";
 import { MEDIA_FIXTURES } from "./fixtures-data";
 
 export { MEDIA_FIXTURES } from "./fixtures-data";
 
-export const seedMediaFixtures = async () => {
-  const dataSource = getTestDataSource();
+export const seedMediaFixtures = async (dataSource: DataSource) => {
   const mediaRepo = dataSource.getRepository(MediaEntity);
   const now = new Date();
 

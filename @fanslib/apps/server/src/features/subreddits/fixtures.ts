@@ -1,11 +1,10 @@
-import { getTestDataSource } from "../../lib/test-db";
+import type { DataSource } from "typeorm";
 import { Subreddit as SubredditEntity } from "./entity";
 import { SUBREDDIT_FIXTURES } from "./fixtures-data";
 
 export { SUBREDDIT_FIXTURES } from "./fixtures-data";
 
-export const seedSubredditFixtures = async () => {
-  const dataSource = getTestDataSource();
+export const seedSubredditFixtures = async (dataSource: DataSource) => {
   const subredditRepo = dataSource.getRepository(SubredditEntity);
 
   // eslint-disable-next-line functional/no-loop-statements

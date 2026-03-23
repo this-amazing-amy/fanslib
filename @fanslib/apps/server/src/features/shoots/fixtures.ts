@@ -1,12 +1,11 @@
-import { getTestDataSource } from "../../lib/test-db";
+import type { DataSource } from "typeorm";
 import type { Media } from "../library/entity";
 import { Shoot as ShootEntity } from "./entity";
 import { SHOOT_FIXTURES } from "./fixtures-data";
 
 export { SHOOT_FIXTURES } from "./fixtures-data";
 
-export const seedShootFixtures = async (media: Media[]) => {
-  const dataSource = getTestDataSource();
+export const seedShootFixtures = async (dataSource: DataSource, media: Media[]) => {
   const shootRepo = dataSource.getRepository(ShootEntity);
 
   const createdShoots: ShootEntity[] = [];
