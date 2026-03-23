@@ -1,5 +1,8 @@
-import { scaleLinear } from "@visx/scale";
-import { useMemo } from "react";
+import { Line, LineChart } from "recharts";
+import { useId, useMemo } from "react";
+import { useObservedChartSize } from "~/hooks/useObservedChartSize";
+import { cn } from "~/lib/cn";
+import { metricValueFromRawIncrements, type AnalyticsChartMetric } from "../lib/chart-metric";
 
 type Datapoint = {
   timestamp: number;
@@ -9,62 +12,61 @@ type Datapoint = {
 
 type SparklineProps = {
   datapoints: Datapoint[];
-  metric: "views" | "engagementPercent" | "engagementSeconds";
-  width: number;
-  height: number;
+  metric: AnalyticsChartMetric;
+  width?: number;
+  height?: number;
+  className?: string;
 };
 
-const getMetricValue = (dp: Datapoint, metric: SparklineProps["metric"]): number => {
-  switch (metric) {
-    case "views":
-      return dp.views;
-    case "engagementSeconds":
-      return dp.interactionTime / 1000;
-    case "engagementPercent":
-      return dp.views > 0 ? (dp.interactionTime / 1000 / dp.views) * 100 : 0;
-  }
-};
+export const Sparkline = ({
+  datapoints,
+  metric,
+  width: widthProp,
+  height = 24,
+  className,
+}: SparklineProps) => {
+  const glowFilterId = useId().replace(/:/g, "");
+  const { containerRef, width: observedWidth } = useObservedChartSize(widthProp ?? 120, height);
+  const chartWidth = widthProp ?? observedWidth;
+  const chartData = useMemo(() => {
+    const sorted = [...datapoints].sort((a, b) => a.timestamp - b.timestamp);
+    return sorted.map((dp, index) => ({
+      timestamp: dp.timestamp,
+      value: metricValueFromRawIncrements(sorted, index, metric),
+    }));
+  }, [datapoints, metric]);
 
-export const Sparkline = ({ datapoints, metric, width, height }: SparklineProps) => {
-  const pathD = useMemo(() => {
-    if (datapoints.length < 2) return null;
-
-    const values = datapoints.map((dp) => getMetricValue(dp, metric));
-    const timestamps = datapoints.map((dp) => dp.timestamp);
-
-    const xScale = scaleLinear({
-      domain: [Math.min(...timestamps), Math.max(...timestamps)],
-      range: [1, width - 1],
-    });
-
-    const minVal = Math.min(...values);
-    const maxVal = Math.max(...values);
-    const yScale = scaleLinear({
-      domain: [minVal, maxVal === minVal ? minVal + 1 : maxVal],
-      range: [height - 1, 1],
-    });
-
-    return datapoints
-      .map((dp, i) => {
-        const x = xScale(dp.timestamp);
-        const y = yScale(getMetricValue(dp, metric));
-        return `${i === 0 ? "M" : "L"}${x},${y}`;
-      })
-      .join(" ");
-  }, [datapoints, metric, width, height]);
-
-  if (!pathD) return null;
+  if (chartData.length < 2) return null;
 
   return (
-    <svg width={width} height={height} className="overflow-visible">
-      <path
-        d={pathD}
-        fill="none"
-        stroke="hsl(var(--p))"
-        strokeWidth={1.5}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <div
+      ref={widthProp === undefined ? containerRef : undefined}
+      className={cn(widthProp === undefined && "w-full min-w-0", className)}
+    >
+      {chartWidth > 0 ? (
+        <LineChart
+          width={chartWidth}
+          height={height}
+          data={chartData}
+          margin={{ left: 0, right: 0, top: 2, bottom: 2 }}
+        >
+          <Line
+            dataKey="value"
+            type="bump"
+            stroke="var(--color-primary)"
+            dot={false}
+            strokeWidth={1.5}
+            filter={`url(#${glowFilterId}-spark)`}
+            isAnimationActive={false}
+          />
+          <defs>
+            <filter id={`${glowFilterId}-spark`} x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+          </defs>
+        </LineChart>
+      ) : null}
+    </div>
   );
 };

@@ -1,12 +1,11 @@
-import { getTestDataSource } from "../../lib/test-db";
+import type { DataSource } from "typeorm";
 import { CHANNEL_TYPES } from "./channelTypes";
 import { Channel as ChannelEntity, ChannelType as ChannelTypeEntity } from "./entity";
 import { CHANNEL_FIXTURES } from "./fixtures-data";
 
 export { CHANNEL_FIXTURES } from "./fixtures-data";
 
-export const seedChannelFixtures = async () => {
-  const dataSource = getTestDataSource();
+export const seedChannelFixtures = async (dataSource: DataSource) => {
   const channelTypeRepo = dataSource.getRepository(ChannelTypeEntity);
   const channelRepo = dataSource.getRepository(ChannelEntity);
 

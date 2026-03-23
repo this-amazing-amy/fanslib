@@ -30,6 +30,13 @@
 :root {
   --a: 85% 0.12 35; /* Soft coral/peach accent */
   --ac: 25% 0.15 35; /* Dark coral for accent content */
+
+  /* Recharts / chart tokens (DaisyUI 5: --color-primary is oklch) */
+  --chart-1: var(--color-primary);
+  --chart-2: var(--color-primary);
+  --chart-3: hsl(var(--a));
+  --chart-4: hsl(var(--in));
+  --chart-5: hsl(var(--ac));
 }
 
 @keyframes fadeIn {

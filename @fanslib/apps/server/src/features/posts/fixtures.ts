@@ -1,4 +1,4 @@
-import { getTestDataSource } from "../../lib/test-db";
+import type { DataSource } from "typeorm";
 import type { Channel } from "../channels/entity";
 import type { Media } from "../library/entity";
 import type { Subreddit } from "../subreddits/entity";
@@ -8,11 +8,11 @@ import { POST_FIXTURES, POST_MEDIA_FIXTURES } from "./fixtures-data";
 export { POST_FIXTURES, POST_MEDIA_FIXTURES } from "./fixtures-data";
 
 export const seedPostFixtures = async (
+  dataSource: DataSource,
   channels: Channel[],
   media: Media[],
   subreddits?: Subreddit[],
 ) => {
-  const dataSource = getTestDataSource();
   const postRepo = dataSource.getRepository(PostEntity);
   const postMediaRepo = dataSource.getRepository(PostMediaEntity);
   const now = new Date().toISOString();
@@ -67,6 +67,7 @@ export const seedPostFixtures = async (
         media: mediaItem,
         order: fixture.order,
         isFreePreview: fixture.isFreePreview,
+        fanslyStatisticsId: fixture.fanslyStatisticsId ?? null,
       });
       await postMediaRepo.save(postMedia);
     }

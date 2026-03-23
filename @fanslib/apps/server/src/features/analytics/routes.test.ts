@@ -285,6 +285,7 @@ describe("Analytics Routes", () => {
       caption?: string | null;
       fypRemovedAt?: Date | null;
       fypManuallyRemoved?: boolean;
+      fanslyPostId?: string | null;
       fanslyStatisticsId?: string | null;
       totalViews?: number;
       averageEngagementPercent?: number;
@@ -300,6 +301,9 @@ describe("Analytics Routes", () => {
         caption: overrides?.caption ?? "Test caption",
         fypRemovedAt: overrides?.fypRemovedAt ?? null,
         fypManuallyRemoved: overrides?.fypManuallyRemoved ?? false,
+        ...(typeof overrides?.fanslyPostId !== "undefined"
+          ? { fanslyPostId: overrides.fanslyPostId }
+          : {}),
       });
       const media = await createTestMedia();
       const postMedia = postMediaRepo.create({
@@ -336,11 +340,22 @@ describe("Analytics Routes", () => {
       const item = data[0];
       expect(item.postMediaId).toBe(postMedia.id);
       expect(item.postId).toBe(post.id);
+      expect(item.fanslyPostId).toBeNull();
       expect(item.mediaId).toBe(media.id);
       expect(item.caption).toBe("Test caption");
       expect(item.totalViews).toBe(100);
       expect(item.averageEngagementPercent).toBe(50);
       expect(item.averageEngagementSeconds).toBe(30);
+    });
+
+    test("includes fanslyPostId when stored on post", async () => {
+      await createActivePost({ fanslyPostId: "892032980896215040" });
+
+      const res = await app.request("/api/analytics/active-fyp-posts");
+      expect(res.status).toBe(200);
+
+      const data = (await parseResponse<Array<Record<string, unknown>>>(res)) as Array<Record<string, unknown>>;
+      expect(data[0].fanslyPostId).toBe("892032980896215040");
     });
 
     test("includes datapoints array for sparkline rendering", async () => {
@@ -763,13 +778,34 @@ describe("Analytics Routes", () => {
     test("returns eligible Media with a single naturally-plateaued PostMedia", async () => {
       const channel = await createTestChannel();
       const media = await createTestMedia();
-      await createPostMediaWithAggregate({
+      const { post, postMedia } = await createPostMediaWithAggregate({
         media,
         channelId: channel.id,
         totalViews: 500,
         averageEngagementPercent: 45,
         averageEngagementSeconds: 60,
       });
+
+      const dataSource = getTestDataSource();
+      const dpRepo = dataSource.getRepository(FanslyAnalyticsDatapoint);
+      await dpRepo.save(
+        dpRepo.create({
+          timestamp: 1_700_000_000_000,
+          views: 100,
+          interactionTime: 4000,
+          postMedia,
+          postMediaId: postMedia.id,
+        }),
+      );
+      await dpRepo.save(
+        dpRepo.create({
+          timestamp: 1_700_086_400_000,
+          views: 500,
+          interactionTime: 20_000,
+          postMedia,
+          postMediaId: postMedia.id,
+        }),
+      );
 
       const res = await app.request("/api/analytics/repost-candidates");
       expect(res.status).toBe(200);
@@ -779,12 +815,17 @@ describe("Analytics Routes", () => {
       expect(data).toHaveLength(1);
 
       const item = data[0];
+      expect(item.postId).toBe(post.id);
       expect(item.mediaId).toBe(media.id);
       expect(item.caption).toBe("Test caption");
       expect(item.totalViews).toBe(500);
       expect(item.averageEngagementPercent).toBe(45);
       expect(item.averageEngagementSeconds).toBe(60);
       expect(item.timesPosted).toBe(1);
+      expect(item.datapoints).toEqual([
+        { timestamp: 1_700_000_000_000, views: 100, interactionTime: 4000 },
+        { timestamp: 1_700_086_400_000, views: 500, interactionTime: 20_000 },
+      ]);
     });
     test("picks best-ever stats across multiple PostMedia for same Media", async () => {
       const channel = await createTestChannel();

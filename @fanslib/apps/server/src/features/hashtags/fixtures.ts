@@ -1,4 +1,4 @@
-import { getTestDataSource } from "../../lib/test-db";
+import type { DataSource } from "typeorm";
 import type { Channel } from "../channels/entity";
 import {
   Hashtag as HashtagEntity,
@@ -9,8 +9,7 @@ import { HASHTAG_FIXTURES, HASHTAG_CHANNEL_STATS_FIXTURES } from "./fixtures-dat
 
 export { HASHTAG_FIXTURES, HASHTAG_CHANNEL_STATS_FIXTURES } from "./fixtures-data";
 
-export const seedHashtagFixtures = async (channels: Channel[]) => {
-  const dataSource = getTestDataSource();
+export const seedHashtagFixtures = async (dataSource: DataSource, channels: Channel[]) => {
   const hashtagRepo = dataSource.getRepository(HashtagEntity);
   const statsRepo = dataSource.getRepository(HashtagChannelStatsEntity);
 

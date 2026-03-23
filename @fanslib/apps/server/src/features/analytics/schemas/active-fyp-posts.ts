@@ -13,6 +13,7 @@ const DatapointSchema = z.object({
 export const ActiveFypPostItemSchema = z.object({
   postMediaId: z.string(),
   postId: z.string(),
+  fanslyPostId: z.string().nullable(),
   mediaId: z.string(),
   caption: z.string().nullable(),
   totalViews: z.number(),

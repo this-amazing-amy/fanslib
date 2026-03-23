@@ -25,6 +25,11 @@ type Message =
       type: "FANSLIB_INSERT_CAPTION";
       caption: string;
       fanslyPostId?: string;
+    }
+  | {
+      type: "FANSLIB_INSERT_CAPTION";
+      caption: string;
+      fanslyPostId?: string;
     };
 
 const BATCH_DELAY_MS = 2000;

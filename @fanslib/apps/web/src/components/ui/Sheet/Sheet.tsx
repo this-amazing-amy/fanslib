@@ -21,6 +21,7 @@ export type SheetProps = AriaDialogProps & {
   className?: string;
   isDismissable?: boolean;
   side?: SheetSide;
+  showCloseButton?: boolean;
 };
 
 const sideClasses: Record<SheetSide, string> = {
@@ -35,6 +36,7 @@ export const Sheet = ({
   children,
   className,
   isDismissable = true,
+  showCloseButton = true,
   side = "right",
   ...props
 }: SheetProps) => {
@@ -94,7 +96,7 @@ export const Sheet = ({
               className,
             )}
           >
-            {isDismissable ? (
+            {isDismissable && showCloseButton ? (
               <div className="absolute right-4 top-4 z-10">
                 <Button
                   variant="ghost"

@@ -1,27 +1,43 @@
 /// <reference types="vite/client" />
-import { HeadContent, Scripts, createRootRouteWithContext } from "@tanstack/react-router";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import * as React from "react";
 import { AppLayout } from "~/components/AppLayout";
 import { NotFound } from "~/components/NotFound";
+import { readSidebarCollapsedPreference } from "~/lib/read-sidebar-collapsed-preference";
 import { seo } from "~/lib/seo";
-import type { RouterContext } from "~/router";
+import { queryClient, type RouterContext } from "~/router";
 import appCss from "~/styles.css?url";
 
-const RootDocument = ({ children }: { children: React.ReactNode }) => (
+const RootShell = ({ children }: { children: React.ReactNode }) => (
   <html>
     <head>
       <HeadContent />
     </head>
     <body>
-      <AppLayout>{children}</AppLayout>
+      {children}
       <TanStackRouterDevtools position="bottom-right" />
       <Scripts />
     </body>
   </html>
 );
 
+const RootLayout = () => {
+  const { sidebarCollapsedInitial } = Route.useLoaderData();
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AppLayout initialSidebarCollapsed={sidebarCollapsedInitial}>
+        <Outlet />
+      </AppLayout>
+    </QueryClientProvider>
+  );
+};
+
 export const Route = createRootRouteWithContext<RouterContext>()({
+  loader: () => ({
+    sidebarCollapsedInitial: readSidebarCollapsedPreference(),
+  }),
   head: () => ({
     meta: [
       {
@@ -77,5 +93,6 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     scripts: [],
   }),
   notFoundComponent: () => <NotFound />,
-  shellComponent: RootDocument,
+  shellComponent: RootShell,
+  component: RootLayout,
 });

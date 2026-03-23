@@ -1,11 +1,10 @@
-import { getTestDataSource } from "../../lib/test-db";
+import type { DataSource } from "typeorm";
 import { FilterPreset as FilterPresetEntity } from "./entity";
 import { FILTER_PRESET_FIXTURES } from "./fixtures-data";
 
 export { FILTER_PRESET_FIXTURES } from "./fixtures-data";
 
-export const seedFilterPresetFixtures = async () => {
-  const dataSource = getTestDataSource();
+export const seedFilterPresetFixtures = async (dataSource: DataSource) => {
   const presetRepo = dataSource.getRepository(FilterPresetEntity);
 
   await Promise.all(

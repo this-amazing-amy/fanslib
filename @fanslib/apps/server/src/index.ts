@@ -29,6 +29,7 @@ import { tagsRoutes } from "./features/tags/routes";
 import { db } from "./lib/db";
 import { devalueMiddleware } from "./lib/devalue-middleware";
 import { env } from "./lib/env";
+import { seedAllFixtures } from "./lib/fixtures";
 import { seedDatabase } from "./lib/seed";
 import { walkDirectory } from "./lib/walkDirectory";
 
@@ -148,8 +149,11 @@ Bun.serve({
 });
 
 db()
-  .then(async () => {
+  .then(async (dataSource) => {
     await seedDatabase();
+    if (process.env.FANSLIB_SEED_DEMO_DATA === "1") {
+      await seedAllFixtures(dataSource);
+    }
     await logStartupEnvironment();
     if (isScheduledPostsCronEnabled) {
       await runScheduledPostsCronTick();

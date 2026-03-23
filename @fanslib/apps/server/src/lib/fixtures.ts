@@ -1,13 +1,16 @@
+import type { DataSource } from "typeorm";
+import { seedFanslyAnalyticsFixtures } from "../features/analytics/fixtures";
 import { seedChannelFixtures } from "../features/channels/fixtures";
 import { seedContentScheduleFixtures } from "../features/content-schedules/fixtures";
 import { seedFilterPresetFixtures } from "../features/filter-presets/fixtures";
 import { seedHashtagFixtures } from "../features/hashtags/fixtures";
-import { seedMediaFixtures } from "../features/library/fixtures";
+import { seedFixtureThumbnails, seedMediaFixtures } from "../features/library/fixtures";
 import { seedPostFixtures } from "../features/posts/fixtures";
 import { seedShootFixtures } from "../features/shoots/fixtures";
 import { seedSnippetFixtures } from "../features/snippets/fixtures";
 import { seedSubredditFixtures } from "../features/subreddits/fixtures";
 import { seedTagFixtures } from "../features/tags/fixtures";
+import { getTestDataSource } from "./test-db";
 
 export type FixtureData = {
   channels: Awaited<ReturnType<typeof seedChannelFixtures>>;
@@ -22,17 +25,23 @@ export type FixtureData = {
   filterPresets: Awaited<ReturnType<typeof seedFilterPresetFixtures>>;
 };
 
-export const seedAllFixtures = async (): Promise<FixtureData> => {
-  const channels = await seedChannelFixtures();
-  const media = await seedMediaFixtures();
-  const subreddits = await seedSubredditFixtures();
-  const hashtags = await seedHashtagFixtures(channels.channels);
-  const tags = await seedTagFixtures(media);
-  const posts = await seedPostFixtures(channels.channels, media, subreddits);
-  const shoots = await seedShootFixtures(media);
-  const contentSchedules = await seedContentScheduleFixtures(channels.channels);
-  const snippets = await seedSnippetFixtures(channels.channels);
-  const filterPresets = await seedFilterPresetFixtures();
+export const seedAllFixtures = async (dataSource?: DataSource): Promise<FixtureData> => {
+  const ds = dataSource ?? getTestDataSource();
+  const channels = await seedChannelFixtures(ds);
+  const media = await seedMediaFixtures(ds);
+  const subreddits = await seedSubredditFixtures(ds);
+  const hashtags = await seedHashtagFixtures(ds, channels.channels);
+  const tags = await seedTagFixtures(ds, media);
+  const posts = await seedPostFixtures(ds, channels.channels, media, subreddits);
+  const shoots = await seedShootFixtures(ds, media);
+  const contentSchedules = await seedContentScheduleFixtures(ds, channels.channels);
+  const snippets = await seedSnippetFixtures(ds, channels.channels);
+  const filterPresets = await seedFilterPresetFixtures(ds);
+
+  if (process.env.FANSLIB_SEED_DEMO_DATA === "1") {
+    await seedFanslyAnalyticsFixtures(ds);
+    await seedFixtureThumbnails();
+  }
 
   return {
     channels,

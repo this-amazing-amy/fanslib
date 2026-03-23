@@ -1,72 +1,71 @@
-import { Loader2, X } from "lucide-react";
+import { Loader2, MegaphoneOff } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button/Button";
 import { useActiveFypPostsQuery } from "~/lib/queries/analytics";
-import { useRemoveFromFypMutation } from "~/lib/queries/posts";
-import { AnalyticsPostCard } from "./AnalyticsPostCard";
+import { AnalyticsPostCard } from "./analytics-post-card";
+import type { FypAnalyticsSortBy } from "./FypAnalyticsSortSelect";
+import { RemoveFromFypDialog } from "./RemoveFromFypDialog";
 
-const SORT_OPTIONS = [
-  { value: "views", label: "Views" },
-  { value: "engagementPercent", label: "Engagement %" },
-  { value: "engagementSeconds", label: "Engagement Time" },
-] as const;
+type RemoveFypTarget = {
+  postId: string;
+  fanslyPostId: string | null;
+};
 
-type SortBy = (typeof SORT_OPTIONS)[number]["value"];
+export type ActiveFypPostsPageProps = {
+  sortBy: FypAnalyticsSortBy;
+};
 
-export const ActiveFypPostsPage = () => {
-  const [sortBy, setSortBy] = useState<SortBy>("views");
+export const ActiveFypPostsPage = ({ sortBy }: ActiveFypPostsPageProps) => {
+  const [removeTarget, setRemoveTarget] = useState<RemoveFypTarget | null>(null);
   const { data: posts, isLoading } = useActiveFypPostsQuery(sortBy);
-  const removeFromFyp = useRemoveFromFypMutation();
 
   return (
     <div>
-      {/* Sort Toggle */}
-      <div className="flex items-center gap-2 mb-4">
-        <span className="text-sm text-base-content/60">Sort by:</span>
-        <div className="join">
-          {SORT_OPTIONS.map((option) => (
-            <button
-              key={option.value}
-              className={`join-item btn btn-sm ${sortBy === option.value ? "btn-primary" : "btn-ghost"}`}
-              onClick={() => setSortBy(option.value)}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <RemoveFromFypDialog
+        postId={removeTarget?.postId ?? null}
+        fanslyPostId={removeTarget?.fanslyPostId ?? null}
+        isOpen={removeTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setRemoveTarget(null);
+        }}
+      />
 
       {/* Content */}
       {isLoading ? (
         <div className="flex items-center justify-center py-12 text-base-content/50">
           <Loader2 className="w-5 h-5 animate-spin mr-2" />
-          Loading active posts...
+          Loading poor performers...
         </div>
       ) : !posts || posts.length === 0 ? (
         <div className="text-center py-12 text-base-content/50 text-sm">
-          No active FYP posts found
+          No poor performers found
         </div>
       ) : (
         <div className="space-y-2">
           {posts.map((post) => (
             <AnalyticsPostCard
               key={post.postMediaId}
+              postId={post.postId}
               mediaId={post.mediaId}
               caption={post.caption}
               totalViews={post.totalViews}
               averageEngagementPercent={post.averageEngagementPercent}
               averageEngagementSeconds={post.averageEngagementSeconds}
-              datapoints={(post as { datapoints?: Array<{ timestamp: number; views: number; interactionTime: number }> }).datapoints}
+              datapoints={post.datapoints}
               sortMetric={sortBy}
               actionSlot={
                 <Button
                   variant="ghost"
-                  size="sm"
-                  onPress={() => removeFromFyp.mutate(post.postId)}
-                  isDisabled={removeFromFyp.isPending}
+                  size="icon"
+                  onPress={() =>
+                    setRemoveTarget({
+                      postId: post.postId,
+                      fanslyPostId: post.fanslyPostId ?? null,
+                    })
+                  }
+                  aria-label="Stop FYP promotion"
                 >
-                  <X className="w-4 h-4 mr-1" />
-                  Remove
+                  <MegaphoneOff className="h-4 w-4" />
                 </Button>
               }
             />

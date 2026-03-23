@@ -1,4 +1,4 @@
-import { getTestDataSource } from "../../lib/test-db";
+import type { DataSource } from "typeorm";
 import type { Media } from "../library/entity";
 import {
   MediaTag as MediaTagEntity,
@@ -111,8 +111,7 @@ export const MEDIA_TAG_FIXTURES: MediaTagFixture[] = [
   { mediaId: "media-3", dimensionName: "Category", tagValue: "landscape", source: "manual" },
 ];
 
-export const seedTagFixtures = async (media: Media[]) => {
-  const dataSource = getTestDataSource();
+export const seedTagFixtures = async (dataSource: DataSource, media: Media[]) => {
   const dimensionRepo = dataSource.getRepository(TagDimensionEntity);
   const definitionRepo = dataSource.getRepository(TagDefinitionEntity);
   const mediaTagRepo = dataSource.getRepository(MediaTagEntity);

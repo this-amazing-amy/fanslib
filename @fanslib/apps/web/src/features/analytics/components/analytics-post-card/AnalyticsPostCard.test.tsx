@@ -1,7 +1,12 @@
 /// <reference types="@testing-library/jest-dom" />
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
+
+vi.mock("../GrowthChart", () => ({
+  GrowthChart: () => <div data-testid="growth-chart" />,
+}));
+
 import { AnalyticsPostCard } from "./AnalyticsPostCard";
 
 describe("AnalyticsPostCard", () => {
@@ -22,7 +27,7 @@ describe("AnalyticsPostCard", () => {
     render(<AnalyticsPostCard {...defaultProps} />);
     expect(screen.getByText("1,500")).toBeInTheDocument();
     expect(screen.getByText("42.7%")).toBeInTheDocument();
-    expect(screen.getByText("1m 35s")).toBeInTheDocument();
+    expect(screen.getByText("1m 35.0s")).toBeInTheDocument();
   });
 
   test("renders thumbnail image with correct src", () => {
@@ -36,9 +41,14 @@ describe("AnalyticsPostCard", () => {
     expect(screen.queryByText("Test caption for the post")).not.toBeInTheDocument();
   });
 
-  test("formats sub-minute engagement as seconds only", () => {
+  test("formats sub-minute engagement with one decimal", () => {
     render(<AnalyticsPostCard {...defaultProps} averageEngagementSeconds={45} />);
-    expect(screen.getByText("45s")).toBeInTheDocument();
+    expect(screen.getByText("45.0s")).toBeInTheDocument();
+  });
+
+  test("formats fractional sub-minute engagement with one decimal", () => {
+    render(<AnalyticsPostCard {...defaultProps} averageEngagementSeconds={3.24} />);
+    expect(screen.getByText("3.2s")).toBeInTheDocument();
   });
 
   test("formats exact minutes without remaining seconds", () => {
@@ -53,16 +63,39 @@ describe("AnalyticsPostCard", () => {
       { timestamp: 3000, views: 100, interactionTime: 10000 },
     ];
     const { container } = render(
-      <AnalyticsPostCard {...defaultProps} datapoints={datapoints} sortMetric="views" />
+      <AnalyticsPostCard {...defaultProps} datapoints={datapoints} sortMetric="views" />,
     );
-    // Sparkline renders a path element, lucide icons don't
-    const sparklinePath = container.querySelector("svg > path[fill='none'][stroke='hsl(var(--p))']");
+    const sparklinePath = container.querySelector(".recharts-line-curve");
     expect(sparklinePath).toBeInTheDocument();
+  });
+
+  test("clicking a metric selects it for the chart and deselects others", async () => {
+    const datapoints = [
+      { timestamp: 1000, views: 0, interactionTime: 0 },
+      { timestamp: 2000, views: 50, interactionTime: 5000 },
+      { timestamp: 3000, views: 100, interactionTime: 10000 },
+    ];
+    render(<AnalyticsPostCard {...defaultProps} datapoints={datapoints} sortMetric="views" />);
+    const user = userEvent.setup();
+
+    expect(screen.getByRole("button", { name: "Chart: views" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Chart: engagement percent" })).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+
+    await user.click(screen.getByRole("button", { name: "Chart: engagement percent" }));
+
+    expect(screen.getByRole("button", { name: "Chart: engagement percent" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    expect(screen.getByRole("button", { name: "Chart: views" })).toHaveAttribute("aria-pressed", "false");
   });
 
   test("does not render sparkline when no datapoints", () => {
     const { container } = render(<AnalyticsPostCard {...defaultProps} />);
-    const sparklinePath = container.querySelector("svg > path[stroke='hsl(var(--p))']");
+    const sparklinePath = container.querySelector(".recharts-line-curve");
     expect(sparklinePath).not.toBeInTheDocument();
   });
 
@@ -73,7 +106,7 @@ describe("AnalyticsPostCard", () => {
       { timestamp: 3000, views: 100, interactionTime: 10000 },
     ];
     const { container } = render(
-      <AnalyticsPostCard {...defaultProps} datapoints={datapoints} sortMetric="views" />
+      <AnalyticsPostCard {...defaultProps} datapoints={datapoints} sortMetric="views" />,
     );
     const user = userEvent.setup();
 
@@ -94,7 +127,7 @@ describe("AnalyticsPostCard", () => {
       { timestamp: 3000, views: 100, interactionTime: 10000 },
     ];
     const { container } = render(
-      <AnalyticsPostCard {...defaultProps} datapoints={datapoints} sortMetric="views" />
+      <AnalyticsPostCard {...defaultProps} datapoints={datapoints} sortMetric="views" />,
     );
     const user = userEvent.setup();
 
@@ -116,22 +149,17 @@ describe("AnalyticsPostCard", () => {
   });
 
   test("renders action slot when provided", () => {
-    render(
-      <AnalyticsPostCard
-        {...defaultProps}
-        actionSlot={<button>Remove</button>}
-      />
-    );
+    render(<AnalyticsPostCard {...defaultProps} actionSlot={<button>Remove</button>} />);
     expect(screen.getByText("Remove")).toBeInTheDocument();
   });
 
   test("displays times-posted count when provided", () => {
     render(<AnalyticsPostCard {...defaultProps} timesPosted={3} />);
-    expect(screen.getByText("3×")).toBeInTheDocument();
+    expect(screen.getByLabelText("Posted 3 times")).toBeInTheDocument();
   });
 
   test("does not display times-posted when not provided", () => {
     render(<AnalyticsPostCard {...defaultProps} />);
-    expect(screen.queryByText(/×$/)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Posted \d+ (?:time|times)$/)).not.toBeInTheDocument();
   });
 });

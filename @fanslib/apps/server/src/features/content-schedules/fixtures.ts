@@ -1,12 +1,11 @@
-import { getTestDataSource } from "../../lib/test-db";
+import type { DataSource } from "typeorm";
 import type { Channel } from "../channels/entity";
 import { ContentSchedule as ContentScheduleEntity } from "./entity";
 import { CONTENT_SCHEDULE_FIXTURES } from "./fixtures-data";
 
 export { CONTENT_SCHEDULE_FIXTURES } from "./fixtures-data";
 
-export const seedContentScheduleFixtures = async (channels: Channel[]) => {
-  const dataSource = getTestDataSource();
+export const seedContentScheduleFixtures = async (dataSource: DataSource, channels: Channel[]) => {
   const scheduleRepo = dataSource.getRepository(ContentScheduleEntity);
   const now = new Date().toISOString();
 

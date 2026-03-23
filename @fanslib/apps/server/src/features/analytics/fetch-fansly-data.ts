@@ -29,6 +29,10 @@ export const fetchFanslyAnalyticsData = async (
   analyticsStartDate?: Date,
   analyticsEndDate?: Date,
 ): Promise<FetchAnalyticsResult> => {
+  if (process.env.FANSLIB_SEED_DEMO_DATA === "1") {
+    return { success: false, postMediaId, datapoints: 0 };
+  }
+
   const dataSource = await db();
   const postMediaRepository = dataSource.getRepository(PostMedia);
   const postMedia = await postMediaRepository.findOneOrFail({

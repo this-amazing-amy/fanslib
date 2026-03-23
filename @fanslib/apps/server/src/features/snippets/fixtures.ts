@@ -1,12 +1,11 @@
-import { getTestDataSource } from "../../lib/test-db";
+import type { DataSource } from "typeorm";
 import type { Channel } from "../channels/entity";
 import { CaptionSnippet as CaptionSnippetEntity } from "./entity";
 import { CAPTION_SNIPPET_FIXTURES } from "./fixtures-data";
 
 export { CAPTION_SNIPPET_FIXTURES } from "./fixtures-data";
 
-export const seedSnippetFixtures = async (channels: Channel[]) => {
-  const dataSource = getTestDataSource();
+export const seedSnippetFixtures = async (dataSource: DataSource, channels: Channel[]) => {
   const snippetRepo = dataSource.getRepository(CaptionSnippetEntity);
 
   // eslint-disable-next-line functional/no-loop-statements

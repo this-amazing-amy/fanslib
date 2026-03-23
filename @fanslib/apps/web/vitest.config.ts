@@ -9,10 +9,16 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./tests/setup.ts"],
     css: true,
+    server: {
+      deps: {
+        inline: ["recharts"],
+      },
+    },
   },
   resolve: {
     alias: {
       "~": path.resolve(__dirname, "./src"),
     },
+    dedupe: ["react", "react-dom"],
   },
 });
