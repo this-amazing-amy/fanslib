@@ -203,10 +203,10 @@ export interface FileRoutesByFullPath {
   '/settings/repost': typeof SettingsRepostRoute
   '/settings/snippets': typeof SettingsSnippetsRoute
   '/shoots/$shootId': typeof ShootsShootIdRoute
-  '/library/': typeof LibraryIndexRoute
-  '/plan/': typeof PlanIndexRoute
+  '/library': typeof LibraryIndexRoute
+  '/plan': typeof PlanIndexRoute
   '/settings/': typeof SettingsIndexRoute
-  '/shoots/': typeof ShootsIndexRoute
+  '/shoots': typeof ShootsIndexRoute
   '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
   '/content/library/media/': typeof ContentLibraryMediaIndexRoute
@@ -294,10 +294,10 @@ export interface FileRouteTypes {
     | '/settings/repost'
     | '/settings/snippets'
     | '/shoots/$shootId'
-    | '/library/'
-    | '/plan/'
+    | '/library'
+    | '/plan'
     | '/settings/'
-    | '/shoots/'
+    | '/shoots'
     | '/content/library/media'
     | '/content/library/media/$mediaId'
     | '/content/library/media/'
@@ -440,7 +440,7 @@ declare module '@tanstack/react-router' {
     '/shoots/': {
       id: '/shoots/'
       path: '/shoots'
-      fullPath: '/shoots/'
+      fullPath: '/shoots'
       preLoaderRoute: typeof ShootsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -454,14 +454,14 @@ declare module '@tanstack/react-router' {
     '/plan/': {
       id: '/plan/'
       path: '/plan'
-      fullPath: '/plan/'
+      fullPath: '/plan'
       preLoaderRoute: typeof PlanIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/library/': {
       id: '/library/'
       path: '/library'
-      fullPath: '/library/'
+      fullPath: '/library'
       preLoaderRoute: typeof LibraryIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
