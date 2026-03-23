@@ -34,7 +34,7 @@ export const fetchAllPosts = async (
     .leftJoinAndSelect("post.schedule", "schedule");
 
   if (filters?.search) {
-    queryBuilder.andWhere("(post.caption LIKE :search OR channel.name LIKE :search)", {
+    queryBuilder.andWhere("(post.caption LIKE :search OR post.title LIKE :search OR channel.name LIKE :search)", {
       search: `%${filters.search}%`,
     });
   }
