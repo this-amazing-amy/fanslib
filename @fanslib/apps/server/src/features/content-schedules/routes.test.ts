@@ -212,6 +212,107 @@ describe("Content Schedules Routes", () => {
     });
   });
 
+  describe("POST /api/content-schedules/:id/link-channel", () => {
+    test("links a channel to a schedule and returns updated schedule", async () => {
+      const fixtureSchedule = CONTENT_SCHEDULE_FIXTURES[0];
+      if (!fixtureSchedule) {
+        throw new Error("No content schedule fixtures available");
+      }
+
+      // Use a channel that is NOT already linked to this schedule
+      const unlinkedChannel = fixtures.channels.channels.find(
+        (c) => c.id !== fixtureSchedule.fixtureChannelId,
+      );
+      if (!unlinkedChannel) {
+        throw new Error("No unlinked channel available");
+      }
+
+      const response = await app.request(
+        `/api/content-schedules/${fixtureSchedule.id}/link-channel`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ channelId: unlinkedChannel.id }),
+        },
+      );
+      expect(response.status).toBe(200);
+
+      const data = await parseResponse<ScheduleResponse>(response);
+      expect(data?.id).toBe(fixtureSchedule.id);
+      expect(data?.scheduleChannels?.some((sc) => sc.channelId === unlinkedChannel.id)).toBe(true);
+    });
+
+    test("returns 409 when channel is already linked", async () => {
+      const fixtureSchedule = CONTENT_SCHEDULE_FIXTURES[0];
+      if (!fixtureSchedule) {
+        throw new Error("No content schedule fixtures available");
+      }
+
+      // The fixture channel is already linked via seed data
+      const response = await app.request(
+        `/api/content-schedules/${fixtureSchedule.id}/link-channel`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ channelId: fixtureSchedule.fixtureChannelId }),
+        },
+      );
+      expect(response.status).toBe(409);
+
+      const data = await parseResponse<{ error: string }>(response);
+      expect(data?.error).toBe("Channel already linked to this schedule");
+    });
+  });
+
+  describe("DELETE /api/content-schedules/:id/unlink-channel/:channelId", () => {
+    test("unlinks a channel from a schedule and returns updated schedule", async () => {
+      const fixtureSchedule = CONTENT_SCHEDULE_FIXTURES[0];
+      if (!fixtureSchedule) {
+        throw new Error("No content schedule fixtures available");
+      }
+
+      // First link a new channel so we can unlink it
+      const unlinkedChannel = fixtures.channels.channels.find(
+        (c) => c.id !== fixtureSchedule.fixtureChannelId,
+      );
+      if (!unlinkedChannel) {
+        throw new Error("No unlinked channel available");
+      }
+
+      await app.request(`/api/content-schedules/${fixtureSchedule.id}/link-channel`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ channelId: unlinkedChannel.id }),
+      });
+
+      const response = await app.request(
+        `/api/content-schedules/${fixtureSchedule.id}/unlink-channel/${unlinkedChannel.id}`,
+        { method: "DELETE" },
+      );
+      expect(response.status).toBe(200);
+
+      const data = await parseResponse<ScheduleResponse>(response);
+      expect(data?.id).toBe(fixtureSchedule.id);
+      expect(data?.scheduleChannels?.some((sc) => sc.channelId === unlinkedChannel.id)).toBe(false);
+    });
+
+    test("returns 404 when channel is not linked", async () => {
+      const fixtureSchedule = CONTENT_SCHEDULE_FIXTURES[0];
+      if (!fixtureSchedule) {
+        throw new Error("No content schedule fixtures available");
+      }
+
+      const response = await app.request(
+        `/api/content-schedules/${fixtureSchedule.id}/unlink-channel/non-existent-channel`,
+        { method: "DELETE" },
+      );
+      expect(response.status).toBe(404);
+
+      const data = await parseResponse<{ error: string }>(response);
+      expect(data?.error).toBe("Channel is not linked to this schedule");
+    });
+  });
+
   describe("GET /api/content-schedules/virtual-posts", () => {
     test("returns virtual posts for channel ids as comma-separated string", async () => {
       const channel = fixtures.channels.channels[0];
