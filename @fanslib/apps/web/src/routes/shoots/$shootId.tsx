@@ -20,7 +20,7 @@ import { PostDragProvider } from "~/contexts/PostDragContext";
 import { PostPreferencesProvider } from "~/contexts/PostPreferencesContext";
 import { ShootDetailDateInput } from "~/features/shoots/components/shoot-detail/ShootDetailDateInput";
 import { ShootDetailDotsMenu } from "~/features/shoots/components/shoot-detail/ShootDetailDotsMenu";
-import { ShootDetailMediaGrid } from "~/features/shoots/components/shoot-detail/ShootDetailMediaGrid";
+import { PackageMatrixView } from "~/features/shoots/components/shoot-detail/PackageMatrixView";
 import { ShootDetailTitleInput } from "~/features/shoots/components/shoot-detail/ShootDetailTitleInput";
 import { ShootPosts } from "~/features/shoots/components/shoot-detail/ShootPosts";
 import { useShootQuery, useUpdateShootMutation } from "~/lib/queries/shoots";
@@ -116,7 +116,7 @@ const ShootDetailRoute = () => {
 
               <div className="@container flex flex-col gap-4">
                 <LibraryPreferencesProvider>
-                  <ShootDetailMediaGrid
+                  <PackageMatrixView
                     medias={normalizedShoot.media ?? []}
                     onAddMedia={() => setIsAddMediaOpen(true)}
                   />
