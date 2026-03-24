@@ -13,6 +13,7 @@ import { updateMedia } from "./operations/media/update";
 import { getMediaPostingHistory } from "./operations/media/get-media-posting-history";
 import { getScanStatus, scanFile, scanLibrary } from "./operations/scan/scan";
 import { getThumbnailPath } from "./operations/scan/thumbnail";
+import { fetchSiblings } from "./operations/media/fetch-siblings";
 import { uploadMediaToShoot } from "./operations/upload";
 import { resolveMediaPath } from "./path-utils";
 import { MediaFilterSchema } from "./schemas/media-filter";
@@ -172,6 +173,14 @@ export const libraryRoutes = new Hono()
   .get("/by-id/:id/posting-history", async (c) => {
     const id = c.req.param("id");
     const result = await getMediaPostingHistory(id);
+    return c.json(result);
+  })
+  .get("/:id/siblings", async (c) => {
+    const id = c.req.param("id");
+    const result = await fetchSiblings(id);
+    if (result === null) {
+      return notFound(c, "Media not found");
+    }
     return c.json(result);
   })
   .post("/upload", async (c) => {
