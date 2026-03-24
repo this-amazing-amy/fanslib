@@ -8,9 +8,14 @@ type MediaFilters = MediaFilter;
 
 export type GridSize = "small" | "large";
 
+export type ShootSortBy = "date" | "alphabetical";
+
 type ViewPreferences = {
   gridSize: GridSize;
   filtersCollapsed: boolean;
+  sidebarCollapsed: boolean;
+  sidebarShootId: string | null;
+  sidebarSortBy: ShootSortBy;
 };
 
 type SortPreferences = MediaSort;
@@ -31,6 +36,9 @@ const defaultPreferences: LibraryPreferences = {
   view: {
     gridSize: "large",
     filtersCollapsed: false,
+    sidebarCollapsed: false,
+    sidebarShootId: null,
+    sidebarSortBy: "date",
   },
   filter: [],
   sort: {
