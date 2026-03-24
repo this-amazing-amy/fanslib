@@ -7,7 +7,7 @@ import { cn } from "~/lib/cn";
 import { MediaTileImage } from "./MediaTileImage";
 import { MediaTilePostsPopover } from "./MediaTilePostsPopover";
 import { MediaTileSelectionCircle } from "./MediaTileSelectionCircle";
-import { MediaTileTagBadges } from "./MediaTileTagBadges";
+import { MediaTileBadges } from "./MediaTileBadges";
 import { MediaTileTypeSticker } from "./MediaTileTypeSticker";
 import { MediaTileVideo } from "./MediaTileVideo";
 import type { MediaTileProps } from "./types";
@@ -182,7 +182,13 @@ export const MediaTile = memo((props: MediaTileProps) => {
           {(withTags || withPostsPopover || withTypeIcon) && (
             <div className="flex items-center gap-2">
               <div className="flex flex-wrap gap-1 flex-1 min-w-0">
-                {withTags && <MediaTileTagBadges tags={tags} />}
+                {withTags && (
+                  <MediaTileBadges
+                    contentRating={media.contentRating ?? null}
+                    role={media.role ?? null}
+                    tags={tags}
+                  />
+                )}
                 {withTypeIcon && <MediaTileTypeSticker media={media} />}
               </div>
               {withPostsPopover && <MediaTilePostsPopover media={media} />}
