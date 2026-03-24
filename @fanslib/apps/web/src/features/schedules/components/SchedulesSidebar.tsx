@@ -13,10 +13,12 @@ export const SchedulesSidebar = () => {
       <div className="p-4 pt-6 space-y-4">
         <h2 className="text-2xl font-bold px-3">Schedules</h2>
         <div className="px-3">
-          <Button variant="primary" size="sm" className="w-full gap-2">
-            <Plus className="h-4 w-4" />
-            New Schedule
-          </Button>
+          <Link to="/schedules/$id" params={{ id: "new" }}>
+            <Button variant="primary" size="sm" className="w-full gap-2">
+              <Plus className="h-4 w-4" />
+              New Schedule
+            </Button>
+          </Link>
         </div>
       </div>
 
