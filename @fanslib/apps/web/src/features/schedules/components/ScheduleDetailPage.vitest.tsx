@@ -43,13 +43,8 @@ vi.mock("~/lib/queries/content-schedules", () => ({
 }));
 
 // Mock ContentScheduleForm to isolate page-level behavior
-let capturedOnSubmit: ((data: unknown) => void) | null = null;
-let capturedOnCancel: (() => void) | null = null;
-
 vi.mock("~/features/channels/components/ContentScheduleForm", () => ({
   ContentScheduleForm: ({ schedule, onSubmit, onCancel }: Record<string, unknown>) => {
-    capturedOnSubmit = onSubmit as (data: unknown) => void;
-    capturedOnCancel = onCancel as () => void;
     return (
       <div data-testid="schedule-form">
         <span data-testid="form-mode">{schedule ? "edit" : "create"}</span>
@@ -71,8 +66,6 @@ describe("ScheduleDetailPage", () => {
     vi.clearAllMocks();
     mockScheduleQuery.data = undefined;
     mockScheduleQuery.isLoading = false;
-    capturedOnSubmit = null;
-    capturedOnCancel = null;
   });
 
   test("renders form in create mode when id is 'new'", () => {
