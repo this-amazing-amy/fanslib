@@ -19,7 +19,16 @@ vi.mock("~/lib/queries/shoots", () => ({
   useCreateShootMutation: () => ({ mutateAsync: mockCreateShootMutateAsync, isPending: false }),
 }));
 
+vi.mock("~/features/library/components/MediaTile", () => ({
+  MediaTile: () => <div data-testid="organize-media-tile" aria-hidden />,
+}));
+
 import { OrganizePage } from "./OrganizePage";
+
+const pickContentRatingUncensored = async (user: ReturnType<typeof userEvent.setup>) => {
+  await user.click(screen.getByLabelText(/content rating for photo1\.jpg/i));
+  await user.click(await screen.findByRole("option", { name: /Uncensored \(uc\)/i }));
+};
 
 describe("OrganizePage", () => {
   test("shows empty state when no unmanaged files exist", () => {
@@ -111,6 +120,40 @@ describe("OrganizePage", () => {
     expect(fileCheckbox).not.toBeChecked();
   });
 
+  test("folder checkbox selects and clears all files in that folder only", async () => {
+    const user = userEvent.setup();
+
+    mockUseUnmanagedMediaQuery.mockReturnValue({
+      data: [
+        {
+          folder: "folderA",
+          media: [
+            { id: "a1", name: "a1.jpg", type: "image", relativePath: "folderA/a1.jpg" },
+            { id: "a2", name: "a2.jpg", type: "image", relativePath: "folderA/a2.jpg" },
+          ],
+        },
+        {
+          folder: "folderB",
+          media: [{ id: "b1", name: "b1.jpg", type: "image", relativePath: "folderB/b1.jpg" }],
+        },
+      ],
+      isLoading: false,
+    });
+
+    render(<OrganizePage />);
+
+    const folderACheckbox = screen.getByLabelText(/select all files in folderA/i);
+    await user.click(folderACheckbox);
+
+    expect(screen.getByLabelText(/select a1\.jpg/i)).toBeChecked();
+    expect(screen.getByLabelText(/select a2\.jpg/i)).toBeChecked();
+    expect(screen.getByLabelText(/select b1\.jpg/i)).not.toBeChecked();
+
+    await user.click(folderACheckbox);
+    expect(screen.getByLabelText(/select a1\.jpg/i)).not.toBeChecked();
+    expect(screen.getByLabelText(/select a2\.jpg/i)).not.toBeChecked();
+  });
+
   test("shows shoot selection with existing shoots and new shoot option", async () => {
     const user = userEvent.setup();
 
@@ -168,10 +211,11 @@ describe("OrganizePage", () => {
     expect(screen.getByLabelText(/role for photo1\.jpg/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/content rating for photo1\.jpg/i)).toBeInTheDocument();
 
-    // Content rating should have all five options
-    const ratingSelect = screen.getByLabelText(/content rating for photo1\.jpg/i);
-    expect(ratingSelect).toBeInTheDocument();
-    expect(ratingSelect.querySelectorAll("option").length).toBeGreaterThanOrEqual(5);
+    const ratingTrigger = screen.getByLabelText(/content rating for photo1\.jpg/i);
+    expect(ratingTrigger).toBeInTheDocument();
+    await user.click(ratingTrigger);
+    const ratingOptions = screen.getAllByRole("option");
+    expect(ratingOptions.length).toBeGreaterThanOrEqual(5);
   });
 
   test("shows live preview of target filenames when metadata is filled in", async () => {
@@ -201,7 +245,7 @@ describe("OrganizePage", () => {
     // Fill in per-file metadata
     await user.type(screen.getByLabelText(/package for photo1\.jpg/i), "main");
     await user.type(screen.getByLabelText(/role for photo1\.jpg/i), "content");
-    await user.selectOptions(screen.getByLabelText(/content rating for photo1\.jpg/i), "uc");
+    await pickContentRatingUncensored(user);
 
     // Preview section should show the target filename pattern
     const preview = screen.getByTestId("preview-section");
@@ -241,7 +285,7 @@ describe("OrganizePage", () => {
     await user.type(screen.getByLabelText(/shoot name/i), "BeachDay");
     await user.type(screen.getByLabelText(/package for photo1\.jpg/i), "main");
     await user.type(screen.getByLabelText(/role for photo1\.jpg/i), "content");
-    await user.selectOptions(screen.getByLabelText(/content rating for photo1\.jpg/i), "uc");
+    await pickContentRatingUncensored(user);
 
     // Submit button should be enabled
     const submitButton = screen.getByRole("button", { name: /move 1 file/i });
@@ -298,7 +342,7 @@ describe("OrganizePage", () => {
     await user.type(screen.getByLabelText(/shoot name/i), "BeachDay");
     await user.type(screen.getByLabelText(/package for photo1\.jpg/i), "main");
     await user.type(screen.getByLabelText(/role for photo1\.jpg/i), "content");
-    await user.selectOptions(screen.getByLabelText(/content rating for photo1\.jpg/i), "uc");
+    await pickContentRatingUncensored(user);
 
     await user.click(screen.getByRole("button", { name: /move 1 file/i }));
 

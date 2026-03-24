@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 const LibraryLayout = () => (
-  <div className="flex h-full w-full flex-col overflow-hidden">
+  <div className="flex h-full min-h-0 w-full flex-col overflow-hidden">
     <Outlet />
   </div>
 );
