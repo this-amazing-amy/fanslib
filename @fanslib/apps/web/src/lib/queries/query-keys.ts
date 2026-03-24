@@ -52,6 +52,7 @@ export const QUERY_KEYS = {
     byId: (id: string) => ["media", id] as const,
     adjacent: (id: string, body?: unknown) => ["media", id, "adjacent", body] as const,
     postingHistory: (id: string) => ["media", id, "posting-history"] as const,
+    siblings: (id: string) => ["media", id, "siblings"] as const,
   },
 
   tags: {

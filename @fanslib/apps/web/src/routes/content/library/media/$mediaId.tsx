@@ -14,12 +14,13 @@ import { Switch } from "~/components/ui/Switch";
 
 import { MediaTagEditor } from "~/features/library/components/MediaTagEditor";
 import { useDebounce } from "~/hooks/useDebounce";
-import { useMediaQuery, useUpdateMediaMutation } from "~/lib/queries/library";
+import { SiblingStrip } from "~/features/library/components/SiblingStrip/SiblingStrip";
+import { useMediaQuery, useSiblingsQuery, useUpdateMediaMutation } from "~/lib/queries/library";
 
-const MediaRoute = () => {
-  const { mediaId } = useParams({ from: "/content/library/media/$mediaId" });
+const MediaRouteInner = ({ mediaId }: { mediaId: string }) => {
   const router = useRouter();
   const { data: media, isLoading, error } = useMediaQuery({ id: mediaId });
+  const { data: siblings = [] } = useSiblingsQuery(mediaId);
   const [createPostDialogOpen, setCreatePostDialogOpen] = useState(false);
   const [localDescription, setLocalDescription] = useState("");
   const [isDescriptionSaving, setIsDescriptionSaving] = useState(false);
@@ -158,6 +159,8 @@ const MediaRoute = () => {
           </div>
         </div>
 
+        {Array.isArray(siblings) && <SiblingStrip siblings={siblings} />}
+
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-medium">Posts</h3>
           <Button variant="primary" size="icon" onPress={() => setCreatePostDialogOpen(true)}>
@@ -179,6 +182,11 @@ const MediaRoute = () => {
       </div>
     </div>
   );
+};
+
+const MediaRoute = () => {
+  const { mediaId } = useParams({ from: "/content/library/media/$mediaId" });
+  return <MediaRouteInner key={mediaId} mediaId={mediaId} />;
 };
 
 export const Route = createFileRoute("/content/library/media/$mediaId")({
