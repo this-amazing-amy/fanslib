@@ -1,7 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
-import { ShootsPage } from "./-shoots-page";
-
+/**
+ * @deprecated The shoots list page has been removed. Shoots are now accessed
+ * via the library page sidebar. This redirect preserves backward compatibility
+ * for existing bookmarks.
+ */
 export const Route = createFileRoute("/shoots/")({
-  component: ShootsPage,
+  beforeLoad: () => {
+    throw redirect({ to: "/content/library/media" });
+  },
 });
