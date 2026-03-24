@@ -44,19 +44,17 @@ vi.mock("~/lib/queries/content-schedules", () => ({
 
 // Mock ContentScheduleForm to isolate page-level behavior
 vi.mock("~/features/channels/components/ContentScheduleForm", () => ({
-  ContentScheduleForm: ({ schedule, onSubmit, onCancel }: Record<string, unknown>) => {
-    return (
-      <div data-testid="schedule-form">
-        <span data-testid="form-mode">{schedule ? "edit" : "create"}</span>
-        <button data-testid="form-submit" onClick={() => (onSubmit as (data: unknown) => void)?.({ name: "Test" })}>
-          Submit
-        </button>
-        <button data-testid="form-cancel" onClick={() => (onCancel as () => void)?.()}>
-          Cancel
-        </button>
-      </div>
-    );
-  },
+  ContentScheduleForm: ({ schedule, onSubmit, onCancel }: Record<string, unknown>) => (
+    <div data-testid="schedule-form">
+      <span data-testid="form-mode">{schedule ? "edit" : "create"}</span>
+      <button data-testid="form-submit" onClick={() => (onSubmit as (data: unknown) => void)?.({ name: "Test" })}>
+        Submit
+      </button>
+      <button data-testid="form-cancel" onClick={() => (onCancel as () => void)?.()}>
+        Cancel
+      </button>
+    </div>
+  ),
 }));
 
 import { ScheduleDetailPage } from "./ScheduleDetailPage";
