@@ -1,11 +1,9 @@
 import type {
   Channel,
-  ContentScheduleWithChannels,
-  CreateContentScheduleRequestBody,
   Hashtag,
   MediaFilter,
 } from "@fanslib/server/schemas";
-import { Edit2, Plus, Save, Trash2, X } from "lucide-react";
+import { Edit2, Save, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/Button/Button";
 import { Dialog, DialogModal, DialogTrigger } from "~/components/ui/Dialog";
@@ -15,14 +13,8 @@ import { FilterPresetProvider } from "~/contexts/FilterPresetContext";
 import { MediaFilters as MediaFiltersComponent } from "~/features/library/components/MediaFilters/MediaFilters";
 import { MediaFiltersProvider } from "~/features/library/components/MediaFilters/MediaFiltersContext";
 import { useDeleteChannelMutation, useUpdateChannelMutation } from "~/lib/queries/channels";
-import {
-  useContentSchedulesByChannelQuery,
-  useCreateContentScheduleMutation,
-  useUpdateContentScheduleMutation,
-} from "~/lib/queries/content-schedules";
+import { ChannelScheduleLinker } from "./ChannelScheduleLinker";
 import { ChannelTypeIcon } from "./ChannelTypeIcon";
-import { ContentScheduleForm } from "./ContentScheduleForm";
-import { ContentScheduleList } from "./ContentScheduleList";
 import { HashtagSelector } from "./HashtagSelector";
 
 type MediaFilters = MediaFilter;
@@ -31,8 +23,6 @@ type ChannelViewProps = {
   channel: Channel;
   onDelete?: () => void;
 };
-
-type ContentSchedule = ContentScheduleWithChannels;
 
 export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -44,18 +34,10 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
   const [defaultHashtags, setDefaultHashtags] = useState<Hashtag[]>(
     (channel.defaultHashtags as Hashtag[]) ?? [],
   );
-  const [showScheduleForm, setShowScheduleForm] = useState(false);
-  const [editingSchedule, setEditingSchedule] = useState<ContentSchedule | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const updateChannel = useUpdateChannelMutation();
   const deleteChannel = useDeleteChannelMutation();
-  const createSchedule = useCreateContentScheduleMutation();
-  const updateSchedule = useUpdateContentScheduleMutation();
-
-  const { data: schedules, isLoading: isLoadingSchedules } = useContentSchedulesByChannelQuery(
-    channel.id,
-  );
 
   useEffect(() => {
     setName(channel.name);
@@ -96,40 +78,6 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
     } catch (error) {
       console.error("Failed to delete channel:", error);
     }
-  };
-
-  const handleCreateSchedule = async (data: CreateContentScheduleRequestBody) => {
-    try {
-      await createSchedule.mutateAsync(data);
-      setShowScheduleForm(false);
-    } catch (error) {
-      console.error("Failed to create schedule:", error);
-    }
-  };
-
-  const handleUpdateSchedule = async (data: CreateContentScheduleRequestBody) => {
-    if (!editingSchedule) return;
-
-    try {
-      await updateSchedule.mutateAsync({
-        id: editingSchedule.id,
-        updates: data,
-      });
-      setShowScheduleForm(false);
-      setEditingSchedule(null);
-    } catch (error) {
-      console.error("Failed to update schedule:", error);
-    }
-  };
-
-  const handleEditSchedule = (schedule: ContentSchedule) => {
-    setEditingSchedule(schedule);
-    setShowScheduleForm(true);
-  };
-
-  const handleCancelScheduleForm = () => {
-    setShowScheduleForm(false);
-    setEditingSchedule(null);
   };
 
   return (
@@ -280,37 +228,8 @@ export const ChannelView = ({ channel, onDelete }: ChannelViewProps) => {
 
         {/* Content Schedules */}
         <div className="mt-6">
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="text-lg font-medium">Content Schedules</h4>
-            {!showScheduleForm && (
-              <Button variant="secondary" size="sm" onPress={() => setShowScheduleForm(true)}>
-                <Plus className="w-4 h-4" />
-                Add Schedule
-              </Button>
-            )}
-          </div>
-
-          {showScheduleForm ? (
-            <div className="card bg-base-200 p-6">
-              <ContentScheduleForm
-                channelId={channel.id}
-                schedule={editingSchedule ?? undefined}
-                onSubmit={editingSchedule ? handleUpdateSchedule : handleCreateSchedule}
-                onCancel={handleCancelScheduleForm}
-              />
-            </div>
-          ) : isLoadingSchedules ? (
-            <div className="text-center py-8 text-base-content/60">Loading schedules...</div>
-          ) : schedules && schedules.length > 0 ? (
-            <ContentScheduleList
-              schedules={schedules as unknown as ContentSchedule[]}
-              onEdit={handleEditSchedule}
-            />
-          ) : (
-            <div className="card bg-base-200 p-8 text-center text-base-content/60">
-              No content schedules configured. Add one to get started.
-            </div>
-          )}
+          <h4 className="text-lg font-medium mb-3">Schedules</h4>
+          <ChannelScheduleLinker channelId={channel.id} />
         </div>
       </div>
     </div>
