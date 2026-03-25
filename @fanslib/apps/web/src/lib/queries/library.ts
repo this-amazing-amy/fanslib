@@ -83,6 +83,18 @@ export const useBulkMediaPostingHistoryQuery = (mediaIds: string[]) =>
     staleTime: 60000, // 1 minute
   });
 
+export const useSiblingsQuery = (mediaId: string | null) =>
+  useQuery({
+    queryKey: QUERY_KEYS.media.siblings(mediaId ?? ""),
+    queryFn: async () => {
+      const result = await api.api.media[":id"].siblings.$get({
+        param: { id: mediaId ?? "" },
+      });
+      return result.json();
+    },
+    enabled: !!mediaId,
+  });
+
 export const useMediaAdjacentQuery = (
   params: FindAdjacentMediaRequestParams,
   body?: FindAdjacentMediaBody,

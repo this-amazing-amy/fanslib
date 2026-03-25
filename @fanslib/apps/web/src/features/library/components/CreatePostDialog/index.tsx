@@ -31,6 +31,7 @@ import type { VirtualPost } from "~/lib/virtual-posts";
 
 import { CreatePostActions } from "./CreatePostActions";
 import { OtherCaptionsSection } from "./OtherCaptionsSection";
+import { SiblingSuggestions } from "./SiblingSuggestions";
 import { useResetOnOpen } from "./useResetOnOpen";
 import { VirtualPostHeader } from "./VirtualPostHeader";
 
@@ -431,6 +432,12 @@ export const CreatePostDialog = ({
                       onClose={() => onOpenChange(false)}
                     />
                   </div>
+
+                  {/* Sibling Suggestions */}
+                  <SiblingSuggestions
+                    selectedMedia={selectedMedia}
+                    onAddMedia={handleMediaSelect}
+                  />
 
                   {/* Recent Posts Context */}
                   {selectedChannel[0] ? (
