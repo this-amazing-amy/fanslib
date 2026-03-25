@@ -1,5 +1,5 @@
 import type { Media, MediaFilter } from "@fanslib/server/schemas";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { FilterPresetProvider } from "~/contexts/FilterPresetContext";
 import { useLibraryPreferences } from "~/contexts/LibraryPreferencesContext";
 import { useScan } from "~/hooks/useScan";
@@ -14,6 +14,7 @@ import { MediaFilters as MediaFiltersComponent } from "./MediaFilters/MediaFilte
 import { MediaFiltersProvider } from "./MediaFilters/MediaFiltersContext";
 import { ScanButton } from "./ScanButton";
 import { ScanProgress } from "./ScanProgress";
+import { ShootSidebar } from "./ShootSidebar/ShootSidebar";
 import { UploadDialog } from "./UploadDialog/UploadDialog";
 import { cn } from "~/lib/cn";
 
@@ -26,6 +27,21 @@ type LibraryContentProps = {
 
 export const LibraryContent = ({ showScan = true, contentClassName }: LibraryContentProps) => {
   const { preferences, updatePreferences } = useLibraryPreferences();
+  const sidebarShootId = preferences.view.sidebarShootId;
+
+  const effectiveFilters: MediaFilter = useMemo(() => {
+    const base = preferences.filter ?? [];
+    if (!sidebarShootId) return base;
+
+    if (sidebarShootId === "__none__") {
+      // "No shoot" = exclude all shoots = media not in any shoot
+      return [...base, { include: false, items: [{ type: "shoot" as const, id: "" }] }];
+    }
+
+    // Specific shoot = include media from that shoot
+    return [...base, { include: true, items: [{ type: "shoot" as const, id: sidebarShootId }] }];
+  }, [preferences.filter, sidebarShootId]);
+
   const {
     data: mediaList,
     error,
@@ -35,7 +51,7 @@ export const LibraryContent = ({ showScan = true, contentClassName }: LibraryCon
     page: preferences.pagination.page,
     limit: preferences.pagination.limit,
     sort: preferences.sort,
-    filters: preferences.filter,
+    filters: effectiveFilters,
   });
   const { isScanning, scanProgress, handleScan, scanResult } = useScan();
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
@@ -58,7 +74,9 @@ export const LibraryContent = ({ showScan = true, contentClassName }: LibraryCon
   return (
     <FilterPresetProvider onFiltersChange={updateFilters}>
       <MediaFiltersProvider value={preferences.filter} onChange={updateFilters}>
-        <div className="flex h-full w-full flex-col overflow-hidden">
+        <div className="flex h-full w-full overflow-hidden">
+          <ShootSidebar />
+          <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
           <div className={cn("flex-1 min-h-0 px-6 pb-6 flex flex-col", contentClassName)}>
             <div className="mb-4">
               <div className="flex items-center justify-end gap-2 pt-2 mb-4">
@@ -110,6 +128,7 @@ export const LibraryContent = ({ showScan = true, contentClassName }: LibraryCon
               totalItems={mediaList?.total ?? 0}
             />
           </div>
+        </div>
         </div>
         <UploadDialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen} />
       </MediaFiltersProvider>
