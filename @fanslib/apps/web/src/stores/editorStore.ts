@@ -21,6 +21,9 @@ type EditorState = {
   removeKeyframe: (opIndex: number, keyframeIndex: number) => void;
   updateKeyframe: (opIndex: number, keyframeIndex: number, keyframe: unknown) => void;
 
+  // Caption convenience
+  addCaption: () => void;
+
   // Selection
   setSelectedOperationIndex: (index: number | null) => void;
 
@@ -113,6 +116,26 @@ export const useEditorStore = create<EditorState>((set, get) => {
         canUndo: true,
         canRedo: redoStack.length > 0,
       });
+    },
+
+    addCaption: () => {
+      const op = {
+        type: "caption" as const,
+        text: "Caption",
+        x: 0.5,
+        y: 0.8,
+        fontSize: 0.05,
+        color: "#ffffff",
+        animation: "fade-in" as const,
+        startFrame: 0,
+        endFrame: 90,
+      };
+      pushHistory();
+      set((state) => ({
+        operations: [...state.operations, op],
+        selectedOperationIndex: state.operations.length,
+        ...updateUndoRedoFlags(),
+      }));
     },
 
     addKeyframe: (opIndex, keyframe) => {
