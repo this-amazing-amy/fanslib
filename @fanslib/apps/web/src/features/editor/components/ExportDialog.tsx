@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "~/components/ui/Button";
 import { useEditorStore } from "~/stores/editorStore";
+import { useClipStore } from "~/stores/clipStore";
 import { QUERY_KEYS } from "~/lib/queries/query-keys";
 
 type ExportDialogProps = {
@@ -18,6 +19,9 @@ export const ExportDialog = ({ open, onOpenChange }: ExportDialogProps) => {
   const operations = useEditorStore((s) => s.operations);
   const setEditId = useEditorStore((s) => s.setEditId);
   const markClean = useEditorStore((s) => s.markClean);
+  const clipRanges = useClipStore((s) => s.ranges);
+
+  const isClipExport = clipRanges.length > 0;
 
   const [role, setRole] = useState("");
   const [pkg, setPkg] = useState("");
@@ -49,52 +53,78 @@ export const ExportDialog = ({ open, onOpenChange }: ExportDialogProps) => {
     return () => dialog.removeEventListener("close", handleClose);
   }, [onOpenChange]);
 
+  const createAndQueueEdit = async (
+    type: "transform" | "clip",
+    ops: unknown[],
+  ): Promise<void> => {
+    const res = await fetch("/api/media-edits", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sourceMediaId,
+        type,
+        operations: ops,
+      }),
+    });
+    if (!res.ok) throw new Error("Failed to create edit");
+    const data = await res.json();
+
+    const queueRes = await fetch(`/api/media-edits/${data.id}/queue`, {
+      method: "POST",
+    });
+    if (!queueRes.ok) throw new Error("Failed to queue render");
+  };
+
   const handleExport = useCallback(async () => {
     setExporting(true);
     setError(null);
     try {
-      // Step 1: Save the edit (create or update)
-      const currentEditId = await (async () => {
-        if (editId) {
-          const res = await fetch(`/api/media-edits/${editId}`, {
-            method: "PATCH",
+      if (isClipExport) {
+        // Batch export: one MediaEdit per clip range
+        await clipRanges.reduce(
+          (promise, range) =>
+            promise.then(() =>
+              createAndQueueEdit("clip", [
+                { type: "clip", startFrame: range.startFrame, endFrame: range.endFrame },
+              ]),
+            ),
+          Promise.resolve(),
+        );
+      } else {
+        // Single transform export
+        const currentEditId = await (async () => {
+          if (editId) {
+            const res = await fetch(`/api/media-edits/${editId}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ operations }),
+            });
+            if (!res.ok) throw new Error("Failed to save edit");
+            markClean();
+            return editId;
+          }
+          const res = await fetch("/api/media-edits", {
+            method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ operations }),
+            body: JSON.stringify({
+              sourceMediaId,
+              type: "transform",
+              operations,
+            }),
           });
-          if (!res.ok) throw new Error("Failed to save edit");
+          if (!res.ok) throw new Error("Failed to create edit");
+          const data = await res.json();
+          setEditId(data.id);
           markClean();
-          return editId;
-        }
-        const res = await fetch("/api/media-edits", {
+          return data.id as string;
+        })();
+
+        const queueRes = await fetch(`/api/media-edits/${currentEditId}/queue`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            sourceMediaId,
-            type: "transform",
-            operations,
-          }),
         });
-        if (!res.ok) throw new Error("Failed to create edit");
-        const data = await res.json();
-        setEditId(data.id);
-        markClean();
-        return data.id as string;
-      })();
+        if (!queueRes.ok) throw new Error("Failed to queue render");
+      }
 
-      // Step 2: Queue the render
-      const queueRes = await fetch(`/api/media-edits/${currentEditId}/queue`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          role,
-          package: pkg,
-          contentRating,
-          quality,
-        }),
-      });
-      if (!queueRes.ok) throw new Error("Failed to queue render");
-
-      // Invalidate queue query
       await queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.mediaEdits.queue(),
       });
@@ -109,13 +139,11 @@ export const ExportDialog = ({ open, onOpenChange }: ExportDialogProps) => {
       setExporting(false);
     }
   }, [
+    isClipExport,
+    clipRanges,
     editId,
     sourceMediaId,
     operations,
-    role,
-    pkg,
-    contentRating,
-    quality,
     setEditId,
     markClean,
     onOpenChange,
@@ -128,7 +156,11 @@ export const ExportDialog = ({ open, onOpenChange }: ExportDialogProps) => {
       className="modal-box bg-base-100 rounded-lg shadow-xl p-0 w-full max-w-md backdrop:bg-black/50"
     >
       <div className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Export &amp; Render</h3>
+        <h3 className="text-lg font-semibold mb-4">
+          {isClipExport
+            ? `Export ${clipRanges.length} Clip${clipRanges.length > 1 ? "s" : ""}`
+            : "Export & Render"}
+        </h3>
 
         {success ? (
           <div className="text-success text-center py-8">
@@ -204,7 +236,7 @@ export const ExportDialog = ({ open, onOpenChange }: ExportDialogProps) => {
                 onPress={handleExport}
                 isDisabled={exporting}
               >
-                {exporting ? "Exporting..." : "Export"}
+                {exporting ? "Exporting..." : isClipExport ? `Export All (${clipRanges.length})` : "Export"}
               </Button>
             </div>
           </div>

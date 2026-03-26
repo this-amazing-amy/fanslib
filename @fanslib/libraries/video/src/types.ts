@@ -10,5 +10,11 @@ export type WatermarkOperation = {
   opacity: RelativeCoordinate;
 };
 
+export type ClipOperation = {
+  type: "clip";
+  startFrame: number;
+  endFrame: number;
+};
+
 /** Union of all supported edit operations */
-export type Operation = WatermarkOperation;
+export type Operation = WatermarkOperation | ClipOperation;
