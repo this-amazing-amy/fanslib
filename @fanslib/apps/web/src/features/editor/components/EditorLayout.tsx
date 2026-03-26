@@ -1,7 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useMediaQuery } from "~/lib/queries/library";
 import { useEditorStore } from "~/stores/editorStore";
+import { useClipStore } from "~/stores/clipStore";
 import { useMediaEditByIdQuery } from "~/lib/queries/media-edits";
+import { ClipTimeline } from "./ClipTimeline";
 import { EditorToolbar } from "./EditorToolbar";
 import { EditorCanvas } from "./EditorCanvas";
 import { LayerPanel } from "./LayerPanel";
@@ -20,14 +22,20 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
   const reset = useEditorStore((s) => s.reset);
   const undo = useEditorStore((s) => s.undo);
   const redo = useEditorStore((s) => s.redo);
+  const clipMode = useClipStore((s) => s.clipMode);
+  const resetClips = useClipStore((s) => s.reset);
+  const [_currentFrame, setCurrentFrame] = useState(0);
 
   // Hydrate from existing edit
   useEffect(() => {
     if (existingEdit && editId) {
       hydrate(existingEdit.operations);
     }
-    return () => reset();
-  }, [existingEdit, editId, hydrate, reset]);
+    return () => {
+      reset();
+      resetClips();
+    };
+  }, [existingEdit, editId, hydrate, reset, resetClips]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -61,16 +69,27 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
     );
   }
 
+  const isVideo = media.type === "video";
+
   return (
     <div className="flex flex-col h-screen">
       <EditorToolbar mediaId={mediaId} />
       <div className="flex flex-1 overflow-hidden">
         <LayerPanel />
-        <EditorCanvas
-          mediaId={mediaId}
-          mediaType={media.type}
-          operations={operations}
-        />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <EditorCanvas
+            mediaId={mediaId}
+            mediaType={media.type}
+            operations={operations}
+          />
+          {isVideo && clipMode && (
+            <ClipTimeline
+              totalFrames={900}
+              fps={30}
+              onSeek={setCurrentFrame}
+            />
+          )}
+        </div>
         <PropertiesPanel />
       </div>
     </div>

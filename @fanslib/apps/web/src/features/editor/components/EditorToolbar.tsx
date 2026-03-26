@@ -1,7 +1,8 @@
-import { ArrowLeft, Undo2, Redo2 } from "lucide-react";
+import { ArrowLeft, Undo2, Redo2, Scissors } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "~/components/ui/Button";
 import { useEditorStore } from "~/stores/editorStore";
+import { useClipStore } from "~/stores/clipStore";
 
 type EditorToolbarProps = {
   mediaId: string;
@@ -12,6 +13,8 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
   const redo = useEditorStore((s) => s.redo);
   const canUndo = useEditorStore((s) => s.canUndo);
   const canRedo = useEditorStore((s) => s.canRedo);
+  const clipMode = useClipStore((s) => s.clipMode);
+  const toggleClipMode = useClipStore((s) => s.toggleClipMode);
 
   return (
     <div className="h-12 border-b border-base-300 bg-base-200/50 flex items-center px-4 gap-2">
@@ -19,6 +22,16 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
         <ArrowLeft className="h-4 w-4" />
         Back to Media
       </Link>
+      <div className="border-l border-base-300 h-6 mx-2" />
+      <Button
+        size="sm"
+        variant={clipMode ? "primary" : "ghost"}
+        onPress={toggleClipMode}
+        aria-label="Clip tool"
+      >
+        <Scissors className="h-4 w-4 mr-1" />
+        <span className="text-xs">Clip</span>
+      </Button>
       <div className="flex-1" />
       <Button
         size="sm"
