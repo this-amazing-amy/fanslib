@@ -164,4 +164,37 @@ describe("editorStore", () => {
       expect(op.keyframes).toHaveLength(0);
     });
   });
+
+  describe("blur operations", () => {
+    test("addBlur adds a blur operation with sensible defaults", () => {
+      useEditorStore.getState().addBlur();
+
+      const ops = useEditorStore.getState().operations;
+      expect(ops).toHaveLength(1);
+      const op = ops[0] as {
+        type: string;
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        radius: number;
+        keyframes: unknown[];
+      };
+      expect(op.type).toBe("blur");
+      expect(op.x).toBe(0.4);
+      expect(op.y).toBe(0.4);
+      expect(op.width).toBe(0.15);
+      expect(op.height).toBe(0.15);
+      expect(op.radius).toBe(20);
+      expect(op.keyframes).toEqual([]);
+      expect(useEditorStore.getState().selectedOperationIndex).toBe(0);
+    });
+
+    test("addBlur is undoable", () => {
+      useEditorStore.getState().addBlur();
+      expect(useEditorStore.getState().operations).toHaveLength(1);
+      useEditorStore.getState().undo();
+      expect(useEditorStore.getState().operations).toHaveLength(0);
+    });
+  });
 });

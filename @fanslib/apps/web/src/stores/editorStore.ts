@@ -21,6 +21,9 @@ type EditorState = {
   removeKeyframe: (opIndex: number, keyframeIndex: number) => void;
   updateKeyframe: (opIndex: number, keyframeIndex: number, keyframe: unknown) => void;
 
+  // Blur convenience
+  addBlur: () => void;
+
   // Selection
   setSelectedOperationIndex: (index: number | null) => void;
 
@@ -113,6 +116,24 @@ export const useEditorStore = create<EditorState>((set, get) => {
         canUndo: true,
         canRedo: redoStack.length > 0,
       });
+    },
+
+    addBlur: () => {
+      const op = {
+        type: "blur" as const,
+        x: 0.4,
+        y: 0.4,
+        width: 0.15,
+        height: 0.15,
+        radius: 20,
+        keyframes: [],
+      };
+      pushHistory();
+      set((state) => ({
+        operations: [...state.operations, op],
+        selectedOperationIndex: state.operations.length,
+        ...updateUndoRedoFlags(),
+      }));
     },
 
     addKeyframe: (opIndex, keyframe) => {
