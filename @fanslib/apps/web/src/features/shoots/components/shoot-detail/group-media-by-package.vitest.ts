@@ -16,6 +16,7 @@ const makeMedia = (overrides: Partial<Media> = {}): Media => ({
   package: null,
   role: null,
   isManaged: false,
+  derivedFromId: null,
   createdAt: new Date(),
   updatedAt: new Date(),
   fileCreationDate: new Date(),
