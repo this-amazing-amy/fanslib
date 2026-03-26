@@ -16,6 +16,9 @@ type EditorState = {
   undo: () => void;
   redo: () => void;
 
+  // Audio convenience
+  addAudio: (assetId: string) => void;
+
   // Selection
   setSelectedOperationIndex: (index: number | null) => void;
 
@@ -108,6 +111,21 @@ export const useEditorStore = create<EditorState>((set, get) => {
         canUndo: true,
         canRedo: redoStack.length > 0,
       });
+    },
+
+    addAudio: (assetId) => {
+      const op = {
+        type: "audio" as const,
+        assetId,
+        offsetFrames: 0,
+        crossfade: 0.5,
+      };
+      pushHistory();
+      set((state) => ({
+        operations: [...state.operations, op],
+        selectedOperationIndex: state.operations.length,
+        ...updateUndoRedoFlags(),
+      }));
     },
 
     setSelectedOperationIndex: (index) => {

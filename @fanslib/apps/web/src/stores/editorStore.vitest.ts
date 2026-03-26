@@ -117,4 +117,29 @@ describe("editorStore", () => {
     // History should be clean after hydration
     expect(useEditorStore.getState().canUndo).toBe(false);
   });
+
+  describe("audio operations", () => {
+    test("addAudio adds an audio operation with defaults", () => {
+      useEditorStore.getState().addAudio("asset-audio-1");
+      const ops = useEditorStore.getState().operations;
+      expect(ops).toHaveLength(1);
+      const op = ops[0] as {
+        type: string;
+        assetId: string;
+        offsetFrames: number;
+        crossfade: number;
+      };
+      expect(op.type).toBe("audio");
+      expect(op.assetId).toBe("asset-audio-1");
+      expect(op.offsetFrames).toBe(0);
+      expect(op.crossfade).toBe(0.5);
+      expect(useEditorStore.getState().selectedOperationIndex).toBe(0);
+    });
+
+    test("addAudio is undoable", () => {
+      useEditorStore.getState().addAudio("a1");
+      useEditorStore.getState().undo();
+      expect(useEditorStore.getState().operations).toHaveLength(0);
+    });
+  });
 });
