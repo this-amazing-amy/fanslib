@@ -34,3 +34,18 @@ export const useMediaEditByIdQuery = (editId: string) =>
     },
     enabled: !!editId,
   });
+
+export type QueuedMediaEdit = MediaEdit & {
+  progress?: number;
+};
+
+export const useMediaEditQueueQuery = () =>
+  useQuery({
+    queryKey: QUERY_KEYS.mediaEdits.queue(),
+    queryFn: async (): Promise<QueuedMediaEdit[]> => {
+      const res = await fetch("/api/media-edits/queue");
+      if (!res.ok) throw new Error("Failed to fetch render queue");
+      return res.json();
+    },
+    refetchInterval: 10000,
+  });
