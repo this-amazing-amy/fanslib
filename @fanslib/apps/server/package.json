@@ -23,7 +23,7 @@
     }
   },
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target bun --external playwright --external playwright-core --external ffprobe-static --external fluent-ffmpeg && cp ../../../node_modules/sql.js/dist/sql-wasm.wasm ./dist/",
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun --external playwright --external playwright-core --external ffprobe-static --external fluent-ffmpeg && cp $(bun -e \"console.log(require.resolve('sql.js/dist/sql-wasm.wasm'))\") ./dist/",
     "dev": "FANSLIB_SEED_DEMO_DATA=1 bun run --watch src/index.ts",
     "start": "bun run dist/index.js",
     "test": "bun test",
