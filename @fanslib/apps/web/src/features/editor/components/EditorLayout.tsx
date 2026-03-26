@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useMediaQuery } from "~/lib/queries/library";
 import { useEditorStore } from "~/stores/editorStore";
 import { useMediaEditByIdQuery } from "~/lib/queries/media-edits";
 import { EditorToolbar } from "./EditorToolbar";
 import { EditorCanvas } from "./EditorCanvas";
+import { KeyframeTimeline } from "./KeyframeTimeline";
 import { LayerPanel } from "./LayerPanel";
 import { PropertiesPanel } from "./PropertiesPanel";
 
@@ -20,6 +21,7 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
   const reset = useEditorStore((s) => s.reset);
   const undo = useEditorStore((s) => s.undo);
   const redo = useEditorStore((s) => s.redo);
+  const [currentFrame, setCurrentFrame] = useState(0);
 
   // Hydrate from existing edit
   useEffect(() => {
@@ -61,16 +63,28 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
     );
   }
 
+  const isVideo = media.type === "video";
+  const totalFrames = isVideo ? 900 : 1; // Default to 30s at 30fps for video
+
   return (
     <div className="flex flex-col h-screen">
       <EditorToolbar mediaId={mediaId} />
       <div className="flex flex-1 overflow-hidden">
         <LayerPanel />
-        <EditorCanvas
-          mediaId={mediaId}
-          mediaType={media.type}
-          operations={operations}
-        />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <EditorCanvas
+            mediaId={mediaId}
+            mediaType={media.type}
+            operations={operations}
+          />
+          {isVideo && (
+            <KeyframeTimeline
+              totalFrames={totalFrames}
+              currentFrame={currentFrame}
+              onSeek={setCurrentFrame}
+            />
+          )}
+        </div>
         <PropertiesPanel />
       </div>
     </div>
