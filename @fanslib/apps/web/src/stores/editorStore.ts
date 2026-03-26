@@ -21,6 +21,9 @@ type EditorState = {
   removeKeyframe: (opIndex: number, keyframeIndex: number) => void;
   updateKeyframe: (opIndex: number, keyframeIndex: number, keyframe: unknown) => void;
 
+  // Zoom convenience
+  addZoom: () => void;
+
   // Selection
   setSelectedOperationIndex: (index: number | null) => void;
 
@@ -113,6 +116,22 @@ export const useEditorStore = create<EditorState>((set, get) => {
         canUndo: true,
         canRedo: redoStack.length > 0,
       });
+    },
+
+    addZoom: () => {
+      const op = {
+        type: "zoom" as const,
+        scale: 1.0,
+        centerX: 0.5,
+        centerY: 0.5,
+        keyframes: [],
+      };
+      pushHistory();
+      set((state) => ({
+        operations: [...state.operations, op],
+        selectedOperationIndex: state.operations.length,
+        ...updateUndoRedoFlags(),
+      }));
     },
 
     addKeyframe: (opIndex, keyframe) => {
