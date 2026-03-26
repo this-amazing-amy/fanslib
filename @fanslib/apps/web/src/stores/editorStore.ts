@@ -5,6 +5,9 @@ type EditorState = {
   selectedOperationIndex: number | null;
   canUndo: boolean;
   canRedo: boolean;
+  isDirty: boolean;
+  sourceMediaId: string | null;
+  editId: string | null;
 
   // Mutation actions (push to undo stack)
   addOperation: (op: unknown) => void;
@@ -18,6 +21,14 @@ type EditorState = {
 
   // Selection
   setSelectedOperationIndex: (index: number | null) => void;
+
+  // Watermark convenience
+  addWatermark: (assetId: string) => void;
+
+  // Metadata
+  setSourceMediaId: (id: string) => void;
+  setEditId: (id: string | null) => void;
+  markClean: () => void;
 
   // Hydrate from existing MediaEdit
   hydrate: (operations: unknown[]) => void;
@@ -42,12 +53,16 @@ export const useEditorStore = create<EditorState>((set, get) => {
   const updateUndoRedoFlags = () => ({
     canUndo: undoStack.length > 0,
     canRedo: redoStack.length > 0,
+    isDirty: true,
   });
 
   return {
     operations: [],
     selectedOperationIndex: null,
     canUndo: false,
+    isDirty: false,
+    sourceMediaId: null,
+    editId: null,
     canRedo: false,
 
     addOperation: (op) => {
@@ -110,8 +125,37 @@ export const useEditorStore = create<EditorState>((set, get) => {
       });
     },
 
+    addWatermark: (assetId) => {
+      const op = {
+        type: "watermark" as const,
+        assetId,
+        x: 0.5,
+        y: 0.5,
+        width: 0.1,
+        opacity: 0.7,
+      };
+      pushHistory();
+      set((state) => ({
+        operations: [...state.operations, op],
+        selectedOperationIndex: state.operations.length,
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
     setSelectedOperationIndex: (index) => {
       set({ selectedOperationIndex: index });
+    },
+
+    setSourceMediaId: (id) => {
+      set({ sourceMediaId: id });
+    },
+
+    setEditId: (id) => {
+      set({ editId: id });
+    },
+
+    markClean: () => {
+      set({ isDirty: false });
     },
 
     hydrate: (operations) => {
@@ -122,6 +166,7 @@ export const useEditorStore = create<EditorState>((set, get) => {
         selectedOperationIndex: null,
         canUndo: false,
         canRedo: false,
+        isDirty: false,
       });
     },
 
@@ -133,6 +178,9 @@ export const useEditorStore = create<EditorState>((set, get) => {
         selectedOperationIndex: null,
         canUndo: false,
         canRedo: false,
+        isDirty: false,
+        sourceMediaId: null,
+        editId: null,
       });
     },
   };

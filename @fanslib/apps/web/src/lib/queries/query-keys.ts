@@ -58,6 +58,7 @@ export const QUERY_KEYS = {
   mediaEdits: {
     bySource: (mediaId: string) => ["media-edits", "by-source", mediaId] as const,
     byId: (editId: string) => ["media-edits", editId] as const,
+    queue: () => ["media-edits", "queue"] as const,
   },
 
   tags: {
@@ -166,6 +167,10 @@ export const QUERY_KEYS = {
 
   automation: {
     isRunning: () => ["automation", "is-running"] as const,
+  },
+
+  assets: {
+    all: (type?: string) => ["assets", "list", type] as const,
   },
 
   companion: {

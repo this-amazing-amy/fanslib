@@ -2,6 +2,7 @@ import { useAtom } from "jotai";
 import { useHydrateAtoms } from "jotai/utils";
 import { type ReactNode, useEffect } from "react";
 import { CredentialStatusBadge } from "~/components/CredentialStatusBadge";
+import { RenderQueueBadge } from "~/features/editor/components/RenderQueueBadge";
 import { Logo } from "~/components/Logo";
 import { NavigationMenu } from "~/components/NavigationMenu";
 import { BurgerIcon } from "~/components/ui/BurgerIcon";
@@ -62,7 +63,8 @@ const LayoutContent = ({ children, initialSidebarCollapsed }: AppLayoutProps) =>
               <BurgerIcon />
             </label>
             <Logo isCollapsed={false} className="h-8" />
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-2">
+              <RenderQueueBadge />
               <CredentialStatusBadge />
             </div>
           </header>
@@ -89,10 +91,11 @@ const LayoutContent = ({ children, initialSidebarCollapsed }: AppLayoutProps) =>
 
             <div
               className={cn(
-                "mt-auto p-4 border-t border-base-300",
+                "mt-auto p-4 border-t border-base-300 flex items-center gap-2",
                 isCollapsed && "lg:flex lg:justify-center",
               )}
             >
+              <RenderQueueBadge />
               <CredentialStatusBadge />
             </div>
           </aside>
