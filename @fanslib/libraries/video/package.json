@@ -1,0 +1,41 @@
+{
+  "name": "@fanslib/video",
+  "type": "module",
+  "module": "index.ts",
+  "exports": {
+    ".": {
+      "types": "./index.ts",
+      "import": "./index.ts"
+    },
+    "./types": {
+      "types": "./src/types.ts",
+      "import": "./src/types.ts"
+    },
+    "./compositions": {
+      "types": "./src/compositions/index.ts",
+      "import": "./src/compositions/index.ts"
+    }
+  },
+  "scripts": {
+    "lint": "oxlint -c ../../../.oxlintrc.json src/ && eslint src/",
+    "typecheck": "tsc",
+    "test": "bun test",
+    "format": "oxfmt -c ../../../.oxfmtrc.json --write src/"
+  },
+  "dependencies": {
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "remotion": "^4.0.441"
+  },
+  "devDependencies": {
+    "@remotion/bundler": "^4.0.441",
+    "@remotion/cli": "^4.0.441",
+    "@remotion/renderer": "^4.0.441",
+    "@types/bun": "latest",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

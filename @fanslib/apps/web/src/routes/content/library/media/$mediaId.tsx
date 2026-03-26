@@ -12,6 +12,7 @@ import { Button } from "~/components/ui/Button";
 import { Textarea } from "~/components/ui/Textarea";
 import { Switch } from "~/components/ui/Switch";
 
+import { MediaEditsSection } from "~/features/editor/components/MediaEditsSection";
 import { MediaTagEditor } from "~/features/library/components/MediaTagEditor";
 import { useDebounce } from "~/hooks/useDebounce";
 import { SiblingStrip } from "~/features/library/components/SiblingStrip/SiblingStrip";
@@ -169,6 +170,10 @@ const MediaRouteInner = ({ mediaId }: { mediaId: string }) => {
         </div>
         <div className="flex flex-col gap-4">
           <MediaPosts mediaId={media.id} />
+        </div>
+
+        <div className="mt-4">
+          <MediaEditsSection mediaId={media.id} />
         </div>
 
         <div className="mt-8">

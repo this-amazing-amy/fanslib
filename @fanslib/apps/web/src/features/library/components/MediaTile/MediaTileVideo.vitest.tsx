@@ -42,6 +42,7 @@ const baseMedia = {
   package: null,
   role: null,
   isManaged: false,
+  derivedFromId: null,
   createdAt: new Date("2026-01-01"),
   updatedAt: new Date("2026-01-01"),
   fileCreationDate: new Date("2026-01-01"),
