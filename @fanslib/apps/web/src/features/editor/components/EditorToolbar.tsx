@@ -1,4 +1,4 @@
-import { ArrowLeft, Undo2, Redo2, Droplets } from "lucide-react";
+import { ArrowLeft, Undo2, Redo2, Droplets, Smile } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "~/components/ui/Button";
 import { useEditorStore } from "~/stores/editorStore";
@@ -13,6 +13,7 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
   const canUndo = useEditorStore((s) => s.canUndo);
   const canRedo = useEditorStore((s) => s.canRedo);
   const addBlur = useEditorStore((s) => s.addBlur);
+  const addEmoji = useEditorStore((s) => s.addEmoji);
 
   return (
     <div className="h-12 border-b border-base-300 bg-base-200/50 flex items-center px-4 gap-2">
@@ -24,6 +25,10 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
       <Button size="sm" variant="ghost" onPress={addBlur} aria-label="Add blur region">
         <Droplets className="h-4 w-4 mr-1" />
         <span className="text-xs">Blur</span>
+      </Button>
+      <Button size="sm" variant="ghost" onPress={() => addEmoji()} aria-label="Add emoji overlay">
+        <Smile className="h-4 w-4 mr-1" />
+        <span className="text-xs">Emoji</span>
       </Button>
       <div className="flex-1" />
       <Button

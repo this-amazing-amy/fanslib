@@ -24,5 +24,18 @@ export type BlurOperation = {
   }>;
 };
 
+export type EmojiOperation = {
+  type: "emoji";
+  emoji: string;
+  x: RelativeCoordinate;
+  y: RelativeCoordinate;
+  size: RelativeCoordinate;
+  keyframes: Array<{
+    frame: number;
+    values: Record<string, number>;
+    easing?: string;
+  }>;
+};
+
 /** Union of all supported edit operations */
-export type Operation = WatermarkOperation | BlurOperation;
+export type Operation = WatermarkOperation | BlurOperation | EmojiOperation;

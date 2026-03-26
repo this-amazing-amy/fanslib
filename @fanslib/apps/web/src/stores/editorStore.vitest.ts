@@ -197,4 +197,34 @@ describe("editorStore", () => {
       expect(useEditorStore.getState().operations).toHaveLength(0);
     });
   });
+
+  describe("emoji operations", () => {
+    test("addEmoji adds an emoji overlay with default values", () => {
+      useEditorStore.getState().addEmoji();
+
+      const ops = useEditorStore.getState().operations;
+      expect(ops).toHaveLength(1);
+      const op = ops[0] as {
+        type: string;
+        emoji: string;
+        x: number;
+        y: number;
+        size: number;
+        keyframes: unknown[];
+      };
+      expect(op.type).toBe("emoji");
+      expect(op.emoji).toBe("⭐");
+      expect(op.x).toBe(0.5);
+      expect(op.y).toBe(0.5);
+      expect(op.size).toBe(0.08);
+      expect(op.keyframes).toEqual([]);
+      expect(useEditorStore.getState().selectedOperationIndex).toBe(0);
+    });
+
+    test("addEmoji is undoable", () => {
+      useEditorStore.getState().addEmoji();
+      useEditorStore.getState().undo();
+      expect(useEditorStore.getState().operations).toHaveLength(0);
+    });
+  });
 });
