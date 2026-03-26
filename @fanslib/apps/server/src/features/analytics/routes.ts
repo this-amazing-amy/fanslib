@@ -8,6 +8,7 @@ import { fetchFanslyAnalyticsData } from "./fetch-fansly-data";
 import { fetchActiveFypPosts } from "./operations/fyp/fetch-active-posts";
 import { fetchRepostCandidates } from "./operations/fyp/fetch-repost-candidates";
 import { fetchFypActionItems } from "./operations/fyp/fetch-actions";
+import { haltNonPreviewAggregates } from "./operations/fyp/halt-non-preview-aggregates";
 import { fetchAnalyticsHealth } from "./operations/health/fetch-health";
 import { clearNextFetch } from "./operations/queue/clear-next-fetch";
 import { fetchQueueState } from "./operations/queue/fetch-queue-state";
@@ -113,5 +114,9 @@ export const analyticsRoutes = new Hono()
   .get("/repost-candidates", zValidator("query", RepostCandidatesQuerySchema, validationError), async (c) => {
     const query = c.req.valid("query");
     const result = await fetchRepostCandidates(query);
+    return c.json(result);
+  })
+  .post("/halt-non-preview-aggregates", async (c) => {
+    const result = await haltNonPreviewAggregates();
     return c.json(result);
   });

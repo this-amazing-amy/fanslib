@@ -2,6 +2,7 @@ import { z } from "zod";
 import { db } from "../../../lib/db";
 import { calculateSimilarity } from "../../analytics/candidates/matching";
 import { FanslyAnalyticsAggregate } from "../../analytics/entity";
+import { identifyFypTrackableId } from "../../analytics/operations/fyp/preview-heuristic";
 import { Post, PostMedia } from "../entity";
 
 export const ScheduleCaptureRequestBodySchema = z.object({
@@ -27,11 +28,12 @@ export const processScheduleCapture = async (
   const postMediaRepo = dataSource.getRepository(PostMedia);
   const aggregateRepo = dataSource.getRepository(FanslyAnalyticsAggregate);
 
-  // Find ready Fansly posts
+  // Find ready Fansly posts with media loaded for preview heuristic
   const readyPosts = await postRepo
     .createQueryBuilder("post")
     .leftJoinAndSelect("post.channel", "channel")
     .leftJoinAndSelect("post.postMedia", "postMedia")
+    .leftJoinAndSelect("postMedia.media", "media")
     .where("post.status = :status", { status: "ready" })
     .andWhere("channel.typeId = :typeId", { typeId: "fansly" })
     .andWhere("post.caption IS NOT NULL")
@@ -60,16 +62,24 @@ export const processScheduleCapture = async (
     ...(input.fanslyPostId ? { fanslyPostId: input.fanslyPostId } : {}),
   });
 
-  // Link first PostMedia (attachments[0]) with fanslyStatisticsId
-  const firstPostMedia = [...post.postMedia].sort((a, b) => a.order - b.order)[0];
-  if (firstPostMedia) {
-    await postMediaRepo.update(firstPostMedia.id, {
+  const postMediaForHeuristic = post.postMedia.map((pm) => ({
+    id: pm.id,
+    order: pm.order,
+    mediaType: pm.media?.type ?? null,
+    duration: pm.media?.duration ?? null,
+  }));
+  const trackableId = identifyFypTrackableId(postMediaForHeuristic);
+  const targetPostMedia = trackableId
+    ? post.postMedia.find((pm) => pm.id === trackableId)
+    : [...post.postMedia].sort((a, b) => a.order - b.order)[0];
+
+  if (targetPostMedia) {
+    await postMediaRepo.update(targetPostMedia.id, {
       fanslyStatisticsId: input.contentId,
     });
 
-    // Create or update aggregate with initial nextFetchAt
     const existingAggregate = await aggregateRepo.findOne({
-      where: { postMediaId: firstPostMedia.id },
+      where: { postMediaId: targetPostMedia.id },
     });
 
     if (existingAggregate) {
@@ -79,8 +89,8 @@ export const processScheduleCapture = async (
       await aggregateRepo.save(existingAggregate);
     } else {
       const aggregate = aggregateRepo.create({
-        postMediaId: firstPostMedia.id,
-        postMedia: firstPostMedia,
+        postMediaId: targetPostMedia.id,
+        postMedia: targetPostMedia,
         totalViews: 0,
         averageEngagementSeconds: 0,
         averageEngagementPercent: 0,
