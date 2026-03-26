@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ImageIcon, Upload, Trash2, Pencil, Check, X } from "lucide-react";
+import { ImageIcon, Upload, Trash2, Pencil, Check, X, Music } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { Input } from "~/components/ui/Input";
 import {
@@ -14,7 +14,7 @@ import { DeleteConfirmDialog } from "~/components/ui/DeleteConfirmDialog";
 const AssetCard = ({
   asset,
 }: {
-  asset: { id: string; name: string; filename: string };
+  asset: { id: string; name: string; filename: string; type: "image" | "audio" };
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(asset.name);
@@ -32,11 +32,20 @@ const AssetCard = ({
   return (
     <div className="card bg-base-200 shadow-sm">
       <figure className="px-4 pt-4">
-        <img
-          src={`/api/assets/${asset.id}/file`}
-          alt={asset.name}
-          className="h-32 w-full rounded-lg object-contain bg-base-300"
-        />
+        {asset.type === "audio" ? (
+          <div className="h-32 w-full rounded-lg bg-base-300 flex flex-col items-center justify-center gap-2">
+            <Music className="h-8 w-8 text-base-content/30" />
+            <audio controls preload="none" className="w-full px-2">
+              <source src={`/api/assets/${asset.id}/file`} />
+            </audio>
+          </div>
+        ) : (
+          <img
+            src={`/api/assets/${asset.id}/file`}
+            alt={asset.name}
+            className="h-32 w-full rounded-lg object-contain bg-base-300"
+          />
+        )}
       </figure>
       <div className="card-body p-4 pt-2">
         {isEditing ? (
@@ -91,7 +100,8 @@ const AssetCard = ({
 };
 
 const AssetsSettings = () => {
-  const { data: assets = [] } = useAssetsQuery("image");
+  const [typeFilter, setTypeFilter] = useState<"image" | "audio" | undefined>(undefined);
+  const { data: assets = [] } = useAssetsQuery(typeFilter);
   const uploadMutation = useUploadAssetMutation();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -114,22 +124,38 @@ const AssetsSettings = () => {
             <ImageIcon /> Asset Library
           </h1>
           <p className="text-base-content/60">
-            Upload PNG images for use as watermarks and overlays
+            Upload images and audio for watermarks, overlays, and music tracks
           </p>
         </div>
         <div>
           <input
             ref={fileInputRef}
             type="file"
-            accept=".png,image/png"
+            accept=".png,image/png,.mp3,audio/mpeg,.wav,audio/wav,.aac,audio/aac,.m4a"
             className="hidden"
             onChange={handleFileSelect}
           />
           <Button onPress={() => fileInputRef.current?.click()} isDisabled={uploadMutation.isPending}>
             <Upload className="mr-2 h-4 w-4" />
-            {uploadMutation.isPending ? "Uploading..." : "Upload PNG"}
+            {uploadMutation.isPending ? "Uploading..." : "Upload"}
           </Button>
         </div>
+      </div>
+
+      <div className="flex gap-2">
+        {(["all", "image", "audio"] as const).map((t) => (
+          <button
+            key={t}
+            className={`px-3 py-1 rounded-full text-sm ${
+              (t === "all" ? typeFilter === undefined : typeFilter === t)
+                ? "bg-primary text-primary-content"
+                : "bg-base-200 text-base-content/60 hover:bg-base-300"
+            }`}
+            onClick={() => setTypeFilter(t === "all" ? undefined : t)}
+          >
+            {t === "all" ? "All" : t === "image" ? "Images" : "Audio"}
+          </button>
+        ))}
       </div>
 
       {uploadMutation.isError && (
