@@ -749,6 +749,7 @@ describe("Analytics Routes", () => {
 
       const post = await createTestPost(opts.channelId, {
         caption: opts.caption ?? "Test caption",
+        status: "posted",
         fypRemovedAt: opts.fypRemovedAt ?? null,
         fypManuallyRemoved: opts.fypManuallyRemoved ?? false,
         date: opts.postDate ?? new Date(),
@@ -1021,6 +1022,117 @@ describe("Analytics Routes", () => {
 
       const data = await parseResponse<Array<Record<string, unknown>>>(res);
       expect(data).toHaveLength(0);
+    });
+
+    test("excludes Media that has a scheduled Fansly post", async () => {
+      const channel = await createTestChannel();
+      const media = await createTestMedia();
+
+      await createPostMediaWithAggregate({
+        media,
+        channelId: channel.id,
+        totalViews: 500,
+        postDate: new Date("2025-01-01"),
+      });
+
+      const dataSource = getTestDataSource();
+      const postMediaRepo = dataSource.getRepository(PostMedia);
+      const scheduledPost = await createTestPost(channel.id, {
+        status: "scheduled",
+        date: new Date("2025-06-01"),
+      });
+      const pm = postMediaRepo.create({ post: scheduledPost, media, order: 0 });
+      await postMediaRepo.save(pm);
+
+      const res = await app.request("/api/analytics/repost-candidates");
+      expect(res.status).toBe(200);
+
+      const data = await parseResponse<Array<Record<string, unknown>>>(res);
+      expect(data).toHaveLength(0);
+    });
+
+    test("excludes Media that has a draft Fansly post", async () => {
+      const channel = await createTestChannel();
+      const media = await createTestMedia();
+
+      await createPostMediaWithAggregate({
+        media,
+        channelId: channel.id,
+        totalViews: 500,
+        postDate: new Date("2025-01-01"),
+      });
+
+      const dataSource = getTestDataSource();
+      const postMediaRepo = dataSource.getRepository(PostMedia);
+      const draftPost = await createTestPost(channel.id, {
+        status: "draft",
+        date: new Date("2025-06-01"),
+      });
+      const pm = postMediaRepo.create({ post: draftPost, media, order: 0 });
+      await postMediaRepo.save(pm);
+
+      const res = await app.request("/api/analytics/repost-candidates");
+      expect(res.status).toBe(200);
+
+      const data = await parseResponse<Array<Record<string, unknown>>>(res);
+      expect(data).toHaveLength(0);
+    });
+
+    test("excludes Media that has a freshly posted Fansly post without analytics", async () => {
+      const channel = await createTestChannel();
+      const media = await createTestMedia();
+
+      await createPostMediaWithAggregate({
+        media,
+        channelId: channel.id,
+        totalViews: 500,
+        postDate: new Date("2025-01-01"),
+      });
+
+      const dataSource = getTestDataSource();
+      const postMediaRepo = dataSource.getRepository(PostMedia);
+      const freshPost = await createTestPost(channel.id, {
+        status: "posted",
+        date: new Date("2025-06-01"),
+      });
+      const pm = postMediaRepo.create({ post: freshPost, media, order: 0 });
+      await postMediaRepo.save(pm);
+
+      const res = await app.request("/api/analytics/repost-candidates");
+      expect(res.status).toBe(200);
+
+      const data = await parseResponse<Array<Record<string, unknown>>>(res);
+      expect(data).toHaveLength(0);
+    });
+
+    test("does not exclude Media when freshly posted Fansly post was already removed from FYP", async () => {
+      const channel = await createTestChannel();
+      const media = await createTestMedia();
+
+      await createPostMediaWithAggregate({
+        media,
+        channelId: channel.id,
+        totalViews: 500,
+        postDate: new Date("2025-01-01"),
+      });
+
+      const dataSource = getTestDataSource();
+      const postMediaRepo = dataSource.getRepository(PostMedia);
+      const removedPost = await createTestPost(channel.id, {
+        status: "posted",
+        date: new Date("2025-06-01"),
+        fypManuallyRemoved: true,
+        fypRemovedAt: new Date("2025-06-02"),
+      });
+      const pm = postMediaRepo.create({ post: removedPost, media, order: 0 });
+      await postMediaRepo.save(pm);
+
+      const res = await app.request("/api/analytics/repost-candidates");
+      expect(res.status).toBe(200);
+
+      const data = (await parseResponse<Array<Record<string, unknown>>>(res)) as Array<Record<string, unknown>>;
+      expect(data).toHaveLength(1);
+      expect(data[0].mediaId).toBe(media.id);
     });
 
     test("excludes Media with any PostMedia still active on FYP", async () => {

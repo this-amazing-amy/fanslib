@@ -1,6 +1,6 @@
 import type { z } from "zod";
 import { db } from "../../../../lib/db";
-import { PostMedia } from "../../../posts/entity";
+import { Post, PostMedia } from "../../../posts/entity";
 import type { RepostCandidatesQuerySchema } from "../../schemas/repost-candidates";
 
 type DatapointItem = {
@@ -119,8 +119,25 @@ export const fetchRepostCandidates = async (
 
   const byMedia = groupByMediaId(allPostMedia);
 
+  const postRepo = dataSource.getRepository(Post);
+  const inFlightMediaIds = await postRepo
+    .createQueryBuilder("post")
+    .select("DISTINCT media.id", "mediaId")
+    .leftJoin("post.postMedia", "pm")
+    .leftJoin("pm.media", "media")
+    .leftJoin("post.channel", "channel")
+    .where("channel.typeId = :typeId", { typeId: "fansly" })
+    .andWhere("media.id IS NOT NULL")
+    .andWhere(
+      `(post.status IN ('draft', 'ready', 'scheduled') OR (post.status = 'posted' AND pm.fanslyStatisticsId IS NULL AND post.fypRemovedAt IS NULL AND (post.fypManuallyRemoved = :notRemoved OR post.fypManuallyRemoved IS NULL)))`,
+      { notRemoved: false },
+    )
+    .getRawMany()
+    .then((rows: Array<{ mediaId: string }>) => new Set(rows.map((r) => r.mediaId)));
+
   const candidates = Array.from(byMedia.entries())
-    .filter(([, postMediaList]) => {
+    .filter(([mediaId, postMediaList]) => {
+      if (inFlightMediaIds.has(mediaId)) return false;
       // None can be currently active on FYP
       if (postMediaList.some(isActiveOnFyp)) return false;
 
