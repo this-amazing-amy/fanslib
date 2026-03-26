@@ -6,6 +6,7 @@ import "reflect-metadata";
 // @ts-expect-error — sql.js has no type declarations
 import initSqlJs from "sql.js";
 import { DataSource } from "typeorm";
+import { Asset } from "../features/assets/entity";
 import { FanslyMediaCandidate } from "../features/analytics/candidate-entity";
 import { FanslyAnalyticsAggregate, FanslyAnalyticsDatapoint } from "../features/analytics/entity";
 import { Channel, ChannelType } from "../features/channels/entity";
@@ -77,6 +78,7 @@ const createAppDataSource = (driver?: Awaited<ReturnType<typeof initSqlJs>>) => 
     autoSave: true,
     ...(driver ? { driver } : {}),
     entities: [
+      Asset,
       Media,
       Post,
       PostMedia,

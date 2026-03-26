@@ -6,6 +6,7 @@ import { isAppError } from "./lib/errors";
 import { blueskyRoutes } from "./features/api-bluesky/routes";
 import { postponeRoutes } from "./features/api-postpone/routes";
 import { analyticsRoutes } from "./features/analytics/routes";
+import { assetsRoutes } from "./features/assets/routes";
 import { candidatesRoutes } from "./features/analytics/candidates/routes";
 import { channelsRoutes } from "./features/channels/routes";
 import { contentSchedulesRoutes } from "./features/content-schedules/routes";
@@ -76,6 +77,7 @@ const app = new Hono()
   .get("/health", (c) => c.json({ status: "ok", timestamp: new Date() }))
   .route("/", settingsRoutes)
   .route("/", analyticsRoutes)
+  .route("/", assetsRoutes)
   .route("/", blueskyRoutes)
   .route("/", postponeRoutes)
   .route("/", hashtagsRoutes)

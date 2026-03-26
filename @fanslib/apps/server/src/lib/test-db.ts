@@ -1,6 +1,7 @@
 // @ts-expect-error — sql.js has no type declarations
 import initSqlJs from "sql.js";
 import { DataSource } from "typeorm";
+import { Asset } from "../features/assets/entity";
 import { FanslyMediaCandidate } from "../features/analytics/candidate-entity";
 import { FanslyAnalyticsAggregate, FanslyAnalyticsDatapoint } from "../features/analytics/entity";
 import { Channel, ChannelType } from "../features/channels/entity";
@@ -36,6 +37,7 @@ export const createTestDataSource = (driver?: Awaited<ReturnType<typeof initSqlJ
     type: "sqljs",
     ...(driver ? { driver } : {}),
     entities: [
+      Asset,
       Media,
       Post,
       PostMedia,
@@ -121,6 +123,7 @@ export const clearAllTables = async () => {
     "FilterPreset",
     "FanslyAnalyticsDatapoint",
     "FanslyAnalyticsAggregate",
+    "Asset",
   ];
 
   await entityClearOrder.reduce(

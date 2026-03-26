@@ -163,6 +163,10 @@ export const QUERY_KEYS = {
     isRunning: () => ["automation", "is-running"] as const,
   },
 
+  assets: {
+    all: (type?: string) => ["assets", "list", type] as const,
+  },
+
   companion: {
     health: () => ["companion", "health"] as const,
   },
