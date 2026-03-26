@@ -61,6 +61,23 @@ export const useQueueStateQuery = () =>
     staleTime: 30_000,
   });
 
+export const useClearNextFetchMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (postMediaId: string) => {
+      // oxlint-disable-next-line typescript/no-explicit-any
+      const result = await (api.api.analytics as any).queue[":postMediaId"].$delete({
+        param: { postMediaId },
+      });
+      return result.json() as { cleared: boolean };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.analytics.queue() });
+    },
+  });
+};
+
 export const useFetchFanslyDataMutation = () => {
   const queryClient = useQueryClient();
 

@@ -9,6 +9,7 @@ import { fetchActiveFypPosts } from "./operations/fyp/fetch-active-posts";
 import { fetchRepostCandidates } from "./operations/fyp/fetch-repost-candidates";
 import { fetchFypActionItems } from "./operations/fyp/fetch-actions";
 import { fetchAnalyticsHealth } from "./operations/health/fetch-health";
+import { clearNextFetch } from "./operations/queue/clear-next-fetch";
 import { fetchQueueState } from "./operations/queue/fetch-queue-state";
 import { fetchDatapoints } from "./operations/post-analytics/fetch-datapoints";
 import { getFanslyPostsWithAnalytics } from "./operations/post-analytics/fetch-posts-with-analytics";
@@ -95,6 +96,15 @@ export const analyticsRoutes = new Hono()
     const result = await fetchQueueState();
     return c.json(result);
   })
+  .delete(
+    "/queue/:postMediaId",
+    zValidator("param", z.object({ postMediaId: z.string() }), validationError),
+    async (c) => {
+      const { postMediaId } = c.req.valid("param");
+      const result = await clearNextFetch(postMediaId);
+      return c.json(result);
+    },
+  )
   .get("/active-fyp-posts", zValidator("query", ActiveFypPostsQuerySchema, validationError), async (c) => {
     const query = c.req.valid("query");
     const result = await fetchActiveFypPosts(query);

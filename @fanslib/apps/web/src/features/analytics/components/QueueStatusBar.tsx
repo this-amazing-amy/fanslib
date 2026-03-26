@@ -1,6 +1,10 @@
-import { X } from "lucide-react";
+import { Trash2, X } from "lucide-react";
 import { useOverlayTriggerState } from "react-stately";
-import { useQueueStateQuery, useFetchFanslyDataMutation } from "~/lib/queries/analytics";
+import {
+  useQueueStateQuery,
+  useFetchFanslyDataMutation,
+  useClearNextFetchMutation,
+} from "~/lib/queries/analytics";
 import { getMediaThumbnailUrl } from "~/lib/media-urls";
 import { cn } from "~/lib/cn";
 import { Sheet, SheetTitle } from "~/components/ui/Sheet/Sheet";
@@ -22,6 +26,7 @@ const extractMediaId = (thumbnailUrl: string): string =>
 export const QueueStatusBar = () => {
   const { data, isLoading } = useQueueStateQuery();
   const fetchMutation = useFetchFanslyDataMutation();
+  const clearMutation = useClearNextFetchMutation();
   const sheetState = useOverlayTriggerState({});
 
   if (isLoading || !data) return null;
@@ -109,6 +114,15 @@ export const QueueStatusBar = () => {
                   {fetchMutation.isPending && fetchMutation.variables?.postMediaId === item.postMediaId
                     ? "Fetching..."
                     : "Fetch Now"}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-xs btn-ghost text-error"
+                  disabled={clearMutation.isPending && clearMutation.variables === item.postMediaId}
+                  onClick={() => clearMutation.mutate(item.postMediaId)}
+                  aria-label="Stop fetching"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
                 </button>
               </div>
             </li>
