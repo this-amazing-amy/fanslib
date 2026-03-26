@@ -6,13 +6,15 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 vi.mock("~/lib/queries/analytics", () => ({
   useQueueStateQuery: vi.fn(),
   useFetchFanslyDataMutation: vi.fn(),
+  useClearNextFetchMutation: vi.fn(),
 }));
 
-import { useQueueStateQuery, useFetchFanslyDataMutation } from "~/lib/queries/analytics";
+import { useQueueStateQuery, useFetchFanslyDataMutation, useClearNextFetchMutation } from "~/lib/queries/analytics";
 import { QueueStatusBar } from "./QueueStatusBar";
 
 const mockUseQueueStateQuery = vi.mocked(useQueueStateQuery);
 const mockUseFetchFanslyDataMutation = vi.mocked(useFetchFanslyDataMutation);
+const mockUseClearNextFetchMutation = vi.mocked(useClearNextFetchMutation);
 
 const defaultMutationReturn = {
   mutate: vi.fn(),
@@ -41,6 +43,8 @@ describe("QueueStatusBar", () => {
   beforeEach(() => {
     // oxlint-disable-next-line typescript/no-explicit-any
     mockUseFetchFanslyDataMutation.mockReturnValue(defaultMutationReturn as any);
+    // oxlint-disable-next-line typescript/no-explicit-any
+    mockUseClearNextFetchMutation.mockReturnValue(defaultMutationReturn as any);
   });
 
   afterEach(() => {
