@@ -1,11 +1,45 @@
 import type { z } from "zod";
 import { db } from "../../../../lib/db";
-import { PostMedia } from "../../../posts/entity";
+import { Post, PostMedia } from "../../../posts/entity";
 import { FanslyMediaCandidate } from "../../candidate-entity";
 import { FanslyAnalyticsAggregate } from "../../entity";
+import { isFypTrackable } from "../../operations/fyp/preview-heuristic";
 import type { ConfirmMatchRequestBodySchema, ConfirmMatchResponseSchema } from "../schema";
 
 const INITIAL_FETCH_INTERVAL_DAYS = 1;
+
+const loadSiblingPostMedia = async (postMediaId: string) => {
+  const dataSource = await db();
+  const pm = await dataSource.getRepository(PostMedia).findOne({
+    where: { id: postMediaId },
+    relations: { post: true },
+  });
+  if (!pm) return [];
+
+  const post = await dataSource.getRepository(Post).findOne({
+    where: { id: pm.post.id },
+    relations: { postMedia: true },
+  });
+  if (!post) return [];
+
+  const allPm = await Promise.all(
+    post.postMedia.map((sibling) =>
+      dataSource.getRepository(PostMedia).findOne({
+        where: { id: sibling.id },
+        relations: { media: true },
+      }),
+    ),
+  );
+
+  return allPm
+    .filter((p): p is PostMedia => p !== null)
+    .map((p) => ({
+      id: p.id,
+      order: p.order,
+      mediaType: p.media?.type ?? null,
+      duration: p.media?.duration ?? null,
+    }));
+};
 
 export const confirmMatch = async (
   id: string,
@@ -53,27 +87,31 @@ export const confirmMatch = async (
   postMedia.fanslyStatisticsId = candidate.fanslyStatisticsId;
   await postMediaRepository.save(postMedia);
 
-  // Create or update aggregate with initial nextFetchAt
-  const aggregateRepository = dataSource.getRepository(FanslyAnalyticsAggregate);
-  const existingAggregate = await aggregateRepository.findOne({
-    where: { postMediaId: body.postMediaId },
-  });
+  const siblings = await loadSiblingPostMedia(body.postMediaId);
+  const shouldTrack = isFypTrackable(body.postMediaId, siblings);
 
-  if (existingAggregate) {
-    existingAggregate.nextFetchAt = new Date(
-      Date.now() + INITIAL_FETCH_INTERVAL_DAYS * 24 * 60 * 60 * 1000,
-    );
-    await aggregateRepository.save(existingAggregate);
-  } else {
-    const aggregate = aggregateRepository.create({
-      postMediaId: body.postMediaId,
-      postMedia,
-      totalViews: 0,
-      averageEngagementSeconds: 0,
-      averageEngagementPercent: 0,
-      nextFetchAt: new Date(Date.now() + INITIAL_FETCH_INTERVAL_DAYS * 24 * 60 * 60 * 1000),
+  if (shouldTrack) {
+    const aggregateRepository = dataSource.getRepository(FanslyAnalyticsAggregate);
+    const existingAggregate = await aggregateRepository.findOne({
+      where: { postMediaId: body.postMediaId },
     });
-    await aggregateRepository.save(aggregate);
+
+    if (existingAggregate) {
+      existingAggregate.nextFetchAt = new Date(
+        Date.now() + INITIAL_FETCH_INTERVAL_DAYS * 24 * 60 * 60 * 1000,
+      );
+      await aggregateRepository.save(existingAggregate);
+    } else {
+      const aggregate = aggregateRepository.create({
+        postMediaId: body.postMediaId,
+        postMedia,
+        totalViews: 0,
+        averageEngagementSeconds: 0,
+        averageEngagementPercent: 0,
+        nextFetchAt: new Date(Date.now() + INITIAL_FETCH_INTERVAL_DAYS * 24 * 60 * 60 * 1000),
+      });
+      await aggregateRepository.save(aggregate);
+    }
   }
 
   return candidate;
