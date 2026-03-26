@@ -1,4 +1,4 @@
-import { ArrowLeft, Undo2, Redo2 } from "lucide-react";
+import { ArrowLeft, Undo2, Redo2, Crop } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "~/components/ui/Button";
 import { useEditorStore } from "~/stores/editorStore";
@@ -12,6 +12,7 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
   const redo = useEditorStore((s) => s.redo);
   const canUndo = useEditorStore((s) => s.canUndo);
   const canRedo = useEditorStore((s) => s.canRedo);
+  const addCrop = useEditorStore((s) => s.addCrop);
 
   return (
     <div className="h-12 border-b border-base-300 bg-base-200/50 flex items-center px-4 gap-2">
@@ -19,23 +20,16 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
         <ArrowLeft className="h-4 w-4" />
         Back to Media
       </Link>
+      <div className="border-l border-base-300 h-6 mx-2" />
+      <Button size="sm" variant="ghost" onPress={() => addCrop()} aria-label="Add crop">
+        <Crop className="h-4 w-4 mr-1" />
+        <span className="text-xs">Crop</span>
+      </Button>
       <div className="flex-1" />
-      <Button
-        size="sm"
-        variant="ghost"
-        onPress={undo}
-        isDisabled={!canUndo}
-        aria-label="Undo"
-      >
+      <Button size="sm" variant="ghost" onPress={undo} isDisabled={!canUndo} aria-label="Undo">
         <Undo2 className="h-4 w-4" />
       </Button>
-      <Button
-        size="sm"
-        variant="ghost"
-        onPress={redo}
-        isDisabled={!canRedo}
-        aria-label="Redo"
-      >
+      <Button size="sm" variant="ghost" onPress={redo} isDisabled={!canRedo} aria-label="Redo">
         <Redo2 className="h-4 w-4" />
       </Button>
     </div>

@@ -16,6 +16,9 @@ type EditorState = {
   undo: () => void;
   redo: () => void;
 
+  // Crop convenience
+  addCrop: (aspectRatio?: string) => void;
+
   // Selection
   setSelectedOperationIndex: (index: number | null) => void;
 
@@ -108,6 +111,21 @@ export const useEditorStore = create<EditorState>((set, get) => {
         canUndo: true,
         canRedo: redoStack.length > 0,
       });
+    },
+
+    addCrop: (aspectRatio = "16:9") => {
+      const op = {
+        type: "crop" as const,
+        aspectRatio,
+        centerX: 0.5,
+        centerY: 0.5,
+      };
+      pushHistory();
+      set((state) => ({
+        operations: [...state.operations, op],
+        selectedOperationIndex: state.operations.length,
+        ...updateUndoRedoFlags(),
+      }));
     },
 
     setSelectedOperationIndex: (index) => {

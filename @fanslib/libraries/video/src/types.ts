@@ -10,5 +10,14 @@ export type WatermarkOperation = {
   opacity: RelativeCoordinate;
 };
 
+export type AspectRatioPreset = "16:9" | "9:16" | "1:1" | "4:5";
+
+export type CropOperation = {
+  type: "crop";
+  aspectRatio: AspectRatioPreset;
+  centerX: RelativeCoordinate;
+  centerY: RelativeCoordinate;
+};
+
 /** Union of all supported edit operations */
-export type Operation = WatermarkOperation;
+export type Operation = WatermarkOperation | CropOperation;
