@@ -24,6 +24,9 @@ type EditorState = {
   // Blur convenience
   addBlur: () => void;
 
+  // Pixelate convenience
+  addPixelate: () => void;
+
   // Selection
   setSelectedOperationIndex: (index: number | null) => void;
 
@@ -126,6 +129,24 @@ export const useEditorStore = create<EditorState>((set, get) => {
         width: 0.15,
         height: 0.15,
         radius: 20,
+        keyframes: [],
+      };
+      pushHistory();
+      set((state) => ({
+        operations: [...state.operations, op],
+        selectedOperationIndex: state.operations.length,
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
+    addPixelate: () => {
+      const op = {
+        type: "pixelate" as const,
+        x: 0.4,
+        y: 0.4,
+        width: 0.15,
+        height: 0.15,
+        pixelSize: 10,
         keyframes: [],
       };
       pushHistory();

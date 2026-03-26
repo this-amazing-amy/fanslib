@@ -197,4 +197,37 @@ describe("editorStore", () => {
       expect(useEditorStore.getState().operations).toHaveLength(0);
     });
   });
+
+  describe("pixelate operations", () => {
+    test("addPixelate adds a pixelate operation with sensible defaults", () => {
+      useEditorStore.getState().addPixelate();
+
+      const ops = useEditorStore.getState().operations;
+      expect(ops).toHaveLength(1);
+      const op = ops[0] as {
+        type: string;
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        pixelSize: number;
+        keyframes: unknown[];
+      };
+      expect(op.type).toBe("pixelate");
+      expect(op.x).toBe(0.4);
+      expect(op.y).toBe(0.4);
+      expect(op.width).toBe(0.15);
+      expect(op.height).toBe(0.15);
+      expect(op.pixelSize).toBe(10);
+      expect(op.keyframes).toEqual([]);
+      expect(useEditorStore.getState().selectedOperationIndex).toBe(0);
+    });
+
+    test("addPixelate is undoable", () => {
+      useEditorStore.getState().addPixelate();
+      expect(useEditorStore.getState().operations).toHaveLength(1);
+      useEditorStore.getState().undo();
+      expect(useEditorStore.getState().operations).toHaveLength(0);
+    });
+  });
 });
