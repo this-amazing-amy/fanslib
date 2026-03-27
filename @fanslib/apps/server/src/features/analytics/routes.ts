@@ -15,6 +15,7 @@ import { fetchQueueState } from "./operations/queue/fetch-queue-state";
 import { fetchDatapoints } from "./operations/post-analytics/fetch-datapoints";
 import { getFanslyPostsWithAnalytics } from "./operations/post-analytics/fetch-posts-with-analytics";
 import { initializeAnalyticsAggregates } from "./operations/post-analytics/initialize-aggregates";
+import { linkPost } from "./operations/link-post";
 import { fetchUnlinkedPosts } from "./operations/unlinked-posts";
 
 // Zod schema conversions for request validation
@@ -123,5 +124,16 @@ export const analyticsRoutes = new Hono()
   })
   .get("/unlinked-posts", async (c) => {
     const result = await fetchUnlinkedPosts();
+    return c.json(result);
+  })
+  .post("/link-post", async (c) => {
+    const body = await c.req.json();
+    const { postId, attachments } = body as {
+      postId: string;
+      attachments: { fanslyStatisticsId: string; duration: number }[];
+    };
+    const result = await linkPost(postId, attachments);
+    if (result === "not_found") return c.json({ error: "Post not found" }, 404);
+    if (result === "no_match") return c.json({ error: "No duration match found" }, 422);
     return c.json(result);
   });
