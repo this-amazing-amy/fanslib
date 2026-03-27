@@ -15,6 +15,7 @@ import { fetchQueueState } from "./operations/queue/fetch-queue-state";
 import { fetchDatapoints } from "./operations/post-analytics/fetch-datapoints";
 import { getFanslyPostsWithAnalytics } from "./operations/post-analytics/fetch-posts-with-analytics";
 import { initializeAnalyticsAggregates } from "./operations/post-analytics/initialize-aggregates";
+import { fetchUnlinkedPosts } from "./operations/unlinked-posts";
 
 // Zod schema conversions for request validation
 const FetchDatapointsRequestParamsSchema = z.object({
@@ -118,5 +119,9 @@ export const analyticsRoutes = new Hono()
   })
   .post("/halt-non-preview-aggregates", async (c) => {
     const result = await haltNonPreviewAggregates();
+    return c.json(result);
+  })
+  .get("/unlinked-posts", async (c) => {
+    const result = await fetchUnlinkedPosts();
     return c.json(result);
   });
