@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { ArrowLeft, Undo2, Redo2, ImageIcon, Save } from "lucide-react";
+import { ArrowLeft, Undo2, Redo2, ImageIcon, Save, Upload } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "~/components/ui/Button";
 import { useEditorStore } from "~/stores/editorStore";
 import { useAssetsQuery } from "~/lib/queries/assets";
+import { ExportDialog } from "./ExportDialog";
 
 type EditorToolbarProps = {
   mediaId: string;
@@ -24,6 +25,7 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
 
   const [watermarkOpen, setWatermarkOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
 
@@ -163,6 +165,20 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
         <Save className="h-4 w-4" />
         <span className="ml-1 text-sm">{saving ? "Saving..." : "Save"}</span>
       </Button>
+
+      {/* Export button */}
+      <Button
+        size="sm"
+        variant="ghost"
+        onPress={() => setExportOpen(true)}
+        isDisabled={operations.length === 0}
+        aria-label="Export"
+      >
+        <Upload className="h-4 w-4" />
+        <span className="ml-1 text-sm">Export</span>
+      </Button>
+
+      <ExportDialog open={exportOpen} onOpenChange={setExportOpen} />
     </div>
   );
 };
