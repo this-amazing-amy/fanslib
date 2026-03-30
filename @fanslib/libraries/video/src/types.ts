@@ -10,6 +10,12 @@ export type WatermarkOperation = {
   opacity: RelativeCoordinate;
 };
 
+export type ClipOperation = {
+  type: "clip";
+  startFrame: number;
+  endFrame: number;
+};
+
 export type AspectRatioPreset = "16:9" | "9:16" | "1:1" | "4:5";
 
 export type CropOperation = {
@@ -47,6 +53,19 @@ export type PixelateOperation = {
   }>;
 };
 
+export type EmojiOperation = {
+  type: "emoji";
+  emoji: string;
+  x: RelativeCoordinate;
+  y: RelativeCoordinate;
+  size: RelativeCoordinate;
+  keyframes: Array<{
+    frame: number;
+    values: Record<string, number>;
+    easing?: string;
+  }>;
+};
+
 export type ZoomOperation = {
   type: "zoom";
   scale: number;
@@ -60,4 +79,4 @@ export type ZoomOperation = {
 };
 
 /** Union of all supported edit operations */
-export type Operation = WatermarkOperation | CropOperation | BlurOperation | PixelateOperation | ZoomOperation;
+export type Operation = WatermarkOperation | ClipOperation | CropOperation | BlurOperation | PixelateOperation | EmojiOperation | ZoomOperation;
