@@ -55,6 +55,11 @@ export const QUERY_KEYS = {
     siblings: (id: string) => ["media", id, "siblings"] as const,
   },
 
+  mediaEdits: {
+    bySource: (mediaId: string) => ["media-edits", "by-source", mediaId] as const,
+    byId: (editId: string) => ["media-edits", editId] as const,
+  },
+
   tags: {
     dimensions: {
       all: () => ["tags", "dimensions"] as const,
