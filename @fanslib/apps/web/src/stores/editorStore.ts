@@ -24,6 +24,9 @@ type EditorState = {
   // Blur convenience
   addBlur: () => void;
 
+  // Emoji convenience
+  addEmoji: (emoji?: string) => void;
+
   // Pixelate convenience
   addPixelate: () => void;
 
@@ -132,6 +135,23 @@ export const useEditorStore = create<EditorState>((set, get) => {
         width: 0.15,
         height: 0.15,
         radius: 20,
+        keyframes: [],
+      };
+      pushHistory();
+      set((state) => ({
+        operations: [...state.operations, op],
+        selectedOperationIndex: state.operations.length,
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
+    addEmoji: (emoji = "⭐") => {
+      const op = {
+        type: "emoji" as const,
+        emoji,
+        x: 0.5,
+        y: 0.5,
+        size: 0.08,
         keyframes: [],
       };
       pushHistory();

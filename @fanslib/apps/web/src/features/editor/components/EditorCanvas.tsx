@@ -23,18 +23,27 @@ type PixelateRegionPreview = {
   pixelSize: number;
 };
 
+type EmojiPreview = {
+  emoji: string;
+  x: number;
+  y: number;
+  size: number;
+};
+
 const PreviewComposition = ({
   sourceUrl,
   watermark,
   watermarkUrl,
   blurRegions = [],
   pixelateRegions = [],
+  emojis = [],
 }: {
   sourceUrl: string;
   watermark?: { x: number; y: number; width: number; opacity: number };
   watermarkUrl?: string;
   blurRegions?: BlurRegionPreview[];
   pixelateRegions?: PixelateRegionPreview[];
+  emojis?: EmojiPreview[];
 }) => (
   <AbsoluteFill>
     <Img src={sourceUrl} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
@@ -79,6 +88,23 @@ const PreviewComposition = ({
         }}
       />
     )}
+    {emojis.map((em, i) => (
+      <div
+        key={`em-${i}`}
+        style={{
+          position: "absolute",
+          left: `${em.x * 100}%`,
+          top: `${em.y * 100}%`,
+          fontSize: `${em.size * 1920}px`,
+          lineHeight: 1,
+          transform: "translate(-50%, -50%)",
+          userSelect: "none",
+          pointerEvents: "none",
+        }}
+      >
+        {em.emoji}
+      </div>
+    ))}
   </AbsoluteFill>
 );
 
@@ -111,6 +137,12 @@ export const EditorCanvas = ({ mediaId, mediaType, operations }: EditorCanvasPro
       typeof op === "object" && op !== null && "type" in op && (op as { type: string }).type === "pixelate",
   );
 
+  // Collect emoji operations
+  const emojiOps = operations.filter(
+    (op): op is EmojiPreview & { type: "emoji" } =>
+      typeof op === "object" && op !== null && "type" in op && (op as { type: string }).type === "emoji",
+  );
+
   const isVideo = mediaType === "video";
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -125,6 +157,7 @@ export const EditorCanvas = ({ mediaId, mediaType, operations }: EditorCanvasPro
           watermarkUrl,
           blurRegions: blurOps,
           pixelateRegions: pixelateOps,
+          emojis: emojiOps,
         }}
         durationInFrames={isVideo ? 900 : 1}
         compositionWidth={1920}
