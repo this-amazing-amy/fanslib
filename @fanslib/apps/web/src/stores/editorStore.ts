@@ -27,6 +27,9 @@ type EditorState = {
   // Pixelate convenience
   addPixelate: () => void;
 
+  // Zoom convenience
+  addZoom: () => void;
+
   // Selection
   setSelectedOperationIndex: (index: number | null) => void;
 
@@ -147,6 +150,22 @@ export const useEditorStore = create<EditorState>((set, get) => {
         width: 0.15,
         height: 0.15,
         pixelSize: 10,
+        keyframes: [],
+      };
+      pushHistory();
+      set((state) => ({
+        operations: [...state.operations, op],
+        selectedOperationIndex: state.operations.length,
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
+    addZoom: () => {
+      const op = {
+        type: "zoom" as const,
+        scale: 1.0,
+        centerX: 0.5,
+        centerY: 0.5,
         keyframes: [],
       };
       pushHistory();
