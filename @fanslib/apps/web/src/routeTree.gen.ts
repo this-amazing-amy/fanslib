@@ -30,6 +30,7 @@ import { Route as SettingsIntegrationsRouteImport } from './routes/settings/inte
 import { Route as SettingsFilterPresetsRouteImport } from './routes/settings/filter-presets'
 import { Route as SettingsContentTagsRouteImport } from './routes/settings/content-tags'
 import { Route as SettingsContentSafetyRouteImport } from './routes/settings/content-safety'
+import { Route as SettingsAssetsRouteImport } from './routes/settings/assets'
 import { Route as SettingsAppearanceRouteImport } from './routes/settings/appearance'
 import { Route as SchedulesIdRouteImport } from './routes/schedules/$id'
 import { Route as PostsPostIdRouteImport } from './routes/posts/$postId'
@@ -150,6 +151,11 @@ const SettingsContentSafetyRoute = SettingsContentSafetyRouteImport.update({
   path: '/content-safety',
   getParentRoute: () => SettingsRoute,
 } as any)
+const SettingsAssetsRoute = SettingsAssetsRouteImport.update({
+  id: '/assets',
+  path: '/assets',
+  getParentRoute: () => SettingsRoute,
+} as any)
 const SettingsAppearanceRoute = SettingsAppearanceRouteImport.update({
   id: '/appearance',
   path: '/appearance',
@@ -242,6 +248,7 @@ export interface FileRoutesByFullPath {
   '/posts/$postId': typeof PostsPostIdRoute
   '/schedules/$id': typeof SchedulesIdRoute
   '/settings/appearance': typeof SettingsAppearanceRoute
+  '/settings/assets': typeof SettingsAssetsRoute
   '/settings/content-safety': typeof SettingsContentSafetyRoute
   '/settings/content-tags': typeof SettingsContentTagsRoute
   '/settings/filter-presets': typeof SettingsFilterPresetsRoute
@@ -277,6 +284,7 @@ export interface FileRoutesByTo {
   '/posts/$postId': typeof PostsPostIdRoute
   '/schedules/$id': typeof SchedulesIdRoute
   '/settings/appearance': typeof SettingsAppearanceRoute
+  '/settings/assets': typeof SettingsAssetsRoute
   '/settings/content-safety': typeof SettingsContentSafetyRoute
   '/settings/content-tags': typeof SettingsContentTagsRoute
   '/settings/filter-presets': typeof SettingsFilterPresetsRoute
@@ -314,6 +322,7 @@ export interface FileRoutesById {
   '/posts/$postId': typeof PostsPostIdRoute
   '/schedules/$id': typeof SchedulesIdRoute
   '/settings/appearance': typeof SettingsAppearanceRoute
+  '/settings/assets': typeof SettingsAssetsRoute
   '/settings/content-safety': typeof SettingsContentSafetyRoute
   '/settings/content-tags': typeof SettingsContentTagsRoute
   '/settings/filter-presets': typeof SettingsFilterPresetsRoute
@@ -353,6 +362,7 @@ export interface FileRouteTypes {
     | '/posts/$postId'
     | '/schedules/$id'
     | '/settings/appearance'
+    | '/settings/assets'
     | '/settings/content-safety'
     | '/settings/content-tags'
     | '/settings/filter-presets'
@@ -388,6 +398,7 @@ export interface FileRouteTypes {
     | '/posts/$postId'
     | '/schedules/$id'
     | '/settings/appearance'
+    | '/settings/assets'
     | '/settings/content-safety'
     | '/settings/content-tags'
     | '/settings/filter-presets'
@@ -424,6 +435,7 @@ export interface FileRouteTypes {
     | '/posts/$postId'
     | '/schedules/$id'
     | '/settings/appearance'
+    | '/settings/assets'
     | '/settings/content-safety'
     | '/settings/content-tags'
     | '/settings/filter-presets'
@@ -613,6 +625,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsContentSafetyRouteImport
       parentRoute: typeof SettingsRoute
     }
+    '/settings/assets': {
+      id: '/settings/assets'
+      path: '/assets'
+      fullPath: '/settings/assets'
+      preLoaderRoute: typeof SettingsAssetsRouteImport
+      parentRoute: typeof SettingsRoute
+    }
     '/settings/appearance': {
       id: '/settings/appearance'
       path: '/appearance'
@@ -770,6 +789,7 @@ const SchedulesRouteWithChildren = SchedulesRoute._addFileChildren(
 
 interface SettingsRouteChildren {
   SettingsAppearanceRoute: typeof SettingsAppearanceRoute
+  SettingsAssetsRoute: typeof SettingsAssetsRoute
   SettingsContentSafetyRoute: typeof SettingsContentSafetyRoute
   SettingsContentTagsRoute: typeof SettingsContentTagsRoute
   SettingsFilterPresetsRoute: typeof SettingsFilterPresetsRoute
@@ -781,6 +801,7 @@ interface SettingsRouteChildren {
 
 const SettingsRouteChildren: SettingsRouteChildren = {
   SettingsAppearanceRoute: SettingsAppearanceRoute,
+  SettingsAssetsRoute: SettingsAssetsRoute,
   SettingsContentSafetyRoute: SettingsContentSafetyRoute,
   SettingsContentTagsRoute: SettingsContentTagsRoute,
   SettingsFilterPresetsRoute: SettingsFilterPresetsRoute,
