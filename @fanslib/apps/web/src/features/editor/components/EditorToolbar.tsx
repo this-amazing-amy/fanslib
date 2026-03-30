@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { ArrowLeft, Undo2, Redo2, ImageIcon, Save, Upload, Scissors, Droplets, Grid3x3, ZoomIn } from "lucide-react";
+import { ArrowLeft, Undo2, Redo2, ImageIcon, Save, Upload, Scissors, Droplets, Smile, Grid3x3, ZoomIn } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "~/components/ui/Button";
 import { useEditorStore } from "~/stores/editorStore";
@@ -22,6 +22,7 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
   const operations = useEditorStore((s) => s.operations);
   const addWatermark = useEditorStore((s) => s.addWatermark);
   const addBlur = useEditorStore((s) => s.addBlur);
+  const addEmoji = useEditorStore((s) => s.addEmoji);
   const addPixelate = useEditorStore((s) => s.addPixelate);
   const addZoom = useEditorStore((s) => s.addZoom);
   const setEditId = useEditorStore((s) => s.setEditId);
@@ -154,6 +155,10 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
       <Button size="sm" variant="ghost" onPress={addBlur} aria-label="Add blur region">
         <Droplets className="h-4 w-4 mr-1" />
         <span className="text-xs">Blur</span>
+      </Button>
+      <Button size="sm" variant="ghost" onPress={() => addEmoji()} aria-label="Add emoji overlay">
+        <Smile className="h-4 w-4 mr-1" />
+        <span className="text-xs">Emoji</span>
       </Button>
       <Button size="sm" variant="ghost" onPress={addPixelate} aria-label="Add pixelate region">
         <Grid3x3 className="h-4 w-4 mr-1" />
