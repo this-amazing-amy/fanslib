@@ -18,6 +18,7 @@ export const MediaSchema = z.object({
   package: z.string().nullable().default(null),
   role: z.string().nullable().default(null),
   isManaged: z.boolean().default(false),
+  derivedFromId: z.string().nullable().default(null),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   fileCreationDate: z.coerce.date(),

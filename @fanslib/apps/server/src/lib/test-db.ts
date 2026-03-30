@@ -13,6 +13,7 @@ import {
 import { FilterPreset } from "../features/filter-presets/entity";
 import { Hashtag, HashtagChannelStats } from "../features/hashtags/entity";
 import { Media } from "../features/library/entity";
+import { MediaEdit } from "../features/media-edits/entity";
 import { Post, PostMedia } from "../features/posts/entity";
 import { Shoot } from "../features/shoots/entity";
 import { CaptionSnippet } from "../features/snippets/entity";
@@ -39,6 +40,7 @@ export const createTestDataSource = (driver?: Awaited<ReturnType<typeof initSqlJ
     entities: [
       Asset,
       Media,
+      MediaEdit,
       Post,
       PostMedia,
       Channel,
@@ -72,6 +74,8 @@ export const setupTestDatabase = async () => {
   const driver = await loadTestSqlJs();
   testDataSource = createTestDataSource(driver);
   await testDataSource.initialize();
+  // Enable SQLite foreign key enforcement so ON DELETE CASCADE/SET NULL works in tests
+  await testDataSource.query("PRAGMA foreign_keys = ON");
   setTestDataSource(testDataSource);
   return testDataSource;
 };
@@ -117,6 +121,7 @@ export const clearAllTables = async () => {
     "Shoot",
     "TagDefinition",
     "TagDimension",
+    "MediaEdit",
     "Media",
     "Hashtag",
     "ChannelType",
