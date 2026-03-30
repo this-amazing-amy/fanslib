@@ -41,7 +41,9 @@ import { Route as ContentShootsRouteImport } from './routes/content/shoots'
 import { Route as ContentLibraryRouteImport } from './routes/content/library'
 import { Route as ContentLibraryOrganizeRouteImport } from './routes/content/library/organize'
 import { Route as ContentLibraryMediaRouteImport } from './routes/content/library/media'
+import { Route as LibraryMediaIdEditIndexRouteImport } from './routes/library/$mediaId/edit/index'
 import { Route as ContentLibraryMediaIndexRouteImport } from './routes/content/library/media/index'
+import { Route as LibraryMediaIdEditEditIdRouteImport } from './routes/library/$mediaId/edit/$editId'
 import { Route as ContentLibraryMediaMediaIdRouteImport } from './routes/content/library/media/$mediaId'
 
 const SubredditsRoute = SubredditsRouteImport.update({
@@ -204,11 +206,22 @@ const ContentLibraryMediaRoute = ContentLibraryMediaRouteImport.update({
   path: '/media',
   getParentRoute: () => ContentLibraryRoute,
 } as any)
+const LibraryMediaIdEditIndexRoute = LibraryMediaIdEditIndexRouteImport.update({
+  id: '/edit/',
+  path: '/edit/',
+  getParentRoute: () => LibraryMediaIdRoute,
+} as any)
 const ContentLibraryMediaIndexRoute =
   ContentLibraryMediaIndexRouteImport.update({
     id: '/',
     path: '/',
     getParentRoute: () => ContentLibraryMediaRoute,
+  } as any)
+const LibraryMediaIdEditEditIdRoute =
+  LibraryMediaIdEditEditIdRouteImport.update({
+    id: '/edit/$editId',
+    path: '/edit/$editId',
+    getParentRoute: () => LibraryMediaIdRoute,
   } as any)
 const ContentLibraryMediaMediaIdRoute =
   ContentLibraryMediaMediaIdRouteImport.update({
@@ -231,7 +244,7 @@ export interface FileRoutesByFullPath {
   '/content/shoots': typeof ContentShootsRoute
   '/dev/media-tile-aspect': typeof DevMediaTileAspectRoute
   '/fansly/fyp': typeof FanslyFypRoute
-  '/library/$mediaId': typeof LibraryMediaIdRoute
+  '/library/$mediaId': typeof LibraryMediaIdRouteWithChildren
   '/posts/$postId': typeof PostsPostIdRoute
   '/schedules/$id': typeof SchedulesIdRoute
   '/settings/appearance': typeof SettingsAppearanceRoute
@@ -251,7 +264,9 @@ export interface FileRoutesByFullPath {
   '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
   '/content/library/organize': typeof ContentLibraryOrganizeRoute
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
+  '/library/$mediaId/edit/$editId': typeof LibraryMediaIdEditEditIdRoute
   '/content/library/media/': typeof ContentLibraryMediaIndexRoute
+  '/library/$mediaId/edit/': typeof LibraryMediaIdEditIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -265,7 +280,7 @@ export interface FileRoutesByTo {
   '/content/shoots': typeof ContentShootsRoute
   '/dev/media-tile-aspect': typeof DevMediaTileAspectRoute
   '/fansly/fyp': typeof FanslyFypRoute
-  '/library/$mediaId': typeof LibraryMediaIdRoute
+  '/library/$mediaId': typeof LibraryMediaIdRouteWithChildren
   '/posts/$postId': typeof PostsPostIdRoute
   '/schedules/$id': typeof SchedulesIdRoute
   '/settings/appearance': typeof SettingsAppearanceRoute
@@ -284,7 +299,9 @@ export interface FileRoutesByTo {
   '/shoots': typeof ShootsIndexRoute
   '/content/library/organize': typeof ContentLibraryOrganizeRoute
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
+  '/library/$mediaId/edit/$editId': typeof LibraryMediaIdEditEditIdRoute
   '/content/library/media': typeof ContentLibraryMediaIndexRoute
+  '/library/$mediaId/edit': typeof LibraryMediaIdEditIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -301,7 +318,7 @@ export interface FileRoutesById {
   '/content/shoots': typeof ContentShootsRoute
   '/dev/media-tile-aspect': typeof DevMediaTileAspectRoute
   '/fansly/fyp': typeof FanslyFypRoute
-  '/library/$mediaId': typeof LibraryMediaIdRoute
+  '/library/$mediaId': typeof LibraryMediaIdRouteWithChildren
   '/posts/$postId': typeof PostsPostIdRoute
   '/schedules/$id': typeof SchedulesIdRoute
   '/settings/appearance': typeof SettingsAppearanceRoute
@@ -321,7 +338,9 @@ export interface FileRoutesById {
   '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
   '/content/library/organize': typeof ContentLibraryOrganizeRoute
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
+  '/library/$mediaId/edit/$editId': typeof LibraryMediaIdEditEditIdRoute
   '/content/library/media/': typeof ContentLibraryMediaIndexRoute
+  '/library/$mediaId/edit/': typeof LibraryMediaIdEditIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -359,7 +378,9 @@ export interface FileRouteTypes {
     | '/content/library/media'
     | '/content/library/organize'
     | '/content/library/media/$mediaId'
+    | '/library/$mediaId/edit/$editId'
     | '/content/library/media/'
+    | '/library/$mediaId/edit/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -392,7 +413,9 @@ export interface FileRouteTypes {
     | '/shoots'
     | '/content/library/organize'
     | '/content/library/media/$mediaId'
+    | '/library/$mediaId/edit/$editId'
     | '/content/library/media'
+    | '/library/$mediaId/edit'
   id:
     | '__root__'
     | '/'
@@ -428,7 +451,9 @@ export interface FileRouteTypes {
     | '/content/library/media'
     | '/content/library/organize'
     | '/content/library/media/$mediaId'
+    | '/library/$mediaId/edit/$editId'
     | '/content/library/media/'
+    | '/library/$mediaId/edit/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -443,7 +468,7 @@ export interface RootRouteChildren {
   SubredditsRoute: typeof SubredditsRoute
   DevMediaTileAspectRoute: typeof DevMediaTileAspectRoute
   FanslyFypRoute: typeof FanslyFypRoute
-  LibraryMediaIdRoute: typeof LibraryMediaIdRoute
+  LibraryMediaIdRoute: typeof LibraryMediaIdRouteWithChildren
   PostsPostIdRoute: typeof PostsPostIdRoute
   ShootsShootIdRoute: typeof ShootsShootIdRoute
   LibraryIndexRoute: typeof LibraryIndexRoute
@@ -677,12 +702,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContentLibraryMediaRouteImport
       parentRoute: typeof ContentLibraryRoute
     }
+    '/library/$mediaId/edit/': {
+      id: '/library/$mediaId/edit/'
+      path: '/edit'
+      fullPath: '/library/$mediaId/edit/'
+      preLoaderRoute: typeof LibraryMediaIdEditIndexRouteImport
+      parentRoute: typeof LibraryMediaIdRoute
+    }
     '/content/library/media/': {
       id: '/content/library/media/'
       path: '/'
       fullPath: '/content/library/media/'
       preLoaderRoute: typeof ContentLibraryMediaIndexRouteImport
       parentRoute: typeof ContentLibraryMediaRoute
+    }
+    '/library/$mediaId/edit/$editId': {
+      id: '/library/$mediaId/edit/$editId'
+      path: '/edit/$editId'
+      fullPath: '/library/$mediaId/edit/$editId'
+      preLoaderRoute: typeof LibraryMediaIdEditEditIdRouteImport
+      parentRoute: typeof LibraryMediaIdRoute
     }
     '/content/library/media/$mediaId': {
       id: '/content/library/media/$mediaId'
@@ -776,6 +815,20 @@ const SettingsRouteWithChildren = SettingsRoute._addFileChildren(
   SettingsRouteChildren,
 )
 
+interface LibraryMediaIdRouteChildren {
+  LibraryMediaIdEditEditIdRoute: typeof LibraryMediaIdEditEditIdRoute
+  LibraryMediaIdEditIndexRoute: typeof LibraryMediaIdEditIndexRoute
+}
+
+const LibraryMediaIdRouteChildren: LibraryMediaIdRouteChildren = {
+  LibraryMediaIdEditEditIdRoute: LibraryMediaIdEditEditIdRoute,
+  LibraryMediaIdEditIndexRoute: LibraryMediaIdEditIndexRoute,
+}
+
+const LibraryMediaIdRouteWithChildren = LibraryMediaIdRoute._addFileChildren(
+  LibraryMediaIdRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CaptioningRoute: CaptioningRoute,
@@ -788,7 +841,7 @@ const rootRouteChildren: RootRouteChildren = {
   SubredditsRoute: SubredditsRoute,
   DevMediaTileAspectRoute: DevMediaTileAspectRoute,
   FanslyFypRoute: FanslyFypRoute,
-  LibraryMediaIdRoute: LibraryMediaIdRoute,
+  LibraryMediaIdRoute: LibraryMediaIdRouteWithChildren,
   PostsPostIdRoute: PostsPostIdRoute,
   ShootsShootIdRoute: ShootsShootIdRoute,
   LibraryIndexRoute: LibraryIndexRoute,

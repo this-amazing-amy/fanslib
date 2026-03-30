@@ -10,5 +10,12 @@ export type WatermarkOperation = {
   opacity: RelativeCoordinate;
 };
 
+export type AudioOperation = {
+  type: "audio";
+  assetId: string;
+  offsetFrames: number;
+  crossfade: number; // 0 = original only, 1 = music only
+};
+
 /** Union of all supported edit operations */
-export type Operation = WatermarkOperation;
+export type Operation = WatermarkOperation | AudioOperation;
