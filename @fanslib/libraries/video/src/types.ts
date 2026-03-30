@@ -33,6 +33,20 @@ export type BlurOperation = {
   }>;
 };
 
+export type PixelateOperation = {
+  type: "pixelate";
+  x: RelativeCoordinate;
+  y: RelativeCoordinate;
+  width: RelativeCoordinate;
+  height: RelativeCoordinate;
+  pixelSize: number;
+  keyframes: Array<{
+    frame: number;
+    values: Record<string, number>;
+    easing?: string;
+  }>;
+};
+
 export type ZoomOperation = {
   type: "zoom";
   scale: number;
@@ -46,4 +60,4 @@ export type ZoomOperation = {
 };
 
 /** Union of all supported edit operations */
-export type Operation = WatermarkOperation | CropOperation | BlurOperation | ZoomOperation;
+export type Operation = WatermarkOperation | CropOperation | BlurOperation | PixelateOperation | ZoomOperation;
