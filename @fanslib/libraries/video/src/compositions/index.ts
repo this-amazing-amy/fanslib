@@ -1,3 +1,4 @@
+export { CaptionOverlay } from "./CaptionOverlay";
 export { CropFrame } from "./CropFrame";
 export { BlurRegion } from "./BlurRegion";
 export { EmojiOverlay } from "./EmojiOverlay";

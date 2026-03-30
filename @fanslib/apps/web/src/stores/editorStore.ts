@@ -27,6 +27,9 @@ type EditorState = {
   // Crop convenience
   addCrop: (aspectRatio?: string) => void;
 
+  // Caption convenience
+  addCaption: () => void;
+
   // Blur convenience
   addBlur: () => void;
 
@@ -151,6 +154,26 @@ export const useEditorStore = create<EditorState>((set, get) => {
         aspectRatio,
         centerX: 0.5,
         centerY: 0.5,
+      };
+      pushHistory();
+      set((state) => ({
+        operations: [...state.operations, op],
+        selectedOperationIndex: state.operations.length,
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
+    addCaption: () => {
+      const op = {
+        type: "caption" as const,
+        text: "Caption",
+        x: 0.5,
+        y: 0.8,
+        fontSize: 0.05,
+        color: "#ffffff",
+        animation: "fade-in" as const,
+        startFrame: 0,
+        endFrame: 90,
       };
       pushHistory();
       set((state) => ({
