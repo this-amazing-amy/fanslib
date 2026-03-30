@@ -16,10 +16,21 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
   const { data: media, isLoading: mediaLoading } = useMediaQuery({ id: mediaId });
   const { data: existingEdit, isLoading: editLoading } = useMediaEditByIdQuery(editId ?? "");
   const operations = useEditorStore((s) => s.operations);
+  const isDirty = useEditorStore((s) => s.isDirty);
   const hydrate = useEditorStore((s) => s.hydrate);
   const reset = useEditorStore((s) => s.reset);
   const undo = useEditorStore((s) => s.undo);
   const redo = useEditorStore((s) => s.redo);
+  const setSourceMediaId = useEditorStore((s) => s.setSourceMediaId);
+  const setEditId = useEditorStore((s) => s.setEditId);
+
+  // Set source media ID and edit ID on mount
+  useEffect(() => {
+    setSourceMediaId(mediaId);
+    if (editId) {
+      setEditId(editId);
+    }
+  }, [mediaId, editId, setSourceMediaId, setEditId]);
 
   // Hydrate from existing edit
   useEffect(() => {
@@ -44,6 +55,16 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [undo, redo]);
+
+  // Warn on navigation when dirty
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isDirty]);
 
   if (mediaLoading || (editId && editLoading)) {
     return (
