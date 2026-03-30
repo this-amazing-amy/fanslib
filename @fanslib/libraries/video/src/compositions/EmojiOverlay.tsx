@@ -21,14 +21,14 @@ export const EmojiOverlay: React.FC<EmojiOverlayProps> = ({
       ? interpolateKeyframes(emojiOp.keyframes, frame, properties)
       : { x: emojiOp.x, y: emojiOp.y, size: emojiOp.size };
 
-  const fontSize = values.size * compositionWidth;
+  const fontSize = (values.size ?? emojiOp.size) * compositionWidth;
 
   return (
     <div
       style={{
         position: "absolute",
-        left: `${values.x * 100}%`,
-        top: `${values.y * 100}%`,
+        left: `${(values.x ?? 0) * 100}%`,
+        top: `${(values.y ?? 0) * 100}%`,
         fontSize: `${fontSize}px`,
         lineHeight: 1,
         transform: "translate(-50%, -50%)",

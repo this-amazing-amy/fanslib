@@ -1,3 +1,5 @@
+import type { EasingType } from "./keyframes";
+
 /** A number between 0 and 1 representing a relative position or size */
 export type RelativeCoordinate = number;
 
@@ -52,7 +54,7 @@ export type BlurOperation = {
   keyframes: Array<{
     frame: number;
     values: Record<string, number>;
-    easing?: string;
+    easing?: EasingType;
   }>;
 };
 
@@ -66,7 +68,7 @@ export type PixelateOperation = {
   keyframes: Array<{
     frame: number;
     values: Record<string, number>;
-    easing?: string;
+    easing?: EasingType;
   }>;
 };
 
@@ -79,7 +81,7 @@ export type EmojiOperation = {
   keyframes: Array<{
     frame: number;
     values: Record<string, number>;
-    easing?: string;
+    easing?: EasingType;
   }>;
 };
 
@@ -91,7 +93,7 @@ export type ZoomOperation = {
   keyframes: Array<{
     frame: number;
     values: Record<string, number>;
-    easing?: string;
+    easing?: EasingType;
   }>;
 };
 

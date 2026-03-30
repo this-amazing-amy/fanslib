@@ -21,10 +21,12 @@ export const ZoomEffect: React.FC<ZoomEffectProps> = ({ zoom, children }) => {
       ? interpolateKeyframes(zoom.keyframes, frame, properties)
       : { scale: zoom.scale, centerX: zoom.centerX, centerY: zoom.centerY };
 
-  const scale = values.scale;
+  const scale = values.scale ?? zoom.scale;
   // Translate so the center point stays fixed
-  const translateX = -(values.centerX - 0.5) * 100 * scale;
-  const translateY = -(values.centerY - 0.5) * 100 * scale;
+  const centerX = values.centerX ?? zoom.centerX;
+  const centerY = values.centerY ?? zoom.centerY;
+  const translateX = -(centerX - 0.5) * 100 * scale;
+  const translateY = -(centerY - 0.5) * 100 * scale;
 
   return (
     <div
@@ -39,7 +41,7 @@ export const ZoomEffect: React.FC<ZoomEffectProps> = ({ zoom, children }) => {
           width: "100%",
           height: "100%",
           transform: `scale(${scale}) translate(${translateX}%, ${translateY}%)`,
-          transformOrigin: `${values.centerX * 100}% ${values.centerY * 100}%`,
+          transformOrigin: `${centerX * 100}% ${centerY * 100}%`,
         }}
       >
         {children}

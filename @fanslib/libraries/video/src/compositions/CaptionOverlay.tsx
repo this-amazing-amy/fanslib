@@ -13,6 +13,7 @@ const useAnimation = (
   startFrame: number,
   endFrame: number,
   fps: number,
+  textLength: number,
 ) => {
   const localFrame = frame - startFrame;
   const duration = endFrame - startFrame;
@@ -40,7 +41,7 @@ const useAnimation = (
     }
     case "typewriter": {
       const charsToShow = Math.floor(
-        interpolate(localFrame, [0, Math.min(duration, 60)], [0, (caption?.text ?? "").length], {
+        interpolate(localFrame, [0, Math.min(duration, 60)], [0, textLength], {
           extrapolateRight: "clamp",
         }),
       );
@@ -63,6 +64,7 @@ export const CaptionOverlay: React.FC<CaptionOverlayProps> = ({
     caption.startFrame,
     caption.endFrame,
     fps,
+    caption.text.length,
   );
 
   if (frame < caption.startFrame || frame > caption.endFrame) return null;

@@ -44,23 +44,30 @@ export const interpolateKeyframes = (
   // Sort by frame
   const sorted = [...keyframes].sort((a, b) => a.frame - b.frame);
 
+  const first = sorted[0];
+  const last = sorted[sorted.length - 1];
+
+  if (!first || !last) {
+    return Object.fromEntries(properties.map((p) => [p, 0]));
+  }
+
   if (sorted.length === 1) {
     return Object.fromEntries(
-      properties.map((p) => [p, sorted[0].values[p] ?? 0]),
+      properties.map((p) => [p, first.values[p] ?? 0]),
     );
   }
 
   // Before first keyframe
-  if (frame <= sorted[0].frame) {
+  if (frame <= first.frame) {
     return Object.fromEntries(
-      properties.map((p) => [p, sorted[0].values[p] ?? 0]),
+      properties.map((p) => [p, first.values[p] ?? 0]),
     );
   }
 
   // After last keyframe
-  if (frame >= sorted[sorted.length - 1].frame) {
+  if (frame >= last.frame) {
     return Object.fromEntries(
-      properties.map((p) => [p, sorted[sorted.length - 1].values[p] ?? 0]),
+      properties.map((p) => [p, last.values[p] ?? 0]),
     );
   }
 
@@ -69,6 +76,10 @@ export const interpolateKeyframes = (
   const prevIdx = nextIdx - 1;
   const prev = sorted[prevIdx];
   const next = sorted[nextIdx];
+
+  if (!prev || !next) {
+    return Object.fromEntries(properties.map((p) => [p, 0]));
+  }
 
   // Exact match
   if (next.frame === frame) {

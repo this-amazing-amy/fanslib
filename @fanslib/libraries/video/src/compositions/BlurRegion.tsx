@@ -21,10 +21,10 @@ export const BlurRegion: React.FC<BlurRegionProps> = ({ blur }) => {
     <div
       style={{
         position: "absolute",
-        left: `${values.x * 100}%`,
-        top: `${values.y * 100}%`,
-        width: `${values.width * 100}%`,
-        height: `${values.height * 100}%`,
+        left: `${(values.x ?? 0) * 100}%`,
+        top: `${(values.y ?? 0) * 100}%`,
+        width: `${(values.width ?? 0) * 100}%`,
+        height: `${(values.height ?? 0) * 100}%`,
         backdropFilter: `blur(${blur.radius}px)`,
         WebkitBackdropFilter: `blur(${blur.radius}px)`,
       }}

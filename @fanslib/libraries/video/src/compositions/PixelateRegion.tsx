@@ -37,10 +37,10 @@ export const PixelateRegion: React.FC<PixelateRegionProps> = ({ pixelate }) => {
       <div
         style={{
           position: "absolute",
-          left: `${values.x * 100}%`,
-          top: `${values.y * 100}%`,
-          width: `${values.width * 100}%`,
-          height: `${values.height * 100}%`,
+          left: `${(values.x ?? 0) * 100}%`,
+          top: `${(values.y ?? 0) * 100}%`,
+          width: `${(values.width ?? 0) * 100}%`,
+          height: `${(values.height ?? 0) * 100}%`,
           backdropFilter: `url(#${filterId})`,
           WebkitBackdropFilter: `url(#${filterId})`,
           imageRendering: "pixelated",

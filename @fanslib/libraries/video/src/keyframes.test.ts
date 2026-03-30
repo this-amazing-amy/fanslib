@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { interpolateKeyframes, type Keyframe, type EasingType } from "./keyframes";
+import { interpolateKeyframes, type Keyframe } from "./keyframes";
 
 describe("interpolateKeyframes", () => {
   test("returns exact values at a keyframe frame", () => {
