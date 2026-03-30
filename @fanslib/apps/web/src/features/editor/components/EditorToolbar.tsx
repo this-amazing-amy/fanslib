@@ -1,4 +1,4 @@
-import { ArrowLeft, Undo2, Redo2, Scissors, ZoomIn } from "lucide-react";
+import { ArrowLeft, Undo2, Redo2, Scissors, Droplets, Grid3x3, ZoomIn } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "~/components/ui/Button";
 import { useEditorStore } from "~/stores/editorStore";
@@ -15,6 +15,8 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
   const canRedo = useEditorStore((s) => s.canRedo);
   const clipMode = useClipStore((s) => s.clipMode);
   const toggleClipMode = useClipStore((s) => s.toggleClipMode);
+  const addBlur = useEditorStore((s) => s.addBlur);
+  const addPixelate = useEditorStore((s) => s.addPixelate);
   const addZoom = useEditorStore((s) => s.addZoom);
 
   return (
@@ -32,6 +34,14 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
       >
         <Scissors className="h-4 w-4 mr-1" />
         <span className="text-xs">Clip</span>
+      </Button>
+      <Button size="sm" variant="ghost" onPress={addBlur} aria-label="Add blur region">
+        <Droplets className="h-4 w-4 mr-1" />
+        <span className="text-xs">Blur</span>
+      </Button>
+      <Button size="sm" variant="ghost" onPress={addPixelate} aria-label="Add pixelate region">
+        <Grid3x3 className="h-4 w-4 mr-1" />
+        <span className="text-xs">Pixelate</span>
       </Button>
       <Button size="sm" variant="ghost" onPress={addZoom} aria-label="Add zoom effect">
         <ZoomIn className="h-4 w-4 mr-1" />
