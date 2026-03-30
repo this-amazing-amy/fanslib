@@ -16,8 +16,19 @@ type EditorState = {
   undo: () => void;
   redo: () => void;
 
+  // Keyframe mutations
+  addKeyframe: (opIndex: number, keyframe: unknown) => void;
+  removeKeyframe: (opIndex: number, keyframeIndex: number) => void;
+  updateKeyframe: (opIndex: number, keyframeIndex: number, keyframe: unknown) => void;
+
   // Crop convenience
   addCrop: (aspectRatio?: string) => void;
+
+  // Blur convenience
+  addBlur: () => void;
+
+  // Zoom convenience
+  addZoom: () => void;
 
   // Selection
   setSelectedOperationIndex: (index: number | null) => void;
@@ -124,6 +135,84 @@ export const useEditorStore = create<EditorState>((set, get) => {
       set((state) => ({
         operations: [...state.operations, op],
         selectedOperationIndex: state.operations.length,
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
+    addBlur: () => {
+      const op = {
+        type: "blur" as const,
+        x: 0.4,
+        y: 0.4,
+        width: 0.15,
+        height: 0.15,
+        radius: 20,
+        keyframes: [],
+      };
+      pushHistory();
+      set((state) => ({
+        operations: [...state.operations, op],
+        selectedOperationIndex: state.operations.length,
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
+    addZoom: () => {
+      const op = {
+        type: "zoom" as const,
+        scale: 1.0,
+        centerX: 0.5,
+        centerY: 0.5,
+        keyframes: [],
+      };
+      pushHistory();
+      set((state) => ({
+        operations: [...state.operations, op],
+        selectedOperationIndex: state.operations.length,
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
+    addKeyframe: (opIndex, keyframe) => {
+      pushHistory();
+      set((state) => ({
+        operations: state.operations.map((op, i) => {
+          if (i !== opIndex) return op;
+          const opObj = op as { keyframes?: unknown[] };
+          return { ...opObj, keyframes: [...(opObj.keyframes ?? []), keyframe] };
+        }),
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
+    removeKeyframe: (opIndex, keyframeIndex) => {
+      pushHistory();
+      set((state) => ({
+        operations: state.operations.map((op, i) => {
+          if (i !== opIndex) return op;
+          const opObj = op as { keyframes?: unknown[] };
+          return {
+            ...opObj,
+            keyframes: (opObj.keyframes ?? []).filter((_, ki) => ki !== keyframeIndex),
+          };
+        }),
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
+    updateKeyframe: (opIndex, keyframeIndex, keyframe) => {
+      pushHistory();
+      set((state) => ({
+        operations: state.operations.map((op, i) => {
+          if (i !== opIndex) return op;
+          const opObj = op as { keyframes?: unknown[] };
+          return {
+            ...opObj,
+            keyframes: (opObj.keyframes ?? []).map((kf, ki) =>
+              ki === keyframeIndex ? keyframe : kf,
+            ),
+          };
+        }),
         ...updateUndoRedoFlags(),
       }));
     },
