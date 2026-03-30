@@ -4,8 +4,10 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  JoinColumn,
   JoinTable,
   ManyToMany,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -58,6 +60,13 @@ export class Media {
 
   @Column({ type: "boolean", default: false, name: "isManaged" })
   isManaged: boolean = false;
+
+  @Column({ type: "varchar", nullable: true, name: "derivedFromId" })
+  derivedFromId: string | null = null;
+
+  @ManyToOne(() => Media, { nullable: true, onDelete: "SET NULL" })
+  @JoinColumn({ name: "derivedFromId" })
+  derivedFrom!: Relation<Media> | null;
 
   @CreateDateColumn({ type: "datetime", name: "createdAt" })
   createdAt!: Date;

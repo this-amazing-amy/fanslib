@@ -17,6 +17,7 @@ import {
 import { FilterPreset } from "../features/filter-presets/entity";
 import { Hashtag, HashtagChannelStats } from "../features/hashtags/entity";
 import { Media } from "../features/library/entity";
+import { MediaEdit } from "../features/media-edits/entity";
 import { Post, PostMedia } from "../features/posts/entity";
 import { Shoot } from "../features/shoots/entity";
 import { CaptionSnippet } from "../features/snippets/entity";
@@ -78,6 +79,7 @@ const createAppDataSource = (driver?: Awaited<ReturnType<typeof initSqlJs>>) => 
     ...(driver ? { driver } : {}),
     entities: [
       Media,
+      MediaEdit,
       Post,
       PostMedia,
       Channel,

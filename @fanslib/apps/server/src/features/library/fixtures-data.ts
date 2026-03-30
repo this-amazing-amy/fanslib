@@ -15,6 +15,8 @@ export type MediaFixture = Omit<
   | "package"
   | "role"
   | "isManaged"
+  | "derivedFromId"
+  | "derivedFrom"
 >;
 
 export const MEDIA_FIXTURES: MediaFixture[] = [

@@ -13,6 +13,7 @@ import { filterPresetsRoutes } from "./features/filter-presets/routes";
 import { hashtagsRoutes } from "./features/hashtags/routes";
 import { libraryRoutes } from "./features/library/routes";
 import { organizeRoutes } from "./features/library/organize-routes";
+import { mediaEditsRoutes } from "./features/media-edits/routes";
 import { pipelineRoutes } from "./features/pipeline/routes";
 import { runwayRoutes } from "./features/pipeline/runway-routes";
 import { postsRoutes } from "./features/posts/routes";
@@ -88,6 +89,7 @@ const app = new Hono()
   .route("/", contentSchedulesRoutes)
   .route("/", libraryRoutes)
   .route("/", organizeRoutes)
+  .route("/", mediaEditsRoutes)
   .route("/", pipelineRoutes)
   .route("/", runwayRoutes)
   .route("/", postsRoutes)

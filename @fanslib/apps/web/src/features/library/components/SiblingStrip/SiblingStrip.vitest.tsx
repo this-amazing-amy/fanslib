@@ -53,6 +53,7 @@ const makeSibling = (overrides: Partial<Media> = {}): Media => ({
   package: "main",
   role: null,
   isManaged: false,
+  derivedFromId: null,
   createdAt: new Date(),
   updatedAt: new Date(),
   fileCreationDate: new Date(),
