@@ -4,6 +4,7 @@ import { validationError, notFound } from "../../lib/hono-utils";
 import { CreateMediaEditRequestBodySchema, createMediaEdit } from "./operations/media-edit/create";
 import { deleteMediaEdit } from "./operations/media-edit/delete";
 import { fetchMediaEditById } from "./operations/media-edit/fetch-by-id";
+import { fetchMediaEditQueue } from "./operations/media-edit/fetch-queue";
 import { fetchMediaEditsBySource } from "./operations/media-edit/fetch-by-source";
 import { queueMediaEdit } from "./operations/media-edit/queue";
 import { addRenderListener } from "./render-events";
@@ -35,6 +36,10 @@ export const mediaEditsRoutes = new Hono()
         Connection: "keep-alive",
       },
     });
+  })
+  .get("/queue", async (c) => {
+    const queue = await fetchMediaEditQueue();
+    return c.json(queue);
   })
   .post("/:id/queue", async (c) => {
     const id = c.req.param("id");

@@ -110,12 +110,57 @@ describe("editorStore", () => {
     expect(useEditorStore.getState().selectedOperationIndex).toBe(0);
   });
 
+  test("addWatermark adds a watermark operation with default values and selects it", () => {
+    useEditorStore.getState().addWatermark("asset-123");
+
+    const ops = useEditorStore.getState().operations;
+    expect(ops).toHaveLength(1);
+    const op = ops[0] as { type: string; assetId: string; x: number; y: number; width: number; opacity: number };
+    expect(op.type).toBe("watermark");
+    expect(op.assetId).toBe("asset-123");
+    expect(op.x).toBe(0.5);
+    expect(op.y).toBe(0.5);
+    expect(op.width).toBe(0.1);
+    expect(op.opacity).toBe(0.7);
+    expect(useEditorStore.getState().selectedOperationIndex).toBe(0);
+  });
+
+  test("addWatermark is undoable", () => {
+    useEditorStore.getState().addWatermark("asset-1");
+    expect(useEditorStore.getState().operations).toHaveLength(1);
+    expect(useEditorStore.getState().canUndo).toBe(true);
+
+    useEditorStore.getState().undo();
+    expect(useEditorStore.getState().operations).toHaveLength(0);
+  });
+
   test("hydrate loads operations from existing data", () => {
     const ops = [{ type: "a" }, { type: "b" }];
     useEditorStore.getState().hydrate(ops);
     expect(useEditorStore.getState().operations).toEqual(ops);
     // History should be clean after hydration
     expect(useEditorStore.getState().canUndo).toBe(false);
+  });
+
+  test("setEditId and setSourceMediaId track metadata", () => {
+    useEditorStore.getState().setSourceMediaId("media-1");
+    expect(useEditorStore.getState().sourceMediaId).toBe("media-1");
+
+    useEditorStore.getState().setEditId("edit-1");
+    expect(useEditorStore.getState().editId).toBe("edit-1");
+  });
+
+  test("isDirty starts false and becomes true after mutation", () => {
+    expect(useEditorStore.getState().isDirty).toBe(false);
+    useEditorStore.getState().addOperation({ type: "a" });
+    expect(useEditorStore.getState().isDirty).toBe(true);
+  });
+
+  test("markClean resets isDirty", () => {
+    useEditorStore.getState().addOperation({ type: "a" });
+    expect(useEditorStore.getState().isDirty).toBe(true);
+    useEditorStore.getState().markClean();
+    expect(useEditorStore.getState().isDirty).toBe(false);
   });
 
   describe("keyframe operations", () => {
