@@ -10,6 +10,20 @@ export type WatermarkOperation = {
   opacity: RelativeCoordinate;
 };
 
+export type BlurOperation = {
+  type: "blur";
+  x: RelativeCoordinate;
+  y: RelativeCoordinate;
+  width: RelativeCoordinate;
+  height: RelativeCoordinate;
+  radius: number;
+  keyframes: Array<{
+    frame: number;
+    values: Record<string, number>;
+    easing?: string;
+  }>;
+};
+
 export type ZoomOperation = {
   type: "zoom";
   scale: number;
@@ -23,4 +37,4 @@ export type ZoomOperation = {
 };
 
 /** Union of all supported edit operations */
-export type Operation = WatermarkOperation | ZoomOperation;
+export type Operation = WatermarkOperation | BlurOperation | ZoomOperation;
