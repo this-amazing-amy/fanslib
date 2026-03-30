@@ -199,4 +199,62 @@ describe("Assets Routes", () => {
       expect(data?.error).toContain("PNG");
     });
   });
+
+  describe("Audio upload", () => {
+    // MP3 magic bytes: ID3 header or 0xFF 0xFB sync word
+    const VALID_MP3 = Buffer.from([0x49, 0x44, 0x33, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
+
+    test("uploads an MP3 audio asset with type audio", async () => {
+      const formData = new FormData();
+      formData.append("file", new Blob([VALID_MP3], { type: "audio/mpeg" }), "track.mp3");
+      formData.append("name", "My Track");
+
+      const response = await app.request("/api/assets/upload", { method: "POST", body: formData });
+      expect(response.status).toBe(200);
+
+      const data = await parseResponse<{ id: string; name: string; type: string }>(response);
+      expect(data?.type).toBe("audio");
+      expect(data?.name).toBe("My Track");
+    });
+
+    test("audio assets appear in type=audio filter", async () => {
+      const formData = new FormData();
+      formData.append("file", new Blob([VALID_MP3], { type: "audio/mpeg" }), "track.mp3");
+      formData.append("name", "Audio Track");
+      await app.request("/api/assets/upload", { method: "POST", body: formData });
+
+      const audioResponse = await app.request("/api/assets?type=audio");
+      const audioData = await parseResponse<{ type: string }[]>(audioResponse);
+      expect(audioData).toHaveLength(1);
+      expect(audioData?.[0]?.type).toBe("audio");
+
+      // Should NOT appear in image filter
+      const imageResponse = await app.request("/api/assets?type=image");
+      const imageData = await parseResponse<{ type: string }[]>(imageResponse);
+      expect(imageData).toHaveLength(0);
+    });
+
+    test("rejects unsupported audio formats", async () => {
+      const formData = new FormData();
+      formData.append("file", new Blob(["not audio"], { type: "audio/ogg" }), "track.ogg");
+      formData.append("name", "Bad Audio");
+
+      const response = await app.request("/api/assets/upload", { method: "POST", body: formData });
+      expect(response.status).toBe(422);
+    });
+
+    test("file streaming returns correct content-type for audio", async () => {
+      const formData = new FormData();
+      formData.append("file", new Blob([VALID_MP3], { type: "audio/mpeg" }), "track.mp3");
+      formData.append("name", "Stream Test");
+      const createResponse = await app.request("/api/assets/upload", { method: "POST", body: formData });
+      const created = await parseResponse<{ id: string }>(createResponse);
+
+      const fileResponse = await app.request(`/api/assets/${created?.id}/file`);
+      expect(fileResponse.status).toBe(200);
+      // Should return audio content type, not image/png
+      const contentType = fileResponse.headers.get("Content-Type");
+      expect(contentType).not.toContain("image/png");
+    });
+  });
 });

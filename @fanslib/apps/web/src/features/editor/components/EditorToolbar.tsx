@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { ArrowLeft, Undo2, Redo2, ImageIcon, Save, Upload, Scissors } from "lucide-react";
+import { ArrowLeft, Undo2, Redo2, ImageIcon, Save, Upload, Scissors, Droplets, ZoomIn } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "~/components/ui/Button";
 import { useEditorStore } from "~/stores/editorStore";
@@ -21,6 +21,8 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
   const sourceMediaId = useEditorStore((s) => s.sourceMediaId);
   const operations = useEditorStore((s) => s.operations);
   const addWatermark = useEditorStore((s) => s.addWatermark);
+  const addBlur = useEditorStore((s) => s.addBlur);
+  const addZoom = useEditorStore((s) => s.addZoom);
   const setEditId = useEditorStore((s) => s.setEditId);
   const markClean = useEditorStore((s) => s.markClean);
   const clipMode = useClipStore((s) => s.clipMode);
@@ -147,6 +149,15 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
           </div>
         )}
       </div>
+
+      <Button size="sm" variant="ghost" onPress={addBlur} aria-label="Add blur region">
+        <Droplets className="h-4 w-4 mr-1" />
+        <span className="text-xs">Blur</span>
+      </Button>
+      <Button size="sm" variant="ghost" onPress={addZoom} aria-label="Add zoom effect">
+        <ZoomIn className="h-4 w-4 mr-1" />
+        <span className="text-xs">Zoom</span>
+      </Button>
 
       <div className="flex-1" />
 
