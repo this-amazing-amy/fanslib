@@ -164,4 +164,31 @@ describe("editorStore", () => {
       expect(op.keyframes).toHaveLength(0);
     });
   });
+
+  describe("zoom operations", () => {
+    test("addZoom adds a zoom operation with default values", () => {
+      useEditorStore.getState().addZoom();
+      const ops = useEditorStore.getState().operations;
+      expect(ops).toHaveLength(1);
+      const op = ops[0] as {
+        type: string;
+        scale: number;
+        centerX: number;
+        centerY: number;
+        keyframes: unknown[];
+      };
+      expect(op.type).toBe("zoom");
+      expect(op.scale).toBe(1.0);
+      expect(op.centerX).toBe(0.5);
+      expect(op.centerY).toBe(0.5);
+      expect(op.keyframes).toEqual([]);
+      expect(useEditorStore.getState().selectedOperationIndex).toBe(0);
+    });
+
+    test("addZoom is undoable", () => {
+      useEditorStore.getState().addZoom();
+      useEditorStore.getState().undo();
+      expect(useEditorStore.getState().operations).toHaveLength(0);
+    });
+  });
 });

@@ -10,5 +10,17 @@ export type WatermarkOperation = {
   opacity: RelativeCoordinate;
 };
 
+export type ZoomOperation = {
+  type: "zoom";
+  scale: number;
+  centerX: RelativeCoordinate;
+  centerY: RelativeCoordinate;
+  keyframes: Array<{
+    frame: number;
+    values: Record<string, number>;
+    easing?: string;
+  }>;
+};
+
 /** Union of all supported edit operations */
-export type Operation = WatermarkOperation;
+export type Operation = WatermarkOperation | ZoomOperation;
