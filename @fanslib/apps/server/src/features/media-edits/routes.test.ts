@@ -295,6 +295,64 @@ describe("MediaEdit Routes", () => {
     });
   });
 
+  describe("POST /api/media-edits/:id/queue", () => {
+    test("transitions a draft media edit to queued status", async () => {
+      const sourceMedia = await createTestMedia();
+
+      const createResponse = await app.request("/api/media-edits", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sourceMediaId: sourceMedia.id,
+          type: "transform",
+          operations: [{ type: "watermark", assetId: "a1", x: 0.5, y: 0.5, width: 0.1, opacity: 1 }],
+        }),
+      });
+      const created = await parseResponse<{ id: string; status: string }>(createResponse);
+      expect(created?.status).toBe("draft");
+
+      const response = await app.request(`/api/media-edits/${created?.id}/queue`, {
+        method: "POST",
+      });
+      expect(response.status).toBe(200);
+
+      const data = await parseResponse<{ id: string; status: string }>(response);
+      expect(data?.status).toBe("queued");
+    });
+
+    test("rejects queueing a non-draft media edit", async () => {
+      const sourceMedia = await createTestMedia();
+
+      const createResponse = await app.request("/api/media-edits", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sourceMediaId: sourceMedia.id,
+          type: "transform",
+          operations: [],
+        }),
+      });
+      const created = await parseResponse<{ id: string }>(createResponse);
+
+      // Queue it first
+      await app.request(`/api/media-edits/${created?.id}/queue`, { method: "POST" });
+
+      // Try to queue again — should fail
+      const response = await app.request(`/api/media-edits/${created?.id}/queue`, {
+        method: "POST",
+      });
+      expect(response.status).toBe(422);
+    });
+
+    test("returns 404 for non-existent media edit", async () => {
+      const response = await app.request("/api/media-edits/non-existent-id/queue", {
+        method: "POST",
+      });
+      expect(response.status).toBe(404);
+    });
+  });
+
+
   describe("Validation", () => {
     test("rejects create with invalid type", async () => {
       const sourceMedia = await createTestMedia();
