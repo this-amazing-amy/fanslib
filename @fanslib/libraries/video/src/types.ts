@@ -10,6 +10,12 @@ export type WatermarkOperation = {
   opacity: RelativeCoordinate;
 };
 
+export type ClipOperation = {
+  type: "clip";
+  startFrame: number;
+  endFrame: number;
+};
+
 export type BlurOperation = {
   type: "blur";
   x: RelativeCoordinate;
@@ -37,5 +43,17 @@ export type EmojiOperation = {
   }>;
 };
 
+export type ZoomOperation = {
+  type: "zoom";
+  scale: number;
+  centerX: RelativeCoordinate;
+  centerY: RelativeCoordinate;
+  keyframes: Array<{
+    frame: number;
+    values: Record<string, number>;
+    easing?: string;
+  }>;
+};
+
 /** Union of all supported edit operations */
-export type Operation = WatermarkOperation | BlurOperation | EmojiOperation;
+export type Operation = WatermarkOperation | ClipOperation | BlurOperation | EmojiOperation | ZoomOperation;

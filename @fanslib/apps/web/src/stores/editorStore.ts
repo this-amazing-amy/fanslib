@@ -27,6 +27,9 @@ type EditorState = {
   // Emoji convenience
   addEmoji: (emoji?: string) => void;
 
+  // Zoom convenience
+  addZoom: () => void;
+
   // Selection
   setSelectedOperationIndex: (index: number | null) => void;
 
@@ -146,6 +149,22 @@ export const useEditorStore = create<EditorState>((set, get) => {
         x: 0.5,
         y: 0.5,
         size: 0.08,
+        keyframes: [],
+      };
+      pushHistory();
+      set((state) => ({
+        operations: [...state.operations, op],
+        selectedOperationIndex: state.operations.length,
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
+    addZoom: () => {
+      const op = {
+        type: "zoom" as const,
+        scale: 1.0,
+        centerX: 0.5,
+        centerY: 0.5,
         keyframes: [],
       };
       pushHistory();
