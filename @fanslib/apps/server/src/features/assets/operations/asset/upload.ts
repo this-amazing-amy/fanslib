@@ -14,6 +14,7 @@ const getAssetsDir = (): string => {
 export const uploadAsset = async (
   file: File,
   name: string,
+  type: "image" | "audio" = "image",
 ): Promise<Asset> => {
   const database = await db();
   const repo = database.getRepository(Asset);
@@ -28,7 +29,7 @@ export const uploadAsset = async (
 
   const asset = repo.create({
     name,
-    type: "image",
+    type,
     filename,
   });
   await repo.save(asset);
