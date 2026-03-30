@@ -6,6 +6,7 @@ import { useMediaEditByIdQuery } from "~/lib/queries/media-edits";
 import { ClipTimeline } from "./ClipTimeline";
 import { EditorToolbar } from "./EditorToolbar";
 import { EditorCanvas } from "./EditorCanvas";
+import { KeyframeTimeline } from "./KeyframeTimeline";
 import { LayerPanel } from "./LayerPanel";
 import { PropertiesPanel } from "./PropertiesPanel";
 
@@ -24,7 +25,7 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
   const redo = useEditorStore((s) => s.redo);
   const clipMode = useClipStore((s) => s.clipMode);
   const resetClips = useClipStore((s) => s.reset);
-  const [_currentFrame, setCurrentFrame] = useState(0);
+  const [currentFrame, setCurrentFrame] = useState(0);
 
   // Hydrate from existing edit
   useEffect(() => {
@@ -70,6 +71,7 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
   }
 
   const isVideo = media.type === "video";
+  const totalFrames = isVideo ? 900 : 1; // Default to 30s at 30fps for video
 
   return (
     <div className="flex flex-col h-screen">
@@ -86,6 +88,13 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
             <ClipTimeline
               totalFrames={900}
               fps={30}
+              onSeek={setCurrentFrame}
+            />
+          )}
+          {isVideo && (
+            <KeyframeTimeline
+              totalFrames={totalFrames}
+              currentFrame={currentFrame}
               onSeek={setCurrentFrame}
             />
           )}

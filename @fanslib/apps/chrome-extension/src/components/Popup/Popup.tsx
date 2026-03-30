@@ -5,6 +5,7 @@ import { eden } from "../../lib/api";
 import { getSettings, type Settings } from "../../lib/storage";
 import { ActivityLogTab } from "./ActivityLogTab";
 import { BackfillTab } from "./BackfillTab";
+import { UnlinkedPostsSection } from "./UnlinkedPostsSection";
 import { CredentialsTab } from "./CredentialsTab";
 import { EmptyState } from "./EmptyState";
 import { PopupHeader } from "./PopupHeader";
@@ -197,7 +198,7 @@ export const Popup = () => {
           className={`tab ${activeTab === "backfill" ? "tab-active" : ""}`}
           onClick={() => setActiveTab("backfill")}
         >
-          Backfill
+          Post Analytics
         </button>
         <button
           className={`tab ${activeTab === "credentials" ? "tab-active" : ""}`}
@@ -233,7 +234,13 @@ export const Popup = () => {
             </div>
           ) : null
         ) : activeTab === "backfill" ? (
-          <BackfillTab />
+          <div className="space-y-4">
+            <BackfillTab />
+            <div className="px-3 pb-4">
+              <h3 className="text-sm font-semibold mb-3">FansLib → Fansly</h3>
+              <UnlinkedPostsSection />
+            </div>
+          </div>
         ) : (
           <CredentialsTab />
         )}

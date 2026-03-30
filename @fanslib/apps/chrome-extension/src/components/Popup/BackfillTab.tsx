@@ -177,7 +177,7 @@ export const BackfillTab = () => {
 
   return (
     <div className="px-3 pt-3 pb-4">
-      <h3 className="text-sm font-semibold mb-3">Backfill Matching</h3>
+      <h3 className="text-sm font-semibold mb-3">Fansly → FansLib</h3>
 
       {loading ? (
         <div className="text-sm text-base-content/70 flex items-center gap-2 py-8 justify-center">

@@ -11,6 +11,10 @@
       "types": "./src/types.ts",
       "import": "./src/types.ts"
     },
+    "./keyframes": {
+      "types": "./src/keyframes.ts",
+      "import": "./src/keyframes.ts"
+    },
     "./compositions": {
       "types": "./src/compositions/index.ts",
       "import": "./src/compositions/index.ts"

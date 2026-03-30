@@ -117,4 +117,78 @@ describe("editorStore", () => {
     // History should be clean after hydration
     expect(useEditorStore.getState().canUndo).toBe(false);
   });
+
+  describe("keyframe operations", () => {
+    test("addKeyframe adds a keyframe to an operation", () => {
+      useEditorStore.getState().addOperation({ type: "blur", keyframes: [] });
+      useEditorStore.getState().addKeyframe(0, { frame: 0, values: { x: 10, y: 20 } });
+
+      const op = useEditorStore.getState().operations[0] as { keyframes: unknown[] };
+      expect(op.keyframes).toHaveLength(1);
+    });
+
+    test("removeKeyframe removes a keyframe by index", () => {
+      useEditorStore.getState().addOperation({
+        type: "blur",
+        keyframes: [
+          { frame: 0, values: { x: 0 } },
+          { frame: 30, values: { x: 100 } },
+        ],
+      });
+      useEditorStore.getState().removeKeyframe(0, 0);
+
+      const op = useEditorStore.getState().operations[0] as { keyframes: unknown[] };
+      expect(op.keyframes).toHaveLength(1);
+    });
+
+    test("updateKeyframe updates a keyframe at index", () => {
+      useEditorStore.getState().addOperation({
+        type: "blur",
+        keyframes: [{ frame: 0, values: { x: 0 } }],
+      });
+      useEditorStore.getState().updateKeyframe(0, 0, { frame: 0, values: { x: 50 } });
+
+      const op = useEditorStore.getState().operations[0] as {
+        keyframes: { frame: number; values: { x: number } }[];
+      };
+      expect(op.keyframes[0].values.x).toBe(50);
+    });
+
+    test("keyframe mutations are undoable", () => {
+      useEditorStore.getState().addOperation({ type: "blur", keyframes: [] });
+      useEditorStore.getState().addKeyframe(0, { frame: 0, values: { x: 10 } });
+      expect(useEditorStore.getState().canUndo).toBe(true);
+
+      useEditorStore.getState().undo();
+      const op = useEditorStore.getState().operations[0] as { keyframes: unknown[] };
+      expect(op.keyframes).toHaveLength(0);
+    });
+  });
+
+  describe("zoom operations", () => {
+    test("addZoom adds a zoom operation with default values", () => {
+      useEditorStore.getState().addZoom();
+      const ops = useEditorStore.getState().operations;
+      expect(ops).toHaveLength(1);
+      const op = ops[0] as {
+        type: string;
+        scale: number;
+        centerX: number;
+        centerY: number;
+        keyframes: unknown[];
+      };
+      expect(op.type).toBe("zoom");
+      expect(op.scale).toBe(1.0);
+      expect(op.centerX).toBe(0.5);
+      expect(op.centerY).toBe(0.5);
+      expect(op.keyframes).toEqual([]);
+      expect(useEditorStore.getState().selectedOperationIndex).toBe(0);
+    });
+
+    test("addZoom is undoable", () => {
+      useEditorStore.getState().addZoom();
+      useEditorStore.getState().undo();
+      expect(useEditorStore.getState().operations).toHaveLength(0);
+    });
+  });
 });
