@@ -1,0 +1,175 @@
+import { useCallback, useRef, useState } from "react";
+import { Trash2, Scissors } from "lucide-react";
+import { Button } from "~/components/ui/Button";
+import { useClipStore } from "~/stores/clipStore";
+
+type ClipTimelineProps = {
+  totalFrames: number;
+  fps: number;
+  onSeek: (frame: number) => void;
+};
+
+const formatTime = (frame: number, fps: number): string => {
+  const seconds = frame / fps;
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${s.toString().padStart(2, "0")}`;
+};
+
+const RANGE_COLORS = [
+  "bg-primary/30 border-primary",
+  "bg-secondary/30 border-secondary",
+  "bg-accent/30 border-accent",
+  "bg-info/30 border-info",
+  "bg-success/30 border-success",
+];
+
+export const ClipTimeline = ({ totalFrames, fps, onSeek }: ClipTimelineProps) => {
+  const ranges = useClipStore((s) => s.ranges);
+  const clipMode = useClipStore((s) => s.clipMode);
+  const selectedRangeIndex = useClipStore((s) => s.selectedRangeIndex);
+  const addRange = useClipStore((s) => s.addRange);
+  const removeRange = useClipStore((s) => s.removeRange);
+  const selectRange = useClipStore((s) => s.selectRange);
+  const timelineRef = useRef<HTMLDivElement>(null);
+  const [dragStart, setDragStart] = useState<number | null>(null);
+  const [dragEnd, setDragEnd] = useState<number | null>(null);
+
+  const frameFromEvent = useCallback(
+    (e: React.MouseEvent): number => {
+      const rect = timelineRef.current?.getBoundingClientRect();
+      if (!rect) return 0;
+      const x = e.clientX - rect.left;
+      return Math.max(0, Math.min(totalFrames - 1, Math.round((x / rect.width) * totalFrames)));
+    },
+    [totalFrames],
+  );
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if (!clipMode) return;
+      const frame = frameFromEvent(e);
+      setDragStart(frame);
+      setDragEnd(frame);
+    },
+    [clipMode, frameFromEvent],
+  );
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (dragStart === null) return;
+      setDragEnd(frameFromEvent(e));
+    },
+    [dragStart, frameFromEvent],
+  );
+
+  const handleMouseUp = useCallback(() => {
+    if (dragStart !== null && dragEnd !== null && dragStart !== dragEnd) {
+      const start = Math.min(dragStart, dragEnd);
+      const end = Math.max(dragStart, dragEnd);
+      addRange(start, end);
+    }
+    setDragStart(null);
+    setDragEnd(null);
+  }, [dragStart, dragEnd, addRange]);
+
+  return (
+    <div className="border-t border-base-300 bg-base-200/50 px-4 py-2">
+      <div className="flex items-center gap-2 mb-2">
+        <Scissors className="h-3 w-3 text-base-content/60" />
+        <span className="text-xs font-medium text-base-content/60">
+          Clip Ranges ({ranges.length})
+        </span>
+        {clipMode && (
+          <span className="text-xs text-primary">Click and drag to mark a range</span>
+        )}
+      </div>
+
+      {/* Timeline bar */}
+      <div
+        ref={timelineRef}
+        className={`relative h-10 bg-base-300 rounded ${clipMode ? "cursor-crosshair" : "cursor-pointer"}`}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={() => {
+          if (dragStart !== null) handleMouseUp();
+        }}
+      >
+        {/* Existing ranges */}
+        {ranges.map((range, index) => {
+          const left = (range.startFrame / totalFrames) * 100;
+          const width = ((range.endFrame - range.startFrame) / totalFrames) * 100;
+          const colorClass = RANGE_COLORS[index % RANGE_COLORS.length];
+          const isSelected = selectedRangeIndex === index;
+
+          return (
+            <div
+              key={index}
+              className={`absolute top-0 bottom-0 border-2 rounded ${colorClass} ${
+                isSelected ? "ring-2 ring-primary ring-offset-1" : ""
+              }`}
+              style={{ left: `${left}%`, width: `${width}%` }}
+              onClick={(e) => {
+                e.stopPropagation();
+                selectRange(index);
+                onSeek(range.startFrame);
+              }}
+            >
+              <span className="absolute top-0.5 left-1 text-[10px] font-mono text-base-content/60">
+                {formatTime(range.startFrame, fps)} – {formatTime(range.endFrame, fps)}
+              </span>
+            </div>
+          );
+        })}
+
+        {/* Drag preview */}
+        {dragStart !== null && dragEnd !== null && (
+          <div
+            className="absolute top-0 bottom-0 bg-primary/20 border border-primary border-dashed"
+            style={{
+              left: `${(Math.min(dragStart, dragEnd) / totalFrames) * 100}%`,
+              width: `${(Math.abs(dragEnd - dragStart) / totalFrames) * 100}%`,
+            }}
+          />
+        )}
+      </div>
+
+      {/* Range list */}
+      {ranges.length > 0 && (
+        <div className="mt-2 space-y-1">
+          {ranges.map((range, index) => {
+            const duration = range.endFrame - range.startFrame;
+            const isSelected = selectedRangeIndex === index;
+            return (
+              <div
+                key={index}
+                className={`flex items-center gap-2 px-2 py-1 rounded text-xs ${
+                  isSelected ? "bg-base-300" : "hover:bg-base-300/50"
+                } cursor-pointer`}
+                onClick={() => {
+                  selectRange(index);
+                  onSeek(range.startFrame);
+                }}
+              >
+                <span className="font-medium">Range {index + 1}</span>
+                <span className="font-mono text-base-content/50">
+                  {formatTime(range.startFrame, fps)} – {formatTime(range.endFrame, fps)}
+                </span>
+                <span className="text-base-content/40">({formatTime(duration, fps)})</span>
+                <div className="flex-1" />
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onPress={() => removeRange(index)}
+                >
+                  <Trash2 className="h-3 w-3 text-error" />
+                </Button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};

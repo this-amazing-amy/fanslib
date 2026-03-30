@@ -15,16 +15,26 @@ type BlurRegionPreview = {
   radius: number;
 };
 
+type PixelateRegionPreview = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  pixelSize: number;
+};
+
 const PreviewComposition = ({
   sourceUrl,
   watermark,
   watermarkUrl,
   blurRegions = [],
+  pixelateRegions = [],
 }: {
   sourceUrl: string;
   watermark?: { x: number; y: number; width: number; opacity: number };
   watermarkUrl?: string;
   blurRegions?: BlurRegionPreview[];
+  pixelateRegions?: PixelateRegionPreview[];
 }) => (
   <AbsoluteFill>
     <Img src={sourceUrl} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
@@ -39,6 +49,21 @@ const PreviewComposition = ({
           height: `${blur.height * 100}%`,
           backdropFilter: `blur(${blur.radius}px)`,
           WebkitBackdropFilter: `blur(${blur.radius}px)`,
+        }}
+      />
+    ))}
+    {pixelateRegions.map((px, i) => (
+      <div
+        key={`px-${i}`}
+        style={{
+          position: "absolute",
+          left: `${px.x * 100}%`,
+          top: `${px.y * 100}%`,
+          width: `${px.width * 100}%`,
+          height: `${px.height * 100}%`,
+          backdropFilter: `blur(${px.pixelSize}px)`,
+          WebkitBackdropFilter: `blur(${px.pixelSize}px)`,
+          imageRendering: "pixelated",
         }}
       />
     ))}
@@ -80,6 +105,12 @@ export const EditorCanvas = ({ mediaId, mediaType, operations }: EditorCanvasPro
       typeof op === "object" && op !== null && "type" in op && (op as { type: string }).type === "blur",
   );
 
+  // Collect pixelate operations
+  const pixelateOps = operations.filter(
+    (op): op is PixelateRegionPreview & { type: "pixelate" } =>
+      typeof op === "object" && op !== null && "type" in op && (op as { type: string }).type === "pixelate",
+  );
+
   const isVideo = mediaType === "video";
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -93,6 +124,7 @@ export const EditorCanvas = ({ mediaId, mediaType, operations }: EditorCanvasPro
           watermark: watermarkOp,
           watermarkUrl,
           blurRegions: blurOps,
+          pixelateRegions: pixelateOps,
         }}
         durationInFrames={isVideo ? 900 : 1}
         compositionWidth={1920}
