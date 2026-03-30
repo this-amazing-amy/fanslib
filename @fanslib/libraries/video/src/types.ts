@@ -16,6 +16,23 @@ export type ClipOperation = {
   endFrame: number;
 };
 
+export type CaptionAnimation = "typewriter" | "fade-in" | "scale-in" | "slide-up";
+
+export type CaptionOperation = {
+  type: "caption";
+  text: string;
+  x: RelativeCoordinate;
+  y: RelativeCoordinate;
+  fontSize: RelativeCoordinate;
+  fontFamily?: string;
+  color: string;
+  strokeColor?: string;
+  strokeWidth?: number;
+  animation: CaptionAnimation;
+  startFrame: number;
+  endFrame: number;
+};
+
 export type BlurOperation = {
   type: "blur";
   x: RelativeCoordinate;
@@ -70,4 +87,4 @@ export type ZoomOperation = {
 };
 
 /** Union of all supported edit operations */
-export type Operation = WatermarkOperation | ClipOperation | BlurOperation | PixelateOperation | EmojiOperation | ZoomOperation;
+export type Operation = WatermarkOperation | ClipOperation | CaptionOperation | BlurOperation | PixelateOperation | EmojiOperation | ZoomOperation;

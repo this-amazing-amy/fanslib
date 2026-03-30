@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { ArrowLeft, Undo2, Redo2, ImageIcon, Save, Upload, Scissors, Droplets, Smile, Grid3x3, ZoomIn } from "lucide-react";
+import { ArrowLeft, Undo2, Redo2, ImageIcon, Save, Upload, Scissors, Type, Droplets, Smile, Grid3x3, ZoomIn } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "~/components/ui/Button";
 import { useEditorStore } from "~/stores/editorStore";
@@ -16,6 +16,7 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
   const redo = useEditorStore((s) => s.redo);
   const canUndo = useEditorStore((s) => s.canUndo);
   const canRedo = useEditorStore((s) => s.canRedo);
+  const addCaption = useEditorStore((s) => s.addCaption);
   const isDirty = useEditorStore((s) => s.isDirty);
   const editId = useEditorStore((s) => s.editId);
   const sourceMediaId = useEditorStore((s) => s.sourceMediaId);
@@ -107,6 +108,10 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
       >
         <Scissors className="h-4 w-4 mr-1" />
         <span className="text-xs">Clip</span>
+      </Button>
+      <Button size="sm" variant="ghost" onPress={addCaption} aria-label="Add caption">
+        <Type className="h-4 w-4 mr-1" />
+        <span className="text-xs">Caption</span>
       </Button>
 
       {/* Watermark tool */}

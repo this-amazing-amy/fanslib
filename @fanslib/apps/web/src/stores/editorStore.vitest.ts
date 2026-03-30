@@ -210,6 +210,42 @@ describe("editorStore", () => {
     });
   });
 
+  describe("caption operations", () => {
+    test("addCaption adds a caption with default values", () => {
+      useEditorStore.getState().addCaption();
+
+      const ops = useEditorStore.getState().operations;
+      expect(ops).toHaveLength(1);
+      const op = ops[0] as {
+        type: string;
+        text: string;
+        x: number;
+        y: number;
+        fontSize: number;
+        color: string;
+        animation: string;
+        startFrame: number;
+        endFrame: number;
+      };
+      expect(op.type).toBe("caption");
+      expect(op.text).toBe("Caption");
+      expect(op.x).toBe(0.5);
+      expect(op.y).toBe(0.8);
+      expect(op.fontSize).toBe(0.05);
+      expect(op.color).toBe("#ffffff");
+      expect(op.animation).toBe("fade-in");
+      expect(op.startFrame).toBe(0);
+      expect(op.endFrame).toBe(90);
+      expect(useEditorStore.getState().selectedOperationIndex).toBe(0);
+    });
+
+    test("addCaption is undoable", () => {
+      useEditorStore.getState().addCaption();
+      useEditorStore.getState().undo();
+      expect(useEditorStore.getState().operations).toHaveLength(0);
+    });
+  });
+
   describe("blur operations", () => {
     test("addBlur adds a blur operation with sensible defaults", () => {
       useEditorStore.getState().addBlur();

@@ -1,3 +1,4 @@
+export { CaptionOverlay } from "./CaptionOverlay";
 export { BlurRegion } from "./BlurRegion";
 export { EmojiOverlay } from "./EmojiOverlay";
 export { PixelateRegion } from "./PixelateRegion";
