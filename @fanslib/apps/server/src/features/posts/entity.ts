@@ -110,6 +110,9 @@ export class PostMedia {
   @Column({ type: "varchar", nullable: true, name: "fanslyStatisticsId" })
   fanslyStatisticsId: string | null = null;
 
+  @Column({ type: "boolean", default: false, name: "analyticsLinkSkipped" })
+  analyticsLinkSkipped: boolean = false;
+
   @ManyToOne(() => Post, (post) => post.postMedia, { onDelete: "CASCADE" })
   @JoinColumn({ name: "postId" })
   post!: Post;

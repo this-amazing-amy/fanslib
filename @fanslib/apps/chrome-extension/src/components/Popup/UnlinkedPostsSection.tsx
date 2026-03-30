@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Clock, Loader2, Image, Video } from "lucide-react";
+import { Clock, Loader2, Image, Video, X } from "lucide-react";
 import { getSettings } from "../../lib/storage";
 import { getMediaThumbnailUrl } from "../../lib/utils";
 
@@ -23,6 +23,7 @@ export const UnlinkedPostsSection = () => {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [apiUrl, setApiUrl] = useState("");
+  const [dismissing, setDismissing] = useState<string | null>(null);
 
   const loadPosts = useCallback(async () => {
     setLoading(true);
@@ -44,6 +45,25 @@ export const UnlinkedPostsSection = () => {
   useEffect(() => {
     loadPosts();
   }, [loadPosts]);
+
+  const handleDismiss = async (previewMediaId: string, postId: string) => {
+    setDismissing(postId);
+    try {
+      const settings = await getSettings();
+      const response = await fetch(
+        `${settings.apiUrl}/api/analytics/unlinked-posts/${previewMediaId}/dismiss`,
+        { method: "POST" },
+      );
+      if (response.ok) {
+        setPosts((prev) => prev.filter((p) => p.postId !== postId));
+        setTotal((prev) => prev - 1);
+      }
+    } catch (err) {
+      console.error("Failed to dismiss:", err);
+    } finally {
+      setDismissing(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -106,6 +126,18 @@ export const UnlinkedPostsSection = () => {
                   )}
                 </div>
               </div>
+              <button
+                className="btn btn-ghost btn-xs btn-square shrink-0"
+                title="Dismiss"
+                disabled={dismissing === post.postId}
+                onClick={() => post.previewMediaId && handleDismiss(post.previewMediaId, post.postId)}
+              >
+                {dismissing === post.postId ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                  <X className="w-3 h-3" />
+                )}
+              </button>
             </div>
           </div>
         );

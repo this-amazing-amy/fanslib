@@ -15,8 +15,8 @@ import { fetchQueueState } from "./operations/queue/fetch-queue-state";
 import { fetchDatapoints } from "./operations/post-analytics/fetch-datapoints";
 import { getFanslyPostsWithAnalytics } from "./operations/post-analytics/fetch-posts-with-analytics";
 import { initializeAnalyticsAggregates } from "./operations/post-analytics/initialize-aggregates";
+import { dismissUnlinkedPost, fetchUnlinkedPosts } from "./operations/unlinked-posts";
 import { linkPost } from "./operations/link-post";
-import { fetchUnlinkedPosts } from "./operations/unlinked-posts";
 
 // Zod schema conversions for request validation
 const FetchDatapointsRequestParamsSchema = z.object({
@@ -126,6 +126,11 @@ export const analyticsRoutes = new Hono()
     const result = await fetchUnlinkedPosts();
     return c.json(result);
   })
+  .post("/unlinked-posts/:postMediaId/dismiss", async (c) => {
+    const postMediaId = c.req.param("postMediaId");
+    const result = await dismissUnlinkedPost(postMediaId);
+    if (result === "not_found") return c.json({ error: "PostMedia not found" }, 404);
+    return c.json({ success: true });
   .post("/link-post", async (c) => {
     const body = await c.req.json();
     const { postId, attachments } = body as {

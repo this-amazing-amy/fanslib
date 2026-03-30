@@ -132,6 +132,55 @@ describe("GET /api/analytics/unlinked-posts", () => {
     expect(data?.posts.every((p) => p.postId !== post.id)).toBe(true);
   });
 
+  test("excludes dismissed posts", async () => {
+    const dataSource = getTestDataSource();
+    const postMediaRepo = dataSource.getRepository(PostMedia);
+
+    const channel = await createTestChannel({ typeId: "fansly" });
+    const media = await createTestMedia({ type: "video", duration: 20 });
+    const post = await createTestPost(channel.id, { status: "posted" });
+
+    const pm = postMediaRepo.create({
+      post,
+      media,
+      order: 0,
+      fanslyStatisticsId: null,
+      analyticsLinkSkipped: true,
+    });
+    await postMediaRepo.save(pm);
+
+    const response = await app.request("/api/analytics/unlinked-posts");
+    const data = await parseResponse<{ posts: { postId: string }[]; total: number }>(response);
+    expect(data?.posts.every((p) => p.postId !== post.id)).toBe(true);
+  });
+
+  test("POST /api/analytics/unlinked-posts/:postMediaId/dismiss sets analyticsLinkSkipped", async () => {
+    const dataSource = getTestDataSource();
+    const postMediaRepo = dataSource.getRepository(PostMedia);
+
+    const channel = await createTestChannel({ typeId: "fansly" });
+    const media = await createTestMedia({ type: "video", duration: 15 });
+    const post = await createTestPost(channel.id, { status: "posted" });
+
+    const pm = postMediaRepo.create({ post, media, order: 0, fanslyStatisticsId: null });
+    await postMediaRepo.save(pm);
+
+    const response = await app.request(`/api/analytics/unlinked-posts/${pm.id}/dismiss`, {
+      method: "POST",
+    });
+    expect(response.status).toBe(200);
+
+    const updated = await postMediaRepo.findOne({ where: { id: pm.id } });
+    expect(updated?.analyticsLinkSkipped).toBe(true);
+  });
+
+  test("dismiss returns 404 for non-existent postMedia", async () => {
+    const response = await app.request("/api/analytics/unlinked-posts/non-existent/dismiss", {
+      method: "POST",
+    });
+    expect(response.status).toBe(404);
+  });
+
   test("returns empty when no unlinked posts exist", async () => {
     const response = await app.request("/api/analytics/unlinked-posts");
     expect(response.status).toBe(200);

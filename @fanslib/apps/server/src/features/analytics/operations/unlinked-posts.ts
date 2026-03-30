@@ -1,5 +1,5 @@
 import { db } from "../../../lib/db";
-import { Post } from "../../posts/entity";
+import { Post, PostMedia } from "../../posts/entity";
 import { identifyFypTrackableId } from "./fyp/preview-heuristic";
 
 type UnlinkedPost = {
@@ -47,8 +47,9 @@ export const fetchUnlinkedPosts = async (): Promise<{
     const previewPm = post.postMedia.find((pm) => pm.id === previewId);
     if (!previewPm) return;
 
-    // Skip if already linked
+    // Skip if already linked or dismissed
     if (previewPm.fanslyStatisticsId) return;
+    if (previewPm.analyticsLinkSkipped) return;
 
     unlinkedPosts.push({
       postId: post.id,
@@ -66,4 +67,18 @@ export const fetchUnlinkedPosts = async (): Promise<{
     posts: unlinkedPosts,
     total: unlinkedPosts.length,
   };
+};
+
+export const dismissUnlinkedPost = async (
+  postMediaId: string,
+): Promise<"not_found" | "ok"> => {
+  const database = await db();
+  const postMediaRepo = database.getRepository(PostMedia);
+
+  const pm = await postMediaRepo.findOne({ where: { id: postMediaId } });
+  if (!pm) return "not_found";
+
+  pm.analyticsLinkSkipped = true;
+  await postMediaRepo.save(pm);
+  return "ok";
 };
