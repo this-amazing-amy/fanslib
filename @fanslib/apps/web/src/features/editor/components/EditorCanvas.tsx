@@ -1,5 +1,7 @@
+import { useRef } from "react";
 import { Player } from "@remotion/player";
 import { AbsoluteFill, Img } from "remotion";
+import { RegionOverlay } from "./RegionOverlay";
 
 /**
  * A simple preview composition that renders the source media with optional watermark overlay.
@@ -50,8 +52,10 @@ export const EditorCanvas = ({ mediaId, mediaType, operations }: EditorCanvasPro
 
   const isVideo = mediaType === "video";
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
   return (
-    <div className="flex-1 flex items-center justify-center bg-base-300 overflow-hidden p-4">
+    <div ref={containerRef} className="flex-1 flex items-center justify-center bg-base-300 overflow-hidden p-4 relative">
       <Player
         component={PreviewComposition}
         inputProps={{
@@ -71,6 +75,7 @@ export const EditorCanvas = ({ mediaId, mediaType, operations }: EditorCanvasPro
         controls={isVideo}
         loop={isVideo}
       />
+      <RegionOverlay containerRef={containerRef} />
     </div>
   );
 };
