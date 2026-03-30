@@ -27,5 +27,31 @@ export type CaptionOperation = {
   endFrame: number;
 };
 
+export type BlurOperation = {
+  type: "blur";
+  x: RelativeCoordinate;
+  y: RelativeCoordinate;
+  width: RelativeCoordinate;
+  height: RelativeCoordinate;
+  radius: number;
+  keyframes: Array<{
+    frame: number;
+    values: Record<string, number>;
+    easing?: string;
+  }>;
+};
+
+export type ZoomOperation = {
+  type: "zoom";
+  scale: number;
+  centerX: RelativeCoordinate;
+  centerY: RelativeCoordinate;
+  keyframes: Array<{
+    frame: number;
+    values: Record<string, number>;
+    easing?: string;
+  }>;
+};
+
 /** Union of all supported edit operations */
-export type Operation = WatermarkOperation | CaptionOperation;
+export type Operation = WatermarkOperation | CaptionOperation | BlurOperation | ZoomOperation;

@@ -24,6 +24,12 @@ type EditorState = {
   // Caption convenience
   addCaption: () => void;
 
+  // Blur convenience
+  addBlur: () => void;
+
+  // Zoom convenience
+  addZoom: () => void;
+
   // Selection
   setSelectedOperationIndex: (index: number | null) => void;
 
@@ -129,6 +135,40 @@ export const useEditorStore = create<EditorState>((set, get) => {
         animation: "fade-in" as const,
         startFrame: 0,
         endFrame: 90,
+      };
+      pushHistory();
+      set((state) => ({
+        operations: [...state.operations, op],
+        selectedOperationIndex: state.operations.length,
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
+    addBlur: () => {
+      const op = {
+        type: "blur" as const,
+        x: 0.4,
+        y: 0.4,
+        width: 0.15,
+        height: 0.15,
+        radius: 20,
+        keyframes: [],
+      };
+      pushHistory();
+      set((state) => ({
+        operations: [...state.operations, op],
+        selectedOperationIndex: state.operations.length,
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
+    addZoom: () => {
+      const op = {
+        type: "zoom" as const,
+        scale: 1.0,
+        centerX: 0.5,
+        centerY: 0.5,
+        keyframes: [],
       };
       pushHistory();
       set((state) => ({

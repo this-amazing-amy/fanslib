@@ -1,4 +1,4 @@
-import { ArrowLeft, Undo2, Redo2, Type } from "lucide-react";
+import { ArrowLeft, Undo2, Redo2, Type, Droplets, ZoomIn } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "~/components/ui/Button";
 import { useEditorStore } from "~/stores/editorStore";
@@ -13,6 +13,8 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
   const canUndo = useEditorStore((s) => s.canUndo);
   const canRedo = useEditorStore((s) => s.canRedo);
   const addCaption = useEditorStore((s) => s.addCaption);
+  const addBlur = useEditorStore((s) => s.addBlur);
+  const addZoom = useEditorStore((s) => s.addZoom);
 
   return (
     <div className="h-12 border-b border-base-300 bg-base-200/50 flex items-center px-4 gap-2">
@@ -24,6 +26,14 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
       <Button size="sm" variant="ghost" onPress={addCaption} aria-label="Add caption">
         <Type className="h-4 w-4 mr-1" />
         <span className="text-xs">Caption</span>
+      </Button>
+      <Button size="sm" variant="ghost" onPress={addBlur} aria-label="Add blur region">
+        <Droplets className="h-4 w-4 mr-1" />
+        <span className="text-xs">Blur</span>
+      </Button>
+      <Button size="sm" variant="ghost" onPress={addZoom} aria-label="Add zoom effect">
+        <ZoomIn className="h-4 w-4 mr-1" />
+        <span className="text-xs">Zoom</span>
       </Button>
       <div className="flex-1" />
       <Button
