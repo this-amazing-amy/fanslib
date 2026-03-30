@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useMediaQuery } from "~/lib/queries/library";
 import { useEditorStore } from "~/stores/editorStore";
+import { useClipStore } from "~/stores/clipStore";
 import { useMediaEditByIdQuery } from "~/lib/queries/media-edits";
+import { ClipTimeline } from "./ClipTimeline";
 import { EditorToolbar } from "./EditorToolbar";
 import { EditorCanvas } from "./EditorCanvas";
 import { KeyframeTimeline } from "./KeyframeTimeline";
@@ -21,6 +23,8 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
   const reset = useEditorStore((s) => s.reset);
   const undo = useEditorStore((s) => s.undo);
   const redo = useEditorStore((s) => s.redo);
+  const clipMode = useClipStore((s) => s.clipMode);
+  const resetClips = useClipStore((s) => s.reset);
   const [currentFrame, setCurrentFrame] = useState(0);
 
   // Hydrate from existing edit
@@ -28,8 +32,11 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
     if (existingEdit && editId) {
       hydrate(existingEdit.operations);
     }
-    return () => reset();
-  }, [existingEdit, editId, hydrate, reset]);
+    return () => {
+      reset();
+      resetClips();
+    };
+  }, [existingEdit, editId, hydrate, reset, resetClips]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -77,6 +84,13 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
             mediaType={media.type}
             operations={operations}
           />
+          {isVideo && clipMode && (
+            <ClipTimeline
+              totalFrames={900}
+              fps={30}
+              onSeek={setCurrentFrame}
+            />
+          )}
           {isVideo && (
             <KeyframeTimeline
               totalFrames={totalFrames}

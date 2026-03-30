@@ -15,6 +15,14 @@ type BlurRegionPreview = {
   radius: number;
 };
 
+type PixelateRegionPreview = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  pixelSize: number;
+};
+
 type EmojiPreview = {
   emoji: string;
   x: number;
@@ -27,12 +35,14 @@ const PreviewComposition = ({
   watermark,
   watermarkUrl,
   blurRegions = [],
+  pixelateRegions = [],
   emojis = [],
 }: {
   sourceUrl: string;
   watermark?: { x: number; y: number; width: number; opacity: number };
   watermarkUrl?: string;
   blurRegions?: BlurRegionPreview[];
+  pixelateRegions?: PixelateRegionPreview[];
   emojis?: EmojiPreview[];
 }) => (
   <AbsoluteFill>
@@ -48,6 +58,21 @@ const PreviewComposition = ({
           height: `${blur.height * 100}%`,
           backdropFilter: `blur(${blur.radius}px)`,
           WebkitBackdropFilter: `blur(${blur.radius}px)`,
+        }}
+      />
+    ))}
+    {pixelateRegions.map((px, i) => (
+      <div
+        key={`px-${i}`}
+        style={{
+          position: "absolute",
+          left: `${px.x * 100}%`,
+          top: `${px.y * 100}%`,
+          width: `${px.width * 100}%`,
+          height: `${px.height * 100}%`,
+          backdropFilter: `blur(${px.pixelSize}px)`,
+          WebkitBackdropFilter: `blur(${px.pixelSize}px)`,
+          imageRendering: "pixelated",
         }}
       />
     ))}
@@ -106,6 +131,12 @@ export const EditorCanvas = ({ mediaId, mediaType, operations }: EditorCanvasPro
       typeof op === "object" && op !== null && "type" in op && (op as { type: string }).type === "blur",
   );
 
+  // Collect pixelate operations
+  const pixelateOps = operations.filter(
+    (op): op is PixelateRegionPreview & { type: "pixelate" } =>
+      typeof op === "object" && op !== null && "type" in op && (op as { type: string }).type === "pixelate",
+  );
+
   // Collect emoji operations
   const emojiOps = operations.filter(
     (op): op is EmojiPreview & { type: "emoji" } =>
@@ -125,6 +156,7 @@ export const EditorCanvas = ({ mediaId, mediaType, operations }: EditorCanvasPro
           watermark: watermarkOp,
           watermarkUrl,
           blurRegions: blurOps,
+          pixelateRegions: pixelateOps,
           emojis: emojiOps,
         }}
         durationInFrames={isVideo ? 900 : 1}

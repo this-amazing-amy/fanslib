@@ -30,6 +30,20 @@ export type BlurOperation = {
   }>;
 };
 
+export type PixelateOperation = {
+  type: "pixelate";
+  x: RelativeCoordinate;
+  y: RelativeCoordinate;
+  width: RelativeCoordinate;
+  height: RelativeCoordinate;
+  pixelSize: number;
+  keyframes: Array<{
+    frame: number;
+    values: Record<string, number>;
+    easing?: string;
+  }>;
+};
+
 export type EmojiOperation = {
   type: "emoji";
   emoji: string;
@@ -56,4 +70,4 @@ export type ZoomOperation = {
 };
 
 /** Union of all supported edit operations */
-export type Operation = WatermarkOperation | ClipOperation | BlurOperation | EmojiOperation | ZoomOperation;
+export type Operation = WatermarkOperation | ClipOperation | BlurOperation | PixelateOperation | EmojiOperation | ZoomOperation;

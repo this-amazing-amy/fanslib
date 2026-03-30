@@ -27,6 +27,9 @@ type EditorState = {
   // Emoji convenience
   addEmoji: (emoji?: string) => void;
 
+  // Pixelate convenience
+  addPixelate: () => void;
+
   // Zoom convenience
   addZoom: () => void;
 
@@ -149,6 +152,24 @@ export const useEditorStore = create<EditorState>((set, get) => {
         x: 0.5,
         y: 0.5,
         size: 0.08,
+        keyframes: [],
+      };
+      pushHistory();
+      set((state) => ({
+        operations: [...state.operations, op],
+        selectedOperationIndex: state.operations.length,
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
+    addPixelate: () => {
+      const op = {
+        type: "pixelate" as const,
+        x: 0.4,
+        y: 0.4,
+        width: 0.15,
+        height: 0.15,
+        pixelSize: 10,
         keyframes: [],
       };
       pushHistory();
