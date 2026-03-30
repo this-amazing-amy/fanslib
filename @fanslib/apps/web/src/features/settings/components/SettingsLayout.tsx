@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation } from "@tanstack/react-router";
-import { FileText, Filter, Palette, RefreshCw, Shield, Tags, Zap } from "lucide-react";
+import { FileText, Filter, ImageIcon, Palette, RefreshCw, Shield, Tags, Zap } from "lucide-react";
 import { cn } from "~/lib/cn";
 
 type SettingsNavItem = {
@@ -33,6 +33,12 @@ const settingsNavItems: SettingsNavItem[] = [
     href: "/settings/content-tags",
     icon: Tags,
     description: "Manage tag dimensions",
+  },
+  {
+    title: "Asset Library",
+    href: "/settings/assets",
+    icon: ImageIcon,
+    description: "Watermarks and overlay images",
   },
   {
     title: "Content Safety",
