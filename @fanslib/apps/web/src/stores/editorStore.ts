@@ -24,6 +24,9 @@ type EditorState = {
   removeKeyframe: (opIndex: number, keyframeIndex: number) => void;
   updateKeyframe: (opIndex: number, keyframeIndex: number, keyframe: unknown) => void;
 
+  // Crop convenience
+  addCrop: (aspectRatio?: string) => void;
+
   // Caption convenience
   addCaption: () => void;
 
@@ -143,6 +146,21 @@ export const useEditorStore = create<EditorState>((set, get) => {
         canUndo: true,
         canRedo: redoStack.length > 0,
       });
+    },
+
+    addCrop: (aspectRatio = "16:9") => {
+      const op = {
+        type: "crop" as const,
+        aspectRatio,
+        centerX: 0.5,
+        centerY: 0.5,
+      };
+      pushHistory();
+      set((state) => ({
+        operations: [...state.operations, op],
+        selectedOperationIndex: state.operations.length,
+        ...updateUndoRedoFlags(),
+      }));
     },
 
     addCaption: () => {

@@ -210,6 +210,32 @@ describe("editorStore", () => {
     });
   });
 
+  describe("crop operations", () => {
+    test("addCrop adds a crop operation with 16:9 defaults", () => {
+      useEditorStore.getState().addCrop();
+
+      const ops = useEditorStore.getState().operations;
+      expect(ops).toHaveLength(1);
+      const op = ops[0] as {
+        type: string;
+        aspectRatio: string;
+        centerX: number;
+        centerY: number;
+      };
+      expect(op.type).toBe("crop");
+      expect(op.aspectRatio).toBe("16:9");
+      expect(op.centerX).toBe(0.5);
+      expect(op.centerY).toBe(0.5);
+      expect(useEditorStore.getState().selectedOperationIndex).toBe(0);
+    });
+
+    test("addCrop is undoable", () => {
+      useEditorStore.getState().addCrop();
+      useEditorStore.getState().undo();
+      expect(useEditorStore.getState().operations).toHaveLength(0);
+    });
+  });
+
   describe("caption operations", () => {
     test("addCaption adds a caption with default values", () => {
       useEditorStore.getState().addCaption();

@@ -16,6 +16,15 @@ export type ClipOperation = {
   endFrame: number;
 };
 
+export type AspectRatioPreset = "16:9" | "9:16" | "1:1" | "4:5";
+
+export type CropOperation = {
+  type: "crop";
+  aspectRatio: AspectRatioPreset;
+  centerX: RelativeCoordinate;
+  centerY: RelativeCoordinate;
+};
+
 export type CaptionAnimation = "typewriter" | "fade-in" | "scale-in" | "slide-up";
 
 export type CaptionOperation = {
@@ -87,4 +96,4 @@ export type ZoomOperation = {
 };
 
 /** Union of all supported edit operations */
-export type Operation = WatermarkOperation | ClipOperation | CaptionOperation | BlurOperation | PixelateOperation | EmojiOperation | ZoomOperation;
+export type Operation = WatermarkOperation | ClipOperation | CropOperation | CaptionOperation | BlurOperation | PixelateOperation | EmojiOperation | ZoomOperation;
