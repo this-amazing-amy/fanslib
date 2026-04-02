@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Edit3, Plus, Clock, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { Edit3, Plus, Clock, CheckCircle2, XCircle, Loader2, Trash2 } from "lucide-react";
 import { Button } from "~/components/ui/Button";
-import { useMediaEditsBySourceQuery } from "~/lib/queries/media-edits";
+import { DeleteConfirmDialog } from "~/components/ui/DeleteConfirmDialog";
+import { useMediaEditsBySourceQuery, useDeleteMediaEditMutation } from "~/lib/queries/media-edits";
 
 const statusConfig = {
   draft: { icon: Edit3, label: "Draft", color: "text-base-content/50" },
@@ -17,6 +19,8 @@ type MediaEditsSectionProps = {
 
 export const MediaEditsSection = ({ mediaId }: MediaEditsSectionProps) => {
   const { data: edits = [] } = useMediaEditsBySourceQuery(mediaId);
+  const deleteEdit = useDeleteMediaEditMutation();
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
   return (
     <div>
@@ -35,6 +39,7 @@ export const MediaEditsSection = ({ mediaId }: MediaEditsSectionProps) => {
           {edits.map((edit) => {
             const config = statusConfig[edit.status];
             const StatusIcon = config.icon;
+            const isDraft = edit.status === "draft";
             return (
               <Link
                 key={edit.id}
@@ -53,11 +58,37 @@ export const MediaEditsSection = ({ mediaId }: MediaEditsSectionProps) => {
                 <span className="text-xs text-base-content/40">
                   {new Date(edit.createdAt).toLocaleDateString()}
                 </span>
+                {isDraft && (
+                  <button
+                    type="button"
+                    className="p-1 rounded hover:bg-error/20 text-base-content/40 hover:text-error transition-colors"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setDeleteTarget(edit.id);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                )}
               </Link>
             );
           })}
         </div>
       )}
+      <DeleteConfirmDialog
+        open={deleteTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        itemType="edit"
+        onConfirm={async () => {
+          if (deleteTarget) {
+            await deleteEdit.mutateAsync({ id: deleteTarget });
+            setDeleteTarget(null);
+          }
+        }}
+        isLoading={deleteEdit.isPending}
+      />
     </div>
   );
 };
