@@ -1,4 +1,4 @@
-import { useRef, useCallback } from "react";
+import React, { useRef, useCallback } from "react";
 import { Player } from "@remotion/player";
 import { AbsoluteFill, Img } from "remotion";
 import { useEditorStore } from "~/stores/editorStore";
@@ -71,21 +71,45 @@ const PreviewComposition = ({
         }}
       />
     ))}
-    {pixelateRegions.map((px, i) => (
-      <div
-        key={`px-${i}`}
-        style={{
-          position: "absolute",
-          left: `${px.x * 100}%`,
-          top: `${px.y * 100}%`,
-          width: `${px.width * 100}%`,
-          height: `${px.height * 100}%`,
-          backdropFilter: `blur(${px.pixelSize}px)`,
-          WebkitBackdropFilter: `blur(${px.pixelSize}px)`,
-          imageRendering: "pixelated",
-        }}
-      />
-    ))}
+    {pixelateRegions.map((px, i) => {
+      const ps = Math.max(2, px.pixelSize);
+      const half = ps / 2;
+      const filterId = `px-preview-${i}`;
+      return (
+        <React.Fragment key={`px-${i}`}>
+          <svg style={{ position: "absolute", width: 0, height: 0 }}>
+            <defs>
+              <filter
+                id={filterId}
+                x="0%"
+                y="0%"
+                width="100%"
+                height="100%"
+                primitiveUnits="userSpaceOnUse"
+              >
+                <feFlood x={half} y={half} width="1" height="1" />
+                <feComposite width={ps} height={ps} />
+                <feTile result="grid" />
+                <feComposite in="SourceGraphic" in2="grid" operator="in" />
+                <feMorphology operator="dilate" radius={half} />
+              </filter>
+            </defs>
+          </svg>
+          <div
+            style={{
+              position: "absolute",
+              left: `${px.x * 100}%`,
+              top: `${px.y * 100}%`,
+              width: `${px.width * 100}%`,
+              height: `${px.height * 100}%`,
+              backdropFilter: `url(#${filterId})`,
+              WebkitBackdropFilter: `url(#${filterId})`,
+              overflow: "hidden",
+            }}
+          />
+        </React.Fragment>
+      );
+    })}
     {watermark && watermarkUrl && (
       <Img
         src={watermarkUrl}
