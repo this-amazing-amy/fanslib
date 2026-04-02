@@ -71,12 +71,21 @@ export const RegionOverlay = ({
 
       const op = operations[selectedIndex] as SpatialOp;
       const clamp = (v: number) => Math.max(0, Math.min(1, v));
+      const isEmoji = op.type === "emoji";
 
       if (dragState.type === "move") {
+        const nx = dragState.startX + relDx;
+        const ny = dragState.startY + relDy;
+        const halfW = dragState.startWidth / 2;
+        const halfH = dragState.startHeight / 2;
         updateOperation(selectedIndex, {
           ...op,
-          x: clamp(dragState.startX + relDx),
-          y: clamp(dragState.startY + relDy),
+          x: isEmoji
+            ? Math.max(halfW, Math.min(1 - halfW, nx))
+            : clamp(nx),
+          y: isEmoji
+            ? Math.max(halfH, Math.min(1 - halfH, ny))
+            : clamp(ny),
         });
       } else if (dragState.type === "resize") {
         const newWidth = clamp(dragState.startWidth + relDx);
@@ -113,9 +122,17 @@ export const RegionOverlay = ({
         if (typeof spatialOp.x !== "number" || typeof spatialOp.y !== "number") return null;
 
         const isSelected = index === selectedIndex;
+        const isEmoji = spatialOp.type === "emoji";
+        const emojiSize = isEmoji
+          ? ((spatialOp as Record<string, unknown>).size as number) ?? 0.1
+          : 0;
         const pos = relativeToPixel(spatialOp.x, spatialOp.y, canvas);
-        const width = (spatialOp.width ?? 0.1) * canvas.canvasWidth;
-        const height = (spatialOp.height ?? spatialOp.width ?? 0.1) * canvas.canvasHeight;
+        const width = isEmoji
+          ? emojiSize * canvas.canvasWidth
+          : (spatialOp.width ?? 0.1) * canvas.canvasWidth;
+        const height = isEmoji
+          ? emojiSize * canvas.canvasHeight
+          : (spatialOp.height ?? spatialOp.width ?? 0.1) * canvas.canvasHeight;
 
         return (
           <div
@@ -126,8 +143,8 @@ export const RegionOverlay = ({
                 : "border border-base-content/20 pointer-events-none"
             }`}
             style={{
-              left: pos.px,
-              top: pos.py,
+              left: isEmoji ? pos.px - width / 2 : pos.px,
+              top: isEmoji ? pos.py - height / 2 : pos.py,
               width,
               height,
             }}
@@ -142,14 +159,14 @@ export const RegionOverlay = ({
                       startMouseY: e.clientY,
                       startX: spatialOp.x,
                       startY: spatialOp.y,
-                      startWidth: spatialOp.width ?? 0.1,
-                      startHeight: spatialOp.height ?? spatialOp.width ?? 0.1,
+                      startWidth: isEmoji ? emojiSize : (spatialOp.width ?? 0.1),
+                      startHeight: isEmoji ? emojiSize : (spatialOp.height ?? spatialOp.width ?? 0.1),
                     });
                   }
                 : undefined
             }
           >
-            {isSelected && (
+            {isSelected && !isEmoji && (
               <>
                 {/* Corner resize handles */}
                 {(["nw", "ne", "sw", "se"] as const).map((corner) => (
