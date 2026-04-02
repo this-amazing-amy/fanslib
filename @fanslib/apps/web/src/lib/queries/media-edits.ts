@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "./query-keys";
 
 type MediaEdit = {
@@ -37,6 +37,21 @@ export const useMediaEditByIdQuery = (editId: string) =>
 
 export type QueuedMediaEdit = MediaEdit & {
   progress?: number;
+};
+
+export const useDeleteMediaEditMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      const res = await fetch(`/api/media-edits/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete media edit");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["media-edits"] });
+    },
+  });
 };
 
 export const useMediaEditQueueQuery = () =>
