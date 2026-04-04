@@ -95,7 +95,10 @@ export const NavigationMenu = ({ isCollapsed }: NavigationMenuProps) => {
 
             if (isCollapsed && hasChildren) {
               return (
-                <li key={to} className="flex w-full justify-center lg:items-center lg:justify-center">
+                <li
+                  key={to}
+                  className="flex w-full justify-center lg:items-center lg:justify-center"
+                >
                   <Link
                     to={children[0].to}
                     onClick={closeSidebarAfterNavigate}
@@ -208,11 +211,7 @@ export const NavigationMenu = ({ isCollapsed }: NavigationMenuProps) => {
           aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           className="flex items-center justify-center rounded-lg text-sm font-medium transition-colors hover:bg-base-300 p-2"
         >
-          {isCollapsed ? (
-            <PanelLeft className="h-4 w-4" />
-          ) : (
-            <PanelLeftClose className="h-5 w-5" />
-          )}
+          {isCollapsed ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-5 w-5" />}
         </button>
       </div>
     </>

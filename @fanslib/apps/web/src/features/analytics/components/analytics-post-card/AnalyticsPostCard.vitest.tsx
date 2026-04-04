@@ -78,7 +78,10 @@ describe("AnalyticsPostCard", () => {
     render(<AnalyticsPostCard {...defaultProps} datapoints={datapoints} sortMetric="views" />);
     const user = userEvent.setup();
 
-    expect(screen.getByRole("button", { name: "Chart: views" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Chart: views" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
     expect(screen.getByRole("button", { name: "Chart: engagement percent" })).toHaveAttribute(
       "aria-pressed",
       "false",
@@ -90,7 +93,10 @@ describe("AnalyticsPostCard", () => {
       "aria-pressed",
       "true",
     );
-    expect(screen.getByRole("button", { name: "Chart: views" })).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByRole("button", { name: "Chart: views" })).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
   });
 
   test("does not render sparkline when no datapoints", () => {

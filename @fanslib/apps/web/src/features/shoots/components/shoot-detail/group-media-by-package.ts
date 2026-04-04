@@ -45,10 +45,12 @@ export const groupMediaByPackage = (media: Media[]): PackageGroup[] => {
     const rows: MatrixRow[] = Array.from(roleMap.entries()).map(([role, ratingMap]) => ({
       role,
       cells: [
-        ...CONTENT_RATINGS.map((cr): MatrixCell => ({
-          contentRating: cr,
-          media: ratingMap.get(cr) ?? [],
-        })),
+        ...CONTENT_RATINGS.map(
+          (cr): MatrixCell => ({
+            contentRating: cr,
+            media: ratingMap.get(cr) ?? [],
+          }),
+        ),
         { contentRating: null, media: ratingMap.get(null) ?? [] } as MatrixCell,
       ],
     }));

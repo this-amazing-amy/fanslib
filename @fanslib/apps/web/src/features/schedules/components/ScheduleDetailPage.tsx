@@ -70,10 +70,7 @@ export const ScheduleDetailPage = () => {
             {showDeleteConfirm ? (
               <div className="flex items-center gap-2">
                 <span className="text-sm text-error">Are you sure?</span>
-                <button
-                  className="btn btn-error btn-sm"
-                  onClick={handleDelete}
-                >
+                <button className="btn btn-error btn-sm" onClick={handleDelete}>
                   Confirm Delete
                 </button>
                 <button
@@ -98,7 +95,9 @@ export const ScheduleDetailPage = () => {
       <ContentScheduleForm
         // The API returns dates as strings but the form type expects Date objects;
         // the form only accesses id/channelId/mediaFilterOverrides/sortOrder, so the cast is safe.
-        schedule={isNew ? undefined : (schedule as Parameters<typeof ContentScheduleForm>[0]["schedule"])}
+        schedule={
+          isNew ? undefined : (schedule as Parameters<typeof ContentScheduleForm>[0]["schedule"])
+        }
         onSubmit={handleSubmit}
         onCancel={handleCancel}
       />

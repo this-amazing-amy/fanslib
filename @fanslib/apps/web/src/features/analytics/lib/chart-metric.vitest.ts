@@ -14,13 +14,15 @@ describe("metricValueFromAggregatedDay", () => {
     const dV = 60;
     const dT = 30_000;
     const expected = dT / 1000 / dV;
-    expect(metricValueFromAggregatedDay(point, previous, "engagementSeconds")).toBeCloseTo(expected);
+    expect(metricValueFromAggregatedDay(point, previous, "engagementSeconds")).toBeCloseTo(
+      expected,
+    );
   });
 
   test("first day uses interaction and views from zero baseline", () => {
-    expect(metricValueFromAggregatedDay({ views: 10, interactionTime: 5000 }, null, "engagementSeconds")).toBeCloseTo(
-      5000 / 1000 / 10,
-    );
+    expect(
+      metricValueFromAggregatedDay({ views: 10, interactionTime: 5000 }, null, "engagementSeconds"),
+    ).toBeCloseTo(5000 / 1000 / 10);
   });
 });
 
@@ -36,6 +38,8 @@ describe("metricValueFromRawIncrements", () => {
 
   test("engagement uses per-row average for that increment", () => {
     const sorted = [{ timestamp: 1, views: 10, interactionTime: 25_000 }];
-    expect(metricValueFromRawIncrements(sorted, 0, "engagementSeconds")).toBeCloseTo(25_000 / 1000 / 10);
+    expect(metricValueFromRawIncrements(sorted, 0, "engagementSeconds")).toBeCloseTo(
+      25_000 / 1000 / 10,
+    );
   });
 });

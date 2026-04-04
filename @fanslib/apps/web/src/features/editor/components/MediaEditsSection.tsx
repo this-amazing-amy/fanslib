@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Edit3, Plus, Clock, CheckCircle2, XCircle, Loader2, Trash2 } from "lucide-react";
+import { Edit3, Plus, Clock, CheckCircle2, XCircle, Loader2, HelpCircle, Trash2 } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { DeleteConfirmDialog } from "~/components/ui/DeleteConfirmDialog";
 import { useMediaEditsBySourceQuery, useDeleteMediaEditMutation } from "~/lib/queries/media-edits";
@@ -11,6 +11,12 @@ const statusConfig = {
   rendering: { icon: Loader2, label: "Rendering", color: "text-info" },
   completed: { icon: CheckCircle2, label: "Completed", color: "text-success" },
   failed: { icon: XCircle, label: "Failed", color: "text-error" },
+} as const;
+
+const fallbackStatusConfig = {
+  icon: HelpCircle,
+  label: "Unknown",
+  color: "text-base-content/50",
 } as const;
 
 type MediaEditsSectionProps = {
@@ -37,8 +43,10 @@ export const MediaEditsSection = ({ mediaId }: MediaEditsSectionProps) => {
       ) : (
         <div className="space-y-2">
           {edits.map((edit) => {
-            const config = statusConfig[edit.status];
+            const config =
+              statusConfig[edit.status as keyof typeof statusConfig] ?? fallbackStatusConfig;
             const StatusIcon = config.icon;
+            const operationCount = edit.operations?.length ?? 0;
             const isDraft = edit.status === "draft";
             return (
               <Link
@@ -51,7 +59,7 @@ export const MediaEditsSection = ({ mediaId }: MediaEditsSectionProps) => {
                 <div className="flex-1 min-w-0">
                   <span className="text-sm font-medium capitalize">{edit.type}</span>
                   <span className="text-xs text-base-content/50 ml-2">
-                    {edit.operations.length} operation{edit.operations.length !== 1 ? "s" : ""}
+                    {operationCount} operation{operationCount !== 1 ? "s" : ""}
                   </span>
                 </div>
                 <span className={`text-xs ${config.color}`}>{config.label}</span>

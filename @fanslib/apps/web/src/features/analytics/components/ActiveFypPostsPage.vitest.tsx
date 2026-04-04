@@ -30,8 +30,7 @@ vi.mock("@tanstack/react-router", () => ({
     "aria-label"?: string;
     children?: React.ReactNode;
   }) => {
-    const href =
-      params?.postId != null ? to.replace(/\$postId/g, params.postId) : to;
+    const href = params?.postId != null ? to.replace(/\$postId/g, params.postId) : to;
     return (
       <a href={href} className={className} aria-label={ariaLabel}>
         {children}
@@ -78,7 +77,9 @@ const makePosts = () => [
 
 // oxlint-disable-next-line typescript/no-explicit-any
 const mockQuery = (overrides: { data: any; isLoading: boolean }) =>
-  mockUseActiveFypPostsQuery.mockReturnValue(overrides as ReturnType<typeof useActiveFypPostsQuery>);
+  mockUseActiveFypPostsQuery.mockReturnValue(
+    overrides as ReturnType<typeof useActiveFypPostsQuery>,
+  );
 
 const sortProps = { sortBy: "engagementSeconds" as const };
 
@@ -131,9 +132,7 @@ describe("ActiveFypPostsPage", () => {
       screen.getByRole("link", { name: /fansly\.com\/post\/fansly-post-111/i }),
     ).toBeInTheDocument();
 
-    await user.click(
-      screen.getByRole("button", { name: "I removed it on Fansly — confirm" }),
-    );
+    await user.click(screen.getByRole("button", { name: "I removed it on Fansly — confirm" }));
 
     expect(mockMutate).toHaveBeenCalledWith(
       "post-1",

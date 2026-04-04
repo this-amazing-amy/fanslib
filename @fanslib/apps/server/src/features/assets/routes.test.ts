@@ -107,7 +107,10 @@ describe("Assets Routes", () => {
       const formData = new FormData();
       formData.append("file", new Blob([VALID_PNG], { type: "image/png" }), "test.png");
       formData.append("name", "File Test");
-      const createResponse = await app.request("/api/assets/upload", { method: "POST", body: formData });
+      const createResponse = await app.request("/api/assets/upload", {
+        method: "POST",
+        body: formData,
+      });
       const created = await parseResponse<{ id: string }>(createResponse);
 
       const response = await app.request(`/api/assets/${created?.id}/file`);
@@ -129,7 +132,10 @@ describe("Assets Routes", () => {
       const formData = new FormData();
       formData.append("file", new Blob([VALID_PNG], { type: "image/png" }), "test.png");
       formData.append("name", "Original Name");
-      const createResponse = await app.request("/api/assets/upload", { method: "POST", body: formData });
+      const createResponse = await app.request("/api/assets/upload", {
+        method: "POST",
+        body: formData,
+      });
       const created = await parseResponse<{ id: string }>(createResponse);
 
       const response = await app.request(`/api/assets/${created?.id}`, {
@@ -158,7 +164,10 @@ describe("Assets Routes", () => {
       const formData = new FormData();
       formData.append("file", new Blob([VALID_PNG], { type: "image/png" }), "test.png");
       formData.append("name", "To Delete");
-      const createResponse = await app.request("/api/assets/upload", { method: "POST", body: formData });
+      const createResponse = await app.request("/api/assets/upload", {
+        method: "POST",
+        body: formData,
+      });
       const created = await parseResponse<{ id: string; filename: string }>(createResponse);
 
       // File should exist after upload
@@ -247,7 +256,10 @@ describe("Assets Routes", () => {
       const formData = new FormData();
       formData.append("file", new Blob([VALID_MP3], { type: "audio/mpeg" }), "track.mp3");
       formData.append("name", "Stream Test");
-      const createResponse = await app.request("/api/assets/upload", { method: "POST", body: formData });
+      const createResponse = await app.request("/api/assets/upload", {
+        method: "POST",
+        body: formData,
+      });
       const created = await parseResponse<{ id: string }>(createResponse);
 
       const fileResponse = await app.request(`/api/assets/${created?.id}/file`);

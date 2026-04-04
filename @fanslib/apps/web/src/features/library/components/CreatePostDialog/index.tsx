@@ -138,7 +138,9 @@ export const CreatePostDialog = ({
 
   const selectedChannelData = (channels ?? []).find((c) => c.id === selectedChannel[0]);
   const isRedditChannel = selectedChannelData?.type.id === "reddit";
-  const showTitleInput = selectedChannelData ? TITLE_CHANNEL_TYPES.has(selectedChannelData.type.id) : false;
+  const showTitleInput = selectedChannelData
+    ? TITLE_CHANNEL_TYPES.has(selectedChannelData.type.id)
+    : false;
   const channelCaptionMaxLength = getCaptionMaxLength(selectedChannelData?.type.id);
 
   const minDateTime = useMemo(() => new Date(), []);

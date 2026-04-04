@@ -1,8 +1,14 @@
 import { create } from "zustand";
+import {
+  type CropOperation,
+  normalizeCropOperation,
+} from "~/features/editor/utils/crop-operation";
 
 type EditorState = {
   operations: unknown[];
   selectedOperationIndex: number | null;
+  /** When set, player shows full source and crop overlay for this operation index. */
+  cropEditingOperationIndex: number | null;
   canUndo: boolean;
   canRedo: boolean;
   isDirty: boolean;
@@ -25,7 +31,9 @@ type EditorState = {
   updateKeyframe: (opIndex: number, keyframeIndex: number, keyframe: unknown) => void;
 
   // Crop convenience
-  addCrop: (aspectRatio?: string) => void;
+  addCrop: () => void;
+  applyCrop: (index: number) => void;
+  setCropEditingOperationIndex: (index: number | null) => void;
 
   // Caption convenience
   addCaption: () => void;
@@ -82,6 +90,7 @@ export const useEditorStore = create<EditorState>((set, get) => {
   return {
     operations: [],
     selectedOperationIndex: null,
+    cropEditingOperationIndex: null,
     canUndo: false,
     isDirty: false,
     sourceMediaId: null,
@@ -98,12 +107,20 @@ export const useEditorStore = create<EditorState>((set, get) => {
 
     removeOperation: (index) => {
       pushHistory();
-      set((state) => ({
-        operations: state.operations.filter((_, i) => i !== index),
-        selectedOperationIndex:
-          state.selectedOperationIndex === index ? null : state.selectedOperationIndex,
-        ...updateUndoRedoFlags(),
-      }));
+      set((state) => {
+        const sel = state.selectedOperationIndex;
+        const nextSel =
+          sel === null ? null : sel === index ? null : sel > index ? sel - 1 : sel;
+        const ce = state.cropEditingOperationIndex;
+        const nextCe =
+          ce === null ? null : ce === index ? null : ce > index ? ce - 1 : ce;
+        return {
+          operations: state.operations.filter((_, i) => i !== index),
+          selectedOperationIndex: nextSel,
+          cropEditingOperationIndex: nextCe,
+          ...updateUndoRedoFlags(),
+        };
+      });
     },
 
     updateOperation: (index, op) => {
@@ -133,6 +150,7 @@ export const useEditorStore = create<EditorState>((set, get) => {
         operations: previous,
         canUndo: undoStack.length > 0,
         canRedo: true,
+        cropEditingOperationIndex: null,
       });
     },
 
@@ -145,22 +163,49 @@ export const useEditorStore = create<EditorState>((set, get) => {
         operations: next,
         canUndo: true,
         canRedo: redoStack.length > 0,
+        cropEditingOperationIndex: null,
       });
     },
 
-    addCrop: (aspectRatio = "16:9") => {
-      const op = {
-        type: "crop" as const,
-        aspectRatio,
-        centerX: 0.5,
-        centerY: 0.5,
+    addCrop: () => {
+      const op: CropOperation = {
+        type: "crop",
+        x: 0.05,
+        y: 0.05,
+        width: 0.9,
+        height: 0.9,
+        applied: false,
+        aspectPreset: "free",
       };
       pushHistory();
       set((state) => ({
         operations: [...state.operations, op],
         selectedOperationIndex: state.operations.length,
+        cropEditingOperationIndex: state.operations.length,
         ...updateUndoRedoFlags(),
       }));
+    },
+
+    applyCrop: (index) => {
+      const state = get();
+      const raw = state.operations[index];
+      if (!raw || (raw as { type?: string }).type !== "crop") return;
+      const c = raw as CropOperation;
+      pushHistory();
+      set({
+        operations: state.operations.map((o, i) =>
+          i === index ? { ...c, applied: true } : o,
+        ),
+        cropEditingOperationIndex: null,
+        ...updateUndoRedoFlags(),
+      });
+    },
+
+    setCropEditingOperationIndex: (index) => {
+      set({
+        cropEditingOperationIndex: index,
+        selectedOperationIndex: index,
+      });
     },
 
     addCaption: () => {
@@ -333,8 +378,9 @@ export const useEditorStore = create<EditorState>((set, get) => {
       undoStack = [];
       redoStack = [];
       set({
-        operations: [...operations],
+        operations: operations.map((op) => normalizeCropOperation(op)),
         selectedOperationIndex: null,
+        cropEditingOperationIndex: null,
         canUndo: false,
         canRedo: false,
         isDirty: false,
@@ -347,6 +393,7 @@ export const useEditorStore = create<EditorState>((set, get) => {
       set({
         operations: [],
         selectedOperationIndex: null,
+        cropEditingOperationIndex: null,
         canUndo: false,
         canRedo: false,
         isDirty: false,

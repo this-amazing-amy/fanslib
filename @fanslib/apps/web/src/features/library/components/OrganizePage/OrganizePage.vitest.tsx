@@ -59,8 +59,18 @@ describe("OrganizePage", () => {
         {
           folder: "unsorted/setA",
           media: [
-            { id: "m1", name: "photo1.jpg", type: "image", relativePath: "unsorted/setA/photo1.jpg" },
-            { id: "m2", name: "photo2.jpg", type: "image", relativePath: "unsorted/setA/photo2.jpg" },
+            {
+              id: "m1",
+              name: "photo1.jpg",
+              type: "image",
+              relativePath: "unsorted/setA/photo1.jpg",
+            },
+            {
+              id: "m2",
+              name: "photo2.jpg",
+              type: "image",
+              relativePath: "unsorted/setA/photo2.jpg",
+            },
           ],
         },
         {
@@ -261,7 +271,12 @@ describe("OrganizePage", () => {
   test("submit button calls organize mutation with selected files and metadata", async () => {
     const user = userEvent.setup();
     mockOrganizeMutateAsync.mockResolvedValue({
-      results: [{ mediaId: "m1", finalPath: "2025/20250115_BeachDay/20250115_BeachDay_main_content_uc.jpg" }],
+      results: [
+        {
+          mediaId: "m1",
+          finalPath: "2025/20250115_BeachDay/20250115_BeachDay_main_content_uc.jpg",
+        },
+      ],
       errors: [],
     });
 

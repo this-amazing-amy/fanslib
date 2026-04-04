@@ -118,9 +118,7 @@ describe("groupMediaByPackage", () => {
   });
 
   test("getPopulatedColumns includes null when unrated media exists", () => {
-    const media = [
-      makeMedia({ package: "main", role: "content", contentRating: null }),
-    ];
+    const media = [makeMedia({ package: "main", role: "content", contentRating: null })];
 
     const groups = groupMediaByPackage(media);
     const columns = getPopulatedColumns(groups);

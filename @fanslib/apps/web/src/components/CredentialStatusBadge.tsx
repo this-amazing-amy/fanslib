@@ -95,7 +95,12 @@ export const CredentialStatusBadge = () => {
   return (
     <Tooltip
       content={
-        <TooltipContent config={config} status={status} lastUpdated={data.lastUpdated} onRefresh={() => refetch()} />
+        <TooltipContent
+          config={config}
+          status={status}
+          lastUpdated={data.lastUpdated}
+          onRefresh={() => refetch()}
+        />
       }
       placement="bottom"
     >

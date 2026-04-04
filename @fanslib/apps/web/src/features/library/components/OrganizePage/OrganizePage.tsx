@@ -157,10 +157,7 @@ export const OrganizePage = () => {
     }));
   };
 
-  const folderGroups = useMemo(
-    () => (groups ?? []) as unknown as FolderGroup[],
-    [groups],
-  );
+  const folderGroups = useMemo(() => (groups ?? []) as unknown as FolderGroup[], [groups]);
 
   // Resolve the shoot name for preview
   const shootName = useMemo(() => {
@@ -267,7 +264,8 @@ export const OrganizePage = () => {
         <div className="text-center space-y-2">
           <p className="text-lg font-medium">All files are organized</p>
           <p className="text-sm opacity-60">
-            No unmanaged files found. Files added to the library root will appear here for organizing.
+            No unmanaged files found. Files added to the library root will appear here for
+            organizing.
           </p>
         </div>
       </div>
@@ -305,13 +303,13 @@ export const OrganizePage = () => {
               </div>
               <div className="space-y-1">
                 {group.media.map((media) => {
-                const isSelected = selectedIds.has(media.id);
-                const meta = fileMetadata[media.id] ?? {
-                  package: DEFAULT_PACKAGE,
-                  role: "",
-                  contentRating: DEFAULT_CONTENT_RATING,
-                };
-                const ratingValue = contentRatingValueOrDefault(meta);
+                  const isSelected = selectedIds.has(media.id);
+                  const meta = fileMetadata[media.id] ?? {
+                    package: DEFAULT_PACKAGE,
+                    role: "",
+                    contentRating: DEFAULT_CONTENT_RATING,
+                  };
+                  const ratingValue = contentRatingValueOrDefault(meta);
 
                   return (
                     <div key={media.id} className="rounded-lg p-2 hover:bg-base-200">

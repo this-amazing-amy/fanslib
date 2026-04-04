@@ -22,9 +22,7 @@ export const AnalyticsPostCardThumbnailColumn = ({
     {timesPosted != null ? (
       <span
         className="flex w-full min-w-0 items-center justify-center gap-0.5 text-xs tabular-nums text-base-content/60"
-        aria-label={
-          timesPosted === 1 ? "Posted 1 time" : `Posted ${timesPosted} times`
-        }
+        aria-label={timesPosted === 1 ? "Posted 1 time" : `Posted ${timesPosted} times`}
       >
         <Repeat className="h-3 w-3 shrink-0" aria-hidden />
         <span>{timesPosted}</span>

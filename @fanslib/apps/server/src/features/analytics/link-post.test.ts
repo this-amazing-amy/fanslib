@@ -4,7 +4,12 @@ import "reflect-metadata";
 import { setupTestDatabase, teardownTestDatabase, getTestDataSource } from "../../lib/test-db";
 import { resetAllFixtures } from "../../lib/test-fixtures";
 import { devalueMiddleware } from "../../lib/devalue-middleware";
-import { parseResponse, createTestMedia, createTestPost, createTestChannel } from "../../test-utils/setup";
+import {
+  parseResponse,
+  createTestMedia,
+  createTestPost,
+  createTestChannel,
+} from "../../test-utils/setup";
 import { PostMedia } from "../posts/entity";
 import { FanslyAnalyticsAggregate } from "./entity";
 import { analyticsRoutes } from "./routes";

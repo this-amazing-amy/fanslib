@@ -40,9 +40,7 @@ const MediaTileAspectPrototypePage = () => {
           common for short-form preview. Footer matches the library gallery (tags, filename, post
           count).
         </p>
-        {isLoading ? (
-          <p className="text-sm text-base-content/60">Loading library…</p>
-        ) : null}
+        {isLoading ? <p className="text-sm text-base-content/60">Loading library…</p> : null}
         {!isLoading && items.length === 0 ? (
           <p className="text-sm text-base-content/70">Add media to the library to compare tiles.</p>
         ) : null}

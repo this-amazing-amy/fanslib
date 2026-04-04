@@ -108,16 +108,24 @@ export const analyticsRoutes = new Hono()
       return c.json(result);
     },
   )
-  .get("/active-fyp-posts", zValidator("query", ActiveFypPostsQuerySchema, validationError), async (c) => {
-    const query = c.req.valid("query");
-    const result = await fetchActiveFypPosts(query);
-    return c.json(result);
-  })
-  .get("/repost-candidates", zValidator("query", RepostCandidatesQuerySchema, validationError), async (c) => {
-    const query = c.req.valid("query");
-    const result = await fetchRepostCandidates(query);
-    return c.json(result);
-  })
+  .get(
+    "/active-fyp-posts",
+    zValidator("query", ActiveFypPostsQuerySchema, validationError),
+    async (c) => {
+      const query = c.req.valid("query");
+      const result = await fetchActiveFypPosts(query);
+      return c.json(result);
+    },
+  )
+  .get(
+    "/repost-candidates",
+    zValidator("query", RepostCandidatesQuerySchema, validationError),
+    async (c) => {
+      const query = c.req.valid("query");
+      const result = await fetchRepostCandidates(query);
+      return c.json(result);
+    },
+  )
   .post("/halt-non-preview-aggregates", async (c) => {
     const result = await haltNonPreviewAggregates();
     return c.json(result);

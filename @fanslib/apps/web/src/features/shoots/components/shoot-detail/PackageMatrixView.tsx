@@ -25,9 +25,7 @@ export const PackageMatrixView = ({ medias, onAddMedia }: PackageMatrixViewProps
   const groups = useMemo(() => groupMediaByPackage(medias), [medias]);
   const populatedColumns = useMemo(() => getPopulatedColumns(groups), [groups]);
 
-  const columns = compactView
-    ? populatedColumns
-    : (["xt", "uc", "cn", "sg", "sf", null] as const);
+  const columns = compactView ? populatedColumns : (["xt", "uc", "cn", "sg", "sf", null] as const);
 
   if (groups.length === 0) {
     return (
@@ -78,7 +76,7 @@ export const PackageMatrixView = ({ medias, onAddMedia }: PackageMatrixViewProps
                       key={col ?? "unrated"}
                       className="text-center text-xs font-medium text-base-content/50 px-2 py-1"
                     >
-                      {col ? CONTENT_RATING_LABELS[col] ?? col : "Unrated"}
+                      {col ? (CONTENT_RATING_LABELS[col] ?? col) : "Unrated"}
                     </th>
                   ))}
                 </tr>

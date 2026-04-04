@@ -30,7 +30,9 @@ export const AnalyticsPostCardMetaControls = ({
           aria-label={chartExpanded ? "Hide chart" : "Show chart"}
           onPress={() => onToggleChart()}
         >
-          <ChevronDown className={cn("h-4 w-4 transition-transform", chartExpanded && "rotate-180")} />
+          <ChevronDown
+            className={cn("h-4 w-4 transition-transform", chartExpanded && "rotate-180")}
+          />
         </Button>
       ) : null}
       {actionSlot}

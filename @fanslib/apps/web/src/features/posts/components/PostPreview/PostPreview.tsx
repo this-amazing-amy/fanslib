@@ -43,15 +43,11 @@ export const PostPreview = ({
 }: PostPreviewProps) => {
   const isVirtual = isVirtualPost(post);
 
-  const {
-    hasSkipConfirmation,
-    skipScheduleSlot,
-    resetSkipConfirmation,
-    isSkipPending,
-  } = useSkipSlotConfirmation({
-    post: isVirtual ? post : ({} as VirtualPost),
-    onUpdate,
-  });
+  const { hasSkipConfirmation, skipScheduleSlot, resetSkipConfirmation, isSkipPending } =
+    useSkipSlotConfirmation({
+      post: isVirtual ? post : ({} as VirtualPost),
+      onUpdate,
+    });
 
   const virtualPostClick = useVirtualPostClick({
     post: isVirtual ? post : ({} as VirtualPost),

@@ -1,7 +1,6 @@
 /// <reference types="vite/client" />
 import { QueryClientProvider } from "@tanstack/react-query";
 import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import * as React from "react";
 import { AppLayout } from "~/components/AppLayout";
 import { NotFound } from "~/components/NotFound";
@@ -17,7 +16,6 @@ const RootShell = ({ children }: { children: React.ReactNode }) => (
     </head>
     <body>
       {children}
-      <TanStackRouterDevtools position="bottom-right" />
       <Scripts />
     </body>
   </html>

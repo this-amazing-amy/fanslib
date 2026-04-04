@@ -1,43 +1,17 @@
 import React from "react";
-import type { CropOperation, AspectRatioPreset } from "../types";
+import type { CropOperation } from "../types";
 
 type CropFrameProps = {
   crop: CropOperation;
-  compositionWidth: number;
-  compositionHeight: number;
   children: React.ReactNode;
 };
 
-const ASPECT_RATIOS: Record<AspectRatioPreset, number> = {
-  "16:9": 16 / 9,
-  "9:16": 9 / 16,
-  "1:1": 1,
-  "4:5": 4 / 5,
-};
-
 /**
- * Clips the source content to the specified aspect ratio centered at the given position.
- * The crop window defines the output viewport.
+ * Clips children so the sub-rectangle (x,y,width,height) in normalized composition space
+ * fills the viewport (same math as the web editor crop preview).
  */
-export const CropFrame: React.FC<CropFrameProps> = ({
-  crop,
-  compositionWidth,
-  compositionHeight,
-  children,
-}) => {
-  const sourceAspect = compositionWidth / compositionHeight;
-  const targetAspect = ASPECT_RATIOS[crop.aspectRatio];
-
-  // Calculate crop window dimensions (in relative coordinates)
-  const cropWidth = targetAspect > sourceAspect ? 1 : targetAspect / sourceAspect;
-  const cropHeight = targetAspect > sourceAspect ? sourceAspect / targetAspect : 1;
-
-  // Calculate offset based on center position
-  const offsetX = (crop.centerX - 0.5) * (1 - cropWidth);
-  const offsetY = (crop.centerY - 0.5) * (1 - cropHeight);
-
-  const left = ((1 - cropWidth) / 2 + offsetX) * 100;
-  const top = ((1 - cropHeight) / 2 + offsetY) * 100;
+export const CropFrame: React.FC<CropFrameProps> = ({ crop, children }) => {
+  const { x, y, width: w, height: h } = crop;
 
   return (
     <div
@@ -51,10 +25,10 @@ export const CropFrame: React.FC<CropFrameProps> = ({
       <div
         style={{
           position: "absolute",
-          left: `${-left}%`,
-          top: `${-top}%`,
-          width: `${100 / cropWidth}%`,
-          height: `${100 / cropHeight}%`,
+          left: `${-(x / w) * 100}%`,
+          top: `${-(y / h) * 100}%`,
+          width: `${100 / w}%`,
+          height: `${100 / h}%`,
         }}
       >
         {children}

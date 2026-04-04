@@ -101,7 +101,7 @@ const MediaRouteInner = ({ mediaId }: { mediaId: string }) => {
             Back
           </Button>
           <div className="flex-1" />
-          <MediaDetailNavigation />
+          <MediaDetailNavigation mediaId={mediaId} navigateTo="/content/library/media/$mediaId" />
         </div>
         <div className="flex justify-between">
           <h1 className="text-3xl font-semibold tracking-tight">{media.name}</h1>

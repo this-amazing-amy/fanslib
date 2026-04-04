@@ -52,7 +52,7 @@ const sortedDatapointsForPm = (pm: PostMedia): DatapointItem[] =>
 
 const pickPostMediaForChartSeries = (withAggs: WithAgg[]): PostMedia => {
   const bestPerformer = withAggs.reduce((best, x) =>
-    x.agg.totalViews > best.agg.totalViews ? x : best
+    x.agg.totalViews > best.agg.totalViews ? x : best,
   );
   if (datapointCount(bestPerformer.pm) >= 2) {
     return bestPerformer.pm;
@@ -73,7 +73,7 @@ const computeBestStats = (postMediaList: PostMedia[]) => {
   const bestEngagementSeconds = Math.max(...withAggs.map((x) => x.agg.averageEngagementSeconds));
 
   const bestPerformer = withAggs.reduce((best, x) =>
-    x.agg.totalViews > best.agg.totalViews ? x : best
+    x.agg.totalViews > best.agg.totalViews ? x : best,
   );
 
   const chartPm = pickPostMediaForChartSeries(withAggs);
@@ -98,7 +98,7 @@ const groupByMediaId = (postMediaList: PostMedia[]): Map<string, PostMedia[]> =>
   }, new Map<string, PostMedia[]>());
 
 export const fetchRepostCandidates = async (
-  query: z.infer<typeof RepostCandidatesQuerySchema>
+  query: z.infer<typeof RepostCandidatesQuerySchema>,
 ): Promise<RepostCandidateItem[]> => {
   const sortBy = query.sortBy ?? "engagementSeconds";
   const dataSource = await db();

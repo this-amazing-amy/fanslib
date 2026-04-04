@@ -1,7 +1,22 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { ArrowLeft, Undo2, Redo2, ImageIcon, Save, Upload, Scissors, Crop, Type, Droplets, Smile, Grid3x3, ZoomIn } from "lucide-react";
-import { Link } from "@tanstack/react-router";
+import {
+  ArrowLeft,
+  Undo2,
+  Redo2,
+  ImageIcon,
+  Save,
+  Upload,
+  Scissors,
+  Crop,
+  Type,
+  Droplets,
+  Smile,
+  Grid3x3,
+  ZoomIn,
+} from "lucide-react";
+import { useRouter } from "@tanstack/react-router";
 import { Button } from "~/components/ui/Button";
+import { Tooltip } from "~/components/ui/Tooltip";
 import { useEditorStore } from "~/stores/editorStore";
 import { useClipStore } from "~/stores/clipStore";
 import { useAssetsQuery } from "~/lib/queries/assets";
@@ -12,6 +27,7 @@ type EditorToolbarProps = {
 };
 
 export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
+  const router = useRouter();
   const undo = useEditorStore((s) => s.undo);
   const redo = useEditorStore((s) => s.redo);
   const canUndo = useEditorStore((s) => s.canUndo);
@@ -32,14 +48,21 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
   const clipMode = useClipStore((s) => s.clipMode);
   const toggleClipMode = useClipStore((s) => s.toggleClipMode);
   const clipRanges = useClipStore((s) => s.ranges);
+  const hasClipRanges = clipRanges.length > 0;
+  const transformToolsDisabled = clipMode || hasClipRanges;
 
   const [watermarkOpen, setWatermarkOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
+  const saveDisabled = !isDirty || saving || clipMode;
   const popoverRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
 
   const { data: assets } = useAssetsQuery("image");
+
+  useEffect(() => {
+    if (hasClipRanges || clipMode) setWatermarkOpen(false);
+  }, [hasClipRanges, clipMode]);
 
   // Close popover on outside click
   useEffect(() => {
@@ -96,39 +119,73 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
 
   return (
     <div className="h-12 border-b border-base-300 bg-base-200/50 flex items-center px-4 gap-2">
-      <Link to="/content/library/media/$mediaId" params={{ mediaId }} className="flex items-center gap-1 text-sm text-base-content/60 hover:text-base-content">
-        <ArrowLeft className="h-4 w-4" />
-        Back to Media
-      </Link>
+      <Tooltip content="Back" placement="bottom" openDelayMs={0}>
+        <span className="inline-flex">
+          <Button
+            variant="ghost"
+            size="icon"
+            onPress={() => router.history.back()}
+            aria-label="Back"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+        </span>
+      </Tooltip>
       <div className="border-l border-base-300 h-6 mx-2" />
-      <Button
-        size="sm"
-        variant={clipMode ? "primary" : "ghost"}
-        onPress={toggleClipMode}
-        aria-label="Clip tool"
-      >
-        <Scissors className="h-4 w-4 mr-1" />
-        <span className="text-xs">Clip</span>
-      </Button>
-      <Button size="sm" variant="ghost" onPress={() => addCrop()} aria-label="Add crop">
-        <Crop className="h-4 w-4 mr-1" />
-        <span className="text-xs">Crop</span>
-      </Button>
-      <Button size="sm" variant="ghost" onPress={addCaption} aria-label="Add caption">
-        <Type className="h-4 w-4 mr-1" />
-        <span className="text-xs">Caption</span>
-      </Button>
+      <Tooltip content="Clip mode" placement="bottom" openDelayMs={0}>
+        <span className="inline-flex">
+          <Button
+            size="icon"
+            variant={clipMode ? "primary" : "ghost"}
+            onPress={toggleClipMode}
+            aria-label="Clip mode"
+          >
+            <Scissors className="h-4 w-4" />
+          </Button>
+        </span>
+      </Tooltip>
+      <Tooltip content="Crop" placement="bottom" openDelayMs={0}>
+        <span className="inline-flex">
+          <Button
+            size="icon"
+            variant="ghost"
+            onPress={() => addCrop()}
+            aria-label="Crop"
+            isDisabled={transformToolsDisabled}
+          >
+            <Crop className="h-4 w-4" />
+          </Button>
+        </span>
+      </Tooltip>
+      <Tooltip content="Caption" placement="bottom" openDelayMs={0}>
+        <span className="inline-flex">
+          <Button
+            size="icon"
+            variant="ghost"
+            onPress={addCaption}
+            aria-label="Caption"
+            isDisabled={transformToolsDisabled}
+          >
+            <Type className="h-4 w-4" />
+          </Button>
+        </span>
+      </Tooltip>
 
       {/* Watermark tool */}
       <div className="relative" ref={buttonRef}>
-        <Button
-          size="sm"
-          variant="ghost"
-          onPress={() => setWatermarkOpen((prev) => !prev)}
-          aria-label="Add Watermark"
-        >
-          <ImageIcon className="h-4 w-4" />
-        </Button>
+        <Tooltip content="Watermark" placement="bottom" openDelayMs={0}>
+          <span className="inline-flex">
+            <Button
+              size="icon"
+              variant="ghost"
+              onPress={() => setWatermarkOpen((prev) => !prev)}
+              aria-label="Watermark"
+              isDisabled={transformToolsDisabled}
+            >
+              <ImageIcon className="h-4 w-4" />
+            </Button>
+          </span>
+        </Tooltip>
         {watermarkOpen && (
           <div
             ref={popoverRef}
@@ -162,59 +219,123 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
         )}
       </div>
 
-      <Button size="sm" variant="ghost" onPress={addBlur} aria-label="Add blur region">
-        <Droplets className="h-4 w-4 mr-1" />
-        <span className="text-xs">Blur</span>
-      </Button>
-      <Button size="sm" variant="ghost" onPress={() => addEmoji()} aria-label="Add emoji overlay">
-        <Smile className="h-4 w-4 mr-1" />
-        <span className="text-xs">Emoji</span>
-      </Button>
-      <Button size="sm" variant="ghost" onPress={addPixelate} aria-label="Add pixelate region">
-        <Grid3x3 className="h-4 w-4 mr-1" />
-        <span className="text-xs">Pixelate</span>
-      </Button>
-      <Button size="sm" variant="ghost" onPress={addZoom} aria-label="Add zoom effect">
-        <ZoomIn className="h-4 w-4 mr-1" />
-        <span className="text-xs">Zoom</span>
-      </Button>
+      <Tooltip content="Blur region" placement="bottom" openDelayMs={0}>
+        <span className="inline-flex">
+          <Button
+            size="icon"
+            variant="ghost"
+            onPress={addBlur}
+            aria-label="Blur region"
+            isDisabled={transformToolsDisabled}
+          >
+            <Droplets className="h-4 w-4" />
+          </Button>
+        </span>
+      </Tooltip>
+      <Tooltip content="Emoji overlay" placement="bottom" openDelayMs={0}>
+        <span className="inline-flex">
+          <Button
+            size="icon"
+            variant="ghost"
+            onPress={() => addEmoji()}
+            aria-label="Emoji overlay"
+            isDisabled={transformToolsDisabled}
+          >
+            <Smile className="h-4 w-4" />
+          </Button>
+        </span>
+      </Tooltip>
+      <Tooltip content="Pixelate" placement="bottom" openDelayMs={0}>
+        <span className="inline-flex">
+          <Button
+            size="icon"
+            variant="ghost"
+            onPress={addPixelate}
+            aria-label="Pixelate"
+            isDisabled={transformToolsDisabled}
+          >
+            <Grid3x3 className="h-4 w-4" />
+          </Button>
+        </span>
+      </Tooltip>
+      <Tooltip content="Zoom" placement="bottom" openDelayMs={0}>
+        <span className="inline-flex">
+          <Button
+            size="icon"
+            variant="ghost"
+            onPress={addZoom}
+            aria-label="Zoom"
+            isDisabled={transformToolsDisabled}
+          >
+            <ZoomIn className="h-4 w-4" />
+          </Button>
+        </span>
+      </Tooltip>
 
       <div className="flex-1" />
 
-      <Button
-        size="sm"
-        variant="ghost"
-        onPress={undo}
-        isDisabled={!canUndo}
-        aria-label="Undo"
-      >
-        <Undo2 className="h-4 w-4" />
-      </Button>
-      <Button size="sm" variant="ghost" onPress={redo} isDisabled={!canRedo} aria-label="Redo">
-        <Redo2 className="h-4 w-4" />
-      </Button>
+      <Tooltip content="Undo" placement="bottom" openDelayMs={0}>
+        <span className="inline-flex">
+          <Button
+            size="icon"
+            variant="ghost"
+            onPress={undo}
+            isDisabled={!canUndo || transformToolsDisabled}
+            aria-label="Undo"
+          >
+            <Undo2 className="h-4 w-4" />
+          </Button>
+        </span>
+      </Tooltip>
+      <Tooltip content="Redo" placement="bottom" openDelayMs={0}>
+        <span className="inline-flex">
+          <Button
+            size="icon"
+            variant="ghost"
+            onPress={redo}
+            isDisabled={!canRedo || transformToolsDisabled}
+            aria-label="Redo"
+          >
+            <Redo2 className="h-4 w-4" />
+          </Button>
+        </span>
+      </Tooltip>
 
-      <Button
-        size="sm"
-        variant="ghost"
-        onPress={handleSave}
-        isDisabled={!isDirty || saving}
-        aria-label="Save"
+      <Tooltip
+        content={saving ? "Saving…" : "Save transform draft"}
+        placement="bottom"
+        openDelayMs={0}
       >
-        <Save className="h-4 w-4" />
-        <span className="ml-1 text-sm">{saving ? "Saving..." : "Save"}</span>
-      </Button>
+        <span className="inline-flex">
+          <Button
+            size="icon"
+            variant="ghost"
+            onPress={handleSave}
+            isDisabled={saveDisabled}
+            aria-label={saving ? "Saving" : "Save transform draft"}
+          >
+            <Save className="h-4 w-4" />
+          </Button>
+        </span>
+      </Tooltip>
 
-      <Button
-        size="sm"
-        variant="ghost"
-        onPress={() => setExportOpen(true)}
-        isDisabled={!canExport}
-        aria-label="Export"
+      <Tooltip
+        content="Export and queue clips or transforms for rendering"
+        placement="bottom"
+        openDelayMs={0}
       >
-        <Upload className="h-4 w-4" />
-        <span className="ml-1 text-sm">Export</span>
-      </Button>
+        <span className="inline-flex">
+          <Button
+            size="icon"
+            variant="ghost"
+            onPress={() => setExportOpen(true)}
+            isDisabled={!canExport}
+            aria-label="Export to render queue"
+          >
+            <Upload className="h-4 w-4" />
+          </Button>
+        </span>
+      </Tooltip>
 
       <ExportDialog open={exportOpen} onOpenChange={setExportOpen} />
     </div>

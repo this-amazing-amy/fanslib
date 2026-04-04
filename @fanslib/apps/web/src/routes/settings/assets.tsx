@@ -135,7 +135,10 @@ const AssetsSettings = () => {
             className="hidden"
             onChange={handleFileSelect}
           />
-          <Button onPress={() => fileInputRef.current?.click()} isDisabled={uploadMutation.isPending}>
+          <Button
+            onPress={() => fileInputRef.current?.click()}
+            isDisabled={uploadMutation.isPending}
+          >
             <Upload className="mr-2 h-4 w-4" />
             {uploadMutation.isPending ? "Uploading..." : "Upload"}
           </Button>

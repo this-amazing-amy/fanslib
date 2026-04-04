@@ -39,6 +39,7 @@ import { Route as FanslyFypRouteImport } from './routes/fansly/fyp'
 import { Route as DevMediaTileAspectRouteImport } from './routes/dev/media-tile-aspect'
 import { Route as ContentShootsRouteImport } from './routes/content/shoots'
 import { Route as ContentLibraryRouteImport } from './routes/content/library'
+import { Route as LibraryMediaIdIndexRouteImport } from './routes/library/$mediaId/index'
 import { Route as ContentLibraryOrganizeRouteImport } from './routes/content/library/organize'
 import { Route as ContentLibraryMediaRouteImport } from './routes/content/library/media'
 import { Route as LibraryMediaIdEditIndexRouteImport } from './routes/library/$mediaId/edit/index'
@@ -196,6 +197,11 @@ const ContentLibraryRoute = ContentLibraryRouteImport.update({
   path: '/library',
   getParentRoute: () => ContentRoute,
 } as any)
+const LibraryMediaIdIndexRoute = LibraryMediaIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LibraryMediaIdRoute,
+} as any)
 const ContentLibraryOrganizeRoute = ContentLibraryOrganizeRouteImport.update({
   id: '/organize',
   path: '/organize',
@@ -263,6 +269,7 @@ export interface FileRoutesByFullPath {
   '/shoots/': typeof ShootsIndexRoute
   '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
   '/content/library/organize': typeof ContentLibraryOrganizeRoute
+  '/library/$mediaId/': typeof LibraryMediaIdIndexRoute
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
   '/library/$mediaId/edit/$editId': typeof LibraryMediaIdEditEditIdRoute
   '/content/library/media/': typeof ContentLibraryMediaIndexRoute
@@ -280,7 +287,6 @@ export interface FileRoutesByTo {
   '/content/shoots': typeof ContentShootsRoute
   '/dev/media-tile-aspect': typeof DevMediaTileAspectRoute
   '/fansly/fyp': typeof FanslyFypRoute
-  '/library/$mediaId': typeof LibraryMediaIdRouteWithChildren
   '/posts/$postId': typeof PostsPostIdRoute
   '/schedules/$id': typeof SchedulesIdRoute
   '/settings/appearance': typeof SettingsAppearanceRoute
@@ -298,6 +304,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsIndexRoute
   '/shoots': typeof ShootsIndexRoute
   '/content/library/organize': typeof ContentLibraryOrganizeRoute
+  '/library/$mediaId': typeof LibraryMediaIdIndexRoute
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
   '/library/$mediaId/edit/$editId': typeof LibraryMediaIdEditEditIdRoute
   '/content/library/media': typeof ContentLibraryMediaIndexRoute
@@ -337,6 +344,7 @@ export interface FileRoutesById {
   '/shoots/': typeof ShootsIndexRoute
   '/content/library/media': typeof ContentLibraryMediaRouteWithChildren
   '/content/library/organize': typeof ContentLibraryOrganizeRoute
+  '/library/$mediaId/': typeof LibraryMediaIdIndexRoute
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
   '/library/$mediaId/edit/$editId': typeof LibraryMediaIdEditEditIdRoute
   '/content/library/media/': typeof ContentLibraryMediaIndexRoute
@@ -377,6 +385,7 @@ export interface FileRouteTypes {
     | '/shoots/'
     | '/content/library/media'
     | '/content/library/organize'
+    | '/library/$mediaId/'
     | '/content/library/media/$mediaId'
     | '/library/$mediaId/edit/$editId'
     | '/content/library/media/'
@@ -394,7 +403,6 @@ export interface FileRouteTypes {
     | '/content/shoots'
     | '/dev/media-tile-aspect'
     | '/fansly/fyp'
-    | '/library/$mediaId'
     | '/posts/$postId'
     | '/schedules/$id'
     | '/settings/appearance'
@@ -412,6 +420,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/shoots'
     | '/content/library/organize'
+    | '/library/$mediaId'
     | '/content/library/media/$mediaId'
     | '/library/$mediaId/edit/$editId'
     | '/content/library/media'
@@ -450,6 +459,7 @@ export interface FileRouteTypes {
     | '/shoots/'
     | '/content/library/media'
     | '/content/library/organize'
+    | '/library/$mediaId/'
     | '/content/library/media/$mediaId'
     | '/library/$mediaId/edit/$editId'
     | '/content/library/media/'
@@ -688,6 +698,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContentLibraryRouteImport
       parentRoute: typeof ContentRoute
     }
+    '/library/$mediaId/': {
+      id: '/library/$mediaId/'
+      path: '/'
+      fullPath: '/library/$mediaId/'
+      preLoaderRoute: typeof LibraryMediaIdIndexRouteImport
+      parentRoute: typeof LibraryMediaIdRoute
+    }
     '/content/library/organize': {
       id: '/content/library/organize'
       path: '/organize'
@@ -816,11 +833,13 @@ const SettingsRouteWithChildren = SettingsRoute._addFileChildren(
 )
 
 interface LibraryMediaIdRouteChildren {
+  LibraryMediaIdIndexRoute: typeof LibraryMediaIdIndexRoute
   LibraryMediaIdEditEditIdRoute: typeof LibraryMediaIdEditEditIdRoute
   LibraryMediaIdEditIndexRoute: typeof LibraryMediaIdEditIndexRoute
 }
 
 const LibraryMediaIdRouteChildren: LibraryMediaIdRouteChildren = {
+  LibraryMediaIdIndexRoute: LibraryMediaIdIndexRoute,
   LibraryMediaIdEditEditIdRoute: LibraryMediaIdEditEditIdRoute,
   LibraryMediaIdEditIndexRoute: LibraryMediaIdEditIndexRoute,
 }
@@ -851,3 +870,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

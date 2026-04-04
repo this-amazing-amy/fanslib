@@ -27,7 +27,7 @@ const useAnimation = (
       const opacity = interpolate(localFrame, [0, Math.min(15, duration)], [0, 1], {
         extrapolateRight: "clamp",
       });
-      return { opacity, transform: "none" };
+      return { opacity, transform: "" };
     }
     case "scale-in": {
       const scale = spring({ frame: localFrame, fps, config: { damping: 12 } });
@@ -45,10 +45,10 @@ const useAnimation = (
           extrapolateRight: "clamp",
         }),
       );
-      return { opacity: 1, transform: "none", charsToShow };
+      return { opacity: 1, transform: "", charsToShow };
     }
     default:
-      return { opacity: 1, transform: "none" };
+      return { opacity: 1, transform: "" };
   }
 };
 
@@ -57,8 +57,8 @@ export const CaptionOverlay: React.FC<CaptionOverlayProps> = ({
   compositionWidth,
 }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const anim = useAnimation(
+  const { fps, durationInFrames } = useVideoConfig();
+  const animRaw = useAnimation(
     caption.animation,
     frame,
     caption.startFrame,
@@ -68,6 +68,15 @@ export const CaptionOverlay: React.FC<CaptionOverlayProps> = ({
   );
 
   if (frame < caption.startFrame || frame > caption.endFrame) return null;
+
+  const singleFramePreview = durationInFrames <= 1;
+  const anim = singleFramePreview
+    ? {
+        opacity: 1,
+        transform: "" as const,
+        charsToShow: caption.text.length,
+      }
+    : animRaw;
 
   const fontSize = caption.fontSize * compositionWidth;
   const displayText =

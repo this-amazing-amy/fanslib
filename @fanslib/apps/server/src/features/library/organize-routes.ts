@@ -47,7 +47,10 @@ const buildTargetPath = (
 };
 
 const pathExists = (filePath: string): Promise<boolean> =>
-  fs.access(filePath).then(() => true).catch(() => false);
+  fs
+    .access(filePath)
+    .then(() => true)
+    .catch(() => false);
 
 const findAvailablePath = async (
   shoot: Shoot,
@@ -90,7 +93,13 @@ const processEntry = async (
   }
 
   const ext = pathModule.extname(media.name);
-  const targetRelPath = await findAvailablePath(shoot, entry.package, entry.role, entry.contentRating, ext);
+  const targetRelPath = await findAvailablePath(
+    shoot,
+    entry.package,
+    entry.role,
+    entry.contentRating,
+    ext,
+  );
   const targetAbsPath = resolveMediaPath(targetRelPath);
 
   await fs.mkdir(pathModule.dirname(targetAbsPath), { recursive: true });
@@ -170,28 +179,24 @@ export const organizeRoutes = new Hono()
 
     return c.json(results.map((r) => r.package));
   })
-  .post(
-    "/organize",
-    zValidator("json", OrganizeRequestSchema, validationError),
-    async (c) => {
-      const { entries } = c.req.valid("json");
-      const database = await db();
-      const mediaRepo = database.getRepository(Media);
-      const shootRepo = database.getRepository(Shoot);
+  .post("/organize", zValidator("json", OrganizeRequestSchema, validationError), async (c) => {
+    const { entries } = c.req.valid("json");
+    const database = await db();
+    const mediaRepo = database.getRepository(Media);
+    const shootRepo = database.getRepository(Shoot);
 
-      // Process entries sequentially (each may depend on prior filesystem state)
-      const outcomes = await entries.reduce<Promise<Array<OrganizeResult | OrganizeError>>>(
-        async (accPromise, entry) => {
-          const acc = await accPromise;
-          const result = await processEntry(entry, mediaRepo, shootRepo);
-          return [...acc, result];
-        },
-        Promise.resolve([]),
-      );
+    // Process entries sequentially (each may depend on prior filesystem state)
+    const outcomes = await entries.reduce<Promise<Array<OrganizeResult | OrganizeError>>>(
+      async (accPromise, entry) => {
+        const acc = await accPromise;
+        const result = await processEntry(entry, mediaRepo, shootRepo);
+        return [...acc, result];
+      },
+      Promise.resolve([]),
+    );
 
-      return c.json({
-        results: outcomes.filter((r): r is OrganizeResult => !isError(r)),
-        errors: outcomes.filter(isError),
-      });
-    },
-  );
+    return c.json({
+      results: outcomes.filter((r): r is OrganizeResult => !isError(r)),
+      errors: outcomes.filter(isError),
+    });
+  });

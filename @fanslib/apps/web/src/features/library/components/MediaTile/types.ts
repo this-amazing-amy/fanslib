@@ -8,8 +8,6 @@ export type MediaTileProps = {
   tags?: MediaTag[];
   repostStatus?: RepostStatus;
   className?: string;
-  /** Replaces default `aspect-square` on the media frame (e.g. `aspect-[9/16]` for phone preview). */
-  aspectFrameClassName?: string;
 
   withPostsPopover?: boolean;
   withSelection?: boolean;

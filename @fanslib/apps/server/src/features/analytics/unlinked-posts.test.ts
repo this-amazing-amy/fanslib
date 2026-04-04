@@ -4,7 +4,12 @@ import "reflect-metadata";
 import { setupTestDatabase, teardownTestDatabase, getTestDataSource } from "../../lib/test-db";
 import { resetAllFixtures } from "../../lib/test-fixtures";
 import { devalueMiddleware } from "../../lib/devalue-middleware";
-import { parseResponse, createTestMedia, createTestPost, createTestChannel } from "../../test-utils/setup";
+import {
+  parseResponse,
+  createTestMedia,
+  createTestPost,
+  createTestChannel,
+} from "../../test-utils/setup";
 import { PostMedia } from "../posts/entity";
 import { analyticsRoutes } from "./routes";
 
@@ -114,7 +119,10 @@ describe("GET /api/analytics/unlinked-posts", () => {
       await channelTypeRepo.save({ id: "bluesky", name: "Bluesky" });
     }
 
-    const nonFanslyChannel = await createTestChannel({ typeId: "bluesky", name: "Bluesky Channel" });
+    const nonFanslyChannel = await createTestChannel({
+      typeId: "bluesky",
+      name: "Bluesky Channel",
+    });
     const media = await createTestMedia();
     const post = await createTestPost(nonFanslyChannel.id, { status: "posted" });
 

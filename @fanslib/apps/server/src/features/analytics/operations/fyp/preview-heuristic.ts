@@ -7,9 +7,7 @@ type PostMediaForHeuristic = {
   duration: number | null;
 };
 
-export const identifyFypTrackableId = (
-  postMediaList: PostMediaForHeuristic[],
-): string | null => {
+export const identifyFypTrackableId = (postMediaList: PostMediaForHeuristic[]): string | null => {
   const videos = postMediaList.filter((pm) => pm.mediaType === "video");
 
   if (videos.length === 0) {

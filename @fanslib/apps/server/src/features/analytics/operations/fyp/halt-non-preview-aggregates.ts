@@ -34,15 +34,17 @@ export const haltNonPreviewAggregates = async (): Promise<HaltResult> => {
   );
 
   const postMediaByPostId = new Map(
-    posts.filter((p): p is Post => p !== null).map((p) => [
-      p.id,
-      p.postMedia.map((pm) => ({
-        id: pm.id,
-        order: pm.order,
-        mediaType: pm.media?.type ?? null,
-        duration: pm.media?.duration ?? null,
-      })),
-    ]),
+    posts
+      .filter((p): p is Post => p !== null)
+      .map((p) => [
+        p.id,
+        p.postMedia.map((pm) => ({
+          id: pm.id,
+          order: pm.order,
+          mediaType: pm.media?.type ?? null,
+          duration: pm.media?.duration ?? null,
+        })),
+      ]),
   );
 
   const toHalt = activeAggregates.filter((agg) => {

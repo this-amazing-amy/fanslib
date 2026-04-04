@@ -63,9 +63,7 @@ export const RepostCandidatesPage = ({ sortBy }: RepostCandidatesPageProps) => {
           Loading repostables...
         </div>
       ) : !candidates || candidates.length === 0 ? (
-        <div className="text-center py-12 text-base-content/50 text-sm">
-          No repostables found
-        </div>
+        <div className="text-center py-12 text-base-content/50 text-sm">No repostables found</div>
       ) : (
         <div className="space-y-2">
           {candidates.map((candidate) => (

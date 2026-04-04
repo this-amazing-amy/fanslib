@@ -39,8 +39,7 @@ vi.mock("@tanstack/react-router", () => ({
     "aria-label"?: string;
     children?: React.ReactNode;
   }) => {
-    const href =
-      params?.postId != null ? to.replace(/\$postId/g, params.postId) : to;
+    const href = params?.postId != null ? to.replace(/\$postId/g, params.postId) : to;
     return (
       <a href={href} className={className} aria-label={ariaLabel}>
         {children}
@@ -85,7 +84,9 @@ const makeCandidates = () => [
 
 // oxlint-disable-next-line typescript/no-explicit-any
 const mockQuery = (overrides: { data: any; isLoading: boolean }) =>
-  mockUseRepostCandidatesQuery.mockReturnValue(overrides as ReturnType<typeof useRepostCandidatesQuery>);
+  mockUseRepostCandidatesQuery.mockReturnValue(
+    overrides as ReturnType<typeof useRepostCandidatesQuery>,
+  );
 
 const sortProps = { sortBy: "engagementSeconds" as const };
 

@@ -27,6 +27,7 @@ const RANGE_COLORS = [
 export const ClipTimeline = ({ totalFrames, fps, onSeek }: ClipTimelineProps) => {
   const ranges = useClipStore((s) => s.ranges);
   const clipMode = useClipStore((s) => s.clipMode);
+  const pendingMarkInFrame = useClipStore((s) => s.pendingMarkInFrame);
   const selectedRangeIndex = useClipStore((s) => s.selectedRangeIndex);
   const addRange = useClipStore((s) => s.addRange);
   const removeRange = useClipStore((s) => s.removeRange);
@@ -81,7 +82,16 @@ export const ClipTimeline = ({ totalFrames, fps, onSeek }: ClipTimelineProps) =>
           Clip Ranges ({ranges.length})
         </span>
         {clipMode && (
-          <span className="text-xs text-primary">Click and drag to mark a range</span>
+          <span className="text-xs text-primary">
+            Click and drag to mark a range · <kbd className="kbd kbd-xs">I</kbd> /{" "}
+            <kbd className="kbd kbd-xs">O</kbd> mark in/out
+          </span>
+        )}
+        {clipMode && pendingMarkInFrame !== null && (
+          <span className="text-xs text-warning">
+            In {formatTime(pendingMarkInFrame, fps)} — move playhead and press{" "}
+            <kbd className="kbd kbd-xs">O</kbd>
+          </span>
         )}
       </div>
 
@@ -158,11 +168,7 @@ export const ClipTimeline = ({ totalFrames, fps, onSeek }: ClipTimelineProps) =>
                 </span>
                 <span className="text-base-content/40">({formatTime(duration, fps)})</span>
                 <div className="flex-1" />
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onPress={() => removeRange(index)}
-                >
+                <Button size="sm" variant="ghost" onPress={() => removeRange(index)}>
                   <Trash2 className="h-3 w-3 text-error" />
                 </Button>
               </div>

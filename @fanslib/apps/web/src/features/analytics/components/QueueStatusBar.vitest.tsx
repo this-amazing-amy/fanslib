@@ -9,7 +9,11 @@ vi.mock("~/lib/queries/analytics", () => ({
   useClearNextFetchMutation: vi.fn(),
 }));
 
-import { useQueueStateQuery, useFetchFanslyDataMutation, useClearNextFetchMutation } from "~/lib/queries/analytics";
+import {
+  useQueueStateQuery,
+  useFetchFanslyDataMutation,
+  useClearNextFetchMutation,
+} from "~/lib/queries/analytics";
 import { QueueStatusBar } from "./QueueStatusBar";
 
 const mockUseQueueStateQuery = vi.mocked(useQueueStateQuery);
@@ -273,7 +277,10 @@ describe("QueueStatusBar", () => {
   test("clicking Fetch Now calls mutation with correct postMediaId", async () => {
     const mockMutate = vi.fn();
     // oxlint-disable-next-line typescript/no-explicit-any
-    mockUseFetchFanslyDataMutation.mockReturnValue({ ...defaultMutationReturn, mutate: mockMutate } as any);
+    mockUseFetchFanslyDataMutation.mockReturnValue({
+      ...defaultMutationReturn,
+      mutate: mockMutate,
+    } as any);
 
     mockQuery({
       data: {
@@ -378,7 +385,10 @@ describe("QueueStatusBar", () => {
   test("drawer stays open after successful fetch", async () => {
     const mockMutate = vi.fn();
     // oxlint-disable-next-line typescript/no-explicit-any
-    mockUseFetchFanslyDataMutation.mockReturnValue({ ...defaultMutationReturn, mutate: mockMutate } as any);
+    mockUseFetchFanslyDataMutation.mockReturnValue({
+      ...defaultMutationReturn,
+      mutate: mockMutate,
+    } as any);
 
     mockQuery({
       data: {

@@ -9,7 +9,11 @@ import { BurgerIcon } from "~/components/ui/BurgerIcon";
 import { ThemeProvider } from "~/contexts/ThemeContext";
 import { cn } from "~/lib/cn";
 import { useToggleSfwModeMutation } from "~/lib/queries/settings";
-import { mobileNavigationDrawerOpenAtom, sidebarCollapsedAtom, toggleSidebarAtom } from "~/state/sidebar";
+import {
+  mobileNavigationDrawerOpenAtom,
+  sidebarCollapsedAtom,
+  toggleSidebarAtom,
+} from "~/state/sidebar";
 
 export type AppLayoutProps = {
   children: ReactNode;
@@ -18,7 +22,7 @@ export type AppLayoutProps = {
 
 const MainContent = ({ children }: { children: ReactNode }) => (
   <main
-    className={cn("flex-1 min-h-0 overflow-y-auto pl-4 sm:pl-6 lg:pl-8 content-area")}
+    className={cn("flex-1 min-h-0 overflow-y-auto content-area")}
     style={{ viewTransitionName: "main-content" }}
   >
     {children}

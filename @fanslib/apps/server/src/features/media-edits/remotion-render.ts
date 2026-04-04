@@ -42,12 +42,7 @@ const getServeUrl = async (): Promise<string> => {
  * Real Remotion render function. Calls `renderStill` for images and `renderMedia` for video.
  * Uses the WatermarkComposition from @fanslib/video.
  */
-export const remotionRenderFn: RenderFn = async ({
-  edit,
-  sourceMedia,
-  outputPath,
-  onProgress,
-}) => {
+export const remotionRenderFn: RenderFn = async ({ edit, sourceMedia, outputPath, onProgress }) => {
   const operations = edit.operations as Operation[];
 
   // Resolve asset URLs for watermark operations

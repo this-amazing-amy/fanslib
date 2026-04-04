@@ -54,9 +54,7 @@ export const fetchUnlinkedPosts = async (): Promise<{
       postId: post.id,
       caption: post.caption ?? null,
       postedDate: post.date,
-      previewThumbnailUrl: previewPm.media
-        ? `/api/media/${previewPm.media.id}/thumbnail`
-        : null,
+      previewThumbnailUrl: previewPm.media ? `/api/media/${previewPm.media.id}/thumbnail` : null,
       previewDuration: previewPm.media?.duration ?? null,
       previewMediaId: previewPm.media?.id ?? null,
     });

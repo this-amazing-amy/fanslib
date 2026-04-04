@@ -17,7 +17,9 @@ export const ShootSidebar = () => {
   const sortBy = preferences.view.sidebarSortBy;
 
   const shoots = useMemo(() => {
-    const raw = (shootsData as { items?: { id: string; name: string; shootDate: string | Date }[] })?.items ?? [];
+    const raw =
+      (shootsData as { items?: { id: string; name: string; shootDate: string | Date }[] })?.items ??
+      [];
     const items = raw.map((s) => ({ ...s, shootDate: new Date(s.shootDate) }));
     return filterAndSortShoots(items, { search, sortBy });
   }, [shootsData, search, sortBy]);

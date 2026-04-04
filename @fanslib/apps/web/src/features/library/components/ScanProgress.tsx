@@ -18,11 +18,13 @@ export const ScanProgress = ({ scanProgress, scanResult }: ScanProgressProps) =>
             <span>
               {scanProgress.total > 0
                 ? `${Math.round((scanProgress.current / scanProgress.total) * 100)}%`
-                : 'Discovering files...'}
+                : "Discovering files..."}
             </span>
           </div>
           <Progress
-            value={scanProgress.total > 0 ? (scanProgress.current / scanProgress.total) * 100 : undefined}
+            value={
+              scanProgress.total > 0 ? (scanProgress.current / scanProgress.total) * 100 : undefined
+            }
           />
         </div>
       )}

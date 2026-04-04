@@ -99,9 +99,7 @@ describe("SiblingStrip", () => {
   });
 
   test("shows content rating and role badges on sibling tiles", () => {
-    const siblings = [
-      makeSibling({ id: "badge-sib", contentRating: "uc", role: "content" }),
-    ];
+    const siblings = [makeSibling({ id: "badge-sib", contentRating: "uc", role: "content" })];
 
     render(<SiblingStrip siblings={siblings} />);
 

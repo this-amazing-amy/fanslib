@@ -1,25 +1,32 @@
+import type { InferResponseType } from "hono";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { api } from "../api/hono-client";
 import { QUERY_KEYS } from "./query-keys";
 
-type MediaEdit = {
-  id: string;
-  sourceMediaId: string;
-  outputMediaId: string | null;
-  type: "transform" | "clip";
-  operations: unknown[];
-  status: "draft" | "queued" | "rendering" | "completed" | "failed";
-  error: string | null;
-  createdAt: Date;
-  updatedAt: Date;
+type MediaEditsBySourceBody = InferResponseType<
+  (typeof api.api)["media-edits"]["by-source"][":mediaId"]["$get"],
+  200
+>;
+
+type MediaEditByIdResponse = InferResponseType<(typeof api.api)["media-edits"][":id"]["$get"], 200>;
+
+type MediaEditByIdBody = Extract<MediaEditByIdResponse, { id: string }>;
+
+type MediaEditQueueGet = (typeof api.api)["media-edits"]["queue"]["$get"];
+type MediaEditQueueBody = InferResponseType<MediaEditQueueGet, 200>;
+
+export type QueuedMediaEdit = MediaEditQueueBody[number] & {
+  progress?: number;
 };
 
 export const useMediaEditsBySourceQuery = (mediaId: string) =>
   useQuery({
     queryKey: QUERY_KEYS.mediaEdits.bySource(mediaId),
-    queryFn: async (): Promise<MediaEdit[]> => {
-      const res = await fetch(`/api/media-edits/by-source/${mediaId}`);
-      if (!res.ok) throw new Error("Failed to fetch media edits");
-      return res.json();
+    queryFn: async (): Promise<MediaEditsBySourceBody> => {
+      const result = await api.api["media-edits"]["by-source"][":mediaId"].$get({
+        param: { mediaId },
+      });
+      return result.json();
     },
     enabled: !!mediaId,
   });
@@ -27,16 +34,29 @@ export const useMediaEditsBySourceQuery = (mediaId: string) =>
 export const useMediaEditByIdQuery = (editId: string) =>
   useQuery({
     queryKey: QUERY_KEYS.mediaEdits.byId(editId),
-    queryFn: async (): Promise<MediaEdit> => {
-      const res = await fetch(`/api/media-edits/${editId}`);
-      if (!res.ok) throw new Error("Failed to fetch media edit");
-      return res.json();
+    queryFn: async (): Promise<MediaEditByIdBody> => {
+      const result = await api.api["media-edits"][":id"].$get({
+        param: { id: editId },
+      });
+      return result.json() as Promise<MediaEditByIdBody>;
     },
     enabled: !!editId,
   });
 
-export type QueuedMediaEdit = MediaEdit & {
-  progress?: number;
+export const useDeleteMediaEditMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      const result = await api.api["media-edits"][":id"].$delete({
+        param: { id },
+      });
+      return result.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["media-edits"] });
+    },
+  });
 };
 
 export const useDeleteMediaEditMutation = () => {
@@ -57,10 +77,9 @@ export const useDeleteMediaEditMutation = () => {
 export const useMediaEditQueueQuery = () =>
   useQuery({
     queryKey: QUERY_KEYS.mediaEdits.queue(),
-    queryFn: async (): Promise<QueuedMediaEdit[]> => {
-      const res = await fetch("/api/media-edits/queue");
-      if (!res.ok) throw new Error("Failed to fetch render queue");
-      return res.json();
+    queryFn: async (): Promise<MediaEditQueueBody> => {
+      const result = await api.api["media-edits"].queue.$get();
+      return result.json();
     },
     refetchInterval: 10000,
   });

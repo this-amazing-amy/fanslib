@@ -1,21 +1,37 @@
 import { promises as fs } from "fs";
 import path from "path";
+import { fileURLToPath } from "node:url";
 import type { DataSource } from "typeorm";
 import { appdataPath } from "../../lib/env";
 import { Media as MediaEntity } from "./entity";
 import { DEMO_MEDIA_FIXTURES } from "../analytics/fixtures-data";
 import { MEDIA_FIXTURES } from "./fixtures-data";
+import { resolveMediaPath } from "./path-utils";
 
 export { MEDIA_FIXTURES } from "./fixtures-data";
 
-const PLACEHOLDER_JPEG_B64 =
-  "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAIAAgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCaiiiqNz//2Q==";
+const libraryFeatureDir = path.dirname(fileURLToPath(import.meta.url));
+const fixturesAssetsDir = path.join(libraryFeatureDir, "fixtures", "assets");
+const sampleJpegPath = path.join(fixturesAssetsDir, "sample.jpg");
+const samplePngPath = path.join(fixturesAssetsDir, "sample.png");
+const sampleMp4Path = path.join(fixturesAssetsDir, "sample.mp4");
+
+const readFixtureAsset = async (label: string, filePath: string): Promise<Buffer | null> => {
+  try {
+    return await fs.readFile(filePath);
+  } catch {
+    console.warn(`FansLib: missing fixture asset "${label}" at ${filePath}`);
+    return null;
+  }
+};
 
 export const seedFixtureThumbnails = async (): Promise<void> => {
+  const jpegBuf = await readFixtureAsset("sample.jpg", sampleJpegPath);
+  if (!jpegBuf) return;
+
   const thumbDir = path.join(appdataPath(), "thumbnails");
   await fs.mkdir(thumbDir, { recursive: true });
 
-  const jpegBuf = Buffer.from(PLACEHOLDER_JPEG_B64, "base64");
   const allFixtureMedia = [...MEDIA_FIXTURES, ...DEMO_MEDIA_FIXTURES];
 
   await Promise.all(
@@ -26,6 +42,43 @@ export const seedFixtureThumbnails = async (): Promise<void> => {
       } catch {
         await fs.writeFile(thumbPath, jpegBuf);
       }
+    }),
+  );
+};
+
+/**
+ * Writes bundled sample bytes under MEDIA_PATH for fixture `relativePath`s so GET /api/media/:id/file
+ * can succeed. Covers `MEDIA_FIXTURES` (/test/...) and Fansly demo rows (`DEMO_MEDIA_FIXTURES`, /demo/...).
+ */
+export const seedDemoMediaFiles = async (): Promise<void> => {
+  const [jpegBuf, pngBuf, videoBuf] = await Promise.all([
+    readFixtureAsset("sample.jpg", sampleJpegPath),
+    readFixtureAsset("sample.png", samplePngPath),
+    readFixtureAsset("sample.mp4", sampleMp4Path),
+  ]);
+
+  if (!jpegBuf || !pngBuf) return;
+
+  const seenPaths = new Set<string>();
+
+  await Promise.all(
+    [...MEDIA_FIXTURES, ...DEMO_MEDIA_FIXTURES].map(async (fixture) => {
+      if (seenPaths.has(fixture.relativePath)) return;
+      seenPaths.add(fixture.relativePath);
+
+      const fullPath = resolveMediaPath(fixture.relativePath);
+      try {
+        await fs.access(fullPath);
+        return;
+      } catch {
+        /* create file */
+      }
+      await fs.mkdir(path.dirname(fullPath), { recursive: true });
+      const ext = path.extname(fixture.relativePath).toLowerCase();
+      const isVideoExt = [".mp4", ".webm", ".mov", ".mkv", ".avi"].includes(ext);
+      const payload = isVideoExt ? videoBuf : ext === ".png" ? pngBuf : jpegBuf;
+      if (payload == null) return;
+      await fs.writeFile(fullPath, payload);
     }),
   );
 };

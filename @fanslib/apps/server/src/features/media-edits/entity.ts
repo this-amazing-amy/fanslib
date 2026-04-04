@@ -53,7 +53,13 @@ export class MediaEdit {
 }
 
 export const MediaEditTypeSchema = z.enum(["transform", "clip"]);
-export const MediaEditStatusSchema = z.enum(["draft", "queued", "rendering", "completed", "failed"]);
+export const MediaEditStatusSchema = z.enum([
+  "draft",
+  "queued",
+  "rendering",
+  "completed",
+  "failed",
+]);
 
 export const MediaEditSchema = z.object({
   id: z.string(),

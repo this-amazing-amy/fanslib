@@ -88,10 +88,34 @@ describe("Organize Routes", () => {
 
   describe("GET /api/library/known-roles", () => {
     test("returns distinct role values from managed media", async () => {
-      await createTestMedia({ id: "role-1", name: "a.mp4", relativePath: "lib/a.mp4", isManaged: true, role: "content" });
-      await createTestMedia({ id: "role-2", name: "b.mp4", relativePath: "lib/b.mp4", isManaged: true, role: "trailer" });
-      await createTestMedia({ id: "role-3", name: "c.mp4", relativePath: "lib/c.mp4", isManaged: true, role: "content" });
-      await createTestMedia({ id: "role-4", name: "d.mp4", relativePath: "lib/d.mp4", isManaged: false, role: "unmanaged-role" });
+      await createTestMedia({
+        id: "role-1",
+        name: "a.mp4",
+        relativePath: "lib/a.mp4",
+        isManaged: true,
+        role: "content",
+      });
+      await createTestMedia({
+        id: "role-2",
+        name: "b.mp4",
+        relativePath: "lib/b.mp4",
+        isManaged: true,
+        role: "trailer",
+      });
+      await createTestMedia({
+        id: "role-3",
+        name: "c.mp4",
+        relativePath: "lib/c.mp4",
+        isManaged: true,
+        role: "content",
+      });
+      await createTestMedia({
+        id: "role-4",
+        name: "d.mp4",
+        relativePath: "lib/d.mp4",
+        isManaged: false,
+        role: "unmanaged-role",
+      });
 
       const response = await app.request("/api/library/known-roles");
       expect(response.status).toBe(200);
@@ -110,12 +134,34 @@ describe("Organize Routes", () => {
       const ds = getTestDataSource();
       const shootRepo = ds.getRepository(Shoot);
 
-      const shoot = shootRepo.create({ id: "shoot-1", name: "Test Shoot", shootDate: new Date("2026-01-15") });
+      const shoot = shootRepo.create({
+        id: "shoot-1",
+        name: "Test Shoot",
+        shootDate: new Date("2026-01-15"),
+      });
       await shootRepo.save(shoot);
 
-      const media1 = await createTestMedia({ id: "pkg-1", name: "a.mp4", relativePath: "lib/a.mp4", isManaged: true, package: "main" });
-      const media2 = await createTestMedia({ id: "pkg-2", name: "b.mp4", relativePath: "lib/b.mp4", isManaged: true, package: "clip1" });
-      const media3 = await createTestMedia({ id: "pkg-3", name: "c.mp4", relativePath: "lib/c.mp4", isManaged: true, package: "main" });
+      const media1 = await createTestMedia({
+        id: "pkg-1",
+        name: "a.mp4",
+        relativePath: "lib/a.mp4",
+        isManaged: true,
+        package: "main",
+      });
+      const media2 = await createTestMedia({
+        id: "pkg-2",
+        name: "b.mp4",
+        relativePath: "lib/b.mp4",
+        isManaged: true,
+        package: "clip1",
+      });
+      const media3 = await createTestMedia({
+        id: "pkg-3",
+        name: "c.mp4",
+        relativePath: "lib/c.mp4",
+        isManaged: true,
+        package: "main",
+      });
 
       shoot.media = [media1, media2, media3];
       await shootRepo.save(shoot);
@@ -146,7 +192,11 @@ describe("Organize Routes", () => {
       const ds = getTestDataSource();
       const shootRepo = ds.getRepository(Shoot);
 
-      const shoot = shootRepo.create({ id: "shoot-org-1", name: "Oil Anal", shootDate: new Date("2026-01-15") });
+      const shoot = shootRepo.create({
+        id: "shoot-org-1",
+        name: "Oil Anal",
+        shootDate: new Date("2026-01-15"),
+      });
       await shootRepo.save(shoot);
 
       const sourceDir = path.join(tmpDir, "inbox");
@@ -165,13 +215,15 @@ describe("Organize Routes", () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          entries: [{
-            mediaId: "org-media-1",
-            shootId: "shoot-org-1",
-            package: "main",
-            role: "content",
-            contentRating: "uc",
-          }],
+          entries: [
+            {
+              mediaId: "org-media-1",
+              shootId: "shoot-org-1",
+              package: "main",
+              role: "content",
+              contentRating: "uc",
+            },
+          ],
         }),
       });
 
@@ -183,15 +235,23 @@ describe("Organize Routes", () => {
       expect(data?.errors).toHaveLength(0);
 
       const result = data?.results[0];
-      expect(result?.finalPath).toBe("2026/20260115_Oil Anal/20260115_Oil Anal_main_content_uc.mp4");
+      expect(result?.finalPath).toBe(
+        "2026/20260115_Oil Anal/20260115_Oil Anal_main_content_uc.mp4",
+      );
 
       // File should exist at new location
       const newAbsPath = path.join(tmpDir, result?.finalPath ?? "");
-      const fileExists = await fs.access(newAbsPath).then(() => true).catch(() => false);
+      const fileExists = await fs
+        .access(newAbsPath)
+        .then(() => true)
+        .catch(() => false);
       expect(fileExists).toBe(true);
 
       // Old file should be gone
-      const oldExists = await fs.access(path.join(sourceDir, "raw-clip.mp4")).then(() => true).catch(() => false);
+      const oldExists = await fs
+        .access(path.join(sourceDir, "raw-clip.mp4"))
+        .then(() => true)
+        .catch(() => false);
       expect(oldExists).toBe(false);
 
       // Media record should be updated
@@ -208,24 +268,45 @@ describe("Organize Routes", () => {
       const ds = getTestDataSource();
       const shootRepo = ds.getRepository(Shoot);
 
-      const shoot = shootRepo.create({ id: "shoot-col-1", name: "Shower", shootDate: new Date("2026-02-20") });
+      const shoot = shootRepo.create({
+        id: "shoot-col-1",
+        name: "Shower",
+        shootDate: new Date("2026-02-20"),
+      });
       await shootRepo.save(shoot);
 
       const targetDir = path.join(tmpDir, "2026", "20260220_Shower");
       await fs.mkdir(targetDir, { recursive: true });
-      await fs.writeFile(path.join(targetDir, "20260220_Shower_main_content_sf.mp4"), "existing-file");
+      await fs.writeFile(
+        path.join(targetDir, "20260220_Shower_main_content_sf.mp4"),
+        "existing-file",
+      );
 
       const sourceDir = path.join(tmpDir, "inbox");
       await fs.mkdir(sourceDir, { recursive: true });
       await fs.writeFile(path.join(sourceDir, "new-clip.mp4"), "new-file-data");
 
-      await createTestMedia({ id: "col-media-1", name: "new-clip.mp4", relativePath: "inbox/new-clip.mp4", type: "video", isManaged: false });
+      await createTestMedia({
+        id: "col-media-1",
+        name: "new-clip.mp4",
+        relativePath: "inbox/new-clip.mp4",
+        type: "video",
+        isManaged: false,
+      });
 
       const response = await app.request("/api/library/organize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          entries: [{ mediaId: "col-media-1", shootId: "shoot-col-1", package: "main", role: "content", contentRating: "sf" }],
+          entries: [
+            {
+              mediaId: "col-media-1",
+              shootId: "shoot-col-1",
+              package: "main",
+              role: "content",
+              contentRating: "sf",
+            },
+          ],
         }),
       });
 
@@ -233,23 +314,43 @@ describe("Organize Routes", () => {
       const data = await parseResponse<OrganizeResponse>(response);
 
       expect(data?.results).toHaveLength(1);
-      expect(data?.results[0].finalPath).toBe("2026/20260220_Shower/20260220_Shower_main_content_sf_2.mp4");
+      expect(data?.results[0].finalPath).toBe(
+        "2026/20260220_Shower/20260220_Shower_main_content_sf_2.mp4",
+      );
     });
 
     test("reports missing files in errors array", async () => {
       const ds = getTestDataSource();
       const shootRepo = ds.getRepository(Shoot);
 
-      const shoot = shootRepo.create({ id: "shoot-miss-1", name: "Missing", shootDate: new Date("2026-03-01") });
+      const shoot = shootRepo.create({
+        id: "shoot-miss-1",
+        name: "Missing",
+        shootDate: new Date("2026-03-01"),
+      });
       await shootRepo.save(shoot);
 
-      await createTestMedia({ id: "miss-media-1", name: "gone.mp4", relativePath: "inbox/gone.mp4", type: "video", isManaged: false });
+      await createTestMedia({
+        id: "miss-media-1",
+        name: "gone.mp4",
+        relativePath: "inbox/gone.mp4",
+        type: "video",
+        isManaged: false,
+      });
 
       const response = await app.request("/api/library/organize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          entries: [{ mediaId: "miss-media-1", shootId: "shoot-miss-1", package: "main", role: "content", contentRating: "uc" }],
+          entries: [
+            {
+              mediaId: "miss-media-1",
+              shootId: "shoot-miss-1",
+              package: "main",
+              role: "content",
+              contentRating: "uc",
+            },
+          ],
         }),
       });
 
@@ -267,7 +368,15 @@ describe("Organize Routes", () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          entries: [{ mediaId: "any-id", shootId: "any-shoot", package: "main", role: "content", contentRating: "invalid" }],
+          entries: [
+            {
+              mediaId: "any-id",
+              shootId: "any-shoot",
+              package: "main",
+              role: "content",
+              contentRating: "invalid",
+            },
+          ],
         }),
       });
 
@@ -278,26 +387,47 @@ describe("Organize Routes", () => {
       const ds = getTestDataSource();
       const shootRepo = ds.getRepository(Shoot);
 
-      const shoot = shootRepo.create({ id: "shoot-link-1", name: "Link Test", shootDate: new Date("2026-04-10") });
+      const shoot = shootRepo.create({
+        id: "shoot-link-1",
+        name: "Link Test",
+        shootDate: new Date("2026-04-10"),
+      });
       await shootRepo.save(shoot);
 
       const sourceDir = path.join(tmpDir, "inbox");
       await fs.mkdir(sourceDir, { recursive: true });
       await fs.writeFile(path.join(sourceDir, "link-test.mp4"), "video-data");
 
-      await createTestMedia({ id: "link-media-1", name: "link-test.mp4", relativePath: "inbox/link-test.mp4", type: "video", isManaged: false });
+      await createTestMedia({
+        id: "link-media-1",
+        name: "link-test.mp4",
+        relativePath: "inbox/link-test.mp4",
+        type: "video",
+        isManaged: false,
+      });
 
       const response = await app.request("/api/library/organize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          entries: [{ mediaId: "link-media-1", shootId: "shoot-link-1", package: "main", role: "content", contentRating: "cn" }],
+          entries: [
+            {
+              mediaId: "link-media-1",
+              shootId: "shoot-link-1",
+              package: "main",
+              role: "content",
+              contentRating: "cn",
+            },
+          ],
         }),
       });
 
       expect(response.status).toBe(200);
 
-      const updatedShoot = await shootRepo.findOne({ where: { id: "shoot-link-1" }, relations: { media: true } });
+      const updatedShoot = await shootRepo.findOne({
+        where: { id: "shoot-link-1" },
+        relations: { media: true },
+      });
       const linkedIds = updatedShoot?.media.map((m) => m.id) ?? [];
       expect(linkedIds).toContain("link-media-1");
     });

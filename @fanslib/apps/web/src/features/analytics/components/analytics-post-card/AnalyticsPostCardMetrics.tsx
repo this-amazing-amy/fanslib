@@ -15,7 +15,9 @@ export type AnalyticsPostCardMetricsProps = {
 const metricButtonClass = (isActive: boolean, interactive: boolean) =>
   cn(
     "flex w-full min-w-0 items-center gap-2 rounded-md px-0.5 py-0.5 text-left transition-colors",
-    interactive ? "cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-base-content/25" : "cursor-default",
+    interactive
+      ? "cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-base-content/25"
+      : "cursor-default",
     isActive ? "text-base-content/90" : "text-base-content/35",
   );
 

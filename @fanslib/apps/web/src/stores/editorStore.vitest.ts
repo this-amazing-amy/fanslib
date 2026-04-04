@@ -115,7 +115,14 @@ describe("editorStore", () => {
 
     const ops = useEditorStore.getState().operations;
     expect(ops).toHaveLength(1);
-    const op = ops[0] as { type: string; assetId: string; x: number; y: number; width: number; opacity: number };
+    const op = ops[0] as {
+      type: string;
+      assetId: string;
+      x: number;
+      y: number;
+      width: number;
+      opacity: number;
+    };
     expect(op.type).toBe("watermark");
     expect(op.assetId).toBe("asset-123");
     expect(op.x).toBe(0.5);
@@ -211,22 +218,25 @@ describe("editorStore", () => {
   });
 
   describe("crop operations", () => {
-    test("addCrop adds a crop operation with 16:9 defaults", () => {
+    test("addCrop adds a crop operation with draft rect and enters crop edit mode", () => {
       useEditorStore.getState().addCrop();
 
       const ops = useEditorStore.getState().operations;
       expect(ops).toHaveLength(1);
       const op = ops[0] as {
         type: string;
-        aspectRatio: string;
-        centerX: number;
-        centerY: number;
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        applied: boolean;
       };
       expect(op.type).toBe("crop");
-      expect(op.aspectRatio).toBe("16:9");
-      expect(op.centerX).toBe(0.5);
-      expect(op.centerY).toBe(0.5);
+      expect(op.applied).toBe(false);
+      expect(op.width).toBe(0.9);
+      expect(op.height).toBe(0.9);
       expect(useEditorStore.getState().selectedOperationIndex).toBe(0);
+      expect(useEditorStore.getState().cropEditingOperationIndex).toBe(0);
     });
 
     test("addCrop is undoable", () => {

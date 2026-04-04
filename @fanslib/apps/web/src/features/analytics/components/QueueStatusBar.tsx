@@ -20,8 +20,7 @@ const formatRelativeTime = (isoDate: string): string => {
   return `${minutes}m`;
 };
 
-const extractMediaId = (thumbnailUrl: string): string =>
-  thumbnailUrl.replace("thumbnail://", "");
+const extractMediaId = (thumbnailUrl: string): string => thumbnailUrl.replace("thumbnail://", "");
 
 export const QueueStatusBar = () => {
   const { data, isLoading } = useQueueStateQuery();
@@ -98,20 +97,26 @@ export const QueueStatusBar = () => {
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm">{item.caption}</p>
                 <p className="text-xs text-base-content/60">
-                  {formatRelativeTime(item.nextFetchAt)} · {new Date(item.nextFetchAt).toLocaleString()}
+                  {formatRelativeTime(item.nextFetchAt)} ·{" "}
+                  {new Date(item.nextFetchAt).toLocaleString()}
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-1">
-                {fetchMutation.isError && fetchMutation.variables?.postMediaId === item.postMediaId && (
-                  <span className="text-xs text-error">Fetch failed</span>
-                )}
+                {fetchMutation.isError &&
+                  fetchMutation.variables?.postMediaId === item.postMediaId && (
+                    <span className="text-xs text-error">Fetch failed</span>
+                  )}
                 <button
                   type="button"
                   className="btn btn-xs btn-primary"
-                  disabled={fetchMutation.isPending && fetchMutation.variables?.postMediaId === item.postMediaId}
+                  disabled={
+                    fetchMutation.isPending &&
+                    fetchMutation.variables?.postMediaId === item.postMediaId
+                  }
                   onClick={() => fetchMutation.mutate({ postMediaId: item.postMediaId })}
                 >
-                  {fetchMutation.isPending && fetchMutation.variables?.postMediaId === item.postMediaId
+                  {fetchMutation.isPending &&
+                  fetchMutation.variables?.postMediaId === item.postMediaId
                     ? "Fetching..."
                     : "Fetch Now"}
                 </button>

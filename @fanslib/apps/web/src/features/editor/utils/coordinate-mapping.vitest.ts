@@ -58,6 +58,31 @@ describe("coordinate-mapping", () => {
       expect(result.px).toBe(800);
       expect(result.py).toBe(450);
     });
+
+    test("adds composition offset for absolute positioning", () => {
+      const withOffset: CanvasRect = {
+        ...canvas,
+        offsetX: 12,
+        offsetY: 34,
+      };
+      expect(relativeToPixel(0, 0, withOffset)).toEqual({ px: 12, py: 34 });
+      expect(relativeToPixel(1, 1, withOffset)).toEqual({ px: 812, py: 484 });
+    });
+  });
+
+  describe("pixelToRelative with offset", () => {
+    test("maps coordinates in the positioning parent to composition space", () => {
+      const withOffset: CanvasRect = {
+        canvasWidth: 100,
+        canvasHeight: 50,
+        compositionWidth: 1920,
+        compositionHeight: 1080,
+        offsetX: 10,
+        offsetY: 20,
+      };
+      expect(pixelToRelative(10, 20, withOffset)).toEqual({ x: 0, y: 0 });
+      expect(pixelToRelative(110, 70, withOffset)).toEqual({ x: 1, y: 1 });
+    });
   });
 
   describe("getPlayerRect with letterboxing", () => {

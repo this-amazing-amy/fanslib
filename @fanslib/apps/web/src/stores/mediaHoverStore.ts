@@ -11,6 +11,7 @@ type MediaHoverStore = {
 export const useMediaHoverStore = create<MediaHoverStore>((set) => ({
   hoveredMediaId: null,
   hoveredInstanceId: null,
-  setHovered: (mediaId, instanceId) => set({ hoveredMediaId: mediaId, hoveredInstanceId: instanceId }),
+  setHovered: (mediaId, instanceId) =>
+    set({ hoveredMediaId: mediaId, hoveredInstanceId: instanceId }),
   setHoveredMediaId: (id) => set({ hoveredMediaId: id, hoveredInstanceId: id }),
 }));

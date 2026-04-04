@@ -132,10 +132,12 @@ export const MediaTileLite = memo(
             <img
               src={getMediaThumbnailUrl(media.id)}
               alt={media.name}
-              className={getBlurClassName(cn(
-                "absolute inset-0 w-full h-full object-contain",
-                isActivePreview && isVideoReady && "invisible"
-              ))}
+              className={getBlurClassName(
+                cn(
+                  "absolute inset-0 w-full h-full object-contain",
+                  isActivePreview && isVideoReady && "invisible",
+                ),
+              )}
               onError={handleImageError}
               loading="lazy"
               draggable={false}
@@ -144,7 +146,10 @@ export const MediaTileLite = memo(
               ref={videoRef}
               src={getMediaFileUrl(media.id)}
               className={getBlurClassName(
-                cn("absolute inset-0 w-full h-full object-contain", (!isActivePreview || !isVideoReady) && "hidden"),
+                cn(
+                  "absolute inset-0 w-full h-full object-contain",
+                  (!isActivePreview || !isVideoReady) && "hidden",
+                ),
               )}
               preload="none"
               draggable={false}

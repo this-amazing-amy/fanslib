@@ -1,8 +1,29 @@
-import React, { useRef, useCallback } from "react";
-import { Player } from "@remotion/player";
-import { AbsoluteFill, Img } from "remotion";
+import React, {
+  useRef,
+  useCallback,
+  useMemo,
+  useEffect,
+  useImperativeHandle,
+  forwardRef,
+  type ReactNode,
+} from "react";
+import { Player, type PlayerRef } from "@remotion/player";
+import { getAvailableFonts } from "@remotion/google-fonts";
+import { CaptionOverlay } from "@fanslib/video/compositions";
+import type { CaptionOperation } from "@fanslib/video/types";
+import { AbsoluteFill, Html5Video, Img } from "remotion";
+import { shouldUseVideoElementForPreview } from "~/lib/editor-media-preview";
 import { useEditorStore } from "~/stores/editorStore";
+import { useRemotionCompositionViewport } from "../hooks/use-remotion-composition-viewport";
+import {
+  type CropOperation,
+  isCropOperation,
+} from "../utils/crop-operation";
+import { CropOverlay } from "./CropOverlay";
 import { RegionOverlay } from "./RegionOverlay";
+
+const COMPOSITION_WIDTH = 1920;
+const COMPOSITION_HEIGHT = 1080;
 
 type WatermarkOp = {
   type: "watermark";
@@ -40,23 +61,69 @@ type EmojiPreview = {
   size: number;
 };
 
-const PreviewComposition = ({
-  sourceUrl,
-  watermark,
-  watermarkUrl,
-  blurRegions = [],
-  pixelateRegions = [],
-  emojis = [],
+/** Same geometry as @fanslib/video CropFrame (normalized rect in composition space). */
+const CropRectPreviewFrame = ({
+  crop,
+  children,
 }: {
+  crop: CropOperation;
+  children: ReactNode;
+}) => {
+  const { x, y, width: w, height: h } = crop;
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        overflow: "hidden",
+        position: "relative",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          left: `${-(x / w) * 100}%`,
+          top: `${-(y / h) * 100}%`,
+          width: `${100 / w}%`,
+          height: `${100 / h}%`,
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+};
+
+const wrapWithCropChain = (crops: CropOperation[], inner: ReactNode): ReactNode =>
+  crops.reduce(
+    (acc, crop, i) => (
+      <CropRectPreviewFrame key={`crop-${i}`} crop={crop}>
+        {acc}
+      </CropRectPreviewFrame>
+    ),
+    inner,
+  );
+
+type PreviewCompositionInputProps = {
   sourceUrl: string;
   watermark?: { x: number; y: number; width: number; opacity: number };
   watermarkUrl?: string;
   blurRegions?: BlurRegionPreview[];
   pixelateRegions?: PixelateRegionPreview[];
   emojis?: EmojiPreview[];
-}) => (
-  <AbsoluteFill>
-    <Img src={sourceUrl} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+  crops?: CropOperation[];
+  captions?: CaptionOperation[];
+};
+
+const PreviewOverlays = ({
+  watermark,
+  watermarkUrl,
+  blurRegions = [],
+  pixelateRegions = [],
+  emojis = [],
+  captions = [],
+}: PreviewCompositionInputProps) => (
+  <>
     {blurRegions.map((blur, i) => (
       <div
         key={i}
@@ -139,13 +206,64 @@ const PreviewComposition = ({
         {em.emoji}
       </div>
     ))}
-  </AbsoluteFill>
+    {captions.map((cap, i) => (
+      <CaptionOverlay
+        key={`cap-${i}`}
+        caption={cap}
+        compositionWidth={COMPOSITION_WIDTH}
+      />
+    ))}
+  </>
 );
+
+const PreviewCompositionImage = (props: PreviewCompositionInputProps) => {
+  const crops = props.crops ?? [];
+  const inner = (
+    <>
+      <Img
+        src={props.sourceUrl}
+        style={{ width: "100%", height: "100%", objectFit: "contain" }}
+      />
+      <PreviewOverlays {...props} />
+    </>
+  );
+  return (
+    <AbsoluteFill>
+      {crops.length === 0 ? inner : wrapWithCropChain(crops, inner)}
+    </AbsoluteFill>
+  );
+};
+
+const PreviewCompositionVideo = (props: PreviewCompositionInputProps) => {
+  const crops = props.crops ?? [];
+  const inner = (
+    <>
+      <Html5Video
+        src={props.sourceUrl}
+        style={{ width: "100%", height: "100%", objectFit: "contain" }}
+      />
+      <PreviewOverlays {...props} />
+    </>
+  );
+  return (
+    <AbsoluteFill>
+      {crops.length === 0 ? inner : wrapWithCropChain(crops, inner)}
+    </AbsoluteFill>
+  );
+};
 
 type EditorCanvasProps = {
   mediaId: string;
   mediaType: "image" | "video";
+  relativePath: string;
   operations: unknown[];
+  /** Inclusive upper bound for frame index: `durationInFrames - 1` */
+  totalFrames: number;
+  /** Current preview frame (for caption overlay alignment with animations). */
+  currentFrame?: number;
+  onPlayerFrameChange?: (frame: number) => void;
+  /** When true, transform overlays and watermark handles are hidden (clip ranges take precedence). */
+  transformEditingLocked?: boolean;
 };
 
 const isWatermarkOp = (op: unknown): op is WatermarkOp =>
@@ -154,50 +272,168 @@ const isWatermarkOp = (op: unknown): op is WatermarkOp =>
   "type" in op &&
   (op as { type: string }).type === "watermark";
 
-export const EditorCanvas = ({ mediaId, mediaType, operations }: EditorCanvasProps) => {
-  const sourceUrl = `/api/media/${mediaId}/file`;
+const isCaptionOp = (op: unknown): op is CaptionOperation =>
+  typeof op === "object" &&
+  op !== null &&
+  "type" in op &&
+  (op as { type: string }).type === "caption" &&
+  typeof (op as CaptionOperation).text === "string";
+
+const toAbsoluteFileUrl = (path: string) =>
+  typeof window === "undefined"
+    ? path
+    : new URL(path, window.location.origin).href;
+
+const isEditableKeyTarget = (target: EventTarget | null) => {
+  if (!(target instanceof HTMLElement)) return false;
+  const { tagName } = target;
+  if (tagName === "INPUT" || tagName === "TEXTAREA" || tagName === "SELECT")
+    return true;
+  return target.isContentEditable;
+};
+
+export type EditorCanvasHandle = {
+  getPlayerRef: () => PlayerRef | null;
+};
+
+export const EditorCanvas = forwardRef<EditorCanvasHandle, EditorCanvasProps>(({
+  mediaId,
+  mediaType,
+  relativePath,
+  operations,
+  totalFrames,
+  currentFrame: currentFrameProp = 0,
+  onPlayerFrameChange,
+  transformEditingLocked = false,
+}, ref) => {
+  const sourceUrl = useMemo(
+    () => toAbsoluteFileUrl(`/api/media/${mediaId}/file`),
+    [mediaId],
+  );
   const selectedIndex = useEditorStore((s) => s.selectedOperationIndex);
+  const cropEditingOperationIndex = useEditorStore((s) => s.cropEditingOperationIndex);
   const updateOperation = useEditorStore((s) => s.updateOperation);
 
   // Find watermark operation if any
   const watermarkOp = operations.find(isWatermarkOp);
-  const watermarkUrl = watermarkOp ? `/api/assets/${watermarkOp.assetId}/file` : undefined;
+  const watermarkUrl = useMemo(
+    () =>
+      watermarkOp
+        ? toAbsoluteFileUrl(`/api/assets/${watermarkOp.assetId}/file`)
+        : undefined,
+    [watermarkOp],
+  );
 
   // Collect blur operations
   const blurOps = operations.filter(
     (op): op is BlurRegionPreview & { type: "blur" } =>
-      typeof op === "object" && op !== null && "type" in op && (op as { type: string }).type === "blur",
+      typeof op === "object" &&
+      op !== null &&
+      "type" in op &&
+      (op as { type: string }).type === "blur",
   );
 
   // Collect pixelate operations
   const pixelateOps = operations.filter(
     (op): op is PixelateRegionPreview & { type: "pixelate" } =>
-      typeof op === "object" && op !== null && "type" in op && (op as { type: string }).type === "pixelate",
+      typeof op === "object" &&
+      op !== null &&
+      "type" in op &&
+      (op as { type: string }).type === "pixelate",
   );
 
   // Collect emoji operations
   const emojiOps = operations.filter(
     (op): op is EmojiPreview & { type: "emoji" } =>
-      typeof op === "object" && op !== null && "type" in op && (op as { type: string }).type === "emoji",
+      typeof op === "object" &&
+      op !== null &&
+      "type" in op &&
+      (op as { type: string }).type === "emoji",
   );
 
-  const isVideo = mediaType === "video";
+  const captionOps = operations.filter(isCaptionOp);
+
+  // Load Google Fonts for captions into the document so the Remotion Player can use them
+  const captionFontFamilies = captionOps.map((c) => c.fontFamily).filter(Boolean).join(",");
+  useEffect(() => {
+    if (!captionFontFamilies) return;
+    const fonts = getAvailableFonts();
+    for (const family of captionFontFamilies.split(",")) {
+      const entry = fonts.find((f) => f.fontFamily === family);
+      if (entry) {
+        entry.load().then((loaded) => loaded.loadFont());
+      }
+    }
+  }, [captionFontFamilies]);
+
+  const cropsForPreview = useMemo(() => {
+    if (cropEditingOperationIndex !== null) return [];
+    return operations.filter(isCropOperation).filter((c) => c.applied);
+  }, [operations, cropEditingOperationIndex]);
+
+  const isVideo = shouldUseVideoElementForPreview({
+    type: mediaType,
+    relativePath,
+  });
+
+  const playerRef = useRef<PlayerRef>(null);
+  const durationInFrames = isVideo ? totalFrames : 1;
+  const lastFrameIndex = Math.max(0, durationInFrames - 1);
+
+  useImperativeHandle(ref, () => ({
+    getPlayerRef: () => playerRef.current,
+  }), []);
+
+  useEffect(() => {
+    if (!isVideo || durationInFrames <= 1) return;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      if (isEditableKeyTarget(e.target)) return;
+      e.preventDefault();
+      const player = playerRef.current;
+      if (!player) return;
+      const delta = e.key === "ArrowRight" ? 1 : -1;
+      const next = Math.max(
+        0,
+        Math.min(lastFrameIndex, player.getCurrentFrame() + delta),
+      );
+      player.seekTo(next);
+      onPlayerFrameChange?.(next);
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isVideo, durationInFrames, lastFrameIndex, onPlayerFrameChange]);
 
   // Find the selected watermark op for the draggable overlay
-  const selectedOp = selectedIndex !== null && selectedIndex < operations.length
-    ? operations[selectedIndex]
-    : null;
-  const selectedWatermark = selectedOp && isWatermarkOp(selectedOp) ? selectedOp : null;
+  const selectedOp =
+    selectedIndex !== null && selectedIndex < operations.length
+      ? operations[selectedIndex]
+      : null;
+  const selectedWatermark =
+    selectedOp && isWatermarkOp(selectedOp) ? selectedOp : null;
 
-  const containerRef = useRef<HTMLDivElement>(null);
+  const playerAreaRef = useRef<HTMLDivElement>(null);
+  const compositionViewport = useRemotionCompositionViewport(
+    playerAreaRef,
+    COMPOSITION_WIDTH,
+    COMPOSITION_HEIGHT,
+  );
   const dragging = useRef(false);
   const dragStart = useRef({ x: 0, y: 0, opX: 0, opY: 0 });
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
-      if (!selectedWatermark || selectedIndex === null) return;
+      if (
+        !selectedWatermark ||
+        selectedIndex === null ||
+        !compositionViewport
+      )
+        return;
       e.preventDefault();
       dragging.current = true;
+      const viewport = compositionViewport;
       dragStart.current = {
         x: e.clientX,
         y: e.clientY,
@@ -206,11 +442,13 @@ export const EditorCanvas = ({ mediaId, mediaType, operations }: EditorCanvasPro
       };
 
       const handleMouseMove = (moveEvent: MouseEvent) => {
-        if (!dragging.current || !containerRef.current || selectedIndex === null) return;
-        const rect = containerRef.current.getBoundingClientRect();
-        const dx = (moveEvent.clientX - dragStart.current.x) / rect.width;
-        const dy = (moveEvent.clientY - dragStart.current.y) / rect.height;
-        const newX = Math.max(0, Math.min(1, dragStart.current.opX + dx));
+        if (!dragging.current || selectedIndex === null) return;
+        const dx =
+          (moveEvent.clientX - dragStart.current.x) / viewport.canvasWidth;
+        const dy =
+          (moveEvent.clientY - dragStart.current.y) / viewport.canvasHeight;
+        const w = selectedWatermark.width;
+        const newX = Math.max(0, Math.min(1 - w, dragStart.current.opX + dx));
         const newY = Math.max(0, Math.min(1, dragStart.current.opY + dy));
         updateOperation(selectedIndex, {
           ...selectedWatermark,
@@ -228,14 +466,21 @@ export const EditorCanvas = ({ mediaId, mediaType, operations }: EditorCanvasPro
       document.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseup", handleMouseUp);
     },
-    [selectedWatermark, selectedIndex, updateOperation],
+    [selectedWatermark, selectedIndex, updateOperation, compositionViewport],
   );
 
   return (
-    <div ref={containerRef} className="flex-1 flex items-center justify-center bg-base-300 overflow-hidden p-4 relative">
-      <div className="relative w-full" style={{ maxHeight: "100%", aspectRatio: "16/9" }}>
+    <div className="flex-1 flex items-center justify-center bg-base-300 overflow-hidden p-4 relative">
+      <div
+        ref={playerAreaRef}
+        className="relative w-full"
+        style={{ maxHeight: "100%", aspectRatio: "16/9" }}
+      >
         <Player
-          component={PreviewComposition}
+          ref={playerRef}
+          component={
+            isVideo ? PreviewCompositionVideo : PreviewCompositionImage
+          }
           inputProps={{
             sourceUrl,
             watermark: watermarkOp,
@@ -243,46 +488,62 @@ export const EditorCanvas = ({ mediaId, mediaType, operations }: EditorCanvasPro
             blurRegions: blurOps,
             pixelateRegions: pixelateOps,
             emojis: emojiOps,
+            crops: cropsForPreview,
+            captions: captionOps,
           }}
-          durationInFrames={isVideo ? 900 : 1}
-          compositionWidth={1920}
-          compositionHeight={1080}
+          durationInFrames={durationInFrames}
+          compositionWidth={COMPOSITION_WIDTH}
+          compositionHeight={COMPOSITION_HEIGHT}
           fps={30}
           style={{
             width: "100%",
             height: "100%",
           }}
-          controls={isVideo}
           loop={isVideo}
         />
 
-        {/* Draggable watermark overlay when a watermark is selected */}
-        {selectedWatermark && (
+        {compositionViewport && selectedWatermark && !transformEditingLocked && (
           <div
-            onMouseDown={handleMouseDown}
+            className="absolute z-10 pointer-events-none"
             style={{
-              position: "absolute",
-              left: `${selectedWatermark.x * 100}%`,
-              top: `${selectedWatermark.y * 100}%`,
-              width: `${selectedWatermark.width * 100}%`,
-              opacity: selectedWatermark.opacity,
-              cursor: "grab",
-              border: "2px dashed rgba(59, 130, 246, 0.8)",
-              borderRadius: "2px",
-              pointerEvents: "auto",
-              zIndex: 10,
+              left: compositionViewport.offsetX ?? 0,
+              top: compositionViewport.offsetY ?? 0,
+              width: compositionViewport.canvasWidth,
+              height: compositionViewport.canvasHeight,
             }}
           >
-            <img
-              src={`/api/assets/${selectedWatermark.assetId}/file`}
-              alt="Watermark overlay"
-              className="w-full h-auto pointer-events-none select-none"
-              draggable={false}
-            />
+            <div
+              onMouseDown={handleMouseDown}
+              className="absolute cursor-grab border-2 border-dashed border-[rgba(59,130,246,0.8)] rounded-sm pointer-events-auto"
+              style={{
+                left: `${selectedWatermark.x * 100}%`,
+                top: `${selectedWatermark.y * 100}%`,
+                width: `${selectedWatermark.width * 100}%`,
+                opacity: selectedWatermark.opacity,
+              }}
+            >
+              <img
+                src={toAbsoluteFileUrl(
+                  `/api/assets/${selectedWatermark.assetId}/file`,
+                )}
+                alt="Watermark overlay"
+                className="w-full h-auto pointer-events-none select-none"
+                draggable={false}
+              />
+            </div>
           </div>
         )}
+        <RegionOverlay
+          canvasRect={compositionViewport}
+          interactive={!transformEditingLocked}
+          currentFrame={currentFrameProp}
+          previewDurationInFrames={durationInFrames}
+        />
+        <CropOverlay
+          canvasRect={compositionViewport}
+          interactive={!transformEditingLocked}
+        />
       </div>
-      <RegionOverlay containerRef={containerRef} />
     </div>
   );
-};
+});

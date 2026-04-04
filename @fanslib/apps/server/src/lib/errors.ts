@@ -12,8 +12,7 @@ const createAppError = (message: string, statusCode: number, code: string): AppE
   return error;
 };
 
-export const notFoundError = (message = "Not found") =>
-  createAppError(message, 404, "NOT_FOUND");
+export const notFoundError = (message = "Not found") => createAppError(message, 404, "NOT_FOUND");
 
 export const validationError = (message: string) =>
   createAppError(message, 422, "VALIDATION_ERROR");
@@ -24,8 +23,7 @@ export const configurationError = (message: string) =>
 export const externalServiceError = (message: string) =>
   createAppError(message, 502, "EXTERNAL_SERVICE_ERROR");
 
-export const conflictError = (message: string) =>
-  createAppError(message, 409, "CONFLICT");
+export const conflictError = (message: string) => createAppError(message, 409, "CONFLICT");
 
 export const isAppError = (err: unknown): err is AppError =>
   err instanceof Error && (err as AppError)._tag === "AppError";

@@ -77,58 +77,64 @@ export const LibraryContent = ({ showScan = true, contentClassName }: LibraryCon
         <div className="flex h-full w-full overflow-hidden">
           <ShootSidebar />
           <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
-          <div className={cn("flex-1 min-h-0 px-6 pb-6 flex flex-col", contentClassName)}>
-            <div className="mb-4">
-              <div className="flex items-center justify-end gap-2 pt-2 mb-4">
-                <LibrarySortOptions
-                  value={preferences.sort}
-                  onChange={(sort) => {
-                    updatePreferences({
-                      sort,
-                      pagination: { page: 1 },
-                    });
-                  }}
-                />
-                <GalleryViewSettings />
-                {showScan ? (
-                  <ScanButton
-                    isScanning={isScanning}
-                    onScan={handleScan}
-                    onUpload={() => setUploadDialogOpen(true)}
-                  />
-                ) : null}
-              </div>
+            <div className={cn("flex-1 min-h-0 px-6 pb-6 flex flex-col", contentClassName)}>
               <div className="mb-4">
-                <MediaFiltersComponent
-                  collapsed={preferences.view.filtersCollapsed}
-                  onToggle={toggleFiltersCollapsed}
-                />
-              </div>
-            </div>
-
-            {showScan ? <ScanProgress scanProgress={scanProgress} scanResult={scanResult} /> : null}
-
-            <div className="flex-1 min-h-0 overflow-auto">
-              {isLoading || (isFetching && !mediaList) ? (
-                <GallerySkeleton />
-              ) : (
-                <ClientOnly fallback={<GallerySkeleton />}>
-                  <Gallery
-                    medias={(mediaList?.items as Media[] | undefined) ?? []}
-                    error={
-                      error ? (error instanceof Error ? error.message : "Unknown error") : undefined
-                    }
-                    onScan={showScan ? handleScan : () => {}}
+                <div className="flex items-center justify-end gap-2 pt-2 mb-4">
+                  <LibrarySortOptions
+                    value={preferences.sort}
+                    onChange={(sort) => {
+                      updatePreferences({
+                        sort,
+                        pagination: { page: 1 },
+                      });
+                    }}
                   />
-                </ClientOnly>
-              )}
+                  <GalleryViewSettings />
+                  {showScan ? (
+                    <ScanButton
+                      isScanning={isScanning}
+                      onScan={handleScan}
+                      onUpload={() => setUploadDialogOpen(true)}
+                    />
+                  ) : null}
+                </div>
+                <div className="mb-4">
+                  <MediaFiltersComponent
+                    collapsed={preferences.view.filtersCollapsed}
+                    onToggle={toggleFiltersCollapsed}
+                  />
+                </div>
+              </div>
+
+              {showScan ? (
+                <ScanProgress scanProgress={scanProgress} scanResult={scanResult} />
+              ) : null}
+
+              <div className="flex-1 min-h-0 overflow-auto">
+                {isLoading || (isFetching && !mediaList) ? (
+                  <GallerySkeleton />
+                ) : (
+                  <ClientOnly fallback={<GallerySkeleton />}>
+                    <Gallery
+                      medias={(mediaList?.items as Media[] | undefined) ?? []}
+                      error={
+                        error
+                          ? error instanceof Error
+                            ? error.message
+                            : "Unknown error"
+                          : undefined
+                      }
+                      onScan={showScan ? handleScan : () => {}}
+                    />
+                  </ClientOnly>
+                )}
+              </div>
+              <GalleryPagination
+                totalPages={mediaList?.totalPages ?? 0}
+                totalItems={mediaList?.total ?? 0}
+              />
             </div>
-            <GalleryPagination
-              totalPages={mediaList?.totalPages ?? 0}
-              totalItems={mediaList?.total ?? 0}
-            />
           </div>
-        </div>
         </div>
         <UploadDialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen} />
       </MediaFiltersProvider>

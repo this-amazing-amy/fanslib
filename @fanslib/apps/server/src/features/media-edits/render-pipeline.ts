@@ -83,15 +83,11 @@ export const processNextQueuedEdit = async (
       edit,
       sourceMedia,
       outputPath: outputFullPath,
-      onProgress: onProgress
-        ? (progress) => onProgress(edit.id, progress)
-        : undefined,
+      onProgress: onProgress ? (progress) => onProgress(edit.id, progress) : undefined,
     });
 
     // Determine output file size from rendered result
-    const outputSize = existsSync(outputFullPath)
-      ? Bun.file(outputFullPath).size
-      : result.size;
+    const outputSize = existsSync(outputFullPath) ? Bun.file(outputFullPath).size : result.size;
 
     // Create output Media entity
     const outputMedia = mediaRepo.create({

@@ -71,10 +71,11 @@ export const buildRepostStatusFilter = (
             )`;
 
       if (subredditOnCooldownSql) {
-        queryBuilder.andWhere(
-          `${operator}(${channelOnCooldown} OR ${subredditOnCooldownSql})`,
-          { ...channelParams, [`rsCutoff${paramIndex}`]: cutoffIso, ...subredditParams },
-        );
+        queryBuilder.andWhere(`${operator}(${channelOnCooldown} OR ${subredditOnCooldownSql})`, {
+          ...channelParams,
+          [`rsCutoff${paramIndex}`]: cutoffIso,
+          ...subredditParams,
+        });
       } else {
         queryBuilder.andWhere(`${operator}${channelOnCooldown}`, {
           ...channelParams,

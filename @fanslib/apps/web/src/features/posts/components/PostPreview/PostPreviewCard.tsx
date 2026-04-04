@@ -50,9 +50,7 @@ export const PostPreviewCard = ({
       )}
       onMouseLeave={onResetSkipConfirmation}
     >
-      {isVirtual && !isAnyDragging && (
-        <VirtualPostOverlay onClick={onVirtualPostClick} />
-      )}
+      {isVirtual && !isAnyDragging && <VirtualPostOverlay onClick={onVirtualPostClick} />}
 
       {isVirtual && !isAnyDragging && (
         <button

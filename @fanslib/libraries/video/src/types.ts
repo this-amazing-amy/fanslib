@@ -18,13 +18,17 @@ export type ClipOperation = {
   endFrame: number;
 };
 
-export type AspectRatioPreset = "16:9" | "9:16" | "1:1" | "4:5";
+export type CropAspectPreset = "16:9" | "9:16" | "1:1" | "4:5" | "free";
 
+/** Normalized rect in composition space; optional UI-only fields may be stripped before render. */
 export type CropOperation = {
   type: "crop";
-  aspectRatio: AspectRatioPreset;
-  centerX: RelativeCoordinate;
-  centerY: RelativeCoordinate;
+  x: RelativeCoordinate;
+  y: RelativeCoordinate;
+  width: RelativeCoordinate;
+  height: RelativeCoordinate;
+  applied?: boolean;
+  aspectPreset?: CropAspectPreset;
 };
 
 export type CaptionAnimation = "typewriter" | "fade-in" | "scale-in" | "slide-up";

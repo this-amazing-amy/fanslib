@@ -1,9 +1,7 @@
 import { db } from "../../../../lib/db";
 import { MediaEdit } from "../../entity";
 
-export const queueMediaEdit = async (
-  id: string,
-): Promise<MediaEdit | null | "not_draft"> => {
+export const queueMediaEdit = async (id: string): Promise<MediaEdit | null | "not_draft"> => {
   const database = await db();
   const repo = database.getRepository(MediaEdit);
 

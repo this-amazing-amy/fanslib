@@ -13,17 +13,11 @@ type SiblingSuggestionsProps = {
 };
 
 export const SiblingSuggestions = ({ selectedMedia, onAddMedia }: SiblingSuggestionsProps) => {
-  const queryMediaId = useMemo(
-    () => getSiblingSuggestionMediaId(selectedMedia),
-    [selectedMedia],
-  );
+  const queryMediaId = useMemo(() => getSiblingSuggestionMediaId(selectedMedia), [selectedMedia]);
 
   const { data: siblings } = useSiblingsQuery(queryMediaId);
 
-  const selectedIds = useMemo(
-    () => new Set(selectedMedia.map((m) => m.id)),
-    [selectedMedia],
-  );
+  const selectedIds = useMemo(() => new Set(selectedMedia.map((m) => m.id)), [selectedMedia]);
 
   const suggestions = useMemo(() => {
     if (!siblings || !Array.isArray(siblings)) return [];

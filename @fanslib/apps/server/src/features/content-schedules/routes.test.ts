@@ -98,9 +98,9 @@ describe("Content Schedules Routes", () => {
 
       expect(Array.isArray(data)).toBe(true);
       data?.forEach((schedule) => {
-        expect(
-          schedule.scheduleChannels?.some((sc) => sc.channelId === fixtureChannel.id),
-        ).toBe(true);
+        expect(schedule.scheduleChannels?.some((sc) => sc.channelId === fixtureChannel.id)).toBe(
+          true,
+        );
       });
     });
   });
@@ -134,9 +134,7 @@ describe("Content Schedules Routes", () => {
       expect(created?.scheduleChannels?.[0]?.channelId).toBe(channel.id);
 
       // Verify it appears when fetching by channel
-      const fetchResponse = await app.request(
-        `/api/content-schedules/by-channel-id/${channel.id}`,
-      );
+      const fetchResponse = await app.request(`/api/content-schedules/by-channel-id/${channel.id}`);
       const fetched = await parseResponse<ScheduleResponse[]>(fetchResponse);
       const match = fetched?.find((s) => s.id === created?.id);
       expect(match).toBeDefined();

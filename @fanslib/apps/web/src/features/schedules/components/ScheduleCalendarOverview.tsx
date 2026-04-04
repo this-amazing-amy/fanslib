@@ -62,7 +62,10 @@ export const ScheduleCalendarOverview = () => {
         const existing = acc.get(key) ?? [];
         // Only add one dot per schedule per day
         if (!existing.some((d) => d.scheduleId === schedule.id)) {
-          acc.set(key, [...existing, { scheduleId: schedule.id, color: schedule.color ?? "#6366f1" }]);
+          acc.set(key, [
+            ...existing,
+            { scheduleId: schedule.id, color: schedule.color ?? "#6366f1" },
+          ]);
         }
         return acc;
       }, map);

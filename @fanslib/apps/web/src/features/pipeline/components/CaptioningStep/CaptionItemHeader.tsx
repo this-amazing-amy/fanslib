@@ -70,9 +70,7 @@ export const CaptionItemHeader = ({
     >
       <div className="flex-1 space-y-1 min-w-0">
         <div className="flex items-baseline gap-2">
-          <span className="text-base font-semibold">
-            {format(new Date(date), "EEE, MMM d")}
-          </span>
+          <span className="text-base font-semibold">{format(new Date(date), "EEE, MMM d")}</span>
           <span className="text-sm font-medium text-base-content/60">
             {format(new Date(date), "HH:mm")}
           </span>

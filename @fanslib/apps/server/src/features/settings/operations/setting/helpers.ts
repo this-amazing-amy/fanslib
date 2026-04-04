@@ -21,6 +21,7 @@ export const DEFAULT_SETTINGS: Settings = {
     minDatapointsForPlateau: 7,
     defaultMediaRepostCooldownHours: 504, // 21 days
   },
+  captionStylePresets: [],
 };
 
 export const settingsFilePath = (): string => join(appdataPath(), "settings.json");

@@ -5,7 +5,12 @@ import { devalueMiddleware } from "../../lib/devalue-middleware";
 import { isAppError } from "../../lib/errors";
 import { getTestDataSource, setupTestDatabase, teardownTestDatabase } from "../../lib/test-db";
 import { resetAllFixtures } from "../../lib/test-fixtures";
-import { createTestChannel, createTestMedia, createTestPost, parseResponse } from "../../test-utils/setup";
+import {
+  createTestChannel,
+  createTestMedia,
+  createTestPost,
+  parseResponse,
+} from "../../test-utils/setup";
 import { saveFanslyCredentials } from "../settings/operations/credentials/save";
 import { loadFanslyCredentials } from "../settings/operations/credentials/load";
 import { PostMedia } from "../posts/entity";
@@ -333,7 +338,9 @@ describe("Analytics Routes", () => {
       const res = await app.request("/api/analytics/active-fyp-posts");
       expect(res.status).toBe(200);
 
-      const data = (await parseResponse<Array<Record<string, unknown>>>(res)) as Array<Record<string, unknown>>;
+      const data = (await parseResponse<Array<Record<string, unknown>>>(res)) as Array<
+        Record<string, unknown>
+      >;
       expect(data).toBeArray();
       expect(data).toHaveLength(1);
 
@@ -354,7 +361,9 @@ describe("Analytics Routes", () => {
       const res = await app.request("/api/analytics/active-fyp-posts");
       expect(res.status).toBe(200);
 
-      const data = (await parseResponse<Array<Record<string, unknown>>>(res)) as Array<Record<string, unknown>>;
+      const data = (await parseResponse<Array<Record<string, unknown>>>(res)) as Array<
+        Record<string, unknown>
+      >;
       expect(data[0].fanslyPostId).toBe("892032980896215040");
     });
 
@@ -433,7 +442,9 @@ describe("Analytics Routes", () => {
       const res = await app.request("/api/analytics/active-fyp-posts?sortBy=views");
       expect(res.status).toBe(200);
 
-      const data = (await parseResponse<Array<{ totalViews: number }>>(res)) as Array<{ totalViews: number }>;
+      const data = (await parseResponse<Array<{ totalViews: number }>>(res)) as Array<{
+        totalViews: number;
+      }>;
       expect(data).toHaveLength(3);
       expect(data[0].totalViews).toBe(100);
       expect(data[1].totalViews).toBe(300);
@@ -448,7 +459,9 @@ describe("Analytics Routes", () => {
       const res = await app.request("/api/analytics/active-fyp-posts?sortBy=engagementPercent");
       expect(res.status).toBe(200);
 
-      const data = (await parseResponse<Array<{ averageEngagementPercent: number }>>(res)) as Array<{ averageEngagementPercent: number }>;
+      const data = (await parseResponse<Array<{ averageEngagementPercent: number }>>(
+        res,
+      )) as Array<{ averageEngagementPercent: number }>;
       expect(data).toHaveLength(3);
       expect(data[0].averageEngagementPercent).toBe(20);
       expect(data[1].averageEngagementPercent).toBe(50);
@@ -463,7 +476,9 @@ describe("Analytics Routes", () => {
       const res = await app.request("/api/analytics/active-fyp-posts?sortBy=engagementSeconds");
       expect(res.status).toBe(200);
 
-      const data = (await parseResponse<Array<{ averageEngagementSeconds: number }>>(res)) as Array<{ averageEngagementSeconds: number }>;
+      const data = (await parseResponse<Array<{ averageEngagementSeconds: number }>>(
+        res,
+      )) as Array<{ averageEngagementSeconds: number }>;
       expect(data).toHaveLength(3);
       expect(data[0].averageEngagementSeconds).toBe(10);
       expect(data[1].averageEngagementSeconds).toBe(35);
@@ -491,7 +506,9 @@ describe("Analytics Routes", () => {
 
       // And not in FYP queue
       const res = await app.request("/api/analytics/active-fyp-posts");
-      const data = (await parseResponse<Array<Record<string, unknown>>>(res)) as Array<Record<string, unknown>>;
+      const data = (await parseResponse<Array<Record<string, unknown>>>(res)) as Array<
+        Record<string, unknown>
+      >;
       expect(data).toHaveLength(0);
     });
 
@@ -509,7 +526,11 @@ describe("Analytics Routes", () => {
       const res = await app.request("/api/analytics/queue");
       expect(res.status).toBe(200);
 
-      const data = await parseResponse<{ totalPending: number; nextFetchAt: null; items: unknown[] }>(res);
+      const data = await parseResponse<{
+        totalPending: number;
+        nextFetchAt: null;
+        items: unknown[];
+      }>(res);
       expect(data?.totalPending).toBe(0);
       expect(data?.nextFetchAt).toBeNull();
       expect(data?.items).toEqual([]);
@@ -769,7 +790,8 @@ describe("Analytics Routes", () => {
         totalViews: opts.totalViews ?? 100,
         averageEngagementSeconds: opts.averageEngagementSeconds ?? 30,
         averageEngagementPercent: opts.averageEngagementPercent ?? 50,
-        plateauDetectedAt: opts.plateauDetectedAt === null ? undefined : (opts.plateauDetectedAt ?? new Date()),
+        plateauDetectedAt:
+          opts.plateauDetectedAt === null ? undefined : (opts.plateauDetectedAt ?? new Date()),
       });
       await aggregateRepo.save(aggregate);
 
@@ -811,7 +833,9 @@ describe("Analytics Routes", () => {
       const res = await app.request("/api/analytics/repost-candidates");
       expect(res.status).toBe(200);
 
-      const data = (await parseResponse<Array<Record<string, unknown>>>(res)) as Array<Record<string, unknown>>;
+      const data = (await parseResponse<Array<Record<string, unknown>>>(res)) as Array<
+        Record<string, unknown>
+      >;
       expect(data).toBeArray();
       expect(data).toHaveLength(1);
 
@@ -855,7 +879,9 @@ describe("Analytics Routes", () => {
       const res = await app.request("/api/analytics/repost-candidates");
       expect(res.status).toBe(200);
 
-      const data = (await parseResponse<Array<Record<string, unknown>>>(res)) as Array<Record<string, unknown>>;
+      const data = (await parseResponse<Array<Record<string, unknown>>>(res)) as Array<
+        Record<string, unknown>
+      >;
       expect(data).toHaveLength(1);
       expect(data[0].totalViews).toBe(1000);
       expect(data[0].averageEngagementPercent).toBe(80);
@@ -888,7 +914,9 @@ describe("Analytics Routes", () => {
       const res = await app.request("/api/analytics/repost-candidates");
       expect(res.status).toBe(200);
 
-      const data = (await parseResponse<Array<{ caption: string }>>(res)) as Array<{ caption: string }>;
+      const data = (await parseResponse<Array<{ caption: string }>>(res)) as Array<{
+        caption: string;
+      }>;
       expect(data).toHaveLength(1);
       expect(data[0].caption).toBe("Best caption");
     });
@@ -917,7 +945,9 @@ describe("Analytics Routes", () => {
       const res = await app.request("/api/analytics/repost-candidates");
       expect(res.status).toBe(200);
 
-      const data = (await parseResponse<Array<Record<string, unknown>>>(res)) as Array<Record<string, unknown>>;
+      const data = (await parseResponse<Array<Record<string, unknown>>>(res)) as Array<
+        Record<string, unknown>
+      >;
       expect(data).toHaveLength(1);
       expect(data[0].mediaId).toBe(media.id);
       expect(data[0].timesPosted).toBe(2);
@@ -965,7 +995,9 @@ describe("Analytics Routes", () => {
       const res = await app.request("/api/analytics/repost-candidates?sortBy=views");
       expect(res.status).toBe(200);
 
-      const data = (await parseResponse<Array<{ totalViews: number }>>(res)) as Array<{ totalViews: number }>;
+      const data = (await parseResponse<Array<{ totalViews: number }>>(res)) as Array<{
+        totalViews: number;
+      }>;
       expect(data).toHaveLength(3);
       expect(data[0].totalViews).toBe(800);
       expect(data[1].totalViews).toBe(400);
@@ -976,18 +1008,32 @@ describe("Analytics Routes", () => {
       const channel = await createTestChannel();
 
       const media1 = await createTestMedia();
-      await createPostMediaWithAggregate({ media: media1, channelId: channel.id, averageEngagementPercent: 30 });
+      await createPostMediaWithAggregate({
+        media: media1,
+        channelId: channel.id,
+        averageEngagementPercent: 30,
+      });
 
       const media2 = await createTestMedia();
-      await createPostMediaWithAggregate({ media: media2, channelId: channel.id, averageEngagementPercent: 90 });
+      await createPostMediaWithAggregate({
+        media: media2,
+        channelId: channel.id,
+        averageEngagementPercent: 90,
+      });
 
       const media3 = await createTestMedia();
-      await createPostMediaWithAggregate({ media: media3, channelId: channel.id, averageEngagementPercent: 60 });
+      await createPostMediaWithAggregate({
+        media: media3,
+        channelId: channel.id,
+        averageEngagementPercent: 60,
+      });
 
       const res = await app.request("/api/analytics/repost-candidates?sortBy=engagementPercent");
       expect(res.status).toBe(200);
 
-      const data = (await parseResponse<Array<{ averageEngagementPercent: number }>>(res)) as Array<{ averageEngagementPercent: number }>;
+      const data = (await parseResponse<Array<{ averageEngagementPercent: number }>>(
+        res,
+      )) as Array<{ averageEngagementPercent: number }>;
       expect(data).toHaveLength(3);
       expect(data[0].averageEngagementPercent).toBe(90);
       expect(data[1].averageEngagementPercent).toBe(60);
@@ -998,18 +1044,32 @@ describe("Analytics Routes", () => {
       const channel = await createTestChannel();
 
       const media1 = await createTestMedia();
-      await createPostMediaWithAggregate({ media: media1, channelId: channel.id, averageEngagementSeconds: 15 });
+      await createPostMediaWithAggregate({
+        media: media1,
+        channelId: channel.id,
+        averageEngagementSeconds: 15,
+      });
 
       const media2 = await createTestMedia();
-      await createPostMediaWithAggregate({ media: media2, channelId: channel.id, averageEngagementSeconds: 90 });
+      await createPostMediaWithAggregate({
+        media: media2,
+        channelId: channel.id,
+        averageEngagementSeconds: 90,
+      });
 
       const media3 = await createTestMedia();
-      await createPostMediaWithAggregate({ media: media3, channelId: channel.id, averageEngagementSeconds: 45 });
+      await createPostMediaWithAggregate({
+        media: media3,
+        channelId: channel.id,
+        averageEngagementSeconds: 45,
+      });
 
       const res = await app.request("/api/analytics/repost-candidates?sortBy=engagementSeconds");
       expect(res.status).toBe(200);
 
-      const data = (await parseResponse<Array<{ averageEngagementSeconds: number }>>(res)) as Array<{ averageEngagementSeconds: number }>;
+      const data = (await parseResponse<Array<{ averageEngagementSeconds: number }>>(
+        res,
+      )) as Array<{ averageEngagementSeconds: number }>;
       expect(data).toHaveLength(3);
       expect(data[0].averageEngagementSeconds).toBe(90);
       expect(data[1].averageEngagementSeconds).toBe(45);
@@ -1130,7 +1190,9 @@ describe("Analytics Routes", () => {
       const res = await app.request("/api/analytics/repost-candidates");
       expect(res.status).toBe(200);
 
-      const data = (await parseResponse<Array<Record<string, unknown>>>(res)) as Array<Record<string, unknown>>;
+      const data = (await parseResponse<Array<Record<string, unknown>>>(res)) as Array<
+        Record<string, unknown>
+      >;
       expect(data).toHaveLength(1);
       expect(data[0].mediaId).toBe(media.id);
     });

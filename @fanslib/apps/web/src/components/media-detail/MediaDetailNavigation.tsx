@@ -1,13 +1,19 @@
-import { useNavigate, useParams } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect } from "react";
 import { Button } from "~/components/ui/Button";
 import { useLibraryPreferences } from "~/contexts/LibraryPreferencesContext";
 import { useMediaAdjacentQuery } from "~/lib/queries/library";
 
-export const MediaDetailNavigation = () => {
+type MediaDetailRoute = "/library/$mediaId" | "/content/library/media/$mediaId";
+
+type MediaDetailNavigationProps = {
+  mediaId: string;
+  navigateTo: MediaDetailRoute;
+};
+
+export const MediaDetailNavigation = ({ mediaId, navigateTo }: MediaDetailNavigationProps) => {
   const navigate = useNavigate();
-  const { mediaId } = useParams({ from: "/content/library/media/$mediaId" });
   const { preferences } = useLibraryPreferences();
 
   const adjacentParams = {
@@ -26,20 +32,20 @@ export const MediaDetailNavigation = () => {
   const navigateToPrevious = useCallback(() => {
     if (adjacentMedia?.previous) {
       navigate({
-        to: "/content/library/media/$mediaId",
+        to: navigateTo,
         params: { mediaId: adjacentMedia.previous.id },
       });
     }
-  }, [adjacentMedia?.previous, navigate]);
+  }, [adjacentMedia?.previous, navigate, navigateTo]);
 
   const navigateToNext = useCallback(() => {
     if (adjacentMedia?.next) {
       navigate({
-        to: "/content/library/media/$mediaId",
+        to: navigateTo,
         params: { mediaId: adjacentMedia.next.id },
       });
     }
-  }, [adjacentMedia?.next, navigate]);
+  }, [adjacentMedia?.next, navigate, navigateTo]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {

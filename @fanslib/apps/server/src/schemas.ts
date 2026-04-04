@@ -867,8 +867,20 @@ export type {
 } from "./features/settings/operations/credentials/status";
 
 // Settings entities
-import { SettingsSchema, type Settings } from "./features/settings/schemas/settings";
-export { SettingsSchema, type Settings };
+import {
+  CaptionAnimationSchema,
+  CaptionStylePresetSchema,
+  SettingsSchema,
+  type CaptionStylePreset,
+  type Settings,
+} from "./features/settings/schemas/settings";
+export {
+  CaptionAnimationSchema,
+  CaptionStylePresetSchema,
+  SettingsSchema,
+  type CaptionStylePreset,
+  type Settings,
+};
 
 // Postpone schemas
 import {

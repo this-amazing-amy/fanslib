@@ -47,10 +47,15 @@ const getContentType = (filename: string, assetType: AssetType): string => {
   if (assetType === "image") return "image/png";
   const ext = extname(filename).toLowerCase();
   switch (ext) {
-    case ".mp3": return "audio/mpeg";
-    case ".wav": return "audio/wav";
-    case ".aac": case ".m4a": return "audio/aac";
-    default: return "application/octet-stream";
+    case ".mp3":
+      return "audio/mpeg";
+    case ".wav":
+      return "audio/wav";
+    case ".aac":
+    case ".m4a":
+      return "audio/aac";
+    default:
+      return "application/octet-stream";
   }
 };
 

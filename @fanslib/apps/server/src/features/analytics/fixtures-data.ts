@@ -64,18 +64,15 @@ const demoFypMedia: MediaFixture[] = Array.from({ length: DEMO_FYP_COUNT }, (_, 
   excluded: false,
 }));
 
-const demoRepostMedia: MediaFixture[] = Array.from(
-  { length: DEMO_REPOST_MEDIA_COUNT },
-  (_, i) => ({
-    id: `demo-repost-media-${i + 1}`,
-    relativePath: `/demo/repost/clip-${i + 1}.${i % 2 === 0 ? "jpg" : "mp4"}`,
-    type: (i % 2 === 0 ? "image" : "video") as "image" | "video",
-    name: `repost-clip-${i + 1}.${i % 2 === 0 ? "jpg" : "mp4"}`,
-    size: randomInRange(i + 300, 800_000, 25_000_000),
-    duration: i % 2 === 0 ? null : randomInRange(i + 400, 10, 120),
-    excluded: false,
-  }),
-);
+const demoRepostMedia: MediaFixture[] = Array.from({ length: DEMO_REPOST_MEDIA_COUNT }, (_, i) => ({
+  id: `demo-repost-media-${i + 1}`,
+  relativePath: `/demo/repost/clip-${i + 1}.${i % 2 === 0 ? "jpg" : "mp4"}`,
+  type: (i % 2 === 0 ? "image" : "video") as "image" | "video",
+  name: `repost-clip-${i + 1}.${i % 2 === 0 ? "jpg" : "mp4"}`,
+  size: randomInRange(i + 300, 800_000, 25_000_000),
+  duration: i % 2 === 0 ? null : randomInRange(i + 400, 10, 120),
+  excluded: false,
+}));
 
 const fypCaptions = [
   "New set just dropped",
@@ -181,7 +178,11 @@ const demoRepostAnalytics: FanslyAnalyticsFixtureRow[] = demoRepostPosts.map((p,
       averageEngagementSeconds,
       plateauDetectedAt: new Date(2024, plateauMonth, 15),
     },
-    datapoints: generateDatapoints(resolvedIndex * 100 + i + 1400, totalViews, averageEngagementSeconds),
+    datapoints: generateDatapoints(
+      resolvedIndex * 100 + i + 1400,
+      totalViews,
+      averageEngagementSeconds,
+    ),
   };
 });
 

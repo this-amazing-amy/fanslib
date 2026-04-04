@@ -36,13 +36,15 @@ export const useOrganizeMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (entries: Array<{
-      mediaId: string;
-      shootId: string;
-      package: string;
-      role: string;
-      contentRating: "xt" | "uc" | "cn" | "sg" | "sf";
-    }>) => {
+    mutationFn: async (
+      entries: Array<{
+        mediaId: string;
+        shootId: string;
+        package: string;
+        role: string;
+        contentRating: "xt" | "uc" | "cn" | "sg" | "sf";
+      }>,
+    ) => {
       const result = await api.api.library.organize.$post({
         json: { entries },
       });

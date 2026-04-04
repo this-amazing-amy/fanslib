@@ -9,11 +9,15 @@ type ClipState = {
   ranges: ClipRange[];
   clipMode: boolean;
   selectedRangeIndex: number | null;
+  /** Playhead frame for the next mark-out (after I) */
+  pendingMarkInFrame: number | null;
   canUndo: boolean;
   canRedo: boolean;
 
   toggleClipMode: () => void;
   addRange: (startFrame: number, endFrame: number) => void;
+  setMarkInAtFrame: (frame: number) => void;
+  commitMarkOutAtFrame: (frame: number) => void;
   removeRange: (index: number) => void;
   updateRange: (index: number, startFrame: number, endFrame: number) => void;
   selectRange: (index: number | null) => void;
@@ -39,11 +43,41 @@ export const useClipStore = create<ClipState>((set, get) => {
     ranges: [],
     clipMode: false,
     selectedRangeIndex: null,
+    pendingMarkInFrame: null,
     canUndo: false,
     canRedo: false,
 
     toggleClipMode: () => {
-      set((state) => ({ clipMode: !state.clipMode }));
+      set((state) => {
+        const nextMode = !state.clipMode;
+        return {
+          clipMode: nextMode,
+          pendingMarkInFrame: nextMode ? state.pendingMarkInFrame : null,
+        };
+      });
+    },
+
+    setMarkInAtFrame: (frame) => {
+      set({ pendingMarkInFrame: frame });
+    },
+
+    commitMarkOutAtFrame: (frame) => {
+      const pending = get().pendingMarkInFrame;
+      if (pending === null) return;
+      const startFrame = Math.min(pending, frame);
+      const endFrame = Math.max(pending, frame);
+      if (endFrame <= startFrame) {
+        set({ pendingMarkInFrame: null });
+        return;
+      }
+      pushHistory();
+      set((state) => ({
+        ranges: [...state.ranges, { startFrame, endFrame }],
+        selectedRangeIndex: state.ranges.length,
+        pendingMarkInFrame: null,
+        canUndo: true,
+        canRedo: false,
+      }));
     },
 
     addRange: (startFrame, endFrame) => {
@@ -51,6 +85,7 @@ export const useClipStore = create<ClipState>((set, get) => {
       set((state) => ({
         ranges: [...state.ranges, { startFrame, endFrame }],
         selectedRangeIndex: state.ranges.length,
+        pendingMarkInFrame: null,
         canUndo: true,
         canRedo: false,
       }));
@@ -60,8 +95,7 @@ export const useClipStore = create<ClipState>((set, get) => {
       pushHistory();
       set((state) => ({
         ranges: state.ranges.filter((_, i) => i !== index),
-        selectedRangeIndex:
-          state.selectedRangeIndex === index ? null : state.selectedRangeIndex,
+        selectedRangeIndex: state.selectedRangeIndex === index ? null : state.selectedRangeIndex,
         canUndo: true,
         canRedo: false,
       }));
@@ -70,9 +104,7 @@ export const useClipStore = create<ClipState>((set, get) => {
     updateRange: (index, startFrame, endFrame) => {
       pushHistory();
       set((state) => ({
-        ranges: state.ranges.map((r, i) =>
-          i === index ? { startFrame, endFrame } : r,
-        ),
+        ranges: state.ranges.map((r, i) => (i === index ? { startFrame, endFrame } : r)),
         canUndo: true,
         canRedo: false,
       }));
@@ -111,6 +143,7 @@ export const useClipStore = create<ClipState>((set, get) => {
         ranges: [],
         clipMode: false,
         selectedRangeIndex: null,
+        pendingMarkInFrame: null,
         canUndo: false,
         canRedo: false,
       });

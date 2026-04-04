@@ -1,5 +1,25 @@
 import { z } from "zod";
 
+export const CaptionAnimationSchema = z.enum([
+  "typewriter",
+  "fade-in",
+  "scale-in",
+  "slide-up",
+]);
+
+export const CaptionStylePresetSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().min(1),
+  fontSize: z.number(),
+  fontFamily: z.string().optional(),
+  color: z.string(),
+  strokeColor: z.string().optional(),
+  strokeWidth: z.number().optional(),
+  animation: CaptionAnimationSchema,
+});
+
+export type CaptionStylePreset = z.infer<typeof CaptionStylePresetSchema>;
+
 export const SettingsSchema = z.object({
   theme: z.union([z.literal("light"), z.literal("dark")]),
   blueskyUsername: z.string().optional(),
@@ -22,6 +42,7 @@ export const SettingsSchema = z.object({
       defaultMediaRepostCooldownHours: z.number().int(),
     })
     .optional(),
+  captionStylePresets: z.array(CaptionStylePresetSchema).optional(),
 });
 
 export type Settings = z.infer<typeof SettingsSchema>;

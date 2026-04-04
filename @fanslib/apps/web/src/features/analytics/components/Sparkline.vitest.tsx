@@ -14,7 +14,7 @@ describe("Sparkline", () => {
 
   test("renders an SVG element", () => {
     const { container } = render(
-      <Sparkline datapoints={sampleData} metric="views" width={120} height={32} />
+      <Sparkline datapoints={sampleData} metric="views" width={120} height={32} />,
     );
     const svg = container.querySelector("svg");
     expect(svg).toBeInTheDocument();
@@ -22,7 +22,7 @@ describe("Sparkline", () => {
 
   test("renders nothing when datapoints array is empty", () => {
     const { container } = render(
-      <Sparkline datapoints={[]} metric="views" width={120} height={32} />
+      <Sparkline datapoints={[]} metric="views" width={120} height={32} />,
     );
     const svg = container.querySelector("svg");
     expect(svg).not.toBeInTheDocument();
@@ -30,7 +30,7 @@ describe("Sparkline", () => {
 
   test("renders nothing with fewer than 2 datapoints", () => {
     const { container } = render(
-      <Sparkline datapoints={[sampleData[0]]} metric="views" width={120} height={32} />
+      <Sparkline datapoints={[sampleData[0]]} metric="views" width={120} height={32} />,
     );
     const svg = container.querySelector("svg");
     expect(svg).not.toBeInTheDocument();
@@ -38,7 +38,7 @@ describe("Sparkline", () => {
 
   test("renders a path element for the line", () => {
     const { container } = render(
-      <Sparkline datapoints={sampleData} metric="views" width={120} height={32} />
+      <Sparkline datapoints={sampleData} metric="views" width={120} height={32} />,
     );
     const path = container.querySelector("path");
     expect(path).toBeInTheDocument();

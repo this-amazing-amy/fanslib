@@ -41,7 +41,9 @@ const renderFyp = () => {
 
 describe("FanslyFypRoute", () => {
   beforeEach(() => {
-    mockUseActiveFypPostsQuery.mockReturnValue(emptyQuery as ReturnType<typeof useActiveFypPostsQuery>);
+    mockUseActiveFypPostsQuery.mockReturnValue(
+      emptyQuery as ReturnType<typeof useActiveFypPostsQuery>,
+    );
     mockUseRepostCandidatesQuery.mockReturnValue(
       emptyQuery as ReturnType<typeof useRepostCandidatesQuery>,
     );
@@ -60,9 +62,7 @@ describe("FanslyFypRoute", () => {
     if (nativeSelect === null) {
       throw new Error("expected native select");
     }
-    const values = [...nativeSelect.options]
-      .map((o) => o.value)
-      .filter((v) => v !== "");
+    const values = [...nativeSelect.options].map((o) => o.value).filter((v) => v !== "");
     expect(values).toEqual(["views", "engagementPercent", "engagementSeconds"]);
   });
 

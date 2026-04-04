@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useEditorStore } from "~/stores/editorStore";
 import {
-  relativeToPixel,
-  getPlayerRect,
-  type CanvasRect,
-} from "../utils/coordinate-mapping";
+  captionAnimationViewportOffsetPx,
+  captionHalfNormFromBox,
+  isCaptionOperation,
+  measureCaptionBoxPx,
+} from "../utils/caption-layout";
+import { relativeToPixel, type CanvasRect } from "../utils/coordinate-mapping";
 
 type SpatialOp = {
   type: string;
@@ -16,26 +18,42 @@ type SpatialOp = {
 };
 
 type RegionOverlayProps = {
-  containerRef: React.RefObject<HTMLDivElement | null>;
-  compositionWidth?: number;
-  compositionHeight?: number;
+  canvasRect: CanvasRect | null;
+  /** When false, overlays are not shown (e.g. while clip ranges lock transform editing). */
+  interactive?: boolean;
+  /** Matches Remotion preview frame for caption animation alignment. */
+  currentFrame?: number;
+  /** Same as Player `durationInFrames` (1 for still preview). */
+  previewDurationInFrames?: number;
 };
 
-type DragState = {
-  type: "move" | "resize";
-  corner?: "nw" | "ne" | "sw" | "se";
-  startMouseX: number;
-  startMouseY: number;
-  startX: number;
-  startY: number;
-  startWidth: number;
-  startHeight: number;
-};
+type DragState =
+  | {
+      kind: "spatial";
+      type: "move" | "resize";
+      corner?: "nw" | "ne" | "sw" | "se";
+      startMouseX: number;
+      startMouseY: number;
+      startX: number;
+      startY: number;
+      startWidth: number;
+      startHeight: number;
+    }
+  | {
+      kind: "caption-move";
+      startMouseX: number;
+      startMouseY: number;
+      startX: number;
+      startY: number;
+      halfWNorm: number;
+      halfHNorm: number;
+    };
 
 export const RegionOverlay = ({
-  containerRef,
-  compositionWidth = 1920,
-  compositionHeight = 1080,
+  canvasRect,
+  interactive = true,
+  currentFrame = 0,
+  previewDurationInFrames = 1,
 }: RegionOverlayProps) => {
   const operations = useEditorStore((s) => s.operations);
   const selectedIndex = useEditorStore((s) => s.selectedOperationIndex);
@@ -43,20 +61,6 @@ export const RegionOverlay = ({
   const [dragState, setDragState] = useState<DragState | null>(null);
   const canvasRectRef = useRef<CanvasRect | null>(null);
 
-  const getCanvasRect = useCallback((): CanvasRect | null => {
-    const container = containerRef.current;
-    if (!container) return null;
-    const rect = getPlayerRect(
-      container.clientWidth,
-      container.clientHeight,
-      compositionWidth,
-      compositionHeight,
-    );
-    canvasRectRef.current = rect;
-    return rect;
-  }, [containerRef, compositionWidth, compositionHeight]);
-
-  // Handle mouse move during drag
   useEffect(() => {
     if (!dragState || selectedIndex === null) return;
 
@@ -69,35 +73,57 @@ export const RegionOverlay = ({
       const relDx = dx / canvas.canvasWidth;
       const relDy = dy / canvas.canvasHeight;
 
-      const op = operations[selectedIndex] as SpatialOp;
-      const clamp = (v: number) => Math.max(0, Math.min(1, v));
+      const raw = operations[selectedIndex];
+      const op = raw as SpatialOp;
+      const clamp = (v: number, lo: number, hi: number) =>
+        Math.max(lo, Math.min(hi, v));
+
+      if (dragState.kind === "caption-move") {
+        if (!isCaptionOperation(raw)) return;
+        const cap = raw;
+        const nx = clamp(
+          dragState.startX + relDx,
+          dragState.halfWNorm,
+          1 - dragState.halfWNorm,
+        );
+        const ny = clamp(
+          dragState.startY + relDy,
+          dragState.halfHNorm,
+          1 - dragState.halfHNorm,
+        );
+        updateOperation(selectedIndex, { ...cap, x: nx, y: ny });
+        return;
+      }
+
+      const clamp01 = (v: number, max = 1) => Math.max(0, Math.min(max, v));
+      const opW = dragState.startWidth;
+      const opH = dragState.startHeight;
       const isEmoji = op.type === "emoji";
 
       if (dragState.type === "move") {
         const nx = dragState.startX + relDx;
         const ny = dragState.startY + relDy;
-        const halfW = dragState.startWidth / 2;
-        const halfH = dragState.startHeight / 2;
         updateOperation(selectedIndex, {
           ...op,
           x: isEmoji
-            ? Math.max(halfW, Math.min(1 - halfW, nx))
-            : clamp(nx),
+            ? Math.max(opW / 2, Math.min(1 - opW / 2, nx))
+            : clamp01(nx, 1 - opW),
           y: isEmoji
-            ? Math.max(halfH, Math.min(1 - halfH, ny))
-            : clamp(ny),
+            ? Math.max(opH / 2, Math.min(1 - opH / 2, ny))
+            : clamp01(ny, 1 - opH),
         });
-      } else if (dragState.type === "resize") {
-        const newWidth = clamp(dragState.startWidth + relDx);
-        const newHeight = clamp(
-          dragState.startHeight + relDy,
-        );
-        updateOperation(selectedIndex, {
-          ...op,
-          width: newWidth,
-          height: newHeight,
-        });
+        return;
       }
+
+      const maxW = 1 - dragState.startX;
+      const maxH = 1 - dragState.startY;
+      const newWidth = clamp01(dragState.startWidth + relDx, maxW);
+      const newHeight = clamp01(dragState.startHeight + relDy, maxH);
+      updateOperation(selectedIndex, {
+        ...op,
+        width: newWidth,
+        height: newHeight,
+      });
     };
 
     const handleMouseUp = () => {
@@ -112,21 +138,89 @@ export const RegionOverlay = ({
     };
   }, [dragState, selectedIndex, operations, updateOperation]);
 
-  const canvas = getCanvasRect();
-  if (!canvas) return null;
+  if (!canvasRect) return null;
+  if (!interactive) return null;
+
+  const canvas = canvasRect;
 
   return (
     <>
       {operations.map((op, index) => {
         const spatialOp = op as SpatialOp;
-        if (typeof spatialOp.x !== "number" || typeof spatialOp.y !== "number") return null;
+        if (spatialOp.type === "crop") return null;
+        if (typeof spatialOp.x !== "number" || typeof spatialOp.y !== "number")
+          return null;
 
         const isSelected = index === selectedIndex;
+
+        if (isCaptionOperation(op)) {
+          const caption = op;
+          const captionVisible =
+            previewDurationInFrames <= 1 ||
+            (currentFrame >= caption.startFrame &&
+              currentFrame <= caption.endFrame);
+          if (!captionVisible) return null;
+
+          const { widthPx, heightPx } = measureCaptionBoxPx(
+            caption,
+            canvas.canvasWidth,
+          );
+          const { dx, dy } = captionAnimationViewportOffsetPx(
+            caption,
+            currentFrame,
+            canvas.canvasHeight,
+            previewDurationInFrames,
+          );
+          const center = relativeToPixel(caption.x, caption.y, canvas);
+          const left = center.px - widthPx / 2 + dx;
+          const top = center.py - heightPx / 2 + dy;
+          const { halfWNorm, halfHNorm } = captionHalfNormFromBox(
+            widthPx,
+            heightPx,
+            canvas.canvasWidth,
+            canvas.canvasHeight,
+          );
+
+          return (
+            <div
+              key={index}
+              className={`absolute ${
+                isSelected
+                  ? "border-2 border-primary cursor-move"
+                  : "pointer-events-none"
+              }`}
+              style={{
+                left,
+                top,
+                width: widthPx,
+                height: heightPx,
+              }}
+              onMouseDown={
+                isSelected
+                  ? (e) => {
+                      e.preventDefault();
+                      canvasRectRef.current = canvasRect;
+                      setDragState({
+                        kind: "caption-move",
+                        startMouseX: e.clientX,
+                        startMouseY: e.clientY,
+                        startX: caption.x,
+                        startY: caption.y,
+                        halfWNorm,
+                        halfHNorm,
+                      });
+                    }
+                  : undefined
+              }
+            />
+          );
+        }
+
+        const pos = relativeToPixel(spatialOp.x, spatialOp.y, canvas);
         const isEmoji = spatialOp.type === "emoji";
         const emojiSize = isEmoji
           ? ((spatialOp as Record<string, unknown>).size as number) ?? 0.1
           : 0;
-        const pos = relativeToPixel(spatialOp.x, spatialOp.y, canvas);
         const width = isEmoji
           ? emojiSize * canvas.canvasWidth
           : (spatialOp.width ?? 0.1) * canvas.canvasWidth;
@@ -140,7 +234,7 @@ export const RegionOverlay = ({
             className={`absolute ${
               isSelected
                 ? "border-2 border-primary cursor-move"
-                : "border border-base-content/20 pointer-events-none"
+                : "pointer-events-none"
             }`}
             style={{
               left: isEmoji ? pos.px - width / 2 : pos.px,
@@ -152,8 +246,9 @@ export const RegionOverlay = ({
               isSelected
                 ? (e) => {
                     e.preventDefault();
-                    getCanvasRect();
+                    canvasRectRef.current = canvasRect;
                     setDragState({
+                      kind: "spatial",
                       type: "move",
                       startMouseX: e.clientX,
                       startMouseY: e.clientY,
@@ -168,7 +263,6 @@ export const RegionOverlay = ({
           >
             {isSelected && !isEmoji && (
               <>
-                {/* Corner resize handles */}
                 {(["nw", "ne", "sw", "se"] as const).map((corner) => (
                   <div
                     key={corner}
@@ -182,8 +276,9 @@ export const RegionOverlay = ({
                     onMouseDown={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      getCanvasRect();
+                      canvasRectRef.current = canvasRect;
                       setDragState({
+                        kind: "spatial",
                         type: "resize",
                         corner,
                         startMouseX: e.clientX,

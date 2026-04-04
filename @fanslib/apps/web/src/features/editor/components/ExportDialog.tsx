@@ -53,10 +53,7 @@ export const ExportDialog = ({ open, onOpenChange }: ExportDialogProps) => {
     return () => dialog.removeEventListener("close", handleClose);
   }, [onOpenChange]);
 
-  const createAndQueueEdit = async (
-    type: "transform" | "clip",
-    ops: unknown[],
-  ): Promise<void> => {
+  const createAndQueueEdit = async (type: "transform" | "clip", ops: unknown[]): Promise<void> => {
     const res = await fetch("/api/media-edits", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -156,16 +153,21 @@ export const ExportDialog = ({ open, onOpenChange }: ExportDialogProps) => {
       className="modal-box bg-base-100 rounded-lg shadow-xl p-0 w-full max-w-md backdrop:bg-black/50"
     >
       <div className="p-6">
-        <h3 className="text-lg font-semibold mb-4">
+        <h3 className="text-lg font-semibold mb-2">
           {isClipExport
             ? `Export ${clipRanges.length} Clip${clipRanges.length > 1 ? "s" : ""}`
             : "Export & Render"}
         </h3>
+        {isClipExport && (
+          <p className="text-xs text-base-content/50 mb-4">
+            Each clip is queued as its own render using only the time range on the source file. Layer
+            operations (blur, watermark, etc.) are not included—use Export without clips to render the
+            full transform stack.
+          </p>
+        )}
 
         {success ? (
-          <div className="text-success text-center py-8">
-            Queued for rendering!
-          </div>
+          <div className="text-success text-center py-8">Queued for rendering!</div>
         ) : (
           <div className="flex flex-col gap-4">
             <label className="flex flex-col gap-1">
@@ -217,9 +219,7 @@ export const ExportDialog = ({ open, onOpenChange }: ExportDialogProps) => {
               </select>
             </label>
 
-            {error && (
-              <div className="text-error text-sm">{error}</div>
-            )}
+            {error && <div className="text-error text-sm">{error}</div>}
 
             <div className="flex justify-end gap-2 mt-2">
               <Button
@@ -230,13 +230,12 @@ export const ExportDialog = ({ open, onOpenChange }: ExportDialogProps) => {
               >
                 Cancel
               </Button>
-              <Button
-                size="sm"
-                variant="primary"
-                onPress={handleExport}
-                isDisabled={exporting}
-              >
-                {exporting ? "Exporting..." : isClipExport ? `Export All (${clipRanges.length})` : "Export"}
+              <Button size="sm" variant="primary" onPress={handleExport} isDisabled={exporting}>
+                {exporting
+                  ? "Exporting..."
+                  : isClipExport
+                    ? `Export All (${clipRanges.length})`
+                    : "Export"}
               </Button>
             </div>
           </div>

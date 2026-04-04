@@ -22,7 +22,7 @@ type ActiveFypPostItem = {
 };
 
 export const fetchActiveFypPosts = async (
-  query: z.infer<typeof ActiveFypPostsQuerySchema>
+  query: z.infer<typeof ActiveFypPostsQuerySchema>,
 ): Promise<ActiveFypPostItem[]> => {
   const sortBy = query.sortBy ?? "engagementSeconds";
   const dataSource = await db();

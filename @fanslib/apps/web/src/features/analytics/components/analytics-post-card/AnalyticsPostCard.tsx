@@ -37,9 +37,7 @@ export const AnalyticsPostCard = ({
         "relative rounded-xl border bg-base-100",
         !cardNavigatesToPost && canExpand && "cursor-pointer",
       )}
-      onClick={
-        !cardNavigatesToPost && canExpand ? () => setExpanded((prev) => !prev) : undefined
-      }
+      onClick={!cardNavigatesToPost && canExpand ? () => setExpanded((prev) => !prev) : undefined}
     >
       {cardNavigatesToPost && (
         <Link

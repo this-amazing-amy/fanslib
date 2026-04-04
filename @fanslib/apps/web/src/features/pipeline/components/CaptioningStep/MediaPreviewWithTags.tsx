@@ -52,8 +52,7 @@ export const MediaPreviewWithTags = ({ postMedia, mediaTagQueries }: MediaPrevie
                     tag={{
                       id: tag.tagDefinitionId,
                       color: tag.color,
-                      displayName:
-                        tag.shortRepresentation ?? tag.tagDisplayName ?? tag.tagValue,
+                      displayName: tag.shortRepresentation ?? tag.tagDisplayName ?? tag.tagValue,
                     }}
                     size="md"
                     selectionMode="radio"

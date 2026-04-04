@@ -14,22 +14,26 @@ export const usePostMediaAnalyticsQuery = (postMediaId: string) =>
     enabled: !!postMediaId,
   });
 
-export const useActiveFypPostsQuery = (sortBy?: "views" | "engagementPercent" | "engagementSeconds") =>
+export const useActiveFypPostsQuery = (
+  sortBy?: "views" | "engagementPercent" | "engagementSeconds",
+) =>
   useQuery({
     queryKey: QUERY_KEYS.analytics.activeFypPosts(sortBy),
     queryFn: async () => {
-      const result = await api.api.analytics['active-fyp-posts'].$get({
+      const result = await api.api.analytics["active-fyp-posts"].$get({
         query: { sortBy },
       });
       return result.json();
     },
   });
 
-export const useRepostCandidatesQuery = (sortBy?: "views" | "engagementPercent" | "engagementSeconds") =>
+export const useRepostCandidatesQuery = (
+  sortBy?: "views" | "engagementPercent" | "engagementSeconds",
+) =>
   useQuery({
     queryKey: QUERY_KEYS.analytics.repostCandidates(sortBy),
     queryFn: async () => {
-      const result = await api.api.analytics['repost-candidates'].$get({
+      const result = await api.api.analytics["repost-candidates"].$get({
         query: { sortBy },
       });
       return result.json();

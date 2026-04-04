@@ -14,11 +14,7 @@ type KeyframeData = {
   easing?: string;
 };
 
-export const KeyframeTimeline = ({
-  totalFrames,
-  currentFrame,
-  onSeek,
-}: KeyframeTimelineProps) => {
+export const KeyframeTimeline = ({ totalFrames, currentFrame, onSeek }: KeyframeTimelineProps) => {
   const operations = useEditorStore((s) => s.operations);
   const selectedIndex = useEditorStore((s) => s.selectedOperationIndex);
   const addKeyframe = useEditorStore((s) => s.addKeyframe);
@@ -64,12 +60,15 @@ export const KeyframeTimeline = ({
       </div>
 
       {/* Timeline bar */}
-      <div className="relative h-8 bg-base-300 rounded cursor-pointer" onClick={(e) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const frame = Math.round((x / rect.width) * totalFrames);
-        onSeek(Math.max(0, Math.min(frame, totalFrames - 1)));
-      }}>
+      <div
+        className="relative h-8 bg-base-300 rounded cursor-pointer"
+        onClick={(e) => {
+          const rect = e.currentTarget.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const frame = Math.round((x / rect.width) * totalFrames);
+          onSeek(Math.max(0, Math.min(frame, totalFrames - 1)));
+        }}
+      >
         {/* Current frame indicator */}
         <div
           className="absolute top-0 bottom-0 w-0.5 bg-primary z-10"

@@ -9,8 +9,9 @@ vi.mock("~/hooks/useVideoPreview", () => ({
 }));
 
 vi.mock("~/stores/mediaHoverStore", () => ({
-  useMediaHoverStore: (selector: (s: { hoveredMediaId: string | null; hoveredInstanceId: string | null }) => unknown) =>
-    selector({ hoveredMediaId: "media-1", hoveredInstanceId: "instance-A" }),
+  useMediaHoverStore: (
+    selector: (s: { hoveredMediaId: string | null; hoveredInstanceId: string | null }) => unknown,
+  ) => selector({ hoveredMediaId: "media-1", hoveredInstanceId: "instance-A" }),
 }));
 
 vi.mock("~/hooks/useSfwMode", () => ({
@@ -56,7 +57,9 @@ describe("MediaTileVideo", () => {
       isVideoReady: false,
     });
 
-    render(<MediaTileVideo media={baseMedia} withPreview withDuration={false} hoverKey="instance-A" />);
+    render(
+      <MediaTileVideo media={baseMedia} withPreview withDuration={false} hoverKey="instance-A" />,
+    );
 
     const video = document.querySelector("video");
     expect(video).toHaveClass("hidden");

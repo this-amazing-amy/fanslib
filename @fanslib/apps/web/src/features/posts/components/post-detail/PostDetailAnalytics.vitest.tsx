@@ -81,7 +81,12 @@ describe("PostDetailAnalytics metric toggle", () => {
       isLoading: false,
     } as ReturnType<typeof usePostMediaAnalyticsQuery>);
 
-    render(<PostDetailAnalytics post={makePost() as Parameters<typeof PostDetailAnalytics>[0]["post"]} />, { wrapper: createWrapper() });
+    render(
+      <PostDetailAnalytics
+        post={makePost() as Parameters<typeof PostDetailAnalytics>[0]["post"]}
+      />,
+      { wrapper: createWrapper() },
+    );
 
     expect(screen.getByRole("button", { name: "Views" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Engagement %" })).toBeInTheDocument();
@@ -94,7 +99,12 @@ describe("PostDetailAnalytics metric toggle", () => {
       isLoading: false,
     } as ReturnType<typeof usePostMediaAnalyticsQuery>);
 
-    render(<PostDetailAnalytics post={makePost() as Parameters<typeof PostDetailAnalytics>[0]["post"]} />, { wrapper: createWrapper() });
+    render(
+      <PostDetailAnalytics
+        post={makePost() as Parameters<typeof PostDetailAnalytics>[0]["post"]}
+      />,
+      { wrapper: createWrapper() },
+    );
 
     const viewsButton = screen.getByRole("button", { name: "Views" });
     expect(viewsButton.className).toContain("btn-primary");
@@ -106,7 +116,12 @@ describe("PostDetailAnalytics metric toggle", () => {
       isLoading: false,
     } as ReturnType<typeof usePostMediaAnalyticsQuery>);
 
-    render(<PostDetailAnalytics post={makePost() as Parameters<typeof PostDetailAnalytics>[0]["post"]} />, { wrapper: createWrapper() });
+    render(
+      <PostDetailAnalytics
+        post={makePost() as Parameters<typeof PostDetailAnalytics>[0]["post"]}
+      />,
+      { wrapper: createWrapper() },
+    );
     const user = userEvent.setup();
 
     await user.click(screen.getByRole("button", { name: "Engagement %" }));
@@ -121,7 +136,12 @@ describe("PostDetailAnalytics metric toggle", () => {
       isLoading: false,
     } as ReturnType<typeof usePostMediaAnalyticsQuery>);
 
-    render(<PostDetailAnalytics post={makePost() as Parameters<typeof PostDetailAnalytics>[0]["post"]} />, { wrapper: createWrapper() });
+    render(
+      <PostDetailAnalytics
+        post={makePost() as Parameters<typeof PostDetailAnalytics>[0]["post"]}
+      />,
+      { wrapper: createWrapper() },
+    );
     const user = userEvent.setup();
 
     expect(screen.getByText("Views Over Time")).toBeInTheDocument();
@@ -139,7 +159,12 @@ describe("PostDetailAnalytics metric toggle", () => {
       isLoading: true,
     } as ReturnType<typeof usePostMediaAnalyticsQuery>);
 
-    render(<PostDetailAnalytics post={makePost() as Parameters<typeof PostDetailAnalytics>[0]["post"]} />, { wrapper: createWrapper() });
+    render(
+      <PostDetailAnalytics
+        post={makePost() as Parameters<typeof PostDetailAnalytics>[0]["post"]}
+      />,
+      { wrapper: createWrapper() },
+    );
 
     expect(screen.getByText("Loading analytics...")).toBeInTheDocument();
   });
@@ -150,7 +175,12 @@ describe("PostDetailAnalytics metric toggle", () => {
       isLoading: false,
     } as ReturnType<typeof usePostMediaAnalyticsQuery>);
 
-    render(<PostDetailAnalytics post={makePost() as Parameters<typeof PostDetailAnalytics>[0]["post"]} />, { wrapper: createWrapper() });
+    render(
+      <PostDetailAnalytics
+        post={makePost() as Parameters<typeof PostDetailAnalytics>[0]["post"]}
+      />,
+      { wrapper: createWrapper() },
+    );
 
     expect(screen.getByText("No analytics data available")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Fetch Analytics" })).toBeInTheDocument();

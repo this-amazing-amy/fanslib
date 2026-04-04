@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web",
+      "runtimeExecutable": "/Users/ameliaheydorn/.bun/bin/bun",
+      "runtimeArgs": ["run", "dev"],
+      "port": 6969
+    },
+    {
+      "name": "server",
+      "runtimeExecutable": "/Users/ameliaheydorn/.bun/bin/bun",
+      "runtimeArgs": ["run", "--watch", "@fanslib/apps/server/src/index.ts"],
+      "port": 6970
+    },
+    {
+      "name": "storybook",
+      "runtimeExecutable": "/Users/ameliaheydorn/.bun/bin/bun",
+      "runtimeArgs": ["run", "--filter", "@fanslib/apps/web", "storybook"],
+      "port": 6006
+    }
+  ]
+}

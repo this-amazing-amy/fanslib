@@ -90,10 +90,7 @@ export const RenderQueueDrawer = ({ open, onOpenChange }: RenderQueueDrawerProps
     <>
       {/* Backdrop */}
       {open && (
-        <div
-          className="fixed inset-0 bg-black/30 z-40"
-          onClick={() => onOpenChange(false)}
-        />
+        <div className="fixed inset-0 bg-black/30 z-40" onClick={() => onOpenChange(false)} />
       )}
 
       {/* Drawer */}
@@ -110,9 +107,7 @@ export const RenderQueueDrawer = ({ open, onOpenChange }: RenderQueueDrawerProps
         </div>
 
         <div className="overflow-y-auto h-[calc(100%-57px)] p-4 flex flex-col gap-4">
-          {isLoading && (
-            <div className="text-center py-8 text-base-content/50">Loading...</div>
-          )}
+          {isLoading && <div className="text-center py-8 text-base-content/50">Loading...</div>}
 
           {!isLoading && queueItems.length === 0 && (
             <div className="text-center py-8 text-base-content/50 text-sm">
@@ -214,9 +209,7 @@ const FailedItemCard = ({
       <AlertTriangle className="h-3.5 w-3.5 text-error" />
       <span className="truncate font-medium">{item.id.slice(0, 8)}...</span>
     </div>
-    {item.error && (
-      <p className="text-xs text-error/80 mt-1 line-clamp-2">{item.error}</p>
-    )}
+    {item.error && <p className="text-xs text-error/80 mt-1 line-clamp-2">{item.error}</p>}
     <div className="mt-2">
       <Button size="sm" variant="ghost" onPress={() => onRetry(item.id)}>
         <RefreshCw className="h-3 w-3 mr-1" />

@@ -66,15 +66,19 @@ export const mediaEditsRoutes = new Hono()
     }
     return c.json(mediaEdit);
   })
-  .patch("/:id", zValidator("json", UpdateMediaEditRequestBodySchema, validationError), async (c) => {
-    const id = c.req.param("id");
-    const body = c.req.valid("json");
-    const mediaEdit = await updateMediaEdit(id, body);
-    if (!mediaEdit) {
-      return notFound(c, "MediaEdit not found");
-    }
-    return c.json(mediaEdit);
-  })
+  .patch(
+    "/:id",
+    zValidator("json", UpdateMediaEditRequestBodySchema, validationError),
+    async (c) => {
+      const id = c.req.param("id");
+      const body = c.req.valid("json");
+      const mediaEdit = await updateMediaEdit(id, body);
+      if (!mediaEdit) {
+        return notFound(c, "MediaEdit not found");
+      }
+      return c.json(mediaEdit);
+    },
+  )
   .delete("/:id", async (c) => {
     const id = c.req.param("id");
     const success = await deleteMediaEdit(id);

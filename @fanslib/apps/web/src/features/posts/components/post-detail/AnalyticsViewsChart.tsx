@@ -50,11 +50,7 @@ export const AnalyticsViewsChart = ({
     if (aggregatedData.length === 0) return [];
     return aggregatedData.map((point, index) => ({
       date: point.date,
-      value: getMetricValue(
-        point,
-        index > 0 ? (aggregatedData[index - 1] ?? null) : null,
-        metric,
-      ),
+      value: getMetricValue(point, index > 0 ? (aggregatedData[index - 1] ?? null) : null, metric),
       views: point.views,
       interactionTime: point.interactionTime,
       timestamp: point.timestamp,
@@ -78,7 +74,11 @@ export const AnalyticsViewsChart = ({
   return (
     <div className="mt-6">
       <h3 className="mb-4 text-lg font-semibold">{metricLabels[metric]} Over Time</h3>
-      <div ref={containerRef} className="relative w-full" style={{ minHeight: `${chartHeightPx}px` }}>
+      <div
+        ref={containerRef}
+        className="relative w-full"
+        style={{ minHeight: `${chartHeightPx}px` }}
+      >
         {width > 0 ? (
           <LineChart
             width={width}

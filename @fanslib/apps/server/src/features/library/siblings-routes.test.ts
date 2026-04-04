@@ -83,7 +83,12 @@ describe("GET /api/media/:mediaId/siblings", () => {
     const ds = getTestDataSource();
     const shootRepo = ds.getRepository(Shoot);
 
-    const mediaA = await createTestMedia({ id: "shape-a", package: "main", contentRating: "uc", role: "content" });
+    const mediaA = await createTestMedia({
+      id: "shape-a",
+      package: "main",
+      contentRating: "uc",
+      role: "content",
+    });
     const mediaB = await createTestMedia({ id: "shape-b", package: "main", role: "preview" });
 
     const shoot = shootRepo.create({

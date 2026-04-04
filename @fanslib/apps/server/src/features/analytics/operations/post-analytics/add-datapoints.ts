@@ -88,9 +88,7 @@ export const addDatapointsToPostMedia = async (
   });
   const growthRate = computeGrowthRate(allDatapoints);
   const interval = computeNextFetchInterval(growthRate, plateauDetectedAt);
-  const nextFetchAt = interval
-    ? new Date(Date.now() + interval.days * 24 * 60 * 60 * 1000)
-    : null;
+  const nextFetchAt = interval ? new Date(Date.now() + interval.days * 24 * 60 * 60 * 1000) : null;
 
   if (existingAggregate) {
     existingAggregate.totalViews = aggregatedData.at(-1)?.Views ?? 0;

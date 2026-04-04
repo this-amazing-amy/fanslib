@@ -38,7 +38,9 @@ describe("MediaEdit Routes", () => {
         body: JSON.stringify({
           sourceMediaId: sourceMedia.id,
           type: "transform",
-          operations: [{ type: "watermark", assetId: "asset-1", x: 0.85, y: 0.9, width: 0.1, opacity: 0.7 }],
+          operations: [
+            { type: "watermark", assetId: "asset-1", x: 0.85, y: 0.9, width: 0.1, opacity: 0.7 },
+          ],
         }),
       });
       expect(response.status).toBe(200);
@@ -121,7 +123,8 @@ describe("MediaEdit Routes", () => {
       const response = await app.request(`/api/media-edits/by-source/${sourceMedia.id}`);
       expect(response.status).toBe(200);
 
-      const data = await parseResponse<{ id: string; sourceMediaId: string; type: string }[]>(response);
+      const data =
+        await parseResponse<{ id: string; sourceMediaId: string; type: string }[]>(response);
       expect(data).toHaveLength(2);
       expect(data?.every((e) => e.sourceMediaId === sourceMedia.id)).toBe(true);
     });
@@ -148,7 +151,9 @@ describe("MediaEdit Routes", () => {
       });
       const created = await parseResponse<{ id: string }>(createResponse);
 
-      const newOps = [{ type: "watermark", assetId: "asset-2", x: 0.5, y: 0.5, width: 0.2, opacity: 1 }];
+      const newOps = [
+        { type: "watermark", assetId: "asset-2", x: 0.5, y: 0.5, width: 0.2, opacity: 1 },
+      ];
       const response = await app.request(`/api/media-edits/${created?.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -305,7 +310,9 @@ describe("MediaEdit Routes", () => {
         body: JSON.stringify({
           sourceMediaId: sourceMedia.id,
           type: "transform",
-          operations: [{ type: "watermark", assetId: "a1", x: 0.5, y: 0.5, width: 0.1, opacity: 1 }],
+          operations: [
+            { type: "watermark", assetId: "a1", x: 0.5, y: 0.5, width: 0.1, opacity: 1 },
+          ],
         }),
       });
       const created = await parseResponse<{ id: string; status: string }>(createResponse);
@@ -370,7 +377,9 @@ describe("MediaEdit Routes", () => {
         body: JSON.stringify({
           sourceMediaId: sourceMedia.id,
           type: "transform",
-          operations: [{ type: "watermark", assetId: "a1", x: 0.5, y: 0.5, width: 0.1, opacity: 1 }],
+          operations: [
+            { type: "watermark", assetId: "a1", x: 0.5, y: 0.5, width: 0.1, opacity: 1 },
+          ],
         }),
       });
       const created = await parseResponse<{ id: string }>(createResponse);

@@ -14,17 +14,14 @@ export const processRenderQueue = async (): Promise<void> => {
   isProcessing = true;
 
   try {
-    const result = await processNextQueuedEdit(
-      remotionRenderFn,
-      (editId, progress) => {
-        emitRenderEvent({
-          type: "render-progress",
-          editId,
-          frame: progress.renderedFrames,
-          percent: Math.round((progress.renderedFrames / progress.totalFrames) * 100),
-        });
-      },
-    );
+    const result = await processNextQueuedEdit(remotionRenderFn, (editId, progress) => {
+      emitRenderEvent({
+        type: "render-progress",
+        editId,
+        frame: progress.renderedFrames,
+        percent: Math.round((progress.renderedFrames / progress.totalFrames) * 100),
+      });
+    });
 
     if (result) {
       emitRenderEvent({
