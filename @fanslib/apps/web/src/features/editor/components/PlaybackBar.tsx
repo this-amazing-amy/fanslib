@@ -74,7 +74,7 @@ export const PlaybackBar = ({
   const startScrub = useCallback(
     (e: React.PointerEvent) => {
       e.preventDefault();
-      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+      trackRef.current?.setPointerCapture(e.pointerId);
       scrubbing.current = true;
       const player = getPlayer();
       if (player?.isPlaying()) {
@@ -94,9 +94,13 @@ export const PlaybackBar = ({
     [seekToFrame, frameFromPointer],
   );
 
-  const endScrub = useCallback(() => {
-    scrubbing.current = false;
-  }, []);
+  const endScrub = useCallback(
+    (e: React.PointerEvent) => {
+      scrubbing.current = false;
+      trackRef.current?.releasePointerCapture(e.pointerId);
+    },
+    [],
+  );
 
   const togglePlay = useCallback(() => {
     const player = getPlayer();
