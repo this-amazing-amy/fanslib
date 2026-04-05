@@ -22,5 +22,6 @@ export type MediaTileProps = {
   withFileName?: boolean;
 
   cover?: boolean;
+  aspectFrameClassName?: string;
   onMediaClick?: (media: Media) => void;
 };

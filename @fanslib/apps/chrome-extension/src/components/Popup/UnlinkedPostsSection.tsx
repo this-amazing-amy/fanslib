@@ -56,15 +56,15 @@ export const UnlinkedPostsSection = () => {
 
   if (posts.length === 0) {
     return (
-      <div className="text-sm text-base-content/50 text-center py-4">
-        All posts are linked
-      </div>
+      <div className="text-sm text-base-content/50 text-center py-4">All posts are linked</div>
     );
   }
 
   return (
     <div className="space-y-2 max-h-64 overflow-y-auto">
-      <div className="text-[10px] text-base-content/40 mb-1">{total} unlinked post{total !== 1 ? "s" : ""}</div>
+      <div className="text-[10px] text-base-content/40 mb-1">
+        {total} unlinked post{total !== 1 ? "s" : ""}
+      </div>
       {posts.map((post) => {
         const captionPreview = post.caption
           ? post.caption.slice(0, 60) + (post.caption.length > 60 ? "..." : "")
@@ -92,9 +92,7 @@ export const UnlinkedPostsSection = () => {
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                {captionPreview && (
-                  <div className="text-xs truncate">{captionPreview}</div>
-                )}
+                {captionPreview && <div className="text-xs truncate">{captionPreview}</div>}
                 <div className="flex items-center gap-2 text-[10px] text-base-content/40">
                   <Clock className="w-3 h-3" />
                   {date.toLocaleDateString()}

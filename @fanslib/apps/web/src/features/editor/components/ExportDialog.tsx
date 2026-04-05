@@ -160,9 +160,9 @@ export const ExportDialog = ({ open, onOpenChange }: ExportDialogProps) => {
         </h3>
         {isClipExport && (
           <p className="text-xs text-base-content/50 mb-4">
-            Each clip is queued as its own render using only the time range on the source file. Layer
-            operations (blur, watermark, etc.) are not included—use Export without clips to render the
-            full transform stack.
+            Each clip is queued as its own render using only the time range on the source file.
+            Layer operations (blur, watermark, etc.) are not included—use Export without clips to
+            render the full transform stack.
           </p>
         )}
 

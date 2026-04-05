@@ -125,13 +125,17 @@ export const processScheduleResponse = (
     }
 
     if (!contentId) {
-      debug("info", "Schedule parse skipped — no contentId from response, request body, or buffer", {
-        url,
-        hasPostData: !!postData,
-        hasAttachments: !!postData?.attachments,
-        attachmentCount: postData?.attachments?.length ?? 0,
-        hadRequestBody: !!requestBody,
-      });
+      debug(
+        "info",
+        "Schedule parse skipped — no contentId from response, request body, or buffer",
+        {
+          url,
+          hasPostData: !!postData,
+          hasAttachments: !!postData?.attachments,
+          attachmentCount: postData?.attachments?.length ?? 0,
+          hadRequestBody: !!requestBody,
+        },
+      );
       return;
     }
 

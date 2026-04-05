@@ -1,11 +1,6 @@
 import { z } from "zod";
 
-export const CaptionAnimationSchema = z.enum([
-  "typewriter",
-  "fade-in",
-  "scale-in",
-  "slide-up",
-]);
+export const CaptionAnimationSchema = z.enum(["typewriter", "fade-in", "scale-in", "slide-up"]);
 
 export const CaptionStylePresetSchema = z.object({
   id: z.string().uuid(),

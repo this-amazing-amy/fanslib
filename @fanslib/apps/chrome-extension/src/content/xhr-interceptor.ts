@@ -37,7 +37,9 @@ export const installXhrInterceptor = () => {
       }
     )._headers = {};
 
-    return originalXHROpen.apply(this, [method, url, ...rest] as Parameters<typeof originalXHROpen>);
+    return originalXHROpen.apply(this, [method, url, ...rest] as Parameters<
+      typeof originalXHROpen
+    >);
   };
 
   XMLHttpRequest.prototype.setRequestHeader = function (name: string, value: string): void {

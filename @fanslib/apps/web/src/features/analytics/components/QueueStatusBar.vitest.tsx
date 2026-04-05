@@ -276,10 +276,10 @@ describe("QueueStatusBar", () => {
 
   test("clicking Fetch Now calls mutation with correct postMediaId", async () => {
     const mockMutate = vi.fn();
-    // oxlint-disable-next-line typescript/no-explicit-any
     mockUseFetchFanslyDataMutation.mockReturnValue({
       ...defaultMutationReturn,
       mutate: mockMutate,
+      // oxlint-disable-next-line typescript/no-explicit-any
     } as any);
 
     mockQuery({
@@ -384,10 +384,10 @@ describe("QueueStatusBar", () => {
 
   test("drawer stays open after successful fetch", async () => {
     const mockMutate = vi.fn();
-    // oxlint-disable-next-line typescript/no-explicit-any
     mockUseFetchFanslyDataMutation.mockReturnValue({
       ...defaultMutationReturn,
       mutate: mockMutate,
+      // oxlint-disable-next-line typescript/no-explicit-any
     } as any);
 
     mockQuery({

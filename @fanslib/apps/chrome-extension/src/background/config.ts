@@ -20,4 +20,3 @@ export const getApiUrl = async (): Promise<string | null> => {
   });
   return apiUrl ?? DEFAULT_API_URL;
 };
-

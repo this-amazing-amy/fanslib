@@ -19,8 +19,7 @@ type EditorLayoutProps = {
 const isEditableKeyTarget = (target: EventTarget | null) => {
   if (!(target instanceof HTMLElement)) return false;
   const { tagName } = target;
-  if (tagName === "INPUT" || tagName === "TEXTAREA" || tagName === "SELECT")
-    return true;
+  if (tagName === "INPUT" || tagName === "TEXTAREA" || tagName === "SELECT") return true;
   return target.isContentEditable;
 };
 
@@ -133,8 +132,11 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key !== "i" && e.key !== "I" && e.key !== "o" && e.key !== "O") return;
       if (isEditableKeyTarget(e.target)) return;
-      const { selectedOperationIndex: sel, operations: ops, updateOperation } =
-        useEditorStore.getState();
+      const {
+        selectedOperationIndex: sel,
+        operations: ops,
+        updateOperation,
+      } = useEditorStore.getState();
       if (sel === null || sel >= ops.length) return;
       const op = ops[sel];
       if (!isCaptionOperation(op)) return;

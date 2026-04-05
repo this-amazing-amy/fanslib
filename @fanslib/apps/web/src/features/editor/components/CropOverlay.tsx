@@ -57,47 +57,29 @@ export const CropOverlay = ({ canvasRect, interactive }: CropOverlayProps) => {
       const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 
       if (dragState.kind === "move") {
-        const nx = clamp(
-          dragState.startX + relDx,
-          0,
-          1 - dragState.startW,
-        );
-        const ny = clamp(
-          dragState.startY + relDy,
-          0,
-          1 - dragState.startH,
-        );
-        updateOperation(
-          cropEditingOperationIndex,
-          clampCropRect({ ...op, x: nx, y: ny }),
-        );
+        const nx = clamp(dragState.startX + relDx, 0, 1 - dragState.startW);
+        const ny = clamp(dragState.startY + relDy, 0, 1 - dragState.startH);
+        updateOperation(cropEditingOperationIndex, clampCropRect({ ...op, x: nx, y: ny }));
         return;
       }
 
       const preset = op.aspectPreset ?? "free";
-      let newW = clamp(
-        dragState.startW + relDx,
-        MIN_CROP,
-        1 - dragState.startX,
-      );
-      let newH = clamp(
-        dragState.startH + relDy,
-        MIN_CROP,
-        1 - dragState.startY,
-      );
-
-      if (preset !== "free") {
+      const constrained = (() => {
+        const w = clamp(dragState.startW + relDx, MIN_CROP, 1 - dragState.startX);
+        const h = clamp(dragState.startH + relDy, MIN_CROP, 1 - dragState.startY);
+        if (preset === "free") return { w, h };
         const ratio = normalizedCropAspectRatio(preset);
-        newH = newW / ratio;
-        if (dragState.startY + newH > 1) {
-          newH = 1 - dragState.startY;
-          newW = newH * ratio;
+        const h1 = w / ratio;
+        if (dragState.startY + h1 > 1) {
+          const hClamped = 1 - dragState.startY;
+          return { w: hClamped * ratio, h: hClamped };
         }
-        if (dragState.startX + newW > 1) {
-          newW = 1 - dragState.startX;
-          newH = newW / ratio;
+        if (dragState.startX + w > 1) {
+          const wClamped = 1 - dragState.startX;
+          return { w: wClamped, h: wClamped / ratio };
         }
-      }
+        return { w, h: h1 };
+      })();
 
       updateOperation(
         cropEditingOperationIndex,
@@ -105,8 +87,8 @@ export const CropOverlay = ({ canvasRect, interactive }: CropOverlayProps) => {
           ...op,
           x: dragState.startX,
           y: dragState.startY,
-          width: newW,
-          height: newH,
+          width: constrained.w,
+          height: constrained.h,
         }),
       );
     };

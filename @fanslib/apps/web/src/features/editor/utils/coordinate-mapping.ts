@@ -22,13 +22,9 @@ export const getPlayerRect = (
   const elementAspect = elementWidth / elementHeight;
 
   const contentWidth =
-    elementAspect > compositionAspect
-      ? elementHeight * compositionAspect
-      : elementWidth;
+    elementAspect > compositionAspect ? elementHeight * compositionAspect : elementWidth;
   const contentHeight =
-    elementAspect > compositionAspect
-      ? elementHeight
-      : elementWidth / compositionAspect;
+    elementAspect > compositionAspect ? elementHeight : elementWidth / compositionAspect;
 
   return {
     canvasWidth: contentWidth,
@@ -40,8 +36,7 @@ export const getPlayerRect = (
   };
 };
 
-const clamp = (value: number, min: number, max: number) =>
-  Math.max(min, Math.min(max, value));
+const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
 /**
  * Convert pixel coordinates (relative to the same origin as `CanvasRect.offset*`, usually the overlay parent)

@@ -14,9 +14,8 @@ const PRESET_PIXEL_RATIO: Record<Exclude<CropAspectPreset, "free">, number> = {
 };
 
 /** Target w/h for normalized crop rect (composition-relative fractions). */
-export const normalizedCropAspectRatio = (
-  preset: Exclude<CropAspectPreset, "free">,
-): number => PRESET_PIXEL_RATIO[preset] / CROP_COMPOSITION_ASPECT;
+export const normalizedCropAspectRatio = (preset: Exclude<CropAspectPreset, "free">): number =>
+  PRESET_PIXEL_RATIO[preset] / CROP_COMPOSITION_ASPECT;
 
 const ASPECT_RATIOS: Record<string, number> = {
   "16:9": 16 / 9,
@@ -77,11 +76,7 @@ export const legacyCropToRect = (
 
 export const normalizeCropOperation = (op: unknown): unknown => {
   if (isLegacyCrop(op)) {
-    const { x, y, width, height } = legacyCropToRect(
-      op.aspectRatio,
-      op.centerX,
-      op.centerY,
-    );
+    const { x, y, width, height } = legacyCropToRect(op.aspectRatio, op.centerX, op.centerY);
     return {
       type: "crop" as const,
       x,
@@ -115,12 +110,7 @@ export const cropRectPixelsFromOperation = (c: CropOperation) => ({
   hPx: c.height * CROP_COMPOSITION_HEIGHT,
 });
 
-const clampPixelRect = (r: {
-  xPx: number;
-  yPx: number;
-  wPx: number;
-  hPx: number;
-}) => {
+const clampPixelRect = (r: { xPx: number; yPx: number; wPx: number; hPx: number }) => {
   const wPx = Math.max(MIN_CROP_WIDTH_PX, Math.min(CROP_COMPOSITION_WIDTH, r.wPx));
   const hPx = Math.max(MIN_CROP_HEIGHT_PX, Math.min(CROP_COMPOSITION_HEIGHT, r.hPx));
   const xPx = Math.max(0, Math.min(CROP_COMPOSITION_WIDTH - wPx, r.xPx));

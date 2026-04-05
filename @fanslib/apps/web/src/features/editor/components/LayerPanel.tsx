@@ -119,11 +119,8 @@ export const LayerPanel = ({ onSeekFrame }: LayerPanelProps) => {
             const label = opObj.type ?? `Operation ${index + 1}`;
             const isSelected = selectedIndex === index && selectedRangeIndex === null;
             const crop = isCropOperation(op) ? op : null;
-            const showCropEdit =
-              crop?.applied === true && cropEditingOperationIndex !== index;
-            const showCropApply =
-              crop &&
-              (!crop.applied || cropEditingOperationIndex === index);
+            const showCropEdit = crop?.applied === true && cropEditingOperationIndex !== index;
+            const showCropApply = crop && (!crop.applied || cropEditingOperationIndex === index);
 
             return (
               <div
@@ -181,11 +178,7 @@ export const LayerPanel = ({ onSeekFrame }: LayerPanelProps) => {
                     e.stopPropagation();
                   }}
                 >
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onPress={() => removeOperation(index)}
-                  >
+                  <Button size="sm" variant="ghost" onPress={() => removeOperation(index)}>
                     <Trash2 className="h-3 w-3 text-error" />
                   </Button>
                 </div>

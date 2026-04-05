@@ -22,6 +22,7 @@
     "@fanslib/video": "workspace:*",
     "@floating-ui/react": "^0.27.16",
     "@internationalized/date": "^3.10.0",
+    "@remotion/google-fonts": "4.0.442",
     "@remotion/layout-utils": "^4.0.442",
     "@remotion/player": "^4.0.442",
     "@standard-schema/spec": "^1.0.0",

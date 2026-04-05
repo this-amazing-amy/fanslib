@@ -27,8 +27,7 @@ const showRefreshBanner = () => {
     "cursor: pointer",
     "box-shadow: 0 2px 8px rgba(0,0,0,0.3)",
   ].join(";");
-  banner.textContent =
-    "FansLib extension was updated — click here to refresh and resume tracking";
+  banner.textContent = "FansLib extension was updated — click here to refresh and resume tracking";
   banner.addEventListener("click", () => window.location.reload());
 
   const append = () => {
@@ -56,10 +55,7 @@ const isContextInvalidatedError = (error: unknown): boolean => {
   return message.includes("Extension context invalidated");
 };
 
-const sendToBackground = (
-  message: Record<string, unknown>,
-  source: string,
-): void => {
+const sendToBackground = (message: Record<string, unknown>, source: string): void => {
   if (contextInvalidated) {
     debug("warn", `Skipping ${source} — context already invalidated`);
     return;

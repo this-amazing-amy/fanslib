@@ -59,21 +59,6 @@ export const useDeleteMediaEditMutation = () => {
   });
 };
 
-export const useDeleteMediaEditMutation = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ id }: { id: string }) => {
-      const res = await fetch(`/api/media-edits/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete media edit");
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["media-edits"] });
-    },
-  });
-};
-
 export const useMediaEditQueueQuery = () =>
   useQuery({
     queryKey: QUERY_KEYS.mediaEdits.queue(),

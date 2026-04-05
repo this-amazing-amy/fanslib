@@ -1,8 +1,5 @@
 import { create } from "zustand";
-import {
-  type CropOperation,
-  normalizeCropOperation,
-} from "~/features/editor/utils/crop-operation";
+import { type CropOperation, normalizeCropOperation } from "~/features/editor/utils/crop-operation";
 
 type EditorState = {
   operations: unknown[];
@@ -109,11 +106,9 @@ export const useEditorStore = create<EditorState>((set, get) => {
       pushHistory();
       set((state) => {
         const sel = state.selectedOperationIndex;
-        const nextSel =
-          sel === null ? null : sel === index ? null : sel > index ? sel - 1 : sel;
+        const nextSel = sel === null ? null : sel === index ? null : sel > index ? sel - 1 : sel;
         const ce = state.cropEditingOperationIndex;
-        const nextCe =
-          ce === null ? null : ce === index ? null : ce > index ? ce - 1 : ce;
+        const nextCe = ce === null ? null : ce === index ? null : ce > index ? ce - 1 : ce;
         return {
           operations: state.operations.filter((_, i) => i !== index),
           selectedOperationIndex: nextSel,
@@ -193,9 +188,7 @@ export const useEditorStore = create<EditorState>((set, get) => {
       const c = raw as CropOperation;
       pushHistory();
       set({
-        operations: state.operations.map((o, i) =>
-          i === index ? { ...c, applied: true } : o,
-        ),
+        operations: state.operations.map((o, i) => (i === index ? { ...c, applied: true } : o)),
         cropEditingOperationIndex: null,
         ...updateUndoRedoFlags(),
       });

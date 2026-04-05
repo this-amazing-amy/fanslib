@@ -71,9 +71,9 @@ const FontFamilyPicker = ({
     (fontFamily: string) => {
       onChange(fontFamily);
       setOpen(false);
-      const font = availableFonts.find((f) => f.fontFamily === fontFamily);
+      const font = availableFonts.find((f: { fontFamily: string }) => f.fontFamily === fontFamily);
       if (font) {
-        font.load().then((loaded) => loaded.loadFont());
+        font.load().then((loaded: { loadFont: () => void }) => loaded.loadFont());
       }
     },
     [onChange],
@@ -177,7 +177,9 @@ const CaptionProperties = ({ op, index }: { op: CaptionOperation; index: number 
 
   const setFontSizePx = (px: number) => {
     if (Number.isNaN(px)) return;
-    update({ fontSize: Math.max(1, Math.min(px, CROP_COMPOSITION_WIDTH)) / CROP_COMPOSITION_WIDTH });
+    update({
+      fontSize: Math.max(1, Math.min(px, CROP_COMPOSITION_WIDTH)) / CROP_COMPOSITION_WIDTH,
+    });
   };
 
   return (
@@ -251,9 +253,7 @@ const CaptionProperties = ({ op, index }: { op: CaptionOperation; index: number 
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium text-base-content/60">
-          Font size (px)
-        </label>
+        <label className="text-xs font-medium text-base-content/60">Font size (px)</label>
         <Input
           type="number"
           step={1}
@@ -284,9 +284,7 @@ const CaptionProperties = ({ op, index }: { op: CaptionOperation; index: number 
         <input
           type="color"
           value={
-            op.strokeColor && /^#[0-9A-Fa-f]{6}$/.test(op.strokeColor)
-              ? op.strokeColor
-              : "#000000"
+            op.strokeColor && /^#[0-9A-Fa-f]{6}$/.test(op.strokeColor) ? op.strokeColor : "#000000"
           }
           onChange={(e) => update({ strokeColor: e.target.value })}
           className="input input-sm h-9 w-full bg-base-100 cursor-pointer"
@@ -378,9 +376,7 @@ const CropProperties = ({ op, index }: { op: CropOperation; index: number }) => 
     updateOperation(index, next);
   };
 
-  const updateFromPixels = (
-    pixel: Partial<Record<"xPx" | "yPx" | "wPx" | "hPx", number>>,
-  ) => {
+  const updateFromPixels = (pixel: Partial<Record<"xPx" | "yPx" | "wPx" | "hPx", number>>) => {
     updateOperation(index, cropOperationWithPixelRect(op, pixel));
   };
 
@@ -392,19 +388,12 @@ const CropProperties = ({ op, index }: { op: CropOperation; index: number }) => 
     const { xPx, yPx, wPx } = cropRectPixelsFromOperation(op);
     const hFromRatio = pixelHeightFromWidthForPreset(preset, wPx);
     const hPx =
-      yPx + hFromRatio > CROP_COMPOSITION_HEIGHT
-        ? CROP_COMPOSITION_HEIGHT - yPx
-        : hFromRatio;
+      yPx + hFromRatio > CROP_COMPOSITION_HEIGHT ? CROP_COMPOSITION_HEIGHT - yPx : hFromRatio;
     const xPx2 =
-      xPx + wPx > CROP_COMPOSITION_WIDTH
-        ? Math.max(0, CROP_COMPOSITION_WIDTH - wPx)
-        : xPx;
+      xPx + wPx > CROP_COMPOSITION_WIDTH ? Math.max(0, CROP_COMPOSITION_WIDTH - wPx) : xPx;
     updateOperation(
       index,
-      cropOperationWithPixelRect(
-        { ...op, aspectPreset: preset },
-        { xPx: xPx2, yPx, wPx, hPx },
-      ),
+      cropOperationWithPixelRect({ ...op, aspectPreset: preset }, { xPx: xPx2, yPx, wPx, hPx }),
     );
   };
 
@@ -516,12 +505,7 @@ const CropProperties = ({ op, index }: { op: CropOperation; index: number }) => 
       </div>
 
       {showApply && (
-        <Button
-          size="sm"
-          variant="primary"
-          className="w-full"
-          onPress={() => applyCrop(index)}
-        >
+        <Button size="sm" variant="primary" className="w-full" onPress={() => applyCrop(index)}>
           Apply crop
         </Button>
       )}

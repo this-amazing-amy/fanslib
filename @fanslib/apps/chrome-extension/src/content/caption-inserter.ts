@@ -2,7 +2,7 @@
  * Selector for Fansly's caption textarea.
  * Targets the textarea inside the `.new-post-content` container.
  */
-export const FANSLY_CAPTION_SELECTOR = '.new-post-content textarea';
+export const FANSLY_CAPTION_SELECTOR = ".new-post-content textarea";
 
 /**
  * Insert a caption value into a DOM element, dispatching events

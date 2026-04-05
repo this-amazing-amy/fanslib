@@ -48,8 +48,6 @@ export const PlaybackBar = ({
   const selectedRangeIndex = useClipStore((s) => s.selectedRangeIndex);
   const selectRange = useClipStore((s) => s.selectRange);
 
-  if (!isVideo) return null;
-
   const lastFrame = Math.max(0, totalFrames - 1);
   const progress = totalFrames > 1 ? currentFrame / lastFrame : 0;
 
@@ -137,6 +135,8 @@ export const PlaybackBar = ({
     };
   }, [getPlayer]);
 
+  if (!isVideo) return null;
+
   return (
     <div className="h-20 border-t border-base-300 bg-base-200/80 flex flex-col select-none shrink-0">
       {/* Scrub track */}
@@ -211,11 +211,7 @@ export const PlaybackBar = ({
             onClick={togglePlay}
             aria-label={playing ? "Pause" : "Play"}
           >
-            {playing ? (
-              <Pause className="h-4 w-4" />
-            ) : (
-              <Play className="h-4 w-4" />
-            )}
+            {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
           </button>
           <button
             className="p-1 rounded hover:bg-base-300 text-base-content/60 hover:text-base-content transition-colors"

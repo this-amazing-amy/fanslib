@@ -194,7 +194,10 @@ export const PostCard = ({
 
           if (hasError) {
             return (
-              <div key={`${mediaKey}-fallback`} className="flex flex-col items-center gap-1 max-w-20">
+              <div
+                key={`${mediaKey}-fallback`}
+                className="flex flex-col items-center gap-1 max-w-20"
+              >
                 <div
                   onClick={() => canReveal && handleRevealInFinder(m.media.relativePath)}
                   className={`w-20 h-20 bg-base-100 rounded-lg flex items-center justify-center border-2 border-base-300 relative ${canReveal ? "cursor-pointer hover:bg-base-200" : ""}`}

@@ -75,22 +75,13 @@ export const RegionOverlay = ({
 
       const raw = operations[selectedIndex];
       const op = raw as SpatialOp;
-      const clamp = (v: number, lo: number, hi: number) =>
-        Math.max(lo, Math.min(hi, v));
+      const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 
       if (dragState.kind === "caption-move") {
         if (!isCaptionOperation(raw)) return;
         const cap = raw;
-        const nx = clamp(
-          dragState.startX + relDx,
-          dragState.halfWNorm,
-          1 - dragState.halfWNorm,
-        );
-        const ny = clamp(
-          dragState.startY + relDy,
-          dragState.halfHNorm,
-          1 - dragState.halfHNorm,
-        );
+        const nx = clamp(dragState.startX + relDx, dragState.halfWNorm, 1 - dragState.halfWNorm);
+        const ny = clamp(dragState.startY + relDy, dragState.halfHNorm, 1 - dragState.halfHNorm);
         updateOperation(selectedIndex, { ...cap, x: nx, y: ny });
         return;
       }
@@ -105,12 +96,8 @@ export const RegionOverlay = ({
         const ny = dragState.startY + relDy;
         updateOperation(selectedIndex, {
           ...op,
-          x: isEmoji
-            ? Math.max(opW / 2, Math.min(1 - opW / 2, nx))
-            : clamp01(nx, 1 - opW),
-          y: isEmoji
-            ? Math.max(opH / 2, Math.min(1 - opH / 2, ny))
-            : clamp01(ny, 1 - opH),
+          x: isEmoji ? Math.max(opW / 2, Math.min(1 - opW / 2, nx)) : clamp01(nx, 1 - opW),
+          y: isEmoji ? Math.max(opH / 2, Math.min(1 - opH / 2, ny)) : clamp01(ny, 1 - opH),
         });
         return;
       }
@@ -148,8 +135,7 @@ export const RegionOverlay = ({
       {operations.map((op, index) => {
         const spatialOp = op as SpatialOp;
         if (spatialOp.type === "crop") return null;
-        if (typeof spatialOp.x !== "number" || typeof spatialOp.y !== "number")
-          return null;
+        if (typeof spatialOp.x !== "number" || typeof spatialOp.y !== "number") return null;
 
         const isSelected = index === selectedIndex;
 
@@ -157,14 +143,10 @@ export const RegionOverlay = ({
           const caption = op;
           const captionVisible =
             previewDurationInFrames <= 1 ||
-            (currentFrame >= caption.startFrame &&
-              currentFrame <= caption.endFrame);
+            (currentFrame >= caption.startFrame && currentFrame <= caption.endFrame);
           if (!captionVisible) return null;
 
-          const { widthPx, heightPx } = measureCaptionBoxPx(
-            caption,
-            canvas.canvasWidth,
-          );
+          const { widthPx, heightPx } = measureCaptionBoxPx(caption, canvas.canvasWidth);
           const { dx, dy } = captionAnimationViewportOffsetPx(
             caption,
             currentFrame,
@@ -185,9 +167,7 @@ export const RegionOverlay = ({
             <div
               key={index}
               className={`absolute ${
-                isSelected
-                  ? "border-2 border-primary cursor-move"
-                  : "pointer-events-none"
+                isSelected ? "border-2 border-primary cursor-move" : "pointer-events-none"
               }`}
               style={{
                 left,
@@ -219,7 +199,7 @@ export const RegionOverlay = ({
         const pos = relativeToPixel(spatialOp.x, spatialOp.y, canvas);
         const isEmoji = spatialOp.type === "emoji";
         const emojiSize = isEmoji
-          ? ((spatialOp as Record<string, unknown>).size as number) ?? 0.1
+          ? (((spatialOp as Record<string, unknown>).size as number) ?? 0.1)
           : 0;
         const width = isEmoji
           ? emojiSize * canvas.canvasWidth
@@ -232,9 +212,7 @@ export const RegionOverlay = ({
           <div
             key={index}
             className={`absolute ${
-              isSelected
-                ? "border-2 border-primary cursor-move"
-                : "pointer-events-none"
+              isSelected ? "border-2 border-primary cursor-move" : "pointer-events-none"
             }`}
             style={{
               left: isEmoji ? pos.px - width / 2 : pos.px,
@@ -255,7 +233,9 @@ export const RegionOverlay = ({
                       startX: spatialOp.x,
                       startY: spatialOp.y,
                       startWidth: isEmoji ? emojiSize : (spatialOp.width ?? 0.1),
-                      startHeight: isEmoji ? emojiSize : (spatialOp.height ?? spatialOp.width ?? 0.1),
+                      startHeight: isEmoji
+                        ? emojiSize
+                        : (spatialOp.height ?? spatialOp.width ?? 0.1),
                     });
                   }
                 : undefined

@@ -20,9 +20,7 @@ export const useRemotionCompositionViewport = (
     if (!root) return;
 
     const measure = () => {
-      const slot = root.querySelector(
-        `.${REMOTION_PLAYER_CLASS}`,
-      ) as HTMLElement | null;
+      const slot = root.querySelector(`.${REMOTION_PLAYER_CLASS}`) as HTMLElement | null;
       if (!slot) {
         setRect(null);
         return;

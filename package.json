@@ -48,7 +48,8 @@
     "bun": ">=1.0.0"
   },
   "overrides": {
-    "@tanstack/router-core": "1.168.3"
+    "@tanstack/router-core": "1.168.3",
+    "remotion": "4.0.441"
   },
   "packageManager": "bun@1.2.19"
 }

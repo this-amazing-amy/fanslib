@@ -1,7 +1,7 @@
 type DebugLevel = "info" | "warn" | "error";
 
-export const createDebugLogger = (prefix: string) =>
-  (level: DebugLevel, message: string, data?: unknown) => {
+export const createDebugLogger =
+  (prefix: string) => (level: DebugLevel, message: string, data?: unknown) => {
     const timestamp = new Date().toISOString();
     const logArgs =
       data !== undefined

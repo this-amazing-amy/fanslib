@@ -48,10 +48,8 @@ export const measureCaptionBoxPx = (
     return { w: maxWidthPx, h: rows * h };
   });
 
-  const widthPx =
-    Math.max(...blocks.map((b) => b.w), 0) + strokePad;
-  const heightPx =
-    blocks.reduce((sum, b) => sum + b.h, 0) + strokePad;
+  const widthPx = Math.max(...blocks.map((b) => b.w), 0) + strokePad;
+  const heightPx = blocks.reduce((sum, b) => sum + b.h, 0) + strokePad;
 
   return { widthPx, heightPx };
 };
