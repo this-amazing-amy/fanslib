@@ -198,7 +198,7 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
     type: media.type,
     relativePath: media.relativePath,
   });
-  const totalFrames = isVideo ? 900 : 1;
+  const totalFrames = isVideo ? Math.max(1, Math.round((media.duration ?? 30) * 30)) : 1;
 
   return (
     <div className="flex flex-col h-screen">

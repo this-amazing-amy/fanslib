@@ -65,7 +65,7 @@ export const KeyframeTimeline = ({ totalFrames, currentFrame, onSeek }: Keyframe
         onClick={(e) => {
           const rect = e.currentTarget.getBoundingClientRect();
           const x = e.clientX - rect.left;
-          const frame = Math.round((x / rect.width) * totalFrames);
+          const frame = Math.round((x / rect.width) * (totalFrames - 1));
           onSeek(Math.max(0, Math.min(frame, totalFrames - 1)));
         }}
       >

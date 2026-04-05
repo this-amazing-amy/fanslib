@@ -41,7 +41,7 @@ export const ClipTimeline = ({ totalFrames, fps, onSeek }: ClipTimelineProps) =>
       const rect = timelineRef.current?.getBoundingClientRect();
       if (!rect) return 0;
       const x = e.clientX - rect.left;
-      return Math.max(0, Math.min(totalFrames - 1, Math.round((x / rect.width) * totalFrames)));
+      return Math.max(0, Math.min(totalFrames - 1, Math.round((x / rect.width) * (totalFrames - 1))));
     },
     [totalFrames],
   );
