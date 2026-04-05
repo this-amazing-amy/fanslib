@@ -3,6 +3,7 @@ import { bundle } from "@remotion/bundler";
 import { renderStill, renderMedia, selectComposition } from "@remotion/renderer";
 import type { RenderFn } from "./render-pipeline";
 import { appdataPath } from "../../lib/env";
+import { flattenTracks } from "./flatten-tracks";
 
 type WatermarkOperation = {
   type: "watermark";
@@ -43,7 +44,7 @@ const getServeUrl = async (): Promise<string> => {
  * Uses the WatermarkComposition from @fanslib/video.
  */
 export const remotionRenderFn: RenderFn = async ({ edit, sourceMedia, outputPath, onProgress }) => {
-  const operations = edit.operations as Operation[];
+  const operations = flattenTracks(edit.tracks, edit.operations) as Operation[];
 
   // Resolve asset URLs for watermark operations
   const watermarkOp = operations.find((op) => op.type === "watermark");

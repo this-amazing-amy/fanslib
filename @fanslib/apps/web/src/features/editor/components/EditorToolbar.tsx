@@ -38,6 +38,7 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
   const editId = useEditorStore((s) => s.editId);
   const sourceMediaId = useEditorStore((s) => s.sourceMediaId);
   const operations = useEditorStore((s) => s.operations);
+  const tracks = useEditorStore((s) => s.tracks);
   const addWatermark = useEditorStore((s) => s.addWatermark);
   const addBlur = useEditorStore((s) => s.addBlur);
   const addEmoji = useEditorStore((s) => s.addEmoji);
@@ -89,7 +90,7 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
         const res = await fetch(`/api/media-edits/${editId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ operations }),
+          body: JSON.stringify({ tracks }),
         });
         if (!res.ok) throw new Error("Failed to save edit");
         markClean();
@@ -100,7 +101,7 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
           body: JSON.stringify({
             sourceMediaId: currentSourceMediaId,
             type: "transform",
-            operations,
+            tracks,
           }),
         });
         if (!res.ok) throw new Error("Failed to create edit");
@@ -113,7 +114,7 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
     } finally {
       setSaving(false);
     }
-  }, [editId, sourceMediaId, mediaId, operations, setEditId, markClean]);
+  }, [editId, sourceMediaId, mediaId, tracks, setEditId, markClean]);
 
   const canExport = operations.length > 0 || clipRanges.length > 0;
 

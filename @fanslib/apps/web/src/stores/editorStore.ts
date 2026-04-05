@@ -1,7 +1,14 @@
 import { create } from "zustand";
 import { type CropOperation, normalizeCropOperation } from "~/features/editor/utils/crop-operation";
 
+type Track = {
+  id: string;
+  name: string;
+  operations: unknown[];
+};
+
 type EditorState = {
+  tracks: Track[];
   operations: unknown[];
   selectedOperationIndex: number | null;
   selectedOperationId: string | null;
@@ -64,19 +71,58 @@ type EditorState = {
   // Watermark convenience
   addWatermark: (assetId: string) => void;
 
+  // Track management
+  addTrack: () => void;
+  removeTrack: (trackId: string) => void;
+  renameTrack: (trackId: string, name: string) => void;
+  moveOperation: (opId: string, targetTrackId: string) => void;
+
+  // Derived
+  flattenOperations: () => unknown[];
+
   // Metadata
   setSourceMediaId: (id: string) => void;
   setEditId: (id: string | null) => void;
   markClean: () => void;
 
   // Hydrate from existing MediaEdit
-  hydrate: (operations: unknown[]) => void;
+  hydrate: (data: unknown[] | { tracks: Track[] }) => void;
 
   // Reset
   reset: () => void;
 };
 
-type HistoryEntry = unknown[];
+type HistoryEntry = Track[];
+
+const makeDefaultTrack = (): Track => ({
+  id: crypto.randomUUID(),
+  name: "Track 1",
+  operations: [],
+});
+
+/** Flatten all operations from all tracks into a single ordered array */
+const flattenTracks = (tracks: Track[]): unknown[] =>
+  tracks.flatMap((t) => t.operations);
+
+/**
+ * Map a function over operations across all tracks, returning new tracks.
+ * Useful for keyframe mutations and operation updates by index or id.
+ */
+const mapOperationsAcrossTracks = (
+  tracks: Track[],
+  fn: (op: unknown, flatIndex: number) => unknown,
+): Track[] => {
+  // eslint-disable-next-line functional/no-let
+  let flatIdx = 0;
+  return tracks.map((t) => ({
+    ...t,
+    operations: t.operations.map((op) => {
+      const result = fn(op, flatIdx);
+      flatIdx++;
+      return result;
+    }),
+  }));
+};
 
 export const useEditorStore = create<EditorState>((set, get) => {
   // eslint-disable-next-line functional/no-let
@@ -84,8 +130,11 @@ export const useEditorStore = create<EditorState>((set, get) => {
   // eslint-disable-next-line functional/no-let
   let redoStack: HistoryEntry[] = [];
 
+  const cloneTracks = (tracks: Track[]): Track[] =>
+    tracks.map((t) => ({ ...t, operations: [...t.operations] }));
+
   const pushHistory = () => {
-    undoStack.push([...get().operations]);
+    undoStack.push(cloneTracks(get().tracks));
     redoStack = []; // Clear redo on new mutation
   };
 
@@ -95,7 +144,10 @@ export const useEditorStore = create<EditorState>((set, get) => {
     isDirty: true,
   });
 
+  const initialTrack = makeDefaultTrack();
+
   return {
+    tracks: [initialTrack],
     operations: [],
     selectedOperationIndex: null,
     selectedOperationId: null,
@@ -110,10 +162,15 @@ export const useEditorStore = create<EditorState>((set, get) => {
     addOperation: (op) => {
       pushHistory();
       const stamped = { ...(op as object), id: crypto.randomUUID() };
-      set((state) => ({
-        operations: [...state.operations, stamped],
-        ...updateUndoRedoFlags(),
-      }));
+      set((state) => {
+        const tracks = cloneTracks(state.tracks);
+        tracks[0].operations.push(stamped);
+        return {
+          tracks,
+          operations: flattenTracks(tracks),
+          ...updateUndoRedoFlags(),
+        };
+      });
     },
 
     removeOperation: (index) => {
@@ -123,8 +180,23 @@ export const useEditorStore = create<EditorState>((set, get) => {
         const nextSel = sel === null ? null : sel === index ? null : sel > index ? sel - 1 : sel;
         const ce = state.cropEditingOperationIndex;
         const nextCe = ce === null ? null : ce === index ? null : ce > index ? ce - 1 : ce;
+        // Remove by flat index: find which track owns the index and splice it
+        const tracks = state.tracks.reduce<{ result: Track[]; offset: number; removed: boolean }>(
+          (acc, t) => {
+            if (!acc.removed && index < acc.offset + t.operations.length) {
+              acc.result.push({ ...t, operations: t.operations.filter((_, i) => i !== index - acc.offset) });
+              acc.removed = true;
+            } else {
+              acc.result.push({ ...t, operations: [...t.operations] });
+            }
+            acc.offset += t.operations.length;
+            return acc;
+          },
+          { result: [], offset: 0, removed: false },
+        ).result;
         return {
-          operations: state.operations.filter((_, i) => i !== index),
+          tracks,
+          operations: flattenTracks(tracks),
           selectedOperationIndex: nextSel,
           cropEditingOperationIndex: nextCe,
           ...updateUndoRedoFlags(),
@@ -134,19 +206,35 @@ export const useEditorStore = create<EditorState>((set, get) => {
 
     updateOperation: (index, op) => {
       pushHistory();
-      set((state) => ({
-        operations: state.operations.map((existing, i) => (i === index ? op : existing)),
-        ...updateUndoRedoFlags(),
-      }));
+      set((state) => {
+        const tracks = mapOperationsAcrossTracks(state.tracks, (existing, flatIdx) =>
+          flatIdx === index ? op : existing,
+        );
+        return {
+          tracks,
+          operations: flattenTracks(tracks),
+          ...updateUndoRedoFlags(),
+        };
+      });
     },
 
     reorderOperations: (fromIndex, toIndex) => {
       pushHistory();
       set((state) => {
-        const ops = [...state.operations];
-        const [moved] = ops.splice(fromIndex, 1);
-        ops.splice(toIndex, 0, moved);
-        return { operations: ops, ...updateUndoRedoFlags() };
+        const ops = flattenTracks(state.tracks);
+        const flat = [...ops];
+        const [moved] = flat.splice(fromIndex, 1);
+        flat.splice(toIndex, 0, moved);
+        // Redistribute reordered ops back into tracks preserving per-track counts
+        const tracks = state.tracks.reduce<{ result: Track[]; offset: number }>(
+          (acc, t) => {
+            acc.result.push({ ...t, operations: flat.slice(acc.offset, acc.offset + t.operations.length) });
+            acc.offset += t.operations.length;
+            return acc;
+          },
+          { result: [], offset: 0 },
+        ).result;
+        return { tracks, operations: flat, ...updateUndoRedoFlags() };
       });
     },
 
@@ -155,8 +243,13 @@ export const useEditorStore = create<EditorState>((set, get) => {
       set((state) => {
         const nextSelId = state.selectedOperationId === id ? null : state.selectedOperationId;
         const nextCeId = state.cropEditingOperationId === id ? null : state.cropEditingOperationId;
+        const tracks = state.tracks.map((t) => ({
+          ...t,
+          operations: t.operations.filter((op) => (op as { id?: string }).id !== id),
+        }));
         return {
-          operations: state.operations.filter((op) => (op as { id?: string }).id !== id),
+          tracks,
+          operations: flattenTracks(tracks),
           selectedOperationId: nextSelId,
           cropEditingOperationId: nextCeId,
           ...updateUndoRedoFlags(),
@@ -166,65 +259,93 @@ export const useEditorStore = create<EditorState>((set, get) => {
 
     updateOperationById: (id, patch) => {
       pushHistory();
-      set((state) => ({
-        operations: state.operations.map((op) =>
-          (op as { id?: string }).id === id ? { ...(patch as object), id } : op,
-        ),
-        ...updateUndoRedoFlags(),
-      }));
+      set((state) => {
+        const tracks = state.tracks.map((t) => ({
+          ...t,
+          operations: t.operations.map((op) =>
+            (op as { id?: string }).id === id ? { ...(patch as object), id } : op,
+          ),
+        }));
+        return {
+          tracks,
+          operations: flattenTracks(tracks),
+          ...updateUndoRedoFlags(),
+        };
+      });
     },
 
     addKeyframeById: (opId, keyframe) => {
       pushHistory();
-      set((state) => ({
-        operations: state.operations.map((op) => {
-          if ((op as { id?: string }).id !== opId) return op;
-          const opObj = op as { keyframes?: unknown[] };
-          return { ...opObj, keyframes: [...(opObj.keyframes ?? []), keyframe] };
-        }),
-        ...updateUndoRedoFlags(),
-      }));
+      set((state) => {
+        const tracks = state.tracks.map((t) => ({
+          ...t,
+          operations: t.operations.map((op) => {
+            if ((op as { id?: string }).id !== opId) return op;
+            const opObj = op as { keyframes?: unknown[] };
+            return { ...opObj, keyframes: [...(opObj.keyframes ?? []), keyframe] };
+          }),
+        }));
+        return {
+          tracks,
+          operations: flattenTracks(tracks),
+          ...updateUndoRedoFlags(),
+        };
+      });
     },
 
     removeKeyframeById: (opId, keyframeIndex) => {
       pushHistory();
-      set((state) => ({
-        operations: state.operations.map((op) => {
-          if ((op as { id?: string }).id !== opId) return op;
-          const opObj = op as { keyframes?: unknown[] };
-          return {
-            ...opObj,
-            keyframes: (opObj.keyframes ?? []).filter((_, ki) => ki !== keyframeIndex),
-          };
-        }),
-        ...updateUndoRedoFlags(),
-      }));
+      set((state) => {
+        const tracks = state.tracks.map((t) => ({
+          ...t,
+          operations: t.operations.map((op) => {
+            if ((op as { id?: string }).id !== opId) return op;
+            const opObj = op as { keyframes?: unknown[] };
+            return {
+              ...opObj,
+              keyframes: (opObj.keyframes ?? []).filter((_, ki) => ki !== keyframeIndex),
+            };
+          }),
+        }));
+        return {
+          tracks,
+          operations: flattenTracks(tracks),
+          ...updateUndoRedoFlags(),
+        };
+      });
     },
 
     updateKeyframeById: (opId, keyframeIndex, keyframe) => {
       pushHistory();
-      set((state) => ({
-        operations: state.operations.map((op) => {
-          if ((op as { id?: string }).id !== opId) return op;
-          const opObj = op as { keyframes?: unknown[] };
-          return {
-            ...opObj,
-            keyframes: (opObj.keyframes ?? []).map((kf, ki) =>
-              ki === keyframeIndex ? keyframe : kf,
-            ),
-          };
-        }),
-        ...updateUndoRedoFlags(),
-      }));
+      set((state) => {
+        const tracks = state.tracks.map((t) => ({
+          ...t,
+          operations: t.operations.map((op) => {
+            if ((op as { id?: string }).id !== opId) return op;
+            const opObj = op as { keyframes?: unknown[] };
+            return {
+              ...opObj,
+              keyframes: (opObj.keyframes ?? []).map((kf, ki) =>
+                ki === keyframeIndex ? keyframe : kf,
+              ),
+            };
+          }),
+        }));
+        return {
+          tracks,
+          operations: flattenTracks(tracks),
+          ...updateUndoRedoFlags(),
+        };
+      });
     },
 
     undo: () => {
       const previous = undoStack.pop();
       if (previous === undefined) return;
-      const current = [...get().operations];
-      redoStack.push(current);
+      redoStack.push(cloneTracks(get().tracks));
       set({
-        operations: previous,
+        tracks: previous,
+        operations: flattenTracks(previous),
         canUndo: undoStack.length > 0,
         canRedo: true,
         cropEditingOperationIndex: null,
@@ -235,10 +356,10 @@ export const useEditorStore = create<EditorState>((set, get) => {
     redo: () => {
       const next = redoStack.pop();
       if (next === undefined) return;
-      const current = [...get().operations];
-      undoStack.push(current);
+      undoStack.push(cloneTracks(get().tracks));
       set({
-        operations: next,
+        tracks: next,
+        operations: flattenTracks(next),
         canUndo: true,
         canRedo: redoStack.length > 0,
         cropEditingOperationIndex: null,
@@ -259,27 +380,39 @@ export const useEditorStore = create<EditorState>((set, get) => {
         aspectPreset: "free",
       };
       pushHistory();
-      set((state) => ({
-        operations: [...state.operations, op],
-        selectedOperationIndex: state.operations.length,
-        selectedOperationId: id,
-        cropEditingOperationIndex: state.operations.length,
-        cropEditingOperationId: id,
-        ...updateUndoRedoFlags(),
-      }));
+      set((state) => {
+        const tracks = cloneTracks(state.tracks);
+        tracks[0].operations.push(op);
+        return {
+          tracks,
+          operations: flattenTracks(tracks),
+          selectedOperationIndex: flattenTracks(tracks).length - 1,
+          selectedOperationId: id,
+          cropEditingOperationIndex: flattenTracks(tracks).length - 1,
+          cropEditingOperationId: id,
+          ...updateUndoRedoFlags(),
+        };
+      });
     },
 
     applyCrop: (index) => {
       const state = get();
-      const raw = state.operations[index];
+      const ops = flattenTracks(state.tracks);
+      const raw = ops[index];
       if (!raw || (raw as { type?: string }).type !== "crop") return;
       const c = raw as CropOperation;
       pushHistory();
-      set({
-        operations: state.operations.map((o, i) => (i === index ? { ...c, applied: true } : o)),
-        cropEditingOperationIndex: null,
-        cropEditingOperationId: null,
-        ...updateUndoRedoFlags(),
+      set((prev) => {
+        const tracks = mapOperationsAcrossTracks(prev.tracks, (o, flatIdx) =>
+          flatIdx === index ? { ...c, applied: true } : o,
+        );
+        return {
+          tracks,
+          operations: flattenTracks(tracks),
+          cropEditingOperationIndex: null,
+          cropEditingOperationId: null,
+          ...updateUndoRedoFlags(),
+        };
       });
     },
 
@@ -312,12 +445,18 @@ export const useEditorStore = create<EditorState>((set, get) => {
         endFrame: 90,
       };
       pushHistory();
-      set((state) => ({
-        operations: [...state.operations, op],
-        selectedOperationIndex: state.operations.length,
-        selectedOperationId: id,
-        ...updateUndoRedoFlags(),
-      }));
+      set((state) => {
+        const tracks = cloneTracks(state.tracks);
+        tracks[0].operations.push(op);
+        const flat = flattenTracks(tracks);
+        return {
+          tracks,
+          operations: flat,
+          selectedOperationIndex: flat.length - 1,
+          selectedOperationId: id,
+          ...updateUndoRedoFlags(),
+        };
+      });
     },
 
     addWatermark: (assetId) => {
@@ -332,12 +471,18 @@ export const useEditorStore = create<EditorState>((set, get) => {
         opacity: 0.7,
       };
       pushHistory();
-      set((state) => ({
-        operations: [...state.operations, op],
-        selectedOperationIndex: state.operations.length,
-        selectedOperationId: id,
-        ...updateUndoRedoFlags(),
-      }));
+      set((state) => {
+        const tracks = cloneTracks(state.tracks);
+        tracks[0].operations.push(op);
+        const flat = flattenTracks(tracks);
+        return {
+          tracks,
+          operations: flat,
+          selectedOperationIndex: flat.length - 1,
+          selectedOperationId: id,
+          ...updateUndoRedoFlags(),
+        };
+      });
     },
 
     addBlur: () => {
@@ -353,12 +498,18 @@ export const useEditorStore = create<EditorState>((set, get) => {
         keyframes: [],
       };
       pushHistory();
-      set((state) => ({
-        operations: [...state.operations, op],
-        selectedOperationIndex: state.operations.length,
-        selectedOperationId: id,
-        ...updateUndoRedoFlags(),
-      }));
+      set((state) => {
+        const tracks = cloneTracks(state.tracks);
+        tracks[0].operations.push(op);
+        const flat = flattenTracks(tracks);
+        return {
+          tracks,
+          operations: flat,
+          selectedOperationIndex: flat.length - 1,
+          selectedOperationId: id,
+          ...updateUndoRedoFlags(),
+        };
+      });
     },
 
     addEmoji: (emoji = "⭐") => {
@@ -373,12 +524,18 @@ export const useEditorStore = create<EditorState>((set, get) => {
         keyframes: [],
       };
       pushHistory();
-      set((state) => ({
-        operations: [...state.operations, op],
-        selectedOperationIndex: state.operations.length,
-        selectedOperationId: id,
-        ...updateUndoRedoFlags(),
-      }));
+      set((state) => {
+        const tracks = cloneTracks(state.tracks);
+        tracks[0].operations.push(op);
+        const flat = flattenTracks(tracks);
+        return {
+          tracks,
+          operations: flat,
+          selectedOperationIndex: flat.length - 1,
+          selectedOperationId: id,
+          ...updateUndoRedoFlags(),
+        };
+      });
     },
 
     addPixelate: () => {
@@ -394,12 +551,18 @@ export const useEditorStore = create<EditorState>((set, get) => {
         keyframes: [],
       };
       pushHistory();
-      set((state) => ({
-        operations: [...state.operations, op],
-        selectedOperationIndex: state.operations.length,
-        selectedOperationId: id,
-        ...updateUndoRedoFlags(),
-      }));
+      set((state) => {
+        const tracks = cloneTracks(state.tracks);
+        tracks[0].operations.push(op);
+        const flat = flattenTracks(tracks);
+        return {
+          tracks,
+          operations: flat,
+          selectedOperationIndex: flat.length - 1,
+          selectedOperationId: id,
+          ...updateUndoRedoFlags(),
+        };
+      });
     },
 
     addZoom: () => {
@@ -413,46 +576,60 @@ export const useEditorStore = create<EditorState>((set, get) => {
         keyframes: [],
       };
       pushHistory();
-      set((state) => ({
-        operations: [...state.operations, op],
-        selectedOperationIndex: state.operations.length,
-        selectedOperationId: id,
-        ...updateUndoRedoFlags(),
-      }));
+      set((state) => {
+        const tracks = cloneTracks(state.tracks);
+        tracks[0].operations.push(op);
+        const flat = flattenTracks(tracks);
+        return {
+          tracks,
+          operations: flat,
+          selectedOperationIndex: flat.length - 1,
+          selectedOperationId: id,
+          ...updateUndoRedoFlags(),
+        };
+      });
     },
 
     addKeyframe: (opIndex, keyframe) => {
       pushHistory();
-      set((state) => ({
-        operations: state.operations.map((op, i) => {
-          if (i !== opIndex) return op;
+      set((state) => {
+        const tracks = mapOperationsAcrossTracks(state.tracks, (op, flatIdx) => {
+          if (flatIdx !== opIndex) return op;
           const opObj = op as { keyframes?: unknown[] };
           return { ...opObj, keyframes: [...(opObj.keyframes ?? []), keyframe] };
-        }),
-        ...updateUndoRedoFlags(),
-      }));
+        });
+        return {
+          tracks,
+          operations: flattenTracks(tracks),
+          ...updateUndoRedoFlags(),
+        };
+      });
     },
 
     removeKeyframe: (opIndex, keyframeIndex) => {
       pushHistory();
-      set((state) => ({
-        operations: state.operations.map((op, i) => {
-          if (i !== opIndex) return op;
+      set((state) => {
+        const tracks = mapOperationsAcrossTracks(state.tracks, (op, flatIdx) => {
+          if (flatIdx !== opIndex) return op;
           const opObj = op as { keyframes?: unknown[] };
           return {
             ...opObj,
             keyframes: (opObj.keyframes ?? []).filter((_, ki) => ki !== keyframeIndex),
           };
-        }),
-        ...updateUndoRedoFlags(),
-      }));
+        });
+        return {
+          tracks,
+          operations: flattenTracks(tracks),
+          ...updateUndoRedoFlags(),
+        };
+      });
     },
 
     updateKeyframe: (opIndex, keyframeIndex, keyframe) => {
       pushHistory();
-      set((state) => ({
-        operations: state.operations.map((op, i) => {
-          if (i !== opIndex) return op;
+      set((state) => {
+        const tracks = mapOperationsAcrossTracks(state.tracks, (op, flatIdx) => {
+          if (flatIdx !== opIndex) return op;
           const opObj = op as { keyframes?: unknown[] };
           return {
             ...opObj,
@@ -460,9 +637,13 @@ export const useEditorStore = create<EditorState>((set, get) => {
               ki === keyframeIndex ? keyframe : kf,
             ),
           };
-        }),
-        ...updateUndoRedoFlags(),
-      }));
+        });
+        return {
+          tracks,
+          operations: flattenTracks(tracks),
+          ...updateUndoRedoFlags(),
+        };
+      });
     },
 
     setSelectedOperationIndex: (index) => {
@@ -472,6 +653,55 @@ export const useEditorStore = create<EditorState>((set, get) => {
     setSelectedOperationId: (id) => {
       set({ selectedOperationId: id });
     },
+
+    addTrack: () => {
+      pushHistory();
+      set((state) => {
+        const tracks = cloneTracks(state.tracks);
+        tracks.push({
+          id: crypto.randomUUID(),
+          name: `Track ${tracks.length + 1}`,
+          operations: [],
+        });
+        return { tracks, ...updateUndoRedoFlags() };
+      });
+    },
+
+    removeTrack: (trackId) => {
+      pushHistory();
+      set((state) => {
+        const tracks = state.tracks.filter((t) => t.id !== trackId);
+        return { tracks, operations: flattenTracks(tracks), ...updateUndoRedoFlags() };
+      });
+    },
+
+    renameTrack: (trackId, name) => {
+      pushHistory();
+      set((state) => ({
+        tracks: state.tracks.map((t) => (t.id === trackId ? { ...t, name } : t)),
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
+    moveOperation: (opId, targetTrackId) => {
+      pushHistory();
+      set((state) => {
+        // Find the operation to move
+        const movedOp = flattenTracks(state.tracks).find(
+          (op) => (op as { id?: string }).id === opId,
+        );
+        if (!movedOp) return { ...updateUndoRedoFlags() };
+        // Remove from source, add to target
+        const tracks = state.tracks.map((t) => {
+          const filtered = t.operations.filter((op) => (op as { id?: string }).id !== opId);
+          const ops = t.id === targetTrackId ? [...filtered, movedOp] : filtered;
+          return { ...t, operations: ops };
+        });
+        return { tracks, operations: flattenTracks(tracks), ...updateUndoRedoFlags() };
+      });
+    },
+
+    flattenOperations: () => flattenTracks(get().tracks),
 
     setSourceMediaId: (id) => {
       set({ sourceMediaId: id });
@@ -485,24 +715,28 @@ export const useEditorStore = create<EditorState>((set, get) => {
       set({ isDirty: false });
     },
 
-    hydrate: (operations) => {
+    hydrate: (data) => {
       undoStack = [];
       redoStack = [];
-      const hydratedOps = operations.map((op) => {
-        const normalized = normalizeCropOperation(op);
-        const obj = normalized as Record<string, unknown>;
-        // Assign id if missing
-        if (!obj.id) {
-          obj.id = crypto.randomUUID();
-        }
-        // Assign default startFrame if missing (skip clip/caption which already have it)
-        if (obj.startFrame === undefined && obj.type !== "clip") {
-          obj.startFrame = 0;
-        }
-        return normalized;
-      });
+
+      // Detect format: array = legacy flat operations, object with tracks = new format
+      const tracks: Track[] = Array.isArray(data)
+        ? [{
+            id: crypto.randomUUID(),
+            name: "Track 1",
+            operations: data.map((op) => {
+              const normalized = normalizeCropOperation(op);
+              const obj = normalized as Record<string, unknown>;
+              if (!obj.id) obj.id = crypto.randomUUID();
+              if (obj.startFrame === undefined && obj.type !== "clip") obj.startFrame = 0;
+              return normalized;
+            }),
+          }]
+        : (data as { tracks: Track[] }).tracks;
+
       set({
-        operations: hydratedOps,
+        tracks,
+        operations: flattenTracks(tracks),
         selectedOperationIndex: null,
         selectedOperationId: null,
         cropEditingOperationIndex: null,
@@ -517,6 +751,7 @@ export const useEditorStore = create<EditorState>((set, get) => {
       undoStack = [];
       redoStack = [];
       set({
+        tracks: [makeDefaultTrack()],
         operations: [],
         selectedOperationIndex: null,
         selectedOperationId: null,
