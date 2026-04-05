@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { shouldUseVideoElementForPreview } from "~/lib/editor-media-preview";
 import { useMediaQuery } from "~/lib/queries/library";
 import { useEditorStore } from "~/stores/editorStore";
@@ -7,9 +8,8 @@ import { useMediaEditByIdQuery } from "~/lib/queries/media-edits";
 import { isCaptionOperation } from "~/features/editor/utils/caption-layout";
 import { EditorToolbar } from "./EditorToolbar";
 import { EditorCanvas, type EditorCanvasHandle } from "./EditorCanvas";
-import { LayerPanel } from "./LayerPanel";
 import { PropertiesPanel } from "./PropertiesPanel";
-import { PlaybackBar } from "./PlaybackBar";
+import { Timeline } from "./Timeline";
 
 type EditorLayoutProps = {
   mediaId: string;
@@ -57,11 +57,44 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
   const canvasRef = useRef<EditorCanvasHandle>(null);
   const getPlayer = () => canvasRef.current?.getPlayerRef() ?? null;
 
+  const [playing, setPlaying] = useState(false);
+
   const seekToFrame = useCallback((frame: number) => {
     const player = canvasRef.current?.getPlayerRef();
     if (player) player.seekTo(frame);
     setCurrentFrame(frame);
   }, []);
+
+  const handlePlay = useCallback(() => {
+    const player = getPlayer();
+    if (player) player.play();
+    setPlaying(true);
+  }, []);
+
+  const handlePause = useCallback(() => {
+    const player = getPlayer();
+    if (player) player.pause();
+    setPlaying(false);
+  }, []);
+
+  const handleSkipBack = useCallback(() => {
+    seekToFrame(0);
+  }, [seekToFrame]);
+
+  const totalFramesRef = useRef(1);
+
+  const handleSkipForward = useCallback(() => {
+    seekToFrame(Math.max(0, totalFramesRef.current - 1));
+  }, [seekToFrame]);
+
+  const handleCanvasBackgroundClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.target === e.currentTarget) {
+        setSelectedOperationId(null);
+      }
+    },
+    [setSelectedOperationId],
+  );
 
   useEffect(() => {
     setSourceMediaId(mediaId);
@@ -97,8 +130,10 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
         if (!player) return;
         if (player.isPlaying()) {
           player.pause();
+          setPlaying(false);
         } else {
           player.play();
+          setPlaying(true);
         }
       }
     };
@@ -199,35 +234,43 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
     relativePath: media.relativePath,
   });
   const totalFrames = isVideo ? Math.max(1, Math.round((media.duration ?? 30) * 30)) : 1;
+  totalFramesRef.current = totalFrames;
 
   return (
     <div className="flex flex-col h-screen">
       <EditorToolbar mediaId={mediaId} />
-      <div className="flex flex-1 overflow-hidden">
-        <LayerPanel onSeekFrame={seekToFrame} />
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <EditorCanvas
-            ref={canvasRef}
-            mediaId={mediaId}
-            mediaType={media.type}
-            relativePath={media.relativePath}
-            operations={operations}
-            totalFrames={totalFrames}
+      <PanelGroup direction="vertical">
+        <Panel defaultSize={70} minSize={30}>
+          <div className="flex flex-1 h-full overflow-hidden" onClick={handleCanvasBackgroundClick}>
+            <EditorCanvas
+              ref={canvasRef}
+              mediaId={mediaId}
+              mediaType={media.type}
+              relativePath={media.relativePath}
+              operations={operations}
+              totalFrames={totalFrames}
+              currentFrame={currentFrame}
+              onPlayerFrameChange={setCurrentFrame}
+              transformEditingLocked={clipRanges.length > 0 || clipMode}
+            />
+            <PropertiesPanel />
+          </div>
+        </Panel>
+        <PanelResizeHandle className="h-1.5 bg-base-300 hover:bg-primary/30 cursor-row-resize" />
+        <Panel defaultSize={30} minSize={15}>
+          <Timeline
             currentFrame={currentFrame}
-            onPlayerFrameChange={setCurrentFrame}
-            transformEditingLocked={clipRanges.length > 0 || clipMode}
+            totalFrames={totalFrames}
+            fps={30}
+            playing={playing}
+            onSeek={seekToFrame}
+            onPlay={handlePlay}
+            onPause={handlePause}
+            onSkipBack={handleSkipBack}
+            onSkipForward={handleSkipForward}
           />
-        </div>
-        <PropertiesPanel />
-      </div>
-      <PlaybackBar
-        getPlayer={getPlayer}
-        totalFrames={totalFrames}
-        fps={30}
-        isVideo={isVideo}
-        currentFrame={currentFrame}
-        onFrameChange={setCurrentFrame}
-      />
+        </Panel>
+      </PanelGroup>
     </div>
   );
 };
