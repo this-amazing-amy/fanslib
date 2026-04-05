@@ -15,6 +15,7 @@ import {
 describe("caption-layout", () => {
   const base: CaptionOperation = {
     type: "caption",
+    id: "test-caption-1",
     text: "Hi",
     x: 0.5,
     y: 0.5,

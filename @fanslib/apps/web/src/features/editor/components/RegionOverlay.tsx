@@ -56,33 +56,36 @@ export const RegionOverlay = ({
   previewDurationInFrames = 1,
 }: RegionOverlayProps) => {
   const operations = useEditorStore((s) => s.operations);
-  const selectedIndex = useEditorStore((s) => s.selectedOperationIndex);
-  const updateOperation = useEditorStore((s) => s.updateOperation);
+  const selectedId = useEditorStore((s) => s.selectedOperationId);
+  const updateOperationById = useEditorStore((s) => s.updateOperationById);
   const [dragState, setDragState] = useState<DragState | null>(null);
   const canvasRectRef = useRef<CanvasRect | null>(null);
 
   useEffect(() => {
-    if (!dragState || selectedIndex === null) return;
+    if (!dragState || selectedId === null) return;
 
     const handleMouseMove = (e: MouseEvent) => {
       const canvas = canvasRectRef.current;
       if (!canvas) return;
+
+      const raw = (operations as Array<{ id?: string }>).find((op) => op.id === selectedId) as
+        | unknown
+        | undefined;
+      if (!raw) return;
+      const op = raw as SpatialOp;
+      const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 
       const dx = e.clientX - dragState.startMouseX;
       const dy = e.clientY - dragState.startMouseY;
       const relDx = dx / canvas.canvasWidth;
       const relDy = dy / canvas.canvasHeight;
 
-      const raw = operations[selectedIndex];
-      const op = raw as SpatialOp;
-      const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
-
       if (dragState.kind === "caption-move") {
         if (!isCaptionOperation(raw)) return;
         const cap = raw;
         const nx = clamp(dragState.startX + relDx, dragState.halfWNorm, 1 - dragState.halfWNorm);
         const ny = clamp(dragState.startY + relDy, dragState.halfHNorm, 1 - dragState.halfHNorm);
-        updateOperation(selectedIndex, { ...cap, x: nx, y: ny });
+        updateOperationById(selectedId, { ...cap, x: nx, y: ny });
         return;
       }
 
@@ -94,7 +97,7 @@ export const RegionOverlay = ({
       if (dragState.type === "move") {
         const nx = dragState.startX + relDx;
         const ny = dragState.startY + relDy;
-        updateOperation(selectedIndex, {
+        updateOperationById(selectedId, {
           ...op,
           x: isEmoji ? Math.max(opW / 2, Math.min(1 - opW / 2, nx)) : clamp01(nx, 1 - opW),
           y: isEmoji ? Math.max(opH / 2, Math.min(1 - opH / 2, ny)) : clamp01(ny, 1 - opH),
@@ -106,7 +109,7 @@ export const RegionOverlay = ({
       const maxH = 1 - dragState.startY;
       const newWidth = clamp01(dragState.startWidth + relDx, maxW);
       const newHeight = clamp01(dragState.startHeight + relDy, maxH);
-      updateOperation(selectedIndex, {
+      updateOperationById(selectedId, {
         ...op,
         width: newWidth,
         height: newHeight,
@@ -123,7 +126,7 @@ export const RegionOverlay = ({
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [dragState, selectedIndex, operations, updateOperation]);
+  }, [dragState, selectedId, operations, updateOperationById]);
 
   if (!canvasRect) return null;
   if (!interactive) return null;
@@ -137,7 +140,8 @@ export const RegionOverlay = ({
         if (spatialOp.type === "crop") return null;
         if (typeof spatialOp.x !== "number" || typeof spatialOp.y !== "number") return null;
 
-        const isSelected = index === selectedIndex;
+        const opId = (op as { id?: string }).id;
+        const isSelected = opId != null && opId === selectedId;
 
         if (isCaptionOperation(op)) {
           const caption = op;

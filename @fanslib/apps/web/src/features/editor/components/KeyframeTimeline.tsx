@@ -16,30 +16,36 @@ type KeyframeData = {
 
 export const KeyframeTimeline = ({ totalFrames, currentFrame, onSeek }: KeyframeTimelineProps) => {
   const operations = useEditorStore((s) => s.operations);
-  const selectedIndex = useEditorStore((s) => s.selectedOperationIndex);
-  const addKeyframe = useEditorStore((s) => s.addKeyframe);
-  const removeKeyframe = useEditorStore((s) => s.removeKeyframe);
+  const selectedId = useEditorStore((s) => s.selectedOperationId);
+  const addKeyframeById = useEditorStore((s) => s.addKeyframeById);
+  const removeKeyframeById = useEditorStore((s) => s.removeKeyframeById);
 
-  if (selectedIndex === null || selectedIndex >= operations.length) {
+  const selectedOp =
+    selectedId !== null
+      ? ((operations as Array<{ id?: string }>).find((op) => op.id === selectedId) as
+          | ({ keyframes?: KeyframeData[] } & { id?: string })
+          | undefined)
+      : undefined;
+
+  if (!selectedOp) {
     return null;
   }
 
-  const selectedOp = operations[selectedIndex] as { keyframes?: KeyframeData[] };
   const keyframes = selectedOp.keyframes ?? [];
 
   const isAtKeyframe = keyframes.some((kf) => kf.frame === currentFrame);
 
   const handleAddKeyframe = () => {
-    if (selectedIndex === null) return;
-    addKeyframe(selectedIndex, {
+    if (selectedId === null) return;
+    addKeyframeById(selectedId, {
       frame: currentFrame,
       values: {},
     });
   };
 
   const handleRemoveKeyframe = (kfIndex: number) => {
-    if (selectedIndex === null) return;
-    removeKeyframe(selectedIndex, kfIndex);
+    if (selectedId === null) return;
+    removeKeyframeById(selectedId, kfIndex);
   };
 
   return (

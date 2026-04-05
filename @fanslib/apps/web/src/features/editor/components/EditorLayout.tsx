@@ -37,7 +37,7 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
   const clipMode = useClipStore((s) => s.clipMode);
   const clipRanges = useClipStore((s) => s.ranges);
   const resetClips = useClipStore((s) => s.reset);
-  const setSelectedOperationIndex = useEditorStore((s) => s.setSelectedOperationIndex);
+  const setSelectedOperationId = useEditorStore((s) => s.setSelectedOperationId);
 
   const clipHotkeysActive =
     !mediaLoading &&
@@ -133,24 +133,24 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
       if (e.key !== "i" && e.key !== "I" && e.key !== "o" && e.key !== "O") return;
       if (isEditableKeyTarget(e.target)) return;
       const {
-        selectedOperationIndex: sel,
+        selectedOperationId: selId,
         operations: ops,
-        updateOperation,
+        updateOperationById,
       } = useEditorStore.getState();
-      if (sel === null || sel >= ops.length) return;
-      const op = ops[sel];
+      if (selId === null) return;
+      const op = (ops as Array<{ id?: string }>).find((o) => o.id === selId);
       if (!isCaptionOperation(op)) return;
       e.preventDefault();
       const frame = currentFrameRef.current;
       if (e.key === "i" || e.key === "I") {
         const start = frame;
         const end = Math.max(op.endFrame, start);
-        updateOperation(sel, { ...op, startFrame: start, endFrame: end });
+        updateOperationById(selId, { ...op, startFrame: start, endFrame: end });
         return;
       }
       const start = Math.min(op.startFrame, frame);
       const end = Math.max(op.startFrame, frame);
-      updateOperation(sel, { ...op, startFrame: start, endFrame: end });
+      updateOperationById(selId, { ...op, startFrame: start, endFrame: end });
     };
 
     window.addEventListener("keydown", onKeyDown);
@@ -159,15 +159,15 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
 
   useEffect(() => {
     if (clipRanges.length > 0) {
-      setSelectedOperationIndex(null);
+      setSelectedOperationId(null);
     }
-  }, [clipRanges.length, setSelectedOperationIndex]);
+  }, [clipRanges.length, setSelectedOperationId]);
 
   useEffect(() => {
     if (!clipMode) return;
-    setSelectedOperationIndex(null);
+    setSelectedOperationId(null);
     useClipStore.getState().selectRange(null);
-  }, [clipMode, setSelectedOperationIndex]);
+  }, [clipMode, setSelectedOperationId]);
 
   useEffect(() => {
     if (!isDirty) return;

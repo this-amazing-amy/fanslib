@@ -133,15 +133,15 @@ const CAPTION_ANIMATIONS: CaptionOperation["animation"][] = [
   "typewriter",
 ];
 
-const CaptionProperties = ({ op, index }: { op: CaptionOperation; index: number }) => {
+const CaptionProperties = ({ op, opId }: { op: CaptionOperation; opId: string }) => {
   const presetNameRef = useRef<HTMLInputElement>(null);
-  const updateOperation = useEditorStore((s) => s.updateOperation);
+  const updateOperationById = useEditorStore((s) => s.updateOperationById);
   const { data: settings } = useSettingsQuery();
   const saveSettings = useSaveSettingsMutation();
   const presets = settings?.captionStylePresets ?? [];
 
   const update = (patch: Partial<CaptionOperation>) => {
-    updateOperation(index, { ...op, ...patch });
+    updateOperationById(opId, { ...op, ...patch });
   };
 
   const applyPresetById = (id: string) => {
@@ -369,21 +369,21 @@ const CaptionProperties = ({ op, index }: { op: CaptionOperation; index: number 
   );
 };
 
-const CropProperties = ({ op, index }: { op: CropOperation; index: number }) => {
-  const updateOperation = useEditorStore((s) => s.updateOperation);
+const CropProperties = ({ op, opId, index }: { op: CropOperation; opId: string; index: number }) => {
+  const updateOperationById = useEditorStore((s) => s.updateOperationById);
   const applyCrop = useEditorStore((s) => s.applyCrop);
-  const cropEditingOperationIndex = useEditorStore((s) => s.cropEditingOperationIndex);
+  const cropEditingOperationId = useEditorStore((s) => s.cropEditingOperationId);
 
-  const canEdit = !op.applied || cropEditingOperationIndex === index;
-  const showApply = !op.applied || cropEditingOperationIndex === index;
+  const canEdit = !op.applied || cropEditingOperationId === opId;
+  const showApply = !op.applied || cropEditingOperationId === opId;
 
   const update = (patch: Partial<CropOperation>) => {
     const next = clampCropRect({ ...op, ...patch });
-    updateOperation(index, next);
+    updateOperationById(opId, next);
   };
 
   const updateFromPixels = (pixel: Partial<Record<"xPx" | "yPx" | "wPx" | "hPx", number>>) => {
-    updateOperation(index, cropOperationWithPixelRect(op, pixel));
+    updateOperationById(opId, cropOperationWithPixelRect(op, pixel));
   };
 
   const setAspectPreset = (preset: CropAspectPreset) => {
@@ -397,8 +397,8 @@ const CropProperties = ({ op, index }: { op: CropOperation; index: number }) => 
       yPx + hFromRatio > CROP_COMPOSITION_HEIGHT ? CROP_COMPOSITION_HEIGHT - yPx : hFromRatio;
     const xPx2 =
       xPx + wPx > CROP_COMPOSITION_WIDTH ? Math.max(0, CROP_COMPOSITION_WIDTH - wPx) : xPx;
-    updateOperation(
-      index,
+    updateOperationById(
+      opId,
       cropOperationWithPixelRect({ ...op, aspectPreset: preset }, { xPx: xPx2, yPx, wPx, hPx }),
     );
   };
@@ -519,12 +519,12 @@ const CropProperties = ({ op, index }: { op: CropOperation; index: number }) => 
   );
 };
 
-const WatermarkProperties = ({ op, index }: { op: WatermarkOp; index: number }) => {
-  const updateOperation = useEditorStore((s) => s.updateOperation);
+const WatermarkProperties = ({ op, opId }: { op: WatermarkOp; opId: string }) => {
+  const updateOperationById = useEditorStore((s) => s.updateOperationById);
   const { data: assets } = useAssetsQuery("image");
 
   const update = (patch: Partial<WatermarkOp>) => {
-    updateOperation(index, { ...op, ...patch });
+    updateOperationById(opId, { ...op, ...patch });
   };
 
   return (
@@ -665,9 +665,9 @@ const SliderField = ({
   </div>
 );
 
-const BlurProperties = ({ op, index }: { op: BlurOperation; index: number }) => {
-  const updateOperation = useEditorStore((s) => s.updateOperation);
-  const update = (patch: Partial<BlurOperation>) => updateOperation(index, { ...op, ...patch });
+const BlurProperties = ({ op, opId }: { op: BlurOperation; opId: string }) => {
+  const updateOperationById = useEditorStore((s) => s.updateOperationById);
+  const update = (patch: Partial<BlurOperation>) => updateOperationById(opId, { ...op, ...patch });
 
   return (
     <div className="space-y-4">
@@ -691,9 +691,9 @@ const BlurProperties = ({ op, index }: { op: BlurOperation; index: number }) => 
   );
 };
 
-const PixelateProperties = ({ op, index }: { op: PixelateOperation; index: number }) => {
-  const updateOperation = useEditorStore((s) => s.updateOperation);
-  const update = (patch: Partial<PixelateOperation>) => updateOperation(index, { ...op, ...patch });
+const PixelateProperties = ({ op, opId }: { op: PixelateOperation; opId: string }) => {
+  const updateOperationById = useEditorStore((s) => s.updateOperationById);
+  const update = (patch: Partial<PixelateOperation>) => updateOperationById(opId, { ...op, ...patch });
 
   return (
     <div className="space-y-4">
@@ -717,9 +717,9 @@ const PixelateProperties = ({ op, index }: { op: PixelateOperation; index: numbe
   );
 };
 
-const EmojiProperties = ({ op, index }: { op: EmojiOperation; index: number }) => {
-  const updateOperation = useEditorStore((s) => s.updateOperation);
-  const update = (patch: Partial<EmojiOperation>) => updateOperation(index, { ...op, ...patch });
+const EmojiProperties = ({ op, opId }: { op: EmojiOperation; opId: string }) => {
+  const updateOperationById = useEditorStore((s) => s.updateOperationById);
+  const update = (patch: Partial<EmojiOperation>) => updateOperationById(opId, { ...op, ...patch });
 
   return (
     <div className="space-y-4">
@@ -740,9 +740,9 @@ const EmojiProperties = ({ op, index }: { op: EmojiOperation; index: number }) =
   );
 };
 
-const ZoomProperties = ({ op, index }: { op: ZoomOperation; index: number }) => {
-  const updateOperation = useEditorStore((s) => s.updateOperation);
-  const update = (patch: Partial<ZoomOperation>) => updateOperation(index, { ...op, ...patch });
+const ZoomProperties = ({ op, opId }: { op: ZoomOperation; opId: string }) => {
+  const updateOperationById = useEditorStore((s) => s.updateOperationById);
+  const update = (patch: Partial<ZoomOperation>) => updateOperationById(opId, { ...op, ...patch });
 
   return (
     <div className="space-y-4">
@@ -766,9 +766,14 @@ const ZoomProperties = ({ op, index }: { op: ZoomOperation; index: number }) => 
 
 export const PropertiesPanel = () => {
   const operations = useEditorStore((s) => s.operations);
-  const selectedIndex = useEditorStore((s) => s.selectedOperationIndex);
+  const selectedId = useEditorStore((s) => s.selectedOperationId);
 
-  if (selectedIndex === null || selectedIndex >= operations.length) {
+  const selectedOp =
+    selectedId !== null
+      ? (operations as Array<{ id?: string }>).find((o) => o.id === selectedId)
+      : undefined;
+
+  if (!selectedOp || selectedId === null) {
     return (
       <div className="w-72 border-l border-base-300 bg-base-200/30 p-4 flex flex-col items-center justify-center text-base-content/40">
         <Settings2 className="h-8 w-8 mb-2" />
@@ -777,7 +782,10 @@ export const PropertiesPanel = () => {
     );
   }
 
-  const op = operations[selectedIndex];
+  const op = selectedOp;
+  const selectedIndex = (operations as Array<{ id?: string }>).findIndex(
+    (o) => o.id === selectedId,
+  );
 
   return (
     <div className="w-72 border-l border-base-300 bg-base-200/30 p-4 overflow-y-auto">
@@ -786,19 +794,19 @@ export const PropertiesPanel = () => {
       </h3>
 
       {isWatermarkOp(op) ? (
-        <WatermarkProperties op={op} index={selectedIndex} />
+        <WatermarkProperties op={op} opId={selectedId} />
       ) : isCropOperation(op) ? (
-        <CropProperties op={op} index={selectedIndex} />
+        <CropProperties op={op} opId={selectedId} index={selectedIndex} />
       ) : isCaptionOperation(op) ? (
-        <CaptionProperties op={op} index={selectedIndex} />
+        <CaptionProperties op={op} opId={selectedId} />
       ) : isBlurOp(op) ? (
-        <BlurProperties op={op} index={selectedIndex} />
+        <BlurProperties op={op} opId={selectedId} />
       ) : isPixelateOp(op) ? (
-        <PixelateProperties op={op} index={selectedIndex} />
+        <PixelateProperties op={op} opId={selectedId} />
       ) : isEmojiOp(op) ? (
-        <EmojiProperties op={op} index={selectedIndex} />
+        <EmojiProperties op={op} opId={selectedId} />
       ) : isZoomOp(op) ? (
-        <ZoomProperties op={op} index={selectedIndex} />
+        <ZoomProperties op={op} opId={selectedId} />
       ) : (
         <div className="space-y-3 text-sm">
           {Object.entries(op as Record<string, unknown>)

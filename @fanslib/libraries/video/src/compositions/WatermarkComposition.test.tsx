@@ -9,6 +9,7 @@ describe("WatermarkComposition", () => {
         sourceUrl="https://example.com/source.jpg"
         watermark={{
           type: "watermark",
+          id: "test-wm-1",
           assetId: "asset-1",
           x: 0.85,
           y: 0.9,
@@ -29,6 +30,7 @@ describe("WatermarkComposition", () => {
         sourceUrl="https://example.com/source.jpg"
         watermark={{
           type: "watermark",
+          id: "test-wm-2",
           assetId: "asset-1",
           x: 0.5,
           y: 0.25,

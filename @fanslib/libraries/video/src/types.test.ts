@@ -5,6 +5,7 @@ describe("Operation types", () => {
   test("watermark operation has required fields with relative coordinates", () => {
     const op: WatermarkOperation = {
       type: "watermark",
+      id: "test-id-1",
       assetId: "asset-123",
       x: 0.85,
       y: 0.9,
@@ -25,7 +26,7 @@ describe("Operation types", () => {
 
   test("Operation union includes watermark type", () => {
     const ops: Operation[] = [
-      { type: "watermark", assetId: "a1", x: 0.5, y: 0.5, width: 0.2, opacity: 1 },
+      { type: "watermark", id: "test-id-2", assetId: "a1", x: 0.5, y: 0.5, width: 0.2, opacity: 1 },
     ];
 
     expect(ops).toHaveLength(1);

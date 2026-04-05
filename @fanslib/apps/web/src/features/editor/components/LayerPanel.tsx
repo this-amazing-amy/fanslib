@@ -22,12 +22,12 @@ const formatClipRange = (startFrame: number, endFrame: number): string => {
 
 export const LayerPanel = ({ onSeekFrame }: LayerPanelProps) => {
   const operations = useEditorStore((s) => s.operations);
-  const selectedIndex = useEditorStore((s) => s.selectedOperationIndex);
-  const setSelectedIndex = useEditorStore((s) => s.setSelectedOperationIndex);
-  const removeOperation = useEditorStore((s) => s.removeOperation);
+  const selectedId = useEditorStore((s) => s.selectedOperationId);
+  const setSelectedId = useEditorStore((s) => s.setSelectedOperationId);
+  const removeOperationById = useEditorStore((s) => s.removeOperationById);
   const applyCrop = useEditorStore((s) => s.applyCrop);
-  const cropEditingOperationIndex = useEditorStore((s) => s.cropEditingOperationIndex);
-  const setCropEditingOperationIndex = useEditorStore((s) => s.setCropEditingOperationIndex);
+  const cropEditingOperationId = useEditorStore((s) => s.cropEditingOperationId);
+  const setCropEditingOperationId = useEditorStore((s) => s.setCropEditingOperationId);
 
   const clipMode = useClipStore((s) => s.clipMode);
   const ranges = useClipStore((s) => s.ranges);
@@ -60,7 +60,7 @@ export const LayerPanel = ({ onSeekFrame }: LayerPanelProps) => {
                       : "text-base-content/70 hover:bg-base-300/50"
                   }`}
                   onClick={() => {
-                    setSelectedIndex(null);
+                    setSelectedId(null);
                     if (isSelected) {
                       selectRange(null);
                     } else {
@@ -115,16 +115,17 @@ export const LayerPanel = ({ onSeekFrame }: LayerPanelProps) => {
           </p>
         ) : hasOperations ? (
           operations.map((op, index) => {
-            const opObj = op as { type?: string };
+            const opObj = op as { type?: string; id?: string };
+            const opId = opObj.id;
             const label = opObj.type ?? `Operation ${index + 1}`;
-            const isSelected = selectedIndex === index && selectedRangeIndex === null;
+            const isSelected = opId != null && opId === selectedId && selectedRangeIndex === null;
             const crop = isCropOperation(op) ? op : null;
-            const showCropEdit = crop?.applied === true && cropEditingOperationIndex !== index;
-            const showCropApply = crop && (!crop.applied || cropEditingOperationIndex === index);
+            const showCropEdit = crop?.applied === true && cropEditingOperationId !== opId;
+            const showCropApply = crop && (!crop.applied || cropEditingOperationId === opId);
 
             return (
               <div
-                key={`op-${index}`}
+                key={opId ?? `op-${index}`}
                 className={`flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer text-sm ${
                   isSelected
                     ? "bg-base-300 text-base-content"
@@ -132,13 +133,13 @@ export const LayerPanel = ({ onSeekFrame }: LayerPanelProps) => {
                 }`}
                 onClick={() => {
                   selectRange(null);
-                  setSelectedIndex(isSelected ? null : index);
+                  setSelectedId(isSelected ? null : (opId ?? null));
                 }}
               >
                 <GripVertical className="h-3 w-3 text-base-content/30 cursor-grab" />
                 <span className="flex-1 truncate capitalize">{label}</span>
                 <Eye className="h-3 w-3 text-base-content/30" />
-                {showCropEdit && (
+                {showCropEdit && opId && (
                   <div
                     className="inline-flex"
                     onClick={(e) => {
@@ -149,7 +150,7 @@ export const LayerPanel = ({ onSeekFrame }: LayerPanelProps) => {
                       size="sm"
                       variant="ghost"
                       aria-label="Edit crop"
-                      onPress={() => setCropEditingOperationIndex(index)}
+                      onPress={() => setCropEditingOperationId(opId)}
                     >
                       <Pencil className="h-3 w-3" />
                     </Button>
@@ -172,16 +173,18 @@ export const LayerPanel = ({ onSeekFrame }: LayerPanelProps) => {
                     </Button>
                   </div>
                 )}
-                <div
-                  className="inline-flex"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                >
-                  <Button size="sm" variant="ghost" onPress={() => removeOperation(index)}>
-                    <Trash2 className="h-3 w-3 text-error" />
-                  </Button>
-                </div>
+                {opId && (
+                  <div
+                    className="inline-flex"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    <Button size="sm" variant="ghost" onPress={() => removeOperationById(opId)}>
+                      <Trash2 className="h-3 w-3 text-error" />
+                    </Button>
+                  </div>
+                )}
               </div>
             );
           })

@@ -35,18 +35,20 @@ type DragState =
 
 export const CropOverlay = ({ canvasRect, interactive }: CropOverlayProps) => {
   const operations = useEditorStore((s) => s.operations);
-  const cropEditingOperationIndex = useEditorStore((s) => s.cropEditingOperationIndex);
-  const updateOperation = useEditorStore((s) => s.updateOperation);
+  const cropEditingOperationId = useEditorStore((s) => s.cropEditingOperationId);
+  const updateOperationById = useEditorStore((s) => s.updateOperationById);
   const [dragState, setDragState] = useState<DragState | null>(null);
   const canvasRectRef = useRef<CanvasRect | null>(null);
 
   useEffect(() => {
-    if (!dragState || cropEditingOperationIndex === null) return;
+    if (!dragState || cropEditingOperationId === null) return;
 
     const handleMouseMove = (e: MouseEvent) => {
       const canvas = canvasRectRef.current;
       if (!canvas) return;
-      const op = operations[cropEditingOperationIndex];
+      const op = (operations as Array<{ id?: string }>).find(
+        (o) => o.id === cropEditingOperationId,
+      );
       if (!isCropOperation(op)) return;
 
       const dx = e.clientX - dragState.startMouseX;
@@ -59,7 +61,7 @@ export const CropOverlay = ({ canvasRect, interactive }: CropOverlayProps) => {
       if (dragState.kind === "move") {
         const nx = clamp(dragState.startX + relDx, 0, 1 - dragState.startW);
         const ny = clamp(dragState.startY + relDy, 0, 1 - dragState.startH);
-        updateOperation(cropEditingOperationIndex, clampCropRect({ ...op, x: nx, y: ny }));
+        updateOperationById(cropEditingOperationId, clampCropRect({ ...op, x: nx, y: ny }));
         return;
       }
 
@@ -81,8 +83,8 @@ export const CropOverlay = ({ canvasRect, interactive }: CropOverlayProps) => {
         return { w, h: h1 };
       })();
 
-      updateOperation(
-        cropEditingOperationIndex,
+      updateOperationById(
+        cropEditingOperationId,
         clampCropRect({
           ...op,
           x: dragState.startX,
@@ -103,12 +105,12 @@ export const CropOverlay = ({ canvasRect, interactive }: CropOverlayProps) => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [dragState, cropEditingOperationIndex, operations, updateOperation]);
+  }, [dragState, cropEditingOperationId, operations, updateOperationById]);
 
   if (!canvasRect || !interactive) return null;
-  if (cropEditingOperationIndex === null) return null;
+  if (cropEditingOperationId === null) return null;
 
-  const op = operations[cropEditingOperationIndex];
+  const op = (operations as Array<{ id?: string }>).find((o) => o.id === cropEditingOperationId);
   if (!isCropOperation(op)) return null;
 
   const canvas = canvasRect;
