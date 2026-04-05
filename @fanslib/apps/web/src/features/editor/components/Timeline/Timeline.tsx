@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from "react";
+import { Trash2 } from "lucide-react";
 import { useEditorStore } from "~/stores/editorStore";
 import { Playhead } from "./Playhead";
 import { TimeRuler } from "./TimeRuler";
@@ -18,6 +19,12 @@ type TimelineProps = {
   onSkipForward: () => void;
 };
 
+type ContextMenuState = {
+  x: number;
+  y: number;
+  operationId: string;
+} | null;
+
 export const Timeline = ({
   currentFrame,
   totalFrames,
@@ -33,9 +40,13 @@ export const Timeline = ({
   const selectedOperationId = useEditorStore((s) => s.selectedOperationId);
   const setSelectedOperationId = useEditorStore((s) => s.setSelectedOperationId);
   const addTrack = useEditorStore((s) => s.addTrack);
+  const updateOperationById = useEditorStore((s) => s.updateOperationById);
+  const removeOperationById = useEditorStore((s) => s.removeOperationById);
+  const moveOperation = useEditorStore((s) => s.moveOperation);
 
   const [pixelsPerFrame, setPixelsPerFrame] = useState(2);
   const [scrollLeft, setScrollLeft] = useState(0);
+  const [contextMenu, setContextMenu] = useState<ContextMenuState>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const handleWheel = useCallback(
@@ -56,8 +67,81 @@ export const Timeline = ({
     }
   }, []);
 
+  const findOpById = useCallback(
+    (id: string) =>
+      tracks
+        .flatMap(
+          (t) =>
+            t.operations as Array<{
+              id: string;
+              startFrame: number;
+              endFrame: number;
+            }>,
+        )
+        .find((o) => o.id === id),
+    [tracks],
+  );
+
+  const handleMove = useCallback(
+    (id: string, startFrame: number, endFrame: number) => {
+      const op = findOpById(id);
+      if (!op) return;
+      updateOperationById(id, { ...op, startFrame, endFrame });
+    },
+    [findOpById, updateOperationById],
+  );
+
+  const handleTrimStart = useCallback(
+    (id: string, startFrame: number) => {
+      const op = findOpById(id);
+      if (!op) return;
+      updateOperationById(id, { ...op, startFrame });
+    },
+    [findOpById, updateOperationById],
+  );
+
+  const handleTrimEnd = useCallback(
+    (id: string, endFrame: number) => {
+      const op = findOpById(id);
+      if (!op) return;
+      updateOperationById(id, { ...op, endFrame });
+    },
+    [findOpById, updateOperationById],
+  );
+
+  const handleTrackChange = useCallback(
+    (id: string, targetTrackId: string) => {
+      moveOperation(id, targetTrackId);
+    },
+    [moveOperation],
+  );
+
+  const handleDelete = useCallback(
+    (id: string) => {
+      removeOperationById(id);
+      setContextMenu(null);
+    },
+    [removeOperationById],
+  );
+
+  const handleContextMenu = useCallback(
+    (e: React.MouseEvent, id: string) => {
+      setContextMenu({ x: e.clientX, y: e.clientY, operationId: id });
+      setSelectedOperationId(id);
+    },
+    [setSelectedOperationId],
+  );
+
+  const closeContextMenu = useCallback(() => {
+    setContextMenu(null);
+  }, []);
+
   return (
-    <div data-testid="timeline" className="flex flex-col border-t border-base-300 bg-base-200">
+    <div
+      data-testid="timeline"
+      className="flex flex-col border-t border-base-300 bg-base-200"
+      onClick={closeContextMenu}
+    >
       {/* Transport bar */}
       <div className="flex items-center px-2 py-1 border-b border-base-300 bg-base-100">
         <TransportControls
@@ -118,6 +202,7 @@ export const Timeline = ({
             {tracks.map((track) => (
               <TrackRow
                 key={track.id}
+                trackId={track.id}
                 operations={
                   track.operations as Array<{
                     id: string;
@@ -131,11 +216,34 @@ export const Timeline = ({
                 selectedOperationId={selectedOperationId}
                 onSelectOperation={setSelectedOperationId}
                 totalFrames={totalFrames}
+                onMove={handleMove}
+                onTrimStart={handleTrimStart}
+                onTrimEnd={handleTrimEnd}
+                onTrackChange={handleTrackChange}
+                onDelete={handleDelete}
+                onContextMenu={handleContextMenu}
               />
             ))}
           </div>
         </div>
       </div>
+
+      {/* Context menu */}
+      {contextMenu && (
+        <div
+          data-testid="block-context-menu"
+          className="fixed z-50 bg-base-100 border border-base-300 rounded shadow-lg py-1 min-w-32"
+          style={{ left: contextMenu.x, top: contextMenu.y }}
+        >
+          <button
+            className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-error hover:bg-base-200 cursor-pointer"
+            onClick={() => handleDelete(contextMenu.operationId)}
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            Delete
+          </button>
+        </div>
+      )}
     </div>
   );
 };

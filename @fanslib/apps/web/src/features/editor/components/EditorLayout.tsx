@@ -5,7 +5,6 @@ import { useMediaQuery } from "~/lib/queries/library";
 import { useEditorStore } from "~/stores/editorStore";
 import { useClipStore } from "~/stores/clipStore";
 import { useMediaEditByIdQuery } from "~/lib/queries/media-edits";
-import { isCaptionOperation } from "~/features/editor/utils/caption-layout";
 import { EditorToolbar } from "./EditorToolbar";
 import { EditorCanvas, type EditorCanvasHandle } from "./EditorCanvas";
 import { PropertiesPanel } from "./PropertiesPanel";
@@ -173,8 +172,10 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
         updateOperationById,
       } = useEditorStore.getState();
       if (selId === null) return;
-      const op = (ops as Array<{ id?: string }>).find((o) => o.id === selId);
-      if (!isCaptionOperation(op)) return;
+      const op = (ops as Array<{ id?: string; startFrame?: number; endFrame?: number }>).find(
+        (o) => o.id === selId,
+      );
+      if (!op || op.startFrame === undefined || op.endFrame === undefined) return;
       e.preventDefault();
       const frame = currentFrameRef.current;
       if (e.key === "i" || e.key === "I") {
