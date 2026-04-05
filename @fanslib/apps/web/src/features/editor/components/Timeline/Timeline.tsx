@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from "react";
 import { Trash2 } from "lucide-react";
 import { useEditorStore } from "~/stores/editorStore";
 import { Playhead } from "./Playhead";
+import { SourceMediaBar } from "./SourceMediaBar";
 import { TimeRuler } from "./TimeRuler";
 import { TrackHeader } from "./TrackHeader";
 import { TrackRow } from "./TrackRow";
@@ -12,6 +13,7 @@ type TimelineProps = {
   totalFrames: number;
   fps: number;
   playing: boolean;
+  filename?: string;
   onSeek: (frame: number) => void;
   onPlay: () => void;
   onPause: () => void;
@@ -30,6 +32,7 @@ export const Timeline = ({
   totalFrames,
   fps,
   playing,
+  filename,
   onSeek,
   onPlay,
   onPause,
@@ -224,6 +227,13 @@ export const Timeline = ({
                 onContextMenu={handleContextMenu}
               />
             ))}
+            {filename && (
+              <SourceMediaBar
+                filename={filename}
+                totalFrames={totalFrames}
+                pixelsPerFrame={pixelsPerFrame}
+              />
+            )}
           </div>
         </div>
       </div>
