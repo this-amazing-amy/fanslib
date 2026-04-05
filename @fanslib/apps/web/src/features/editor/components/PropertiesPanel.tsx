@@ -1,7 +1,13 @@
 import { useCallback, useRef, useState } from "react";
 import { Check, ChevronsUpDown, Settings2, Trash2 } from "lucide-react";
 import { getAvailableFonts } from "@remotion/google-fonts";
-import type { CaptionOperation } from "@fanslib/video/types";
+import type {
+  CaptionOperation,
+  BlurOperation,
+  PixelateOperation,
+  EmojiOperation,
+  ZoomOperation,
+} from "@fanslib/video/types";
 import type { CaptionStylePreset } from "@fanslib/server/schemas";
 import { Button } from "~/components/ui/Button";
 import {
@@ -616,6 +622,148 @@ const WatermarkProperties = ({ op, index }: { op: WatermarkOp; index: number }) 
   );
 };
 
+const isBlurOp = (op: unknown): op is BlurOperation =>
+  typeof op === "object" && op !== null && (op as { type: string }).type === "blur";
+
+const isPixelateOp = (op: unknown): op is PixelateOperation =>
+  typeof op === "object" && op !== null && (op as { type: string }).type === "pixelate";
+
+const isEmojiOp = (op: unknown): op is EmojiOperation =>
+  typeof op === "object" && op !== null && (op as { type: string }).type === "emoji";
+
+const isZoomOp = (op: unknown): op is ZoomOperation =>
+  typeof op === "object" && op !== null && (op as { type: string }).type === "zoom";
+
+const SliderField = ({
+  label,
+  value,
+  min,
+  max,
+  step = 0.01,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step?: number;
+  onChange: (v: number) => void;
+}) => (
+  <div className="flex flex-col gap-1">
+    <label className="text-xs font-medium text-base-content/60">
+      {label}: {value.toFixed(2)}
+    </label>
+    <input
+      type="range"
+      min={min}
+      max={max}
+      step={step}
+      value={value}
+      onChange={(e) => onChange(parseFloat(e.target.value))}
+      className="range range-xs range-primary"
+    />
+  </div>
+);
+
+const BlurProperties = ({ op, index }: { op: BlurOperation; index: number }) => {
+  const updateOperation = useEditorStore((s) => s.updateOperation);
+  const update = (patch: Partial<BlurOperation>) => updateOperation(index, { ...op, ...patch });
+
+  return (
+    <div className="space-y-4">
+      <SliderField label="X" value={op.x} min={0} max={1 - op.width} onChange={(x) => update({ x })} />
+      <SliderField label="Y" value={op.y} min={0} max={1 - op.height} onChange={(y) => update({ y })} />
+      <SliderField label="Width" value={op.width} min={0.01} max={1 - op.x} onChange={(width) => update({ width })} />
+      <SliderField label="Height" value={op.height} min={0.01} max={1 - op.y} onChange={(height) => update({ height })} />
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-base-content/60">Radius: {op.radius}</label>
+        <input
+          type="range"
+          min={1}
+          max={100}
+          step={1}
+          value={op.radius}
+          onChange={(e) => update({ radius: parseInt(e.target.value, 10) })}
+          className="range range-xs range-primary"
+        />
+      </div>
+    </div>
+  );
+};
+
+const PixelateProperties = ({ op, index }: { op: PixelateOperation; index: number }) => {
+  const updateOperation = useEditorStore((s) => s.updateOperation);
+  const update = (patch: Partial<PixelateOperation>) => updateOperation(index, { ...op, ...patch });
+
+  return (
+    <div className="space-y-4">
+      <SliderField label="X" value={op.x} min={0} max={1 - op.width} onChange={(x) => update({ x })} />
+      <SliderField label="Y" value={op.y} min={0} max={1 - op.height} onChange={(y) => update({ y })} />
+      <SliderField label="Width" value={op.width} min={0.01} max={1 - op.x} onChange={(width) => update({ width })} />
+      <SliderField label="Height" value={op.height} min={0.01} max={1 - op.y} onChange={(height) => update({ height })} />
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-base-content/60">Pixel size: {op.pixelSize}</label>
+        <input
+          type="range"
+          min={2}
+          max={100}
+          step={1}
+          value={op.pixelSize}
+          onChange={(e) => update({ pixelSize: parseInt(e.target.value, 10) })}
+          className="range range-xs range-primary"
+        />
+      </div>
+    </div>
+  );
+};
+
+const EmojiProperties = ({ op, index }: { op: EmojiOperation; index: number }) => {
+  const updateOperation = useEditorStore((s) => s.updateOperation);
+  const update = (patch: Partial<EmojiOperation>) => updateOperation(index, { ...op, ...patch });
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-base-content/60">Emoji</label>
+        <input
+          type="text"
+          value={op.emoji}
+          onChange={(e) => update({ emoji: e.target.value })}
+          className="input input-sm input-bordered w-full bg-base-100 text-2xl"
+          maxLength={2}
+        />
+      </div>
+      <SliderField label="X" value={op.x} min={0} max={1} onChange={(x) => update({ x })} />
+      <SliderField label="Y" value={op.y} min={0} max={1} onChange={(y) => update({ y })} />
+      <SliderField label="Size" value={op.size} min={0.01} max={0.5} onChange={(size) => update({ size })} />
+    </div>
+  );
+};
+
+const ZoomProperties = ({ op, index }: { op: ZoomOperation; index: number }) => {
+  const updateOperation = useEditorStore((s) => s.updateOperation);
+  const update = (patch: Partial<ZoomOperation>) => updateOperation(index, { ...op, ...patch });
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-base-content/60">Scale: {op.scale.toFixed(2)}×</label>
+        <input
+          type="range"
+          min={0.5}
+          max={5}
+          step={0.05}
+          value={op.scale}
+          onChange={(e) => update({ scale: parseFloat(e.target.value) })}
+          className="range range-xs range-primary"
+        />
+      </div>
+      <SliderField label="Center X" value={op.centerX} min={0} max={1} onChange={(centerX) => update({ centerX })} />
+      <SliderField label="Center Y" value={op.centerY} min={0} max={1} onChange={(centerY) => update({ centerY })} />
+    </div>
+  );
+};
+
 export const PropertiesPanel = () => {
   const operations = useEditorStore((s) => s.operations);
   const selectedIndex = useEditorStore((s) => s.selectedOperationIndex);
@@ -634,13 +782,7 @@ export const PropertiesPanel = () => {
   return (
     <div className="w-72 border-l border-base-300 bg-base-200/30 p-4 overflow-y-auto">
       <h3 className="text-sm font-semibold mb-3 capitalize">
-        {isWatermarkOp(op)
-          ? "Watermark"
-          : isCropOperation(op)
-            ? "Crop"
-            : isCaptionOperation(op)
-              ? "Caption"
-              : String((op as Record<string, unknown>).type ?? "Properties")}
+        {String((op as Record<string, unknown>).type ?? "Properties")}
       </h3>
 
       {isWatermarkOp(op) ? (
@@ -649,6 +791,14 @@ export const PropertiesPanel = () => {
         <CropProperties op={op} index={selectedIndex} />
       ) : isCaptionOperation(op) ? (
         <CaptionProperties op={op} index={selectedIndex} />
+      ) : isBlurOp(op) ? (
+        <BlurProperties op={op} index={selectedIndex} />
+      ) : isPixelateOp(op) ? (
+        <PixelateProperties op={op} index={selectedIndex} />
+      ) : isEmojiOp(op) ? (
+        <EmojiProperties op={op} index={selectedIndex} />
+      ) : isZoomOp(op) ? (
+        <ZoomProperties op={op} index={selectedIndex} />
       ) : (
         <div className="space-y-3 text-sm">
           {Object.entries(op as Record<string, unknown>)
