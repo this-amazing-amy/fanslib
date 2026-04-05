@@ -263,6 +263,7 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
             totalFrames={totalFrames}
             fps={30}
             playing={playing}
+            filename={media?.relativePath.split("/").pop() ?? undefined}
             onSeek={seekToFrame}
             onPlay={handlePlay}
             onPause={handlePause}

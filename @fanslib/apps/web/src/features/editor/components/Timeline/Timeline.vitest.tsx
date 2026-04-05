@@ -1,6 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
+import { useClipStore } from "~/stores/clipStore";
 import { OperationBlock } from "./OperationBlock";
+import { SourceMediaBar } from "./SourceMediaBar";
 import { TrackHeader } from "./TrackHeader";
 import { TimeRuler } from "./TimeRuler";
 import { TransportControls } from "./TransportControls";
@@ -159,5 +161,32 @@ describe("TimeRuler", () => {
   test("renders without crashing", () => {
     render(<TimeRuler pixelsPerFrame={2} totalFrames={900} fps={30} scrollLeft={0} />);
     expect(screen.getByTestId("time-ruler")).toBeDefined();
+  });
+});
+
+describe("SourceMediaBar", () => {
+  afterEach(() => {
+    useClipStore.getState().reset();
+  });
+
+  test("renders with filename and data-testid", () => {
+    render(<SourceMediaBar filename="clip.mp4" totalFrames={900} pixelsPerFrame={2} />);
+    const bar = screen.getByTestId("source-media-bar");
+    expect(bar).toBeDefined();
+    expect(bar.textContent).toContain("clip.mp4");
+  });
+
+  test("renders clip range overlays from clipStore", () => {
+    useClipStore.getState().addRange(10, 100);
+    useClipStore.getState().addRange(200, 400);
+    render(<SourceMediaBar filename="video.mp4" totalFrames={900} pixelsPerFrame={2} />);
+    expect(screen.getByTestId("source-range-0")).toBeDefined();
+    expect(screen.getByTestId("source-range-1")).toBeDefined();
+  });
+
+  test("shows pending mark-in indicator", () => {
+    useClipStore.getState().setMarkInAtFrame(50);
+    render(<SourceMediaBar filename="video.mp4" totalFrames={900} pixelsPerFrame={2} />);
+    expect(screen.getByTestId("pending-mark-in")).toBeDefined();
   });
 });
