@@ -34,7 +34,6 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
   const setSourceMediaId = useEditorStore((s) => s.setSourceMediaId);
   const setEditId = useEditorStore((s) => s.setEditId);
   const clipMode = useClipStore((s) => s.clipMode);
-  const clipRanges = useClipStore((s) => s.ranges);
   const resetClips = useClipStore((s) => s.reset);
   const setSelectedOperationId = useEditorStore((s) => s.setSelectedOperationId);
 
@@ -194,12 +193,6 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
   }, [clipHotkeysActive]);
 
   useEffect(() => {
-    if (clipRanges.length > 0) {
-      setSelectedOperationId(null);
-    }
-  }, [clipRanges.length, setSelectedOperationId]);
-
-  useEffect(() => {
     if (!clipMode) return;
     setSelectedOperationId(null);
     useClipStore.getState().selectRange(null);
@@ -252,7 +245,6 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
               totalFrames={totalFrames}
               currentFrame={currentFrame}
               onPlayerFrameChange={setCurrentFrame}
-              transformEditingLocked={clipRanges.length > 0 || clipMode}
             />
             <PropertiesPanel />
           </div>

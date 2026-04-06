@@ -52,10 +52,7 @@ const useAnimation = (
   }
 };
 
-export const CaptionOverlay: React.FC<CaptionOverlayProps> = ({
-  caption,
-  compositionWidth,
-}) => {
+export const CaptionOverlay: React.FC<CaptionOverlayProps> = ({ caption, compositionWidth }) => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
   const animRaw = useAnimation(

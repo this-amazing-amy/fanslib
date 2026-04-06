@@ -101,8 +101,7 @@ const makeDefaultTrack = (): Track => ({
 });
 
 /** Flatten all operations from all tracks into a single ordered array */
-const flattenTracks = (tracks: Track[]): unknown[] =>
-  tracks.flatMap((t) => t.operations);
+const flattenTracks = (tracks: Track[]): unknown[] => tracks.flatMap((t) => t.operations);
 
 /**
  * Map a function over operations across all tracks, returning new tracks.
@@ -207,7 +206,10 @@ export const useEditorStore = create<EditorState>((set, get) => {
         const tracks = state.tracks.reduce<{ result: Track[]; offset: number; removed: boolean }>(
           (acc, t) => {
             if (!acc.removed && index < acc.offset + t.operations.length) {
-              acc.result.push({ ...t, operations: t.operations.filter((_, i) => i !== index - acc.offset) });
+              acc.result.push({
+                ...t,
+                operations: t.operations.filter((_, i) => i !== index - acc.offset),
+              });
               acc.removed = true;
             } else {
               acc.result.push({ ...t, operations: [...t.operations] });
@@ -251,7 +253,10 @@ export const useEditorStore = create<EditorState>((set, get) => {
         // Redistribute reordered ops back into tracks preserving per-track counts
         const tracks = state.tracks.reduce<{ result: Track[]; offset: number }>(
           (acc, t) => {
-            acc.result.push({ ...t, operations: flat.slice(acc.offset, acc.offset + t.operations.length) });
+            acc.result.push({
+              ...t,
+              operations: flat.slice(acc.offset, acc.offset + t.operations.length),
+            });
             acc.offset += t.operations.length;
             return acc;
           },
@@ -756,17 +761,19 @@ export const useEditorStore = create<EditorState>((set, get) => {
 
       // Detect format: array = legacy flat operations, object with tracks = new format
       const tracks: Track[] = Array.isArray(data)
-        ? [{
-            id: crypto.randomUUID(),
-            name: "Track 1",
-            operations: data.map((op) => {
-              const normalized = normalizeCropOperation(op);
-              const obj = normalized as Record<string, unknown>;
-              if (!obj.id) obj.id = crypto.randomUUID();
-              if (obj.startFrame === undefined && obj.type !== "clip") obj.startFrame = 0;
-              return normalized;
-            }),
-          }]
+        ? [
+            {
+              id: crypto.randomUUID(),
+              name: "Track 1",
+              operations: data.map((op) => {
+                const normalized = normalizeCropOperation(op);
+                const obj = normalized as Record<string, unknown>;
+                if (!obj.id) obj.id = crypto.randomUUID();
+                if (obj.startFrame === undefined && obj.type !== "clip") obj.startFrame = 0;
+                return normalized;
+              }),
+            },
+          ]
         : (data as { tracks: Track[] }).tracks;
 
       set({

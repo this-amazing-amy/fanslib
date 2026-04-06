@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Maximize2, Trash2 } from "lucide-react";
 import { useEditorStore } from "~/stores/editorStore";
+import { useClipStore } from "~/stores/clipStore";
+import { ClipTimeline } from "../ClipTimeline";
 import { Playhead } from "./Playhead";
 import { SourceMediaBar } from "./SourceMediaBar";
 import { TimeRuler } from "./TimeRuler";
@@ -39,6 +41,9 @@ export const Timeline = ({
   onSkipBack,
   onSkipForward,
 }: TimelineProps) => {
+  const clipMode = useClipStore((s) => s.clipMode);
+  const clipRanges = useClipStore((s) => s.ranges);
+  const showClipTimeline = clipMode || clipRanges.length > 0;
   const tracks = useEditorStore((s) => s.tracks);
   const selectedOperationId = useEditorStore((s) => s.selectedOperationId);
   const setSelectedOperationId = useEditorStore((s) => s.setSelectedOperationId);
@@ -211,11 +216,7 @@ export const Timeline = ({
           </div>
 
           {/* Track rows with playhead */}
-          <div
-            ref={scrollRef}
-            className="flex-1 overflow-x-auto relative"
-            onScroll={handleScroll}
-          >
+          <div ref={scrollRef} className="flex-1 overflow-x-auto relative" onScroll={handleScroll}>
             <Playhead
               currentFrame={currentFrame}
               pixelsPerFrame={pixelsPerFrame}
@@ -259,6 +260,8 @@ export const Timeline = ({
           </div>
         </div>
       </div>
+
+      {showClipTimeline && <ClipTimeline totalFrames={totalFrames} fps={fps} onSeek={onSeek} />}
 
       {/* Context menu */}
       {contextMenu && (

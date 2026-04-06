@@ -7,12 +7,7 @@ type PlayheadProps = {
   onSeek: (frame: number) => void;
 };
 
-export const Playhead = ({
-  currentFrame,
-  pixelsPerFrame,
-  totalFrames,
-  onSeek,
-}: PlayheadProps) => {
+export const Playhead = ({ currentFrame, pixelsPerFrame, totalFrames, onSeek }: PlayheadProps) => {
   const draggingRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -51,10 +46,7 @@ export const Playhead = ({
   const left = currentFrame * pixelsPerFrame;
 
   return (
-    <div
-      ref={containerRef}
-      className="absolute inset-0 pointer-events-none z-10"
-    >
+    <div ref={containerRef} className="absolute inset-0 pointer-events-none z-10">
       <div
         className="absolute top-0 h-full w-0.5 bg-error pointer-events-auto cursor-col-resize"
         style={{ left: `${left}px` }}
