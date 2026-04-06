@@ -18,7 +18,7 @@ const useAnimation = (
   const localFrame = frame - startFrame;
   const duration = endFrame - startFrame;
 
-  if (frame < startFrame || frame > endFrame) {
+  if (frame < startFrame || frame > endFrame || duration <= 0) {
     return { opacity: 0, transform: "none" };
   }
 

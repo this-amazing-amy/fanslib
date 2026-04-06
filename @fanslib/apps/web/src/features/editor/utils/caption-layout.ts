@@ -83,6 +83,7 @@ export const captionAnimationViewportOffsetPx = (
   }
   const localFrame = frame - startFrame;
   const duration = endFrame - startFrame;
+  if (duration <= 0) return { dx: 0, dy: 0 };
   const scaleY = canvasHeight / COMPOSITION_HEIGHT;
 
   switch (animation) {
