@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Maximize2, Trash2 } from "lucide-react";
 import { useEditorStore } from "~/stores/editorStore";
 import { Playhead } from "./Playhead";
 import { SourceMediaBar } from "./SourceMediaBar";
@@ -63,6 +63,12 @@ export const Timeline = ({
     },
     [],
   );
+
+  const handleFitToTimeline = useCallback(() => {
+    if (!scrollRef.current || totalFrames === 0) return;
+    const containerWidth = scrollRef.current.clientWidth;
+    setPixelsPerFrame(Math.max(0.5, Math.min(20, containerWidth / totalFrames)));
+  }, [totalFrames]);
 
   const handleScroll = useCallback(() => {
     if (scrollRef.current) {
@@ -157,6 +163,16 @@ export const Timeline = ({
           onSkipBack={onSkipBack}
           onSkipForward={onSkipForward}
         />
+        <div className="ml-auto flex items-center gap-1">
+          <button
+            className="btn btn-ghost btn-xs gap-1"
+            onClick={handleFitToTimeline}
+            title="Fit video to timeline"
+          >
+            <Maximize2 className="w-3.5 h-3.5" />
+            Fit
+          </button>
+        </div>
       </div>
 
       {/* Ruler + tracks area */}
@@ -171,6 +187,7 @@ export const Timeline = ({
                 totalFrames={totalFrames}
                 fps={fps}
                 scrollLeft={scrollLeft}
+                onSeek={onSeek}
               />
             </div>
           </div>
