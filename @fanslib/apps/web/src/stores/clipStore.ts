@@ -3,6 +3,7 @@ import { create } from "zustand";
 export type ClipRange = {
   startFrame: number;
   endFrame: number;
+  peakFrame?: number;
 };
 
 type ClipState = {
@@ -21,6 +22,7 @@ type ClipState = {
   removeRange: (index: number) => void;
   updateRange: (index: number, startFrame: number, endFrame: number) => void;
   selectRange: (index: number | null) => void;
+  setPeakAtFrame: (frame: number) => void;
   undo: () => void;
   redo: () => void;
   reset: () => void;
@@ -112,6 +114,18 @@ export const useClipStore = create<ClipState>((set, get) => {
 
     selectRange: (index) => {
       set({ selectedRangeIndex: index });
+    },
+
+    setPeakAtFrame: (frame) => {
+      const { ranges } = get();
+      const rangeIndex = ranges.findIndex((r) => frame >= r.startFrame && frame <= r.endFrame);
+      if (rangeIndex === -1) return;
+      pushHistory();
+      set((state) => ({
+        ranges: state.ranges.map((r, i) => (i === rangeIndex ? { ...r, peakFrame: frame } : r)),
+        canUndo: true,
+        canRedo: false,
+      }));
     },
 
     undo: () => {

@@ -122,7 +122,15 @@ export type ZoomOperation = {
 };
 
 /** Union of all supported edit operations */
-export type Operation = WatermarkOperation | ClipOperation | CropOperation | CaptionOperation | BlurOperation | PixelateOperation | EmojiOperation | ZoomOperation;
+export type Operation =
+  | WatermarkOperation
+  | ClipOperation
+  | CropOperation
+  | CaptionOperation
+  | BlurOperation
+  | PixelateOperation
+  | EmojiOperation
+  | ZoomOperation;
 
 /** A named track containing an ordered list of operations */
 export type Track = {

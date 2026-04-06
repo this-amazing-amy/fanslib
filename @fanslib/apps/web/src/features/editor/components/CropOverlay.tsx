@@ -10,7 +10,6 @@ import { relativeToPixel, type CanvasRect } from "../utils/coordinate-mapping";
 
 type CropOverlayProps = {
   canvasRect: CanvasRect | null;
-  interactive: boolean;
 };
 
 type DragState =
@@ -33,7 +32,7 @@ type DragState =
       startH: number;
     };
 
-export const CropOverlay = ({ canvasRect, interactive }: CropOverlayProps) => {
+export const CropOverlay = ({ canvasRect }: CropOverlayProps) => {
   const operations = useEditorStore((s) => s.operations);
   const cropEditingOperationId = useEditorStore((s) => s.cropEditingOperationId);
   const updateOperationById = useEditorStore((s) => s.updateOperationById);
@@ -107,7 +106,7 @@ export const CropOverlay = ({ canvasRect, interactive }: CropOverlayProps) => {
     };
   }, [dragState, cropEditingOperationId, operations, updateOperationById]);
 
-  if (!canvasRect || !interactive) return null;
+  if (!canvasRect) return null;
   if (cropEditingOperationId === null) return null;
 
   const op = (operations as Array<{ id?: string }>).find((o) => o.id === cropEditingOperationId);

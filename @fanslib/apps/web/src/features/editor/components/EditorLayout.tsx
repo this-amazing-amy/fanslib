@@ -34,7 +34,6 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
   const setSourceMediaId = useEditorStore((s) => s.setSourceMediaId);
   const setEditId = useEditorStore((s) => s.setEditId);
   const clipMode = useClipStore((s) => s.clipMode);
-  const clipRanges = useClipStore((s) => s.ranges);
   const resetClips = useClipStore((s) => s.reset);
   const setSelectedOperationId = useEditorStore((s) => s.setSelectedOperationId);
 
@@ -160,6 +159,18 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [clipHotkeysActive]);
 
+  // P key: set peak marker inside the clip range containing the playhead
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "p" && e.key !== "P") return;
+      if (isEditableKeyTarget(e.target)) return;
+      e.preventDefault();
+      useClipStore.getState().setPeakAtFrame(currentFrameRef.current);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
   useEffect(() => {
     if (clipHotkeysActive) return;
 
@@ -192,12 +203,6 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [clipHotkeysActive]);
-
-  useEffect(() => {
-    if (clipRanges.length > 0) {
-      setSelectedOperationId(null);
-    }
-  }, [clipRanges.length, setSelectedOperationId]);
 
   useEffect(() => {
     if (!clipMode) return;
@@ -252,7 +257,6 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
               totalFrames={totalFrames}
               currentFrame={currentFrame}
               onPlayerFrameChange={setCurrentFrame}
-              transformEditingLocked={clipRanges.length > 0 || clipMode}
             />
             <PropertiesPanel />
           </div>

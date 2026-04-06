@@ -15,6 +15,11 @@ type PixelateRegionProps = {
 export const PixelateRegion: React.FC<PixelateRegionProps> = ({ pixelate }) => {
   const frame = useCurrentFrame();
   const id = useId();
+
+  if (pixelate.startFrame != null && pixelate.endFrame != null) {
+    if (frame < pixelate.startFrame || frame >= pixelate.endFrame) return null;
+  }
+
   const properties = ["x", "y", "width", "height"];
 
   const values =

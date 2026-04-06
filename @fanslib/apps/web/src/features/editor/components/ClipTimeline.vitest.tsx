@@ -148,3 +148,49 @@ describe("ClipTimeline — delete clip regions", () => {
     expect(closeBtn).toBeTruthy();
   });
 });
+
+describe("ClipTimeline — pending clip region visualization", () => {
+  test("renders pending region from mark-in to current playhead", () => {
+    useClipStore.getState().toggleClipMode();
+    useClipStore.getState().setMarkInAtFrame(100);
+
+    const { container } = render(<ClipTimeline {...defaultProps} currentFrame={400} />);
+
+    const pendingRegion = container.querySelector("[data-testid='pending-clip-region']");
+    expect(pendingRegion).toBeTruthy();
+  });
+
+  test("pending region is not visible when no mark-in is set", () => {
+    useClipStore.getState().toggleClipMode();
+
+    const { container } = render(<ClipTimeline {...defaultProps} currentFrame={400} />);
+
+    const pendingRegion = container.querySelector("[data-testid='pending-clip-region']");
+    expect(pendingRegion).toBeNull();
+  });
+
+  test("duration flag shows running length in seconds", () => {
+    useClipStore.getState().toggleClipMode();
+    useClipStore.getState().setMarkInAtFrame(0);
+
+    // At frame 210 with 30fps, that's 7.0 seconds
+    render(<ClipTimeline {...defaultProps} currentFrame={210} />);
+
+    expect(screen.getByTestId("pending-duration-flag").textContent).toBe("7.0s");
+  });
+
+  test("pending region disappears when clip is committed", () => {
+    useClipStore.getState().toggleClipMode();
+    useClipStore.getState().setMarkInAtFrame(100);
+
+    const { container, rerender } = render(<ClipTimeline {...defaultProps} currentFrame={400} />);
+
+    // Commit the clip
+    useClipStore.getState().commitMarkOutAtFrame(400);
+
+    rerender(<ClipTimeline {...defaultProps} currentFrame={400} />);
+
+    const pendingRegion = container.querySelector("[data-testid='pending-clip-region']");
+    expect(pendingRegion).toBeNull();
+  });
+});
