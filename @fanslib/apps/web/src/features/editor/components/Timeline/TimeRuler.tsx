@@ -3,6 +3,7 @@ type TimeRulerProps = {
   totalFrames: number;
   fps: number;
   scrollLeft: number;
+  onSeek?: (frame: number) => void;
 };
 
 export const TimeRuler = ({
@@ -10,6 +11,7 @@ export const TimeRuler = ({
   totalFrames,
   fps,
   scrollLeft: _scrollLeft,
+  onSeek,
 }: TimeRulerProps) => {
   const totalWidth = totalFrames * pixelsPerFrame;
 
@@ -31,11 +33,18 @@ export const TimeRuler = ({
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
+  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!onSeek) return;
+    const frame = Math.round(e.nativeEvent.offsetX / pixelsPerFrame);
+    onSeek(Math.max(0, Math.min(totalFrames, frame)));
+  };
+
   return (
     <div
       data-testid="time-ruler"
-      className="h-6 relative border-b border-base-300 overflow-hidden"
+      className={`h-6 relative border-b border-base-300 overflow-hidden${onSeek ? " cursor-pointer select-none" : ""}`}
       style={{ width: `${totalWidth}px` }}
+      onClick={handleClick}
     >
       {ticks.map((tick) => (
         <div
