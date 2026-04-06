@@ -22,6 +22,9 @@ type ClipState = {
   removeRange: (index: number) => void;
   updateRange: (index: number, startFrame: number, endFrame: number) => void;
   selectRange: (index: number | null) => void;
+  isFrameInsideRange: (frame: number) => boolean;
+  adjustRangeIn: (frame: number) => void;
+  adjustRangeOut: (frame: number) => void;
   setPeakAtFrame: (frame: number) => void;
   undo: () => void;
   redo: () => void;
@@ -40,6 +43,12 @@ export const useClipStore = create<ClipState>((set, get) => {
     undoStack.push([...get().ranges]);
     redoStack = [];
   };
+
+  const frameInsideAnyRange = (frame: number, excludeIndex?: number): boolean =>
+    get().ranges.some((r, i) => i !== excludeIndex && frame >= r.startFrame && frame <= r.endFrame);
+
+  const rangeOverlapsAny = (start: number, end: number, excludeIndex?: number): boolean =>
+    get().ranges.some((r, i) => i !== excludeIndex && start < r.endFrame && end > r.startFrame);
 
   return {
     ranges: [],
@@ -60,6 +69,7 @@ export const useClipStore = create<ClipState>((set, get) => {
     },
 
     setMarkInAtFrame: (frame) => {
+      if (frameInsideAnyRange(frame)) return;
       set({ pendingMarkInFrame: frame });
     },
 
@@ -69,6 +79,10 @@ export const useClipStore = create<ClipState>((set, get) => {
       const startFrame = Math.min(pending, frame);
       const endFrame = Math.max(pending, frame);
       if (endFrame <= startFrame) {
+        set({ pendingMarkInFrame: null });
+        return;
+      }
+      if (rangeOverlapsAny(startFrame, endFrame)) {
         set({ pendingMarkInFrame: null });
         return;
       }
@@ -114,6 +128,40 @@ export const useClipStore = create<ClipState>((set, get) => {
 
     selectRange: (index) => {
       set({ selectedRangeIndex: index });
+    },
+
+    isFrameInsideRange: (frame) => frameInsideAnyRange(frame),
+
+    adjustRangeIn: (frame) => {
+      const { selectedRangeIndex, ranges } = get();
+      if (selectedRangeIndex === null) return;
+      const range = ranges[selectedRangeIndex];
+      if (!range || frame >= range.endFrame) return;
+      if (rangeOverlapsAny(frame, range.endFrame, selectedRangeIndex)) return;
+      pushHistory();
+      set((state) => ({
+        ranges: state.ranges.map((r, i) =>
+          i === selectedRangeIndex ? { ...r, startFrame: frame } : r,
+        ),
+        canUndo: true,
+        canRedo: false,
+      }));
+    },
+
+    adjustRangeOut: (frame) => {
+      const { selectedRangeIndex, ranges } = get();
+      if (selectedRangeIndex === null) return;
+      const range = ranges[selectedRangeIndex];
+      if (!range || frame <= range.startFrame) return;
+      if (rangeOverlapsAny(range.startFrame, frame, selectedRangeIndex)) return;
+      pushHistory();
+      set((state) => ({
+        ranges: state.ranges.map((r, i) =>
+          i === selectedRangeIndex ? { ...r, endFrame: frame } : r,
+        ),
+        canUndo: true,
+        canRedo: false,
+      }));
     },
 
     setPeakAtFrame: (frame) => {

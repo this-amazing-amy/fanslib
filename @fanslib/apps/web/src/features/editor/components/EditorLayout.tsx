@@ -147,11 +147,26 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
       if (isEditableKeyTarget(e.target)) return;
       e.preventDefault();
       const frame = currentFrameRef.current;
-      const { setMarkInAtFrame, commitMarkOutAtFrame } = useClipStore.getState();
+      const store = useClipStore.getState();
+
+      // When a clip region is explicitly selected, I/O adjust its boundaries
+      if (store.selectedRangeIndex !== null) {
+        if (e.key === "i" || e.key === "I") {
+          store.adjustRangeIn(frame);
+        } else {
+          store.adjustRangeOut(frame);
+        }
+        return;
+      }
+
+      // Nothing selected, playhead inside a region: no-op
+      if (store.isFrameInsideRange(frame)) return;
+
+      // Nothing selected, playhead outside: create new clip
       if (e.key === "i" || e.key === "I") {
-        setMarkInAtFrame(frame);
+        store.setMarkInAtFrame(frame);
       } else {
-        commitMarkOutAtFrame(frame);
+        store.commitMarkOutAtFrame(frame);
       }
     };
 
