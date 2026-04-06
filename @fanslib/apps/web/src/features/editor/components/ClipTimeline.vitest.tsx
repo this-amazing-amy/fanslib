@@ -83,6 +83,72 @@ describe("ClipTimeline — clip region selection", () => {
   });
 });
 
+describe("ClipTimeline — delete clip regions", () => {
+  beforeEach(() => {
+    useClipStore.getState().reset();
+  });
+
+  test("pressing Backspace removes the selected clip region", () => {
+    useClipStore.getState().addRange(0, 100);
+    useClipStore.getState().addRange(200, 400);
+    useClipStore.getState().selectRange(0);
+
+    render(<ClipTimeline {...defaultProps} />);
+
+    fireEvent.keyDown(document, { key: "Backspace" });
+
+    expect(useClipStore.getState().ranges).toHaveLength(1);
+    expect(useClipStore.getState().ranges[0].startFrame).toBe(200);
+    expect(useClipStore.getState().selectedRangeIndex).toBeNull();
+  });
+
+  test("pressing Delete removes the selected clip region", () => {
+    useClipStore.getState().addRange(0, 100);
+    useClipStore.getState().selectRange(0);
+
+    render(<ClipTimeline {...defaultProps} />);
+
+    fireEvent.keyDown(document, { key: "Delete" });
+
+    expect(useClipStore.getState().ranges).toHaveLength(0);
+    expect(useClipStore.getState().selectedRangeIndex).toBeNull();
+  });
+
+  test("pressing Backspace with no selection does nothing", () => {
+    useClipStore.getState().addRange(0, 100);
+    useClipStore.getState().selectRange(null);
+
+    render(<ClipTimeline {...defaultProps} />);
+
+    fireEvent.keyDown(document, { key: "Backspace" });
+
+    expect(useClipStore.getState().ranges).toHaveLength(1);
+  });
+
+  test("deletion is undoable", () => {
+    useClipStore.getState().addRange(0, 100);
+    useClipStore.getState().selectRange(0);
+
+    render(<ClipTimeline {...defaultProps} />);
+
+    fireEvent.keyDown(document, { key: "Delete" });
+    expect(useClipStore.getState().ranges).toHaveLength(0);
+
+    useClipStore.getState().undo();
+    expect(useClipStore.getState().ranges).toHaveLength(1);
+  });
+
+  test("close button visible on selected clip region", () => {
+    useClipStore.getState().addRange(0, 100);
+    // addRange auto-selects
+
+    const { container } = render(<ClipTimeline {...defaultProps} />);
+
+    const closeBtn = container.querySelector("[data-testid='clip-close-btn-0']");
+    expect(closeBtn).toBeTruthy();
+  });
+});
+
 describe("ClipTimeline — pending clip region visualization", () => {
   test("renders pending region from mark-in to current playhead", () => {
     useClipStore.getState().toggleClipMode();

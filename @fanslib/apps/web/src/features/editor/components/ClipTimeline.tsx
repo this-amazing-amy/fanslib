@@ -44,13 +44,17 @@ export const ClipTimeline = ({ totalFrames, fps, currentFrame = 0, onSeek }: Cli
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && selectedRangeIndex !== null) {
+      if (selectedRangeIndex === null) return;
+      if (e.key === "Escape") {
+        selectRange(null);
+      } else if (e.key === "Backspace" || e.key === "Delete") {
+        removeRange(selectedRangeIndex);
         selectRange(null);
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [selectedRangeIndex, selectRange]);
+  }, [selectedRangeIndex, selectRange, removeRange]);
 
   const frameFromEvent = useCallback(
     (e: React.MouseEvent): number => {
@@ -154,6 +158,19 @@ export const ClipTimeline = ({ totalFrames, fps, currentFrame = 0, onSeek }: Cli
               <span className="absolute top-0.5 left-1 text-[10px] font-mono text-base-content/60">
                 {formatTime(range.startFrame, fps)} – {formatTime(range.endFrame, fps)}
               </span>
+              {isSelected && (
+                <button
+                  data-testid={`clip-close-btn-${index}`}
+                  className="absolute top-0.5 right-0.5 w-4 h-4 flex items-center justify-center rounded-full bg-error/80 text-error-content text-[10px] leading-none hover:bg-error"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeRange(index);
+                    selectRange(null);
+                  }}
+                >
+                  ×
+                </button>
+              )}
               {range.peakFrame !== undefined &&
                 (() => {
                   const rangeDuration = range.endFrame - range.startFrame;
