@@ -148,6 +148,23 @@ export const ClipTimeline = ({ totalFrames, fps, onSeek }: ClipTimelineProps) =>
               <span className="absolute top-0.5 left-1 text-[10px] font-mono text-base-content/60">
                 {formatTime(range.startFrame, fps)} – {formatTime(range.endFrame, fps)}
               </span>
+              {range.peakFrame !== undefined &&
+                (() => {
+                  const rangeDuration = range.endFrame - range.startFrame;
+                  const peakOffset =
+                    rangeDuration > 0
+                      ? ((range.peakFrame - range.startFrame) / rangeDuration) * 100
+                      : 0;
+                  return (
+                    <div
+                      data-testid={`peak-marker-${index}`}
+                      className="absolute top-0 bottom-0 w-0.5 bg-error"
+                      style={{ left: `${peakOffset}%` }}
+                    >
+                      <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-error rotate-45" />
+                    </div>
+                  );
+                })()}
             </div>
           );
         })}
