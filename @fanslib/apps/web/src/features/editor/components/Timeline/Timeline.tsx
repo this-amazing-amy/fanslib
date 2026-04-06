@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Trash2 } from "lucide-react";
 import { useEditorStore } from "~/stores/editorStore";
 import { Playhead } from "./Playhead";
@@ -52,17 +52,22 @@ export const Timeline = ({
   const [contextMenu, setContextMenu] = useState<ContextMenuState>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const handleWheel = useCallback(
-    (e: React.WheelEvent) => {
+  const wheelContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = wheelContainerRef.current;
+    if (!el) return;
+    const handleWheel = (e: WheelEvent) => {
       if (e.ctrlKey || e.metaKey) {
         e.preventDefault();
         setPixelsPerFrame((prev) =>
           Math.max(0.5, Math.min(20, prev + (e.deltaY > 0 ? -0.25 : 0.25))),
         );
       }
-    },
-    [],
-  );
+    };
+    el.addEventListener("wheel", handleWheel, { passive: false });
+    return () => el.removeEventListener("wheel", handleWheel);
+  }, []);
 
   const handleScroll = useCallback(() => {
     if (scrollRef.current) {
@@ -160,7 +165,7 @@ export const Timeline = ({
       </div>
 
       {/* Ruler + tracks area */}
-      <div className="flex flex-col overflow-hidden" onWheel={handleWheel}>
+      <div ref={wheelContainerRef} className="flex flex-col overflow-hidden">
         {/* Ruler row */}
         <div className="flex">
           <div className="w-32 shrink-0 border-r border-base-300" />
