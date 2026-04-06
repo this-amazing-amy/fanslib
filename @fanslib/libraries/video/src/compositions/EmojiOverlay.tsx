@@ -9,10 +9,7 @@ type EmojiOverlayProps = {
   compositionHeight: number;
 };
 
-export const EmojiOverlay: React.FC<EmojiOverlayProps> = ({
-  emojiOp,
-  compositionWidth,
-}) => {
+export const EmojiOverlay: React.FC<EmojiOverlayProps> = ({ emojiOp, compositionWidth }) => {
   const frame = useCurrentFrame();
   const properties = ["x", "y", "size"];
 

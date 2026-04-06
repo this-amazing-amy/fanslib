@@ -28,48 +28,47 @@ export const TransportControls = ({
   onPause,
   onSkipBack,
   onSkipForward,
-}: TransportControlsProps) => <div className="flex items-center gap-1">
+}: TransportControlsProps) => (
+  <div className="flex items-center gap-1">
+    <button
+      type="button"
+      className="btn btn-ghost btn-xs btn-square"
+      onClick={onSkipBack}
+      aria-label="Skip back"
+    >
+      <SkipBack className="w-4 h-4" />
+    </button>
+    {playing ? (
       <button
         type="button"
+        data-testid="transport-pause"
         className="btn btn-ghost btn-xs btn-square"
-        onClick={onSkipBack}
-        aria-label="Skip back"
+        onClick={onPause}
+        aria-label="Pause"
       >
-        <SkipBack className="w-4 h-4" />
+        <Pause className="w-4 h-4" />
       </button>
-      {playing ? (
-        <button
-          type="button"
-          data-testid="transport-pause"
-          className="btn btn-ghost btn-xs btn-square"
-          onClick={onPause}
-          aria-label="Pause"
-        >
-          <Pause className="w-4 h-4" />
-        </button>
-      ) : (
-        <button
-          type="button"
-          data-testid="transport-play"
-          className="btn btn-ghost btn-xs btn-square"
-          onClick={onPlay}
-          aria-label="Play"
-        >
-          <Play className="w-4 h-4" />
-        </button>
-      )}
+    ) : (
       <button
         type="button"
+        data-testid="transport-play"
         className="btn btn-ghost btn-xs btn-square"
-        onClick={onSkipForward}
-        aria-label="Skip forward"
+        onClick={onPlay}
+        aria-label="Play"
       >
-        <SkipForward className="w-4 h-4" />
+        <Play className="w-4 h-4" />
       </button>
-      <span
-        data-testid="transport-timecode"
-        className="font-mono text-xs tabular-nums px-2"
-      >
-        {formatTimecode(currentFrame, fps)}
-      </span>
-    </div>;
+    )}
+    <button
+      type="button"
+      className="btn btn-ghost btn-xs btn-square"
+      onClick={onSkipForward}
+      aria-label="Skip forward"
+    >
+      <SkipForward className="w-4 h-4" />
+    </button>
+    <span data-testid="transport-timecode" className="font-mono text-xs tabular-nums px-2">
+      {formatTimecode(currentFrame, fps)}
+    </span>
+  </div>
+);

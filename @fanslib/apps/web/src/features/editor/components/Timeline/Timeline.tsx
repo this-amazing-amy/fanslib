@@ -211,11 +211,7 @@ export const Timeline = ({
           </div>
 
           {/* Track rows with playhead */}
-          <div
-            ref={scrollRef}
-            className="flex-1 overflow-x-auto relative"
-            onScroll={handleScroll}
-          >
+          <div ref={scrollRef} className="flex-1 overflow-x-auto relative" onScroll={handleScroll}>
             <Playhead
               currentFrame={currentFrame}
               pixelsPerFrame={pixelsPerFrame}
