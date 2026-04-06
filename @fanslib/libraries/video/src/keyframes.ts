@@ -52,23 +52,17 @@ export const interpolateKeyframes = (
   }
 
   if (sorted.length === 1) {
-    return Object.fromEntries(
-      properties.map((p) => [p, first.values[p] ?? 0]),
-    );
+    return Object.fromEntries(properties.map((p) => [p, first.values[p] ?? 0]));
   }
 
   // Before first keyframe
   if (frame <= first.frame) {
-    return Object.fromEntries(
-      properties.map((p) => [p, first.values[p] ?? 0]),
-    );
+    return Object.fromEntries(properties.map((p) => [p, first.values[p] ?? 0]));
   }
 
   // After last keyframe
   if (frame >= last.frame) {
-    return Object.fromEntries(
-      properties.map((p) => [p, last.values[p] ?? 0]),
-    );
+    return Object.fromEntries(properties.map((p) => [p, last.values[p] ?? 0]));
   }
 
   // Find surrounding keyframes
@@ -83,9 +77,7 @@ export const interpolateKeyframes = (
 
   // Exact match
   if (next.frame === frame) {
-    return Object.fromEntries(
-      properties.map((p) => [p, next.values[p] ?? 0]),
-    );
+    return Object.fromEntries(properties.map((p) => [p, next.values[p] ?? 0]));
   }
 
   // Interpolate between prev and next

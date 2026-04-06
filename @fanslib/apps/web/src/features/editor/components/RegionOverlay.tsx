@@ -19,8 +19,6 @@ type SpatialOp = {
 
 type RegionOverlayProps = {
   canvasRect: CanvasRect | null;
-  /** When false, overlays are not shown (e.g. while clip ranges lock transform editing). */
-  interactive?: boolean;
   /** Matches Remotion preview frame for caption animation alignment. */
   currentFrame?: number;
   /** Same as Player `durationInFrames` (1 for still preview). */
@@ -51,7 +49,6 @@ type DragState =
 
 export const RegionOverlay = ({
   canvasRect,
-  interactive = true,
   currentFrame = 0,
   previewDurationInFrames = 1,
 }: RegionOverlayProps) => {
@@ -129,7 +126,6 @@ export const RegionOverlay = ({
   }, [dragState, selectedId, operations, updateOperationById]);
 
   if (!canvasRect) return null;
-  if (!interactive) return null;
 
   const canvas = canvasRect;
 

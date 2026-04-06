@@ -247,10 +247,23 @@ describe("editorStore", () => {
   test("hydrate assigns default time ranges to operations that lack them", () => {
     const legacyOps = [
       { type: "blur", x: 0.4, y: 0.4, width: 0.15, height: 0.15, radius: 20, keyframes: [] },
-      { type: "caption", text: "hello", x: 0.5, y: 0.8, fontSize: 0.05, color: "#fff", animation: "fade-in", startFrame: 10, endFrame: 50 },
+      {
+        type: "caption",
+        text: "hello",
+        x: 0.5,
+        y: 0.8,
+        fontSize: 0.05,
+        color: "#fff",
+        animation: "fade-in",
+        startFrame: 10,
+        endFrame: 50,
+      },
     ];
     useEditorStore.getState().hydrate(legacyOps);
-    const ops = useEditorStore.getState().operations as Array<{ startFrame?: number; endFrame?: number }>;
+    const ops = useEditorStore.getState().operations as Array<{
+      startFrame?: number;
+      endFrame?: number;
+    }>;
     // blur had no time range — should get defaults (0, undefined)
     expect(ops[0].startFrame).toBe(0);
     // caption already had time range — should be preserved
@@ -416,7 +429,9 @@ describe("editorStore", () => {
       expect(op.height).toBe(0.15);
       expect(op.radius).toBe(20);
       expect(op.keyframes).toEqual([]);
-      expect(useEditorStore.getState().selectedOperationId).toBe((useEditorStore.getState().operations[0] as { id: string }).id);
+      expect(useEditorStore.getState().selectedOperationId).toBe(
+        (useEditorStore.getState().operations[0] as { id: string }).id,
+      );
     });
 
     test("addBlur is undoable", () => {
@@ -447,7 +462,9 @@ describe("editorStore", () => {
       expect(op.y).toBe(0.5);
       expect(op.size).toBe(0.08);
       expect(op.keyframes).toEqual([]);
-      expect(useEditorStore.getState().selectedOperationId).toBe((useEditorStore.getState().operations[0] as { id: string }).id);
+      expect(useEditorStore.getState().selectedOperationId).toBe(
+        (useEditorStore.getState().operations[0] as { id: string }).id,
+      );
     });
 
     test("addEmoji is undoable", () => {
@@ -479,7 +496,9 @@ describe("editorStore", () => {
       expect(op.height).toBe(0.15);
       expect(op.pixelSize).toBe(10);
       expect(op.keyframes).toEqual([]);
-      expect(useEditorStore.getState().selectedOperationId).toBe((useEditorStore.getState().operations[0] as { id: string }).id);
+      expect(useEditorStore.getState().selectedOperationId).toBe(
+        (useEditorStore.getState().operations[0] as { id: string }).id,
+      );
     });
 
     test("addPixelate is undoable", () => {
@@ -630,7 +649,9 @@ describe("editorStore", () => {
       expect(op.centerX).toBe(0.5);
       expect(op.centerY).toBe(0.5);
       expect(op.keyframes).toEqual([]);
-      expect(useEditorStore.getState().selectedOperationId).toBe((useEditorStore.getState().operations[0] as { id: string }).id);
+      expect(useEditorStore.getState().selectedOperationId).toBe(
+        (useEditorStore.getState().operations[0] as { id: string }).id,
+      );
     });
 
     test("addZoom is undoable", () => {

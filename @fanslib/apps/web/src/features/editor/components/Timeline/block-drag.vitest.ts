@@ -1,10 +1,5 @@
 import { describe, expect, test } from "vitest";
-import {
-  computeMove,
-  computeTrimStart,
-  computeTrimEnd,
-  detectEdge,
-} from "./block-drag";
+import { computeMove, computeTrimStart, computeTrimEnd, detectEdge } from "./block-drag";
 
 describe("block-drag frame math", () => {
   describe("computeMove", () => {
