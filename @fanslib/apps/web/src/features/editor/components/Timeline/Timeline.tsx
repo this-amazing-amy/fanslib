@@ -60,9 +60,7 @@ export const Timeline = ({
     const handleWheel = (e: WheelEvent) => {
       if (e.ctrlKey || e.metaKey) {
         e.preventDefault();
-        setPixelsPerFrame((prev) =>
-          Math.max(0.5, Math.min(20, prev + (e.deltaY > 0 ? -0.25 : 0.25))),
-        );
+        setPixelsPerFrame((prev) => prev * (e.deltaY > 0 ? 0.9 : 1.1));
       }
     };
     el.addEventListener("wheel", handleWheel, { passive: false });
