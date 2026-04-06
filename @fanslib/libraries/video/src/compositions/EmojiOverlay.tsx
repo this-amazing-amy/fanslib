@@ -14,6 +14,11 @@ export const EmojiOverlay: React.FC<EmojiOverlayProps> = ({
   compositionWidth,
 }) => {
   const frame = useCurrentFrame();
+
+  if (emojiOp.startFrame != null && emojiOp.endFrame != null) {
+    if (frame < emojiOp.startFrame || frame >= emojiOp.endFrame) return null;
+  }
+
   const properties = ["x", "y", "size"];
 
   const values =
