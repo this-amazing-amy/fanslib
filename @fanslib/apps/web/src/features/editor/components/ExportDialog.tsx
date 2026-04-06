@@ -4,6 +4,8 @@ import { Button } from "~/components/ui/Button";
 import { useEditorStore } from "~/stores/editorStore";
 import { useClipStore } from "~/stores/clipStore";
 import { QUERY_KEYS } from "~/lib/queries/query-keys";
+import { intersectOperationsWithClip } from "../utils/clip-intersection";
+import type { Track } from "@fanslib/video/types";
 
 type ExportDialogProps = {
   open: boolean;
@@ -17,6 +19,7 @@ export const ExportDialog = ({ open, onOpenChange }: ExportDialogProps) => {
   const editId = useEditorStore((s) => s.editId);
   const sourceMediaId = useEditorStore((s) => s.sourceMediaId);
   const operations = useEditorStore((s) => s.operations);
+  const tracks = useEditorStore((s) => s.tracks) as Track[];
   const setEditId = useEditorStore((s) => s.setEditId);
   const markClean = useEditorStore((s) => s.markClean);
   const clipRanges = useClipStore((s) => s.ranges);
@@ -53,7 +56,11 @@ export const ExportDialog = ({ open, onOpenChange }: ExportDialogProps) => {
     return () => dialog.removeEventListener("close", handleClose);
   }, [onOpenChange]);
 
-  const createAndQueueEdit = async (type: "transform" | "clip", ops: unknown[]): Promise<void> => {
+  const createAndQueueEdit = async (
+    type: "transform" | "clip",
+    ops: unknown[],
+    editTracks?: Track[],
+  ): Promise<void> => {
     const res = await fetch("/api/media-edits", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -61,6 +68,7 @@ export const ExportDialog = ({ open, onOpenChange }: ExportDialogProps) => {
         sourceMediaId,
         type,
         operations: ops,
+        ...(editTracks && editTracks.length > 0 ? { tracks: editTracks } : {}),
       }),
     });
     if (!res.ok) throw new Error("Failed to create edit");
@@ -77,14 +85,17 @@ export const ExportDialog = ({ open, onOpenChange }: ExportDialogProps) => {
     setError(null);
     try {
       if (isClipExport) {
-        // Batch export: one MediaEdit per clip range
+        // Batch export: one MediaEdit per clip range, with intersected operations
         await clipRanges.reduce(
           (promise, range) =>
-            promise.then(() =>
-              createAndQueueEdit("clip", [
-                { type: "clip", startFrame: range.startFrame, endFrame: range.endFrame },
-              ]),
-            ),
+            promise.then(() => {
+              const remappedTracks = intersectOperationsWithClip(tracks, range);
+              return createAndQueueEdit(
+                "clip",
+                [{ type: "clip", startFrame: range.startFrame, endFrame: range.endFrame }],
+                remappedTracks.length > 0 ? remappedTracks : undefined,
+              );
+            }),
           Promise.resolve(),
         );
       } else {
@@ -138,6 +149,7 @@ export const ExportDialog = ({ open, onOpenChange }: ExportDialogProps) => {
   }, [
     isClipExport,
     clipRanges,
+    tracks,
     editId,
     sourceMediaId,
     operations,
@@ -160,9 +172,8 @@ export const ExportDialog = ({ open, onOpenChange }: ExportDialogProps) => {
         </h3>
         {isClipExport && (
           <p className="text-xs text-base-content/50 mb-4">
-            Each clip is queued as its own render using only the time range on the source file.
-            Layer operations (blur, watermark, etc.) are not included—use Export without clips to
-            render the full transform stack.
+            Each clip is queued as its own render. Operations (blur, watermark, etc.) that overlap
+            the clip window are included with frame positions remapped to the clip.
           </p>
         )}
 
