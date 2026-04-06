@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Trash2, Scissors } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { useClipStore } from "~/stores/clipStore";
@@ -36,12 +36,25 @@ export const ClipTimeline = ({ totalFrames, fps, onSeek }: ClipTimelineProps) =>
   const [dragStart, setDragStart] = useState<number | null>(null);
   const [dragEnd, setDragEnd] = useState<number | null>(null);
 
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && selectedRangeIndex !== null) {
+        selectRange(null);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [selectedRangeIndex, selectRange]);
+
   const frameFromEvent = useCallback(
     (e: React.MouseEvent): number => {
       const rect = timelineRef.current?.getBoundingClientRect();
       if (!rect) return 0;
       const x = e.clientX - rect.left;
-      return Math.max(0, Math.min(totalFrames - 1, Math.round((x / rect.width) * (totalFrames - 1))));
+      return Math.max(
+        0,
+        Math.min(totalFrames - 1, Math.round((x / rect.width) * (totalFrames - 1))),
+      );
     },
     [totalFrames],
   );
@@ -98,12 +111,18 @@ export const ClipTimeline = ({ totalFrames, fps, onSeek }: ClipTimelineProps) =>
       {/* Timeline bar */}
       <div
         ref={timelineRef}
+        data-testid="clip-timeline-bar"
         className={`relative h-10 bg-base-300 rounded ${clipMode ? "cursor-crosshair" : "cursor-pointer"}`}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={() => {
           if (dragStart !== null) handleMouseUp();
+        }}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) {
+            selectRange(null);
+          }
         }}
       >
         {/* Existing ranges */}
@@ -115,7 +134,7 @@ export const ClipTimeline = ({ totalFrames, fps, onSeek }: ClipTimelineProps) =>
 
           return (
             <div
-              key={index}
+              key={`${range.startFrame}-${range.endFrame}`}
               className={`absolute top-0 bottom-0 border-2 rounded ${colorClass} ${
                 isSelected ? "ring-2 ring-primary ring-offset-1" : ""
               }`}
@@ -153,7 +172,7 @@ export const ClipTimeline = ({ totalFrames, fps, onSeek }: ClipTimelineProps) =>
             const isSelected = selectedRangeIndex === index;
             return (
               <div
-                key={index}
+                key={`${range.startFrame}-${range.endFrame}`}
                 className={`flex items-center gap-2 px-2 py-1 rounded text-xs ${
                   isSelected ? "bg-base-300" : "hover:bg-base-300/50"
                 } cursor-pointer`}
