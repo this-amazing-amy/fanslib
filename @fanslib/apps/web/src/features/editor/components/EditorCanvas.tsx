@@ -405,7 +405,7 @@ export const EditorCanvas = forwardRef<EditorCanvasHandle, EditorCanvasProps>(
       const container = playerAreaRef.current;
       if (!container) return;
 
-      let cleanupFn: (() => void) | undefined;
+      const cleanup = { fn: undefined as (() => void) | undefined };
 
       const attachToVideo = () => {
         const video = container.querySelector("video");
@@ -417,14 +417,14 @@ export const EditorCanvas = forwardRef<EditorCanvasHandle, EditorCanvasProps>(
         video.addEventListener("seeking", onSeeking);
         video.addEventListener("seeked", onSeeked);
 
-        cleanupFn = () => {
+        cleanup.fn = () => {
           video.removeEventListener("seeking", onSeeking);
           video.removeEventListener("seeked", onSeeked);
         };
         return true;
       };
 
-      if (attachToVideo()) return () => cleanupFn?.();
+      if (attachToVideo()) return () => cleanup.fn?.();
 
       // Video element may not be in the DOM yet — wait for it
       const observer = new MutationObserver(() => {
@@ -434,7 +434,7 @@ export const EditorCanvas = forwardRef<EditorCanvasHandle, EditorCanvasProps>(
 
       return () => {
         observer.disconnect();
-        cleanupFn?.();
+        cleanup.fn?.();
       };
     }, [isVideo]);
     const compositionViewport = useRemotionCompositionViewport(
