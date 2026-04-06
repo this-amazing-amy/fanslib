@@ -39,6 +39,9 @@ export class MediaEdit {
   @Column({ type: "simple-json", name: "operations" })
   operations!: unknown[];
 
+  @Column({ type: "simple-json", nullable: true, name: "tracks" })
+  tracks: unknown[] | null = null;
+
   @Column({ type: "varchar", default: "draft", name: "status" })
   status: MediaEditStatus = "draft";
 
@@ -61,12 +64,19 @@ export const MediaEditStatusSchema = z.enum([
   "failed",
 ]);
 
+export const TrackSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  operations: z.array(z.unknown()),
+});
+
 export const MediaEditSchema = z.object({
   id: z.string(),
   sourceMediaId: z.string(),
   outputMediaId: z.string().nullable(),
   type: MediaEditTypeSchema,
   operations: z.array(z.unknown()),
+  tracks: z.array(TrackSchema).nullable(),
   status: MediaEditStatusSchema,
   error: z.string().nullable(),
   createdAt: z.coerce.date(),
