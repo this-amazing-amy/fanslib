@@ -1,9 +1,11 @@
 import { z } from "zod";
 import { db } from "../../../../lib/db";
-import { MediaEdit, MediaEditStatusSchema } from "../../entity";
+import { MediaEdit, MediaEditStatusSchema, TrackSchema } from "../../entity";
+import { flattenTracks } from "../../flatten-tracks";
 
 export const UpdateMediaEditRequestBodySchema = z.object({
   operations: z.array(z.unknown()).optional(),
+  tracks: z.array(TrackSchema).nullable().optional(),
   status: MediaEditStatusSchema.optional(),
   outputMediaId: z.string().nullable().optional(),
   error: z.string().nullable().optional(),
@@ -21,7 +23,13 @@ export const updateMediaEdit = async (
     return null;
   }
 
-  if (payload.operations !== undefined) mediaEdit.operations = payload.operations;
+  if (payload.tracks !== undefined) {
+    mediaEdit.tracks = payload.tracks;
+    // When tracks are provided, derive the flat operations from them
+    mediaEdit.operations = flattenTracks(payload.tracks, mediaEdit.operations);
+  } else if (payload.operations !== undefined) {
+    mediaEdit.operations = payload.operations;
+  }
   if (payload.status !== undefined) mediaEdit.status = payload.status;
   if (payload.outputMediaId !== undefined) mediaEdit.outputMediaId = payload.outputMediaId;
   if (payload.error !== undefined) mediaEdit.error = payload.error;

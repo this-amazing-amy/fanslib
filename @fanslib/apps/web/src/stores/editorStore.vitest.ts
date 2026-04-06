@@ -490,6 +490,128 @@ describe("editorStore", () => {
     });
   });
 
+  describe("track operations", () => {
+    test("starts with one default track", () => {
+      const tracks = useEditorStore.getState().tracks;
+      expect(tracks).toHaveLength(1);
+      expect(tracks[0].name).toBe("Track 1");
+      expect(typeof tracks[0].id).toBe("string");
+      expect(tracks[0].operations).toEqual([]);
+    });
+
+    test("addTrack adds a new track", () => {
+      useEditorStore.getState().addTrack();
+      const tracks = useEditorStore.getState().tracks;
+      expect(tracks).toHaveLength(2);
+      expect(tracks[1].name).toBe("Track 2");
+    });
+
+    test("removeTrack removes an empty track", () => {
+      useEditorStore.getState().addTrack();
+      const trackId = useEditorStore.getState().tracks[1].id;
+      useEditorStore.getState().removeTrack(trackId);
+      expect(useEditorStore.getState().tracks).toHaveLength(1);
+    });
+
+    test("renameTrack renames a track", () => {
+      const trackId = useEditorStore.getState().tracks[0].id;
+      useEditorStore.getState().renameTrack(trackId, "My Track");
+      expect(useEditorStore.getState().tracks[0].name).toBe("My Track");
+    });
+
+    test("moveOperation moves an operation between tracks", () => {
+      useEditorStore.getState().addBlur();
+      useEditorStore.getState().addTrack();
+      const opId = (useEditorStore.getState().tracks[0].operations[0] as { id: string }).id;
+      const targetTrackId = useEditorStore.getState().tracks[1].id;
+      useEditorStore.getState().moveOperation(opId, targetTrackId);
+      expect(useEditorStore.getState().tracks[0].operations).toHaveLength(0);
+      expect(useEditorStore.getState().tracks[1].operations).toHaveLength(1);
+      expect((useEditorStore.getState().tracks[1].operations[0] as { id: string }).id).toBe(opId);
+    });
+
+    test("moveOperation is undoable", () => {
+      useEditorStore.getState().addBlur();
+      useEditorStore.getState().addTrack();
+      const opId = (useEditorStore.getState().tracks[0].operations[0] as { id: string }).id;
+      const targetTrackId = useEditorStore.getState().tracks[1].id;
+      useEditorStore.getState().moveOperation(opId, targetTrackId);
+      useEditorStore.getState().undo();
+      expect(useEditorStore.getState().tracks[0].operations).toHaveLength(1);
+      expect(useEditorStore.getState().tracks[1].operations).toHaveLength(0);
+    });
+
+    test("flattenOperations returns all operations across tracks in order", () => {
+      useEditorStore.getState().addBlur();
+      useEditorStore.getState().addTrack();
+      useEditorStore.getState().addCaption();
+      // Caption goes to track[0], move it to track[1]
+      const captionId = (useEditorStore.getState().operations[1] as { id: string }).id;
+      const track2Id = useEditorStore.getState().tracks[1].id;
+      useEditorStore.getState().moveOperation(captionId, track2Id);
+      const flat = useEditorStore.getState().flattenOperations();
+      expect(flat).toHaveLength(2);
+      expect((flat[0] as { type: string }).type).toBe("blur");
+      expect((flat[1] as { type: string }).type).toBe("caption");
+    });
+
+    test("addOperation adds to first track by default", () => {
+      useEditorStore.getState().addTrack();
+      useEditorStore.getState().addOperation({ type: "blur" });
+      expect(useEditorStore.getState().tracks[0].operations).toHaveLength(1);
+      expect(useEditorStore.getState().tracks[1].operations).toHaveLength(0);
+    });
+
+    test("removeOperationById removes across tracks", () => {
+      useEditorStore.getState().addBlur();
+      useEditorStore.getState().addTrack();
+      const opId = (useEditorStore.getState().tracks[0].operations[0] as { id: string }).id;
+      const track2Id = useEditorStore.getState().tracks[1].id;
+      useEditorStore.getState().moveOperation(opId, track2Id);
+      useEditorStore.getState().removeOperationById(opId);
+      expect(useEditorStore.getState().tracks[1].operations).toHaveLength(0);
+      expect(useEditorStore.getState().operations).toHaveLength(0);
+    });
+
+    test("undo/redo restores full track state", () => {
+      useEditorStore.getState().addBlur();
+      useEditorStore.getState().addTrack();
+      expect(useEditorStore.getState().tracks).toHaveLength(2);
+      useEditorStore.getState().undo();
+      expect(useEditorStore.getState().tracks).toHaveLength(1);
+      useEditorStore.getState().redo();
+      expect(useEditorStore.getState().tracks).toHaveLength(2);
+    });
+
+    test("hydrate with legacy flat array wraps in single track", () => {
+      const legacyOps = [
+        { type: "blur", x: 0.4, y: 0.4, width: 0.15, height: 0.15, radius: 20, keyframes: [] },
+      ];
+      useEditorStore.getState().hydrate(legacyOps);
+      const tracks = useEditorStore.getState().tracks;
+      expect(tracks).toHaveLength(1);
+      expect(tracks[0].name).toBe("Track 1");
+      expect(tracks[0].operations).toHaveLength(1);
+      expect(useEditorStore.getState().operations).toHaveLength(1);
+    });
+
+    test("hydrate with track format loads directly", () => {
+      const trackData = {
+        tracks: [
+          { id: "t1", name: "Video", operations: [{ type: "blur", id: "op1", keyframes: [] }] },
+          { id: "t2", name: "Audio", operations: [] },
+        ],
+      };
+      useEditorStore.getState().hydrate(trackData);
+      const tracks = useEditorStore.getState().tracks;
+      expect(tracks).toHaveLength(2);
+      expect(tracks[0].name).toBe("Video");
+      expect(tracks[0].id).toBe("t1");
+      expect(tracks[1].name).toBe("Audio");
+      expect(useEditorStore.getState().operations).toHaveLength(1);
+    });
+  });
+
   describe("zoom operations", () => {
     test("addZoom adds a zoom operation with default values", () => {
       useEditorStore.getState().addZoom();

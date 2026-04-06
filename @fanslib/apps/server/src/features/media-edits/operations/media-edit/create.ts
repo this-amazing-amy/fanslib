@@ -1,11 +1,13 @@
 import { z } from "zod";
 import { db } from "../../../../lib/db";
-import { MediaEdit, MediaEditTypeSchema } from "../../entity";
+import { MediaEdit, MediaEditTypeSchema, TrackSchema } from "../../entity";
+import { flattenTracks } from "../../flatten-tracks";
 
 export const CreateMediaEditRequestBodySchema = z.object({
   sourceMediaId: z.string(),
   type: MediaEditTypeSchema,
   operations: z.array(z.unknown()).default([]),
+  tracks: z.array(TrackSchema).nullable().optional(),
 });
 
 export const createMediaEdit = async (
@@ -14,10 +16,14 @@ export const createMediaEdit = async (
   const database = await db();
   const repo = database.getRepository(MediaEdit);
 
+  const tracks = payload.tracks ?? null;
+  const operations = flattenTracks(tracks, payload.operations);
+
   const mediaEdit = repo.create({
     sourceMediaId: payload.sourceMediaId,
     type: payload.type,
-    operations: payload.operations,
+    operations,
+    tracks,
     status: "draft",
   });
 
