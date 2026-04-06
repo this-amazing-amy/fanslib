@@ -8,6 +8,7 @@ type TrackRowProps = {
     label?: string;
     startFrame: number;
     endFrame: number;
+    keyframes?: Array<{ frame: number }>;
   }>;
   pixelsPerFrame: number;
   selectedOperationId: string | null;
@@ -19,6 +20,7 @@ type TrackRowProps = {
   onTrackChange: (id: string, targetTrackId: string) => void;
   onDelete: (id: string) => void;
   onContextMenu: (e: React.MouseEvent, id: string) => void;
+  onSeekToFrame?: (frame: number) => void;
 };
 
 export const TrackRow = ({
@@ -34,6 +36,7 @@ export const TrackRow = ({
   onTrackChange,
   onDelete,
   onContextMenu,
+  onSeekToFrame,
 }: TrackRowProps) => (
   <div
     className="relative h-10 flex items-center"
@@ -56,6 +59,7 @@ export const TrackRow = ({
         selected={selectedOperationId === op.id}
         totalFrames={totalFrames}
         trackId={trackId}
+        keyframes={op.keyframes}
         onClick={() => onSelectOperation(op.id)}
         onMove={onMove}
         onTrimStart={onTrimStart}
@@ -63,6 +67,7 @@ export const TrackRow = ({
         onTrackChange={onTrackChange}
         onDelete={onDelete}
         onContextMenu={onContextMenu}
+        onSeekToFrame={onSeekToFrame}
       />
     ))}
   </div>

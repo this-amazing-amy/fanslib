@@ -213,6 +213,7 @@ export const Timeline = ({
                     label?: string;
                     startFrame: number;
                     endFrame: number;
+                    keyframes?: Array<{ frame: number }>;
                   }>
                 }
                 pixelsPerFrame={pixelsPerFrame}
@@ -225,6 +226,7 @@ export const Timeline = ({
                 onTrackChange={handleTrackChange}
                 onDelete={handleDelete}
                 onContextMenu={handleContextMenu}
+                onSeekToFrame={onSeek}
               />
             ))}
             {filename && (

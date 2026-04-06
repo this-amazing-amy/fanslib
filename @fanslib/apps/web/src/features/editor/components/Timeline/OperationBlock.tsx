@@ -25,6 +25,7 @@ type OperationBlockProps = {
   selected: boolean;
   totalFrames: number;
   trackId: string;
+  keyframes?: Array<{ frame: number }>;
   onClick: () => void;
   onMove: (id: string, startFrame: number, endFrame: number) => void;
   onTrimStart: (id: string, startFrame: number) => void;
@@ -32,6 +33,7 @@ type OperationBlockProps = {
   onTrackChange: (id: string, targetTrackId: string) => void;
   onDelete: (id: string) => void;
   onContextMenu?: (e: React.MouseEvent, id: string) => void;
+  onSeekToFrame?: (frame: number) => void;
 };
 
 const EDGE_ZONE = 5;
@@ -71,6 +73,7 @@ export const OperationBlock = ({
   selected,
   totalFrames,
   trackId: _trackId,
+  keyframes,
   onClick,
   onMove,
   onTrimStart,
@@ -78,6 +81,7 @@ export const OperationBlock = ({
   onTrackChange,
   onDelete: _onDelete,
   onContextMenu,
+  onSeekToFrame,
 }: OperationBlockProps) => {
   const config = typeConfig[type] ?? {
     bg: "bg-base-300 border-base-content",
@@ -209,6 +213,23 @@ export const OperationBlock = ({
       {type === "caption" && label && (
         <span className="truncate opacity-70">{label}</span>
       )}
+      {selected &&
+        keyframes?.map((kf, i) => (
+          <div
+            key={i}
+            data-testid={`keyframe-diamond-${i}`}
+            className="absolute w-2 h-2 rotate-45 bg-base-content cursor-pointer"
+            style={{
+              left: `${(kf.frame - startFrame) * pixelsPerFrame}px`,
+              top: "50%",
+              transform: "translate(-50%, -50%) rotate(45deg)",
+            }}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              onSeekToFrame?.(kf.frame);
+            }}
+          />
+        ))}
     </div>
   );
 };

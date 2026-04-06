@@ -1,5 +1,5 @@
-import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, test } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { useClipStore } from "~/stores/clipStore";
 import { OperationBlock } from "./OperationBlock";
 import { SourceMediaBar } from "./SourceMediaBar";
@@ -130,6 +130,83 @@ describe("OperationBlock", () => {
     expect(block.style.width).toBe("150px");
     // left = 10 * 3 = 30px
     expect(block.style.left).toBe("30px");
+  });
+
+  test("renders keyframe diamonds when selected and has keyframes", () => {
+    const onSeek = vi.fn();
+    render(
+      <OperationBlock
+        id="op-kf"
+        type="blur"
+        startFrame={0}
+        endFrame={90}
+        pixelsPerFrame={2}
+        selected={true}
+        totalFrames={900}
+        trackId="t1"
+        keyframes={[{ frame: 10 }, { frame: 50 }]}
+        onClick={() => {}}
+        onMove={() => {}}
+        onTrimStart={() => {}}
+        onTrimEnd={() => {}}
+        onTrackChange={() => {}}
+        onDelete={() => {}}
+        onSeekToFrame={onSeek}
+      />,
+    );
+    expect(screen.getByTestId("keyframe-diamond-0")).toBeDefined();
+    expect(screen.getByTestId("keyframe-diamond-1")).toBeDefined();
+  });
+
+  test("does not render keyframe diamonds when not selected", () => {
+    render(
+      <OperationBlock
+        id="op-kf2"
+        type="blur"
+        startFrame={0}
+        endFrame={90}
+        pixelsPerFrame={2}
+        selected={false}
+        totalFrames={900}
+        trackId="t1"
+        keyframes={[{ frame: 10 }, { frame: 50 }]}
+        onClick={() => {}}
+        onMove={() => {}}
+        onTrimStart={() => {}}
+        onTrimEnd={() => {}}
+        onTrackChange={() => {}}
+        onDelete={() => {}}
+      />,
+    );
+    expect(screen.queryByTestId("keyframe-diamond-0")).toBeNull();
+    expect(screen.queryByTestId("keyframe-diamond-1")).toBeNull();
+  });
+
+  test("clicking a keyframe diamond calls onSeekToFrame", () => {
+    const onSeek = vi.fn();
+    render(
+      <OperationBlock
+        id="op-kf3"
+        type="zoom"
+        startFrame={0}
+        endFrame={90}
+        pixelsPerFrame={2}
+        selected={true}
+        totalFrames={900}
+        trackId="t1"
+        keyframes={[{ frame: 30 }]}
+        onClick={() => {}}
+        onMove={() => {}}
+        onTrimStart={() => {}}
+        onTrimEnd={() => {}}
+        onTrackChange={() => {}}
+        onDelete={() => {}}
+        onSeekToFrame={onSeek}
+      />,
+    );
+    const diamond = screen.getByTestId("keyframe-diamond-0");
+    fireEvent.pointerDown(diamond);
+    expect(onSeek).toHaveBeenCalledWith(30);
   });
 });
 
