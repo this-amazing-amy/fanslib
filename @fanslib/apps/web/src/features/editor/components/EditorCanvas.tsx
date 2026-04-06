@@ -242,8 +242,6 @@ type EditorCanvasProps = {
   /** Current preview frame (for caption overlay alignment with animations). */
   currentFrame?: number;
   onPlayerFrameChange?: (frame: number) => void;
-  /** When true, transform overlays and watermark handles are hidden (clip ranges take precedence). */
-  transformEditingLocked?: boolean;
 };
 
 const isWatermarkOp = (op: unknown): op is WatermarkOp =>
@@ -283,7 +281,6 @@ export const EditorCanvas = forwardRef<EditorCanvasHandle, EditorCanvasProps>(
       totalFrames,
       currentFrame: currentFrameProp = 0,
       onPlayerFrameChange,
-      transformEditingLocked = false,
     },
     ref,
   ) => {
@@ -389,7 +386,7 @@ export const EditorCanvas = forwardRef<EditorCanvasHandle, EditorCanvasProps>(
     // Find the selected watermark op for the draggable overlay
     const selectedOp =
       selectedId !== null
-        ? (operations as Array<{ id?: string }>).find((op) => op.id === selectedId) ?? null
+        ? ((operations as Array<{ id?: string }>).find((op) => op.id === selectedId) ?? null)
         : null;
     const selectedWatermark = selectedOp && isWatermarkOp(selectedOp) ? selectedOp : null;
 
@@ -472,7 +469,7 @@ export const EditorCanvas = forwardRef<EditorCanvasHandle, EditorCanvasProps>(
             loop={isVideo}
           />
 
-          {compositionViewport && selectedWatermark && !transformEditingLocked && (
+          {compositionViewport && selectedWatermark && (
             <div
               className="absolute z-10 pointer-events-none"
               style={{
@@ -503,11 +500,10 @@ export const EditorCanvas = forwardRef<EditorCanvasHandle, EditorCanvasProps>(
           )}
           <RegionOverlay
             canvasRect={compositionViewport}
-            interactive={!transformEditingLocked}
             currentFrame={currentFrameProp}
             previewDurationInFrames={durationInFrames}
           />
-          <CropOverlay canvasRect={compositionViewport} interactive={!transformEditingLocked} />
+          <CropOverlay canvasRect={compositionViewport} />
         </div>
       </div>
     );
