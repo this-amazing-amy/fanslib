@@ -138,14 +138,15 @@ export const useEditorStore = create<EditorState>((set, get) => {
     startFrame: number,
     endFrame: number,
   ): number => {
-    for (let i = 0; i < tracks.length; i++) {
-      const hasOverlap = tracks[i].operations.some((op) => {
+    const idx = tracks.findIndex((track) => {
+      const hasOverlap = track.operations.some((op) => {
         const existing = op as { startFrame?: number; endFrame?: number };
         if (existing.startFrame == null || existing.endFrame == null) return false;
         return startFrame < existing.endFrame && endFrame > existing.startFrame;
       });
-      if (!hasOverlap) return i;
-    }
+      return !hasOverlap;
+    });
+    if (idx !== -1) return idx;
     // All tracks overlap – create a new one
     tracks.push({
       id: crypto.randomUUID(),
