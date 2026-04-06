@@ -3,10 +3,12 @@ import React, {
   useCallback,
   useMemo,
   useEffect,
+  useState,
   useImperativeHandle,
   forwardRef,
   type ReactNode,
 } from "react";
+import { Loader2 } from "lucide-react";
 import { Player, type PlayerRef } from "@remotion/player";
 import { getAvailableFonts } from "@remotion/google-fonts";
 import { CaptionOverlay } from "@fanslib/video/compositions";
@@ -394,6 +396,47 @@ export const EditorCanvas = forwardRef<EditorCanvasHandle, EditorCanvasProps>(
     const selectedWatermark = selectedOp && isWatermarkOp(selectedOp) ? selectedOp : null;
 
     const playerAreaRef = useRef<HTMLDivElement>(null);
+
+    // Track seeking state so we can overlay a spinner while the video loads the new frame
+    const [isSeeking, setIsSeeking] = useState(false);
+    useEffect(() => {
+      if (!isVideo) return;
+
+      const container = playerAreaRef.current;
+      if (!container) return;
+
+      const cleanup = { fn: undefined as (() => void) | undefined };
+
+      const attachToVideo = () => {
+        const video = container.querySelector("video");
+        if (!video) return false;
+
+        const onSeeking = () => setIsSeeking(true);
+        const onSeeked = () => setIsSeeking(false);
+
+        video.addEventListener("seeking", onSeeking);
+        video.addEventListener("seeked", onSeeked);
+
+        cleanup.fn = () => {
+          video.removeEventListener("seeking", onSeeking);
+          video.removeEventListener("seeked", onSeeked);
+        };
+        return true;
+      };
+
+      if (attachToVideo()) return () => cleanup.fn?.();
+
+      // Video element may not be in the DOM yet — wait for it
+      const observer = new MutationObserver(() => {
+        if (attachToVideo()) observer.disconnect();
+      });
+      observer.observe(container, { childList: true, subtree: true });
+
+      return () => {
+        observer.disconnect();
+        cleanup.fn?.();
+      };
+    }, [isVideo]);
     const compositionViewport = useRemotionCompositionViewport(
       playerAreaRef,
       COMPOSITION_WIDTH,
@@ -471,6 +514,12 @@ export const EditorCanvas = forwardRef<EditorCanvasHandle, EditorCanvasProps>(
             }}
             loop={isVideo}
           />
+
+          {isSeeking && isVideo && (
+            <div className="absolute inset-0 z-[5] flex items-center justify-center bg-black/25 pointer-events-none">
+              <Loader2 className="w-8 h-8 animate-spin text-white drop-shadow-md" />
+            </div>
+          )}
 
           {compositionViewport && selectedWatermark && !transformEditingLocked && (
             <div
