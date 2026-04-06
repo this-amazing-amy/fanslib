@@ -87,6 +87,8 @@ type EditorState = {
 
   // Hydrate from existing MediaEdit
   hydrate: (data: unknown[] | { tracks: Track[] }) => void;
+  // Restore tracks from unified history snapshot (does not touch per-store undo stacks)
+  restoreTracks: (tracks: unknown[]) => void;
 
   // Reset
   reset: () => void;
@@ -787,6 +789,14 @@ export const useEditorStore = create<EditorState>((set, get) => {
         canUndo: false,
         canRedo: false,
         isDirty: false,
+      });
+    },
+
+    restoreTracks: (rawTracks) => {
+      const tracks = rawTracks as Track[];
+      set({
+        tracks,
+        operations: flattenTracks(tracks),
       });
     },
 

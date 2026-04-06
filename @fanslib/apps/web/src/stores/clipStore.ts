@@ -176,6 +176,7 @@ export const useClipStore = create<ClipState>((set, get) => {
       }));
     },
 
+
     undo: () => {
       const previous = undoStack.pop();
       if (previous === undefined) return;
