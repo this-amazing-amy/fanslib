@@ -288,9 +288,9 @@ export const EditorCanvas = forwardRef<EditorCanvasHandle, EditorCanvasProps>(
     ref,
   ) => {
     const sourceUrl = useMemo(() => toAbsoluteFileUrl(`/api/media/${mediaId}/file`), [mediaId]);
-    const selectedIndex = useEditorStore((s) => s.selectedOperationIndex);
-    const cropEditingOperationIndex = useEditorStore((s) => s.cropEditingOperationIndex);
-    const updateOperation = useEditorStore((s) => s.updateOperation);
+    const selectedId = useEditorStore((s) => s.selectedOperationId);
+    const cropEditingOperationId = useEditorStore((s) => s.cropEditingOperationId);
+    const updateOperationById = useEditorStore((s) => s.updateOperationById);
 
     // Find watermark operation if any
     const watermarkOp = operations.find(isWatermarkOp);
@@ -346,9 +346,9 @@ export const EditorCanvas = forwardRef<EditorCanvasHandle, EditorCanvasProps>(
     }, [captionFontFamilies]);
 
     const cropsForPreview = useMemo(() => {
-      if (cropEditingOperationIndex !== null) return [];
+      if (cropEditingOperationId !== null) return [];
       return operations.filter(isCropOperation).filter((c) => c.applied);
-    }, [operations, cropEditingOperationIndex]);
+    }, [operations, cropEditingOperationId]);
 
     const isVideo = shouldUseVideoElementForPreview({
       type: mediaType,
@@ -388,8 +388,8 @@ export const EditorCanvas = forwardRef<EditorCanvasHandle, EditorCanvasProps>(
 
     // Find the selected watermark op for the draggable overlay
     const selectedOp =
-      selectedIndex !== null && selectedIndex < operations.length
-        ? operations[selectedIndex]
+      selectedId !== null
+        ? (operations as Array<{ id?: string }>).find((op) => op.id === selectedId) ?? null
         : null;
     const selectedWatermark = selectedOp && isWatermarkOp(selectedOp) ? selectedOp : null;
 
@@ -404,7 +404,7 @@ export const EditorCanvas = forwardRef<EditorCanvasHandle, EditorCanvasProps>(
 
     const handleMouseDown = useCallback(
       (e: React.MouseEvent) => {
-        if (!selectedWatermark || selectedIndex === null || !compositionViewport) return;
+        if (!selectedWatermark || selectedId === null || !compositionViewport) return;
         e.preventDefault();
         dragging.current = true;
         const viewport = compositionViewport;
@@ -416,13 +416,13 @@ export const EditorCanvas = forwardRef<EditorCanvasHandle, EditorCanvasProps>(
         };
 
         const handleMouseMove = (moveEvent: MouseEvent) => {
-          if (!dragging.current || selectedIndex === null) return;
+          if (!dragging.current || selectedId === null) return;
           const dx = (moveEvent.clientX - dragStart.current.x) / viewport.canvasWidth;
           const dy = (moveEvent.clientY - dragStart.current.y) / viewport.canvasHeight;
           const w = selectedWatermark.width;
           const newX = Math.max(0, Math.min(1 - w, dragStart.current.opX + dx));
           const newY = Math.max(0, Math.min(1, dragStart.current.opY + dy));
-          updateOperation(selectedIndex, {
+          updateOperationById(selectedId, {
             ...selectedWatermark,
             x: newX,
             y: newY,
@@ -438,7 +438,7 @@ export const EditorCanvas = forwardRef<EditorCanvasHandle, EditorCanvasProps>(
         document.addEventListener("mousemove", handleMouseMove);
         document.addEventListener("mouseup", handleMouseUp);
       },
-      [selectedWatermark, selectedIndex, updateOperation, compositionViewport],
+      [selectedWatermark, selectedId, updateOperationById, compositionViewport],
     );
 
     return (

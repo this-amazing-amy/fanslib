@@ -13,6 +13,7 @@ export const RemotionRoot: React.FC = () => (
       sourceUrl: "",
       watermark: {
         type: "watermark" as const,
+        id: "default",
         assetId: "",
         x: 0,
         y: 0,

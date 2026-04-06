@@ -42,7 +42,7 @@ export const PlaybackBar = ({
   const scrubbing = useRef(false);
   const animFrameRef = useRef<number>(0);
 
-  const setSelectedOperationIndex = useEditorStore((s) => s.setSelectedOperationIndex);
+  const setSelectedOperationId = useEditorStore((s) => s.setSelectedOperationId);
   const ranges = useClipStore((s) => s.ranges);
   const pendingMarkInFrame = useClipStore((s) => s.pendingMarkInFrame);
   const selectedRangeIndex = useClipStore((s) => s.selectedRangeIndex);
@@ -167,7 +167,7 @@ export const PlaybackBar = ({
               style={{ left: `${left}%`, width: `${width}%` }}
               onPointerDown={(e) => {
                 e.stopPropagation();
-                setSelectedOperationIndex(null);
+                setSelectedOperationId(null);
                 selectRange(i);
               }}
             />
