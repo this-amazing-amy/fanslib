@@ -72,7 +72,7 @@ export const Timeline = ({
   const handleFitToTimeline = useCallback(() => {
     if (!scrollRef.current || totalFrames === 0) return;
     const containerWidth = scrollRef.current.clientWidth;
-    setPixelsPerFrame(Math.max(0.5, Math.min(20, containerWidth / totalFrames)));
+    setPixelsPerFrame(containerWidth / totalFrames);
   }, [totalFrames]);
 
   const handleScroll = useCallback(() => {
