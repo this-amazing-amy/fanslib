@@ -9,6 +9,11 @@ type BlurRegionProps = {
 
 export const BlurRegion: React.FC<BlurRegionProps> = ({ blur }) => {
   const frame = useCurrentFrame();
+
+  if (blur.startFrame != null && blur.endFrame != null) {
+    if (frame < blur.startFrame || frame >= blur.endFrame) return null;
+  }
+
   const properties = ["x", "y", "width", "height"];
 
   // If keyframes exist, interpolate; otherwise use static values
