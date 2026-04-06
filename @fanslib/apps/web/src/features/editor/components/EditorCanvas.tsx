@@ -3,15 +3,17 @@ import React, {
   useCallback,
   useMemo,
   useEffect,
+  useState,
   useImperativeHandle,
   forwardRef,
   type ReactNode,
 } from "react";
+import { Loader2 } from "lucide-react";
 import { Player, type PlayerRef } from "@remotion/player";
 import { getAvailableFonts } from "@remotion/google-fonts";
 import { CaptionOverlay } from "@fanslib/video/compositions";
 import type { CaptionOperation } from "@fanslib/video/types";
-import { AbsoluteFill, Html5Video, Img } from "remotion";
+import { AbsoluteFill, Html5Video, Img, useCurrentFrame } from "remotion";
 import { shouldUseVideoElementForPreview } from "~/lib/editor-media-preview";
 import { useEditorStore } from "~/stores/editorStore";
 import { useRemotionCompositionViewport } from "../hooks/use-remotion-composition-viewport";
@@ -41,6 +43,8 @@ type BlurRegionPreview = {
   width: number;
   height: number;
   radius: number;
+  startFrame?: number;
+  endFrame?: number;
 };
 
 type PixelateRegionPreview = {
@@ -49,6 +53,8 @@ type PixelateRegionPreview = {
   width: number;
   height: number;
   pixelSize: number;
+  startFrame?: number;
+  endFrame?: number;
 };
 
 type EmojiPreview = {
@@ -56,6 +62,8 @@ type EmojiPreview = {
   x: number;
   y: number;
   size: number;
+  startFrame?: number;
+  endFrame?: number;
 };
 
 /** Same geometry as @fanslib/video CropFrame (normalized rect in composition space). */
@@ -97,13 +105,25 @@ const wrapWithCropChain = (crops: CropOperation[], inner: ReactNode): ReactNode 
 
 type PreviewCompositionInputProps = {
   sourceUrl: string;
-  watermark?: { x: number; y: number; width: number; opacity: number };
+  watermark?: { x: number; y: number; width: number; opacity: number; startFrame?: number; endFrame?: number };
   watermarkUrl?: string;
   blurRegions?: BlurRegionPreview[];
   pixelateRegions?: PixelateRegionPreview[];
   emojis?: EmojiPreview[];
   crops?: CropOperation[];
   captions?: CaptionOperation[];
+};
+
+/** Returns true when the current frame is outside [startFrame, endFrame). */
+const isOutsideFrameRange = (
+  frame: number,
+  startFrame?: number,
+  endFrame?: number,
+): boolean => {
+  if (startFrame != null && endFrame != null) {
+    return frame < startFrame || frame >= endFrame;
+  }
+  return false;
 };
 
 const PreviewOverlays = ({
@@ -113,95 +133,103 @@ const PreviewOverlays = ({
   pixelateRegions = [],
   emojis = [],
   captions = [],
-}: PreviewCompositionInputProps) => (
-  <>
-    {blurRegions.map((blur, i) => (
-      <div
-        key={i}
-        style={{
-          position: "absolute",
-          left: `${blur.x * 100}%`,
-          top: `${blur.y * 100}%`,
-          width: `${blur.width * 100}%`,
-          height: `${blur.height * 100}%`,
-          backdropFilter: `blur(${blur.radius}px)`,
-          WebkitBackdropFilter: `blur(${blur.radius}px)`,
-        }}
-      />
-    ))}
-    {pixelateRegions.map((px, i) => {
-      const ps = Math.max(2, px.pixelSize);
-      const half = ps / 2;
-      const filterId = `px-preview-${i}`;
-      return (
-        <React.Fragment key={`px-${i}`}>
-          <svg style={{ position: "absolute", width: 0, height: 0 }}>
-            <defs>
-              <filter
-                id={filterId}
-                x="0%"
-                y="0%"
-                width="100%"
-                height="100%"
-                primitiveUnits="userSpaceOnUse"
-              >
-                <feFlood x={half} y={half} width="1" height="1" />
-                <feComposite width={ps} height={ps} />
-                <feTile result="grid" />
-                <feComposite in="SourceGraphic" in2="grid" operator="in" />
-                <feMorphology operator="dilate" radius={half} />
-              </filter>
-            </defs>
-          </svg>
+}: PreviewCompositionInputProps) => {
+  const frame = useCurrentFrame();
+  return (
+    <>
+      {blurRegions.map((blur, i) =>
+        isOutsideFrameRange(frame, blur.startFrame, blur.endFrame) ? null : (
           <div
+            key={i}
             style={{
               position: "absolute",
-              left: `${px.x * 100}%`,
-              top: `${px.y * 100}%`,
-              width: `${px.width * 100}%`,
-              height: `${px.height * 100}%`,
-              backdropFilter: `url(#${filterId})`,
-              WebkitBackdropFilter: `url(#${filterId})`,
-              overflow: "hidden",
+              left: `${blur.x * 100}%`,
+              top: `${blur.y * 100}%`,
+              width: `${blur.width * 100}%`,
+              height: `${blur.height * 100}%`,
+              backdropFilter: `blur(${blur.radius}px)`,
+              WebkitBackdropFilter: `blur(${blur.radius}px)`,
             }}
           />
-        </React.Fragment>
-      );
-    })}
-    {watermark && watermarkUrl && (
-      <Img
-        src={watermarkUrl}
-        style={{
-          position: "absolute",
-          left: `${watermark.x * 100}%`,
-          top: `${watermark.y * 100}%`,
-          width: `${watermark.width * 100}%`,
-          opacity: watermark.opacity,
-        }}
-      />
-    )}
-    {emojis.map((em, i) => (
-      <div
-        key={`em-${i}`}
-        style={{
-          position: "absolute",
-          left: `${em.x * 100}%`,
-          top: `${em.y * 100}%`,
-          fontSize: `${em.size * 1920}px`,
-          lineHeight: 1,
-          transform: "translate(-50%, -50%)",
-          userSelect: "none",
-          pointerEvents: "none",
-        }}
-      >
-        {em.emoji}
-      </div>
-    ))}
-    {captions.map((cap, i) => (
-      <CaptionOverlay key={`cap-${i}`} caption={cap} compositionWidth={COMPOSITION_WIDTH} />
-    ))}
-  </>
-);
+        ),
+      )}
+      {pixelateRegions.map((px, i) => {
+        if (isOutsideFrameRange(frame, px.startFrame, px.endFrame)) return null;
+        const ps = Math.max(2, px.pixelSize);
+        const half = ps / 2;
+        const filterId = `px-preview-${i}`;
+        return (
+          <React.Fragment key={`px-${i}`}>
+            <svg style={{ position: "absolute", width: 0, height: 0 }}>
+              <defs>
+                <filter
+                  id={filterId}
+                  x="0%"
+                  y="0%"
+                  width="100%"
+                  height="100%"
+                  primitiveUnits="userSpaceOnUse"
+                >
+                  <feFlood x={half} y={half} width="1" height="1" />
+                  <feComposite width={ps} height={ps} />
+                  <feTile result="grid" />
+                  <feComposite in="SourceGraphic" in2="grid" operator="in" />
+                  <feMorphology operator="dilate" radius={half} />
+                </filter>
+              </defs>
+            </svg>
+            <div
+              style={{
+                position: "absolute",
+                left: `${px.x * 100}%`,
+                top: `${px.y * 100}%`,
+                width: `${px.width * 100}%`,
+                height: `${px.height * 100}%`,
+                backdropFilter: `url(#${filterId})`,
+                WebkitBackdropFilter: `url(#${filterId})`,
+                overflow: "hidden",
+              }}
+            />
+          </React.Fragment>
+        );
+      })}
+      {watermark && watermarkUrl && !isOutsideFrameRange(frame, watermark.startFrame, watermark.endFrame) && (
+        <Img
+          src={watermarkUrl}
+          style={{
+            position: "absolute",
+            left: `${watermark.x * 100}%`,
+            top: `${watermark.y * 100}%`,
+            width: `${watermark.width * 100}%`,
+            opacity: watermark.opacity,
+          }}
+        />
+      )}
+      {emojis.map((em, i) =>
+        isOutsideFrameRange(frame, em.startFrame, em.endFrame) ? null : (
+          <div
+            key={`em-${i}`}
+            style={{
+              position: "absolute",
+              left: `${em.x * 100}%`,
+              top: `${em.y * 100}%`,
+              fontSize: `${em.size * 1920}px`,
+              lineHeight: 1,
+              transform: "translate(-50%, -50%)",
+              userSelect: "none",
+              pointerEvents: "none",
+            }}
+          >
+            {em.emoji}
+          </div>
+        ),
+      )}
+      {captions.map((cap, i) => (
+        <CaptionOverlay key={`cap-${i}`} caption={cap} compositionWidth={COMPOSITION_WIDTH} />
+      ))}
+    </>
+  );
+};
 
 const PreviewCompositionImage = (props: PreviewCompositionInputProps) => {
   const crops = props.crops ?? [];
@@ -242,8 +270,6 @@ type EditorCanvasProps = {
   /** Current preview frame (for caption overlay alignment with animations). */
   currentFrame?: number;
   onPlayerFrameChange?: (frame: number) => void;
-  /** When true, transform overlays and watermark handles are hidden (clip ranges take precedence). */
-  transformEditingLocked?: boolean;
 };
 
 const isWatermarkOp = (op: unknown): op is WatermarkOp =>
@@ -283,7 +309,6 @@ export const EditorCanvas = forwardRef<EditorCanvasHandle, EditorCanvasProps>(
       totalFrames,
       currentFrame: currentFrameProp = 0,
       onPlayerFrameChange,
-      transformEditingLocked = false,
     },
     ref,
   ) => {
@@ -389,11 +414,52 @@ export const EditorCanvas = forwardRef<EditorCanvasHandle, EditorCanvasProps>(
     // Find the selected watermark op for the draggable overlay
     const selectedOp =
       selectedId !== null
-        ? (operations as Array<{ id?: string }>).find((op) => op.id === selectedId) ?? null
+        ? ((operations as Array<{ id?: string }>).find((op) => op.id === selectedId) ?? null)
         : null;
     const selectedWatermark = selectedOp && isWatermarkOp(selectedOp) ? selectedOp : null;
 
     const playerAreaRef = useRef<HTMLDivElement>(null);
+
+    // Track seeking state so we can overlay a spinner while the video loads the new frame
+    const [isSeeking, setIsSeeking] = useState(false);
+    useEffect(() => {
+      if (!isVideo) return;
+
+      const container = playerAreaRef.current;
+      if (!container) return;
+
+      const cleanup = { fn: undefined as (() => void) | undefined };
+
+      const attachToVideo = () => {
+        const video = container.querySelector("video");
+        if (!video) return false;
+
+        const onSeeking = () => setIsSeeking(true);
+        const onSeeked = () => setIsSeeking(false);
+
+        video.addEventListener("seeking", onSeeking);
+        video.addEventListener("seeked", onSeeked);
+
+        cleanup.fn = () => {
+          video.removeEventListener("seeking", onSeeking);
+          video.removeEventListener("seeked", onSeeked);
+        };
+        return true;
+      };
+
+      if (attachToVideo()) return () => cleanup.fn?.();
+
+      // Video element may not be in the DOM yet — wait for it
+      const observer = new MutationObserver(() => {
+        if (attachToVideo()) observer.disconnect();
+      });
+      observer.observe(container, { childList: true, subtree: true });
+
+      return () => {
+        observer.disconnect();
+        cleanup.fn?.();
+      };
+    }, [isVideo]);
     const compositionViewport = useRemotionCompositionViewport(
       playerAreaRef,
       COMPOSITION_WIDTH,
@@ -472,7 +538,13 @@ export const EditorCanvas = forwardRef<EditorCanvasHandle, EditorCanvasProps>(
             loop={isVideo}
           />
 
-          {compositionViewport && selectedWatermark && !transformEditingLocked && (
+          {isSeeking && isVideo && (
+            <div className="absolute inset-0 z-[5] flex items-center justify-center bg-black/25 pointer-events-none">
+              <Loader2 className="w-8 h-8 animate-spin text-white drop-shadow-md" />
+            </div>
+          )}
+
+          {compositionViewport && selectedWatermark && (
             <div
               className="absolute z-10 pointer-events-none"
               style={{
@@ -503,11 +575,10 @@ export const EditorCanvas = forwardRef<EditorCanvasHandle, EditorCanvasProps>(
           )}
           <RegionOverlay
             canvasRect={compositionViewport}
-            interactive={!transformEditingLocked}
             currentFrame={currentFrameProp}
             previewDurationInFrames={durationInFrames}
           />
-          <CropOverlay canvasRect={compositionViewport} interactive={!transformEditingLocked} />
+          <CropOverlay canvasRect={compositionViewport} />
         </div>
       </div>
     );

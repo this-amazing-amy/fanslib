@@ -49,9 +49,6 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
   const clipMode = useClipStore((s) => s.clipMode);
   const toggleClipMode = useClipStore((s) => s.toggleClipMode);
   const clipRanges = useClipStore((s) => s.ranges);
-  const hasClipRanges = clipRanges.length > 0;
-  const transformToolsDisabled = clipMode || hasClipRanges;
-
   const [watermarkOpen, setWatermarkOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
@@ -60,10 +57,6 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
   const buttonRef = useRef<HTMLDivElement>(null);
 
   const { data: assets } = useAssetsQuery("image");
-
-  useEffect(() => {
-    if (hasClipRanges || clipMode) setWatermarkOpen(false);
-  }, [hasClipRanges, clipMode]);
 
   // Close popover on outside click
   useEffect(() => {
@@ -147,26 +140,14 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
       </Tooltip>
       <Tooltip content="Crop" placement="bottom" openDelayMs={0}>
         <span className="inline-flex">
-          <Button
-            size="icon"
-            variant="ghost"
-            onPress={() => addCrop()}
-            aria-label="Crop"
-            isDisabled={transformToolsDisabled}
-          >
+          <Button size="icon" variant="ghost" onPress={() => addCrop()} aria-label="Crop">
             <Crop className="h-4 w-4" />
           </Button>
         </span>
       </Tooltip>
       <Tooltip content="Caption" placement="bottom" openDelayMs={0}>
         <span className="inline-flex">
-          <Button
-            size="icon"
-            variant="ghost"
-            onPress={addCaption}
-            aria-label="Caption"
-            isDisabled={transformToolsDisabled}
-          >
+          <Button size="icon" variant="ghost" onPress={addCaption} aria-label="Caption">
             <Type className="h-4 w-4" />
           </Button>
         </span>
@@ -181,7 +162,6 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
               variant="ghost"
               onPress={() => setWatermarkOpen((prev) => !prev)}
               aria-label="Watermark"
-              isDisabled={transformToolsDisabled}
             >
               <ImageIcon className="h-4 w-4" />
             </Button>
@@ -222,52 +202,28 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
 
       <Tooltip content="Blur region" placement="bottom" openDelayMs={0}>
         <span className="inline-flex">
-          <Button
-            size="icon"
-            variant="ghost"
-            onPress={addBlur}
-            aria-label="Blur region"
-            isDisabled={transformToolsDisabled}
-          >
+          <Button size="icon" variant="ghost" onPress={addBlur} aria-label="Blur region">
             <Droplets className="h-4 w-4" />
           </Button>
         </span>
       </Tooltip>
       <Tooltip content="Emoji overlay" placement="bottom" openDelayMs={0}>
         <span className="inline-flex">
-          <Button
-            size="icon"
-            variant="ghost"
-            onPress={() => addEmoji()}
-            aria-label="Emoji overlay"
-            isDisabled={transformToolsDisabled}
-          >
+          <Button size="icon" variant="ghost" onPress={() => addEmoji()} aria-label="Emoji overlay">
             <Smile className="h-4 w-4" />
           </Button>
         </span>
       </Tooltip>
       <Tooltip content="Pixelate" placement="bottom" openDelayMs={0}>
         <span className="inline-flex">
-          <Button
-            size="icon"
-            variant="ghost"
-            onPress={addPixelate}
-            aria-label="Pixelate"
-            isDisabled={transformToolsDisabled}
-          >
+          <Button size="icon" variant="ghost" onPress={addPixelate} aria-label="Pixelate">
             <Grid3x3 className="h-4 w-4" />
           </Button>
         </span>
       </Tooltip>
       <Tooltip content="Zoom" placement="bottom" openDelayMs={0}>
         <span className="inline-flex">
-          <Button
-            size="icon"
-            variant="ghost"
-            onPress={addZoom}
-            aria-label="Zoom"
-            isDisabled={transformToolsDisabled}
-          >
+          <Button size="icon" variant="ghost" onPress={addZoom} aria-label="Zoom">
             <ZoomIn className="h-4 w-4" />
           </Button>
         </span>
@@ -281,7 +237,7 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
             size="icon"
             variant="ghost"
             onPress={undo}
-            isDisabled={!canUndo || transformToolsDisabled}
+            isDisabled={!canUndo}
             aria-label="Undo"
           >
             <Undo2 className="h-4 w-4" />
@@ -294,7 +250,7 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
             size="icon"
             variant="ghost"
             onPress={redo}
-            isDisabled={!canRedo || transformToolsDisabled}
+            isDisabled={!canRedo}
             aria-label="Redo"
           >
             <Redo2 className="h-4 w-4" />

@@ -134,6 +134,30 @@ export const useEditorStore = create<EditorState>((set, get) => {
   const cloneTracks = (tracks: Track[]): Track[] =>
     tracks.map((t) => ({ ...t, operations: [...t.operations] }));
 
+  /** Find a track where op doesn't overlap existing operations, or create a new one. */
+  const findOrCreateNonOverlappingTrack = (
+    tracks: Track[],
+    startFrame: number,
+    endFrame: number,
+  ): number => {
+    const idx = tracks.findIndex((track) => {
+      const hasOverlap = track.operations.some((op) => {
+        const existing = op as { startFrame?: number; endFrame?: number };
+        if (existing.startFrame == null || existing.endFrame == null) return false;
+        return startFrame < existing.endFrame && endFrame > existing.startFrame;
+      });
+      return !hasOverlap;
+    });
+    if (idx !== -1) return idx;
+    // All tracks overlap – create a new one
+    tracks.push({
+      id: crypto.randomUUID(),
+      name: `Track ${tracks.length + 1}`,
+      operations: [],
+    });
+    return tracks.length - 1;
+  };
+
   const pushHistory = () => {
     undoStack.push(cloneTracks(get().tracks));
     redoStack = []; // Clear redo on new mutation
@@ -476,11 +500,14 @@ export const useEditorStore = create<EditorState>((set, get) => {
         y: 0.5,
         width: 0.1,
         opacity: 0.7,
+        startFrame: 0,
+        endFrame: 90,
       };
       pushHistory();
       set((state) => {
         const tracks = cloneTracks(state.tracks);
-        tracks[0].operations.push(op);
+        const trackIdx = findOrCreateNonOverlappingTrack(tracks, op.startFrame, op.endFrame);
+        tracks[trackIdx].operations.push(op);
         const flat = flattenTracks(tracks);
         return {
           tracks,
@@ -502,12 +529,15 @@ export const useEditorStore = create<EditorState>((set, get) => {
         width: 0.15,
         height: 0.15,
         radius: 20,
+        startFrame: 0,
+        endFrame: 90,
         keyframes: [],
       };
       pushHistory();
       set((state) => {
         const tracks = cloneTracks(state.tracks);
-        tracks[0].operations.push(op);
+        const trackIdx = findOrCreateNonOverlappingTrack(tracks, op.startFrame, op.endFrame);
+        tracks[trackIdx].operations.push(op);
         const flat = flattenTracks(tracks);
         return {
           tracks,
@@ -528,12 +558,15 @@ export const useEditorStore = create<EditorState>((set, get) => {
         x: 0.5,
         y: 0.5,
         size: 0.08,
+        startFrame: 0,
+        endFrame: 90,
         keyframes: [],
       };
       pushHistory();
       set((state) => {
         const tracks = cloneTracks(state.tracks);
-        tracks[0].operations.push(op);
+        const trackIdx = findOrCreateNonOverlappingTrack(tracks, op.startFrame, op.endFrame);
+        tracks[trackIdx].operations.push(op);
         const flat = flattenTracks(tracks);
         return {
           tracks,
@@ -555,12 +588,15 @@ export const useEditorStore = create<EditorState>((set, get) => {
         width: 0.15,
         height: 0.15,
         pixelSize: 10,
+        startFrame: 0,
+        endFrame: 90,
         keyframes: [],
       };
       pushHistory();
       set((state) => {
         const tracks = cloneTracks(state.tracks);
-        tracks[0].operations.push(op);
+        const trackIdx = findOrCreateNonOverlappingTrack(tracks, op.startFrame, op.endFrame);
+        tracks[trackIdx].operations.push(op);
         const flat = flattenTracks(tracks);
         return {
           tracks,

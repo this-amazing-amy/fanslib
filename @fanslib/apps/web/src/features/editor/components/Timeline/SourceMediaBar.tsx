@@ -23,7 +23,11 @@ export const SourceMediaBar = ({ filename, totalFrames, pixelsPerFrame }: Source
   const barWidth = totalFrames * pixelsPerFrame;
 
   return (
-    <div data-testid="source-media-bar" className="relative h-8 shrink-0" style={{ width: barWidth }}>
+    <div
+      data-testid="source-media-bar"
+      className="relative h-8 shrink-0"
+      style={{ width: barWidth }}
+    >
       {/* Source file bar */}
       <div className="absolute inset-0 rounded bg-base-300/80 border border-base-content/10 flex items-center px-2 overflow-hidden">
         <span className="text-[10px] font-mono text-base-content/40 truncate select-none">

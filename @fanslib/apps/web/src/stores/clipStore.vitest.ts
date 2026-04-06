@@ -71,6 +71,117 @@ describe("clipStore", () => {
     useClipStore.getState().selectRange(1);
     expect(useClipStore.getState().selectedRangeIndex).toBe(1);
   });
+
+  test("setPeakAtFrame sets peakFrame on the range containing the playhead", () => {
+    useClipStore.getState().addRange(0, 100);
+    useClipStore.getState().addRange(200, 400);
+    useClipStore.getState().setPeakAtFrame(50);
+    expect(useClipStore.getState().ranges[0].peakFrame).toBe(50);
+    expect(useClipStore.getState().ranges[1].peakFrame).toBeUndefined();
+  });
+
+  test("setPeakAtFrame does nothing when playhead is outside all ranges", () => {
+    useClipStore.getState().addRange(0, 100);
+    useClipStore.getState().setPeakAtFrame(150);
+    expect(useClipStore.getState().ranges[0].peakFrame).toBeUndefined();
+  });
+
+  test("setPeakAtFrame updates existing peak on same range", () => {
+    useClipStore.getState().addRange(0, 100);
+    useClipStore.getState().setPeakAtFrame(30);
+    useClipStore.getState().setPeakAtFrame(70);
+    expect(useClipStore.getState().ranges[0].peakFrame).toBe(70);
+  });
+
+  test("setPeakAtFrame is undoable", () => {
+    useClipStore.getState().addRange(0, 100);
+    useClipStore.getState().setPeakAtFrame(50);
+    expect(useClipStore.getState().ranges[0].peakFrame).toBe(50);
+    useClipStore.getState().undo();
+    expect(useClipStore.getState().ranges[0].peakFrame).toBeUndefined();
+  });
+});
+
+describe("clipStore — overlap prevention", () => {
+  beforeEach(() => {
+    useClipStore.getState().reset();
+  });
+
+  test("isFrameInsideRange returns true when frame is inside a range", () => {
+    useClipStore.getState().addRange(100, 200);
+    expect(useClipStore.getState().isFrameInsideRange(150)).toBe(true);
+  });
+
+  test("isFrameInsideRange returns false when frame is outside all ranges", () => {
+    useClipStore.getState().addRange(100, 200);
+    expect(useClipStore.getState().isFrameInsideRange(50)).toBe(false);
+    expect(useClipStore.getState().isFrameInsideRange(250)).toBe(false);
+  });
+
+  test("setMarkInAtFrame rejects when frame is inside an existing range", () => {
+    useClipStore.getState().addRange(100, 200);
+    useClipStore.getState().setMarkInAtFrame(150);
+    expect(useClipStore.getState().pendingMarkInFrame).toBeNull();
+  });
+
+  test("setMarkInAtFrame accepts when frame is outside all ranges", () => {
+    useClipStore.getState().addRange(100, 200);
+    useClipStore.getState().setMarkInAtFrame(50);
+    expect(useClipStore.getState().pendingMarkInFrame).toBe(50);
+  });
+
+  test("commitMarkOutAtFrame rejects when new clip would overlap existing", () => {
+    useClipStore.getState().addRange(100, 200);
+    useClipStore.getState().setMarkInAtFrame(50);
+    // Trying to commit to 150, which overlaps [100, 200]
+    useClipStore.getState().commitMarkOutAtFrame(150);
+    // Should still have only 1 range
+    expect(useClipStore.getState().ranges).toHaveLength(1);
+    expect(useClipStore.getState().pendingMarkInFrame).toBeNull();
+  });
+
+  test("commitMarkOutAtFrame accepts when new clip does not overlap", () => {
+    useClipStore.getState().addRange(100, 200);
+    useClipStore.getState().setMarkInAtFrame(250);
+    useClipStore.getState().commitMarkOutAtFrame(400);
+    expect(useClipStore.getState().ranges).toHaveLength(2);
+  });
+
+  test("adjustRangeIn moves selected range in-point to playhead", () => {
+    useClipStore.getState().addRange(100, 300);
+    useClipStore.getState().selectRange(0);
+    useClipStore.getState().adjustRangeIn(150);
+    expect(useClipStore.getState().ranges[0].startFrame).toBe(150);
+    expect(useClipStore.getState().ranges[0].endFrame).toBe(300);
+  });
+
+  test("adjustRangeOut moves selected range out-point to playhead", () => {
+    useClipStore.getState().addRange(100, 300);
+    useClipStore.getState().selectRange(0);
+    useClipStore.getState().adjustRangeOut(250);
+    expect(useClipStore.getState().ranges[0].startFrame).toBe(100);
+    expect(useClipStore.getState().ranges[0].endFrame).toBe(250);
+  });
+
+  test("adjustRangeIn rejects if it would overlap adjacent range", () => {
+    useClipStore.getState().addRange(0, 100);
+    useClipStore.getState().addRange(200, 400);
+    useClipStore.getState().selectRange(1);
+    // Move in-point to 50, which overlaps [0, 100]
+    useClipStore.getState().adjustRangeIn(50);
+    // Should not change
+    expect(useClipStore.getState().ranges[1].startFrame).toBe(200);
+  });
+
+  test("adjustRangeOut rejects if it would overlap adjacent range", () => {
+    useClipStore.getState().addRange(0, 100);
+    useClipStore.getState().addRange(200, 400);
+    useClipStore.getState().selectRange(0);
+    // Move out-point to 250, which overlaps [200, 400]
+    useClipStore.getState().adjustRangeOut(250);
+    // Should not change
+    expect(useClipStore.getState().ranges[0].endFrame).toBe(100);
+  });
 });
 
 describe("clipStore — overlap prevention", () => {

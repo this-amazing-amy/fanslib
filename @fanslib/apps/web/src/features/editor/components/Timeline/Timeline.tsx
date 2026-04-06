@@ -261,7 +261,14 @@ export const Timeline = ({
         </div>
       </div>
 
-      {showClipTimeline && <ClipTimeline totalFrames={totalFrames} fps={fps} onSeek={onSeek} />}
+      {showClipTimeline && (
+        <ClipTimeline
+          totalFrames={totalFrames}
+          fps={fps}
+          currentFrame={currentFrame}
+          onSeek={onSeek}
+        />
+      )}
 
       {/* Context menu */}
       {contextMenu && (
