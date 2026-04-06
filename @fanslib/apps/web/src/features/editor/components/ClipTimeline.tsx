@@ -6,6 +6,7 @@ import { useClipStore } from "~/stores/clipStore";
 type ClipTimelineProps = {
   totalFrames: number;
   fps: number;
+  currentFrame?: number;
   onSeek: (frame: number) => void;
 };
 
@@ -24,7 +25,12 @@ const RANGE_COLORS = [
   "bg-success/30 border-success",
 ];
 
-export const ClipTimeline = ({ totalFrames, fps, onSeek }: ClipTimelineProps) => {
+const formatDuration = (frames: number, fps: number): string => {
+  const seconds = Math.abs(frames) / fps;
+  return `${seconds.toFixed(1)}s`;
+};
+
+export const ClipTimeline = ({ totalFrames, fps, currentFrame = 0, onSeek }: ClipTimelineProps) => {
   const ranges = useClipStore((s) => s.ranges);
   const clipMode = useClipStore((s) => s.clipMode);
   const pendingMarkInFrame = useClipStore((s) => s.pendingMarkInFrame);
@@ -162,6 +168,30 @@ export const ClipTimeline = ({ totalFrames, fps, onSeek }: ClipTimelineProps) =>
             }}
           />
         )}
+
+        {/* Pending clip region (mark-in set, waiting for mark-out) */}
+        {pendingMarkInFrame !== null &&
+          (() => {
+            const start = Math.min(pendingMarkInFrame, currentFrame);
+            const end = Math.max(pendingMarkInFrame, currentFrame);
+            const left = (start / totalFrames) * 100;
+            const width = ((end - start) / totalFrames) * 100;
+            const durationFrames = end - start;
+            return (
+              <div
+                data-testid="pending-clip-region"
+                className="absolute top-0 bottom-0 bg-warning/15 border border-warning/40 border-dashed rounded"
+                style={{ left: `${left}%`, width: `${width}%` }}
+              >
+                <span
+                  data-testid="pending-duration-flag"
+                  className="absolute -top-5 right-0 text-[10px] font-mono bg-warning/80 text-warning-content px-1 rounded"
+                >
+                  {formatDuration(durationFrames, fps)}
+                </span>
+              </div>
+            );
+          })()}
       </div>
 
       {/* Range list */}
