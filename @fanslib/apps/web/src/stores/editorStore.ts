@@ -101,8 +101,7 @@ const makeDefaultTrack = (): Track => ({
 });
 
 /** Flatten all operations from all tracks into a single ordered array */
-const flattenTracks = (tracks: Track[]): unknown[] =>
-  tracks.flatMap((t) => t.operations);
+const flattenTracks = (tracks: Track[]): unknown[] => tracks.flatMap((t) => t.operations);
 
 /**
  * Map a function over operations across all tracks, returning new tracks.
@@ -132,6 +131,30 @@ export const useEditorStore = create<EditorState>((set, get) => {
 
   const cloneTracks = (tracks: Track[]): Track[] =>
     tracks.map((t) => ({ ...t, operations: [...t.operations] }));
+
+  /** Find a track where op doesn't overlap existing operations, or create a new one. */
+  const findOrCreateNonOverlappingTrack = (
+    tracks: Track[],
+    startFrame: number,
+    endFrame: number,
+  ): number => {
+    const idx = tracks.findIndex((track) => {
+      const hasOverlap = track.operations.some((op) => {
+        const existing = op as { startFrame?: number; endFrame?: number };
+        if (existing.startFrame == null || existing.endFrame == null) return false;
+        return startFrame < existing.endFrame && endFrame > existing.startFrame;
+      });
+      return !hasOverlap;
+    });
+    if (idx !== -1) return idx;
+    // All tracks overlap – create a new one
+    tracks.push({
+      id: crypto.randomUUID(),
+      name: `Track ${tracks.length + 1}`,
+      operations: [],
+    });
+    return tracks.length - 1;
+  };
 
   const pushHistory = () => {
     undoStack.push(cloneTracks(get().tracks));
@@ -184,7 +207,10 @@ export const useEditorStore = create<EditorState>((set, get) => {
         const tracks = state.tracks.reduce<{ result: Track[]; offset: number; removed: boolean }>(
           (acc, t) => {
             if (!acc.removed && index < acc.offset + t.operations.length) {
-              acc.result.push({ ...t, operations: t.operations.filter((_, i) => i !== index - acc.offset) });
+              acc.result.push({
+                ...t,
+                operations: t.operations.filter((_, i) => i !== index - acc.offset),
+              });
               acc.removed = true;
             } else {
               acc.result.push({ ...t, operations: [...t.operations] });
@@ -228,7 +254,10 @@ export const useEditorStore = create<EditorState>((set, get) => {
         // Redistribute reordered ops back into tracks preserving per-track counts
         const tracks = state.tracks.reduce<{ result: Track[]; offset: number }>(
           (acc, t) => {
-            acc.result.push({ ...t, operations: flat.slice(acc.offset, acc.offset + t.operations.length) });
+            acc.result.push({
+              ...t,
+              operations: flat.slice(acc.offset, acc.offset + t.operations.length),
+            });
             acc.offset += t.operations.length;
             return acc;
           },
@@ -469,11 +498,14 @@ export const useEditorStore = create<EditorState>((set, get) => {
         y: 0.5,
         width: 0.1,
         opacity: 0.7,
+        startFrame: 0,
+        endFrame: 90,
       };
       pushHistory();
       set((state) => {
         const tracks = cloneTracks(state.tracks);
-        tracks[0].operations.push(op);
+        const trackIdx = findOrCreateNonOverlappingTrack(tracks, op.startFrame, op.endFrame);
+        tracks[trackIdx].operations.push(op);
         const flat = flattenTracks(tracks);
         return {
           tracks,
@@ -495,12 +527,15 @@ export const useEditorStore = create<EditorState>((set, get) => {
         width: 0.15,
         height: 0.15,
         radius: 20,
+        startFrame: 0,
+        endFrame: 90,
         keyframes: [],
       };
       pushHistory();
       set((state) => {
         const tracks = cloneTracks(state.tracks);
-        tracks[0].operations.push(op);
+        const trackIdx = findOrCreateNonOverlappingTrack(tracks, op.startFrame, op.endFrame);
+        tracks[trackIdx].operations.push(op);
         const flat = flattenTracks(tracks);
         return {
           tracks,
@@ -521,12 +556,15 @@ export const useEditorStore = create<EditorState>((set, get) => {
         x: 0.5,
         y: 0.5,
         size: 0.08,
+        startFrame: 0,
+        endFrame: 90,
         keyframes: [],
       };
       pushHistory();
       set((state) => {
         const tracks = cloneTracks(state.tracks);
-        tracks[0].operations.push(op);
+        const trackIdx = findOrCreateNonOverlappingTrack(tracks, op.startFrame, op.endFrame);
+        tracks[trackIdx].operations.push(op);
         const flat = flattenTracks(tracks);
         return {
           tracks,
@@ -548,12 +586,15 @@ export const useEditorStore = create<EditorState>((set, get) => {
         width: 0.15,
         height: 0.15,
         pixelSize: 10,
+        startFrame: 0,
+        endFrame: 90,
         keyframes: [],
       };
       pushHistory();
       set((state) => {
         const tracks = cloneTracks(state.tracks);
-        tracks[0].operations.push(op);
+        const trackIdx = findOrCreateNonOverlappingTrack(tracks, op.startFrame, op.endFrame);
+        tracks[trackIdx].operations.push(op);
         const flat = flattenTracks(tracks);
         return {
           tracks,
@@ -721,17 +762,19 @@ export const useEditorStore = create<EditorState>((set, get) => {
 
       // Detect format: array = legacy flat operations, object with tracks = new format
       const tracks: Track[] = Array.isArray(data)
-        ? [{
-            id: crypto.randomUUID(),
-            name: "Track 1",
-            operations: data.map((op) => {
-              const normalized = normalizeCropOperation(op);
-              const obj = normalized as Record<string, unknown>;
-              if (!obj.id) obj.id = crypto.randomUUID();
-              if (obj.startFrame === undefined && obj.type !== "clip") obj.startFrame = 0;
-              return normalized;
-            }),
-          }]
+        ? [
+            {
+              id: crypto.randomUUID(),
+              name: "Track 1",
+              operations: data.map((op) => {
+                const normalized = normalizeCropOperation(op);
+                const obj = normalized as Record<string, unknown>;
+                if (!obj.id) obj.id = crypto.randomUUID();
+                if (obj.startFrame === undefined && obj.type !== "clip") obj.startFrame = 0;
+                return normalized;
+              }),
+            },
+          ]
         : (data as { tracks: Track[] }).tracks;
 
       set({

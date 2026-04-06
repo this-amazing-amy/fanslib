@@ -71,6 +71,35 @@ describe("clipStore", () => {
     useClipStore.getState().selectRange(1);
     expect(useClipStore.getState().selectedRangeIndex).toBe(1);
   });
+
+  test("setPeakAtFrame sets peakFrame on the range containing the playhead", () => {
+    useClipStore.getState().addRange(0, 100);
+    useClipStore.getState().addRange(200, 400);
+    useClipStore.getState().setPeakAtFrame(50);
+    expect(useClipStore.getState().ranges[0].peakFrame).toBe(50);
+    expect(useClipStore.getState().ranges[1].peakFrame).toBeUndefined();
+  });
+
+  test("setPeakAtFrame does nothing when playhead is outside all ranges", () => {
+    useClipStore.getState().addRange(0, 100);
+    useClipStore.getState().setPeakAtFrame(150);
+    expect(useClipStore.getState().ranges[0].peakFrame).toBeUndefined();
+  });
+
+  test("setPeakAtFrame updates existing peak on same range", () => {
+    useClipStore.getState().addRange(0, 100);
+    useClipStore.getState().setPeakAtFrame(30);
+    useClipStore.getState().setPeakAtFrame(70);
+    expect(useClipStore.getState().ranges[0].peakFrame).toBe(70);
+  });
+
+  test("setPeakAtFrame is undoable", () => {
+    useClipStore.getState().addRange(0, 100);
+    useClipStore.getState().setPeakAtFrame(50);
+    expect(useClipStore.getState().ranges[0].peakFrame).toBe(50);
+    useClipStore.getState().undo();
+    expect(useClipStore.getState().ranges[0].peakFrame).toBeUndefined();
+  });
 });
 
 describe("clipStore — overlap prevention", () => {

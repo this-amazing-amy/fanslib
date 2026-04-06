@@ -1,19 +1,6 @@
 import { useCallback, useRef } from "react";
-import {
-  Crop,
-  Droplets,
-  Grid3x3,
-  Image as ImageIcon,
-  Smile,
-  Type,
-  ZoomIn,
-} from "lucide-react";
-import {
-  computeMove,
-  computeTrimEnd,
-  computeTrimStart,
-  detectEdge,
-} from "./block-drag";
+import { Crop, Droplets, Grid3x3, Image as ImageIcon, Smile, Type, ZoomIn } from "lucide-react";
+import { computeMove, computeTrimEnd, computeTrimStart, detectEdge } from "./block-drag";
 
 type OperationBlockProps = {
   id: string;
@@ -103,11 +90,7 @@ export const OperationBlock = ({
       const edge = detectEdge(offsetX, rect.width, EDGE_ZONE);
 
       const mode: DragMode =
-        edge === "left"
-          ? "trim-start"
-          : edge === "right"
-            ? "trim-end"
-            : "move";
+        edge === "left" ? "trim-start" : edge === "right" ? "trim-end" : "move";
 
       dragRef.current = {
         mode,
@@ -133,8 +116,7 @@ export const OperationBlock = ({
         const rect = e.currentTarget.getBoundingClientRect();
         const offsetX = e.clientX - rect.left;
         const edge = detectEdge(offsetX, rect.width, EDGE_ZONE);
-        const cursor =
-          edge === "left" || edge === "right" ? "col-resize" : "grab";
+        const cursor = edge === "left" || edge === "right" ? "col-resize" : "grab";
         if (cursorRef.current !== cursor) {
           cursorRef.current = cursor;
           if (elRef.current) elRef.current.style.cursor = cursor;
@@ -210,9 +192,7 @@ export const OperationBlock = ({
     >
       <Icon className="w-3 h-3 shrink-0" />
       <span className="shrink-0">{type}</span>
-      {type === "caption" && label && (
-        <span className="truncate opacity-70">{label}</span>
-      )}
+      {type === "caption" && label && <span className="truncate opacity-70">{label}</span>}
       {selected &&
         keyframes?.map((kf, i) => (
           <div
