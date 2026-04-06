@@ -18,7 +18,14 @@ describe("OperationBlock", () => {
         endFrame={90}
         pixelsPerFrame={2}
         selected={false}
+        totalFrames={900}
+        trackId="t1"
         onClick={() => {}}
+        onMove={() => {}}
+        onTrimStart={() => {}}
+        onTrimEnd={() => {}}
+        onTrackChange={() => {}}
+        onDelete={() => {}}
       />,
     );
     const block = screen.getByTestId("operation-block-op-1");
@@ -36,7 +43,14 @@ describe("OperationBlock", () => {
         endFrame={60}
         pixelsPerFrame={2}
         selected={false}
+        totalFrames={900}
+        trackId="t1"
         onClick={() => {}}
+        onMove={() => {}}
+        onTrimStart={() => {}}
+        onTrimEnd={() => {}}
+        onTrackChange={() => {}}
+        onDelete={() => {}}
       />,
     );
     const block = screen.getByTestId("operation-block-op-2");
@@ -52,7 +66,14 @@ describe("OperationBlock", () => {
         endFrame={30}
         pixelsPerFrame={2}
         selected={true}
+        totalFrames={900}
+        trackId="t1"
         onClick={() => {}}
+        onMove={() => {}}
+        onTrimStart={() => {}}
+        onTrimEnd={() => {}}
+        onTrackChange={() => {}}
+        onDelete={() => {}}
       />,
     );
     const block = screen.getByTestId("operation-block-op-3");
@@ -69,7 +90,14 @@ describe("OperationBlock", () => {
         endFrame={90}
         pixelsPerFrame={2}
         selected={false}
+        totalFrames={900}
+        trackId="t1"
         onClick={() => {}}
+        onMove={() => {}}
+        onTrimStart={() => {}}
+        onTrimEnd={() => {}}
+        onTrackChange={() => {}}
+        onDelete={() => {}}
       />,
     );
     const block = screen.getByTestId("operation-block-op-4");
@@ -85,7 +113,14 @@ describe("OperationBlock", () => {
         endFrame={60}
         pixelsPerFrame={3}
         selected={false}
+        totalFrames={900}
+        trackId="t1"
         onClick={() => {}}
+        onMove={() => {}}
+        onTrimStart={() => {}}
+        onTrimEnd={() => {}}
+        onTrackChange={() => {}}
+        onDelete={() => {}}
       />,
     );
     const block = screen.getByTestId("operation-block-op-5");
