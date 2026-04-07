@@ -127,10 +127,17 @@ export const Timeline = ({
   );
 
   const handleTrackChange = useCallback(
-    (id: string, targetTrackId: string) => {
-      moveOperation(id, targetTrackId);
+    (id: string, direction: string) => {
+      const delta = Number(direction);
+      const sourceIndex = tracks.findIndex((t) =>
+        (t.operations as Array<{ id: string }>).some((op) => op.id === id),
+      );
+      if (sourceIndex === -1) return;
+      const targetIndex = sourceIndex + delta;
+      if (targetIndex < 0 || targetIndex >= tracks.length) return;
+      moveOperation(id, tracks[targetIndex].id);
     },
-    [moveOperation],
+    [moveOperation, tracks],
   );
 
   const handleDelete = useCallback(
