@@ -45,6 +45,7 @@ import { Route as ContentLibraryOrganizeRouteImport } from './routes/content/lib
 import { Route as ContentLibraryMediaRouteImport } from './routes/content/library/media'
 import { Route as LibraryMediaIdEditIndexRouteImport } from './routes/library/$mediaId/edit/index'
 import { Route as ContentLibraryMediaIndexRouteImport } from './routes/content/library/media/index'
+import { Route as ShootsShootIdCompositionsCompositionIdRouteImport } from './routes/shoots/$shootId/compositions/$compositionId'
 import { Route as LibraryMediaIdEditEditIdRouteImport } from './routes/library/$mediaId/edit/$editId'
 import { Route as ContentLibraryMediaMediaIdRouteImport } from './routes/content/library/media/$mediaId'
 
@@ -229,6 +230,12 @@ const ContentLibraryMediaIndexRoute =
     path: '/',
     getParentRoute: () => ContentLibraryMediaRoute,
   } as any)
+const ShootsShootIdCompositionsCompositionIdRoute =
+  ShootsShootIdCompositionsCompositionIdRouteImport.update({
+    id: '/compositions/$compositionId',
+    path: '/compositions/$compositionId',
+    getParentRoute: () => ShootsShootIdRoute,
+  } as any)
 const LibraryMediaIdEditEditIdRoute =
   LibraryMediaIdEditEditIdRouteImport.update({
     id: '/edit/$editId',
@@ -268,7 +275,7 @@ export interface FileRoutesByFullPath {
   '/settings/integrations': typeof SettingsIntegrationsRoute
   '/settings/repost': typeof SettingsRepostRoute
   '/settings/snippets': typeof SettingsSnippetsRoute
-  '/shoots/$shootId': typeof ShootsShootIdRoute
+  '/shoots/$shootId': typeof ShootsShootIdRouteWithChildren
   '/library/': typeof LibraryIndexRoute
   '/plan/': typeof PlanIndexRoute
   '/schedules/': typeof SchedulesIndexRoute
@@ -279,6 +286,7 @@ export interface FileRoutesByFullPath {
   '/library/$mediaId/': typeof LibraryMediaIdIndexRoute
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
   '/library/$mediaId/edit/$editId': typeof LibraryMediaIdEditEditIdRoute
+  '/shoots/$shootId/compositions/$compositionId': typeof ShootsShootIdCompositionsCompositionIdRoute
   '/content/library/media/': typeof ContentLibraryMediaIndexRoute
   '/library/$mediaId/edit/': typeof LibraryMediaIdEditIndexRoute
 }
@@ -305,7 +313,7 @@ export interface FileRoutesByTo {
   '/settings/integrations': typeof SettingsIntegrationsRoute
   '/settings/repost': typeof SettingsRepostRoute
   '/settings/snippets': typeof SettingsSnippetsRoute
-  '/shoots/$shootId': typeof ShootsShootIdRoute
+  '/shoots/$shootId': typeof ShootsShootIdRouteWithChildren
   '/library': typeof LibraryIndexRoute
   '/plan': typeof PlanIndexRoute
   '/schedules': typeof SchedulesIndexRoute
@@ -315,6 +323,7 @@ export interface FileRoutesByTo {
   '/library/$mediaId': typeof LibraryMediaIdIndexRoute
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
   '/library/$mediaId/edit/$editId': typeof LibraryMediaIdEditEditIdRoute
+  '/shoots/$shootId/compositions/$compositionId': typeof ShootsShootIdCompositionsCompositionIdRoute
   '/content/library/media': typeof ContentLibraryMediaIndexRoute
   '/library/$mediaId/edit': typeof LibraryMediaIdEditIndexRoute
 }
@@ -345,7 +354,7 @@ export interface FileRoutesById {
   '/settings/integrations': typeof SettingsIntegrationsRoute
   '/settings/repost': typeof SettingsRepostRoute
   '/settings/snippets': typeof SettingsSnippetsRoute
-  '/shoots/$shootId': typeof ShootsShootIdRoute
+  '/shoots/$shootId': typeof ShootsShootIdRouteWithChildren
   '/library/': typeof LibraryIndexRoute
   '/plan/': typeof PlanIndexRoute
   '/schedules/': typeof SchedulesIndexRoute
@@ -356,6 +365,7 @@ export interface FileRoutesById {
   '/library/$mediaId/': typeof LibraryMediaIdIndexRoute
   '/content/library/media/$mediaId': typeof ContentLibraryMediaMediaIdRoute
   '/library/$mediaId/edit/$editId': typeof LibraryMediaIdEditEditIdRoute
+  '/shoots/$shootId/compositions/$compositionId': typeof ShootsShootIdCompositionsCompositionIdRoute
   '/content/library/media/': typeof ContentLibraryMediaIndexRoute
   '/library/$mediaId/edit/': typeof LibraryMediaIdEditIndexRoute
 }
@@ -398,6 +408,7 @@ export interface FileRouteTypes {
     | '/library/$mediaId/'
     | '/content/library/media/$mediaId'
     | '/library/$mediaId/edit/$editId'
+    | '/shoots/$shootId/compositions/$compositionId'
     | '/content/library/media/'
     | '/library/$mediaId/edit/'
   fileRoutesByTo: FileRoutesByTo
@@ -434,6 +445,7 @@ export interface FileRouteTypes {
     | '/library/$mediaId'
     | '/content/library/media/$mediaId'
     | '/library/$mediaId/edit/$editId'
+    | '/shoots/$shootId/compositions/$compositionId'
     | '/content/library/media'
     | '/library/$mediaId/edit'
   id:
@@ -474,6 +486,7 @@ export interface FileRouteTypes {
     | '/library/$mediaId/'
     | '/content/library/media/$mediaId'
     | '/library/$mediaId/edit/$editId'
+    | '/shoots/$shootId/compositions/$compositionId'
     | '/content/library/media/'
     | '/library/$mediaId/edit/'
   fileRoutesById: FileRoutesById
@@ -493,7 +506,7 @@ export interface RootRouteChildren {
   FanslyFypRoute: typeof FanslyFypRoute
   LibraryMediaIdRoute: typeof LibraryMediaIdRouteWithChildren
   PostsPostIdRoute: typeof PostsPostIdRoute
-  ShootsShootIdRoute: typeof ShootsShootIdRoute
+  ShootsShootIdRoute: typeof ShootsShootIdRouteWithChildren
   LibraryIndexRoute: typeof LibraryIndexRoute
   PlanIndexRoute: typeof PlanIndexRoute
   ShootsIndexRoute: typeof ShootsIndexRoute
@@ -753,6 +766,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContentLibraryMediaIndexRouteImport
       parentRoute: typeof ContentLibraryMediaRoute
     }
+    '/shoots/$shootId/compositions/$compositionId': {
+      id: '/shoots/$shootId/compositions/$compositionId'
+      path: '/compositions/$compositionId'
+      fullPath: '/shoots/$shootId/compositions/$compositionId'
+      preLoaderRoute: typeof ShootsShootIdCompositionsCompositionIdRouteImport
+      parentRoute: typeof ShootsShootIdRoute
+    }
     '/library/$mediaId/edit/$editId': {
       id: '/library/$mediaId/edit/$editId'
       path: '/edit/$editId'
@@ -868,6 +888,19 @@ const LibraryMediaIdRouteWithChildren = LibraryMediaIdRoute._addFileChildren(
   LibraryMediaIdRouteChildren,
 )
 
+interface ShootsShootIdRouteChildren {
+  ShootsShootIdCompositionsCompositionIdRoute: typeof ShootsShootIdCompositionsCompositionIdRoute
+}
+
+const ShootsShootIdRouteChildren: ShootsShootIdRouteChildren = {
+  ShootsShootIdCompositionsCompositionIdRoute:
+    ShootsShootIdCompositionsCompositionIdRoute,
+}
+
+const ShootsShootIdRouteWithChildren = ShootsShootIdRoute._addFileChildren(
+  ShootsShootIdRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CaptioningRoute: CaptioningRoute,
@@ -883,7 +916,7 @@ const rootRouteChildren: RootRouteChildren = {
   FanslyFypRoute: FanslyFypRoute,
   LibraryMediaIdRoute: LibraryMediaIdRouteWithChildren,
   PostsPostIdRoute: PostsPostIdRoute,
-  ShootsShootIdRoute: ShootsShootIdRoute,
+  ShootsShootIdRoute: ShootsShootIdRouteWithChildren,
   LibraryIndexRoute: LibraryIndexRoute,
   PlanIndexRoute: PlanIndexRoute,
   ShootsIndexRoute: ShootsIndexRoute,
@@ -891,12 +924,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
