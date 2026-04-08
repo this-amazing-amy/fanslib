@@ -6,6 +6,7 @@ export type Segment = {
   transition?: {
     type: "crossfade";
     durationFrames: number;
+    easing?: string;
   };
 };
 

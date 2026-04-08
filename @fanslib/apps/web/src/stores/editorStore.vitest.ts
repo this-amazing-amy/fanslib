@@ -757,6 +757,81 @@ describe("editorStore", () => {
     });
   });
 
+  describe("transitions", () => {
+    test("addTransition adds transition to segment", () => {
+      useEditorStore.getState().addSegment({ sourceMediaId: "a", sourceStartFrame: 0, sourceEndFrame: 30 });
+      useEditorStore.getState().addSegment({ sourceMediaId: "b", sourceStartFrame: 0, sourceEndFrame: 30 });
+      const id = useEditorStore.getState().segments[1].id;
+      useEditorStore.getState().addTransition(id, { type: "crossfade", durationFrames: 10 });
+      const seg = useEditorStore.getState().segments[1];
+      expect(seg.transition).toEqual({ type: "crossfade", durationFrames: 10 });
+      expect(useEditorStore.getState().isDirty).toBe(true);
+    });
+
+    test("addTransition on first segment is a no-op", () => {
+      useEditorStore.getState().addSegment({ sourceMediaId: "a", sourceStartFrame: 0, sourceEndFrame: 30 });
+      const id = useEditorStore.getState().segments[0].id;
+      useEditorStore.getState().addTransition(id, { type: "crossfade", durationFrames: 10 });
+      expect(useEditorStore.getState().segments[0].transition).toBeUndefined();
+      // Should not push to undo stack since it was a no-op
+      expect(useEditorStore.getState().canUndo).toBe(true); // canUndo from addSegment
+    });
+
+    test("removeTransition clears transition", () => {
+      useEditorStore.getState().addSegment({ sourceMediaId: "a", sourceStartFrame: 0, sourceEndFrame: 30 });
+      useEditorStore.getState().addSegment({
+        sourceMediaId: "b",
+        sourceStartFrame: 0,
+        sourceEndFrame: 30,
+        transition: { type: "crossfade", durationFrames: 10 },
+      });
+      const id = useEditorStore.getState().segments[1].id;
+      useEditorStore.getState().removeTransition(id);
+      expect(useEditorStore.getState().segments[1].transition).toBeUndefined();
+    });
+
+    test("updateTransition modifies durationFrames", () => {
+      useEditorStore.getState().addSegment({ sourceMediaId: "a", sourceStartFrame: 0, sourceEndFrame: 30 });
+      useEditorStore.getState().addSegment({ sourceMediaId: "b", sourceStartFrame: 0, sourceEndFrame: 30 });
+      const id = useEditorStore.getState().segments[1].id;
+      useEditorStore.getState().addTransition(id, { type: "crossfade", durationFrames: 10 });
+      useEditorStore.getState().updateTransition(id, { durationFrames: 20 });
+      expect(useEditorStore.getState().segments[1].transition?.durationFrames).toBe(20);
+      expect(useEditorStore.getState().segments[1].transition?.type).toBe("crossfade");
+    });
+
+    test("updateTransition modifies easing", () => {
+      useEditorStore.getState().addSegment({ sourceMediaId: "a", sourceStartFrame: 0, sourceEndFrame: 30 });
+      useEditorStore.getState().addSegment({ sourceMediaId: "b", sourceStartFrame: 0, sourceEndFrame: 30 });
+      const id = useEditorStore.getState().segments[1].id;
+      useEditorStore.getState().addTransition(id, { type: "crossfade", durationFrames: 10 });
+      useEditorStore.getState().updateTransition(id, { easing: "ease-in-out" });
+      expect(useEditorStore.getState().segments[1].transition?.easing).toBe("ease-in-out");
+      expect(useEditorStore.getState().segments[1].transition?.durationFrames).toBe(10);
+    });
+
+    test("undo reverts addTransition", () => {
+      useEditorStore.getState().addSegment({ sourceMediaId: "a", sourceStartFrame: 0, sourceEndFrame: 30 });
+      useEditorStore.getState().addSegment({ sourceMediaId: "b", sourceStartFrame: 0, sourceEndFrame: 30 });
+      const id = useEditorStore.getState().segments[1].id;
+      useEditorStore.getState().addTransition(id, { type: "crossfade", durationFrames: 10 });
+      expect(useEditorStore.getState().segments[1].transition).toBeDefined();
+      useEditorStore.getState().undo();
+      expect(useEditorStore.getState().segments[1].transition).toBeUndefined();
+    });
+
+    test("redo reapplies addTransition", () => {
+      useEditorStore.getState().addSegment({ sourceMediaId: "a", sourceStartFrame: 0, sourceEndFrame: 30 });
+      useEditorStore.getState().addSegment({ sourceMediaId: "b", sourceStartFrame: 0, sourceEndFrame: 30 });
+      const id = useEditorStore.getState().segments[1].id;
+      useEditorStore.getState().addTransition(id, { type: "crossfade", durationFrames: 10 });
+      useEditorStore.getState().undo();
+      expect(useEditorStore.getState().segments[1].transition).toBeUndefined();
+      useEditorStore.getState().redo();
+      expect(useEditorStore.getState().segments[1].transition).toEqual({ type: "crossfade", durationFrames: 10 });
+    });
+  });
+
   describe("zoom operations", () => {
     test("addZoom adds a zoom operation with default values", () => {
       useEditorStore.getState().addZoom();
