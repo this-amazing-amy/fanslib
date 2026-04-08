@@ -21,6 +21,17 @@ type WatermarkOperation = {
 };
 
 type Operation = { type: string; [key: string]: unknown };
+type CompositionSegment = {
+  id: string;
+  sourceMediaId: string;
+  sourceStartFrame: number;
+  sourceEndFrame: number;
+  transition?: {
+    type: "crossfade";
+    durationFrames: number;
+    easing?: string;
+  };
+};
 
 const log = (msg: string, data?: Record<string, unknown>) =>
   console.log(`[render:remotion] ${msg}`, data ? JSON.stringify(data) : "");
@@ -77,6 +88,8 @@ export const remotionRenderFn: RenderFn = async ({ edit, sourceMedia, outputPath
   const fps = 30;
   const width = sourceMedia.width ?? 1920;
   const height = sourceMedia.height ?? 1080;
+  const compositionSegments = (edit.segments ?? []) as CompositionSegment[];
+  const isCompositionRender = edit.type === "composition" && compositionSegments.length > 0;
 
   // Extract clip operation if present
   const clipOp = operations.find((op): op is ClipOperation => op.type === "clip");
@@ -118,6 +131,72 @@ export const remotionRenderFn: RenderFn = async ({ edit, sourceMedia, outputPath
     const file = Bun.file(outputPath);
     log("still render complete", { size: file.size });
     return { type: "image", duration: null, size: file.size };
+  }
+
+  if (isCompositionRender) {
+    const segments = compositionSegments.map((segment) => ({
+      ...segment,
+      sourceUrl: `${baseUrl}/api/media/${segment.sourceMediaId}/file`,
+    }));
+    const durationInFrames = Math.max(
+      1,
+      segments.reduce(
+        (totalDuration, segment) => totalDuration + (segment.sourceEndFrame - segment.sourceStartFrame),
+        0,
+      ),
+    );
+    const assetUrls = overlayOps.reduce<Record<string, string>>(
+      (urls, operation) =>
+        operation.type === "watermark"
+          ? {
+              ...urls,
+              [(operation as WatermarkOperation).assetId]:
+                `${baseUrl}/api/assets/${(operation as WatermarkOperation).assetId}/file`,
+            }
+          : urls,
+      {},
+    );
+    const inputProps = {
+      segments,
+      operations: overlayOps,
+      assetUrls,
+    };
+    const composition = await selectComposition({
+      serveUrl,
+      id: "SequenceComposition",
+      inputProps,
+      chromiumOptions,
+    });
+    composition.durationInFrames = durationInFrames;
+    composition.fps = fps;
+    composition.width = width;
+    composition.height = height;
+
+    await renderMedia({
+      composition,
+      serveUrl,
+      outputLocation: outputPath,
+      codec: "h264",
+      crf: quality === "fast" ? 28 : 18,
+      inputProps,
+      chromiumOptions,
+      onProgress: (progress: { renderedFrames: number }) => {
+        if (onProgress) {
+          onProgress({
+            renderedFrames: progress.renderedFrames,
+            totalFrames: composition.durationInFrames,
+          });
+        }
+      },
+    });
+
+    const file = Bun.file(outputPath);
+    const duration = composition.durationInFrames / composition.fps;
+    return {
+      type: "video",
+      duration,
+      size: file.size,
+    };
   }
 
   // Video render (with or without clip)
