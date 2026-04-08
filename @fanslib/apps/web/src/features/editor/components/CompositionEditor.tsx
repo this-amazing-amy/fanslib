@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useCompositionByIdQuery } from "~/lib/queries/compositions";
 import { useEditorStore } from "~/stores/editorStore";
-import { useCompositionAutoSave } from "../hooks/useCompositionAutoSave";
+import { SourceBin } from "./SourceBin";
 
 type CompositionEditorProps = {
   shootId: string;
@@ -65,6 +65,12 @@ export const CompositionEditor = ({ shootId, compositionId }: CompositionEditorP
         <p className="text-muted-foreground text-sm">
           Shoot: {shootId} &middot; {composition.segments.length} segment{composition.segments.length !== 1 ? "s" : ""}
         </p>
+      </div>
+      <div className="flex min-h-0 flex-1">
+        <aside className="border-r w-64 overflow-y-auto">
+          <SourceBin shootId={shootId} />
+        </aside>
+        <div className="flex-1" />
       </div>
     </div>
   );

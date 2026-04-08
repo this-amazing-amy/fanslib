@@ -33,6 +33,7 @@ type EditorState = {
   isDirty: boolean;
   sourceMediaId: string | null;
   editId: string | null;
+  selectedSourceId: string | null;
 
   // Export region state
   exportRegions: ExportRegion[];
@@ -120,6 +121,9 @@ type EditorState = {
 
   // Derived
   flattenOperations: () => unknown[];
+
+  // Source bin
+  selectSource: (id: string | null) => void;
 
   // Metadata
   setSourceMediaId: (id: string) => void;
@@ -236,6 +240,7 @@ export const useEditorStore = create<EditorState>((set, get) => {
     isDirty: false,
     sourceMediaId: null,
     editId: null,
+    selectedSourceId: null,
     canRedo: false,
     exportRegions: [],
     exportRegionMode: false,
@@ -965,6 +970,10 @@ export const useEditorStore = create<EditorState>((set, get) => {
 
     flattenOperations: () => flattenTracks(get().tracks),
 
+    selectSource: (id) => {
+      set({ selectedSourceId: id });
+    },
+
     setSourceMediaId: (id) => {
       set({ sourceMediaId: id });
     },
@@ -1056,6 +1065,7 @@ export const useEditorStore = create<EditorState>((set, get) => {
         isDirty: false,
         sourceMediaId: null,
         editId: null,
+        selectedSourceId: null,
       });
     },
   };

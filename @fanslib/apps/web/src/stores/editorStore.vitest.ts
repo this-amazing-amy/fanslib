@@ -906,4 +906,22 @@ describe("editorStore", () => {
       expect(useEditorStore.getState().operations).toHaveLength(0);
     });
   });
+
+  describe("selectSource", () => {
+    test("selectSource sets and clears selectedSourceId", () => {
+      expect(useEditorStore.getState().selectedSourceId).toBeNull();
+
+      useEditorStore.getState().selectSource("media-1");
+      expect(useEditorStore.getState().selectedSourceId).toBe("media-1");
+
+      useEditorStore.getState().selectSource(null);
+      expect(useEditorStore.getState().selectedSourceId).toBeNull();
+    });
+
+    test("reset clears selectedSourceId", () => {
+      useEditorStore.getState().selectSource("media-1");
+      useEditorStore.getState().reset();
+      expect(useEditorStore.getState().selectedSourceId).toBeNull();
+    });
+  });
 });
