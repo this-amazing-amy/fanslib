@@ -24,6 +24,7 @@ export const UpdateMediaRequestBodySchema = z.object({
   package: z.string().nullable().optional(),
   role: z.string().nullable().optional(),
   isManaged: z.boolean().optional(),
+  note: z.string().nullable().optional(),
   fileCreationDate: z.coerce.date().optional(),
   fileModificationDate: z.coerce.date().optional(),
 });
