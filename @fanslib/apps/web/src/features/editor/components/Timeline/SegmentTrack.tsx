@@ -1,7 +1,8 @@
 import { useCallback, useState } from "react";
-import { Film, Trash2 } from "lucide-react";
+import { Film, Trash2, Blend, X } from "lucide-react";
 import { useEditorStore } from "~/stores/editorStore";
 import { computeSequenceTimeline } from "~/features/editor/utils/sequence-engine";
+import { TransitionIndicator } from "./TransitionIndicator";
 
 type SegmentTrackProps = {
   pixelsPerFrame: number;
@@ -19,6 +20,9 @@ export const SegmentTrack = ({ pixelsPerFrame, totalFrames }: SegmentTrackProps)
   const selectedSegmentId = useEditorStore((s) => s.selectedSegmentId);
   const selectSegment = useEditorStore((s) => s.selectSegment);
   const removeSegment = useEditorStore((s) => s.removeSegment);
+  const addTransition = useEditorStore((s) => s.addTransition);
+  const removeTransition = useEditorStore((s) => s.removeTransition);
+  const selectTransition = useEditorStore((s) => s.selectTransition);
 
   const [contextMenu, setContextMenu] = useState<ContextMenuState>(null);
 
@@ -39,6 +43,22 @@ export const SegmentTrack = ({ pixelsPerFrame, totalFrames }: SegmentTrackProps)
       setContextMenu(null);
     },
     [removeSegment],
+  );
+
+  const handleAddCrossfade = useCallback(
+    (segmentId: string) => {
+      addTransition(segmentId, { type: "crossfade", durationFrames: 15 });
+      setContextMenu(null);
+    },
+    [addTransition],
+  );
+
+  const handleRemoveCrossfade = useCallback(
+    (segmentId: string) => {
+      removeTransition(segmentId);
+      setContextMenu(null);
+    },
+    [removeTransition],
   );
 
   const closeContextMenu = useCallback(() => {
@@ -62,7 +82,7 @@ export const SegmentTrack = ({ pixelsPerFrame, totalFrames }: SegmentTrackProps)
           className="relative h-10 flex items-center flex-1"
           style={{ width: `${totalFrames * pixelsPerFrame}px` }}
         >
-          {timeline.positions.map((pos) => {
+          {timeline.positions.map((pos, i) => {
             const segment = segments.find((s) => s.id === pos.segmentId);
             if (!segment) return null;
 
@@ -84,26 +104,71 @@ export const SegmentTrack = ({ pixelsPerFrame, totalFrames }: SegmentTrackProps)
               </div>
             );
           })}
+
+          {/* Transition indicators */}
+          {timeline.positions.map((pos, i) => {
+            if (i === 0) return null;
+            const segment = segments.find((s) => s.id === pos.segmentId);
+            if (!segment?.transition) return null;
+
+            return (
+              <TransitionIndicator
+                key={`transition-${pos.segmentId}`}
+                segmentId={pos.segmentId}
+                sequenceStartFrame={pos.sequenceStartFrame}
+                durationFrames={segment.transition.durationFrames}
+                pixelsPerFrame={pixelsPerFrame}
+                onClick={() => selectTransition(pos.segmentId)}
+              />
+            );
+          })}
         </div>
       </div>
 
       {/* Context menu */}
-      {contextMenu && (
-        <div
-          data-testid="segment-context-menu"
-          className="fixed z-50 bg-base-100 border border-base-300 rounded shadow-lg py-1 min-w-32"
-          style={{ left: contextMenu.x, top: contextMenu.y }}
-        >
-          <button
-            data-testid="segment-delete-btn"
-            className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-error hover:bg-base-200 cursor-pointer"
-            onClick={() => handleDelete(contextMenu.segmentId)}
+      {contextMenu && (() => {
+        const segIndex = segments.findIndex((s) => s.id === contextMenu.segmentId);
+        const seg = segments[segIndex];
+        const isFirst = segIndex === 0;
+        const hasTransition = !!seg?.transition;
+
+        return (
+          <div
+            data-testid="segment-context-menu"
+            className="fixed z-50 bg-base-100 border border-base-300 rounded shadow-lg py-1 min-w-32"
+            style={{ left: contextMenu.x, top: contextMenu.y }}
           >
-            <Trash2 className="w-3.5 h-3.5" />
-            Delete
-          </button>
-        </div>
-      )}
+            {!isFirst && !hasTransition && (
+              <button
+                data-testid="segment-add-crossfade-btn"
+                className="flex items-center gap-2 w-full px-3 py-1.5 text-sm hover:bg-base-200 cursor-pointer"
+                onClick={() => handleAddCrossfade(contextMenu.segmentId)}
+              >
+                <Blend className="w-3.5 h-3.5" />
+                Add Crossfade
+              </button>
+            )}
+            {!isFirst && hasTransition && (
+              <button
+                data-testid="segment-remove-crossfade-btn"
+                className="flex items-center gap-2 w-full px-3 py-1.5 text-sm hover:bg-base-200 cursor-pointer"
+                onClick={() => handleRemoveCrossfade(contextMenu.segmentId)}
+              >
+                <X className="w-3.5 h-3.5" />
+                Remove Crossfade
+              </button>
+            )}
+            <button
+              data-testid="segment-delete-btn"
+              className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-error hover:bg-base-200 cursor-pointer"
+              onClick={() => handleDelete(contextMenu.segmentId)}
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Delete
+            </button>
+          </div>
+        );
+      })()}
     </>
   );
 };
