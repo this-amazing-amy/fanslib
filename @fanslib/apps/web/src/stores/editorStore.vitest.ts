@@ -631,6 +631,132 @@ describe("editorStore", () => {
     });
   });
 
+  describe("segments", () => {
+    test("addSegment appends a segment with generated id", () => {
+      useEditorStore.getState().addSegment({
+        sourceMediaId: "media-1",
+        sourceStartFrame: 0,
+        sourceEndFrame: 90,
+      });
+      const segments = useEditorStore.getState().segments;
+      expect(segments).toHaveLength(1);
+      expect(segments[0].sourceMediaId).toBe("media-1");
+      expect(segments[0].sourceStartFrame).toBe(0);
+      expect(segments[0].sourceEndFrame).toBe(90);
+      expect(typeof segments[0].id).toBe("string");
+      expect(segments[0].id.length).toBeGreaterThan(0);
+    });
+
+    test("removeSegment removes by id", () => {
+      useEditorStore.getState().addSegment({
+        sourceMediaId: "media-1",
+        sourceStartFrame: 0,
+        sourceEndFrame: 90,
+      });
+      useEditorStore.getState().addSegment({
+        sourceMediaId: "media-2",
+        sourceStartFrame: 0,
+        sourceEndFrame: 60,
+      });
+      const id = useEditorStore.getState().segments[0].id;
+      useEditorStore.getState().removeSegment(id);
+      const segments = useEditorStore.getState().segments;
+      expect(segments).toHaveLength(1);
+      expect(segments[0].sourceMediaId).toBe("media-2");
+    });
+
+    test("reorderSegments moves to new index", () => {
+      useEditorStore.getState().addSegment({ sourceMediaId: "a", sourceStartFrame: 0, sourceEndFrame: 30 });
+      useEditorStore.getState().addSegment({ sourceMediaId: "b", sourceStartFrame: 0, sourceEndFrame: 30 });
+      useEditorStore.getState().addSegment({ sourceMediaId: "c", sourceStartFrame: 0, sourceEndFrame: 30 });
+      const id = useEditorStore.getState().segments[0].id;
+      useEditorStore.getState().reorderSegments(id, 2);
+      const segments = useEditorStore.getState().segments;
+      expect(segments[0].sourceMediaId).toBe("b");
+      expect(segments[1].sourceMediaId).toBe("c");
+      expect(segments[2].sourceMediaId).toBe("a");
+    });
+
+    test("reorderSegments drops transition when segment moves to index 0", () => {
+      useEditorStore.getState().addSegment({ sourceMediaId: "a", sourceStartFrame: 0, sourceEndFrame: 30 });
+      useEditorStore.getState().addSegment({
+        sourceMediaId: "b",
+        sourceStartFrame: 0,
+        sourceEndFrame: 30,
+        transition: { type: "crossfade", durationFrames: 10 },
+      });
+      const id = useEditorStore.getState().segments[1].id;
+      useEditorStore.getState().reorderSegments(id, 0);
+      const segments = useEditorStore.getState().segments;
+      expect(segments[0].sourceMediaId).toBe("b");
+      expect(segments[0].transition).toBeUndefined();
+    });
+
+    test("trimSegmentStart adjusts sourceStartFrame", () => {
+      useEditorStore.getState().addSegment({ sourceMediaId: "media-1", sourceStartFrame: 0, sourceEndFrame: 90 });
+      const id = useEditorStore.getState().segments[0].id;
+      useEditorStore.getState().trimSegmentStart(id, 15);
+      expect(useEditorStore.getState().segments[0].sourceStartFrame).toBe(15);
+    });
+
+    test("trimSegmentEnd adjusts sourceEndFrame", () => {
+      useEditorStore.getState().addSegment({ sourceMediaId: "media-1", sourceStartFrame: 0, sourceEndFrame: 90 });
+      const id = useEditorStore.getState().segments[0].id;
+      useEditorStore.getState().trimSegmentEnd(id, 60);
+      expect(useEditorStore.getState().segments[0].sourceEndFrame).toBe(60);
+    });
+
+    test("selectSegment sets selectedSegmentId", () => {
+      useEditorStore.getState().addSegment({ sourceMediaId: "media-1", sourceStartFrame: 0, sourceEndFrame: 90 });
+      const id = useEditorStore.getState().segments[0].id;
+      useEditorStore.getState().selectSegment(id);
+      expect(useEditorStore.getState().selectedSegmentId).toBe(id);
+      useEditorStore.getState().selectSegment(null);
+      expect(useEditorStore.getState().selectedSegmentId).toBeNull();
+    });
+
+    test("undo/redo works for segment mutations", () => {
+      useEditorStore.getState().addSegment({ sourceMediaId: "media-1", sourceStartFrame: 0, sourceEndFrame: 90 });
+      expect(useEditorStore.getState().segments).toHaveLength(1);
+      useEditorStore.getState().undo();
+      expect(useEditorStore.getState().segments).toHaveLength(0);
+      useEditorStore.getState().redo();
+      expect(useEditorStore.getState().segments).toHaveLength(1);
+      expect(useEditorStore.getState().segments[0].sourceMediaId).toBe("media-1");
+    });
+
+    test("undo/redo still works for operation mutations (regression)", () => {
+      useEditorStore.getState().addOperation({ type: "blur" });
+      expect(useEditorStore.getState().operations).toHaveLength(1);
+      useEditorStore.getState().undo();
+      expect(useEditorStore.getState().operations).toHaveLength(0);
+      useEditorStore.getState().redo();
+      expect(useEditorStore.getState().operations).toHaveLength(1);
+    });
+
+    test("hydrate accepts and restores segments", () => {
+      const data = {
+        tracks: [{ id: "t1", name: "Track 1", operations: [] }],
+        segments: [
+          { id: "s1", sourceMediaId: "media-1", sourceStartFrame: 0, sourceEndFrame: 90 },
+          { id: "s2", sourceMediaId: "media-2", sourceStartFrame: 10, sourceEndFrame: 50 },
+        ],
+      };
+      useEditorStore.getState().hydrate(data);
+      expect(useEditorStore.getState().segments).toHaveLength(2);
+      expect(useEditorStore.getState().segments[0].id).toBe("s1");
+      expect(useEditorStore.getState().segments[1].sourceMediaId).toBe("media-2");
+    });
+
+    test("reset clears segments and selectedSegmentId", () => {
+      useEditorStore.getState().addSegment({ sourceMediaId: "media-1", sourceStartFrame: 0, sourceEndFrame: 90 });
+      useEditorStore.getState().selectSegment(useEditorStore.getState().segments[0].id);
+      useEditorStore.getState().reset();
+      expect(useEditorStore.getState().segments).toEqual([]);
+      expect(useEditorStore.getState().selectedSegmentId).toBeNull();
+    });
+  });
+
   describe("zoom operations", () => {
     test("addZoom adds a zoom operation with default values", () => {
       useEditorStore.getState().addZoom();

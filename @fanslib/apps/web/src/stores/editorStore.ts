@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { type CropOperation, normalizeCropOperation } from "~/features/editor/utils/crop-operation";
+import type { Segment } from "~/features/editor/utils/sequence-engine";
 
 type Track = {
   id: string;
@@ -9,6 +10,8 @@ type Track = {
 
 type EditorState = {
   tracks: Track[];
+  segments: Segment[];
+  selectedSegmentId: string | null;
   operations: unknown[];
   selectedOperationIndex: number | null;
   selectedOperationId: string | null;
@@ -71,6 +74,14 @@ type EditorState = {
   // Watermark convenience
   addWatermark: (assetId: string) => void;
 
+  // Segment mutations
+  addSegment: (segment: Omit<Segment, "id">) => void;
+  removeSegment: (segmentId: string) => void;
+  reorderSegments: (segmentId: string, newIndex: number) => void;
+  trimSegmentStart: (segmentId: string, newSourceStartFrame: number) => void;
+  trimSegmentEnd: (segmentId: string, newSourceEndFrame: number) => void;
+  selectSegment: (segmentId: string | null) => void;
+
   // Track management
   addTrack: () => void;
   removeTrack: (trackId: string) => void;
@@ -86,15 +97,15 @@ type EditorState = {
   markClean: () => void;
 
   // Hydrate from existing MediaEdit
-  hydrate: (data: unknown[] | { tracks: Track[] }) => void;
-  // Restore tracks from unified history snapshot (does not touch per-store undo stacks)
-  restoreTracks: (tracks: unknown[]) => void;
+  hydrate: (data: unknown[] | { tracks: Track[]; segments?: Segment[] }) => void;
+  // Restore tracks (and optionally segments) from unified history snapshot (does not touch per-store undo stacks)
+  restoreTracks: (tracks: unknown[], segments?: Segment[]) => void;
 
   // Reset
   reset: () => void;
 };
 
-type HistoryEntry = Track[];
+type HistoryEntry = { tracks: Track[]; segments: Segment[] };
 
 const makeDefaultTrack = (): Track => ({
   id: crypto.randomUUID(),
@@ -158,8 +169,12 @@ export const useEditorStore = create<EditorState>((set, get) => {
     return tracks.length - 1;
   };
 
+  const cloneSegments = (segments: Segment[]): Segment[] =>
+    segments.map((s) => ({ ...s, transition: s.transition ? { ...s.transition } : undefined }));
+
   const pushHistory = () => {
-    undoStack.push(cloneTracks(get().tracks));
+    const state = get();
+    undoStack.push({ tracks: cloneTracks(state.tracks), segments: cloneSegments(state.segments) });
     redoStack = []; // Clear redo on new mutation
   };
 
@@ -173,6 +188,8 @@ export const useEditorStore = create<EditorState>((set, get) => {
 
   return {
     tracks: [initialTrack],
+    segments: [],
+    selectedSegmentId: null,
     operations: [],
     selectedOperationIndex: null,
     selectedOperationId: null,
@@ -373,10 +390,12 @@ export const useEditorStore = create<EditorState>((set, get) => {
     undo: () => {
       const previous = undoStack.pop();
       if (previous === undefined) return;
-      redoStack.push(cloneTracks(get().tracks));
+      const state = get();
+      redoStack.push({ tracks: cloneTracks(state.tracks), segments: cloneSegments(state.segments) });
       set({
-        tracks: previous,
-        operations: flattenTracks(previous),
+        tracks: previous.tracks,
+        segments: previous.segments,
+        operations: flattenTracks(previous.tracks),
         canUndo: undoStack.length > 0,
         canRedo: true,
         cropEditingOperationIndex: null,
@@ -387,10 +406,12 @@ export const useEditorStore = create<EditorState>((set, get) => {
     redo: () => {
       const next = redoStack.pop();
       if (next === undefined) return;
-      undoStack.push(cloneTracks(get().tracks));
+      const state = get();
+      undoStack.push({ tracks: cloneTracks(state.tracks), segments: cloneSegments(state.segments) });
       set({
-        tracks: next,
-        operations: flattenTracks(next),
+        tracks: next.tracks,
+        segments: next.segments,
+        operations: flattenTracks(next.tracks),
         canUndo: true,
         canRedo: redoStack.length > 0,
         cropEditingOperationIndex: null,
@@ -697,6 +718,60 @@ export const useEditorStore = create<EditorState>((set, get) => {
       set({ selectedOperationId: id });
     },
 
+    addSegment: (segment) => {
+      pushHistory();
+      set((state) => ({
+        segments: [...state.segments, { ...segment, id: crypto.randomUUID() }],
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
+    removeSegment: (segmentId) => {
+      pushHistory();
+      set((state) => ({
+        segments: state.segments.filter((s) => s.id !== segmentId),
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
+    reorderSegments: (segmentId, newIndex) => {
+      pushHistory();
+      set((state) => {
+        const segments = [...state.segments];
+        const fromIndex = segments.findIndex((s) => s.id === segmentId);
+        if (fromIndex === -1) return { ...updateUndoRedoFlags() };
+        const [moved] = segments.splice(fromIndex, 1);
+        // Drop transition if moved to index 0
+        const placed = newIndex === 0 ? { ...moved, transition: undefined } : moved;
+        segments.splice(newIndex, 0, placed);
+        return { segments, ...updateUndoRedoFlags() };
+      });
+    },
+
+    trimSegmentStart: (segmentId, newSourceStartFrame) => {
+      pushHistory();
+      set((state) => ({
+        segments: state.segments.map((s) =>
+          s.id === segmentId ? { ...s, sourceStartFrame: newSourceStartFrame } : s,
+        ),
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
+    trimSegmentEnd: (segmentId, newSourceEndFrame) => {
+      pushHistory();
+      set((state) => ({
+        segments: state.segments.map((s) =>
+          s.id === segmentId ? { ...s, sourceEndFrame: newSourceEndFrame } : s,
+        ),
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
+    selectSegment: (segmentId) => {
+      set({ selectedSegmentId: segmentId });
+    },
+
     addTrack: () => {
       pushHistory();
       set((state) => {
@@ -763,7 +838,8 @@ export const useEditorStore = create<EditorState>((set, get) => {
       redoStack = [];
 
       // Detect format: array = legacy flat operations, object with tracks = new format
-      const tracks: Track[] = Array.isArray(data)
+      const isLegacy = Array.isArray(data);
+      const tracks: Track[] = isLegacy
         ? [
             {
               id: crypto.randomUUID(),
@@ -779,11 +855,17 @@ export const useEditorStore = create<EditorState>((set, get) => {
           ]
         : (data as { tracks: Track[] }).tracks;
 
+      const segments: Segment[] = isLegacy
+        ? []
+        : (data as { segments?: Segment[] }).segments ?? [];
+
       set({
         tracks,
+        segments,
         operations: flattenTracks(tracks),
         selectedOperationIndex: null,
         selectedOperationId: null,
+        selectedSegmentId: null,
         cropEditingOperationIndex: null,
         cropEditingOperationId: null,
         canUndo: false,
@@ -792,11 +874,12 @@ export const useEditorStore = create<EditorState>((set, get) => {
       });
     },
 
-    restoreTracks: (rawTracks) => {
+    restoreTracks: (rawTracks, segments) => {
       const tracks = rawTracks as Track[];
       set({
         tracks,
         operations: flattenTracks(tracks),
+        ...(segments !== undefined ? { segments } : {}),
       });
     },
 
@@ -805,6 +888,8 @@ export const useEditorStore = create<EditorState>((set, get) => {
       redoStack = [];
       set({
         tracks: [makeDefaultTrack()],
+        segments: [],
+        selectedSegmentId: null,
         operations: [],
         selectedOperationIndex: null,
         selectedOperationId: null,
