@@ -6,6 +6,7 @@ import {
   createComposition,
 } from "./operations/composition/create";
 import { deleteComposition } from "./operations/composition/delete";
+import { exportComposition } from "./operations/composition/export";
 import { fetchCompositionById } from "./operations/composition/fetch-by-id";
 import { fetchCompositionsByShoot } from "./operations/composition/fetch-by-shoot";
 import {
@@ -45,6 +46,18 @@ export const compositionsRoutes = new Hono()
     const shootId = c.req.param("shootId");
     const compositions = await fetchCompositionsByShoot(shootId);
     return c.json(compositions);
+  })
+  .post("/by-id/:id/export", async (c) => {
+    const id = c.req.param("id");
+    try {
+      const edits = await exportComposition(id);
+      return c.json(edits);
+    } catch (error) {
+      if (error instanceof Error && error.message === "Composition not found") {
+        return notFound(c, "Composition not found");
+      }
+      throw error;
+    }
   })
   .delete("/by-id/:id", async (c) => {
     const id = c.req.param("id");

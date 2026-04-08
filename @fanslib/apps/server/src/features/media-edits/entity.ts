@@ -10,6 +10,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { Media } from "../library/entity";
+import { Composition } from "../compositions/entity";
 
 export type MediaEditType = "transform" | "clip" | "composition";
 export type MediaEditStatus = "draft" | "queued" | "rendering" | "completed" | "failed";
@@ -44,6 +45,10 @@ export class MediaEdit {
 
   @Column({ type: "varchar", nullable: true, name: "compositionId" })
   compositionId: string | null = null;
+
+  @ManyToOne(() => Composition, { nullable: true, onDelete: "SET NULL" })
+  @JoinColumn({ name: "compositionId" })
+  composition!: Relation<Composition> | null;
 
   @Column({ type: "simple-json", nullable: true, name: "segments" })
   segments: unknown[] | null = null;

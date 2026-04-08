@@ -234,6 +234,54 @@ describe("Compositions Routes", () => {
     });
   });
 
+  describe("POST /api/compositions/by-id/:id/export", () => {
+    test("exports a composition and returns MediaEdit array", async () => {
+      // Create composition with segments and export regions
+      const createResponse = await app.request("/api/compositions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shootId: testShoot.id, name: "Export Test" }),
+      });
+      const created = await parseResponse<{ id: string }>(createResponse);
+
+      // Add segments (need a real media for FK)
+      const { createTestMedia } = await import("../../test-utils/setup");
+      const media = await createTestMedia();
+
+      await app.request(`/api/compositions/by-id/${created?.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          segments: [
+            { id: "seg-1", sourceMediaId: media.id, sourceStartFrame: 0, sourceEndFrame: 900 },
+          ],
+          tracks: [{ id: "t-1", name: "Overlays", operations: [] }],
+          exportRegions: [
+            { id: "er-1", startFrame: 0, endFrame: 450, package: "pkg", role: "main", contentRating: "sfw" },
+          ],
+        }),
+      });
+
+      const response = await app.request(`/api/compositions/by-id/${created?.id}/export`, {
+        method: "POST",
+      });
+      expect(response.status).toBe(200);
+
+      const edits = await parseResponse<{ id: string; compositionId: string; type: string; status: string }[]>(response);
+      expect(edits).toHaveLength(1);
+      expect(edits?.[0]?.compositionId).toBe(created?.id);
+      expect(edits?.[0]?.type).toBe("composition");
+      expect(edits?.[0]?.status).toBe("queued");
+    });
+
+    test("returns 404 for non-existent composition", async () => {
+      const response = await app.request("/api/compositions/by-id/nonexistent/export", {
+        method: "POST",
+      });
+      expect(response.status).toBe(404);
+    });
+  });
+
   describe("Shoot cascade", () => {
     test("deleting a shoot cascades to its compositions", async () => {
       // Create a composition on the test shoot
