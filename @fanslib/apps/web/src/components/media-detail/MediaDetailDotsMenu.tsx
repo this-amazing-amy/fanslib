@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import type { Key } from "@react-types/shared";
-import { Check, Image, Loader2, MoreVertical, Send, Trash2, X } from "lucide-react";
+import { Image, Loader2, MoreVertical, Send, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "~/components/ui/Button";
@@ -12,6 +12,7 @@ import {
   DropdownMenuPopover,
   DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
+import { Status } from "~/components/ui/Status";
 import { useDeleteMediaMutation } from "~/lib/queries/library";
 import { QUERY_KEYS } from "~/lib/queries/query-keys";
 import { api } from "~/lib/api/hono-client";
@@ -71,7 +72,20 @@ export const MediaDetailDotsMenu = ({ id, mediaType, onCreatePost }: MediaDetail
 
   return (
     <>
-      <div className="relative">
+      <div className="flex items-center gap-2">
+        {thumbnailStatus === "generating" && (
+          <Status variant="info">
+            <Loader2 className="h-3 w-3 animate-spin" />
+            Generating thumbnail...
+          </Status>
+        )}
+        {thumbnailStatus === "success" && (
+          <Status variant="success">Thumbnail generated</Status>
+        )}
+        {thumbnailStatus === "error" && (
+          <Status variant="error">Generation failed</Status>
+        )}
+
         <DropdownMenuTrigger>
           <Button
             variant="ghost"
@@ -108,25 +122,6 @@ export const MediaDetailDotsMenu = ({ id, mediaType, onCreatePost }: MediaDetail
             </DropdownMenu>
           </DropdownMenuPopover>
         </DropdownMenuTrigger>
-
-        {thumbnailStatus !== "idle" && (
-          <div
-            className={`absolute -bottom-8 right-0 flex items-center gap-1.5 text-xs font-medium whitespace-nowrap rounded-md px-2 py-1 shadow-sm ${
-              thumbnailStatus === "generating"
-                ? "bg-base-200 text-base-content"
-                : thumbnailStatus === "success"
-                  ? "bg-success/10 text-success"
-                  : "bg-error/10 text-error"
-            }`}
-          >
-            {thumbnailStatus === "generating" && <Loader2 className="h-3 w-3 animate-spin" />}
-            {thumbnailStatus === "success" && <Check className="h-3 w-3" />}
-            {thumbnailStatus === "error" && <X className="h-3 w-3" />}
-            {thumbnailStatus === "generating" && "Generating..."}
-            {thumbnailStatus === "success" && "Thumbnail generated"}
-            {thumbnailStatus === "error" && "Generation failed"}
-          </div>
-        )}
       </div>
 
       <DeleteConfirmDialog
