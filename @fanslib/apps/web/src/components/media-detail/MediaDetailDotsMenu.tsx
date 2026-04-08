@@ -72,20 +72,7 @@ export const MediaDetailDotsMenu = ({ id, mediaType, onCreatePost }: MediaDetail
 
   return (
     <>
-      <div className="flex items-center gap-2">
-        {thumbnailStatus === "generating" && (
-          <Status variant="info">
-            <Loader2 className="h-3 w-3 animate-spin" />
-            Generating thumbnail...
-          </Status>
-        )}
-        {thumbnailStatus === "success" && (
-          <Status variant="success">Thumbnail generated</Status>
-        )}
-        {thumbnailStatus === "error" && (
-          <Status variant="error">Generation failed</Status>
-        )}
-
+      <div className="relative">
         <DropdownMenuTrigger>
           <Button
             variant="ghost"
@@ -122,6 +109,23 @@ export const MediaDetailDotsMenu = ({ id, mediaType, onCreatePost }: MediaDetail
             </DropdownMenu>
           </DropdownMenuPopover>
         </DropdownMenuTrigger>
+
+        {thumbnailStatus !== "idle" && (
+          <div className="absolute top-full right-0 mt-1 whitespace-nowrap">
+            {thumbnailStatus === "generating" && (
+              <Status variant="info">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                Generating...
+              </Status>
+            )}
+            {thumbnailStatus === "success" && (
+              <Status variant="success">Done</Status>
+            )}
+            {thumbnailStatus === "error" && (
+              <Status variant="error">Failed</Status>
+            )}
+          </div>
+        )}
       </div>
 
       <DeleteConfirmDialog
