@@ -177,6 +177,11 @@ export const QUERY_KEYS = {
     health: () => ["companion", "health"] as const,
   },
 
+  compositions: {
+    byId: (id: string) => ["compositions", id] as const,
+    byShoot: (shootId: string) => ["shoots", "compositions", shootId] as const,
+  },
+
   organize: {
     unmanaged: () => ["organize", "unmanaged"] as const,
     knownRoles: () => ["organize", "known-roles"] as const,
