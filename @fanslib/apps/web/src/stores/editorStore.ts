@@ -8,7 +8,7 @@ type Track = {
   operations: unknown[];
 };
 
-type ExportRegion = {
+export type ExportRegion = {
   id: string;
   startFrame: number;
   endFrame: number;
