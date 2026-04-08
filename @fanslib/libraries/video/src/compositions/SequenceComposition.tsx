@@ -18,24 +18,45 @@ export type SequenceCompositionProps = {
   assetUrls?: Record<string, string>;
 };
 
+/**
+ * Given segments (ordered), compute which one is active at the current frame.
+ * For hard cuts (no transitions): segments play back-to-back sequentially.
+ */
+export const computeActiveSegment = (
+  frame: number,
+  segments: SegmentInput[],
+): { segment: SegmentInput; sourceFrame: number } | null => {
+  let cursor = 0;
+  for (const segment of segments) {
+    const duration = segment.sourceEndFrame - segment.sourceStartFrame;
+    if (frame < cursor + duration) {
+      return {
+        segment,
+        sourceFrame: segment.sourceStartFrame + (frame - cursor),
+      };
+    }
+    cursor += duration;
+  }
+  return null;
+};
+
 export const SequenceComposition: React.FC<SequenceCompositionProps> = ({
   segments,
   // operations and assetUrls intentionally unused — overlay rendering comes in #353
 }) => {
   const frame = useCurrentFrame();
 
-  if (segments.length === 0) {
+  const active = computeActiveSegment(frame, segments);
+
+  if (!active) {
     return <div style={{ width: "100%", height: "100%", background: "#000" }} />;
   }
-
-  // Single-segment case: render the source video starting from the segment's source range
-  const segment = segments[0]!;
 
   return (
     <div style={{ position: "relative", width: "100%", height: "100%" }}>
       <OffthreadVideo
-        src={segment.sourceUrl}
-        startFrom={segment.sourceStartFrame}
+        src={active.segment.sourceUrl}
+        startFrom={active.sourceFrame}
         style={{ width: "100%", height: "100%", objectFit: "contain" }}
       />
     </div>
