@@ -82,6 +82,11 @@ type EditorState = {
   trimSegmentEnd: (segmentId: string, newSourceEndFrame: number) => void;
   selectSegment: (segmentId: string | null) => void;
 
+  // Transition mutations
+  addTransition: (segmentId: string, transition: { type: "crossfade"; durationFrames: number; easing?: string }) => void;
+  removeTransition: (segmentId: string) => void;
+  updateTransition: (segmentId: string, updates: { durationFrames?: number; easing?: string }) => void;
+
   // Track management
   addTrack: () => void;
   removeTrack: (trackId: string) => void;
@@ -764,6 +769,41 @@ export const useEditorStore = create<EditorState>((set, get) => {
         segments: state.segments.map((s) =>
           s.id === segmentId ? { ...s, sourceEndFrame: newSourceEndFrame } : s,
         ),
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
+    addTransition: (segmentId, transition) => {
+      const state = get();
+      const segIndex = state.segments.findIndex((s) => s.id === segmentId);
+      // No-op if segment not found or is the first segment
+      if (segIndex <= 0) return;
+      pushHistory();
+      set((prev) => ({
+        segments: prev.segments.map((s) =>
+          s.id === segmentId ? { ...s, transition } : s,
+        ),
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
+    removeTransition: (segmentId) => {
+      pushHistory();
+      set((prev) => ({
+        segments: prev.segments.map((s) =>
+          s.id === segmentId ? { ...s, transition: undefined } : s,
+        ),
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
+    updateTransition: (segmentId, updates) => {
+      pushHistory();
+      set((prev) => ({
+        segments: prev.segments.map((s) => {
+          if (s.id !== segmentId || !s.transition) return s;
+          return { ...s, transition: { ...s.transition, ...updates } };
+        }),
         ...updateUndoRedoFlags(),
       }));
     },
