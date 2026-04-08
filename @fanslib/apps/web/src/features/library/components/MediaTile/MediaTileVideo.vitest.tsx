@@ -42,6 +42,8 @@ const baseMedia = {
   contentRating: null,
   package: null,
   role: null,
+  category: "library" as const,
+  note: null,
   isManaged: false,
   derivedFromId: null,
   createdAt: new Date("2026-01-01"),
