@@ -55,9 +55,11 @@ const resolveUniqueFilename = async (dir: string, filename: string): Promise<str
 export type UploadMediaInput = {
   shootId: string;
   file: File;
+  category?: "library" | "footage";
+  note?: string;
 };
 
-export const uploadMediaToShoot = async ({ shootId, file }: UploadMediaInput) => {
+export const uploadMediaToShoot = async ({ shootId, file, category = "library", note }: UploadMediaInput) => {
   const mediaPath = env().mediaPath;
 
   const database = await db();
@@ -73,7 +75,8 @@ export const uploadMediaToShoot = async ({ shootId, file }: UploadMediaInput) =>
   if (!type) throw new Error(`Cannot determine media type for: ${ext}`);
 
   const folderName = shootFolderName(shoot);
-  const targetDir = path.join(mediaPath, "shoots", folderName);
+  const baseDir = category === "footage" ? "footage" : "shoots";
+  const targetDir = path.join(mediaPath, baseDir, folderName);
   await fs.mkdir(targetDir, { recursive: true });
 
   const uniqueFilename = await resolveUniqueFilename(targetDir, file.name);
@@ -85,7 +88,7 @@ export const uploadMediaToShoot = async ({ shootId, file }: UploadMediaInput) =>
 
   const duration = type === "video" ? await getVideoDuration(absolutePath) : undefined;
 
-  const relativePath = path.join("shoots", folderName, uniqueFilename);
+  const relativePath = path.join(baseDir, folderName, uniqueFilename);
 
   const media = await createMedia({
     relativePath,
@@ -95,6 +98,8 @@ export const uploadMediaToShoot = async ({ shootId, file }: UploadMediaInput) =>
     duration,
     fileCreationDate: stats.birthtime,
     fileModificationDate: stats.mtime,
+    category,
+    note,
   });
 
   try {

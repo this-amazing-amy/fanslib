@@ -4,6 +4,7 @@ import { z } from "zod";
 import { promises as fs } from "fs";
 import path from "path";
 import { validationError, notFound } from "../../lib/hono-utils";
+import { findCompositionReferences } from "./operations/media/check-composition-refs";
 import { deleteMedia } from "./operations/media/delete";
 import { fetchAllMedia } from "./operations/media/fetch-all";
 import { fetchMediaById } from "./operations/media/fetch-by-id";
@@ -153,6 +154,19 @@ export const libraryRoutes = new Hono()
   .delete("/by-id/:id", zValidator("query", DeleteMediaQuerySchema, validationError), async (c) => {
     const id = c.req.param("id");
     const query = c.req.valid("query");
+
+    // Check if media is referenced by any composition segments
+    const compositionIds = await findCompositionReferences(id);
+    if (compositionIds.length > 0) {
+      return c.json(
+        {
+          error: "Media is referenced by compositions and cannot be deleted",
+          compositionIds,
+        },
+        409,
+      );
+    }
+
     const deleteFile = query.deleteFile === "true";
     const success = await deleteMedia(id, deleteFile);
     if (!success) {
@@ -195,8 +209,16 @@ export const libraryRoutes = new Hono()
       return c.json({ error: "file is required" }, 400);
     }
 
+    const category = formData.get("category");
+    const note = formData.get("note");
+
     try {
-      const media = await uploadMediaToShoot({ shootId, file });
+      const media = await uploadMediaToShoot({
+        shootId,
+        file,
+        category: category === "footage" ? "footage" : "library",
+        note: typeof note === "string" ? note : undefined,
+      });
       return c.json(media);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Upload failed";
