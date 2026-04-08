@@ -2,6 +2,7 @@
 import initSqlJs from "sql.js";
 import { DataSource } from "typeorm";
 import { Asset } from "../features/assets/entity";
+import { Composition } from "../features/compositions/entity";
 import { FanslyMediaCandidate } from "../features/analytics/candidate-entity";
 import { FanslyAnalyticsAggregate, FanslyAnalyticsDatapoint } from "../features/analytics/entity";
 import { Channel, ChannelType } from "../features/channels/entity";
@@ -39,6 +40,7 @@ export const createTestDataSource = (driver?: Awaited<ReturnType<typeof initSqlJ
     ...(driver ? { driver } : {}),
     entities: [
       Asset,
+      Composition,
       Media,
       MediaEdit,
       Post,
@@ -118,6 +120,7 @@ export const clearAllTables = async () => {
     "CaptionSnippet",
     "Subreddit",
     "Channel",
+    "Composition",
     "Shoot",
     "TagDefinition",
     "TagDimension",
