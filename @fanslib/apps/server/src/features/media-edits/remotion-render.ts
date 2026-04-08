@@ -75,8 +75,8 @@ export const remotionRenderFn: RenderFn = async ({ edit, sourceMedia, outputPath
   const chromiumOptions = { disableWebSecurity: true };
   const isImage = sourceMedia.type === "image";
   const fps = 30;
-  const width = sourceMedia.width ?? 1920;
-  const height = sourceMedia.height ?? 1080;
+  const width = 1920;
+  const height = 1080;
 
   // Extract clip operation if present
   const clipOp = operations.find((op): op is ClipOperation => op.type === "clip");
