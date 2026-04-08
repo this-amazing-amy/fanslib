@@ -8,6 +8,7 @@ import { SourceMediaBar } from "./SourceMediaBar";
 import { TimeRuler } from "./TimeRuler";
 import { TrackHeader } from "./TrackHeader";
 import { SegmentTrack } from "./SegmentTrack";
+import { ExportRegionTrack } from "./ExportRegionTrack";
 import { TrackRow } from "./TrackRow";
 import { TransportControls } from "./TransportControls";
 
@@ -211,6 +212,9 @@ export const Timeline = ({
 
         {/* Segment track (above operation tracks) */}
         <SegmentTrack pixelsPerFrame={pixelsPerFrame} totalFrames={totalFrames} />
+
+        {/* Export region track */}
+        <ExportRegionTrack pixelsPerFrame={pixelsPerFrame} totalFrames={totalFrames} />
 
         {/* Tracks */}
         <div className="flex flex-1 overflow-hidden">
