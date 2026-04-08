@@ -7,6 +7,7 @@ import { Playhead } from "./Playhead";
 import { SourceMediaBar } from "./SourceMediaBar";
 import { TimeRuler } from "./TimeRuler";
 import { TrackHeader } from "./TrackHeader";
+import { SegmentTrack } from "./SegmentTrack";
 import { TrackRow } from "./TrackRow";
 import { TransportControls } from "./TransportControls";
 
@@ -207,6 +208,9 @@ export const Timeline = ({
             </div>
           </div>
         </div>
+
+        {/* Segment track (above operation tracks) */}
+        <SegmentTrack pixelsPerFrame={pixelsPerFrame} totalFrames={totalFrames} />
 
         {/* Tracks */}
         <div className="flex flex-1 overflow-hidden">
