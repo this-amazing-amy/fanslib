@@ -757,78 +757,123 @@ describe("editorStore", () => {
     });
   });
 
-  describe("transitions", () => {
-    test("addTransition adds transition to segment", () => {
-      useEditorStore.getState().addSegment({ sourceMediaId: "a", sourceStartFrame: 0, sourceEndFrame: 30 });
-      useEditorStore.getState().addSegment({ sourceMediaId: "b", sourceStartFrame: 0, sourceEndFrame: 30 });
-      const id = useEditorStore.getState().segments[1].id;
-      useEditorStore.getState().addTransition(id, { type: "crossfade", durationFrames: 10 });
-      const seg = useEditorStore.getState().segments[1];
-      expect(seg.transition).toEqual({ type: "crossfade", durationFrames: 10 });
-      expect(useEditorStore.getState().isDirty).toBe(true);
-    });
-
-    test("addTransition on first segment is a no-op", () => {
-      useEditorStore.getState().addSegment({ sourceMediaId: "a", sourceStartFrame: 0, sourceEndFrame: 30 });
-      const id = useEditorStore.getState().segments[0].id;
-      useEditorStore.getState().addTransition(id, { type: "crossfade", durationFrames: 10 });
-      expect(useEditorStore.getState().segments[0].transition).toBeUndefined();
-      // Should not push to undo stack since it was a no-op
-      expect(useEditorStore.getState().canUndo).toBe(true); // canUndo from addSegment
-    });
-
-    test("removeTransition clears transition", () => {
-      useEditorStore.getState().addSegment({ sourceMediaId: "a", sourceStartFrame: 0, sourceEndFrame: 30 });
-      useEditorStore.getState().addSegment({
-        sourceMediaId: "b",
-        sourceStartFrame: 0,
-        sourceEndFrame: 30,
-        transition: { type: "crossfade", durationFrames: 10 },
+  describe("export regions", () => {
+    test("addExportRegion appends with generated id", () => {
+      useEditorStore.getState().addExportRegion({
+        startFrame: 0,
+        endFrame: 90,
       });
-      const id = useEditorStore.getState().segments[1].id;
-      useEditorStore.getState().removeTransition(id);
-      expect(useEditorStore.getState().segments[1].transition).toBeUndefined();
+      const regions = useEditorStore.getState().exportRegions;
+      expect(regions).toHaveLength(1);
+      expect(regions[0].startFrame).toBe(0);
+      expect(regions[0].endFrame).toBe(90);
+      expect(typeof regions[0].id).toBe("string");
+      expect(regions[0].id.length).toBeGreaterThan(0);
     });
 
-    test("updateTransition modifies durationFrames", () => {
-      useEditorStore.getState().addSegment({ sourceMediaId: "a", sourceStartFrame: 0, sourceEndFrame: 30 });
-      useEditorStore.getState().addSegment({ sourceMediaId: "b", sourceStartFrame: 0, sourceEndFrame: 30 });
-      const id = useEditorStore.getState().segments[1].id;
-      useEditorStore.getState().addTransition(id, { type: "crossfade", durationFrames: 10 });
-      useEditorStore.getState().updateTransition(id, { durationFrames: 20 });
-      expect(useEditorStore.getState().segments[1].transition?.durationFrames).toBe(20);
-      expect(useEditorStore.getState().segments[1].transition?.type).toBe("crossfade");
+    test("removeExportRegion removes by id", () => {
+      useEditorStore.getState().addExportRegion({ startFrame: 0, endFrame: 90 });
+      useEditorStore.getState().addExportRegion({ startFrame: 100, endFrame: 200 });
+      const id = useEditorStore.getState().exportRegions[0].id;
+      useEditorStore.getState().removeExportRegion(id);
+      const regions = useEditorStore.getState().exportRegions;
+      expect(regions).toHaveLength(1);
+      expect(regions[0].startFrame).toBe(100);
     });
 
-    test("updateTransition modifies easing", () => {
-      useEditorStore.getState().addSegment({ sourceMediaId: "a", sourceStartFrame: 0, sourceEndFrame: 30 });
-      useEditorStore.getState().addSegment({ sourceMediaId: "b", sourceStartFrame: 0, sourceEndFrame: 30 });
-      const id = useEditorStore.getState().segments[1].id;
-      useEditorStore.getState().addTransition(id, { type: "crossfade", durationFrames: 10 });
-      useEditorStore.getState().updateTransition(id, { easing: "ease-in-out" });
-      expect(useEditorStore.getState().segments[1].transition?.easing).toBe("ease-in-out");
-      expect(useEditorStore.getState().segments[1].transition?.durationFrames).toBe(10);
+    test("updateExportRegion modifies metadata", () => {
+      useEditorStore.getState().addExportRegion({ startFrame: 0, endFrame: 90 });
+      const id = useEditorStore.getState().exportRegions[0].id;
+      useEditorStore.getState().updateExportRegion(id, {
+        package: "premium",
+        role: "trailer",
+        contentRating: "PG",
+        quality: "1080p",
+      });
+      const region = useEditorStore.getState().exportRegions[0];
+      expect(region.package).toBe("premium");
+      expect(region.role).toBe("trailer");
+      expect(region.contentRating).toBe("PG");
+      expect(region.quality).toBe("1080p");
+      expect(region.startFrame).toBe(0);
+      expect(region.endFrame).toBe(90);
     });
 
-    test("undo reverts addTransition", () => {
-      useEditorStore.getState().addSegment({ sourceMediaId: "a", sourceStartFrame: 0, sourceEndFrame: 30 });
-      useEditorStore.getState().addSegment({ sourceMediaId: "b", sourceStartFrame: 0, sourceEndFrame: 30 });
-      const id = useEditorStore.getState().segments[1].id;
-      useEditorStore.getState().addTransition(id, { type: "crossfade", durationFrames: 10 });
-      expect(useEditorStore.getState().segments[1].transition).toBeDefined();
+    test("I/O marking: setExportMarkIn + commitExportMarkOut creates a region", () => {
+      useEditorStore.getState().setExportMarkIn(10);
+      expect(useEditorStore.getState().pendingExportMarkIn).toBe(10);
+      useEditorStore.getState().commitExportMarkOut(50);
+      const regions = useEditorStore.getState().exportRegions;
+      expect(regions).toHaveLength(1);
+      expect(regions[0].startFrame).toBe(10);
+      expect(regions[0].endFrame).toBe(50);
+    });
+
+    test("commitExportMarkOut clears pendingExportMarkIn", () => {
+      useEditorStore.getState().setExportMarkIn(10);
+      useEditorStore.getState().commitExportMarkOut(50);
+      expect(useEditorStore.getState().pendingExportMarkIn).toBeNull();
+    });
+
+    test("commitExportMarkOut swaps frames when markIn > frame (backward marking)", () => {
+      useEditorStore.getState().setExportMarkIn(80);
+      useEditorStore.getState().commitExportMarkOut(20);
+      const region = useEditorStore.getState().exportRegions[0];
+      expect(region.startFrame).toBe(20);
+      expect(region.endFrame).toBe(80);
+    });
+
+    test("toggleExportRegionMode toggles the boolean", () => {
+      expect(useEditorStore.getState().exportRegionMode).toBe(false);
+      useEditorStore.getState().toggleExportRegionMode();
+      expect(useEditorStore.getState().exportRegionMode).toBe(true);
+      useEditorStore.getState().toggleExportRegionMode();
+      expect(useEditorStore.getState().exportRegionMode).toBe(false);
+    });
+
+    test("selectExportRegion sets selection", () => {
+      useEditorStore.getState().addExportRegion({ startFrame: 0, endFrame: 90 });
+      const id = useEditorStore.getState().exportRegions[0].id;
+      useEditorStore.getState().selectExportRegion(id);
+      expect(useEditorStore.getState().selectedExportRegionId).toBe(id);
+      useEditorStore.getState().selectExportRegion(null);
+      expect(useEditorStore.getState().selectedExportRegionId).toBeNull();
+    });
+
+    test("undo reverts addExportRegion", () => {
+      useEditorStore.getState().addExportRegion({ startFrame: 0, endFrame: 90 });
+      expect(useEditorStore.getState().exportRegions).toHaveLength(1);
       useEditorStore.getState().undo();
-      expect(useEditorStore.getState().segments[1].transition).toBeUndefined();
-    });
-
-    test("redo reapplies addTransition", () => {
-      useEditorStore.getState().addSegment({ sourceMediaId: "a", sourceStartFrame: 0, sourceEndFrame: 30 });
-      useEditorStore.getState().addSegment({ sourceMediaId: "b", sourceStartFrame: 0, sourceEndFrame: 30 });
-      const id = useEditorStore.getState().segments[1].id;
-      useEditorStore.getState().addTransition(id, { type: "crossfade", durationFrames: 10 });
-      useEditorStore.getState().undo();
-      expect(useEditorStore.getState().segments[1].transition).toBeUndefined();
+      expect(useEditorStore.getState().exportRegions).toHaveLength(0);
       useEditorStore.getState().redo();
-      expect(useEditorStore.getState().segments[1].transition).toEqual({ type: "crossfade", durationFrames: 10 });
+      expect(useEditorStore.getState().exportRegions).toHaveLength(1);
+    });
+
+    test("hydrate restores exportRegions", () => {
+      const data = {
+        tracks: [{ id: "t1", name: "Track 1", operations: [] }],
+        exportRegions: [
+          { id: "er1", startFrame: 0, endFrame: 90, package: "basic" },
+          { id: "er2", startFrame: 100, endFrame: 200 },
+        ],
+      };
+      useEditorStore.getState().hydrate(data);
+      expect(useEditorStore.getState().exportRegions).toHaveLength(2);
+      expect(useEditorStore.getState().exportRegions[0].id).toBe("er1");
+      expect(useEditorStore.getState().exportRegions[0].package).toBe("basic");
+      expect(useEditorStore.getState().exportRegions[1].startFrame).toBe(100);
+    });
+
+    test("reset clears exportRegions", () => {
+      useEditorStore.getState().addExportRegion({ startFrame: 0, endFrame: 90 });
+      useEditorStore.getState().toggleExportRegionMode();
+      useEditorStore.getState().selectExportRegion(useEditorStore.getState().exportRegions[0].id);
+      useEditorStore.getState().setExportMarkIn(10);
+      useEditorStore.getState().reset();
+      expect(useEditorStore.getState().exportRegions).toEqual([]);
+      expect(useEditorStore.getState().exportRegionMode).toBe(false);
+      expect(useEditorStore.getState().selectedExportRegionId).toBeNull();
+      expect(useEditorStore.getState().pendingExportMarkIn).toBeNull();
     });
   });
 
