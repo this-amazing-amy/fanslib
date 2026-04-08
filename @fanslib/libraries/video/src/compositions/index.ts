@@ -9,4 +9,4 @@ export { ZoomEffect } from "./ZoomEffect";
 export { SequenceComposition, computeActiveSegment } from "./SequenceComposition";
 export type { VideoCompositionProps } from "./VideoComposition";
 export type { WatermarkCompositionProps } from "./WatermarkComposition";
-export type { SequenceCompositionProps, SegmentInput } from "./SequenceComposition";
+export type { SequenceCompositionProps, SegmentInput, ActiveSegmentResult } from "./SequenceComposition";
