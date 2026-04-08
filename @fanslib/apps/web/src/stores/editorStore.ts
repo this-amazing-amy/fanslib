@@ -8,6 +8,16 @@ type Track = {
   operations: unknown[];
 };
 
+type ExportRegion = {
+  id: string;
+  startFrame: number;
+  endFrame: number;
+  package?: string | null;
+  role?: string | null;
+  contentRating?: string | null;
+  quality?: string | null;
+};
+
 type EditorState = {
   tracks: Track[];
   segments: Segment[];
@@ -23,6 +33,12 @@ type EditorState = {
   isDirty: boolean;
   sourceMediaId: string | null;
   editId: string | null;
+
+  // Export region state
+  exportRegions: ExportRegion[];
+  exportRegionMode: boolean;
+  selectedExportRegionId: string | null;
+  pendingExportMarkIn: number | null;
 
   // Mutation actions (push to undo stack)
   addOperation: (op: unknown) => void;
@@ -74,6 +90,15 @@ type EditorState = {
   // Watermark convenience
   addWatermark: (assetId: string) => void;
 
+  // Export region mutations
+  toggleExportRegionMode: () => void;
+  setExportMarkIn: (frame: number) => void;
+  commitExportMarkOut: (frame: number) => void;
+  addExportRegion: (region: Omit<ExportRegion, "id">) => void;
+  removeExportRegion: (id: string) => void;
+  updateExportRegion: (id: string, updates: Partial<ExportRegion>) => void;
+  selectExportRegion: (id: string | null) => void;
+
   // Segment mutations
   addSegment: (segment: Omit<Segment, "id">) => void;
   removeSegment: (segmentId: string) => void;
@@ -97,7 +122,7 @@ type EditorState = {
   markClean: () => void;
 
   // Hydrate from existing MediaEdit
-  hydrate: (data: unknown[] | { tracks: Track[]; segments?: Segment[] }) => void;
+  hydrate: (data: unknown[] | { tracks: Track[]; segments?: Segment[]; exportRegions?: ExportRegion[] }) => void;
   // Restore tracks (and optionally segments) from unified history snapshot (does not touch per-store undo stacks)
   restoreTracks: (tracks: unknown[], segments?: Segment[]) => void;
 
@@ -105,7 +130,7 @@ type EditorState = {
   reset: () => void;
 };
 
-type HistoryEntry = { tracks: Track[]; segments: Segment[] };
+type HistoryEntry = { tracks: Track[]; segments: Segment[]; exportRegions: ExportRegion[] };
 
 const makeDefaultTrack = (): Track => ({
   id: crypto.randomUUID(),
@@ -172,9 +197,16 @@ export const useEditorStore = create<EditorState>((set, get) => {
   const cloneSegments = (segments: Segment[]): Segment[] =>
     segments.map((s) => ({ ...s, transition: s.transition ? { ...s.transition } : undefined }));
 
+  const cloneExportRegions = (regions: ExportRegion[]): ExportRegion[] =>
+    regions.map((r) => ({ ...r }));
+
   const pushHistory = () => {
     const state = get();
-    undoStack.push({ tracks: cloneTracks(state.tracks), segments: cloneSegments(state.segments) });
+    undoStack.push({
+      tracks: cloneTracks(state.tracks),
+      segments: cloneSegments(state.segments),
+      exportRegions: cloneExportRegions(state.exportRegions),
+    });
     redoStack = []; // Clear redo on new mutation
   };
 
@@ -200,6 +232,10 @@ export const useEditorStore = create<EditorState>((set, get) => {
     sourceMediaId: null,
     editId: null,
     canRedo: false,
+    exportRegions: [],
+    exportRegionMode: false,
+    selectedExportRegionId: null,
+    pendingExportMarkIn: null,
 
     addOperation: (op) => {
       pushHistory();
@@ -391,10 +427,15 @@ export const useEditorStore = create<EditorState>((set, get) => {
       const previous = undoStack.pop();
       if (previous === undefined) return;
       const state = get();
-      redoStack.push({ tracks: cloneTracks(state.tracks), segments: cloneSegments(state.segments) });
+      redoStack.push({
+        tracks: cloneTracks(state.tracks),
+        segments: cloneSegments(state.segments),
+        exportRegions: cloneExportRegions(state.exportRegions),
+      });
       set({
         tracks: previous.tracks,
         segments: previous.segments,
+        exportRegions: previous.exportRegions,
         operations: flattenTracks(previous.tracks),
         canUndo: undoStack.length > 0,
         canRedo: true,
@@ -407,10 +448,15 @@ export const useEditorStore = create<EditorState>((set, get) => {
       const next = redoStack.pop();
       if (next === undefined) return;
       const state = get();
-      undoStack.push({ tracks: cloneTracks(state.tracks), segments: cloneSegments(state.segments) });
+      undoStack.push({
+        tracks: cloneTracks(state.tracks),
+        segments: cloneSegments(state.segments),
+        exportRegions: cloneExportRegions(state.exportRegions),
+      });
       set({
         tracks: next.tracks,
         segments: next.segments,
+        exportRegions: next.exportRegions,
         operations: flattenTracks(next.tracks),
         canUndo: true,
         canRedo: redoStack.length > 0,
@@ -718,6 +764,64 @@ export const useEditorStore = create<EditorState>((set, get) => {
       set({ selectedOperationId: id });
     },
 
+    toggleExportRegionMode: () => {
+      set((state) => ({ exportRegionMode: !state.exportRegionMode }));
+    },
+
+    setExportMarkIn: (frame) => {
+      set({ pendingExportMarkIn: frame });
+    },
+
+    commitExportMarkOut: (frame) => {
+      const state = get();
+      const markIn = state.pendingExportMarkIn;
+      if (markIn === null) return;
+      const startFrame = Math.min(markIn, frame);
+      const endFrame = Math.max(markIn, frame);
+      pushHistory();
+      set((prev) => ({
+        exportRegions: [
+          ...prev.exportRegions,
+          { id: crypto.randomUUID(), startFrame, endFrame },
+        ],
+        pendingExportMarkIn: null,
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
+    addExportRegion: (region) => {
+      pushHistory();
+      set((state) => ({
+        exportRegions: [
+          ...state.exportRegions,
+          { ...region, id: crypto.randomUUID() },
+        ],
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
+    removeExportRegion: (id) => {
+      pushHistory();
+      set((state) => ({
+        exportRegions: state.exportRegions.filter((r) => r.id !== id),
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
+    updateExportRegion: (id, updates) => {
+      pushHistory();
+      set((state) => ({
+        exportRegions: state.exportRegions.map((r) =>
+          r.id === id ? { ...r, ...updates, id } : r,
+        ),
+        ...updateUndoRedoFlags(),
+      }));
+    },
+
+    selectExportRegion: (id) => {
+      set({ selectedExportRegionId: id });
+    },
+
     addSegment: (segment) => {
       pushHistory();
       set((state) => ({
@@ -859,15 +963,23 @@ export const useEditorStore = create<EditorState>((set, get) => {
         ? []
         : (data as { segments?: Segment[] }).segments ?? [];
 
+      const exportRegions: ExportRegion[] = isLegacy
+        ? []
+        : (data as { exportRegions?: ExportRegion[] }).exportRegions ?? [];
+
       set({
         tracks,
         segments,
+        exportRegions,
         operations: flattenTracks(tracks),
         selectedOperationIndex: null,
         selectedOperationId: null,
         selectedSegmentId: null,
+        selectedExportRegionId: null,
         cropEditingOperationIndex: null,
         cropEditingOperationId: null,
+        exportRegionMode: false,
+        pendingExportMarkIn: null,
         canUndo: false,
         canRedo: false,
         isDirty: false,
@@ -895,6 +1007,10 @@ export const useEditorStore = create<EditorState>((set, get) => {
         selectedOperationId: null,
         cropEditingOperationIndex: null,
         cropEditingOperationId: null,
+        exportRegions: [],
+        exportRegionMode: false,
+        selectedExportRegionId: null,
+        pendingExportMarkIn: null,
         canUndo: false,
         canRedo: false,
         isDirty: false,
