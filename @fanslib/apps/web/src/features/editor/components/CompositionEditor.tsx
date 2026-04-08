@@ -3,6 +3,25 @@ import { useCompositionByIdQuery } from "~/lib/queries/compositions";
 import { useEditorStore } from "~/stores/editorStore";
 import { SourceBin } from "./SourceBin";
 
+const SourceModeIndicator = () => {
+  const selectedSourceId = useEditorStore((s) => s.selectedSourceId);
+  const pendingSourceMarkIn = useEditorStore((s) => s.pendingSourceMarkIn);
+
+  if (!selectedSourceId) return null;
+
+  return (
+    <div className="bg-muted/50 border-b px-4 py-2 text-sm" data-testid="source-mode-indicator">
+      <span className="text-muted-foreground">Source: </span>
+      <span className="font-medium">{selectedSourceId}</span>
+      {pendingSourceMarkIn !== null && (
+        <span className="text-muted-foreground ml-2">
+          Mark In: {pendingSourceMarkIn}
+        </span>
+      )}
+    </div>
+  );
+};
+
 type CompositionEditorProps = {
   shootId: string;
   compositionId: string;
@@ -58,7 +77,9 @@ export const CompositionEditor = ({ shootId, compositionId }: CompositionEditorP
         <aside className="border-r w-64 overflow-y-auto">
           <SourceBin shootId={shootId} />
         </aside>
-        <div className="flex-1" />
+        <div className="flex-1">
+          <SourceModeIndicator />
+        </div>
       </div>
     </div>
   );

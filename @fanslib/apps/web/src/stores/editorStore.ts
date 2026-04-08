@@ -24,6 +24,7 @@ type EditorState = {
   sourceMediaId: string | null;
   editId: string | null;
   selectedSourceId: string | null;
+  pendingSourceMarkIn: number | null;
 
   // Mutation actions (push to undo stack)
   addOperation: (op: unknown) => void;
@@ -94,6 +95,9 @@ type EditorState = {
 
   // Source bin
   selectSource: (id: string | null) => void;
+  setSourceMarkIn: (frame: number) => void;
+  clearSourceMarkIn: () => void;
+  commitSourceSegment: (markOutFrame: number) => void;
 
   // Metadata
   setSourceMediaId: (id: string) => void;
@@ -204,6 +208,7 @@ export const useEditorStore = create<EditorState>((set, get) => {
     sourceMediaId: null,
     editId: null,
     selectedSourceId: null,
+    pendingSourceMarkIn: null,
     canRedo: false,
 
     addOperation: (op) => {
@@ -827,7 +832,30 @@ export const useEditorStore = create<EditorState>((set, get) => {
     flattenOperations: () => flattenTracks(get().tracks),
 
     selectSource: (id) => {
-      set({ selectedSourceId: id });
+      set({ selectedSourceId: id, pendingSourceMarkIn: null });
+    },
+
+    setSourceMarkIn: (frame) => {
+      set({ pendingSourceMarkIn: frame });
+    },
+
+    clearSourceMarkIn: () => {
+      set({ pendingSourceMarkIn: null });
+    },
+
+    commitSourceSegment: (markOutFrame) => {
+      const state = get();
+      if (state.selectedSourceId === null) return;
+      if (state.pendingSourceMarkIn === null) return;
+      const markIn = state.pendingSourceMarkIn;
+      const sourceStartFrame = Math.min(markIn, markOutFrame);
+      const sourceEndFrame = Math.max(markIn, markOutFrame);
+      get().addSegment({
+        sourceMediaId: state.selectedSourceId,
+        sourceStartFrame,
+        sourceEndFrame,
+      });
+      set({ pendingSourceMarkIn: null });
     },
 
     setSourceMediaId: (id) => {
@@ -910,6 +938,7 @@ export const useEditorStore = create<EditorState>((set, get) => {
         sourceMediaId: null,
         editId: null,
         selectedSourceId: null,
+        pendingSourceMarkIn: null,
       });
     },
   };
