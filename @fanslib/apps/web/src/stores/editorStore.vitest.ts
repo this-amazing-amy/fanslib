@@ -924,4 +924,101 @@ describe("editorStore", () => {
       expect(useEditorStore.getState().selectedSourceId).toBeNull();
     });
   });
+
+  describe("source mode", () => {
+    test("setSourceMarkIn sets pending mark-in frame", () => {
+      useEditorStore.getState().setSourceMarkIn(42);
+      expect(useEditorStore.getState().pendingSourceMarkIn).toBe(42);
+    });
+
+    test("commitSourceSegment creates segment with correct sourceMediaId, sourceStartFrame, sourceEndFrame", () => {
+      useEditorStore.getState().selectSource("media-1");
+      useEditorStore.getState().setSourceMarkIn(10);
+      useEditorStore.getState().commitSourceSegment(50);
+
+      const segments = useEditorStore.getState().segments;
+      expect(segments).toHaveLength(1);
+      expect(segments[0].sourceMediaId).toBe("media-1");
+      expect(segments[0].sourceStartFrame).toBe(10);
+      expect(segments[0].sourceEndFrame).toBe(50);
+      expect(typeof segments[0].id).toBe("string");
+    });
+
+    test("commitSourceSegment clears pendingSourceMarkIn", () => {
+      useEditorStore.getState().selectSource("media-1");
+      useEditorStore.getState().setSourceMarkIn(10);
+      useEditorStore.getState().commitSourceSegment(50);
+      expect(useEditorStore.getState().pendingSourceMarkIn).toBeNull();
+    });
+
+    test("commitSourceSegment no-ops when no selectedSourceId", () => {
+      useEditorStore.getState().setSourceMarkIn(10);
+      useEditorStore.getState().commitSourceSegment(50);
+      expect(useEditorStore.getState().segments).toHaveLength(0);
+      // markIn should NOT be cleared on no-op
+      expect(useEditorStore.getState().pendingSourceMarkIn).toBe(10);
+    });
+
+    test("commitSourceSegment no-ops when no pendingSourceMarkIn", () => {
+      useEditorStore.getState().selectSource("media-1");
+      useEditorStore.getState().commitSourceSegment(50);
+      expect(useEditorStore.getState().segments).toHaveLength(0);
+    });
+
+    test("selectSource clears pendingSourceMarkIn when switching sources", () => {
+      useEditorStore.getState().selectSource("media-1");
+      useEditorStore.getState().setSourceMarkIn(10);
+      useEditorStore.getState().selectSource("media-2");
+      expect(useEditorStore.getState().pendingSourceMarkIn).toBeNull();
+    });
+
+    test("selectSource clears pendingSourceMarkIn when deselecting", () => {
+      useEditorStore.getState().selectSource("media-1");
+      useEditorStore.getState().setSourceMarkIn(10);
+      useEditorStore.getState().selectSource(null);
+      expect(useEditorStore.getState().pendingSourceMarkIn).toBeNull();
+    });
+
+    test("multiple segments can be pushed from same source (markIn clears after each commit)", () => {
+      useEditorStore.getState().selectSource("media-1");
+
+      useEditorStore.getState().setSourceMarkIn(0);
+      useEditorStore.getState().commitSourceSegment(30);
+
+      useEditorStore.getState().setSourceMarkIn(60);
+      useEditorStore.getState().commitSourceSegment(90);
+
+      const segments = useEditorStore.getState().segments;
+      expect(segments).toHaveLength(2);
+      expect(segments[0].sourceStartFrame).toBe(0);
+      expect(segments[0].sourceEndFrame).toBe(30);
+      expect(segments[1].sourceStartFrame).toBe(60);
+      expect(segments[1].sourceEndFrame).toBe(90);
+      // selectedSourceId should persist
+      expect(useEditorStore.getState().selectedSourceId).toBe("media-1");
+    });
+
+    test("commitSourceSegment swaps markIn and markOut when markOut < markIn", () => {
+      useEditorStore.getState().selectSource("media-1");
+      useEditorStore.getState().setSourceMarkIn(50);
+      useEditorStore.getState().commitSourceSegment(10);
+
+      const segments = useEditorStore.getState().segments;
+      expect(segments).toHaveLength(1);
+      expect(segments[0].sourceStartFrame).toBe(10);
+      expect(segments[0].sourceEndFrame).toBe(50);
+    });
+
+    test("clearSourceMarkIn clears pendingSourceMarkIn", () => {
+      useEditorStore.getState().setSourceMarkIn(42);
+      useEditorStore.getState().clearSourceMarkIn();
+      expect(useEditorStore.getState().pendingSourceMarkIn).toBeNull();
+    });
+
+    test("reset clears pendingSourceMarkIn", () => {
+      useEditorStore.getState().setSourceMarkIn(42);
+      useEditorStore.getState().reset();
+      expect(useEditorStore.getState().pendingSourceMarkIn).toBeNull();
+    });
+  });
 });
