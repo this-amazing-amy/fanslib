@@ -1,5 +1,5 @@
 import type { InferResponseType } from "hono";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { api } from "../api/hono-client";
 import { QUERY_KEYS } from "./query-keys";
 
@@ -22,27 +22,27 @@ export const useCompositionByIdQuery = (compositionId: string) =>
     enabled: !!compositionId,
   });
 
-type UpdateCompositionParams = {
-  id: string;
-  segments?: unknown[];
-  tracks?: unknown[];
-  exportRegions?: unknown[];
-  name?: string;
-};
+export const useCreateCompositionMutation = () =>
+  useMutation({
+    mutationFn: async (payload: { shootId: string; name: string }) => {
+      const result = await api.api.compositions.$post({ json: payload });
+      return result.json();
+    },
+  });
 
-export const useUpdateCompositionMutation = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ id, ...updates }: UpdateCompositionParams) => {
+export const useUpdateCompositionMutation = () =>
+  useMutation({
+    mutationFn: async ({
+      id,
+      body,
+    }: {
+      id: string;
+      body: { name?: string; segments?: unknown[]; tracks?: unknown[]; exportRegions?: unknown[] };
+    }) => {
       const result = await api.api.compositions["by-id"][":id"].$patch({
         param: { id },
-        json: updates,
+        json: body,
       });
       return result.json();
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.compositions.byId(variables.id) });
-    },
   });
-};

@@ -13,6 +13,7 @@ import { Textarea } from "~/components/ui/Textarea";
 import { Switch } from "~/components/ui/Switch";
 
 import { MediaEditsSection } from "~/features/editor/components/MediaEditsSection";
+import { QuickEditButton } from "~/features/library/components/QuickEditButton";
 import { MediaTagEditor } from "~/features/library/components/MediaTagEditor";
 import { useDebounce } from "~/hooks/useDebounce";
 import { SiblingStrip } from "~/features/library/components/SiblingStrip/SiblingStrip";
@@ -106,6 +107,9 @@ const MediaRouteInner = ({ mediaId }: { mediaId: string }) => {
         <div className="flex justify-between">
           <h1 className="text-3xl font-semibold tracking-tight">{media.name}</h1>
           <div className="flex gap-2">
+            {"shoots" in media && Array.isArray(media.shoots) && (
+              <QuickEditButton media={media as unknown as { id: string; duration: number | null; shoots: { id: string; name: string }[] }} />
+            )}
             <RevealInFinderButton relativePath={media.relativePath} />
             <MediaDetailDotsMenu
               id={media.id}
