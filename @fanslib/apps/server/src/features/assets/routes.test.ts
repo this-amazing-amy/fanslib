@@ -69,6 +69,20 @@ describe("Assets Routes", () => {
     });
   });
 
+  describe("POST /api/assets/upload — durationMs", () => {
+    test("image upload returns durationMs as null", async () => {
+      const formData = new FormData();
+      formData.append("file", new Blob([VALID_PNG], { type: "image/png" }), "photo.png");
+      formData.append("name", "Image Asset");
+
+      const response = await app.request("/api/assets/upload", { method: "POST", body: formData });
+      expect(response.status).toBe(200);
+
+      const data = await parseResponse<{ durationMs: number | null }>(response);
+      expect(data?.durationMs).toBeNull();
+    });
+  });
+
   describe("GET /api/assets", () => {
     test("returns all assets", async () => {
       // Upload an asset first
@@ -83,6 +97,39 @@ describe("Assets Routes", () => {
       const data = await parseResponse<{ id: string; name: string; type: string }[]>(response);
       expect(data).toHaveLength(1);
       expect(data?.[0]?.name).toBe("Test Asset");
+    });
+
+    test("asset query response includes durationMs field", async () => {
+      // Upload a valid WAV with known duration
+      const sampleRate = 44100;
+      const numSamples = sampleRate; // 1 second
+      const dataSize = numSamples * 2; // 16-bit mono
+      const wav = Buffer.alloc(44 + dataSize);
+      wav.write("RIFF", 0);
+      wav.writeUInt32LE(36 + dataSize, 4);
+      wav.write("WAVE", 8);
+      wav.write("fmt ", 12);
+      wav.writeUInt32LE(16, 16);
+      wav.writeUInt16LE(1, 20);
+      wav.writeUInt16LE(1, 22);
+      wav.writeUInt32LE(sampleRate, 24);
+      wav.writeUInt32LE(sampleRate * 2, 28);
+      wav.writeUInt16LE(2, 32);
+      wav.writeUInt16LE(16, 34);
+      wav.write("data", 36);
+      wav.writeUInt32LE(dataSize, 40);
+
+      const formData = new FormData();
+      formData.append("file", new Blob([wav], { type: "audio/wav" }), "test.wav");
+      formData.append("name", "Duration Query Test");
+      await app.request("/api/assets/upload", { method: "POST", body: formData });
+
+      const response = await app.request("/api/assets?type=audio");
+      const data = await parseResponse<{ durationMs: number | null }[]>(response);
+      expect(data).toHaveLength(1);
+      expect(data?.[0]?.durationMs).toBeTypeOf("number");
+      expect(data?.[0]?.durationMs).toBeGreaterThanOrEqual(900);
+      expect(data?.[0]?.durationMs).toBeLessThanOrEqual(1100);
     });
 
     test("filters by type query parameter", async () => {
@@ -250,6 +297,51 @@ describe("Assets Routes", () => {
 
       const response = await app.request("/api/assets/upload", { method: "POST", body: formData });
       expect(response.status).toBe(422);
+    });
+
+    test("audio upload extracts durationMs via ffprobe", async () => {
+      // Generate a minimal valid WAV: 1 second of silence at 44100 Hz, 16-bit mono
+      const sampleRate = 44100;
+      const numSamples = sampleRate; // 1 second
+      const bitsPerSample = 16;
+      const numChannels = 1;
+      const dataSize = numSamples * numChannels * (bitsPerSample / 8);
+      const wav = Buffer.alloc(44 + dataSize);
+      // RIFF header
+      wav.write("RIFF", 0);
+      wav.writeUInt32LE(36 + dataSize, 4);
+      wav.write("WAVE", 8);
+      wav.write("fmt ", 12);
+      wav.writeUInt32LE(16, 16); // fmt chunk size
+      wav.writeUInt16LE(1, 20); // PCM
+      wav.writeUInt16LE(numChannels, 22);
+      wav.writeUInt32LE(sampleRate, 24);
+      wav.writeUInt32LE(sampleRate * numChannels * (bitsPerSample / 8), 28);
+      wav.writeUInt16LE(numChannels * (bitsPerSample / 8), 32);
+      wav.writeUInt16LE(bitsPerSample, 34);
+      wav.write("data", 36);
+      wav.writeUInt32LE(dataSize, 40);
+      // samples are all zeros (silence) — already zeroed by Buffer.alloc
+
+      const formData = new FormData();
+      formData.append("file", new Blob([wav], { type: "audio/wav" }), "silence.wav");
+      formData.append("name", "One Second Silence");
+
+      const response = await app.request("/api/assets/upload", { method: "POST", body: formData });
+      expect(response.status).toBe(200);
+
+      const data = await parseResponse<{
+        id: string;
+        name: string;
+        type: string;
+        durationMs: number | null;
+      }>(response);
+
+      expect(data?.type).toBe("audio");
+      expect(data?.durationMs).toBeTypeOf("number");
+      // 1 second of audio = ~1000ms (allow small ffprobe rounding)
+      expect(data?.durationMs).toBeGreaterThanOrEqual(900);
+      expect(data?.durationMs).toBeLessThanOrEqual(1100);
     });
 
     test("file streaming returns correct content-type for audio", async () => {
