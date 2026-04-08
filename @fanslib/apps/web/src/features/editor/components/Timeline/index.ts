@@ -1,5 +1,6 @@
 export { Timeline } from "./Timeline";
 export { OperationBlock } from "./OperationBlock";
+export { SegmentTrack } from "./SegmentTrack";
 export { SourceMediaBar } from "./SourceMediaBar";
 export { TrackRow } from "./TrackRow";
 export { TrackHeader } from "./TrackHeader";
