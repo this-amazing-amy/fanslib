@@ -39,27 +39,36 @@ vi.mock("~/contexts/MediaDragContext", () => ({
 import type { Media } from "@fanslib/server/schemas";
 import { SiblingStrip } from "./SiblingStrip";
 
-const makeSibling = (overrides: Partial<Media> = {}): Media => ({
-  id: `media-${Date.now()}-${Math.random()}`,
-  relativePath: "/test/photo.jpg",
-  type: "image",
-  name: "photo.jpg",
-  size: 1024,
-  duration: null,
-  redgifsUrl: null,
-  description: null,
-  excluded: false,
-  contentRating: null,
-  package: "main",
-  role: null,
-  isManaged: false,
-  derivedFromId: null,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  fileCreationDate: new Date(),
-  fileModificationDate: new Date(),
-  ...overrides,
-});
+const makeSibling = (overrides: Partial<Media> = {}): Media => {
+  const baseMedia: Media = {
+    id: `media-${Date.now()}-${Math.random()}`,
+    relativePath: "/test/photo.jpg",
+    type: "image",
+    name: "photo.jpg",
+    size: 1024,
+    duration: null,
+    redgifsUrl: null,
+    description: null,
+    excluded: false,
+    contentRating: null,
+    package: "main",
+    role: null,
+    category: "library",
+    note: null,
+    isManaged: false,
+    derivedFromId: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    fileCreationDate: new Date(),
+    fileModificationDate: new Date(),
+  };
+  return {
+    ...baseMedia,
+    ...overrides,
+    category: overrides.category ?? baseMedia.category,
+    note: overrides.note ?? baseMedia.note,
+  };
+};
 
 describe("SiblingStrip", () => {
   beforeEach(() => {

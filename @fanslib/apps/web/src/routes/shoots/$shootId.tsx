@@ -22,6 +22,7 @@ import { ShootDetailDateInput } from "~/features/shoots/components/shoot-detail/
 import { ShootDetailDotsMenu } from "~/features/shoots/components/shoot-detail/ShootDetailDotsMenu";
 import { PackageMatrixView } from "~/features/shoots/components/shoot-detail/PackageMatrixView";
 import { ShootDetailTitleInput } from "~/features/shoots/components/shoot-detail/ShootDetailTitleInput";
+import { ShootFootage } from "~/features/shoots/components/shoot-detail/ShootFootage";
 import { ShootCompositions } from "~/features/shoots/components/shoot-detail/ShootCompositions";
 import { ShootPosts } from "~/features/shoots/components/shoot-detail/ShootPosts";
 import { useShootQuery, useUpdateShootMutation } from "~/lib/queries/shoots";
@@ -127,6 +128,13 @@ const ShootDetailRoute = () => {
               <div className="mt-8">
                 <h2 className="text-xl font-semibold mb-4">Compositions</h2>
                 <ShootCompositions shootId={normalizedShoot.id} />
+              </div>
+
+              <div className="mt-8">
+                <ShootFootage
+                  shootId={normalizedShoot.id}
+                  footage={normalizedShoot.media?.filter((m) => m.category === "footage") ?? []}
+                />
               </div>
 
               <div className="mt-8">

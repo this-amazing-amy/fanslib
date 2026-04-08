@@ -75,8 +75,8 @@ export const remotionRenderFn: RenderFn = async ({ edit, sourceMedia, outputPath
   const chromiumOptions = { disableWebSecurity: true };
   const isImage = sourceMedia.type === "image";
   const fps = 30;
-  const width = sourceMedia.width ?? 1920;
-  const height = sourceMedia.height ?? 1080;
+  const width = 1920;
+  const height = 1080;
 
   // Extract clip operation if present
   const clipOp = operations.find((op): op is ClipOperation => op.type === "clip");
@@ -128,13 +128,17 @@ export const remotionRenderFn: RenderFn = async ({ edit, sourceMedia, outputPath
   const startFrom = clipOp ? clipOp.startFrame : 0;
 
   // Resolve asset URLs for watermark operations
-  const assetUrls: Record<string, string> = {};
-  for (const op of overlayOps) {
-    if (op.type === "watermark") {
-      const wm = op as WatermarkOperation;
-      assetUrls[wm.assetId] = `${baseUrl}/api/assets/${wm.assetId}/file`;
-    }
-  }
+  const assetUrls = overlayOps.reduce<Record<string, string>>(
+    (urls, operation) =>
+      operation.type === "watermark"
+        ? {
+            ...urls,
+            [(operation as WatermarkOperation).assetId]:
+              `${baseUrl}/api/assets/${(operation as WatermarkOperation).assetId}/file`,
+          }
+        : urls,
+    {},
+  );
 
   const inputProps = {
     sourceUrl,
