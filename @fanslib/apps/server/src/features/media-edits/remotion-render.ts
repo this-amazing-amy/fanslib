@@ -32,6 +32,30 @@ type CompositionSegment = {
     easing?: string;
   };
 };
+export type SequenceSegmentInput = CompositionSegment & { sourceUrl: string };
+
+export const resolveSequenceSegments = (
+  segments: CompositionSegment[],
+  baseUrl: string,
+): SequenceSegmentInput[] =>
+  segments.map((segment) => ({
+    ...segment,
+    sourceUrl: `${baseUrl}/api/media/${segment.sourceMediaId}/file`,
+  }));
+
+export const sequenceDurationInFrames = (
+  segments: CompositionSegment[],
+): number => {
+  if (segments.length === 0) return 1;
+  const [firstSegment, ...restSegments] = segments;
+  const firstDuration = firstSegment.sourceEndFrame - firstSegment.sourceStartFrame;
+  const remainingDuration = restSegments.reduce((totalDuration, segment) => {
+    const segmentDuration = segment.sourceEndFrame - segment.sourceStartFrame;
+    const overlapDuration = segment.transition?.durationFrames ?? 0;
+    return totalDuration + segmentDuration - overlapDuration;
+  }, 0);
+  return Math.max(1, firstDuration + remainingDuration);
+};
 
 const log = (msg: string, data?: Record<string, unknown>) =>
   console.log(`[render:remotion] ${msg}`, data ? JSON.stringify(data) : "");
@@ -134,17 +158,8 @@ export const remotionRenderFn: RenderFn = async ({ edit, sourceMedia, outputPath
   }
 
   if (isCompositionRender) {
-    const segments = compositionSegments.map((segment) => ({
-      ...segment,
-      sourceUrl: `${baseUrl}/api/media/${segment.sourceMediaId}/file`,
-    }));
-    const durationInFrames = Math.max(
-      1,
-      segments.reduce(
-        (totalDuration, segment) => totalDuration + (segment.sourceEndFrame - segment.sourceStartFrame),
-        0,
-      ),
-    );
+    const segments = resolveSequenceSegments(compositionSegments, baseUrl);
+    const durationInFrames = sequenceDurationInFrames(compositionSegments);
     const assetUrls = overlayOps.reduce<Record<string, string>>(
       (urls, operation) =>
         operation.type === "watermark"
