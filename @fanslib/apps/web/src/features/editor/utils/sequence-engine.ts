@@ -32,7 +32,8 @@ export const mapSequenceFrameToSource = (
   segments: Segment[],
 ): SourceFrameMapping[] =>
   timeline.positions.reduce<SourceFrameMapping[]>((results, position, i) => {
-    const segment = segments[i]!;
+    const segment = segments[i];
+    if (!segment) return results;
     if (sequenceFrame >= position.sequenceStartFrame && sequenceFrame < position.sequenceEndFrame) {
       const offsetInSegment = sequenceFrame - position.sequenceStartFrame;
       return [

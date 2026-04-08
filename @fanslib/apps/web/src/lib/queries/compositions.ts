@@ -56,7 +56,7 @@ export const useUpdateCompositionMutation = () => {
   return useMutation({
     mutationFn: async ({
       id,
-      shootId,
+      shootId: _shootId,
       updates,
     }: {
       id: string;
@@ -81,7 +81,7 @@ export const useDeleteCompositionMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, shootId }: { id: string; shootId: string }) => {
+    mutationFn: async ({ id, shootId: _shootId }: { id: string; shootId: string }) => {
       const result = await api.api.compositions["by-id"][":id"].$delete({
         param: { id },
       });

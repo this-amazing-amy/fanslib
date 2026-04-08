@@ -21,10 +21,8 @@ export const CompositionEditor = ({ shootId, compositionId }: CompositionEditorP
     } as Parameters<typeof hydrate>[0]);
   }, [composition, hydrate]);
 
-  useEffect(() => {
-    return () => {
-      reset();
-    };
+  useEffect(() => () => {
+    reset();
   }, [reset]);
 
   if (isLoading) {
