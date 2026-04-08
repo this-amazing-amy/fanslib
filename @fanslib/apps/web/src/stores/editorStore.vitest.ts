@@ -757,6 +757,126 @@ describe("editorStore", () => {
     });
   });
 
+  describe("export regions", () => {
+    test("addExportRegion appends with generated id", () => {
+      useEditorStore.getState().addExportRegion({
+        startFrame: 0,
+        endFrame: 90,
+      });
+      const regions = useEditorStore.getState().exportRegions;
+      expect(regions).toHaveLength(1);
+      expect(regions[0].startFrame).toBe(0);
+      expect(regions[0].endFrame).toBe(90);
+      expect(typeof regions[0].id).toBe("string");
+      expect(regions[0].id.length).toBeGreaterThan(0);
+    });
+
+    test("removeExportRegion removes by id", () => {
+      useEditorStore.getState().addExportRegion({ startFrame: 0, endFrame: 90 });
+      useEditorStore.getState().addExportRegion({ startFrame: 100, endFrame: 200 });
+      const id = useEditorStore.getState().exportRegions[0].id;
+      useEditorStore.getState().removeExportRegion(id);
+      const regions = useEditorStore.getState().exportRegions;
+      expect(regions).toHaveLength(1);
+      expect(regions[0].startFrame).toBe(100);
+    });
+
+    test("updateExportRegion modifies metadata", () => {
+      useEditorStore.getState().addExportRegion({ startFrame: 0, endFrame: 90 });
+      const id = useEditorStore.getState().exportRegions[0].id;
+      useEditorStore.getState().updateExportRegion(id, {
+        package: "premium",
+        role: "trailer",
+        contentRating: "PG",
+        quality: "1080p",
+      });
+      const region = useEditorStore.getState().exportRegions[0];
+      expect(region.package).toBe("premium");
+      expect(region.role).toBe("trailer");
+      expect(region.contentRating).toBe("PG");
+      expect(region.quality).toBe("1080p");
+      expect(region.startFrame).toBe(0);
+      expect(region.endFrame).toBe(90);
+    });
+
+    test("I/O marking: setExportMarkIn + commitExportMarkOut creates a region", () => {
+      useEditorStore.getState().setExportMarkIn(10);
+      expect(useEditorStore.getState().pendingExportMarkIn).toBe(10);
+      useEditorStore.getState().commitExportMarkOut(50);
+      const regions = useEditorStore.getState().exportRegions;
+      expect(regions).toHaveLength(1);
+      expect(regions[0].startFrame).toBe(10);
+      expect(regions[0].endFrame).toBe(50);
+    });
+
+    test("commitExportMarkOut clears pendingExportMarkIn", () => {
+      useEditorStore.getState().setExportMarkIn(10);
+      useEditorStore.getState().commitExportMarkOut(50);
+      expect(useEditorStore.getState().pendingExportMarkIn).toBeNull();
+    });
+
+    test("commitExportMarkOut swaps frames when markIn > frame (backward marking)", () => {
+      useEditorStore.getState().setExportMarkIn(80);
+      useEditorStore.getState().commitExportMarkOut(20);
+      const region = useEditorStore.getState().exportRegions[0];
+      expect(region.startFrame).toBe(20);
+      expect(region.endFrame).toBe(80);
+    });
+
+    test("toggleExportRegionMode toggles the boolean", () => {
+      expect(useEditorStore.getState().exportRegionMode).toBe(false);
+      useEditorStore.getState().toggleExportRegionMode();
+      expect(useEditorStore.getState().exportRegionMode).toBe(true);
+      useEditorStore.getState().toggleExportRegionMode();
+      expect(useEditorStore.getState().exportRegionMode).toBe(false);
+    });
+
+    test("selectExportRegion sets selection", () => {
+      useEditorStore.getState().addExportRegion({ startFrame: 0, endFrame: 90 });
+      const id = useEditorStore.getState().exportRegions[0].id;
+      useEditorStore.getState().selectExportRegion(id);
+      expect(useEditorStore.getState().selectedExportRegionId).toBe(id);
+      useEditorStore.getState().selectExportRegion(null);
+      expect(useEditorStore.getState().selectedExportRegionId).toBeNull();
+    });
+
+    test("undo reverts addExportRegion", () => {
+      useEditorStore.getState().addExportRegion({ startFrame: 0, endFrame: 90 });
+      expect(useEditorStore.getState().exportRegions).toHaveLength(1);
+      useEditorStore.getState().undo();
+      expect(useEditorStore.getState().exportRegions).toHaveLength(0);
+      useEditorStore.getState().redo();
+      expect(useEditorStore.getState().exportRegions).toHaveLength(1);
+    });
+
+    test("hydrate restores exportRegions", () => {
+      const data = {
+        tracks: [{ id: "t1", name: "Track 1", operations: [] }],
+        exportRegions: [
+          { id: "er1", startFrame: 0, endFrame: 90, package: "basic" },
+          { id: "er2", startFrame: 100, endFrame: 200 },
+        ],
+      };
+      useEditorStore.getState().hydrate(data);
+      expect(useEditorStore.getState().exportRegions).toHaveLength(2);
+      expect(useEditorStore.getState().exportRegions[0].id).toBe("er1");
+      expect(useEditorStore.getState().exportRegions[0].package).toBe("basic");
+      expect(useEditorStore.getState().exportRegions[1].startFrame).toBe(100);
+    });
+
+    test("reset clears exportRegions", () => {
+      useEditorStore.getState().addExportRegion({ startFrame: 0, endFrame: 90 });
+      useEditorStore.getState().toggleExportRegionMode();
+      useEditorStore.getState().selectExportRegion(useEditorStore.getState().exportRegions[0].id);
+      useEditorStore.getState().setExportMarkIn(10);
+      useEditorStore.getState().reset();
+      expect(useEditorStore.getState().exportRegions).toEqual([]);
+      expect(useEditorStore.getState().exportRegionMode).toBe(false);
+      expect(useEditorStore.getState().selectedExportRegionId).toBeNull();
+      expect(useEditorStore.getState().pendingExportMarkIn).toBeNull();
+    });
+  });
+
   describe("zoom operations", () => {
     test("addZoom adds a zoom operation with default values", () => {
       useEditorStore.getState().addZoom();
