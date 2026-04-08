@@ -7,6 +7,7 @@ import {
   Save,
   Upload,
   Scissors,
+  Slice,
   Crop,
   Type,
   Droplets,
@@ -46,6 +47,8 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
   const addZoom = useEditorStore((s) => s.addZoom);
   const setEditId = useEditorStore((s) => s.setEditId);
   const markClean = useEditorStore((s) => s.markClean);
+  const exportRegionMode = useEditorStore((s) => s.exportRegionMode);
+  const toggleExportRegionMode = useEditorStore((s) => s.toggleExportRegionMode);
   const clipMode = useClipStore((s) => s.clipMode);
   const toggleClipMode = useClipStore((s) => s.toggleClipMode);
   const clipRanges = useClipStore((s) => s.ranges);
@@ -135,6 +138,18 @@ export const EditorToolbar = ({ mediaId }: EditorToolbarProps) => {
             aria-label="Clip mode"
           >
             <Scissors className="h-4 w-4" />
+          </Button>
+        </span>
+      </Tooltip>
+      <Tooltip content="Export regions" placement="bottom" openDelayMs={0}>
+        <span className="inline-flex">
+          <Button
+            size="icon"
+            variant={exportRegionMode ? "primary" : "ghost"}
+            onPress={toggleExportRegionMode}
+            aria-label="Export regions"
+          >
+            <Slice className="h-4 w-4" />
           </Button>
         </span>
       </Tooltip>
