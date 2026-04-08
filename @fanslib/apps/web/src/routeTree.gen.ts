@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SubredditsRouteImport } from './routes/subreddits'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SchedulesRouteImport } from './routes/schedules'
+import { Route as RenderQueueRouteImport } from './routes/render-queue'
 import { Route as HashtagsRouteImport } from './routes/hashtags'
 import { Route as ContentRouteImport } from './routes/content'
 import { Route as ComponentShowcaseRouteImport } from './routes/component-showcase'
@@ -60,6 +61,11 @@ const SettingsRoute = SettingsRouteImport.update({
 const SchedulesRoute = SchedulesRouteImport.update({
   id: '/schedules',
   path: '/schedules',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RenderQueueRoute = RenderQueueRouteImport.update({
+  id: '/render-queue',
+  path: '/render-queue',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HashtagsRoute = HashtagsRouteImport.update({
@@ -243,6 +249,7 @@ export interface FileRoutesByFullPath {
   '/component-showcase': typeof ComponentShowcaseRoute
   '/content': typeof ContentRouteWithChildren
   '/hashtags': typeof HashtagsRoute
+  '/render-queue': typeof RenderQueueRoute
   '/schedules': typeof SchedulesRouteWithChildren
   '/settings': typeof SettingsRouteWithChildren
   '/subreddits': typeof SubredditsRoute
@@ -282,6 +289,7 @@ export interface FileRoutesByTo {
   '/component-showcase': typeof ComponentShowcaseRoute
   '/content': typeof ContentRouteWithChildren
   '/hashtags': typeof HashtagsRoute
+  '/render-queue': typeof RenderQueueRoute
   '/subreddits': typeof SubredditsRoute
   '/content/library': typeof ContentLibraryRouteWithChildren
   '/content/shoots': typeof ContentShootsRoute
@@ -318,6 +326,7 @@ export interface FileRoutesById {
   '/component-showcase': typeof ComponentShowcaseRoute
   '/content': typeof ContentRouteWithChildren
   '/hashtags': typeof HashtagsRoute
+  '/render-queue': typeof RenderQueueRoute
   '/schedules': typeof SchedulesRouteWithChildren
   '/settings': typeof SettingsRouteWithChildren
   '/subreddits': typeof SubredditsRoute
@@ -359,6 +368,7 @@ export interface FileRouteTypes {
     | '/component-showcase'
     | '/content'
     | '/hashtags'
+    | '/render-queue'
     | '/schedules'
     | '/settings'
     | '/subreddits'
@@ -398,6 +408,7 @@ export interface FileRouteTypes {
     | '/component-showcase'
     | '/content'
     | '/hashtags'
+    | '/render-queue'
     | '/subreddits'
     | '/content/library'
     | '/content/shoots'
@@ -433,6 +444,7 @@ export interface FileRouteTypes {
     | '/component-showcase'
     | '/content'
     | '/hashtags'
+    | '/render-queue'
     | '/schedules'
     | '/settings'
     | '/subreddits'
@@ -473,6 +485,7 @@ export interface RootRouteChildren {
   ComponentShowcaseRoute: typeof ComponentShowcaseRoute
   ContentRoute: typeof ContentRouteWithChildren
   HashtagsRoute: typeof HashtagsRoute
+  RenderQueueRoute: typeof RenderQueueRoute
   SchedulesRoute: typeof SchedulesRouteWithChildren
   SettingsRoute: typeof SettingsRouteWithChildren
   SubredditsRoute: typeof SubredditsRoute
@@ -507,6 +520,13 @@ declare module '@tanstack/react-router' {
       path: '/schedules'
       fullPath: '/schedules'
       preLoaderRoute: typeof SchedulesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/render-queue': {
+      id: '/render-queue'
+      path: '/render-queue'
+      fullPath: '/render-queue'
+      preLoaderRoute: typeof RenderQueueRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hashtags': {
@@ -855,6 +875,7 @@ const rootRouteChildren: RootRouteChildren = {
   ComponentShowcaseRoute: ComponentShowcaseRoute,
   ContentRoute: ContentRouteWithChildren,
   HashtagsRoute: HashtagsRoute,
+  RenderQueueRoute: RenderQueueRoute,
   SchedulesRoute: SchedulesRouteWithChildren,
   SettingsRoute: SettingsRouteWithChildren,
   SubredditsRoute: SubredditsRoute,
