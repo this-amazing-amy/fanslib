@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import type { Key } from "@react-types/shared";
-import { Image, MoreVertical, Send, Trash2 } from "lucide-react";
+import { Check, Image, Loader2, MoreVertical, Send, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "~/components/ui/Button";
@@ -22,11 +22,14 @@ type MediaDetailDotsMenuProps = {
   onCreatePost?: () => void;
 };
 
+type ThumbnailStatus = "idle" | "generating" | "success" | "error";
+
 export const MediaDetailDotsMenu = ({ id, mediaType, onCreatePost }: MediaDetailDotsMenuProps) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [deleteFile, setDeleteFile] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [thumbnailStatus, setThumbnailStatus] = useState<ThumbnailStatus>("idle");
   const deleteMutation = useDeleteMediaMutation();
 
   const handleDelete = async () => {
@@ -39,13 +42,19 @@ export const MediaDetailDotsMenu = ({ id, mediaType, onCreatePost }: MediaDetail
   };
 
   const handleGenerateThumbnail = async () => {
+    if (thumbnailStatus === "generating") return;
+    setThumbnailStatus("generating");
     try {
       await api.api.media[":id"].thumbnail.$post({
         param: { id },
       });
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.media.byId(id) });
+      setThumbnailStatus("success");
     } catch (error) {
       console.error("Failed to generate thumbnail:", error);
+      setThumbnailStatus("error");
+    } finally {
+      setTimeout(() => setThumbnailStatus("idle"), 2000);
     }
   };
 
@@ -59,6 +68,20 @@ export const MediaDetailDotsMenu = ({ id, mediaType, onCreatePost }: MediaDetail
       setIsDeleteDialogOpen(true);
     }
   };
+
+  const thumbnailLabel = {
+    idle: "Generate Thumbnail",
+    generating: "Generating...",
+    success: "Thumbnail Generated",
+    error: "Generation Failed",
+  }[thumbnailStatus];
+
+  const ThumbnailIcon = {
+    idle: Image,
+    generating: Loader2,
+    success: Check,
+    error: X,
+  }[thumbnailStatus];
 
   return (
     <>
@@ -83,10 +106,18 @@ export const MediaDetailDotsMenu = ({ id, mediaType, onCreatePost }: MediaDetail
             )}
             <DropdownMenuItem
               id="generate-thumbnail"
-              className="flex items-center gap-2 text-sm font-medium whitespace-nowrap"
+              className={`flex items-center gap-2 text-sm font-medium whitespace-nowrap ${
+                thumbnailStatus === "success"
+                  ? "text-success"
+                  : thumbnailStatus === "error"
+                    ? "text-error"
+                    : ""
+              }`}
             >
-              <Image className="h-4 w-4 shrink-0" />
-              Generate Thumbnail
+              <ThumbnailIcon
+                className={`h-4 w-4 shrink-0 ${thumbnailStatus === "generating" ? "animate-spin" : ""}`}
+              />
+              {thumbnailLabel}
             </DropdownMenuItem>
             <DropdownMenuItem
               id="delete"
