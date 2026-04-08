@@ -1,6 +1,7 @@
 import { Composition } from "remotion";
 import { WatermarkComposition } from "./compositions/WatermarkComposition";
 import { VideoComposition } from "./compositions/VideoComposition";
+import { SequenceComposition } from "./compositions/SequenceComposition";
 
 export const RemotionRoot: React.FC = () => (
   <>
@@ -35,6 +36,19 @@ export const RemotionRoot: React.FC = () => (
       defaultProps={{
         sourceUrl: "",
         startFrom: 0,
+        operations: [],
+        assetUrls: {},
+      }}
+    />
+    <Composition
+      id="SequenceComposition"
+      component={SequenceComposition}
+      durationInFrames={1}
+      fps={30}
+      width={1920}
+      height={1080}
+      defaultProps={{
+        segments: [],
         operations: [],
         assetUrls: {},
       }}
