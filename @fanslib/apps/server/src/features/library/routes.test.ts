@@ -1,10 +1,14 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
 import { Hono } from "hono";
+import { existsSync, mkdirSync, rmSync } from "fs";
+import { join } from "path";
 import "reflect-metadata";
 import { getTestDataSource, setupTestDatabase, teardownTestDatabase } from "../../lib/test-db";
 import { resetAllFixtures } from "../../lib/test-fixtures";
 import { devalueMiddleware } from "../../lib/devalue-middleware";
 import { parseResponse } from "../../test-utils/setup";
+import { Composition } from "../compositions/entity";
+import { Shoot } from "../shoots/entity";
 import { Media } from "./entity";
 import { MEDIA_FIXTURES } from "./fixtures-data";
 import { libraryRoutes } from "./routes";
@@ -354,6 +358,146 @@ describe("Library Routes", () => {
       const data = await parseResponse<{ previous: Media | null; next: Media | null }>(response);
       expect(data).toHaveProperty("previous");
       expect(data).toHaveProperty("next");
+    });
+  });
+
+  describe("Category defaults", () => {
+    test("existing media has category 'library' by default", async () => {
+      const fixtureMedia = MEDIA_FIXTURES[0];
+      if (!fixtureMedia) throw new Error("No fixtures");
+
+      const response = await app.request(`/api/media/by-id/${fixtureMedia.id}`);
+      expect(response.status).toBe(200);
+
+      const data = await parseResponse<{ category: string }>(response);
+      expect(data?.category).toBe("library");
+    });
+  });
+
+  describe("Footage upload", () => {
+    const TEST_MEDIA_DIR = join(import.meta.dir, "..", "..", "..", "tests", "fixtures", "test-media");
+
+    beforeEach(() => {
+      process.env.MEDIA_PATH = TEST_MEDIA_DIR;
+      if (existsSync(TEST_MEDIA_DIR)) rmSync(TEST_MEDIA_DIR, { recursive: true, force: true });
+      mkdirSync(TEST_MEDIA_DIR, { recursive: true });
+    });
+
+    afterAll(() => {
+      if (existsSync(TEST_MEDIA_DIR)) rmSync(TEST_MEDIA_DIR, { recursive: true, force: true });
+    });
+
+    test("uploads footage with category 'footage' and note", async () => {
+      // Create a shoot
+      const dataSource = getTestDataSource();
+      const shootRepo = dataSource.getRepository(Shoot);
+      const shoot = await shootRepo.save(
+        shootRepo.create({ name: "Footage Shoot", shootDate: new Date("2026-04-08") }),
+      );
+
+      const formData = new FormData();
+      formData.append("shootId", shoot.id);
+      formData.append("file", new Blob(["fake video"], { type: "video/mp4" }), "promo-clip.mp4");
+      formData.append("category", "footage");
+      formData.append("note", "Color-graded A-roll");
+
+      const response = await app.request("/api/media/upload", {
+        method: "POST",
+        body: formData,
+      });
+      expect(response.status).toBe(200);
+
+      const data = await parseResponse<{
+        id: string;
+        category: string;
+        note: string | null;
+      }>(response);
+
+      expect(data?.category).toBe("footage");
+      expect(data?.note).toBe("Color-graded A-roll");
+    });
+
+    test("footage is stored in footage/ directory, not shoots/", async () => {
+      const dataSource = getTestDataSource();
+      const shootRepo = dataSource.getRepository(Shoot);
+      const shoot = await shootRepo.save(
+        shootRepo.create({ name: "Dir Test", shootDate: new Date("2026-04-08") }),
+      );
+
+      const formData = new FormData();
+      formData.append("shootId", shoot.id);
+      formData.append("file", new Blob(["fake"], { type: "video/mp4" }), "clip.mp4");
+      formData.append("category", "footage");
+
+      const response = await app.request("/api/media/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await parseResponse<{ relativePath: string }>(response);
+
+      expect(data?.relativePath).toMatch(/^footage\//);
+      expect(data?.relativePath).not.toMatch(/^shoots\//);
+    });
+
+    test("warns when deleting footage referenced by a composition", async () => {
+      const dataSource = getTestDataSource();
+      const shootRepo = dataSource.getRepository(Shoot);
+      const shoot = await shootRepo.save(
+        shootRepo.create({ name: "Warn Shoot", shootDate: new Date("2026-04-08") }),
+      );
+
+      // Upload footage
+      const formData = new FormData();
+      formData.append("shootId", shoot.id);
+      formData.append("file", new Blob(["fake"], { type: "video/mp4" }), "ref.mp4");
+      formData.append("category", "footage");
+      const uploadResponse = await app.request("/api/media/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const footage = await parseResponse<{ id: string }>(uploadResponse);
+
+      // Create a composition referencing this footage in a segment
+      const compRepo = dataSource.getRepository(Composition);
+      await compRepo.save(
+        compRepo.create({
+          shootId: shoot.id,
+          name: "Uses Footage",
+          segments: [{ id: "seg-1", sourceMediaId: footage?.id, sourceStartFrame: 0, sourceEndFrame: 900 }],
+          tracks: [],
+          exportRegions: [],
+        }),
+      );
+
+      // Try to delete — should get a warning
+      const deleteResponse = await app.request(`/api/media/by-id/${footage?.id}`, {
+        method: "DELETE",
+      });
+      expect(deleteResponse.status).toBe(409);
+
+      const data = await parseResponse<{ error: string; compositionIds: string[] }>(deleteResponse);
+      expect(data?.error).toContain("referenced");
+      expect(data?.compositionIds).toHaveLength(1);
+    });
+
+    test("library upload still uses shoots/ directory", async () => {
+      const dataSource = getTestDataSource();
+      const shootRepo = dataSource.getRepository(Shoot);
+      const shoot = await shootRepo.save(
+        shootRepo.create({ name: "Lib Test", shootDate: new Date("2026-04-08") }),
+      );
+
+      const formData = new FormData();
+      formData.append("shootId", shoot.id);
+      formData.append("file", new Blob(["fake"], { type: "video/mp4" }), "clip.mp4");
+
+      const response = await app.request("/api/media/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await parseResponse<{ relativePath: string }>(response);
+
+      expect(data?.relativePath).toMatch(/^shoots\//);
     });
   });
 });

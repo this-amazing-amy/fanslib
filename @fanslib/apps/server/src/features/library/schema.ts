@@ -13,6 +13,8 @@ export const MediaSchema = z.object({
   duration: z.number().nullable(),
   redgifsUrl: z.string().nullable(),
   description: z.string().nullable(),
+  category: z.enum(["library", "footage"]).default("library"),
+  note: z.string().nullable().default(null),
   excluded: z.boolean().default(false),
   contentRating: ContentRatingSchema.nullable().default(null),
   package: z.string().nullable().default(null),

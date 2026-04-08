@@ -46,6 +46,12 @@ export class Media {
   @Column({ type: "text", nullable: true, name: "description" })
   description: string | null = null;
 
+  @Column({ type: "varchar", default: "library", name: "category" })
+  category: "library" | "footage" = "library";
+
+  @Column({ type: "text", nullable: true, name: "note" })
+  note: string | null = null;
+
   @Column({ type: "boolean", default: false, name: "excluded" })
   excluded: boolean = false;
 

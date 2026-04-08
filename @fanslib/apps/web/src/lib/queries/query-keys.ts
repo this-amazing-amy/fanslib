@@ -114,6 +114,7 @@ export const QUERY_KEYS = {
     list: (params?: unknown) => ["shoots", "list", params] as const,
     byId: (id: string) => ["shoots", id] as const,
     posts: (shootId: string) => ["shoots", "posts", shootId] as const,
+    compositions: (shootId: string) => ["shoots", "compositions", shootId] as const,
   },
 
   hashtags: {

@@ -17,6 +17,9 @@ export class Asset {
   @Column({ type: "varchar", name: "filename" })
   filename!: string;
 
+  @Column({ type: "integer", name: "durationMs", nullable: true, default: null })
+  durationMs!: number | null;
+
   @CreateDateColumn({ type: "datetime", name: "createdAt" })
   createdAt!: Date;
 }
@@ -28,5 +31,6 @@ export const AssetSchema = z.object({
   name: z.string(),
   type: AssetTypeSchema,
   filename: z.string(),
+  durationMs: z.number().nullable(),
   createdAt: z.coerce.date(),
 });
