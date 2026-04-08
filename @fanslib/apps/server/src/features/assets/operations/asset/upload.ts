@@ -3,6 +3,7 @@ import { join } from "path";
 import { randomUUID } from "crypto";
 import { db } from "../../../../lib/db";
 import { appdataPath } from "../../../../lib/env";
+import { getVideoDuration } from "../../../../lib/video";
 import { Asset } from "../../entity";
 
 const getAssetsDir = (): string => {
@@ -27,10 +28,18 @@ export const uploadAsset = async (
   const buffer = await file.arrayBuffer();
   await Bun.write(filePath, buffer);
 
+  const durationMs =
+    type === "audio"
+      ? await getVideoDuration(filePath).then((sec) =>
+          sec !== undefined ? Math.round(sec * 1000) : null,
+        )
+      : null;
+
   const asset = repo.create({
     name,
     type,
     filename,
+    durationMs,
   });
   await repo.save(asset);
 
