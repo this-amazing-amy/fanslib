@@ -45,7 +45,8 @@ describe("SegmentTrack", () => {
     render(<SegmentTrack pixelsPerFrame={2} totalFrames={900} />);
 
     const block = screen.getByTestId("segment-block");
-    fireEvent.click(block);
+    fireEvent.pointerDown(block, { button: 0, clientX: 50, clientY: 10 });
+    fireEvent.pointerUp(block, { clientX: 50, clientY: 10 });
 
     expect(useEditorStore.getState().selectedSegmentId).toBe(segmentId);
   });
