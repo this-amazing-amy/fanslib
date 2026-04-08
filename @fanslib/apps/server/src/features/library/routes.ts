@@ -12,7 +12,7 @@ import { findAdjacentMedia } from "./operations/media/find-adjacent";
 import { updateMedia } from "./operations/media/update";
 import { getMediaPostingHistory } from "./operations/media/get-media-posting-history";
 import { getScanStatus, scanFile, scanLibrary } from "./operations/scan/scan";
-import { getThumbnailPath } from "./operations/scan/thumbnail";
+import { generateThumbnail, getThumbnailPath } from "./operations/scan/thumbnail";
 import { fetchSiblings } from "./operations/media/fetch-siblings";
 import { uploadMediaToShoot } from "./operations/upload";
 import { resolveMediaPath } from "./path-utils";
@@ -280,4 +280,21 @@ export const libraryRoutes = new Hono()
       "Content-Type": "image/jpeg",
       "Cache-Control": "public, max-age=31536000",
     });
+  })
+  .post("/:id/thumbnail", async (c) => {
+    const id = c.req.param("id");
+    const media = await fetchMediaById(id);
+    if (!media) return notFound(c, "Media not found");
+
+    // Delete existing thumbnail so generateThumbnail creates a fresh one
+    const thumbnailPath = getThumbnailPath(id);
+    try {
+      await fs.unlink(thumbnailPath);
+    } catch {
+      // Doesn't exist yet — that's fine
+    }
+
+    const mediaPath = resolveMediaPath(media.relativePath);
+    await generateThumbnail(mediaPath, id, media.type);
+    return c.json({ success: true });
   });

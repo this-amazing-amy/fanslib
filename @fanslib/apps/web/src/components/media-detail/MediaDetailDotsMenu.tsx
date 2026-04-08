@@ -1,7 +1,8 @@
 import { useNavigate } from "@tanstack/react-router";
 import type { Key } from "@react-types/shared";
-import { MoreVertical, Send, Trash2 } from "lucide-react";
+import { Image, MoreVertical, Send, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "~/components/ui/Button";
 import { Checkbox } from "~/components/ui/Checkbox";
 import { DeleteConfirmDialog } from "~/components/ui/DeleteConfirmDialog";
@@ -12,6 +13,8 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
 import { useDeleteMediaMutation } from "~/lib/queries/library";
+import { QUERY_KEYS } from "~/lib/queries/query-keys";
+import { api } from "~/lib/api/hono-client";
 
 type MediaDetailDotsMenuProps = {
   id: string;
@@ -21,6 +24,7 @@ type MediaDetailDotsMenuProps = {
 
 export const MediaDetailDotsMenu = ({ id, mediaType, onCreatePost }: MediaDetailDotsMenuProps) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [deleteFile, setDeleteFile] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const deleteMutation = useDeleteMediaMutation();
@@ -34,10 +38,23 @@ export const MediaDetailDotsMenu = ({ id, mediaType, onCreatePost }: MediaDetail
     }
   };
 
+  const handleGenerateThumbnail = async () => {
+    try {
+      await api.api.media[":id"].thumbnail.$post({
+        param: { id },
+      });
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.media.byId(id) });
+    } catch (error) {
+      console.error("Failed to generate thumbnail:", error);
+    }
+  };
+
   const handleAction = (key: Key) => {
     const actionId = String(key);
     if (actionId === "create-post" && onCreatePost) {
       onCreatePost();
+    } else if (actionId === "generate-thumbnail") {
+      handleGenerateThumbnail();
     } else if (actionId === "delete") {
       setIsDeleteDialogOpen(true);
     }
@@ -64,6 +81,13 @@ export const MediaDetailDotsMenu = ({ id, mediaType, onCreatePost }: MediaDetail
                 Create post with media
               </DropdownMenuItem>
             )}
+            <DropdownMenuItem
+              id="generate-thumbnail"
+              className="flex items-center gap-2 text-sm font-medium whitespace-nowrap"
+            >
+              <Image className="h-4 w-4 shrink-0" />
+              Generate Thumbnail
+            </DropdownMenuItem>
             <DropdownMenuItem
               id="delete"
               className="flex items-center gap-2 text-sm font-medium text-destructive"
