@@ -55,12 +55,11 @@ const pickupNextEdit = async (
 const loadSourceMedia = async (
   mediaRepo: Repository<Media>,
   sourceMediaId: string,
-): Promise<Media | null> => {
-  return mediaRepo.findOne({
+): Promise<Media | null> =>
+  mediaRepo.findOne({
     where: { id: sourceMediaId },
     relations: { shoots: true },
   });
-};
 
 const transitionStatus = async (
   editRepo: Repository<MediaEdit>,

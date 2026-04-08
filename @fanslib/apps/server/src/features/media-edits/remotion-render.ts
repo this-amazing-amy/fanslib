@@ -128,13 +128,17 @@ export const remotionRenderFn: RenderFn = async ({ edit, sourceMedia, outputPath
   const startFrom = clipOp ? clipOp.startFrame : 0;
 
   // Resolve asset URLs for watermark operations
-  const assetUrls: Record<string, string> = {};
-  for (const op of overlayOps) {
-    if (op.type === "watermark") {
-      const wm = op as WatermarkOperation;
-      assetUrls[wm.assetId] = `${baseUrl}/api/assets/${wm.assetId}/file`;
-    }
-  }
+  const assetUrls = overlayOps.reduce<Record<string, string>>(
+    (urls, operation) =>
+      operation.type === "watermark"
+        ? {
+            ...urls,
+            [(operation as WatermarkOperation).assetId]:
+              `${baseUrl}/api/assets/${(operation as WatermarkOperation).assetId}/file`,
+          }
+        : urls,
+    {},
+  );
 
   const inputProps = {
     sourceUrl,
