@@ -9,6 +9,7 @@ import { analyticsRoutes } from "./features/analytics/routes";
 import { assetsRoutes } from "./features/assets/routes";
 import { candidatesRoutes } from "./features/analytics/candidates/routes";
 import { channelsRoutes } from "./features/channels/routes";
+import { compositionsRoutes } from "./features/compositions/routes";
 import { contentSchedulesRoutes } from "./features/content-schedules/routes";
 import { filterPresetsRoutes } from "./features/filter-presets/routes";
 import { hashtagsRoutes } from "./features/hashtags/routes";
@@ -89,6 +90,7 @@ const app = new Hono()
   .route("/", subredditsRoutes)
   .route("/", tagsRoutes)
   .route("/", channelsRoutes)
+  .route("/", compositionsRoutes)
   .route("/", contentSchedulesRoutes)
   .route("/", libraryRoutes)
   .route("/", organizeRoutes)
