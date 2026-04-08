@@ -7,16 +7,27 @@ import { describe, expect, test, vi, beforeEach } from "vitest";
 // Mock the composition query hook
 vi.mock("~/lib/queries/compositions", () => ({
   useCompositionByIdQuery: vi.fn(),
+  useUpdateCompositionMutation: () => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  }),
 }));
 
 // Mock the editor store
-const mockHydrate = vi.fn();
-const mockReset = vi.fn();
-vi.mock("~/stores/editorStore", () => ({
-  useEditorStore: vi.fn((selector: (s: Record<string, unknown>) => unknown) =>
-    selector({ hydrate: mockHydrate, reset: mockReset }),
-  ),
-}));
+const mockHydrate = vi.hoisted(() => vi.fn());
+const mockReset = vi.hoisted(() => vi.fn());
+vi.mock("~/stores/editorStore", () => {
+  const store = Object.assign(
+    vi.fn((selector: (s: Record<string, unknown>) => unknown) =>
+      selector({ hydrate: mockHydrate, reset: mockReset }),
+    ),
+    {
+      subscribe: vi.fn(() => vi.fn()),
+      getState: vi.fn(() => ({ isDirty: false, segments: [], tracks: [] })),
+    },
+  );
+  return { useEditorStore: store };
+});
 
 import { useCompositionByIdQuery } from "~/lib/queries/compositions";
 
