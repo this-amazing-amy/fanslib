@@ -10,6 +10,7 @@ import { Button } from "~/components/ui/Button";
 import { LibraryPreferencesProvider } from "~/contexts/LibraryPreferencesContext";
 import { MediaDragProvider } from "~/contexts/MediaDragContext";
 
+import { QuickEditButton } from "~/features/library/components/QuickEditButton";
 import { MediaTagEditor } from "~/features/library/components/MediaTagEditor";
 import { useMediaQuery } from "~/lib/queries/library";
 
@@ -60,6 +61,9 @@ const LibraryMediaDetailRoute = () => {
             <div className="flex justify-between">
               <h1 className="text-3xl font-semibold tracking-tight">{media.name}</h1>
               <div className="flex gap-2">
+                {"shoots" in media && Array.isArray(media.shoots) && (
+                  <QuickEditButton media={media as unknown as { id: string; duration: number | null; shoots: { id: string; name: string }[] }} />
+                )}
                 <RevealInFinderButton relativePath={media.relativePath} />
                 <MediaDetailDotsMenu id={media.id} mediaType={media.type} />
               </div>
