@@ -9,6 +9,8 @@ export const createMedia = async ({
   duration,
   fileCreationDate,
   fileModificationDate,
+  category,
+  note,
 }: {
   relativePath: string;
   name: string;
@@ -17,6 +19,8 @@ export const createMedia = async ({
   duration?: number;
   fileCreationDate: Date;
   fileModificationDate: Date;
+  category?: "library" | "footage";
+  note?: string;
 }) => {
   const dataSource = await db();
   const repository = dataSource.getRepository(Media);
@@ -29,6 +33,8 @@ export const createMedia = async ({
     duration,
     fileCreationDate,
     fileModificationDate,
+    ...(category ? { category } : {}),
+    ...(note ? { note } : {}),
   });
 
   return repository.save(media);
