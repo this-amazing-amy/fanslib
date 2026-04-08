@@ -213,14 +213,14 @@ describe("Render Pipeline", () => {
       });
 
       expect(loaded).not.toBeNull();
-      const edit = { package: "pkg", role: "role", contentRating: "nsfw" } as MediaEdit;
+      const edit = { package: "pkg", role: "role", contentRating: "uc" } as MediaEdit;
       const path = await resolveManagedPath(loaded as Media, edit);
 
       // Should use source basename as shoot name fallback
       expect(path).toContain("my-clip");
       expect(path).toContain("pkg");
       expect(path).toContain("role");
-      expect(path).toContain("nsfw");
+      expect(path).toContain("uc");
       expect(path).toEndWith(".mp4");
     });
   });
@@ -262,7 +262,7 @@ describe("Render Pipeline", () => {
     await createQueuedEdit(sourceMedia, {
       package: "premium",
       role: "teaser",
-      contentRating: "nsfw",
+      contentRating: "uc",
     });
 
     await processNextQueuedEdit(fakeRenderFn);
@@ -273,7 +273,7 @@ describe("Render Pipeline", () => {
     expect(outputs).toHaveLength(1);
     expect(outputs[0]?.package).toBe("premium");
     expect(outputs[0]?.role).toBe("teaser");
-    expect(outputs[0]?.contentRating).toBe("nsfw");
+    expect(outputs[0]?.contentRating).toBe("uc");
     expect(outputs[0]?.isManaged).toBe(true);
   });
 
