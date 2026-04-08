@@ -69,66 +69,65 @@ export const MediaDetailDotsMenu = ({ id, mediaType, onCreatePost }: MediaDetail
     }
   };
 
-  const thumbnailLabel = {
-    idle: "Generate Thumbnail",
-    generating: "Generating...",
-    success: "Thumbnail Generated",
-    error: "Generation Failed",
-  }[thumbnailStatus];
-
-  const ThumbnailIcon = {
-    idle: Image,
-    generating: Loader2,
-    success: Check,
-    error: X,
-  }[thumbnailStatus];
-
   return (
     <>
-      <DropdownMenuTrigger>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="bg-base-100 text-base-content hover:bg-base-200"
-        >
-          <MoreVertical className="h-5 w-5" />
-        </Button>
-        <DropdownMenuPopover placement="bottom end" className="w-56">
-          <DropdownMenu onAction={handleAction}>
-            {onCreatePost && (
+      <div className="relative">
+        <DropdownMenuTrigger>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="bg-base-100 text-base-content hover:bg-base-200"
+          >
+            <MoreVertical className="h-5 w-5" />
+          </Button>
+          <DropdownMenuPopover placement="bottom end" className="w-56">
+            <DropdownMenu onAction={handleAction}>
+              {onCreatePost && (
+                <DropdownMenuItem
+                  id="create-post"
+                  className="flex items-center gap-2 text-sm font-medium whitespace-nowrap"
+                >
+                  <Send className="h-4 w-4 shrink-0" />
+                  Create post with media
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem
-                id="create-post"
+                id="generate-thumbnail"
                 className="flex items-center gap-2 text-sm font-medium whitespace-nowrap"
               >
-                <Send className="h-4 w-4 shrink-0" />
-                Create post with media
+                <Image className="h-4 w-4 shrink-0" />
+                Generate Thumbnail
               </DropdownMenuItem>
-            )}
-            <DropdownMenuItem
-              id="generate-thumbnail"
-              className={`flex items-center gap-2 text-sm font-medium whitespace-nowrap ${
-                thumbnailStatus === "success"
-                  ? "text-success"
-                  : thumbnailStatus === "error"
-                    ? "text-error"
-                    : ""
-              }`}
-            >
-              <ThumbnailIcon
-                className={`h-4 w-4 shrink-0 ${thumbnailStatus === "generating" ? "animate-spin" : ""}`}
-              />
-              {thumbnailLabel}
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              id="delete"
-              className="flex items-center gap-2 text-sm font-medium text-destructive"
-            >
-              <Trash2 className="h-4 w-4 shrink-0" />
-              Delete Media
-            </DropdownMenuItem>
-          </DropdownMenu>
-        </DropdownMenuPopover>
-      </DropdownMenuTrigger>
+              <DropdownMenuItem
+                id="delete"
+                className="flex items-center gap-2 text-sm font-medium text-destructive"
+              >
+                <Trash2 className="h-4 w-4 shrink-0" />
+                Delete Media
+              </DropdownMenuItem>
+            </DropdownMenu>
+          </DropdownMenuPopover>
+        </DropdownMenuTrigger>
+
+        {thumbnailStatus !== "idle" && (
+          <div
+            className={`absolute -bottom-8 right-0 flex items-center gap-1.5 text-xs font-medium whitespace-nowrap rounded-md px-2 py-1 shadow-sm ${
+              thumbnailStatus === "generating"
+                ? "bg-base-200 text-base-content"
+                : thumbnailStatus === "success"
+                  ? "bg-success/10 text-success"
+                  : "bg-error/10 text-error"
+            }`}
+          >
+            {thumbnailStatus === "generating" && <Loader2 className="h-3 w-3 animate-spin" />}
+            {thumbnailStatus === "success" && <Check className="h-3 w-3" />}
+            {thumbnailStatus === "error" && <X className="h-3 w-3" />}
+            {thumbnailStatus === "generating" && "Generating..."}
+            {thumbnailStatus === "success" && "Thumbnail generated"}
+            {thumbnailStatus === "error" && "Generation failed"}
+          </div>
+        )}
+      </div>
 
       <DeleteConfirmDialog
         open={isDeleteDialogOpen}
