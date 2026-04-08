@@ -89,9 +89,9 @@ export const resolveManagedPath = async (
   };
   return findAvailablePath(
     shoot,
-    edit.package!,
-    edit.role!,
-    edit.contentRating!,
+    edit.package ?? "",
+    edit.role ?? "",
+    edit.contentRating ?? "",
     sourceExt,
   );
 };

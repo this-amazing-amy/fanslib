@@ -14,6 +14,7 @@ import {
   resolveManagedPath,
   resolveUnmanagedPath,
   type RenderFn,
+  type ProcessResult,
 } from "./render-pipeline";
 
 const FIXTURES_DIR = join(import.meta.dir, "..", "..", "..", "tests", "fixtures");
@@ -161,8 +162,9 @@ describe("Render Pipeline", () => {
         relations: { shoots: true },
       });
 
+      expect(loaded).not.toBeNull();
       const edit = { package: "pkg1", role: "main", contentRating: "sfw" } as MediaEdit;
-      const path = await resolveOutputPath(loaded!, edit);
+      const path = await resolveOutputPath(loaded as Media, edit);
 
       // Managed path format: YYYY/YYYY-MM-DD_shootname/YYYY-MM-DD_shootname_pkg_role_cr.ext
       expect(path).toContain("2026");
@@ -186,8 +188,9 @@ describe("Render Pipeline", () => {
         relations: { shoots: true },
       });
 
+      expect(loaded).not.toBeNull();
       const edit = { package: null, role: null, contentRating: null } as unknown as MediaEdit;
-      const path = await resolveOutputPath(loaded!, edit);
+      const path = await resolveOutputPath(loaded as Media, edit);
 
       expect(path).toStartWith("some/dir/");
       expect(path).toContain("source_edit_");
@@ -209,8 +212,9 @@ describe("Render Pipeline", () => {
         relations: { shoots: true },
       });
 
+      expect(loaded).not.toBeNull();
       const edit = { package: "pkg", role: "role", contentRating: "nsfw" } as MediaEdit;
-      const path = await resolveManagedPath(loaded!, edit);
+      const path = await resolveManagedPath(loaded as Media, edit);
 
       // Should use source basename as shoot name fallback
       expect(path).toContain("my-clip");
@@ -322,7 +326,8 @@ describe("Render Pipeline", () => {
 
     const dataSource = getTestDataSource();
     const editRepo = dataSource.getRepository(MediaEdit);
-    const updatedEdit = await editRepo.findOne({ where: { id: result!.editId } });
+    expect(result).not.toBeNull();
+    const updatedEdit = await editRepo.findOne({ where: { id: (result as ProcessResult).editId } });
     expect(updatedEdit?.status).toBe("completed");
   });
 
