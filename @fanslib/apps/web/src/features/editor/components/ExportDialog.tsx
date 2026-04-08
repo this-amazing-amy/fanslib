@@ -5,6 +5,7 @@ import { useEditorStore } from "~/stores/editorStore";
 import { useClipStore } from "~/stores/clipStore";
 import { QUERY_KEYS } from "~/lib/queries/query-keys";
 import { intersectOperationsWithClip } from "../utils/clip-intersection";
+import { ExportRegionList } from "./ExportRegionList";
 import type { Track } from "@fanslib/video/types";
 
 type ExportDialogProps = {
@@ -26,10 +27,6 @@ export const ExportDialog = ({ open, onOpenChange }: ExportDialogProps) => {
 
   const isClipExport = clipRanges.length > 0;
 
-  const [role, setRole] = useState("");
-  const [pkg, setPkg] = useState("");
-  const [contentRating, setContentRating] = useState("sg");
-  const [quality, setQuality] = useState("pretty");
   const [exporting, setExporting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -181,54 +178,7 @@ export const ExportDialog = ({ open, onOpenChange }: ExportDialogProps) => {
           <div className="text-success text-center py-8">Queued for rendering!</div>
         ) : (
           <div className="flex flex-col gap-4">
-            <label className="flex flex-col gap-1">
-              <span className="text-sm font-medium text-base-content/70">Role</span>
-              <input
-                type="text"
-                className="input input-bordered input-sm w-full"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                placeholder="e.g. main, alt"
-              />
-            </label>
-
-            <label className="flex flex-col gap-1">
-              <span className="text-sm font-medium text-base-content/70">Package</span>
-              <input
-                type="text"
-                className="input input-bordered input-sm w-full"
-                value={pkg}
-                onChange={(e) => setPkg(e.target.value)}
-                placeholder="e.g. premium, free"
-              />
-            </label>
-
-            <label className="flex flex-col gap-1">
-              <span className="text-sm font-medium text-base-content/70">Content Rating</span>
-              <select
-                className="select select-bordered select-sm w-full"
-                value={contentRating}
-                onChange={(e) => setContentRating(e.target.value)}
-              >
-                <option value="sf">SF - Safe</option>
-                <option value="sg">SG - Suggestive</option>
-                <option value="cn">CN - Cautionary Nudity</option>
-                <option value="uc">UC - Uncensored</option>
-                <option value="xt">XT - Explicit</option>
-              </select>
-            </label>
-
-            <label className="flex flex-col gap-1">
-              <span className="text-sm font-medium text-base-content/70">Quality</span>
-              <select
-                className="select select-bordered select-sm w-full"
-                value={quality}
-                onChange={(e) => setQuality(e.target.value)}
-              >
-                <option value="fast">Fast</option>
-                <option value="pretty">Pretty</option>
-              </select>
-            </label>
+            <ExportRegionList />
 
             {error && <div className="text-error text-sm">{error}</div>}
 
