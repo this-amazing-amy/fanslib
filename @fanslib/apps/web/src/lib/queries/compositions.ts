@@ -22,75 +22,27 @@ export const useCompositionByIdQuery = (compositionId: string) =>
     enabled: !!compositionId,
   });
 
-export const useCompositionsByShootQuery = (shootId: string) =>
-  useQuery({
-    queryKey: QUERY_KEYS.shoots.compositions(shootId),
-    queryFn: async () => {
-      const result = await api.api.compositions["by-shoot"][":shootId"].$get({
-        param: { shootId },
-      });
-      return result.json();
-    },
-    enabled: !!shootId,
-  });
-
-export const useCreateCompositionMutation = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (data: { shootId: string; name: string }) => {
-      const result = await api.api.compositions.$post({ json: data });
-      return result.json();
-    },
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.shoots.compositions(variables.shootId),
-      });
-    },
-  });
+type UpdateCompositionParams = {
+  id: string;
+  segments?: unknown[];
+  tracks?: unknown[];
+  exportRegions?: unknown[];
+  name?: string;
 };
 
 export const useUpdateCompositionMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      id,
-      shootId: _shootId,
-      updates,
-    }: {
-      id: string;
-      shootId: string;
-      updates: { name?: string };
-    }) => {
+    mutationFn: async ({ id, ...updates }: UpdateCompositionParams) => {
       const result = await api.api.compositions["by-id"][":id"].$patch({
         param: { id },
         json: updates,
       });
       return result.json();
     },
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.shoots.compositions(variables.shootId),
-      });
-    },
-  });
-};
-
-export const useDeleteCompositionMutation = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ id, shootId: _shootId }: { id: string; shootId: string }) => {
-      const result = await api.api.compositions["by-id"][":id"].$delete({
-        param: { id },
-      });
-      return result.json();
-    },
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.shoots.compositions(variables.shootId),
-      });
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.compositions.byId(variables.id) });
     },
   });
 };
