@@ -8,6 +8,7 @@ import { useMediaEditByIdQuery } from "~/lib/queries/media-edits";
 import { EditorToolbar } from "./EditorToolbar";
 import { EditorCanvas, type EditorCanvasHandle } from "./EditorCanvas";
 import { PropertiesPanel } from "./PropertiesPanel";
+import { TransitionProperties } from "./TransitionProperties";
 import { Timeline } from "./Timeline";
 
 type EditorLayoutProps = {
@@ -273,6 +274,7 @@ export const EditorLayout = ({ mediaId, editId }: EditorLayoutProps) => {
               currentFrame={currentFrame}
               onPlayerFrameChange={setCurrentFrame}
             />
+            <TransitionProperties />
             <PropertiesPanel />
           </div>
         </Panel>

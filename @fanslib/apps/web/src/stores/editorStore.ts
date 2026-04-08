@@ -22,6 +22,7 @@ type EditorState = {
   tracks: Track[];
   segments: Segment[];
   selectedSegmentId: string | null;
+  selectedTransitionSegmentId: string | null;
   operations: unknown[];
   selectedOperationIndex: number | null;
   selectedOperationId: string | null;
@@ -108,6 +109,7 @@ type EditorState = {
   trimSegmentStart: (segmentId: string, newSourceStartFrame: number) => void;
   trimSegmentEnd: (segmentId: string, newSourceEndFrame: number) => void;
   selectSegment: (segmentId: string | null) => void;
+  selectTransition: (segmentId: string | null) => void;
 
   // Transition mutations
   addTransition: (segmentId: string, transition: { type: "crossfade"; durationFrames: number; easing?: string }) => void;
@@ -235,6 +237,7 @@ export const useEditorStore = create<EditorState>((set, get) => {
     tracks: [initialTrack],
     segments: [],
     selectedSegmentId: null,
+    selectedTransitionSegmentId: null,
     operations: [],
     selectedOperationIndex: null,
     selectedOperationId: null,
@@ -923,7 +926,11 @@ export const useEditorStore = create<EditorState>((set, get) => {
     },
 
     selectSegment: (segmentId) => {
-      set({ selectedSegmentId: segmentId });
+      set({ selectedSegmentId: segmentId, selectedTransitionSegmentId: null });
+    },
+
+    selectTransition: (segmentId) => {
+      set({ selectedTransitionSegmentId: segmentId, selectedSegmentId: null });
     },
 
     addTrack: () => {
@@ -1052,7 +1059,7 @@ export const useEditorStore = create<EditorState>((set, get) => {
         selectedOperationIndex: null,
         selectedOperationId: null,
         selectedSegmentId: null,
-        selectedExportRegionId: null,
+    selectedTransitionSegmentId: null,
         cropEditingOperationIndex: null,
         cropEditingOperationId: null,
         exportRegionMode: false,
@@ -1079,6 +1086,7 @@ export const useEditorStore = create<EditorState>((set, get) => {
         tracks: [makeDefaultTrack()],
         segments: [],
         selectedSegmentId: null,
+    selectedTransitionSegmentId: null,
         operations: [],
         selectedOperationIndex: null,
         selectedOperationId: null,

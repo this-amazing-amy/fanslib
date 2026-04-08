@@ -846,11 +846,15 @@ const ZoomProperties = ({ op, opId }: { op: ZoomOperation; opId: string }) => {
 export const PropertiesPanel = () => {
   const operations = useEditorStore((s) => s.operations);
   const selectedId = useEditorStore((s) => s.selectedOperationId);
+  const selectedTransitionSegmentId = useEditorStore((s) => s.selectedTransitionSegmentId);
 
   const selectedOp =
     selectedId !== null
       ? (operations as Array<{ id?: string }>).find((o) => o.id === selectedId)
       : undefined;
+
+  // Hide when a transition is selected (TransitionProperties handles that)
+  if (selectedTransitionSegmentId) return null;
 
   if (!selectedOp || selectedId === null) {
     return (

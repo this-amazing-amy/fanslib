@@ -6,4 +6,5 @@ export { TrackRow } from "./TrackRow";
 export { TrackHeader } from "./TrackHeader";
 export { TimeRuler } from "./TimeRuler";
 export { Playhead } from "./Playhead";
+export { TransitionIndicator } from "./TransitionIndicator";
 export { TransportControls } from "./TransportControls";
