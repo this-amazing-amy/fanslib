@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useCompositionByIdQuery } from "~/lib/queries/compositions";
 import { useEditorStore } from "~/stores/editorStore";
+import { useCompositionAutoSave } from "~/features/editor/hooks/useCompositionAutoSave";
 import { SourceBin } from "./SourceBin";
 
 const SourceModeIndicator = () => {
@@ -42,10 +43,8 @@ export const CompositionEditor = ({ shootId, compositionId }: CompositionEditorP
     } as Parameters<typeof hydrate>[0]);
   }, [composition, hydrate]);
 
-  useEffect(() => {
-    return () => {
-      reset();
-    };
+  useEffect(() => () => {
+    reset();
   }, [reset]);
 
   if (isLoading) {

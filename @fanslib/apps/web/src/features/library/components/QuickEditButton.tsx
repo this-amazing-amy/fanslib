@@ -26,7 +26,9 @@ export const QuickEditButton = ({ media }: QuickEditButtonProps) => {
   const isPending = createComposition.isPending || updateComposition.isPending;
 
   const handleClick = async () => {
-    const shootId = media.shoots[0]!.id;
+    const shoot = media.shoots.at(0);
+    if (!shoot) return;
+    const shootId = shoot.id;
     const totalFrames = Math.round((media.duration ?? 0) * DEFAULT_FPS);
 
     const composition = await createComposition.mutateAsync({

@@ -263,7 +263,7 @@ describe("intersectRegion", () => {
     const s2 = result.segments.find((s) => s.id === "s2");
     expect(s2).toBeDefined();
     // Transition originally 30 frames starting at 170. Region starts at 180, so 20 frames remain
-    expect(s2!.transition).toEqual({ type: "crossfade", durationFrames: 20 });
+    expect(s2?.transition).toEqual({ type: "crossfade", durationFrames: 20 });
   });
 
   test("transition fully inside region is preserved", () => {
@@ -278,7 +278,7 @@ describe("intersectRegion", () => {
 
     const s2 = result.segments.find((s) => s.id === "s2");
     expect(s2).toBeDefined();
-    expect(s2!.transition).toEqual({ type: "crossfade", durationFrames: 30 });
+    expect(s2?.transition).toEqual({ type: "crossfade", durationFrames: 30 });
   });
 
   test("multiple segments and operations together", () => {

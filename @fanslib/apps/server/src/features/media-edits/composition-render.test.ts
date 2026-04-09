@@ -5,7 +5,7 @@ import "reflect-metadata";
 import { setupTestDatabase, teardownTestDatabase, getTestDataSource } from "../../lib/test-db";
 import { resetAllFixtures } from "../../lib/test-fixtures";
 import { createTestMedia } from "../../test-utils/setup";
-import { Media } from "../library/entity";
+import type { Media } from "../library/entity";
 import { MediaEdit } from "./entity";
 import {
   processNextQueuedEdit,

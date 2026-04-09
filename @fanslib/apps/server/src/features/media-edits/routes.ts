@@ -41,6 +41,11 @@ export const mediaEditsRoutes = new Hono()
     const queue = await fetchMediaEditQueue();
     return c.json(queue);
   })
+  .delete("/queue/completed", async (c) => {
+    const { clearCompletedEdits } = await import("./operations/media-edit/clear-completed");
+    const deleted = await clearCompletedEdits();
+    return c.json({ deleted });
+  })
   .post("/:id/queue", async (c) => {
     const id = c.req.param("id");
     const result = await queueMediaEdit(id);

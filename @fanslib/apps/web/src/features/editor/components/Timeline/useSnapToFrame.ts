@@ -11,13 +11,13 @@ export const useSnapToFrame = (fps: number, totalFrames: number) => {
 
   return useCallback(
     (rawFrame: number, snap: boolean): number => {
-      let frame = rawFrame;
-      if (snap) {
+      const snapToGrid = (f: number): number => {
         const anchor = pendingMarkInFrame ?? 0;
-        const relativeSeconds = (frame - anchor) / fps;
+        const relativeSeconds = (f - anchor) / fps;
         const snappedRelative = Math.round(relativeSeconds * 2) / 2; // 0.5s steps
-        frame = anchor + Math.round(snappedRelative * fps);
-      }
+        return anchor + Math.round(snappedRelative * fps);
+      };
+      const frame = snap ? snapToGrid(rawFrame) : rawFrame;
       return Math.max(0, Math.min(totalFrames, frame));
     },
     [fps, totalFrames, pendingMarkInFrame],

@@ -1,8 +1,16 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Film, Trash2, Blend, X } from "lucide-react";
 import { useEditorStore } from "~/stores/editorStore";
 import { computeSequenceTimeline } from "~/features/editor/utils/sequence-engine";
+import { detectEdge } from "./block-drag";
+import {
+  computeSegmentReorderIndex,
+  computeSegmentTrimStart,
+  computeSegmentTrimEnd,
+} from "./segment-drag";
 import { TransitionIndicator } from "./TransitionIndicator";
+
+const EDGE_ZONE = 5;
 
 type SegmentTrackProps = {
   pixelsPerFrame: number;
@@ -32,6 +40,9 @@ export const SegmentTrack = ({ pixelsPerFrame, totalFrames }: SegmentTrackProps)
   const addTransition = useEditorStore((s) => s.addTransition);
   const removeTransition = useEditorStore((s) => s.removeTransition);
   const selectTransition = useEditorStore((s) => s.selectTransition);
+  const reorderSegments = useEditorStore((s) => s.reorderSegments);
+  const trimSegmentStart = useEditorStore((s) => s.trimSegmentStart);
+  const trimSegmentEnd = useEditorStore((s) => s.trimSegmentEnd);
 
   const [contextMenu, setContextMenu] = useState<ContextMenuState>(null);
   const dragRef = useRef<SegmentDragState | null>(null);
@@ -120,7 +131,7 @@ export const SegmentTrack = ({ pixelsPerFrame, totalFrames }: SegmentTrackProps)
         const newIndex = computeSegmentReorderIndex(
           segments,
           drag.segmentId,
-          e.clientX - (e.currentTarget.closest("[data-testid='segment-track-row']") as HTMLElement | null)?.getBoundingClientRect().left!,
+          e.clientX - ((e.currentTarget.closest("[data-testid='segment-track-row']") as HTMLElement | null)?.getBoundingClientRect().left ?? 0),
           pixelsPerFrame,
           currentTimeline,
         );
@@ -175,7 +186,7 @@ export const SegmentTrack = ({ pixelsPerFrame, totalFrames }: SegmentTrackProps)
           className="relative h-10 flex items-center flex-1"
           style={{ width: `${totalFrames * pixelsPerFrame}px` }}
         >
-          {timeline.positions.map((pos, i) => {
+          {timeline.positions.map((pos) => {
             const segment = segments.find((s) => s.id === pos.segmentId);
             if (!segment) return null;
 

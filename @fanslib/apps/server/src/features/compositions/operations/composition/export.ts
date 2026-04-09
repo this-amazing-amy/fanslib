@@ -58,26 +58,23 @@ export const exportComposition = async (
     return [saved];
   }
 
-  // Create one MediaEdit per export region
-  const edits: MediaEdit[] = [];
-  for (const region of exportRegions) {
-    const edit = editRepo.create({
-      sourceMediaId: primarySourceMediaId,
-      compositionId: composition.id,
-      type: "composition" as const,
-      operations: [],
-      tracks,
-      segments,
-      exportRegion: { startFrame: region.startFrame, endFrame: region.endFrame },
-      package: region.package ?? null,
-      role: region.role ?? null,
-      contentRating: region.contentRating ?? null,
-      quality: region.quality ?? null,
-      status: "queued",
-    });
-    const saved = await editRepo.save(edit);
-    edits.push(saved);
-  }
-
-  return edits;
+  return Promise.all(
+    exportRegions.map((region) => {
+      const edit = editRepo.create({
+        sourceMediaId: primarySourceMediaId,
+        compositionId: composition.id,
+        type: "composition" as const,
+        operations: [],
+        tracks,
+        segments,
+        exportRegion: { startFrame: region.startFrame, endFrame: region.endFrame },
+        package: region.package ?? null,
+        role: region.role ?? null,
+        contentRating: region.contentRating ?? null,
+        quality: region.quality ?? null,
+        status: "queued",
+      });
+      return editRepo.save(edit);
+    }),
+  );
 };

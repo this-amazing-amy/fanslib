@@ -47,15 +47,14 @@ export const ShootCompositions = ({ shootId }: ShootCompositionsProps) => {
     }
     await updateMutation.mutateAsync({
       id: editingId,
-      shootId,
-      updates: { name: editingName.trim() },
+      body: { name: editingName.trim() },
     });
     setEditingId(null);
   };
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    await deleteMutation.mutateAsync({ id: deleteTarget.id, shootId });
+    await deleteMutation.mutateAsync({ id: deleteTarget.id });
     setDeleteTarget(null);
   };
 

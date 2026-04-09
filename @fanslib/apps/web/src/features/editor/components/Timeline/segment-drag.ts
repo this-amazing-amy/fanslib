@@ -16,20 +16,15 @@ export const computeSegmentReorderIndex = (
   if (draggedIndex === -1) return 0;
 
   // Walk through positions (excluding the dragged segment) and find where mouseX falls
-  let insertIndex = 0;
-  for (let i = 0; i < timeline.positions.length; i++) {
-    if (timeline.positions[i]!.segmentId === draggedSegmentId) continue;
-    const pos = timeline.positions[i]!;
-    const midX = ((pos.sequenceStartFrame + pos.sequenceEndFrame) / 2) * pixelsPerFrame;
-    if (mouseX > midX) {
+  return timeline.positions
+    .filter((pos) => pos.segmentId !== draggedSegmentId)
+    .reduce((insertIndex, pos) => {
+      const midX = ((pos.sequenceStartFrame + pos.sequenceEndFrame) / 2) * pixelsPerFrame;
+      if (mouseX <= midX) return insertIndex;
       // We're past this segment's midpoint, so insert after it.
-      // Find the actual index of this segment in the segments array.
       const segIndex = segments.findIndex((s) => s.id === pos.segmentId);
-      insertIndex = segIndex >= draggedIndex ? segIndex : segIndex + 1;
-    }
-  }
-
-  return insertIndex;
+      return segIndex >= draggedIndex ? segIndex : segIndex + 1;
+    }, 0);
 };
 
 /** Adjust sourceStartFrame by delta, clamped to [0, sourceEndFrame - 1] */

@@ -2,10 +2,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:tes
 import "reflect-metadata";
 import { getTestDataSource, setupTestDatabase, teardownTestDatabase } from "../../lib/test-db";
 import { resetAllFixtures } from "../../lib/test-fixtures";
-import { createTestMedia } from "../../test-utils/setup";
 import { Shoot } from "../shoots/entity";
 import { Composition } from "./entity";
-import { MediaEdit } from "../media-edits/entity";
 import { exportComposition } from "./operations/composition/export";
 
 describe("exportComposition", () => {
@@ -73,13 +71,14 @@ describe("exportComposition", () => {
     const edits = await exportComposition(composition.id);
 
     expect(edits).toHaveLength(1);
-    expect(edits[0]!.compositionId).toBe(composition.id);
-    expect(edits[0]!.type).toBe("composition");
-    expect(edits[0]!.status).toBe("queued");
-    expect(edits[0]!.segments).toEqual(composition.segments);
-    expect(edits[0]!.tracks).toEqual(composition.tracks);
-    expect(edits[0]!.exportRegion).toBeNull();
-    expect(edits[0]!.operations).toEqual([]);
+    const [edit0] = edits;
+    expect(edit0?.compositionId).toBe(composition.id);
+    expect(edit0?.type).toBe("composition");
+    expect(edit0?.status).toBe("queued");
+    expect(edit0?.segments).toEqual(composition.segments);
+    expect(edit0?.tracks).toEqual(composition.tracks);
+    expect(edit0?.exportRegion).toBeNull();
+    expect(edit0?.operations).toEqual([]);
   });
 
   test("composition with two export regions creates two MediaEdits", async () => {
@@ -94,8 +93,9 @@ describe("exportComposition", () => {
     const edits = await exportComposition(composition.id);
 
     expect(edits).toHaveLength(2);
-    expect(edits[0]!.exportRegion).toEqual({ startFrame: 0, endFrame: 450 });
-    expect(edits[1]!.exportRegion).toEqual({ startFrame: 450, endFrame: 900 });
+    const [er0, er1] = edits;
+    expect(er0?.exportRegion).toEqual({ startFrame: 0, endFrame: 450 });
+    expect(er1?.exportRegion).toEqual({ startFrame: 450, endFrame: 900 });
   });
 
   test("each MediaEdit has correct compositionId, segments, and tracks", async () => {
@@ -109,9 +109,10 @@ describe("exportComposition", () => {
     const edits = await exportComposition(composition.id);
 
     expect(edits).toHaveLength(1);
-    expect(edits[0]!.compositionId).toBe(composition.id);
-    expect(edits[0]!.segments).toEqual(composition.segments);
-    expect(edits[0]!.tracks).toEqual(composition.tracks);
+    const [edit0] = edits;
+    expect(edit0?.compositionId).toBe(composition.id);
+    expect(edit0?.segments).toEqual(composition.segments);
+    expect(edit0?.tracks).toEqual(composition.tracks);
   });
 
   test("per-region metadata is propagated to MediaEdit", async () => {
@@ -133,10 +134,11 @@ describe("exportComposition", () => {
     const edits = await exportComposition(composition.id);
 
     expect(edits).toHaveLength(1);
-    expect(edits[0]!.package).toBe("premium");
-    expect(edits[0]!.role).toBe("teaser");
-    expect(edits[0]!.contentRating).toBe("sfw");
-    expect(edits[0]!.quality).toBe("1080p");
+    const [edit0] = edits;
+    expect(edit0?.package).toBe("premium");
+    expect(edit0?.role).toBe("teaser");
+    expect(edit0?.contentRating).toBe("sfw");
+    expect(edit0?.quality).toBe("1080p");
   });
 
   test("MediaEdits are created with queued status", async () => {
@@ -150,9 +152,9 @@ describe("exportComposition", () => {
 
     const edits = await exportComposition(composition.id);
 
-    for (const edit of edits) {
+    edits.forEach((edit) => {
       expect(edit.status).toBe("queued");
-    }
+    });
   });
 
   test("composition not found returns error", async () => {

@@ -22,8 +22,10 @@ export const useCompositionAutoSave = (compositionId: string | null) => {
       setLastSaveError(null);
       await mutation.mutateAsync({
         id,
-        segments: state.segments,
-        tracks: state.tracks,
+        body: {
+          segments: state.segments,
+          tracks: state.tracks,
+        },
       });
       useEditorStore.getState().markClean();
     } catch (err) {

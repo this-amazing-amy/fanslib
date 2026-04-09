@@ -12,11 +12,11 @@ vi.mock("~/lib/queries/shoots", () => ({
 
 // Mock the editor store
 const mockSelectSource = vi.fn();
-let mockSelectedSourceId: string | null = null;
+const mockEditorState = { selectedSourceId: null as string | null };
 
 vi.mock("~/stores/editorStore", () => ({
   useEditorStore: vi.fn((selector: (s: Record<string, unknown>) => unknown) =>
-    selector({ selectedSourceId: mockSelectedSourceId, selectSource: mockSelectSource }),
+    selector({ selectedSourceId: mockEditorState.selectedSourceId, selectSource: mockSelectSource }),
   ),
 }));
 
@@ -49,7 +49,7 @@ const makeShootData = () => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockSelectedSourceId = null;
+  mockEditorState.selectedSourceId = null;
 });
 
 describe("SourceBin", () => {
@@ -112,7 +112,7 @@ describe("SourceBin", () => {
   });
 
   test("clicking selected source calls selectSource(null)", async () => {
-    mockSelectedSourceId = "media-1";
+    mockEditorState.selectedSourceId = "media-1";
     const shoot = makeShootData();
     mockUseShootQuery.mockReturnValue({
       data: shoot,

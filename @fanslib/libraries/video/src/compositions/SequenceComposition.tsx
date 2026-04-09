@@ -79,75 +79,55 @@ export const computeActiveSegment = (
 
   // Build timeline positions: each segment has a timelineStart that accounts
   // for transitions pulling it earlier.
-  const timelineStarts: number[] = [];
-  let cursor = 0;
-  for (let i = 0; i < segments.length; i++) {
-    const seg = segments[i]!;
-    if (i === 0) {
-      timelineStarts.push(0);
-      cursor = seg.sourceEndFrame - seg.sourceStartFrame;
-    } else {
-      const overlap = seg.transition?.durationFrames ?? 0;
-      const start = cursor - overlap;
-      timelineStarts.push(start);
-      cursor = start + (seg.sourceEndFrame - seg.sourceStartFrame);
-    }
-  }
+  type TimingAcc = { starts: number[]; cursor: number };
+  const { starts: timelineStarts, cursor: totalDuration } = segments.reduce<TimingAcc>(
+    ({ starts, cursor }, seg, i) => {
+      const start = i === 0 ? 0 : cursor - (seg.transition?.durationFrames ?? 0);
+      return {
+        starts: [...starts, start],
+        cursor: start + (seg.sourceEndFrame - seg.sourceStartFrame),
+      };
+    },
+    { starts: [], cursor: 0 },
+  );
 
-  // Total timeline duration
-  const totalDuration = cursor;
   if (frame >= totalDuration) return null;
 
-  // Find which segment(s) are active at this frame.
-  // Walk backwards to find overlapping segments.
-  const active: ActiveSegmentResult["segments"] = [];
+  const activeIdx = segments.findIndex((seg, i) => {
+    const segStart = timelineStarts[i] ?? 0;
+    return frame >= segStart && frame < segStart + (seg.sourceEndFrame - seg.sourceStartFrame);
+  });
 
-  for (let i = 0; i < segments.length; i++) {
-    const seg = segments[i]!;
-    const segStart = timelineStarts[i]!;
-    const segDuration = seg.sourceEndFrame - seg.sourceStartFrame;
-    const segEnd = segStart + segDuration;
+  if (activeIdx === -1) return null;
 
-    if (frame >= segStart && frame < segEnd) {
-      const sourceFrame = seg.sourceStartFrame + (frame - segStart);
+  const seg = segments[activeIdx];
+  const segStart = timelineStarts[activeIdx] ?? 0;
+  if (!seg) return null;
 
-      // Check if we are in the transition overlap zone of the NEXT segment
-      const nextSeg = segments[i + 1];
-      const nextStart = i + 1 < segments.length ? timelineStarts[i + 1]! : null;
-      const nextTransition = nextSeg?.transition;
+  const sourceFrame = seg.sourceStartFrame + (frame - segStart);
+  const nextSeg = segments[activeIdx + 1];
+  const nextStart = timelineStarts[activeIdx + 1] ?? null;
+  const nextTransition = nextSeg?.transition;
 
-      if (
-        nextTransition &&
-        nextStart !== null &&
-        frame >= nextStart &&
-        frame < nextStart + nextTransition.durationFrames
-      ) {
-        // We are in the overlap zone: this segment is fading out
-        const t = (frame - nextStart) / nextTransition.durationFrames;
-        const easedT = applyEasing(t, nextTransition.easing);
-        active.push({ segment: seg, sourceFrame, alpha: 1 - easedT });
-
-        // And the next segment is fading in
-        const nextSourceFrame =
-          nextSeg!.sourceStartFrame + (frame - nextStart);
-        active.push({
-          segment: nextSeg!,
-          sourceFrame: nextSourceFrame,
-          alpha: easedT,
-        });
-        // We've handled both segments, skip the next one in the loop
-        break;
-      } else {
-        // No overlap — single segment active
-        active.push({ segment: seg, sourceFrame, alpha: 1 });
-        break;
-      }
-    }
+  if (
+    nextTransition &&
+    nextStart !== null &&
+    frame >= nextStart &&
+    frame < nextStart + nextTransition.durationFrames
+  ) {
+    // We are in the overlap zone: this segment is fading out, next is fading in
+    const t = (frame - nextStart) / nextTransition.durationFrames;
+    const easedT = applyEasing(t, nextTransition.easing);
+    const nextSourceFrame = nextSeg.sourceStartFrame + (frame - nextStart);
+    return {
+      segments: [
+        { segment: seg, sourceFrame, alpha: 1 - easedT },
+        { segment: nextSeg, sourceFrame: nextSourceFrame, alpha: easedT },
+      ],
+    };
   }
 
-  if (active.length === 0) return null;
-
-  return { segments: active };
+  return { segments: [{ segment: seg, sourceFrame, alpha: 1 }] };
 };
 
 export const SequenceComposition: React.FC<SequenceCompositionProps> = ({
@@ -164,8 +144,8 @@ export const SequenceComposition: React.FC<SequenceCompositionProps> = ({
     return <div style={{ width: "100%", height: "100%", background: "#000" }} />;
   }
 
-  // Single-segment case: render the source video starting from the segment's source range
-  const segment = segments[0]!;
+  const segment = segments.at(0);
+  if (!segment) return <div style={{ width: "100%", height: "100%", background: "#000" }} />;
 
   // Separate operations by type for layered rendering
   const zoomOps = operations.filter((o): o is ZoomOperation => o.type === "zoom");

@@ -1,5 +1,5 @@
-import type { InferResponseType } from "hono";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import type { InferRequestType, InferResponseType } from "hono";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../api/hono-client";
 import { QUERY_KEYS } from "./query-keys";
 
@@ -7,6 +7,10 @@ type CompositionByIdResponse = InferResponseType<
   (typeof api.api.compositions)["by-id"][":id"]["$get"],
   200
 >;
+
+type UpdateCompositionBody = InferRequestType<
+  (typeof api.api.compositions)["by-id"][":id"]["$patch"]
+>["json"];
 
 export type Composition = CompositionByIdResponse;
 
@@ -22,27 +26,63 @@ export const useCompositionByIdQuery = (compositionId: string) =>
     enabled: !!compositionId,
   });
 
-export const useCreateCompositionMutation = () =>
-  useMutation({
+export const useCompositionsByShootQuery = (shootId: string) =>
+  useQuery({
+    queryKey: QUERY_KEYS.compositions.byShoot(shootId),
+    queryFn: async () => {
+      const result = await api.api.compositions["by-shoot"][":shootId"].$get({
+        param: { shootId },
+      });
+      return result.json();
+    },
+    enabled: !!shootId,
+  });
+
+export const useCreateCompositionMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
     mutationFn: async (payload: { shootId: string; name: string }) => {
       const result = await api.api.compositions.$post({ json: payload });
       return result.json();
     },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.compositions.byShoot(variables.shootId) });
+    },
   });
+};
 
-export const useUpdateCompositionMutation = () =>
-  useMutation({
-    mutationFn: async ({
-      id,
-      body,
-    }: {
-      id: string;
-      body: { name?: string; segments?: unknown[]; tracks?: unknown[]; exportRegions?: unknown[] };
-    }) => {
+export const useUpdateCompositionMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, body }: { id: string; body: UpdateCompositionBody }) => {
       const result = await api.api.compositions["by-id"][":id"].$patch({
         param: { id },
         json: body,
       });
       return result.json();
     },
+    onSuccess: (data) => {
+      const composition = data as { id: string; shootId?: string };
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.compositions.byId(composition.id) });
+      if (composition.shootId) {
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.compositions.byShoot(composition.shootId) });
+      }
+    },
   });
+};
+
+export const useDeleteCompositionMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      const result = await api.api.compositions["by-id"][":id"].$delete({
+        param: { id },
+      });
+      return result.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["compositions"] });
+      queryClient.invalidateQueries({ queryKey: ["shoots"] });
+    },
+  });
+};

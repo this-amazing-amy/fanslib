@@ -39,21 +39,27 @@ export const intersectRegion = (
 
   const timeline = computeSequenceTimeline(segments);
 
-  // Intersect segments
-  const clippedSegments: ClippedSegment[] = [];
-  for (let i = 0; i < timeline.positions.length; i++) {
-    const pos = timeline.positions[i]!;
-    const segment = segments[i]!;
+  const clipTransition = (
+    segment: Segment,
+    pos: { sequenceStartFrame: number },
+    clipped: ClippedSegment,
+  ): ClippedSegment => {
+    if (!segment.transition) return clipped;
+    const transitionStart = pos.sequenceStartFrame;
+    const transitionEnd = transitionStart + segment.transition.durationFrames;
+    if (!(transitionEnd > region.startFrame && transitionStart < region.endFrame)) return clipped;
+    const effectiveDuration = transitionEnd - Math.max(transitionStart, region.startFrame);
+    if (effectiveDuration <= 0) return clipped;
+    return { ...clipped, transition: { type: segment.transition.type, durationFrames: effectiveDuration } };
+  };
 
-    // Check overlap
-    if (pos.sequenceEndFrame <= region.startFrame || pos.sequenceStartFrame >= region.endFrame) {
-      continue;
-    }
+  const clippedSegments = timeline.positions.reduce<ClippedSegment[]>((acc, pos, i) => {
+    const segment = segments[i];
+    if (!segment) return acc;
+    if (pos.sequenceEndFrame <= region.startFrame || pos.sequenceStartFrame >= region.endFrame) return acc;
 
     const clampedSeqStart = Math.max(pos.sequenceStartFrame, region.startFrame);
     const clampedSeqEnd = Math.min(pos.sequenceEndFrame, region.endFrame);
-
-    // How much was clipped from the start of this segment
     const startClip = clampedSeqStart - pos.sequenceStartFrame;
     const endClip = pos.sequenceEndFrame - clampedSeqEnd;
 
@@ -66,57 +72,30 @@ export const intersectRegion = (
       sequenceEndFrame: clampedSeqEnd - region.startFrame,
     };
 
-    // Handle transitions
-    if (segment.transition) {
-      const transitionStart = pos.sequenceStartFrame;
-      const transitionEnd = pos.sequenceStartFrame + segment.transition.durationFrames;
+    return [...acc, clipTransition(segment, pos, clipped)];
+  }, []);
 
-      if (transitionEnd > region.startFrame && transitionStart < region.endFrame) {
-        const effectiveStart = Math.max(transitionStart, region.startFrame);
-        const effectiveDuration = transitionEnd - effectiveStart;
-
-        if (effectiveDuration > 0) {
-          clipped.transition = {
-            type: segment.transition.type,
-            durationFrames: effectiveDuration,
-          };
-        }
-      }
+  const clipOperation = (
+    typedOp: { startFrame?: number; endFrame?: number; [key: string]: unknown },
+  ): ClippedOperation | null => {
+    if (typedOp.startFrame == null || typedOp.endFrame == null) {
+      return typedOp as ClippedOperation;
     }
+    const opStart = typedOp.startFrame;
+    const opEnd = typedOp.endFrame;
+    if (opEnd <= region.startFrame || opStart >= region.endFrame) return null;
+    return {
+      ...typedOp,
+      startFrame: Math.max(opStart, region.startFrame) - region.startFrame,
+      endFrame: Math.min(opEnd, region.endFrame) - region.startFrame,
+    };
+  };
 
-    clippedSegments.push(clipped);
-  }
-
-  // Intersect operations across all tracks
-  const clippedOperations: ClippedOperation[] = [];
-  for (const track of tracks) {
-    for (const op of track.operations) {
-      const typedOp = op as { startFrame?: number; endFrame?: number; [key: string]: unknown };
-
-      // Operations without both startFrame and endFrame pass through unchanged
-      if (typedOp.startFrame == null || typedOp.endFrame == null) {
-        clippedOperations.push(typedOp as ClippedOperation);
-        continue;
-      }
-
-      const opStart = typedOp.startFrame;
-      const opEnd = typedOp.endFrame;
-
-      // Check overlap
-      if (opEnd <= region.startFrame || opStart >= region.endFrame) {
-        continue;
-      }
-
-      const clampedStart = Math.max(opStart, region.startFrame) - region.startFrame;
-      const clampedEnd = Math.min(opEnd, region.endFrame) - region.startFrame;
-
-      clippedOperations.push({
-        ...typedOp,
-        startFrame: clampedStart,
-        endFrame: clampedEnd,
-      });
-    }
-  }
+  const clippedOperations = tracks.flatMap((track) =>
+    track.operations
+      .map((op) => clipOperation(op as { startFrame?: number; endFrame?: number; [key: string]: unknown }))
+      .filter((op): op is ClippedOperation => op !== null),
+  );
 
   return {
     segments: clippedSegments,
