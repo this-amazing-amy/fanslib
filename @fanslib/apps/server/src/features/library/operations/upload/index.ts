@@ -3,7 +3,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import { db } from "../../../../lib/db";
 import { env } from "../../../../lib/env";
-import { getVideoDuration } from "../../../../lib/video";
+import { getVideoDuration, getVideoDimensions } from "../../../../lib/video";
 import { Shoot } from "../../../shoots/entity";
 import { createMedia } from "../media/create";
 import { generateThumbnail } from "../scan/thumbnail";
@@ -87,6 +87,7 @@ export const uploadMediaToShoot = async ({ shootId, file, category = "library", 
   const stats = await fs.stat(absolutePath);
 
   const duration = type === "video" ? await getVideoDuration(absolutePath) : undefined;
+  const dimensions = await getVideoDimensions(absolutePath);
 
   const relativePath = path.join(baseDir, folderName, uniqueFilename);
 
@@ -96,6 +97,8 @@ export const uploadMediaToShoot = async ({ shootId, file, category = "library", 
     type,
     size: stats.size,
     duration,
+    width: dimensions?.width,
+    height: dimensions?.height,
     fileCreationDate: stats.birthtime,
     fileModificationDate: stats.mtime,
     category,

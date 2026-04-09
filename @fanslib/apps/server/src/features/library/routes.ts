@@ -47,6 +47,7 @@ const UpdateMediaRequestBodySchema = z.object({
   duration: z.number().optional(),
   redgifsUrl: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
+  note: z.string().nullable().optional(),
   fileCreationDate: z.coerce.date().optional(),
   fileModificationDate: z.coerce.date().optional(),
   excluded: z.boolean().optional(),

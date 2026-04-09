@@ -40,6 +40,12 @@ export class Media {
   @Column({ type: "float", nullable: true, name: "duration" })
   duration: number | null = null;
 
+  @Column({ type: "integer", nullable: true, name: "width" })
+  width: number | null = null;
+
+  @Column({ type: "integer", nullable: true, name: "height" })
+  height: number | null = null;
+
   @Column({ type: "varchar", nullable: true, name: "redgifsUrl" })
   redgifsUrl: string | null = null;
 

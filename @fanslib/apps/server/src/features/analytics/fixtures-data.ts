@@ -61,6 +61,8 @@ const demoFypMedia: MediaFixture[] = Array.from({ length: DEMO_FYP_COUNT }, (_, 
   name: `fyp-content-${i + 1}.${i % 3 === 0 ? "mp4" : "jpg"}`,
   size: randomInRange(i + 100, 500_000, 30_000_000),
   duration: i % 3 === 0 ? randomInRange(i + 200, 15, 180) : null,
+  width: null,
+  height: null,
   excluded: false,
 }));
 
@@ -71,6 +73,8 @@ const demoRepostMedia: MediaFixture[] = Array.from({ length: DEMO_REPOST_MEDIA_C
   name: `repost-clip-${i + 1}.${i % 2 === 0 ? "jpg" : "mp4"}`,
   size: randomInRange(i + 300, 800_000, 25_000_000),
   duration: i % 2 === 0 ? null : randomInRange(i + 400, 10, 120),
+  width: null,
+  height: null,
   excluded: false,
 }));
 

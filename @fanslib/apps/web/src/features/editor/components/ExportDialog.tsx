@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "~/components/ui/Button";
+import { api } from "~/lib/api/hono-client";
 import { useEditorStore } from "~/stores/editorStore";
 import { useClipStore } from "~/stores/clipStore";
 import { QUERY_KEYS } from "~/lib/queries/query-keys";
@@ -20,7 +21,7 @@ export const ExportDialog = ({ open, onOpenChange }: ExportDialogProps) => {
   const editId = useEditorStore((s) => s.editId);
   const sourceMediaId = useEditorStore((s) => s.sourceMediaId);
   const operations = useEditorStore((s) => s.operations);
-  const tracks = useEditorStore((s) => s.tracks) as Track[];
+  const tracks = useEditorStore((s) => s.tracks);
   const setEditId = useEditorStore((s) => s.setEditId);
   const markClean = useEditorStore((s) => s.markClean);
   const clipRanges = useClipStore((s) => s.ranges);
@@ -58,21 +59,19 @@ export const ExportDialog = ({ open, onOpenChange }: ExportDialogProps) => {
     ops: unknown[],
     editTracks?: Track[],
   ): Promise<void> => {
-    const res = await fetch("/api/media-edits", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        sourceMediaId,
+    const res = await api.api["media-edits"].$post({
+      json: {
+        sourceMediaId: sourceMediaId!,
         type,
         operations: ops,
         ...(editTracks && editTracks.length > 0 ? { tracks: editTracks } : {}),
-      }),
+      },
     });
     if (!res.ok) throw new Error("Failed to create edit");
-    const data = await res.json();
+    const data = (await res.json()) as { id: string };
 
-    const queueRes = await fetch(`/api/media-edits/${data.id}/queue`, {
-      method: "POST",
+    const queueRes = await api.api["media-edits"][":id"].queue.$post({
+      param: { id: data.id },
     });
     if (!queueRes.ok) throw new Error("Failed to queue render");
   };
@@ -99,33 +98,30 @@ export const ExportDialog = ({ open, onOpenChange }: ExportDialogProps) => {
         // Single transform export
         const currentEditId = await (async () => {
           if (editId) {
-            const res = await fetch(`/api/media-edits/${editId}`, {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ operations }),
+            const res = await api.api["media-edits"][":id"].$patch({
+              param: { id: editId },
+              json: { operations },
             });
             if (!res.ok) throw new Error("Failed to save edit");
             markClean();
             return editId;
           }
-          const res = await fetch("/api/media-edits", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              sourceMediaId,
+          const res = await api.api["media-edits"].$post({
+            json: {
+              sourceMediaId: sourceMediaId!,
               type: "transform",
               operations,
-            }),
+            },
           });
           if (!res.ok) throw new Error("Failed to create edit");
-          const data = await res.json();
+          const data = (await res.json()) as { id: string };
           setEditId(data.id);
           markClean();
-          return data.id as string;
+          return data.id;
         })();
 
-        const queueRes = await fetch(`/api/media-edits/${currentEditId}/queue`, {
-          method: "POST",
+        const queueRes = await api.api["media-edits"][":id"].queue.$post({
+          param: { id: currentEditId },
         });
         if (!queueRes.ok) throw new Error("Failed to queue render");
       }

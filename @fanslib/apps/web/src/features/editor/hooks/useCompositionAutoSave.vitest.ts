@@ -16,6 +16,7 @@ import { useCompositionAutoSave } from "./useCompositionAutoSave";
 describe("useCompositionAutoSave", () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     useEditorStore.getState().reset();
     mockMutateAsync.mockResolvedValue({});
   });
@@ -59,8 +60,10 @@ describe("useCompositionAutoSave", () => {
     expect(mockMutateAsync).toHaveBeenCalledTimes(1);
     expect(mockMutateAsync).toHaveBeenCalledWith({
       id: "comp-1",
-      segments: useEditorStore.getState().segments,
-      tracks: useEditorStore.getState().tracks,
+      body: {
+        segments: useEditorStore.getState().segments,
+        tracks: useEditorStore.getState().tracks,
+      },
     });
   });
 

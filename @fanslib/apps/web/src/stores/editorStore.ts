@@ -1,12 +1,10 @@
 import { create } from "zustand";
+import type { Operation, Track } from "@fanslib/video/types";
+import type { EasingType } from "@fanslib/video/keyframes";
 import { type CropOperation, normalizeCropOperation } from "~/features/editor/utils/crop-operation";
 import type { Segment } from "~/features/editor/utils/sequence-engine";
 
-type Track = {
-  id: string;
-  name: string;
-  operations: unknown[];
-};
+type Keyframe = { frame: number; values: Record<string, number>; easing?: EasingType };
 
 export type ExportRegion = {
   id: string;
@@ -23,7 +21,7 @@ type EditorState = {
   segments: Segment[];
   selectedSegmentId: string | null;
   selectedTransitionSegmentId: string | null;
-  operations: unknown[];
+  operations: Operation[];
   selectedOperationIndex: number | null;
   selectedOperationId: string | null;
   /** When set, player shows full source and crop overlay for this operation index. */
@@ -44,26 +42,26 @@ type EditorState = {
   pendingExportMarkIn: number | null;
 
   // Mutation actions (push to undo stack)
-  addOperation: (op: unknown) => void;
+  addOperation: (op: Record<string, unknown> & { id?: string }) => void;
   removeOperation: (index: number) => void;
-  updateOperation: (index: number, op: unknown) => void;
+  updateOperation: (index: number, op: Operation) => void;
   reorderOperations: (fromIndex: number, toIndex: number) => void;
 
   // ID-based mutation actions
   removeOperationById: (id: string) => void;
-  updateOperationById: (id: string, op: unknown) => void;
-  addKeyframeById: (opId: string, keyframe: unknown) => void;
+  updateOperationById: (id: string, op: Record<string, unknown>) => void;
+  addKeyframeById: (opId: string, keyframe: Keyframe) => void;
   removeKeyframeById: (opId: string, keyframeIndex: number) => void;
-  updateKeyframeById: (opId: string, keyframeIndex: number, keyframe: unknown) => void;
+  updateKeyframeById: (opId: string, keyframeIndex: number, keyframe: Keyframe) => void;
 
   // Undo/redo
   undo: () => void;
   redo: () => void;
 
   // Keyframe mutations
-  addKeyframe: (opIndex: number, keyframe: unknown) => void;
+  addKeyframe: (opIndex: number, keyframe: Keyframe) => void;
   removeKeyframe: (opIndex: number, keyframeIndex: number) => void;
-  updateKeyframe: (opIndex: number, keyframeIndex: number, keyframe: unknown) => void;
+  updateKeyframe: (opIndex: number, keyframeIndex: number, keyframe: Keyframe) => void;
 
   // Crop convenience
   addCrop: () => void;
@@ -123,7 +121,7 @@ type EditorState = {
   moveOperation: (opId: string, targetTrackId: string) => void;
 
   // Derived
-  flattenOperations: () => unknown[];
+  flattenOperations: () => Operation[];
 
   // Source bin
   selectSource: (id: string | null) => void;
@@ -136,8 +134,8 @@ type EditorState = {
   setEditId: (id: string | null) => void;
   markClean: () => void;
 
-  // Hydrate from existing MediaEdit
-  hydrate: (data: unknown[] | { tracks: Track[]; segments?: Segment[]; exportRegions?: ExportRegion[] }) => void;
+  // Hydrate from existing MediaEdit (accepts JSON data from API or typed data)
+  hydrate: (data: unknown[] | { tracks: unknown[]; segments?: Segment[]; exportRegions?: ExportRegion[] }) => void;
   // Restore tracks (and optionally segments) from unified history snapshot (does not touch per-store undo stacks)
   restoreTracks: (tracks: unknown[], segments?: Segment[]) => void;
 
@@ -154,7 +152,7 @@ const makeDefaultTrack = (): Track => ({
 });
 
 /** Flatten all operations from all tracks into a single ordered array */
-const flattenTracks = (tracks: Track[]): unknown[] => tracks.flatMap((t) => t.operations);
+const flattenTracks = (tracks: Track[]): Operation[] => tracks.flatMap((t) => t.operations);
 
 /**
  * Map a function over operations across all tracks, returning new tracks.
@@ -162,7 +160,7 @@ const flattenTracks = (tracks: Track[]): unknown[] => tracks.flatMap((t) => t.op
  */
 const mapOperationsAcrossTracks = (
   tracks: Track[],
-  fn: (op: unknown, flatIndex: number) => unknown,
+  fn: (op: Operation, flatIndex: number) => Operation,
 ): Track[] => {
   // eslint-disable-next-line functional/no-let
   let flatIdx = 0;
@@ -193,9 +191,10 @@ export const useEditorStore = create<EditorState>((set, get) => {
   ): number => {
     const idx = tracks.findIndex((track) => {
       const hasOverlap = track.operations.some((op) => {
-        const existing = op as { startFrame?: number; endFrame?: number };
-        if (existing.startFrame == null || existing.endFrame == null) return false;
-        return startFrame < existing.endFrame && endFrame > existing.startFrame;
+        const sf = "startFrame" in op ? op.startFrame : undefined;
+        const ef = "endFrame" in op ? op.endFrame : undefined;
+        if (sf == null || ef == null) return false;
+        return startFrame < ef && endFrame > sf;
       });
       return !hasOverlap;
     });
@@ -257,7 +256,7 @@ export const useEditorStore = create<EditorState>((set, get) => {
 
     addOperation: (op) => {
       pushHistory();
-      const stamped = { ...(op as object), id: crypto.randomUUID() };
+      const stamped = { ...op, id: op.id ?? crypto.randomUUID() } as unknown as Operation;
       set((state) => {
         const tracks = cloneTracks(state.tracks);
         tracks[0].operations.push(stamped);
@@ -347,7 +346,7 @@ export const useEditorStore = create<EditorState>((set, get) => {
         const nextCeId = state.cropEditingOperationId === id ? null : state.cropEditingOperationId;
         const tracks = state.tracks.map((t) => ({
           ...t,
-          operations: t.operations.filter((op) => (op as { id?: string }).id !== id),
+          operations: t.operations.filter((op) => op.id !== id),
         }));
         return {
           tracks,
@@ -365,7 +364,7 @@ export const useEditorStore = create<EditorState>((set, get) => {
         const tracks = state.tracks.map((t) => ({
           ...t,
           operations: t.operations.map((op) =>
-            (op as { id?: string }).id === id ? { ...(patch as object), id } : op,
+            op.id === id ? ({ ...patch, id } as unknown as Operation) : op,
           ),
         }));
         return {
@@ -382,9 +381,9 @@ export const useEditorStore = create<EditorState>((set, get) => {
         const tracks = state.tracks.map((t) => ({
           ...t,
           operations: t.operations.map((op) => {
-            if ((op as { id?: string }).id !== opId) return op;
-            const opObj = op as { keyframes?: unknown[] };
-            return { ...opObj, keyframes: [...(opObj.keyframes ?? []), keyframe] };
+            if (op.id !== opId) return op;
+            if (!("keyframes" in op)) return op;
+            return { ...op, keyframes: [...op.keyframes, keyframe] };
           }),
         }));
         return {
@@ -401,11 +400,11 @@ export const useEditorStore = create<EditorState>((set, get) => {
         const tracks = state.tracks.map((t) => ({
           ...t,
           operations: t.operations.map((op) => {
-            if ((op as { id?: string }).id !== opId) return op;
-            const opObj = op as { keyframes?: unknown[] };
+            if (op.id !== opId) return op;
+            if (!("keyframes" in op)) return op;
             return {
-              ...opObj,
-              keyframes: (opObj.keyframes ?? []).filter((_, ki) => ki !== keyframeIndex),
+              ...op,
+              keyframes: op.keyframes.filter((_, ki) => ki !== keyframeIndex),
             };
           }),
         }));
@@ -423,11 +422,11 @@ export const useEditorStore = create<EditorState>((set, get) => {
         const tracks = state.tracks.map((t) => ({
           ...t,
           operations: t.operations.map((op) => {
-            if ((op as { id?: string }).id !== opId) return op;
-            const opObj = op as { keyframes?: unknown[] };
+            if (op.id !== opId) return op;
+            if (!("keyframes" in op)) return op;
             return {
-              ...opObj,
-              keyframes: (opObj.keyframes ?? []).map((kf, ki) =>
+              ...op,
+              keyframes: op.keyframes.map((kf, ki) =>
                 ki === keyframeIndex ? keyframe : kf,
               ),
             };
@@ -515,8 +514,8 @@ export const useEditorStore = create<EditorState>((set, get) => {
       const state = get();
       const ops = flattenTracks(state.tracks);
       const raw = ops[index];
-      if (!raw || (raw as { type?: string }).type !== "crop") return;
-      const c = raw as CropOperation;
+      if (!raw || raw.type !== "crop") return;
+      const c = raw;
       pushHistory();
       set((prev) => {
         const tracks = mapOperationsAcrossTracks(prev.tracks, (o, flatIdx) =>
@@ -723,8 +722,8 @@ export const useEditorStore = create<EditorState>((set, get) => {
       set((state) => {
         const tracks = mapOperationsAcrossTracks(state.tracks, (op, flatIdx) => {
           if (flatIdx !== opIndex) return op;
-          const opObj = op as { keyframes?: unknown[] };
-          return { ...opObj, keyframes: [...(opObj.keyframes ?? []), keyframe] };
+          if (!("keyframes" in op)) return op;
+          return { ...op, keyframes: [...op.keyframes, keyframe] };
         });
         return {
           tracks,
@@ -739,10 +738,10 @@ export const useEditorStore = create<EditorState>((set, get) => {
       set((state) => {
         const tracks = mapOperationsAcrossTracks(state.tracks, (op, flatIdx) => {
           if (flatIdx !== opIndex) return op;
-          const opObj = op as { keyframes?: unknown[] };
+          if (!("keyframes" in op)) return op;
           return {
-            ...opObj,
-            keyframes: (opObj.keyframes ?? []).filter((_, ki) => ki !== keyframeIndex),
+            ...op,
+            keyframes: op.keyframes.filter((_, ki) => ki !== keyframeIndex),
           };
         });
         return {
@@ -758,10 +757,10 @@ export const useEditorStore = create<EditorState>((set, get) => {
       set((state) => {
         const tracks = mapOperationsAcrossTracks(state.tracks, (op, flatIdx) => {
           if (flatIdx !== opIndex) return op;
-          const opObj = op as { keyframes?: unknown[] };
+          if (!("keyframes" in op)) return op;
           return {
-            ...opObj,
-            keyframes: (opObj.keyframes ?? []).map((kf, ki) =>
+            ...op,
+            keyframes: op.keyframes.map((kf, ki) =>
               ki === keyframeIndex ? keyframe : kf,
             ),
           };
@@ -966,13 +965,11 @@ export const useEditorStore = create<EditorState>((set, get) => {
       pushHistory();
       set((state) => {
         // Find the operation to move
-        const movedOp = flattenTracks(state.tracks).find(
-          (op) => (op as { id?: string }).id === opId,
-        );
+        const movedOp = flattenTracks(state.tracks).find((op) => op.id === opId);
         if (!movedOp) return { ...updateUndoRedoFlags() };
         // Remove from source, add to target
         const tracks = state.tracks.map((t) => {
-          const filtered = t.operations.filter((op) => (op as { id?: string }).id !== opId);
+          const filtered = t.operations.filter((op) => op.id !== opId);
           const ops = t.id === targetTrackId ? [...filtered, movedOp] : filtered;
           return { ...t, operations: ops };
         });
@@ -1037,7 +1034,7 @@ export const useEditorStore = create<EditorState>((set, get) => {
                 const obj = normalized as Record<string, unknown>;
                 if (!obj.id) obj.id = crypto.randomUUID();
                 if (obj.startFrame === undefined && obj.type !== "clip") obj.startFrame = 0;
-                return normalized;
+                return normalized as unknown as Operation;
               }),
             },
           ]

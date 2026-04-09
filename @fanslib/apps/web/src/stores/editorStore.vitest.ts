@@ -38,7 +38,7 @@ describe("editorStore", () => {
   });
 
   test("updateOperation updates at index", () => {
-    const op = { type: "watermark", assetId: "a1", x: 0.5, y: 0.5, width: 0.1, opacity: 1 };
+    const op = { type: "watermark" as const, assetId: "a1", x: 0.5, y: 0.5, width: 0.1, opacity: 1 };
     useEditorStore.getState().addOperation(op);
     const stored = useEditorStore.getState().operations[0] as { id: string };
     useEditorStore.getState().updateOperation(0, { ...op, id: stored.id, opacity: 0.3 });
@@ -322,7 +322,7 @@ describe("editorStore", () => {
       });
       useEditorStore.getState().updateKeyframe(0, 0, { frame: 0, values: { x: 50 } });
 
-      const op = useEditorStore.getState().operations[0] as {
+      const op = useEditorStore.getState().operations[0] as unknown as {
         keyframes: { frame: number; values: { x: number } }[];
       };
       expect(op.keyframes[0].values.x).toBe(50);

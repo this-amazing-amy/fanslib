@@ -1,76 +1,26 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useCallback } from "react";
 import { X, RefreshCw, ExternalLink, AlertTriangle, Loader2, CheckCircle } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "~/components/ui/Button";
+import { api } from "~/lib/api/hono-client";
 import { useMediaEditQueueQuery, type QueuedMediaEdit } from "~/lib/queries/media-edits";
 import { QUERY_KEYS } from "~/lib/queries/query-keys";
+import { useRenderProgress } from "~/hooks/useRenderProgress";
 
 type RenderQueueDrawerProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
-type RenderProgress = {
-  editId: string;
-  progress: number;
-  status?: string;
-};
-
 export const RenderQueueDrawer = ({ open, onOpenChange }: RenderQueueDrawerProps) => {
   const { data: queueItems = [], isLoading } = useMediaEditQueueQuery();
   const queryClient = useQueryClient();
-  const [progressMap, setProgressMap] = useState<Record<string, number>>({});
-  const eventSourceRef = useRef<EventSource | null>(null);
-
-  // SSE connection for render progress
-  useEffect(() => {
-    if (!open) {
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
-        eventSourceRef.current = null;
-      }
-      return;
-    }
-
-    const es = new EventSource("/api/media-edits/render-progress");
-    eventSourceRef.current = es;
-
-    es.onmessage = (event) => {
-      try {
-        const data: RenderProgress = JSON.parse(event.data);
-        setProgressMap((prev) => ({
-          ...prev,
-          [data.editId]: data.progress,
-        }));
-
-        // If completed or failed, refetch the queue
-        if (data.status === "completed" || data.status === "failed") {
-          queryClient.invalidateQueries({
-            queryKey: QUERY_KEYS.mediaEdits.queue(),
-          });
-        }
-      } catch {
-        // Ignore parse errors from SSE
-      }
-    };
-
-    es.onerror = () => {
-      // EventSource will auto-reconnect
-    };
-
-    return () => {
-      es.close();
-      eventSourceRef.current = null;
-    };
-  }, [open, queryClient]);
+  const progressMap = useRenderProgress(open);
 
   const handleRetry = useCallback(
     async (editId: string) => {
       try {
-        const res = await fetch(`/api/media-edits/${editId}/queue`, {
-          method: "POST",
-        });
-        if (!res.ok) throw new Error("Failed to re-queue");
+        await api.api["media-edits"][":id"].queue.$post({ param: { id: editId } });
         await queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.mediaEdits.queue(),
         });

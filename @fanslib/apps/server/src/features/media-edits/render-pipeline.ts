@@ -38,6 +38,11 @@ export type ProcessResult = {
   outputMediaId: string;
 };
 
+export type ProcessFailure = {
+  editId: string;
+  error: string;
+};
+
 // ---------------------------------------------------------------------------
 // Sub-steps (internal helpers)
 // ---------------------------------------------------------------------------
@@ -198,7 +203,7 @@ const linkToShoot = async (
 export const processNextQueuedEdit = async (
   renderFn: RenderFn,
   onProgress?: (editId: string, progress: RenderProgress) => void,
-): Promise<ProcessResult | null> => {
+): Promise<ProcessResult | ProcessFailure | null> => {
   const database = await db();
   const editRepo = database.getRepository(MediaEdit);
   const mediaRepo = database.getRepository(Media);
@@ -223,11 +228,10 @@ export const processNextQueuedEdit = async (
   // 3. Load source media
   const sourceMedia = await loadSourceMedia(mediaRepo, edit.sourceMediaId);
   if (!sourceMedia) {
+    const error = `Source media ${edit.sourceMediaId} not found`;
     log("source media not found", { sourceMediaId: edit.sourceMediaId });
-    await transitionStatus(editRepo, edit, "failed", {
-      error: `Source media ${edit.sourceMediaId} not found`,
-    });
-    return null;
+    await transitionStatus(editRepo, edit, "failed", { error });
+    return { editId: edit.id, error };
   }
 
   log("loaded source media", {
@@ -293,6 +297,6 @@ export const processNextQueuedEdit = async (
     log("render FAILED", { editId: edit.id, error: errorMsg, stack });
 
     await transitionStatus(editRepo, edit, "failed", { error: errorMsg });
-    return null;
+    return { editId: edit.id, error: errorMsg };
   }
 };

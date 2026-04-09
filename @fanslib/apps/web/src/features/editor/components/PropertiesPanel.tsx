@@ -45,20 +45,7 @@ import {
   pixelWidthFromHeightForPreset,
 } from "../utils/crop-operation";
 
-type WatermarkOp = {
-  type: "watermark";
-  assetId: string;
-  x: number;
-  y: number;
-  width: number;
-  opacity: number;
-};
-
-const isWatermarkOp = (op: unknown): op is WatermarkOp =>
-  typeof op === "object" &&
-  op !== null &&
-  "type" in op &&
-  (op as { type: string }).type === "watermark";
+import { isWatermarkOp, type WatermarkOp } from "./EditorCanvas/helpers";
 
 const ASPECT_OPTIONS: CropAspectPreset[] = ["free", "16:9", "9:16", "1:1", "4:5"];
 

@@ -63,6 +63,8 @@ export const useCompositionAutoSave = (compositionId: string | null) => {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
         timerRef.current = null;
+        // Flush pending save before unmount
+        performSave();
       }
     };
   }, [performSave]);

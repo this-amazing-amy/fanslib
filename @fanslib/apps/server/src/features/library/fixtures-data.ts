@@ -29,6 +29,8 @@ export const MEDIA_FIXTURES: MediaFixture[] = [
     name: "photo1.jpg",
     size: 1024000,
     duration: null,
+    width: null,
+    height: null,
     excluded: false,
   },
   {
@@ -38,6 +40,8 @@ export const MEDIA_FIXTURES: MediaFixture[] = [
     name: "photo2.jpg",
     size: 2048000,
     duration: null,
+    width: null,
+    height: null,
     excluded: false,
   },
   {
@@ -47,6 +51,8 @@ export const MEDIA_FIXTURES: MediaFixture[] = [
     name: "video1.mp4",
     size: 10240000,
     duration: 60.5,
+    width: null,
+    height: null,
     excluded: false,
   },
   {
@@ -56,6 +62,8 @@ export const MEDIA_FIXTURES: MediaFixture[] = [
     name: "photo3.jpg",
     size: 1536000,
     duration: null,
+    width: null,
+    height: null,
     excluded: false,
   },
   {
@@ -65,6 +73,8 @@ export const MEDIA_FIXTURES: MediaFixture[] = [
     name: "video2.mp4",
     size: 20480000,
     duration: 120.0,
+    width: null,
+    height: null,
     excluded: false,
   },
 ];

@@ -6,6 +6,7 @@ export { PixelateRegion } from "./PixelateRegion";
 export { VideoComposition } from "./VideoComposition";
 export { WatermarkComposition } from "./WatermarkComposition";
 export { ZoomEffect } from "./ZoomEffect";
+export { VideoLayerWithOverlays } from "./VideoLayerWithOverlays";
 export { SequenceComposition, computeActiveSegment } from "./SequenceComposition";
 export type { VideoCompositionProps } from "./VideoComposition";
 export type { WatermarkCompositionProps } from "./WatermarkComposition";

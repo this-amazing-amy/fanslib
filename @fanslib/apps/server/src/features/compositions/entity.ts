@@ -10,6 +10,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { Shoot } from "../shoots/entity";
+import { TrackSchema, SegmentSchema } from "../../lib/schemas";
 
 @Entity("composition")
 export class Composition {
@@ -42,25 +43,7 @@ export class Composition {
   updatedAt!: Date;
 }
 
-const SegmentTransitionSchema = z.object({
-  type: z.literal("crossfade"),
-  durationFrames: z.number(),
-  easing: z.string().optional(),
-});
-
-export const SegmentSchema = z.object({
-  id: z.string(),
-  sourceMediaId: z.string(),
-  sourceStartFrame: z.number(),
-  sourceEndFrame: z.number(),
-  transition: SegmentTransitionSchema.optional(),
-});
-
-export const TrackSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  operations: z.array(z.unknown()),
-});
+export { TrackSchema, SegmentSchema };
 
 export const ExportRegionSchema = z.object({
   id: z.string(),

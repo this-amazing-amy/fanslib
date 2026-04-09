@@ -19,6 +19,11 @@ export const ExportRegionTrack = ({ pixelsPerFrame, totalFrames }: ExportRegionT
     if (!exportRegionMode) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't intercept keys when user is typing in an input field
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      if ((e.target as HTMLElement)?.isContentEditable) return;
+
       if (e.key === "Delete" || e.key === "Backspace") {
         if (selectedExportRegionId) {
           removeExportRegion(selectedExportRegionId);

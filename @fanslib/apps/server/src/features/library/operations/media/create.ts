@@ -7,6 +7,8 @@ export const createMedia = async ({
   type,
   size,
   duration,
+  width,
+  height,
   fileCreationDate,
   fileModificationDate,
   category,
@@ -17,6 +19,8 @@ export const createMedia = async ({
   type: "image" | "video";
   size: number;
   duration?: number;
+  width?: number;
+  height?: number;
   fileCreationDate: Date;
   fileModificationDate: Date;
   category?: "library" | "footage";
@@ -31,6 +35,8 @@ export const createMedia = async ({
     type,
     size,
     duration,
+    width: width ?? null,
+    height: height ?? null,
     fileCreationDate,
     fileModificationDate,
     ...(category ? { category } : {}),

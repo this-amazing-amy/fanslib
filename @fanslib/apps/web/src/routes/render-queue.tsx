@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useCallback } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   RefreshCw,
@@ -15,12 +15,7 @@ import { Button } from "~/components/ui/Button";
 import { api } from "~/lib/api/hono-client";
 import { useMediaEditQueueQuery, type QueuedMediaEdit } from "~/lib/queries/media-edits";
 import { QUERY_KEYS } from "~/lib/queries/query-keys";
-
-type RenderProgress = {
-  editId: string;
-  progress: number;
-  status?: string;
-};
+import { useRenderProgress } from "~/hooks/useRenderProgress";
 
 
 const editLabel = (item: QueuedMediaEdit): string => {
@@ -62,31 +57,7 @@ const Thumbnail = ({ mediaId }: { mediaId: string }) => (
 const RenderQueuePage = () => {
   const { data: queueItems = [], isLoading } = useMediaEditQueueQuery();
   const queryClient = useQueryClient();
-  const [progressMap, setProgressMap] = useState<Record<string, number>>({});
-  const eventSourceRef = useRef<EventSource | null>(null);
-
-  useEffect(() => {
-    const es = new EventSource("/api/media-edits/render-progress");
-    eventSourceRef.current = es;
-
-    es.onmessage = (event) => {
-      try {
-        const data: RenderProgress = JSON.parse(event.data);
-        setProgressMap((prev) => ({ ...prev, [data.editId]: data.progress }));
-
-        if (data.status === "completed" || data.status === "failed") {
-          queryClient.invalidateQueries({ queryKey: QUERY_KEYS.mediaEdits.queue() });
-        }
-      } catch {
-        // Ignore parse errors
-      }
-    };
-
-    return () => {
-      es.close();
-      eventSourceRef.current = null;
-    };
-  }, [queryClient]);
+  const progressMap = useRenderProgress();
 
   const handleRetry = useCallback(
     async (editId: string) => {

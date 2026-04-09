@@ -23,11 +23,17 @@ export const processRenderQueue = async (): Promise<void> => {
       });
     });
 
-    if (result) {
+    if (result && "outputMediaId" in result) {
       emitRenderEvent({
         type: "render-completed",
         editId: result.editId,
         outputMediaId: result.outputMediaId,
+      });
+    } else if (result && "error" in result) {
+      emitRenderEvent({
+        type: "render-failed",
+        editId: result.editId,
+        error: result.error,
       });
     }
   } catch (err) {

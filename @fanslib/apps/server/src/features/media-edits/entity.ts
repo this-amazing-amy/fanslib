@@ -90,11 +90,8 @@ export const MediaEditStatusSchema = z.enum([
   "failed",
 ]);
 
-export const TrackSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  operations: z.array(z.unknown()),
-});
+import { TrackSchema } from "../../lib/schemas";
+export { TrackSchema };
 
 export const ExportRegionSnapshotSchema = z.object({
   startFrame: z.number(),

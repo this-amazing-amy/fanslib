@@ -346,7 +346,8 @@ describe("Render Pipeline", () => {
     await dataSource.query(`PRAGMA foreign_keys = ON`);
 
     const result = await processNextQueuedEdit(fakeRenderFn);
-    expect(result).toBeNull();
+    expect(result).not.toBeNull();
+    expect(result).toHaveProperty("error");
 
     const editRepo = dataSource.getRepository(MediaEdit);
     const updatedEdit = await editRepo.findOne({ where: { id: edit.id } });

@@ -110,8 +110,8 @@ export const remotionRenderFn: RenderFn = async ({ edit, sourceMedia, outputPath
   const chromiumOptions = { disableWebSecurity: true };
   const isImage = sourceMedia.type === "image";
   const fps = 30;
-  const width = 1920;
-  const height = 1080;
+  const width = sourceMedia.width ?? 1920;
+  const height = sourceMedia.height ?? 1080;
   const compositionSegments = (edit.segments ?? []) as CompositionSegment[];
   const isCompositionRender = edit.type === "composition" && compositionSegments.length > 0;
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ExportRegion } from "~/stores/editorStore";
 
 type ExportRegionMetadataProps = {
@@ -16,6 +16,14 @@ export const ExportRegionMetadata = ({
   const [role, setRole] = useState(region.role ?? "");
   const [contentRating, setContentRating] = useState(region.contentRating ?? "sg");
   const [quality, setQuality] = useState(region.quality ?? "pretty");
+
+  // Sync local state when region props change (e.g., after undo/redo)
+  useEffect(() => {
+    setPkg(region.package ?? "");
+    setRole(region.role ?? "");
+    setContentRating(region.contentRating ?? "sg");
+    setQuality(region.quality ?? "pretty");
+  }, [region.id, region.package, region.role, region.contentRating, region.quality]);
 
   return (
     <div className="flex flex-col gap-3">

@@ -65,9 +65,7 @@ export const RegionOverlay = ({
       const canvas = canvasRectRef.current;
       if (!canvas) return;
 
-      const raw = (operations as Array<{ id?: string }>).find((op) => op.id === selectedId) as
-        | unknown
-        | undefined;
+      const raw = operations.find((op) => op.id === selectedId);
       if (!raw) return;
       const op = raw as SpatialOp;
       const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
@@ -102,12 +100,32 @@ export const RegionOverlay = ({
         return;
       }
 
-      const maxW = 1 - dragState.startX;
-      const maxH = 1 - dragState.startY;
-      const newWidth = clamp01(dragState.startWidth + relDx, maxW);
-      const newHeight = clamp01(dragState.startHeight + relDy, maxH);
+      const corner = dragState.corner ?? "se";
+      let newX = dragState.startX;
+      let newY = dragState.startY;
+      let newWidth = dragState.startWidth;
+      let newHeight = dragState.startHeight;
+
+      if (corner.endsWith("e")) {
+        newWidth = clamp01(dragState.startWidth + relDx, 1 - dragState.startX);
+      } else {
+        // West corners: move x and shrink width
+        newX = clamp01(dragState.startX + relDx);
+        newWidth = clamp01(dragState.startWidth - relDx);
+      }
+
+      if (corner.startsWith("s")) {
+        newHeight = clamp01(dragState.startHeight + relDy, 1 - dragState.startY);
+      } else {
+        // North corners: move y and shrink height
+        newY = clamp01(dragState.startY + relDy);
+        newHeight = clamp01(dragState.startHeight - relDy);
+      }
+
       updateOperationById(selectedId, {
         ...op,
+        x: newX,
+        y: newY,
         width: newWidth,
         height: newHeight,
       });
@@ -136,7 +154,7 @@ export const RegionOverlay = ({
         if (spatialOp.type === "crop") return null;
         if (typeof spatialOp.x !== "number" || typeof spatialOp.y !== "number") return null;
 
-        const opId = (op as { id?: string }).id;
+        const opId = op.id;
         const isSelected = opId != null && opId === selectedId;
 
         if (isCaptionOperation(op)) {
