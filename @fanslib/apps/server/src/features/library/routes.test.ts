@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
 import { Hono } from "hono";
-import { existsSync, mkdirSync, rmSync } from "fs";
+import { existsSync, mkdirSync, readdirSync, rmSync } from "fs";
 import { join } from "path";
 import "reflect-metadata";
 import { getTestDataSource, setupTestDatabase, teardownTestDatabase } from "../../lib/test-db";
@@ -446,6 +446,43 @@ describe("Library Routes", () => {
       });
 
       expect(response.status).toBe(400);
+    });
+
+    test("DELETE on the upload URL removes the staged chunk and sidecar", async () => {
+      const dataSource = getTestDataSource();
+      const shootRepo = dataSource.getRepository(Shoot);
+      const shoot = await shootRepo.save(
+        shootRepo.create({ name: "Cancel Shoot", shootDate: new Date("2026-04-20") }),
+      );
+
+      const creation = await app.request("/api/media/upload", {
+        method: "POST",
+        headers: {
+          "Tus-Resumable": "1.0.0",
+          "Upload-Length": "1024",
+          "Upload-Metadata": tusMetadata({
+            filename: "photo.jpg",
+            shootId: shoot.id,
+          }),
+        },
+      });
+      expect(creation.status).toBe(201);
+      const location = creation.headers.get("Location");
+      expect(location).toBeTruthy();
+      const uploadId = location!.split("/").pop()!;
+
+      const stagingDir = join(TEST_MEDIA_DIR, ".tus-incoming");
+      const entriesBefore = readdirSync(stagingDir);
+      expect(entriesBefore.some((e) => e.startsWith(uploadId))).toBe(true);
+
+      const deletion = await app.request(`/api/media/upload/${uploadId}`, {
+        method: "DELETE",
+        headers: { "Tus-Resumable": "1.0.0" },
+      });
+      expect(deletion.status).toBe(204);
+
+      const entriesAfter = readdirSync(stagingDir);
+      expect(entriesAfter.some((e) => e.startsWith(uploadId))).toBe(false);
     });
 
     test("creation POST rejects unknown shootId with 404 before any bytes flow", async () => {
