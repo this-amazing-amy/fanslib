@@ -27,6 +27,9 @@ type UseUploadQueueResult = {
   retryAllFailed: () => void;
   startUpload: (shootId: string) => void;
   cancelUpload: () => void;
+  pauseAll: () => void;
+  resumeAll: () => void;
+  isPaused: boolean;
   isUploading: boolean;
   completedCount: number;
   failedCount: number;
@@ -57,12 +60,15 @@ const parseMediaFromResponse = (body: string): Media | undefined => {
 
 export const useUploadQueue = (): UseUploadQueueResult => {
   const [files, setFiles] = useState<UploadFileState[]>([]);
+  const [isPaused, setIsPaused] = useState(false);
   const uploadMapRef = useRef<Map<string, tus.Upload>>(new Map());
   const shootIdRef = useRef<string>("");
   const filesRef = useRef<UploadFileState[]>([]);
   const drainQueueRef = useRef<((shootId: string) => void) | null>(null);
+  const isPausedRef = useRef(false);
 
   filesRef.current = files;
+  isPausedRef.current = isPaused;
 
   const updateFile = useCallback((id: string, patch: Partial<UploadFileState>) => {
     setFiles((prev) => prev.map((f) => (f.id === id ? { ...f, ...patch } : f)));
@@ -109,6 +115,7 @@ export const useUploadQueue = (): UseUploadQueueResult => {
 
   const drainQueue = useCallback(
     (shootId: string) => {
+      if (isPausedRef.current) return;
       const current = filesRef.current;
       const activeCount = uploadMapRef.current.size;
       const slotsAvailable = CONCURRENT_UPLOADS - activeCount;
@@ -174,6 +181,23 @@ export const useUploadQueue = (): UseUploadQueueResult => {
       upload.abort(true).catch(() => undefined);
     });
     uploadMapRef.current.clear();
+    setIsPaused(false);
+  }, []);
+
+  const pauseAll = useCallback(() => {
+    setIsPaused(true);
+    uploadMapRef.current.forEach((upload) => {
+      upload.abort(false).catch(() => undefined);
+    });
+  }, []);
+
+  const resumeAll = useCallback(() => {
+    setIsPaused(false);
+    uploadMapRef.current.forEach((upload) => {
+      upload.start();
+    });
+    const shootId = shootIdRef.current;
+    if (shootId) setTimeout(() => drainQueueRef.current?.(shootId), 0);
   }, []);
 
   const isUploading = files.some((f) => f.status === "uploading" || f.status === "processing");
@@ -190,6 +214,9 @@ export const useUploadQueue = (): UseUploadQueueResult => {
     retryAllFailed,
     startUpload,
     cancelUpload,
+    pauseAll,
+    resumeAll,
+    isPaused,
     isUploading,
     completedCount,
     failedCount,
