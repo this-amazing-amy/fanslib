@@ -41,6 +41,8 @@
     "@hono/zod-validator": "^0.4.1",
     "@remotion/bundler": "4.0.441",
     "@remotion/renderer": "4.0.441",
+    "@tus/file-store": "^2.0.0",
+    "@tus/server": "^2.3.0",
     "@types/glob": "^9.0.0",
     "croner": "^10.0.1",
     "date-fns": "^4.1.0",

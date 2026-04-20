@@ -15,8 +15,8 @@ import { getMediaPostingHistory } from "./operations/media/get-media-posting-his
 import { getScanStatus, scanFile, scanLibrary } from "./operations/scan/scan";
 import { generateThumbnail, getThumbnailPath } from "./operations/scan/thumbnail";
 import { fetchSiblings } from "./operations/media/fetch-siblings";
-import { uploadMediaToShoot } from "./operations/upload";
 import { resolveMediaPath } from "./path-utils";
+import { handleTusRequest } from "./tus-server";
 import { MediaFilterSchema } from "./schemas/media-filter";
 import { MediaSortSchema } from "./schemas/media-sort";
 import { ContentRatingSchema } from "./content-rating";
@@ -198,36 +198,8 @@ export const libraryRoutes = new Hono()
     }
     return c.json(result);
   })
-  .post("/upload", async (c) => {
-    const formData = await c.req.formData();
-    const shootId = formData.get("shootId");
-    const file = formData.get("file");
-
-    if (!shootId || typeof shootId !== "string") {
-      return c.json({ error: "shootId is required" }, 400);
-    }
-    if (!file || !(file instanceof File)) {
-      return c.json({ error: "file is required" }, 400);
-    }
-
-    const category = formData.get("category");
-    const note = formData.get("note");
-
-    try {
-      const media = await uploadMediaToShoot({
-        shootId,
-        file,
-        category: category === "footage" ? "footage" : "library",
-        note: typeof note === "string" ? note : undefined,
-      });
-      return c.json(media);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Upload failed";
-      if (message.includes("not found")) return c.json({ error: message }, 404);
-      if (message.includes("Unsupported")) return c.json({ error: message }, 422);
-      return c.json({ error: message }, 500);
-    }
-  })
+  .all("/upload", (c) => handleTusRequest(c.req.raw))
+  .all("/upload/:id", (c) => handleTusRequest(c.req.raw))
   .post("/scan", async (c) => {
     await scanLibrary();
     return c.json({
