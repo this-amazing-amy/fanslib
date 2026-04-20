@@ -22,6 +22,7 @@ import { postsRoutes } from "./features/posts/routes";
 import { Cron } from "croner";
 import { runScheduledPostsCronTick } from "./features/posts/scheduled-posts-cron";
 import { runAnalyticsCronTick } from "./features/analytics/analytics-cron";
+import { cleanAbandonedTusStaging } from "./features/library/operations/cleanup-tus-staging";
 import { performPeriodicCleanup } from "./features/tags/drift-prevention";
 import { redditAutomationRoutes } from "./features/reddit-automation/routes";
 import { settingsRoutes } from "./features/settings/routes";
@@ -144,6 +145,12 @@ if (isScheduledPostsCronEnabled) {
   new Cron("0 * * * *", { name: "analytics-fetch", protect: true }, () => {
     runAnalyticsCronTick().catch((error) => {
       console.error("Analytics fetch cron tick failed:", error);
+    });
+  });
+
+  new Cron("0 3 * * *", { name: "tus-staging-cleanup", protect: true }, () => {
+    cleanAbandonedTusStaging().catch((error) => {
+      console.error("Tus staging cleanup cron tick failed:", error);
     });
   });
 }
