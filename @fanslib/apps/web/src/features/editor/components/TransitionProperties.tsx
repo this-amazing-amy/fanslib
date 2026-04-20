@@ -19,7 +19,7 @@ export const TransitionProperties = () => {
   }
 
   return (
-    <div className="w-72 border-l border-base-300 bg-base-200/30 p-4 overflow-y-auto">
+    <div className="w-72 bg-base-100 p-4 overflow-y-auto">
       <h3 className="text-sm font-semibold mb-3 flex items-center gap-1.5">
         <Blend className="w-4 h-4" />
         Crossfade

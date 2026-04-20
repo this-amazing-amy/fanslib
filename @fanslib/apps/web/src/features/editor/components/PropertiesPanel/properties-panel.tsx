@@ -27,7 +27,7 @@ export const PropertiesPanel = () => {
 
   if (!selectedOp || selectedId === null) {
     return (
-      <div className="w-72 border-l border-base-300 bg-base-200/30 p-4 flex flex-col items-center justify-center text-base-content/40">
+      <div className="w-72 bg-base-100 p-4 flex flex-col items-center justify-center text-base-content/40">
         <Settings2 className="h-8 w-8 mb-2" />
         <p className="text-sm text-center">Select an operation to edit its properties</p>
       </div>
@@ -40,7 +40,7 @@ export const PropertiesPanel = () => {
   );
 
   return (
-    <div className="w-72 border-l border-base-300 bg-base-200/30 p-4 overflow-y-auto">
+    <div className="w-72 bg-base-100 p-4 overflow-y-auto">
       <h3 className="text-sm font-semibold mb-3 capitalize">
         {String((op as Record<string, unknown>).type ?? "Properties")}
       </h3>

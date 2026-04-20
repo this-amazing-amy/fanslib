@@ -1,6 +1,8 @@
 /// <reference types="@testing-library/jest-dom" />
-import { render, screen } from "@testing-library/react";
-import { describe, expect, test, vi } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, test, vi } from "vitest";
+
+const navigateMock = vi.fn();
 
 vi.mock("@tanstack/react-router", () => ({
   Link: ({
@@ -12,7 +14,7 @@ vi.mock("@tanstack/react-router", () => ({
       {children}
     </a>
   ),
-  useNavigate: () => vi.fn(),
+  useNavigate: () => navigateMock,
 }));
 
 const mockCompositionsQuery = {
@@ -40,6 +42,36 @@ vi.mock("~/lib/queries/compositions", () => ({
 import { ShootCompositions } from "./ShootCompositions";
 
 describe("ShootCompositions", () => {
+  beforeEach(() => {
+    navigateMock.mockReset();
+  });
+
+  test("opens composition editor when composition item is clicked", () => {
+    mockCompositionsQuery.data = [
+      {
+        id: "comp-1",
+        shootId: "shoot-1",
+        name: "Main Edit",
+        segments: [],
+        tracks: [],
+        exportRegions: [],
+        createdAt: "2026-03-15T12:00:00Z",
+        updatedAt: "2026-03-15T12:00:00Z",
+      },
+    ];
+    mockCompositionsQuery.isLoading = false;
+    mockCompositionsQuery.error = null;
+
+    render(<ShootCompositions shootId="shoot-1" />);
+
+    fireEvent.click(screen.getByText("Main Edit"));
+
+    expect(navigateMock).toHaveBeenCalledWith({
+      to: "/shoots/$shootId/compositions/$compositionId",
+      params: { shootId: "shoot-1", compositionId: "comp-1" },
+    });
+  });
+
   test("renders empty state when no compositions", () => {
     mockCompositionsQuery.data = [];
     mockCompositionsQuery.isLoading = false;

@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { useNavigate } from "@tanstack/react-router";
 import { Film, Pencil, Plus, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { Button } from "~/components/ui/Button";
@@ -16,6 +17,7 @@ type ShootCompositionsProps = {
 };
 
 export const ShootCompositions = ({ shootId }: ShootCompositionsProps) => {
+  const navigate = useNavigate();
   const { data: compositions, isLoading, error } = useCompositionsByShootQuery(shootId);
   const createMutation = useCreateCompositionMutation();
   const updateMutation = useUpdateCompositionMutation();
@@ -27,9 +29,13 @@ export const ShootCompositions = ({ shootId }: ShootCompositionsProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleCreate = async () => {
-    await createMutation.mutateAsync({
+    const composition = await createMutation.mutateAsync({
       shootId,
       name: "Untitled Composition",
+    });
+    navigate({
+      to: "/shoots/$shootId/compositions/$compositionId",
+      params: { shootId, compositionId: composition.id },
     });
   };
 
@@ -57,6 +63,12 @@ export const ShootCompositions = ({ shootId }: ShootCompositionsProps) => {
     await deleteMutation.mutateAsync({ id: deleteTarget.id });
     setDeleteTarget(null);
   };
+
+  const openComposition = (compositionId: string) =>
+    navigate({
+      to: "/shoots/$shootId/compositions/$compositionId",
+      params: { shootId, compositionId },
+    });
 
   if (isLoading) {
     return <div className="text-muted-foreground">Loading compositions...</div>;
@@ -87,7 +99,22 @@ export const ShootCompositions = ({ shootId }: ShootCompositionsProps) => {
           {compositions.map((composition) => (
             <div
               key={composition.id}
-              className="flex items-center justify-between rounded-lg border border-base-300 bg-base-100 px-4 py-3"
+              className="group flex items-center justify-between rounded-lg border border-black bg-base-100 px-4 py-3 cursor-pointer"
+              onClick={(event) => {
+                const target = event.target as HTMLElement;
+                if (target.closest('[data-composition-action="true"]')) return;
+                openComposition(composition.id);
+              }}
+              onKeyDown={(event) => {
+                if (event.key !== "Enter" && event.key !== " ") return;
+                const target = event.target as HTMLElement;
+                if (target.closest('[data-composition-action="true"]')) return;
+                event.preventDefault();
+                openComposition(composition.id);
+              }}
+              role="button"
+              tabIndex={0}
+              aria-label={`Open ${composition.name}`}
             >
               <div className="flex flex-col gap-0.5 min-w-0 flex-1">
                 {editingId === composition.id ? (
@@ -103,7 +130,19 @@ export const ShootCompositions = ({ shootId }: ShootCompositionsProps) => {
                     }}
                   />
                 ) : (
-                  <span className="text-sm font-medium truncate">{composition.name}</span>
+                  <div className="flex items-center gap-1 min-w-0">
+                    <span className="text-sm font-medium truncate">{composition.name}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      data-composition-action="true"
+                      className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity"
+                      onPress={() => handleStartRename(composition.id, composition.name)}
+                      aria-label={`Rename ${composition.name}`}
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
                 )}
                 <span className="text-xs text-base-content/50">
                   {format(new Date(composition.createdAt), "MMM d, yyyy")}
@@ -117,14 +156,7 @@ export const ShootCompositions = ({ shootId }: ShootCompositionsProps) => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onPress={() => handleStartRename(composition.id, composition.name)}
-                  aria-label={`Rename ${composition.name}`}
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
+                  data-composition-action="true"
                   onPress={() => setDeleteTarget({ id: composition.id, name: composition.name })}
                   aria-label={`Delete ${composition.name}`}
                 >

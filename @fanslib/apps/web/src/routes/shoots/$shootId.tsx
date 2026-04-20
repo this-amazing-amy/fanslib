@@ -1,5 +1,5 @@
 import type { Media, ShootSummary } from "@fanslib/server/schemas";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { useCallback, useState } from "react";
 import { Button } from "~/components/ui/Button";
@@ -29,6 +29,7 @@ import { useShootQuery, useUpdateShootMutation } from "~/lib/queries/shoots";
 
 const ShootDetailRoute = () => {
   const { shootId } = Route.useParams();
+  const { pathname } = useLocation();
   const navigate = useNavigate();
   const { data: shoot, isLoading, error } = useShootQuery({ id: shootId });
   const [isAddMediaOpen, setIsAddMediaOpen] = useState(false);
@@ -91,6 +92,11 @@ const ShootDetailRoute = () => {
   }
 
   const normalizedShoot = shoot as unknown as ShootSummary;
+  const isCompositionEditorRoute = pathname.includes(`/shoots/${shootId}/compositions/`);
+
+  if (isCompositionEditorRoute) {
+    return <Outlet />;
+  }
 
   return (
     <MediaDragProvider>

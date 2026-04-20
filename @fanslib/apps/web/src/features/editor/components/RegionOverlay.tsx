@@ -54,6 +54,7 @@ export const RegionOverlay = ({
 }: RegionOverlayProps) => {
   const operations = useEditorStore((s) => s.operations);
   const selectedId = useEditorStore((s) => s.selectedOperationId);
+  const setSelectedOperationId = useEditorStore((s) => s.setSelectedOperationId);
   const updateOperationById = useEditorStore((s) => s.updateOperationById);
   const [dragState, setDragState] = useState<DragState | null>(null);
   const canvasRectRef = useRef<CanvasRect | null>(null);
@@ -146,6 +147,11 @@ export const RegionOverlay = ({
   if (!canvasRect) return null;
 
   const canvas = canvasRect;
+  const isVisibleAtCurrentFrame = (op: SpatialOp | { startFrame?: number; endFrame?: number }) =>
+    previewDurationInFrames <= 1 ||
+    (typeof op.startFrame === "number" && typeof op.endFrame === "number"
+      ? currentFrame >= op.startFrame && currentFrame <= op.endFrame
+      : true);
 
   return (
     <>
@@ -159,10 +165,7 @@ export const RegionOverlay = ({
 
         if (isCaptionOperation(op)) {
           const caption = op;
-          const captionVisible =
-            previewDurationInFrames <= 1 ||
-            (currentFrame >= caption.startFrame && currentFrame <= caption.endFrame);
-          if (!captionVisible) return null;
+          if (!isVisibleAtCurrentFrame(caption)) return null;
 
           const { widthPx, heightPx } = measureCaptionBoxPx(caption, canvas.canvasWidth);
           const { dx, dy } = captionAnimationViewportOffsetPx(
@@ -184,8 +187,9 @@ export const RegionOverlay = ({
           return (
             <div
               key={index}
+              data-overlay
               className={`absolute ${
-                isSelected ? "border-2 border-primary cursor-move" : "pointer-events-none"
+                isSelected ? "border-2 border-primary cursor-move" : "cursor-pointer"
               }`}
               style={{
                 left,
@@ -193,26 +197,30 @@ export const RegionOverlay = ({
                 width: widthPx,
                 height: heightPx,
               }}
-              onMouseDown={
-                isSelected
-                  ? (e) => {
-                      e.preventDefault();
-                      canvasRectRef.current = canvasRect;
-                      setDragState({
-                        kind: "caption-move",
-                        startMouseX: e.clientX,
-                        startMouseY: e.clientY,
-                        startX: caption.x,
-                        startY: caption.y,
-                        halfWNorm,
-                        halfHNorm,
-                      });
-                    }
-                  : undefined
-              }
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (!opId) return;
+                if (!isSelected) {
+                  setSelectedOperationId(opId);
+                  return;
+                }
+                canvasRectRef.current = canvasRect;
+                setDragState({
+                  kind: "caption-move",
+                  startMouseX: e.clientX,
+                  startMouseY: e.clientY,
+                  startX: caption.x,
+                  startY: caption.y,
+                  halfWNorm,
+                  halfHNorm,
+                });
+              }}
             />
           );
         }
+
+        if (!isVisibleAtCurrentFrame(spatialOp)) return null;
 
         const pos = relativeToPixel(spatialOp.x, spatialOp.y, canvas);
         const isEmoji = spatialOp.type === "emoji";
@@ -229,8 +237,9 @@ export const RegionOverlay = ({
         return (
           <div
             key={index}
+            data-overlay
             className={`absolute ${
-              isSelected ? "border-2 border-primary cursor-move" : "pointer-events-none"
+              isSelected ? "border-2 border-primary cursor-move" : "cursor-pointer"
             }`}
             style={{
               left: isEmoji ? pos.px - width / 2 : pos.px,
@@ -238,26 +247,28 @@ export const RegionOverlay = ({
               width,
               height,
             }}
-            onMouseDown={
-              isSelected
-                ? (e) => {
-                    e.preventDefault();
-                    canvasRectRef.current = canvasRect;
-                    setDragState({
-                      kind: "spatial",
-                      type: "move",
-                      startMouseX: e.clientX,
-                      startMouseY: e.clientY,
-                      startX: spatialOp.x,
-                      startY: spatialOp.y,
-                      startWidth: isEmoji ? emojiSize : (spatialOp.width ?? 0.1),
-                      startHeight: isEmoji
-                        ? emojiSize
-                        : (spatialOp.height ?? spatialOp.width ?? 0.1),
-                    });
-                  }
-                : undefined
-            }
+            onMouseDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (!opId) return;
+              if (!isSelected) {
+                setSelectedOperationId(opId);
+                return;
+              }
+              canvasRectRef.current = canvasRect;
+              setDragState({
+                kind: "spatial",
+                type: "move",
+                startMouseX: e.clientX,
+                startMouseY: e.clientY,
+                startX: spatialOp.x,
+                startY: spatialOp.y,
+                startWidth: isEmoji ? emojiSize : (spatialOp.width ?? 0.1),
+                startHeight: isEmoji
+                  ? emojiSize
+                  : (spatialOp.height ?? spatialOp.width ?? 0.1),
+              });
+            }}
           >
             {isSelected && !isEmoji && (
               <>

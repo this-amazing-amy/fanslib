@@ -4,6 +4,16 @@ import { render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, test, vi, beforeEach } from "vitest";
 
+vi.mock("@tanstack/react-router", async () => {
+  const actual = await vi.importActual<typeof import("@tanstack/react-router")>(
+    "@tanstack/react-router",
+  );
+  return {
+    ...actual,
+    useNavigate: () => vi.fn(),
+  };
+});
+
 // Mock the composition query hook
 vi.mock("~/lib/queries/compositions", () => ({
   useCompositionByIdQuery: vi.fn(),
@@ -17,13 +27,55 @@ vi.mock("~/lib/queries/compositions", () => ({
 const mockHydrate = vi.hoisted(() => vi.fn());
 const mockReset = vi.hoisted(() => vi.fn());
 vi.mock("~/stores/editorStore", () => {
+  const state = {
+    hydrate: mockHydrate,
+    reset: mockReset,
+    operations: [],
+    tracks: [{ id: "track-1", name: "Track 1", operations: [] }],
+    segments: [],
+    selectedSourceId: null,
+    selectedOperationId: null,
+    selectedTransitionSegmentId: null,
+    selectedSegmentId: null,
+    canUndo: false,
+    canRedo: false,
+    setSelectedOperationId: vi.fn(),
+    undo: vi.fn(),
+    redo: vi.fn(),
+    addCrop: vi.fn(),
+    addCaption: vi.fn(),
+    addBlur: vi.fn(),
+    addEmoji: vi.fn(),
+    addPixelate: vi.fn(),
+    addZoom: vi.fn(),
+    addTrack: vi.fn(),
+    updateOperationById: vi.fn(),
+    removeOperationById: vi.fn(),
+    moveOperation: vi.fn(),
+    reorderSegments: vi.fn(),
+    trimSegmentStart: vi.fn(),
+    trimSegmentEnd: vi.fn(),
+    removeSegment: vi.fn(),
+    selectSegment: vi.fn(),
+    addTransition: vi.fn(),
+    removeTransition: vi.fn(),
+    selectTransition: vi.fn(),
+    toggleExportRegionMode: vi.fn(),
+    exportRegionMode: false,
+    exportRegions: [],
+    pendingExportMarkIn: null,
+    selectedExportRegionId: null,
+    setExportMarkIn: vi.fn(),
+    commitExportMarkOut: vi.fn(),
+    updateExportRegion: vi.fn(),
+    removeExportRegion: vi.fn(),
+    selectExportRegion: vi.fn(),
+  };
   const store = Object.assign(
-    vi.fn((selector: (s: Record<string, unknown>) => unknown) =>
-      selector({ hydrate: mockHydrate, reset: mockReset }),
-    ),
+    vi.fn((selector: (s: Record<string, unknown>) => unknown) => selector(state)),
     {
       subscribe: vi.fn(() => vi.fn()),
-      getState: vi.fn(() => ({ isDirty: false, segments: [], tracks: [] })),
+      getState: vi.fn(() => ({ ...state, isDirty: false })),
     },
   );
   return { useEditorStore: store };
@@ -129,6 +181,32 @@ describe("CompositionEditor", () => {
         tracks: composition.tracks,
         segments: composition.segments,
       });
+    });
+  });
+
+  test("does not re-hydrate when same composition refetches", async () => {
+    const composition = makeComposition();
+    const queryResult = {
+      data: composition,
+      isLoading: false,
+      error: null,
+    } as unknown as ReturnType<typeof useCompositionByIdQuery>;
+
+    mockUseCompositionByIdQuery.mockImplementation(() => queryResult);
+
+    const { rerender } = render(
+      <CompositionEditor shootId="shoot-1" compositionId="comp-1" />,
+      { wrapper: createWrapper() },
+    );
+
+    await waitFor(() => {
+      expect(mockHydrate).toHaveBeenCalledTimes(1);
+    });
+
+    rerender(<CompositionEditor shootId="shoot-1" compositionId="comp-1" />);
+
+    await waitFor(() => {
+      expect(mockHydrate).toHaveBeenCalledTimes(1);
     });
   });
 

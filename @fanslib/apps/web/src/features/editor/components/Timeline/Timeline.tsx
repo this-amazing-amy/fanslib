@@ -165,11 +165,11 @@ export const Timeline = ({
   return (
     <div
       data-testid="timeline"
-      className="flex flex-col border-t border-base-300 bg-base-200"
+      className="flex flex-col bg-base-100"
       onClick={closeContextMenu}
     >
       {/* Transport bar */}
-      <div className="flex items-center px-2 py-1 border-b border-base-300 bg-base-100">
+      <div className="flex items-center px-2 py-1 bg-base-100">
         <TransportControls
           playing={playing}
           currentFrame={currentFrame}
@@ -196,7 +196,7 @@ export const Timeline = ({
       <div ref={wheelContainerRef} className="flex flex-col overflow-hidden">
         {/* Ruler row */}
         <div className="flex">
-          <div className="w-32 shrink-0 border-r border-base-300" />
+          <div className="w-32 shrink-0" />
           <div className="overflow-hidden flex-1">
             <div style={{ marginLeft: `${-scrollLeft}px` }}>
               <TimeRuler
@@ -289,7 +289,7 @@ export const Timeline = ({
       {contextMenu && (
         <div
           data-testid="block-context-menu"
-          className="fixed z-50 bg-base-100 border border-base-300 rounded shadow-lg py-1 min-w-32"
+          className="fixed z-50 bg-base-100 rounded shadow-lg py-1 min-w-32"
           style={{ left: contextMenu.x, top: contextMenu.y }}
         >
           <button
