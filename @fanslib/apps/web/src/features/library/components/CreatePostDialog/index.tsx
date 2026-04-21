@@ -159,7 +159,7 @@ export const CreatePostDialog = ({
     if (!isRedditChannel) {
       setSelectedSubreddits([]);
     }
-  }, [isRedditChannel]);
+  }, [isRedditChannel, setSelectedSubreddits]);
 
   const handleMediaSelect = (mediaItem: Media) => {
     setSelectedMedia((prev) => {
@@ -249,6 +249,8 @@ export const CreatePostDialog = ({
       virtualPost,
       onNavigateToSlot,
       allPosts,
+      setSelectedMedia,
+      setCaption,
     ],
   );
 
@@ -271,7 +273,7 @@ export const CreatePostDialog = ({
       // Show message if no unfilled slots remain
       toast();
     }
-  }, [virtualPost, onNavigateToSlot, allPosts]);
+  }, [virtualPost, onNavigateToSlot, allPosts, setSelectedMedia, setCaption]);
 
   useEffect(() => {
     if (!open) return;

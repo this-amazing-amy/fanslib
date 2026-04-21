@@ -75,6 +75,7 @@ export const CropRectPreviewFrame = ({ crop, children }: { crop: CropOperation; 
 export const wrapWithCropChain = (crops: CropOperation[], inner: ReactNode): ReactNode =>
   crops.reduce(
     (acc, crop, i) => (
+      // oxlint-disable-next-line react/no-array-index-key -- crops are ordered render-time inputs without ids
       <CropRectPreviewFrame key={`crop-${i}`} crop={crop}>
         {acc}
       </CropRectPreviewFrame>
@@ -97,6 +98,7 @@ const PreviewOverlays = ({
       {blurRegions.map((blur, i) =>
         isOutsideFrameRange(frame, blur.startFrame, blur.endFrame) ? null : (
           <div
+            // oxlint-disable-next-line react/no-array-index-key -- preview region order is the identity
             key={i}
             style={{
               position: "absolute",
@@ -116,6 +118,7 @@ const PreviewOverlays = ({
         const half = ps / 2;
         const filterId = `px-preview-${i}`;
         return (
+          // oxlint-disable-next-line react/no-array-index-key -- preview region order is the identity
           <React.Fragment key={`px-${i}`}>
             <svg style={{ position: "absolute", width: 0, height: 0 }}>
               <defs>
@@ -165,6 +168,7 @@ const PreviewOverlays = ({
       {emojis.map((em, i) =>
         isOutsideFrameRange(frame, em.startFrame, em.endFrame) ? null : (
           <div
+            // oxlint-disable-next-line react/no-array-index-key -- preview emoji order is the identity
             key={`em-${i}`}
             style={{
               position: "absolute",
@@ -182,6 +186,7 @@ const PreviewOverlays = ({
         ),
       )}
       {captions.map((cap, i) => (
+        // oxlint-disable-next-line react/no-array-index-key -- preview caption order is the identity
         <CaptionOverlay key={`cap-${i}`} caption={cap} compositionWidth={compositionWidth} />
       ))}
     </>

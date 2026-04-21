@@ -102,26 +102,25 @@ export const RegionOverlay = ({
       }
 
       const corner = dragState.corner ?? "se";
-      let newX = dragState.startX;
-      let newY = dragState.startY;
-      let newWidth = dragState.startWidth;
-      let newHeight = dragState.startHeight;
+      const { newX, newWidth } = corner.endsWith("e")
+        ? {
+            newX: dragState.startX,
+            newWidth: clamp01(dragState.startWidth + relDx, 1 - dragState.startX),
+          }
+        : {
+            newX: clamp01(dragState.startX + relDx),
+            newWidth: clamp01(dragState.startWidth - relDx),
+          };
 
-      if (corner.endsWith("e")) {
-        newWidth = clamp01(dragState.startWidth + relDx, 1 - dragState.startX);
-      } else {
-        // West corners: move x and shrink width
-        newX = clamp01(dragState.startX + relDx);
-        newWidth = clamp01(dragState.startWidth - relDx);
-      }
-
-      if (corner.startsWith("s")) {
-        newHeight = clamp01(dragState.startHeight + relDy, 1 - dragState.startY);
-      } else {
-        // North corners: move y and shrink height
-        newY = clamp01(dragState.startY + relDy);
-        newHeight = clamp01(dragState.startHeight - relDy);
-      }
+      const { newY, newHeight } = corner.startsWith("s")
+        ? {
+            newY: dragState.startY,
+            newHeight: clamp01(dragState.startHeight + relDy, 1 - dragState.startY),
+          }
+        : {
+            newY: clamp01(dragState.startY + relDy),
+            newHeight: clamp01(dragState.startHeight - relDy),
+          };
 
       updateOperationById(selectedId, {
         ...op,
@@ -186,6 +185,7 @@ export const RegionOverlay = ({
 
           return (
             <div
+              // oxlint-disable-next-line react/no-array-index-key -- overlay index matches the rendered order of operations
               key={index}
               data-overlay
               className={`absolute ${
@@ -236,6 +236,7 @@ export const RegionOverlay = ({
 
         return (
           <div
+            // oxlint-disable-next-line react/no-array-index-key -- overlay index matches the rendered order of operations
             key={index}
             data-overlay
             className={`absolute ${

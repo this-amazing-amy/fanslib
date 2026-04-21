@@ -26,8 +26,8 @@ export const FilterGroupEditor = ({ className = "" }: FilterGroupEditorProps) =>
   return (
     <div className={`${className} space-y-2`}>
       {filters.map((group, groupIndex) => (
-        // oxlint-disable-next-line react/no-array-index-key
         <div
+          // oxlint-disable-next-line react/no-array-index-key -- filter groups are positional
           key={`group-${groupIndex}-${group.include ? "include" : "exclude"}`}
           className="border rounded-lg"
         >
@@ -54,6 +54,7 @@ export const FilterGroupEditor = ({ className = "" }: FilterGroupEditorProps) =>
                   </Tooltip>
 
                   {group.items.map((item, itemIndex) => (
+                    // oxlint-disable-next-line react/no-array-index-key -- getFilterItemKey falls back to positional index for filters without stable id
                     <div key={getFilterItemKey(item, itemIndex)} className="flex-shrink-0">
                       <FilterItemRenderer
                         type={item.type}

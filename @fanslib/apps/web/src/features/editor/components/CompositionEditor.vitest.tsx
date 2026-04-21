@@ -2,12 +2,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
+import type * as TanstackRouter from "@tanstack/react-router";
 import { describe, expect, test, vi, beforeEach } from "vitest";
 
 vi.mock("@tanstack/react-router", async () => {
-  const actual = await vi.importActual<typeof import("@tanstack/react-router")>(
-    "@tanstack/react-router",
-  );
+  const actual = await vi.importActual<typeof TanstackRouter>("@tanstack/react-router");
   return {
     ...actual,
     useNavigate: () => vi.fn(),

@@ -24,7 +24,7 @@ const galleryTileProps = {
 
 const MediaTileAspectPrototypePage = () => {
   const { data, isLoading } = useMediaListQuery({ page: 1, limit: 6 });
-  const items = (data?.items ?? []) as unknown as Media[];
+  const items = useMemo(() => (data?.items ?? []) as unknown as Media[], [data]);
 
   useMediaSelectionSetup(items);
 

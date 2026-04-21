@@ -45,8 +45,10 @@ export const CompositionEditor = ({ shootId, compositionId }: CompositionEditorP
   const { data: shoot } = useShootQuery({ id: shootId });
   const hydrate = useEditorStore((s) => s.hydrate);
   const reset = useEditorStore((s) => s.reset);
-  const operations = useEditorStore((s) => s.operations) ?? [];
-  const segments = useEditorStore((s) => s.segments) ?? [];
+  const storeOperations = useEditorStore((s) => s.operations);
+  const operations = useMemo(() => storeOperations ?? [], [storeOperations]);
+  const storeSegments = useEditorStore((s) => s.segments);
+  const segments = useMemo(() => storeSegments ?? [], [storeSegments]);
   const selectedSourceId = useEditorStore((s) => s.selectedSourceId) ?? null;
   const setSelectedOperationId = useEditorStore((s) => s.setSelectedOperationId);
   const undo = useEditorStore((s) => s.undo);
