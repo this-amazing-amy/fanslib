@@ -176,6 +176,8 @@ export const useUploadQueue = (): UseUploadQueueResult => {
     [drainQueue],
   );
 
+  // abort(true) issues DELETE so the server drops staging bytes. Tab-close
+  // is deliberately not wired here — those bytes stay until the cleanup cron.
   const cancelUpload = useCallback(() => {
     uploadMapRef.current.forEach((upload) => {
       upload.abort(true).catch(() => undefined);
