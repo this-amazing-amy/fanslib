@@ -28,9 +28,11 @@ const buildTagTree = (tags: TagDefinition[]): TagNode[] => {
     const node = tagMap.get(tag.id)!;
     const parentId = tag.parentTagId;
 
-    parentId === null || !tagMap.has(parentId)
-      ? roots.push(node)
-      : tagMap.get(parentId)?.children.push(node);
+    if (parentId === null || !tagMap.has(parentId)) {
+      roots.push(node);
+    } else {
+      tagMap.get(parentId)?.children.push(node);
+    }
   });
 
   return roots;

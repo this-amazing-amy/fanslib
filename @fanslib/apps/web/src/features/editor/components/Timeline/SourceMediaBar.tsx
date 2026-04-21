@@ -44,6 +44,7 @@ export const SourceMediaBar = ({ filename, totalFrames, pixelsPerFrame }: Source
 
         return (
           <div
+            // oxlint-disable-next-line react/no-array-index-key -- source ranges are ordered by index
             key={i}
             data-testid={`source-range-${i}`}
             className={`absolute top-0 bottom-0 border rounded cursor-pointer ${colorClass} ${

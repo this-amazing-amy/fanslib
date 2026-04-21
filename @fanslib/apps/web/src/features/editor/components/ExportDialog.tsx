@@ -54,27 +54,27 @@ export const ExportDialog = ({ open, onOpenChange }: ExportDialogProps) => {
     return () => dialog.removeEventListener("close", handleClose);
   }, [onOpenChange]);
 
-  const createAndQueueEdit = async (
-    type: "transform" | "clip",
-    ops: unknown[],
-    editTracks?: Track[],
-  ): Promise<void> => {
-    const res = await api.api["media-edits"].$post({
-      json: {
-        sourceMediaId: sourceMediaId!,
-        type,
-        operations: ops,
-        ...(editTracks && editTracks.length > 0 ? { tracks: editTracks } : {}),
-      },
-    });
-    if (!res.ok) throw new Error("Failed to create edit");
-    const data = (await res.json()) as { id: string };
+  const createAndQueueEdit = useCallback(
+    async (type: "transform" | "clip", ops: unknown[], editTracks?: Track[]): Promise<void> => {
+      if (!sourceMediaId) throw new Error("No source media selected");
+      const res = await api.api["media-edits"].$post({
+        json: {
+          sourceMediaId,
+          type,
+          operations: ops,
+          ...(editTracks && editTracks.length > 0 ? { tracks: editTracks } : {}),
+        },
+      });
+      if (!res.ok) throw new Error("Failed to create edit");
+      const data = (await res.json()) as { id: string };
 
-    const queueRes = await api.api["media-edits"][":id"].queue.$post({
-      param: { id: data.id },
-    });
-    if (!queueRes.ok) throw new Error("Failed to queue render");
-  };
+      const queueRes = await api.api["media-edits"][":id"].queue.$post({
+        param: { id: data.id },
+      });
+      if (!queueRes.ok) throw new Error("Failed to queue render");
+    },
+    [sourceMediaId],
+  );
 
   const handleExport = useCallback(async () => {
     setExporting(true);
@@ -106,9 +106,10 @@ export const ExportDialog = ({ open, onOpenChange }: ExportDialogProps) => {
             markClean();
             return editId;
           }
+          if (!sourceMediaId) throw new Error("No source media selected");
           const res = await api.api["media-edits"].$post({
             json: {
-              sourceMediaId: sourceMediaId!,
+              sourceMediaId,
               type: "transform",
               operations,
             },
@@ -150,6 +151,7 @@ export const ExportDialog = ({ open, onOpenChange }: ExportDialogProps) => {
     markClean,
     onOpenChange,
     queryClient,
+    createAndQueueEdit,
   ]);
 
   return (

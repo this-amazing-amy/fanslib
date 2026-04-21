@@ -42,6 +42,7 @@ export const PostCalendarPostMedia = ({ postMedia, isVirtual }: PostCalendarPost
         return (
           <div
             className="relative aspect-square rounded-md overflow-hidden"
+            // oxlint-disable-next-line react/no-array-index-key -- empty slots fall back to index, filled slots use media id
             key={`media-slot-${postMedia[i]?.media.id ?? i}`}
             style={media ? { viewTransitionName: `media-${media.id}` } : undefined}
           >

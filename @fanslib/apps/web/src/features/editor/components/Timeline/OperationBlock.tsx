@@ -196,6 +196,7 @@ export const OperationBlock = ({
       {selected &&
         keyframes?.map((kf, i) => (
           <div
+            // oxlint-disable-next-line react/no-array-index-key -- keyframes are positioned by array index
             key={i}
             data-testid={`keyframe-diamond-${i}`}
             className="absolute w-2 h-2 rotate-45 bg-base-content cursor-pointer"

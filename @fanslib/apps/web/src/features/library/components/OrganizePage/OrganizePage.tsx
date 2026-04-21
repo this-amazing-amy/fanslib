@@ -100,7 +100,7 @@ const buildPreviewPath = (
 export const OrganizePage = () => {
   const { data: groups, isLoading } = useUnmanagedMediaQuery();
   const { data: shootsData } = useShootsQuery({ limit: 200 });
-  const shoots = shootsData?.items ?? [];
+  const shoots = useMemo(() => shootsData?.items ?? [], [shootsData]);
   const organizeMutation = useOrganizeMutation();
   const createShootMutation = useCreateShootMutation();
 
