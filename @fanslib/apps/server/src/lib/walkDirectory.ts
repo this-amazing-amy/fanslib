@@ -27,6 +27,7 @@ export async function* walkDirectory(dir: string): AsyncGenerator<string> {
 
     // eslint-disable-next-line functional/no-loop-statements
     for (const entry of entries) {
+      if (entry.name.startsWith(".")) continue;
       const fullPath = path.join(normalizedPath, entry.name);
 
       if (entry.isDirectory()) {

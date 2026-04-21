@@ -1,8 +1,12 @@
 import type { Media } from "@fanslib/server/schemas";
 import { useCallback, useRef, useState } from "react";
+import * as tus from "tus-js-client";
 
 const BACKEND_BASE_URL = import.meta.env.VITE_API_URL ?? "";
+const UPLOAD_ENDPOINT = `${BACKEND_BASE_URL}/api/media/upload`;
 const CONCURRENT_UPLOADS = 2;
+const CHUNK_SIZE = 8 * 1024 * 1024;
+const RETRY_DELAYS = [0, 1000, 3000, 5000];
 
 export type UploadFileStatus = "queued" | "uploading" | "processing" | "done" | "error";
 
@@ -43,9 +47,17 @@ const weightedProgress = (files: UploadFileState[]): number => {
   return Math.round((completedBytes / totalBytes) * 100);
 };
 
+const parseMediaFromResponse = (body: string): Media | undefined => {
+  try {
+    return JSON.parse(body) as Media;
+  } catch {
+    return undefined;
+  }
+};
+
 export const useUploadQueue = (): UseUploadQueueResult => {
   const [files, setFiles] = useState<UploadFileState[]>([]);
-  const xhrMapRef = useRef<Map<string, XMLHttpRequest>>(new Map());
+  const uploadMapRef = useRef<Map<string, tus.Upload>>(new Map());
   const shootIdRef = useRef<string>("");
   const filesRef = useRef<UploadFileState[]>([]);
   const drainQueueRef = useRef<((shootId: string) => void) | null>(null);
@@ -56,61 +68,41 @@ export const useUploadQueue = (): UseUploadQueueResult => {
     setFiles((prev) => prev.map((f) => (f.id === id ? { ...f, ...patch } : f)));
   }, []);
 
-  const uploadFile = useCallback(
+  const startTusUpload = useCallback(
     (fileState: UploadFileState, shootId: string) => {
       updateFile(fileState.id, { status: "uploading", progress: 0, error: undefined });
 
-      const xhr = new XMLHttpRequest();
-      xhrMapRef.current.set(fileState.id, xhr);
+      const upload = new tus.Upload(fileState.file, {
+        endpoint: UPLOAD_ENDPOINT,
+        chunkSize: CHUNK_SIZE,
+        retryDelays: RETRY_DELAYS,
+        metadata: {
+          filename: fileState.file.name,
+          shootId,
+          category: "library",
+        },
+        onProgress: (bytesSent, bytesTotal) => {
+          const progress = bytesTotal > 0 ? Math.round((bytesSent / bytesTotal) * 100) : 0;
+          updateFile(fileState.id, { progress });
+        },
+        onSuccess: (payload) => {
+          uploadMapRef.current.delete(fileState.id);
+          const media = parseMediaFromResponse(payload.lastResponse.getBody());
+          updateFile(fileState.id, { status: "done", progress: 100, media });
+          drainQueueRef.current?.(shootId);
+        },
+        onError: (error) => {
+          uploadMapRef.current.delete(fileState.id);
+          updateFile(fileState.id, {
+            status: "error",
+            error: error instanceof Error ? error.message : "Upload failed",
+          });
+          drainQueueRef.current?.(shootId);
+        },
+      });
 
-      xhr.upload.onprogress = (e) => {
-        if (!e.lengthComputable) return;
-        updateFile(fileState.id, { progress: Math.round((e.loaded / e.total) * 100) });
-      };
-
-      xhr.onload = () => {
-        xhrMapRef.current.delete(fileState.id);
-
-        if (xhr.status >= 200 && xhr.status < 300) {
-          try {
-            const media = JSON.parse(xhr.responseText) as Media;
-            updateFile(fileState.id, { status: "done", progress: 100, media });
-          } catch {
-            updateFile(fileState.id, { status: "error", error: "Invalid server response" });
-          }
-        } else {
-          const defaultMessage = `Server error ${xhr.status}`;
-          const errorMessage = (() => {
-            try {
-              const body = JSON.parse(xhr.responseText) as { error?: string };
-              return body.error ?? defaultMessage;
-            } catch {
-              return defaultMessage;
-            }
-          })();
-          updateFile(fileState.id, { status: "error", error: errorMessage });
-        }
-
-        drainQueueRef.current?.(shootId);
-      };
-
-      xhr.onerror = () => {
-        xhrMapRef.current.delete(fileState.id);
-        updateFile(fileState.id, { status: "error", error: "Network error" });
-        drainQueueRef.current?.(shootId);
-      };
-
-      xhr.onabort = () => {
-        xhrMapRef.current.delete(fileState.id);
-        updateFile(fileState.id, { status: "queued", progress: 0 });
-      };
-
-      const formData = new FormData();
-      formData.append("shootId", shootId);
-      formData.append("file", fileState.file);
-
-      xhr.open("POST", `${BACKEND_BASE_URL}/api/media/upload`);
-      xhr.send(formData);
+      uploadMapRef.current.set(fileState.id, upload);
+      upload.start();
     },
     [updateFile],
   );
@@ -118,15 +110,15 @@ export const useUploadQueue = (): UseUploadQueueResult => {
   const drainQueue = useCallback(
     (shootId: string) => {
       const current = filesRef.current;
-      const activeCount = xhrMapRef.current.size;
+      const activeCount = uploadMapRef.current.size;
       const slotsAvailable = CONCURRENT_UPLOADS - activeCount;
 
       if (slotsAvailable <= 0) return;
 
       const queued = current.filter((f) => f.status === "queued");
-      queued.slice(0, slotsAvailable).forEach((f) => uploadFile(f, shootId));
+      queued.slice(0, slotsAvailable).forEach((f) => startTusUpload(f, shootId));
     },
-    [uploadFile], // uploadFile is stable; drainQueueRef avoids circular dep
+    [startTusUpload],
   );
 
   drainQueueRef.current = drainQueue;
@@ -142,6 +134,11 @@ export const useUploadQueue = (): UseUploadQueueResult => {
   }, []);
 
   const removeFile = useCallback((id: string) => {
+    const upload = uploadMapRef.current.get(id);
+    if (upload) {
+      upload.abort(true).catch(() => undefined);
+      uploadMapRef.current.delete(id);
+    }
     setFiles((prev) => prev.filter((f) => f.id !== id));
   }, []);
 
@@ -173,8 +170,10 @@ export const useUploadQueue = (): UseUploadQueueResult => {
   );
 
   const cancelUpload = useCallback(() => {
-    xhrMapRef.current.forEach((xhr) => xhr.abort());
-    xhrMapRef.current.clear();
+    uploadMapRef.current.forEach((upload) => {
+      upload.abort(true).catch(() => undefined);
+    });
+    uploadMapRef.current.clear();
   }, []);
 
   const isUploading = files.some((f) => f.status === "uploading" || f.status === "processing");

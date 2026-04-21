@@ -3,14 +3,13 @@ import { promises as fs } from "fs";
 import path from "path";
 import { db } from "../../../../lib/db";
 import { env } from "../../../../lib/env";
-import { getVideoDuration, getVideoDimensions } from "../../../../lib/video";
+import { getVideoDimensions, getVideoDuration } from "../../../../lib/video";
 import { Shoot } from "../../../shoots/entity";
 import { createMedia } from "../media/create";
 import { generateThumbnail } from "../scan/thumbnail";
 
 const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif"]);
 const VIDEO_EXTENSIONS = new Set([".mp4", ".webm", ".mov", ".avi", ".mkv"]);
-
 const SUPPORTED_EXTENSIONS = new Set([...IMAGE_EXTENSIONS, ...VIDEO_EXTENSIONS]);
 
 const shootFolderName = (shoot: Shoot): string => {
@@ -52,37 +51,41 @@ const resolveUniqueFilename = async (dir: string, filename: string): Promise<str
   return `${base}_${firstAvailable + 1}${ext}`;
 };
 
-export type UploadMediaInput = {
+export type FinalizeUploadedMediaInput = {
+  stagedAbsolutePath: string;
+  originalName: string;
   shootId: string;
-  file: File;
   category?: "library" | "footage";
   note?: string;
 };
 
-export const uploadMediaToShoot = async ({ shootId, file, category = "library", note }: UploadMediaInput) => {
+export const finalizeUploadedMedia = async ({
+  stagedAbsolutePath,
+  originalName,
+  shootId,
+  category = "library",
+  note,
+}: FinalizeUploadedMediaInput) => {
   const mediaPath = env().mediaPath;
 
   const database = await db();
   const shoot = await database.getRepository(Shoot).findOne({ where: { id: shootId } });
   if (!shoot) throw new Error(`Shoot not found: ${shootId}`);
 
-  const ext = path.extname(file.name).toLowerCase();
-  if (!SUPPORTED_EXTENSIONS.has(ext)) {
+  const ext = path.extname(originalName).toLowerCase();
+  const type = mediaTypeFromExtension(ext);
+  if (!type || !SUPPORTED_EXTENSIONS.has(ext)) {
     throw new Error(`Unsupported file type: ${ext}`);
   }
-
-  const type = mediaTypeFromExtension(ext);
-  if (!type) throw new Error(`Cannot determine media type for: ${ext}`);
 
   const folderName = shootFolderName(shoot);
   const baseDir = category === "footage" ? "footage" : "shoots";
   const targetDir = path.join(mediaPath, baseDir, folderName);
   await fs.mkdir(targetDir, { recursive: true });
 
-  const uniqueFilename = await resolveUniqueFilename(targetDir, file.name);
+  const uniqueFilename = await resolveUniqueFilename(targetDir, originalName);
   const absolutePath = path.join(targetDir, uniqueFilename);
-
-  await Bun.write(absolutePath, file);
+  await fs.rename(stagedAbsolutePath, absolutePath);
 
   const stats = await fs.stat(absolutePath);
 
