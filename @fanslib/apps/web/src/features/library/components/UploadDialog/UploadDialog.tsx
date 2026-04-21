@@ -64,6 +64,9 @@ export const UploadDialog = ({ open, onOpenChange }: UploadDialogProps) => {
     retryAllFailed,
     startUpload,
     cancelUpload,
+    pauseAll,
+    resumeAll,
+    isPaused,
     isUploading,
     completedCount,
     failedCount,
@@ -276,9 +279,17 @@ export const UploadDialog = ({ open, onOpenChange }: UploadDialogProps) => {
                   )}
 
                   {phase === "uploading" && !allDone && (
-                    <Button variant="outline" onPress={requestClose}>
-                      Close
-                    </Button>
+                    <>
+                      <Button
+                        variant="outline"
+                        onPress={() => (isPaused ? resumeAll() : pauseAll())}
+                      >
+                        {isPaused ? "Resume" : "Pause"}
+                      </Button>
+                      <Button variant="outline" onPress={requestClose}>
+                        Close
+                      </Button>
+                    </>
                   )}
 
                   {phase === "uploading" && allDone && failedCount > 0 && (
