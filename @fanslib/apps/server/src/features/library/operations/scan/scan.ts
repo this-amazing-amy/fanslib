@@ -10,6 +10,7 @@ import { env } from "../../../../lib/env";
 import { convertRelativeToAbsolute } from "../../../../lib/path-utils";
 import { getVideoDuration } from "../../../../lib/video";
 import { walkDirectory } from "../../../../lib/walkDirectory";
+import { shouldEnterShootLayout } from "../../shoot-layout";
 import { Media } from "../../entity";
 import { MediaSchema } from "../../schema";
 import { createMedia } from "../media/create";
@@ -200,7 +201,9 @@ class LibraryScanner {
         mediaPath,
       });
 
-      for await (const filePath of walkDirectory(mediaPath)) {
+      for await (const filePath of walkDirectory(mediaPath, {
+        shouldEnter: shouldEnterShootLayout,
+      })) {
         const { isSupported } = isMediaFile(filePath);
         if (isSupported) {
           filesToProcess.push(filePath);
