@@ -48,4 +48,55 @@ describe("walkDirectory", () => {
     expect(files).toHaveLength(1);
     expect(files[0]).toMatch(/shoots\/2026-04-20_demo\/clip\.mp4$/);
   });
+
+  test("shouldEnter filters which directories are recursed into", async () => {
+    mkdirSync(path.join(TEST_ROOT, "kept"), { recursive: true });
+    mkdirSync(path.join(TEST_ROOT, "skipped"), { recursive: true });
+    writeFileSync(path.join(TEST_ROOT, "kept", "a.jpg"), "a");
+    writeFileSync(path.join(TEST_ROOT, "skipped", "b.jpg"), "b");
+
+    const entries: string[] = [];
+    for await (const filePath of walkDirectory(TEST_ROOT, {
+      shouldEnter: (relativeDir) => relativeDir === "kept",
+    })) {
+      entries.push(filePath);
+    }
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0]).toMatch(/kept\/a\.jpg$/);
+  });
+
+  test("shouldEnter receives nested relative paths and can gate descent", async () => {
+    mkdirSync(path.join(TEST_ROOT, "shoot", "02_Content"), { recursive: true });
+    mkdirSync(path.join(TEST_ROOT, "shoot", "01_Footage"), { recursive: true });
+    writeFileSync(path.join(TEST_ROOT, "shoot", "02_Content", "a.jpg"), "a");
+    writeFileSync(path.join(TEST_ROOT, "shoot", "01_Footage", "b.mov"), "b");
+
+    const entries: string[] = [];
+    const shouldEnter = (relativeDir: string): boolean => {
+      const segments = relativeDir.split(path.sep);
+      if (segments.length === 1) return segments[0] === "shoot";
+      return segments[1] === "02_Content";
+    };
+    for await (const filePath of walkDirectory(TEST_ROOT, { shouldEnter })) {
+      entries.push(filePath);
+    }
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0]).toMatch(/shoot\/02_Content\/a\.jpg$/);
+  });
+
+  test("files at the walk root are yielded regardless of shouldEnter", async () => {
+    writeFileSync(path.join(TEST_ROOT, "root.jpg"), "r");
+
+    const entries: string[] = [];
+    for await (const filePath of walkDirectory(TEST_ROOT, {
+      shouldEnter: () => false,
+    })) {
+      entries.push(filePath);
+    }
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0]).toMatch(/root\.jpg$/);
+  });
 });
